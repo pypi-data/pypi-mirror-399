@@ -1,0 +1,194 @@
+Metadata-Version: 2.2
+Name: otpdoor
+Version: 0.0.9
+Summary: OTPdoor is a Python library for creating and managing OTP (One-Time Password) authentication with nginx.
+Home-page: https://github.com/germanespinosa/otpdoor
+Author: German Espinosa
+Author-email: germanespinosa@gmail.com
+License: MIT
+Description-Content-Type: text/markdown
+Requires-Dist: pyotp
+Requires-Dist: requests
+Requires-Dist: flask
+Requires-Dist: cryptography
+Requires-Dist: waitress
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: summary
+
+# OTPdoor
+
+**OTPdoor** is a premium, lightweight Python library for creating and managing TOTP (One-Time Password) authentication, specifically designed to be used as an `auth_request` backend for Nginx.
+
+It provides a modern, glassmorphic UI for user login and a dedicated configuration portal for initial setup and device provisioning.
+
+## Features
+
+-   **TOTP Authentication**: Industry-standard Time-based One-Time Passwords (RFC 6238).
+-   **Premium UI**: Modern, glassmorphic design with support for **Light** and **Dark** modes.
+-   **Runtime Configuration**: Update session durations and TOTP secrets on the fly via the `/_config` endpoint.
+-   **Flexible Sessions**: Configure session duration in seconds, minutes, or hours.
+-   **Security First**:
+    -   Secure, encrypted session cookies using Fernet (AES-128).
+    -   Restricted configuration mode with explicit CLI activation and warnings.
+    -   Safety confirmation dialogs for critical actions.
+-   **Production Ready**: Powered by **Waitress**, a stable production-grade WSGI server.
+-   **Easy Provisioning**: Built-in QR code generation for quick configuration with apps like Google Authenticator or Authy.
+
+## Installation
+
+Install OTPdoor using pip:
+
+```shell
+pip install otpdoor
+```
+
+## Quick Start
+
+### 1. Initialize your secret
+Run the built-in initialization to generate your first TOTP secret:
+
+```shell
+python -m otpdoor --init
+```
+
+### 2. Set Environment Variables
+Configure the essential settings:
+
+```shell
+export OPTDOOR_TOTP_SECRET="YOUR_GENERATE_SECRET"
+export OPTDOOR_COOKIE_SECRET="YOUR_FERNET_KEY"
+```
+
+### 3. Run the Server
+Start the server on a specific host and port:
+
+```shell
+python -m otpdoor -a 127.0.0.1 -p 8080
+```
+
+To enable the configuration UI for setup:
+```shell
+python -m otpdoor -c
+```
+
+## Step-by-Step Tutorial: First Setup
+
+Follow these steps to get OTPdoor running and protecting your site in minutes.
+
+### 1. Installation
+Install the package from PyPI:
+```shell
+pip install otpdoor
+```
+
+### 2. Initial Setup
+Run the initialization command to generate your first TOTP secret and get your provisioning QR code:
+```shell
+python -m otpdoor --init
+```
+**Keep the generated secret safe!** You'll need it in the next step.
+
+### 3. Environment Configuration
+Set the required environment variables. `OPTDOOR_COOKIE_SECRET` should be a random string used to secure your sessions.
+```shell
+# Linux/macOS
+export OPTDOOR_TOTP_SECRET="YOUR_GENERATED_SECRET"
+export OPTDOOR_COOKIE_SECRET="something-very-random-and-long"
+
+# Windows (PowerShell)
+$env:OPTDOOR_TOTP_SECRET="YOUR_GENERATED_SECRET"
+$env:OPTDOOR_COOKIE_SECRET="something-very-random-and-long"
+```
+
+### 4. Provisioning your Device
+Start the server in **Configuration Mode** to access the setup UI:
+```shell
+python -m otpdoor -c
+```
+- Open your browser to `http://127.0.0.1:8080/_config`.
+- Scan the QR code with your favorite Authenticator app (Google Authenticator, Authy, etc.).
+- (Optional) Toggle between **Light** or **Dark** mode to your preference.
+- Stop the server (`Ctrl+C`).
+
+### 5. Nginx Configuration
+Add these blocks to your Nginx site configuration (`/etc/nginx/sites-available/default`) to protect your app:
+
+```nginx
+# Define the auth backend
+upstream otpdoor_backend {
+    server 127.0.0.1:8080;
+}
+
+server {
+    listen 80;
+    server_name myapp.example.com;
+
+    location / {
+        # 1. Enable auth check
+        auth_request /_check;
+        
+        # 2. Redirect to auth page if unauthorized
+        error_page 401 = @error401;
+
+        proxy_pass http://your_app_backend;
+    }
+
+    # 3. Handle auth checks (Internal only)
+    location = /_check {
+        internal;
+        proxy_pass http://otpdoor_backend/_check;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+    }
+
+    # 4. Handle login page
+    location /_auth {
+        proxy_pass http://otpdoor_backend/_auth;
+        proxy_set_header Host $host;
+    }
+
+    # 5. Unauthorized redirect named location
+    location @error401 {
+        return 302 $scheme://$http_host/_auth?originator=$request_uri;
+    }
+}
+```
+
+### 6. Final Deployment
+Start the server for production use (without the `-c` flag):
+```shell
+python -m otpdoor -a 127.0.0.1 -p 8080
+```
+Your site at `myapp.example.com` is now protected by OTPdoor!
+
+## Configuration Reference
+
+OTPdoor can be configured via environment variables:
+
+-   `OPTDOOR_TOTP_SECRET`: The shared base32 secret for TOTP.
+-   `OPTDOOR_COOKIE_SECRET`: A Fernet key used to encrypt session cookies.
+-   `OPTDOOR_SESSION_DURATION`: Duration of the auth session in seconds (default: 86400).
+-   `OPTDOOR_THEME`: Default theme (`dark` or `light`).
+-   `OPTDOOR_ALLOWED_DOMAINS`: Comma-separated list of domains for the originator redirect.
+-   `OPTDOOR_COOKIE_NAME`: Name of the session cookie (default: `OPTDOOR_AUTH`).
+-   `OPTDOOR_COOKIE_SECURE`: Set to `false` for non-HTTPS local testing (default: `true`).
+-   `OPTDOOR_AUTH_PATH`: Path for the login page (default: `/_auth`).
+-   `OPTDOOR_CHECK_PATH`: Path for the auth check (default: `/_check`).
+-   `OPTDOOR_CONFIG_PATH`: Path for the config portal (default: `/_config`).
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+
+For any questions or suggestions, feel free to contact us at [germanespinosa@gmail.com].
+
+---
+<small>Package created with Easy-pack</small>
