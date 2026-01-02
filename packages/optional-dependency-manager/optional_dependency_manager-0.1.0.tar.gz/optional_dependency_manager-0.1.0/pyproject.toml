@@ -1,0 +1,67 @@
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
+
+[project]
+name = "optional-dependency-manager"
+version = "0.1.0"
+authors = [
+    {name = "Fangchen Li", email = "fangchen.li@outlook.com"}
+]
+description = "A Python optional dependency manager."
+readme = "README.md"
+keywords = ["dependency"]
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "packaging",
+    "tomli>=2.0; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+groups = [
+    "dependency-groups>=1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "black",
+    "isort",
+    "mypy",
+    "pre-commit",
+    "pandas>=2.1.4",
+    "numpy>=1.26.4",
+]
+test = [
+    "pandas>=2.1.4",
+    "numpy>=1.26.4",
+]
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+]
