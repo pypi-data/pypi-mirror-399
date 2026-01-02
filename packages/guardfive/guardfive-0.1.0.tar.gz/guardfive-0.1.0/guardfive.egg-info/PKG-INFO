@@ -1,0 +1,101 @@
+Metadata-Version: 2.4
+Name: guardfive
+Version: 0.1.0
+Summary: Security scanner for MCP (Model Context Protocol) servers
+Author: GuardFive Team
+License: MIT
+Keywords: mcp,security,ai,llm,scanner
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: mcp>=1.0.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: click>=8.1.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: python-dotenv>=1.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
+Requires-Dist: black>=24.0.0; extra == "dev"
+Requires-Dist: ruff>=0.3.0; extra == "dev"
+Provides-Extra: api
+Requires-Dist: fastapi>=0.110.0; extra == "api"
+Requires-Dist: uvicorn>=0.29.0; extra == "api"
+
+# GuardFive 🛡️
+
+**The security scanner for AI agent tools (MCP servers)**
+
+GuardFive scans the apps/tools that AI agents use to make sure they're safe and not secretly malicious.
+
+## What It Does
+
+1. **SCAN** → Find all MCP servers your AI uses
+2. **ANALYZE** → Check for hidden threats
+3. **MONITOR** → Watch for changes over time
+4. **ALERT** → Tell you when something's wrong
+5. **REPORT** → Give you proof for compliance
+
+## Threats We Detect
+
+| Threat | Description |
+|--------|-------------|
+| 🎭 **Tool Poisoning** | Hidden instructions in tool descriptions |
+| 🔄 **Rug Pull** | Tools that change after you trust them |
+| 👯 **Shadowing** | Malicious tools pretending to be legitimate ones |
+| 💉 **Command Injection** | Vulnerable code that hackers can exploit |
+
+## Quick Start
+
+```bash
+# Install
+pip install -e .
+
+# Scan your MCP config
+guardfive scan ~/.cursor/mcp.json
+
+# Or scan a specific server
+guardfive scan --server "npx -y @modelcontextprotocol/server-filesystem /"
+```
+
+## Installation
+
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/guardfive.git
+cd guardfive
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -e .
+```
+
+## Project Structure
+
+```
+guardfive/
+├── guardfive/
+│   ├── cli.py              # Command line interface
+│   ├── scanner.py          # Main scanning logic
+│   ├── models.py           # Data structures
+│   ├── detectors/          # Threat detection modules
+│   │   ├── tool_poisoning.py
+│   │   ├── rug_pull.py
+│   │   └── shadowing.py
+│   └── connectors/
+│       └── mcp_client.py   # Connect to MCP servers
+└── tests/
+```
+
+## License
+
+MIT
