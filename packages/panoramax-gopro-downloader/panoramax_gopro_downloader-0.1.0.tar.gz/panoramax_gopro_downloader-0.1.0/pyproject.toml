@@ -1,0 +1,38 @@
+[project]
+name = "panoramax-gopro-downloader"
+version = "0.1.0"
+description = "Copy JPG files from a GoPro SD card to split them into sequences by recording"
+readme = "README.md"
+authors = [
+    { name = "Bastian Greshake Tzovaras", email = "bgreshake@proton.me" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "click>=8.3.1",
+    "rich>=14.2.0",
+]
+
+
+license = "AGPL-3.0-or-later"
+license-files = ["COPYING"]
+
+keywords = ["panoramax", "gopro", "file copier"]
+
+classfiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console"
+]
+
+[project.urls]
+Homepage = "https://codeberg.org/gedankenstuecke/panoramax-gopro-downloader"
+Repository = "https://codeberg.org/gedankenstuecke/panoramax-gopro-downloader.git"
+Issues = "https://codeberg.org/gedankenstuecke/panoramax-gopro-downloader/issues"
+Funding = "https://ko-fi.com/gedankenstuecke"
+
+
+[project.scripts]
+panoramax-gopro-downloader = "panoramax_gopro_downloader:main"
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"

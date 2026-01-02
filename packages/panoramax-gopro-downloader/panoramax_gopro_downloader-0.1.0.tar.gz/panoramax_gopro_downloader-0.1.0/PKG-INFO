@@ -1,0 +1,106 @@
+Metadata-Version: 2.4
+Name: panoramax-gopro-downloader
+Version: 0.1.0
+Summary: Copy JPG files from a GoPro SD card to split them into sequences by recording
+Keywords: panoramax,gopro,file copier
+Author: Bastian Greshake Tzovaras
+Author-email: Bastian Greshake Tzovaras <bgreshake@proton.me>
+License-Expression: AGPL-3.0-or-later
+License-File: COPYING
+Requires-Dist: click>=8.3.1
+Requires-Dist: rich>=14.2.0
+Requires-Python: >=3.14
+Project-URL: Funding, https://ko-fi.com/gedankenstuecke
+Project-URL: Homepage, https://codeberg.org/gedankenstuecke/panoramax-gopro-downloader
+Project-URL: Issues, https://codeberg.org/gedankenstuecke/panoramax-gopro-downloader/issues
+Project-URL: Repository, https://codeberg.org/gedankenstuecke/panoramax-gopro-downloader.git
+Description-Content-Type: text/markdown
+
+# Panoramax GoPro Downloader
+
+![a screenshot showing the copying in action](static/demo.png)
+
+This is a very simple utility script/tool I use for streamlining the process of preparing images taken by a _GoPro_ camera for [the upload to _Panoramax_](https://panoramax.fr/), in particular for organizing the 360° timelapse images into folders that correspond to each time-series.
+
+## The problem
+
+GoPro cameras (at least the GoPro Max I use), save images and videos in a `DCIM` folder with sub-folders as below:
+
+```
+.
+├── DCIM
+│   ├── 100GOPRO
+│   ├── 101GOPRO
+│   ├── 102GOPRO
+│   ├── 103GOPRO
+│   ├── 104GOPRO
+│   ├── 105GOPRO
+│   ├── 106GOPRO
+│   ├── 107GOPRO
+│   ├── 108GOPRO
+│   ├── 109GOPRO
+│   ├── 110GOPRO
+│   ├── 111GOPRO
+│   ├── 112GOPRO
+│   ├── 113GOPRO
+│   └── 114GOPRO
+└── MISC
+```
+
+These sub-folders do not correspond to e.g. timelapse image series, but rather just save 999 files in each folder. 
+For many use cases, this is fine, but when doing many timelapse series throughout the day, it becomes cumbersome to find in which sub-folder a time series starts/ends.
+
+The prefix of each GoPro file name indicates the type of recording that created it: For example, `GSXXXX.JPG` (e.g. `GSAA1234.JPG`) denotes a picture that's part of a 360° timelapse series _named_ `AA`, while `GPXXXXXX.JPG` (e.g. `GPAA1234.JPG`) denotes pictures that are part of a _regular_, non-360° timelapse.
+
+When importing images into standard photography suites, this might not matter, but for uploading images to Panoramax, (at least) my workflow is different: 
+Each time series/timelapse represents one _sequence_ that I'd like to upload, from start to finish. 
+And typically I'd like to clean up the start/end images a bit, as often I might have recorded a bit pre- and post-movement. 
+This would be a lot easier if each time series was in its own folder.
+
+## The solution
+
+This little tool can be used to split up all images found in the SD-cards `DCIM` folder into a folder structure that corresponds to the time series/sequences, converting the non-informative `1XXGOPRO` above, into a structure like this:
+
+```
+.
+├── GSAA
+├── GSAB
+├── GSAC
+├── GSAD
+├── GSAE
+├── GSAF
+└── GSAG
+```
+
+Where each folder represents one sequence of images that make up a timelapse that can be cleaned and uploaded easily.
+
+## Install
+
+You can install it from PyPI, using `pip install panoramax-gopro-downloader`, which will give you the CLI tool.
+
+Alternatively you can install from `uv` or `pipx` depending on your preferences:
+
+* run `pipx install panoramax-gopro-downloader`, then it'll be available as `panoramax-gopro-downloader` as well, or…
+* …run it directly via `uvx panoramax-gopro-downloader` if you use `uv`
+
+## Usage
+
+The script has two main commands:
+
+1. `panoramax-gopro-downloader show-files` to list the prefixes/sequences found. By default uses current working directory. You can specify the `DCIM` folder by using `--input-folder`
+2. `panoramax-gopro-downloader copy-files` to copy files from either the current working directory (or `--input-folder`) to the destination specified by `--output-folder`.
+
+If the output folder doesn't exist yet, it will be created 
+
+## Development
+
+To develop locally, [use `uv`](https://docs.astral.sh/uv/) for managing dependencies etc locally, e.g.:
+
+```
+git clone ssh://git@codeberg.org/gedankenstuecke/panoramax-gopro-downloader.git
+uv sync
+uv run panoramax-gopro-downloader
+
+## License
+
+This repo is licensed under AGPLv3.
