@@ -1,0 +1,22 @@
+[project]
+name = "pytest-webtestpilot"
+version = "0.1.1"
+description = "Pytest plugin for running WebTestPilot JSON tests"
+requires-python = ">=3.12"
+dependencies = [
+    "pytest>=9.0.2",
+    "playwright>=1.53.0",
+    "pydantic>=2.11.7",
+    "webtestpilot>=0.1.8",
+]
+classifiers = [
+    "Framework :: Pytest",
+]
+
+[project.entry-points.pytest11]
+webtestpilot = "pytest_webtestpilot.plugin"
+
+[tool.uv.workspace]
+members = [
+    "pytest-webtestpilot",
+]
