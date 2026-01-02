@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "PyStageLinQ"
+authors = [
+  { email="jaxc@skrooter.com" },
+]
+description = "A Python implementation of a StagelinQ protocol"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Multimedia :: Sound/Audio",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+]
+keywords = ["StageLinQ", "DJ", "VJ", "Denon DJ", "Prime Go", "Streaming"]
+
+version = "0.2.2.dev4"
+
+dependencies = [
+"psutil",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Jaxc/PyStageLinQ"
+"Bug Tracker" = "https://github.com/Jaxc/PyStageLinQ/issues"
+"Documentation" = "https://pystagelinq.readthedocs.io/en/latest/"
+"Funding" = "https://ko-fi.com/jaxcie"
+
+[project.optional-dependencies]
+    docs = ["sphinx", "myst-parser"]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests/unit/*",
+]
+pythonpath = [
+  "."
+]
+
+[tool.hatch.build]
+exclude = [
+    ".circleci/",
+    ".github/",
+    ".gitignore",
+    "*.md",
+    "tests/",
+    "docs/",
+    "tools/",
+    "make_release.sh",
+]
