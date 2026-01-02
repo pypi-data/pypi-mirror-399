@@ -1,0 +1,21 @@
+[project]
+name = "iflow-mcp_jlumbroso_passage-of-time-mcp"
+version = "0.1.0"
+description = "An MCP server that gives language models temporal awareness and time calculation abilities"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=0.1.0",
+    "pytz>=2024.1",
+    "python-dateutil>=2.8.2",
+]
+
+[project.scripts]
+passage-of-time-mcp = "passage_of_time_mcp:mcp"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
