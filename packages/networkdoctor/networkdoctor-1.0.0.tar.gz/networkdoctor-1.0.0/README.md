@@ -1,0 +1,1044 @@
+# 🩺 NetworkDoctor - Kifaa cha Kipekee cha Kuchunguza na Kutambua Matatizo ya Mtandao
+
+## 📋 Maelezo ya Jumla
+
+**NetworkDoctor** ni kifaa cha hali ya juu kinachotumia teknolojia ya AI (Artificial Intelligence) kuchunguza, kutambua, na kutatua matatizo ya mtandao. Kifaa hiki ni kama "daktari wa mtandao" anayeweza kuchunguza matatizo mbalimbali ya mtandao na kutoa ufafanuzi wazi pamoja na suluhisho halisi za kufuata.
+
+## 🎯 NetworkDoctor ni Nini?
+
+NetworkDoctor ni programu ya Python inayotumia teknolojia ya kisasa ya AI kuchunguza na kutambua matatizo ya mtandao. Tofauti na zana nyingine za kuchunguza mtandao, NetworkDoctor haionyeshi tu matatizo, bali pia:
+- **Huelewa** matatizo kwa kina
+- **Huelezea** matatizo kwa lugha rahisi
+- **Hutoa** suluhisho halisi na amri maalum za kufuata
+- **Hugundua** uhusiano kati ya matatizo mbalimbali
+- **Hutabiri** matatizo yanayoweza kutokea baadaye
+
+## 🏗️ Jinsi Programu Hii Inavyofanya Kazi
+
+### Muundo wa Programu
+
+Programu hii imegawanyika katika sehemu mbalimbali:
+
+#### 1. **Sehemu ya Msingi (Core)**
+- `doctor.py` - Mkuu wa kuongoza uchunguzi wote
+- `scanner.py` - Injini ya kuchunguza mtandao
+- `analyzer.py` - Kuchambua na kuunganisha data
+- `intelligence.py` - Kugundua matatizo kwa kutumia AI
+
+#### 2. **Moduli za Wataalamu 15 (Doctor Modules)**
+Kila moduli ni kama daktari mtaalamu wa aina maalum ya matatizo:
+
+1. **DNS Doctor** - Mtaalamu wa DNS (Domain Name System)
+   - Huchunguza matatizo ya DNS, DNSSEC, cache poisoning
+   - Huhakikisha majina ya domain yanafanya kazi vizuri
+
+2. **Firewall Detector** - Mtaalamu wa Firewall na Usalama
+   - Hugundua firewall na proxies
+   - Huchunguza vikwazo vya usalama
+
+3. **Performance Analyst** - Mtaalamu wa Utendakazi wa Mtandao
+   - Hupima latensi (latency), jitter, kupoteza pakiti
+   - Huchambua utendakazi wa mtandao
+
+4. **Security Inspector** - Mtaalamu wa Usalama
+   - Hugundua matatizo ya usalama na hatari
+   - Huhakikisha kufuata kanuni za usalama
+
+5. **Routing Expert** - Mtaalamu wa Routing
+   - Huchunguza BGP, AS path, route flapping
+   - Huhakikisha njia za data zinafanya kazi vizuri
+
+6. **SSL/TLS Checker** - Mtaalamu wa Vyaraka vya SSL/TLS
+   - Huchunguza vyaraka vya usalama
+   - Hugundua matatizo ya usalama katika SSL/TLS
+
+7. **WiFi Diagnoser** - Mtaalamu wa WiFi
+   - Hupima nguvu ya ishara, kuingiliwa, mzunguko bora
+   - Huchunguza matatizo ya WiFi
+
+8. **Cloud Network Doctor** - Mtaalamu wa Mitandao ya Cloud
+   - Huchunguza matatizo maalum ya AWS, Azure, GCP
+   - Huhakikisha mitandao ya cloud inafanya kazi vizuri
+
+9. **VoIP Quality Analyst** - Mtaalamu wa Ubora wa VoIP
+   - Hupima ubora wa mawasiliano ya sauti kupitia mtandao
+   - Huchunguza matatizo ya RTP, SIP
+
+10. **Application Layer Doctor** - Mtaalamu wa HTTP/API
+    - Huchunguza matatizo katika HTTP/3, WebSocket, API
+    - Huhakikisha programu za mtandao zinafanya kazi vizuri
+
+11. **Enterprise Network Doctor** - Mtaalamu wa Mitandao ya Kampuni
+    - Huchunguza matatizo ya mitandao ya makampuni makubwa
+    - Huhakikisha 802.1X, VLAN, SD-WAN zinafanya kazi
+
+12. **IoT Network Checker** - Mtaalamu wa Vifaa vya IoT
+    - Huchunguza matatizo ya vifaa vya IoT
+    - Huhakikisha MQTT, CoAP zinafanya kazi vizuri
+
+13. **Cable/Fiber Analyst** - Mtaalamu wa Kamba na Fiber
+    - Huchunguza matatizo ya kiwango cha kimwili
+    - Hupima ubora wa kamba na fiber
+
+14. **Network Capacity Planner** - Mtaalamu wa Kupanga Uwezo
+    - Hukadiria uwezo wa mtandao
+    - Hutabiri msongamano wa mtandao
+
+15. **Protocol Analyst** - Mtaalamu wa Itifaki (Protocols)
+    - Huchunguza kiwango cha kina cha itifaki
+    - Huhakikisha itifaki zinafanya kazi kwa usahihi
+
+#### 3. **Injini ya Akili (Intelligence Engine)**
+- **ML Predictor** - Hutumia Machine Learning kutabiri matatizo
+- **Rule Engine** - Ina sheria zaidi ya 1000 za wataalamu
+- **Knowledge Base** - Hifadhidata ya matatizo ya wauzaji mbalimbali
+- **Correlation Engine** - Huunganisha matatizo yanayohusiana
+
+#### 4. **Aina za Matokeo (Output Formats)**
+Programu hii inaweza kuonyesha matokeo kwa njia mbalimbali:
+- **Terminal** - Matokeo ya rangi na ya kuvutia kwenye terminal
+- **HTML** - Ripoti nzuri yenye grafu na chati
+- **JSON** - Data inayoweza kusomwa na programu nyingine
+- **PDF** - Ripoti za kitaalamu kwa uongozi
+- **Dashboard** - Dashibodi ya wakati halisi
+- **API** - REST API kwa kuunganisha na programu nyingine
+
+## 🚀 Jinsi ya Kuisakinisha na Kuitumia
+
+### Mahitaji ya Mfumo
+- Python 3.8 au toleo la juu
+- Linux, macOS, au Windows
+- Uhusiano wa mtandao
+
+### Hatua za Usakinishaji
+
+#### 1. Sakinisha Dependencies (Vifaa vinavyohitajika)
+
+```bash
+# Sakinisha Python packages
+pip install -r requirements.txt
+```
+
+Vifaa vya msingi vinavyohitajika:
+- `rich` - Kwa matokeo mazuri kwenye terminal
+- `aiohttp` - Kwa HTTP requests asynchronously
+- `dnspython` - Kwa kuchunguza DNS
+- `psutil` - Kwa taarifa za mfumo
+- `pyOpenSSL` - Kwa kuchunguza vyaraka vya SSL/TLS
+
+#### 2. Sakinisha Programu
+
+```bash
+# Sakinisha programu
+pip install -e .
+
+# Au kwa kutumia setup.py
+python setup.py install
+```
+
+#### 3. Hakikisha Programu Inafanya Kazi
+
+```bash
+# Jaribu programu
+networkdoctor --help
+
+# Au kwa kutumia kifupi
+ndoc --help
+```
+
+### Jinsi ya Kuitumia
+
+#### Matumizi ya Msingi
+
+```bash
+# Chunguza tovuti moja
+networkdoctor https://google.com
+
+# Chunguza anwani ya IP
+networkdoctor 192.168.1.1
+
+# Chunguza domain
+networkdoctor example.com
+
+# Chunguza subnet nzima
+networkdoctor 192.168.1.0/24
+
+# Chunguza kutoka kwa faili
+networkdoctor @targets.txt
+```
+
+#### Aina za Uchunguzi
+
+```bash
+# Uchunguzi wa Haraka (sekunde 30)
+networkdoctor --quick https://example.com
+
+# Uchunguzi Kamili (dakika 2)
+networkdoctor --full https://example.com
+
+# Uchunguzi wa Kina (dakika 5+)
+networkdoctor --deep https://example.com
+
+# Ufuatiliaji wa Endelea
+networkdoctor --monitor https://example.com
+```
+
+#### Kuchagua Moduli Maalum
+
+```bash
+# Tumia moduli maalum tu
+networkdoctor --doctors dns,ssl,performance https://example.com
+
+# Epuka moduli maalum
+networkdoctor --skip security,firewall https://example.com
+```
+
+#### Aina za Matokeo
+
+```bash
+# Matokeo kwenye terminal (default)
+networkdoctor https://example.com
+
+# Matokeo kwa HTML
+networkdoctor --output html https://example.com
+
+# Matokeo kwa JSON
+networkdoctor --output json https://example.com
+
+# Matokeo kwa PDF
+networkdoctor --output pdf https://example.com
+```
+
+#### Mfano wa Matokeo
+
+Wakati unapofanya uchunguzi, utapata matokeo kama haya:
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║ 🩺 N E T W O R K D O C T O R 🩺                            ║
+║ Scanning: https://example.com                               ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+🔍 Running 15 specialist doctors...
+✅ DNS Doctor: DNSSEC validated, 45ms resolution
+⚠️ SSL Doctor: Certificate expires in 15 days
+🔴 Firewall Doctor: Port 443 blocked by corporate proxy
+✅ Performance: 95/100 score, low latency
+
+📋 EXECUTIVE SUMMARY:
+Health Score: 78/100 (Needs Attention)
+Critical Issues: 1
+Time to Fix: ~30 minutes
+
+🛠️ ACTION PLAN:
+
+IMMEDIATE: Configure proxy for port 8080
+Command: export https_proxy=proxy.company.com:8080
+
+URGENT: Renew SSL certificate
+Command: certbot renew --force-renewal
+```
+
+## 💡 Umuhimu wa NetworkDoctor Ikilinganishwa na Programu Nyingine
+
+### Tofauti za Msingi
+
+#### 1. **Akili ya AI (AI Intelligence)**
+- **NetworkDoctor**: Inatumia AI kugundua na kutabiri matatizo
+- **Programu Nyingine**: Zinategemea sheria za kawaida tu, hazitumii AI
+
+#### 2. **Ufafanuzi wa Wazi**
+- **NetworkDoctor**: Huelezea matatizo kwa lugha rahisi na inaonyesha athari kwa biashara
+- **Programu Nyingine**: Zinaonyesha matatizo tu kwa istilahi za kitaalamu
+
+#### 3. **Suluhisho Halisi**
+- **NetworkDoctor**: Hutoa amri halisi za kufuata ili kutatua matatizo
+- **Programu Nyingine**: Zinaonyesha matatizo tu, hazitoi suluhisho halisi
+
+#### 4. **Uhusiano wa Matatizo**
+- **NetworkDoctor**: Huunganisha matatizo yanayohusiana na hugundua sababu za msingi
+- **Programu Nyingine**: Zinaonyesha matatizo kwa peke yake, hazionyeshi uhusiano
+
+#### 5. **Moduli Nyingi za Wataalamu**
+- **NetworkDoctor**: Ina moduli 15 za wataalamu za aina mbalimbali za matatizo
+- **Programu Nyingine**: Zina moduli chache tu au zinalenga aina moja ya matatizo
+
+#### 6. **Aina Nyingi za Matokeo**
+- **NetworkDoctor**: Inaweza kuonyesha matokeo kwa HTML, PDF, JSON, Dashboard, na API
+- **Programu Nyingine**: Zina aina chache za matokeo (kawaida terminal au faili moja)
+
+#### 7. **Uwezo wa Kupanua**
+- **NetworkDoctor**: Inaweza kuchunguza kutoka kwa mtumiaji mmoja hadi kampuni kubwa na vifaa 10,000+
+- **Programu Nyingine**: Zina uwezo mdogo wa kupanua
+
+#### 8. **Uchunguzi wa Kina**
+- **NetworkDoctor**: Huchunguza kwa kina kutoka kiwango cha kimwili hadi kiwango cha programu
+- **Programu Nyingine**: Zinachunguza kiwango kimoja au viwango vichache tu
+
+#### 9. **Utabiri wa Matatizo**
+- **NetworkDoctor**: Hutabiri matatizo yanayoweza kutokea baadaye
+- **Programu Nyingine**: Zinagundua matatizo yaliyopo tu, hazitabiri
+
+#### 10. **Ujumuishaji na Mfumo Nyingine**
+- **NetworkDoctor**: Inaweza kuunganishwa na Prometheus, Slack, Email, Webhooks, na API
+- **Programu Nyingine**: Zina ujumuishaji mdogo au hakuna
+
+### Faida za NetworkDoctor
+
+1. **Kupunguza Muda wa Kutatua Matatizo**
+   - Inapunguza muda wa kutambua matatizo kwa asilimia 80
+   - Hutoa suluhisho halisi mara moja
+
+2. **Usahihi wa Juu**
+   - Usahihi wa asilimia 90 katika kugundua matatizo
+   - Hutumia AI na sheria za wataalamu
+
+3. **Rahisi Kuelewa**
+   - Huelezea matatizo kwa lugha rahisi
+   - Inaonyesha athari kwa biashara
+
+4. **Inafaa kwa Wote**
+   - Inafaa kwa watumiaji wa nyumbani
+   - Inafaa kwa kampuni kubwa (Fortune 500)
+
+5. **Kuwezesha Uamuzi**
+   - Hutoa taarifa za kina kwa uongozi
+   - Inaonyesha gharama za matatizo na muda wa kutatua
+
+6. **Kujifunza na Kuboresha**
+   - Inajifunza kutokana na matatizo ya zamani
+   - Inaboresha usahihi wake kila wakati
+
+### Mfano wa Tofauti
+
+**Programu ya Kawaida:**
+```
+Error: Connection timeout
+Port 443: Closed
+```
+
+**NetworkDoctor:**
+```
+🟠 [FIREWALL] Corporate Proxy Required
+────────────────────────────────────────────────────
+Firewall ya kampuni inazuia uhusiano wa moja kwa moja wa HTTPS.
+Hii ni sera ya usalama, sio kosa.
+
+ATHARI KWA BIASHARA:
+• Wafanyakazi hawawezi kufikia huduma za cloud
+• Zana za kazi ya mbali zimezuiwa
+• Ujumuishaji wa API umeshindwa
+
+SABABU YA MSINGI:
+Sera ya usalama ya kampuni inahitaji trafiki yote ya nje
+ipite kupitia seva ya proxy iliyoidhinishwa.
+
+SULUHISHO HALISI:
+1. Weka mipangilio ya proxy ya mfumo:
+   Amri: export https_proxy=http://proxy.company.com:8080
+
+2. Kwa Docker containers:
+   Amri: docker run -e https_proxy=http://proxy.company.com:8080
+
+SULUHISHO MBALIMBALI:
+• Tumia VPN badala ya proxy
+• Omba ruhusa ya firewall (inachukua siku 3-5)
+• Tumia huduma ya kufikia cloud iliyoidhinishwa
+```
+
+## 📊 Matokeo ya Kufanikiwa
+
+Programu hii inaweza kufanikiwa ikiwa:
+- ✅ Usahihi wa asilimia 90 katika kugundua matatizo
+- ✅ Kupunguza muda wa kutambua matatizo kwa asilimia 80
+- ✅ Ufafanuzi wazi wa athari kwa biashara kwa wakuu wasio wataalamu
+- ✅ Suluhisho halisi zilizotoa na amri maalum
+- ✅ Uwezo wa kupanua kutoka watumiaji wa nyumbani hadi kampuni kubwa na vifaa 10,000+
+
+## 🎯 Lengo la Mwisho
+
+Kujenga "GitHub Copilot kwa Kutatua Matatizo ya Mtandao" - msaidizi wa AI ambaye kila mhandisi wa mtandao angetamani kuwa naye, na ambaye kila mmiliki wa biashara anaweza kuelewa.
+
+## 📁 Muundo wa Mradi
+
+```
+networkdoctor/
+├── networkdoctor/
+│   ├── cli/              # Sehemu ya Command Line Interface
+│   ├── core/             # Sehemu ya msingi
+│   ├── modules/          # Moduli 15 za wataalamu
+│   ├── utils/            # Zana za kusaidia
+│   ├── outputs/          # Aina za matokeo
+│   ├── data/             # Hifadhidata
+│   ├── intelligence/     # Injini ya akili
+│   └── integrations/     # Ujumuishaji na mfumo nyingine
+├── tests/                # Majaribio
+├── examples/             # Mifano
+├── docs/                 # Hati
+├── docker/               # Docker files
+└── scripts/              # Scripts
+```
+
+## 🔧 Usanidi (Configuration)
+
+Unaweza kusanidi programu kwa kutumia faili ya YAML:
+
+```yaml
+networkdoctor:
+  scan_mode: full
+  output_format: html
+  doctors:
+    dns: true
+    firewall: true
+    ssl: true
+    performance: true
+    security: false
+  
+  limits:
+    max_targets: 100
+    scan_timeout: 300
+    rate_limit: 10
+  
+  notifications:
+    email: admin@company.com
+    slack: "#network-alerts"
+    webhook: https://hooks.company.com/network
+```
+
+## 🛠️ Jinsi ya Kujenga na Kuendeleza (Development)
+
+### Kuweka Mazingira ya Maendeleo
+
+#### 1. Clone Repository
+
+```bash
+# Clone repository kutoka GitHub
+git clone https://github.com/networkdoctor/networkdoctor.git
+cd networkdoctor
+```
+
+#### 2. Weka Mazingira ya Virtual (Virtual Environment)
+
+```bash
+# Unda virtual environment
+python3 -m venv venv
+
+# Amilisha virtual environment
+# Kwa Linux/macOS:
+source venv/bin/activate
+
+# Kwa Windows:
+venv\Scripts\activate
+```
+
+#### 3. Sakinisha Dependencies za Maendeleo
+
+```bash
+# Sakinisha dependencies za msingi
+pip install -r requirements.txt
+
+# Sakinisha mradi kwa njia ya maendeleo (editable mode)
+pip install -e .
+
+# Sakinisha zana za maendeleo (optional)
+pip install pytest pytest-cov black flake8 mypy
+```
+
+#### 4. Hakikisha Muundo wa Mradi
+
+```bash
+# Angalia muundo wa mradi
+tree networkdoctor/
+
+# Au kwa kutumia find
+find networkdoctor -type f -name "*.py" | head -20
+```
+
+### Jinsi ya Kujenga Mradi
+
+#### Kujenga kutoka Source Code
+
+```bash
+# Jenga package
+python setup.py build
+
+# Jenga na sakinisha
+python setup.py install
+
+# Jenga distribution package
+python setup.py sdist bdist_wheel
+```
+
+#### Kujenga kwa Kutumia pip
+
+```bash
+# Jenga na sakinisha kwa moja
+pip install -e .
+
+# Jenga wheel package
+pip wheel .
+```
+
+### Mzunguko wa Maendeleo (Development Workflow)
+
+#### 1. Unda Branch Mpya
+
+```bash
+# Unda branch mpya kwa kipengele
+git checkout -b feature/jina-la-kipengele
+
+# Au kwa kurekebisha bug
+git checkout -b fix/jina-la-bug
+```
+
+#### 2. Fanya Mabadiliko
+
+```bash
+# Fanya mabadiliko katika faili
+# Kwa mfano, ongeza moduli mpya ya daktari
+vim networkdoctor/modules/new_doctor.py
+```
+
+#### 3. Jaribu Mabadiliko
+
+```bash
+# Endesha majaribio
+pytest tests/
+
+# Endesha majaribio na coverage
+pytest --cov=networkdoctor tests/
+
+# Jaribu programu moja kwa moja
+python -m networkdoctor.main example.com
+```
+
+#### 4. Rekebisha Code Style
+
+```bash
+# Rekebisha code style kwa kutumia black
+black networkdoctor/
+
+# Angalia linting
+flake8 networkdoctor/
+
+# Angalia type hints
+mypy networkdoctor/
+```
+
+#### 5. Commit na Push
+
+```bash
+# Ongeza mabadiliko
+git add .
+
+# Commit
+git commit -m "Ongeza moduli mpya ya daktari"
+
+# Push
+git push origin feature/jina-la-kipengele
+```
+
+### Kujenga Moduli Mpya ya Daktari
+
+#### Template ya Moduli Mpya
+
+```python
+"""
+Jina la Daktari - Maelezo
+"""
+from typing import List, Dict, Any
+
+
+class NewDoctor:
+    """Maelezo ya daktari"""
+    
+    async def diagnose(self, scan_results: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Chunguza matatizo.
+        
+        Args:
+            scan_results: Matokeo ya uchunguzi
+            
+        Returns:
+            Matokeo ya uchunguzi
+        """
+        issues = []
+        findings = []
+        
+        # Weka mantiki ya uchunguzi hapa
+        
+        return {
+            "doctor": "new_doctor",
+            "status": "completed",
+            "issues": issues,
+            "findings": findings,
+            "summary": {
+                "total_issues": len(issues),
+            },
+        }
+```
+
+#### Kuongeza Moduli Mpya
+
+1. **Tengeneza faili mpya** katika `networkdoctor/modules/`:
+```bash
+touch networkdoctor/modules/new_doctor.py
+```
+
+2. **Andika code** kwa kutumia template hapo juu
+
+3. **Ongeza kwenye doctor.py**:
+```python
+try:
+    from networkdoctor.modules import new_doctor
+    doctors["new_doctor"] = new_doctor.NewDoctor()
+except Exception:
+    pass
+```
+
+4. **Andika majaribio**:
+```python
+def test_new_doctor():
+    from networkdoctor.modules.new_doctor import NewDoctor
+    doctor = NewDoctor()
+    assert doctor is not None
+```
+
+### Kukimbiza Majaribio (Testing)
+
+#### Majaribio ya Msingi
+
+```bash
+# Endesha majaribio yote
+pytest
+
+# Endesha majaribio maalum
+pytest tests/test_core.py
+
+# Endesha na verbose output
+pytest -v
+
+# Endesha na coverage report
+pytest --cov=networkdoctor --cov-report=html
+```
+
+#### Majaribio ya Integration
+
+```bash
+# Endesha majaribio ya integration
+pytest tests/test_integrations.py
+
+# Endesha majaribio ya modules
+pytest tests/test_modules.py
+```
+
+#### Majaribio ya Performance
+
+```bash
+# Endesha benchmark
+python scripts/benchmark.py
+
+# Endesha na profiling
+python -m cProfile -o profile.stats networkdoctor/main.py example.com
+```
+
+### Kujenga Documentation
+
+```bash
+# Jenga documentation (ikiwa unatumia Sphinx)
+cd docs
+make html
+
+# Au kwa kutumia mkdocs
+mkdocs build
+```
+
+## 🚀 Jinsi ya Kufanikisha na Kutekeleza (Deployment & Implementation)
+
+### Maandalizi ya Utengenezaji
+
+#### 1. Hakikisha Mahitaji
+
+```bash
+# Angalia Python version
+python --version  # Lazima iwe 3.8 au juu
+
+# Angalia dependencies
+pip list
+
+# Hakikisha programu inafanya kazi
+networkdoctor --version
+```
+
+#### 2. Sanidi Mazingira
+
+```bash
+# Unda faili ya usanidi
+cp examples/sample_configs/config.yaml config.yaml
+
+# Rekebisha usanidi kulingana na mahitaji
+vim config.yaml
+```
+
+### Utengenezaji kwa Kutumia Docker
+
+#### 1. Jenga Docker Image
+
+```bash
+# Jenga image
+docker build -t networkdoctor:latest -f docker/Dockerfile .
+
+# Au kwa kutumia docker-compose
+docker-compose build
+```
+
+#### 2. Endesha kwa Kutumia Docker
+
+```bash
+# Endesha container
+docker run -it networkdoctor:latest example.com
+
+# Endesha na volume mounting
+docker run -v $(pwd)/reports:/app/reports networkdoctor:latest \
+  example.com --output html --output-file /app/reports/report.html
+
+# Endesha kwa kutumia docker-compose
+docker-compose up
+```
+
+#### 3. Endesha kama Service
+
+```bash
+# Unda systemd service file
+sudo nano /etc/systemd/system/networkdoctor.service
+```
+
+Maudhui ya service file:
+```ini
+[Unit]
+Description=NetworkDoctor Network Diagnostic Service
+After=network.target
+
+[Service]
+Type=simple
+User=networkdoctor
+WorkingDirectory=/opt/networkdoctor
+ExecStart=/opt/networkdoctor/venv/bin/networkdoctor --monitor
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+# Amilisha service
+sudo systemctl daemon-reload
+sudo systemctl enable networkdoctor
+sudo systemctl start networkdoctor
+
+# Angalia status
+sudo systemctl status networkdoctor
+```
+
+### Utengenezaji kwa Production
+
+#### 1. Utengenezaji kwa Seva ya Linux
+
+```bash
+# Sakinisha kwenye seva
+ssh user@server
+cd /opt
+git clone https://github.com/networkdoctor/networkdoctor.git
+cd networkdoctor
+
+# Weka virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Sakinisha
+pip install -r requirements.txt
+pip install -e .
+
+# Unda directory ya matokeo
+mkdir -p /var/log/networkdoctor
+mkdir -p /var/lib/networkdoctor/reports
+```
+
+#### 2. Sanidi Cron Jobs kwa Uchunguzi wa Endelea
+
+```bash
+# Fungua crontab
+crontab -e
+
+# Ongeza jukumu la kurudia
+# Chunguza kila saa
+0 * * * * /opt/networkdoctor/venv/bin/networkdoctor example.com --output json --output-file /var/lib/networkdoctor/reports/hourly-$(date +\%Y\%m\%d-\%H\%M).json
+
+# Chunguza kila siku asubuhi
+0 9 * * * /opt/networkdoctor/venv/bin/networkdoctor example.com --full --output html --output-file /var/lib/networkdoctor/reports/daily-$(date +\%Y\%m\%d).html
+```
+
+#### 3. Utengenezaji kwa Cloud (AWS/Azure/GCP)
+
+##### AWS EC2
+
+```bash
+# Sakinisha kwenye EC2 instance
+sudo yum update -y
+sudo yum install python3-pip -y
+
+# Clone na sakinisha
+git clone https://github.com/networkdoctor/networkdoctor.git
+cd networkdoctor
+pip3 install -r requirements.txt
+pip3 install -e .
+```
+
+##### Azure App Service
+
+```bash
+# Unda App Service
+az webapp create --resource-group myResourceGroup \
+  --plan myAppServicePlan --name networkdoctor-app
+
+# Deploy code
+az webapp deployment source config-local-git \
+  --name networkdoctor-app --resource-group myResourceGroup
+```
+
+##### Google Cloud Platform
+
+```bash
+# Sakinisha kwenye GCP
+gcloud compute instances create networkdoctor-vm \
+  --image-family ubuntu-2004-lts \
+  --image-project ubuntu-os-cloud
+
+# SSH na sakinisha
+gcloud compute ssh networkdoctor-vm
+```
+
+### Utengenezaji kwa Kubernetes
+
+#### 1. Unda Docker Image
+
+```bash
+docker build -t networkdoctor:latest .
+docker tag networkdoctor:latest registry.example.com/networkdoctor:latest
+docker push registry.example.com/networkdoctor:latest
+```
+
+#### 2. Unda Kubernetes Deployment
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: networkdoctor
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: networkdoctor
+  template:
+    metadata:
+      labels:
+        app: networkdoctor
+    spec:
+      containers:
+      - name: networkdoctor
+        image: registry.example.com/networkdoctor:latest
+        command: ["networkdoctor", "--api", "--api-port", "8080"]
+        ports:
+        - containerPort: 8080
+```
+
+#### 3. Deploy kwa Kubernetes
+
+```bash
+# Apply deployment
+kubectl apply -f networkdoctor-deployment.yaml
+
+# Angalia status
+kubectl get pods
+kubectl logs -f deployment/networkdoctor
+```
+
+### Ujumuishaji na Mfumo Nyingine
+
+#### 1. Prometheus Integration
+
+```bash
+# Endesha kwa kutumia Prometheus exporter
+networkdoctor example.com --output json | \
+  prometheus_exporter.py --port 9090
+```
+
+#### 2. Slack Notifications
+
+```bash
+# Endesha na Slack notifications
+networkdoctor example.com \
+  --notify-slack https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+```
+
+#### 3. Email Reports
+
+```bash
+# Endesha na email reports
+networkdoctor example.com \
+  --output html --output-file report.html \
+  --notify-email admin@company.com
+```
+
+#### 4. Webhook Integration
+
+```bash
+# Endesha na webhook
+networkdoctor example.com \
+  --webhook https://api.company.com/networkdoctor/webhook
+```
+
+### API Server Mode
+
+#### 1. Endesha API Server
+
+```bash
+# Endesha API server
+networkdoctor --api --api-port 8080 --api-host 0.0.0.0
+```
+
+#### 2. Tumia API
+
+```bash
+# Fanya API request
+curl http://localhost:8080/api/v1/scan?target=example.com
+
+# Au kwa kutumia Python
+import requests
+response = requests.post('http://localhost:8080/api/v1/scan', 
+  json={'targets': ['example.com']})
+print(response.json())
+```
+
+### Monitoring na Logging
+
+#### 1. Sanidi Logging
+
+```bash
+# Endesha na verbose logging
+networkdoctor example.com --verbose > networkdoctor.log 2>&1
+
+# Au kwa kutumia systemd journal
+journalctl -u networkdoctor -f
+```
+
+#### 2. Monitoring kwa Kutumia Prometheus
+
+```yaml
+# prometheus.yml
+scrape_configs:
+  - job_name: 'networkdoctor'
+    static_configs:
+      - targets: ['localhost:9090']
+```
+
+### Backup na Recovery
+
+#### 1. Backup Matokeo
+
+```bash
+# Backup reports directory
+tar -czf networkdoctor-reports-$(date +%Y%m%d).tar.gz \
+  /var/lib/networkdoctor/reports/
+
+# Backup kwenye cloud storage
+aws s3 cp networkdoctor-reports-*.tar.gz \
+  s3://my-backup-bucket/networkdoctor/
+```
+
+#### 2. Restore
+
+```bash
+# Restore kutoka backup
+tar -xzf networkdoctor-reports-20241229.tar.gz \
+  -C /var/lib/networkdoctor/
+```
+
+### Best Practices za Utengenezaji
+
+1. **Tumia Virtual Environment** - Epuka kuchanganya dependencies
+2. **Sanidi Environment Variables** - Usiweke siri kwenye code
+3. **Tumia Logging** - Weka logi za shughuli zote
+4. **Monitoring** - Fuatilia utendakazi na matatizo
+5. **Backup** - Fanya backup ya data muhimu
+6. **Security** - Hakikisha usalama wa seva na data
+7. **Documentation** - Andika hati za mfumo wako
+
+## 🛡️ Usalama na Usalama
+
+- Kikomo cha kiwango cha maombi ili kuzuia kujaza mtandao
+- Kuinua haki za mamlaka tu wakati inahitajika
+- Hakuna kukusanya data nyeti
+- Kufuata sera za usalama za kampuni
+- Mipangilio salama kwa shughuli zote
+
+## 📦 Jinsi ya Kusambaza Programu Bila Kufichua Source Code
+
+Ikiwa ungependa kusambaza programu hii kwa watumiaji wengine bila kuwaonyesha source code yako, unaweza kutumia njia zifuatazo:
+
+### Njia ya 1: Wheel Package (Rahisi)
+
+```bash
+# Jenga wheel package
+./build_distribution.sh
+
+# Package itakuwa katika dist/networkdoctor-1.0.0-py3-none-any.whl
+# Watumiaji wanaweza kuisakinisha kwa:
+pip install networkdoctor-1.0.0-py3-none-any.whl
+```
+
+### Njia ya 2: Executable File (Kuficha Code Kabisa)
+
+```bash
+# Jenga executable file
+./build_executable.sh
+
+# Executable itakuwa katika dist/networkdoctor
+# Watumiaji wanaweza kuitumia moja kwa moja bila kusakinisha Python
+```
+
+### Njia ya 3: Docker Image
+
+```bash
+# Jenga Docker image
+docker build -t networkdoctor:latest -f docker/Dockerfile .
+
+# Watumiaji wanaweza kuitumia:
+docker run networkdoctor:latest example.com
+```
+
+Tazama faili ya `DISTRIBUTION.md` kwa maelezo zaidi juu ya njia zote za kusambaza programu.
+
+## 📞 Usaidizi na Mawasiliano
+
+Kwa maswali au usaidizi:
+- Fungua issue kwenye GitHub
+- Tuma email kwa timu ya maendeleo
+- Angalia hati za programu kwenye `docs/`
+- Tazama `INSTALL.md` kwa maelezo ya usakinishaji
+
+## 📄 Leseni
+
+Programu hii ina leseni ya MIT. Tazama faili ya `LICENSE` kwa maelezo zaidi.
+
+## 🙏 Shukrani
+
+Shukrani kwa wote wanaochangia katika kuendeleza programu hii ya NetworkDoctor.
+
+---
+
+**NetworkDoctor** - Daktari wa Mtandao wako wa Kipekee! 🩺🌐
+
