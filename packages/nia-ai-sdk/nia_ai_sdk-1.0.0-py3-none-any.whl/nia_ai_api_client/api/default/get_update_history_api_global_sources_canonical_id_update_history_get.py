@@ -1,0 +1,192 @@
+from http import HTTPStatus
+from typing import Any
+from urllib.parse import quote
+
+import httpx
+
+from ... import errors
+from ...client import AuthenticatedClient, Client
+from ...models.http_validation_error import HTTPValidationError
+from ...models.update_history_response import UpdateHistoryResponse
+from ...types import Response
+
+
+def _get_kwargs(
+    canonical_id: str,
+) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": "/api/global-sources/{canonical_id}/update-history".format(
+            canonical_id=quote(str(canonical_id), safe=""),
+        ),
+    }
+
+    return _kwargs
+
+
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> HTTPValidationError | UpdateHistoryResponse | None:
+    if response.status_code == 200:
+        response_200 = UpdateHistoryResponse.from_dict(response.json())
+
+        return response_200
+
+    if response.status_code == 422:
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
+
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(response.status_code, response.content)
+    else:
+        return None
+
+
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[HTTPValidationError | UpdateHistoryResponse]:
+    return Response(
+        status_code=HTTPStatus(response.status_code),
+        content=response.content,
+        headers=response.headers,
+        parsed=_parse_response(client=client, response=response),
+    )
+
+
+def sync_detailed(
+    canonical_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+) -> Response[HTTPValidationError | UpdateHistoryResponse]:
+    """Get Update History
+
+     Get update tracking history for a documentation source.
+
+    Returns information about:
+    - Last check time
+    - Last update time
+    - Update frequency settings
+    - Number of checks and updates performed
+
+    Args:
+        canonical_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[HTTPValidationError | UpdateHistoryResponse]
+    """
+
+    kwargs = _get_kwargs(
+        canonical_id=canonical_id,
+    )
+
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
+
+    return _build_response(client=client, response=response)
+
+
+def sync(
+    canonical_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+) -> HTTPValidationError | UpdateHistoryResponse | None:
+    """Get Update History
+
+     Get update tracking history for a documentation source.
+
+    Returns information about:
+    - Last check time
+    - Last update time
+    - Update frequency settings
+    - Number of checks and updates performed
+
+    Args:
+        canonical_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        HTTPValidationError | UpdateHistoryResponse
+    """
+
+    return sync_detailed(
+        canonical_id=canonical_id,
+        client=client,
+    ).parsed
+
+
+async def asyncio_detailed(
+    canonical_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+) -> Response[HTTPValidationError | UpdateHistoryResponse]:
+    """Get Update History
+
+     Get update tracking history for a documentation source.
+
+    Returns information about:
+    - Last check time
+    - Last update time
+    - Update frequency settings
+    - Number of checks and updates performed
+
+    Args:
+        canonical_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[HTTPValidationError | UpdateHistoryResponse]
+    """
+
+    kwargs = _get_kwargs(
+        canonical_id=canonical_id,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    canonical_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+) -> HTTPValidationError | UpdateHistoryResponse | None:
+    """Get Update History
+
+     Get update tracking history for a documentation source.
+
+    Returns information about:
+    - Last check time
+    - Last update time
+    - Update frequency settings
+    - Number of checks and updates performed
+
+    Args:
+        canonical_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        HTTPValidationError | UpdateHistoryResponse
+    """
+
+    return (
+        await asyncio_detailed(
+            canonical_id=canonical_id,
+            client=client,
+        )
+    ).parsed

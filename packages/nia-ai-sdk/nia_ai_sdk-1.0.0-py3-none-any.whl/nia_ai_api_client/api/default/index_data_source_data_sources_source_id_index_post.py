@@ -1,0 +1,205 @@
+from http import HTTPStatus
+from typing import Any
+from urllib.parse import quote
+
+import httpx
+
+from ... import errors
+from ...client import AuthenticatedClient, Client
+from ...models.data_source_response import DataSourceResponse
+from ...models.http_validation_error import HTTPValidationError
+from ...models.index_data_source_request import IndexDataSourceRequest
+from ...types import UNSET, Response, Unset
+
+
+def _get_kwargs(
+    source_id: str,
+    *,
+    body: IndexDataSourceRequest,
+    authorization: None | str | Unset = UNSET,
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+    if not isinstance(authorization, Unset):
+        headers["Authorization"] = authorization
+
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": "/data-sources/{source_id}/index".format(
+            source_id=quote(str(source_id), safe=""),
+        ),
+    }
+
+    _kwargs["json"] = body.to_dict()
+
+    headers["Content-Type"] = "application/json"
+
+    _kwargs["headers"] = headers
+    return _kwargs
+
+
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> DataSourceResponse | HTTPValidationError | None:
+    if response.status_code == 200:
+        response_200 = DataSourceResponse.from_dict(response.json())
+
+        return response_200
+
+    if response.status_code == 422:
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
+
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(response.status_code, response.content)
+    else:
+        return None
+
+
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[DataSourceResponse | HTTPValidationError]:
+    return Response(
+        status_code=HTTPStatus(response.status_code),
+        content=response.content,
+        headers=response.headers,
+        parsed=_parse_response(client=client, response=response),
+    )
+
+
+def sync_detailed(
+    source_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+    body: IndexDataSourceRequest,
+    authorization: None | str | Unset = UNSET,
+) -> Response[DataSourceResponse | HTTPValidationError]:
+    """Index Data Source
+
+     Re-index an existing data source using Hatchet workflow.
+
+    Args:
+        source_id (str):
+        authorization (None | str | Unset):
+        body (IndexDataSourceRequest):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[DataSourceResponse | HTTPValidationError]
+    """
+
+    kwargs = _get_kwargs(
+        source_id=source_id,
+        body=body,
+        authorization=authorization,
+    )
+
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
+
+    return _build_response(client=client, response=response)
+
+
+def sync(
+    source_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+    body: IndexDataSourceRequest,
+    authorization: None | str | Unset = UNSET,
+) -> DataSourceResponse | HTTPValidationError | None:
+    """Index Data Source
+
+     Re-index an existing data source using Hatchet workflow.
+
+    Args:
+        source_id (str):
+        authorization (None | str | Unset):
+        body (IndexDataSourceRequest):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        DataSourceResponse | HTTPValidationError
+    """
+
+    return sync_detailed(
+        source_id=source_id,
+        client=client,
+        body=body,
+        authorization=authorization,
+    ).parsed
+
+
+async def asyncio_detailed(
+    source_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+    body: IndexDataSourceRequest,
+    authorization: None | str | Unset = UNSET,
+) -> Response[DataSourceResponse | HTTPValidationError]:
+    """Index Data Source
+
+     Re-index an existing data source using Hatchet workflow.
+
+    Args:
+        source_id (str):
+        authorization (None | str | Unset):
+        body (IndexDataSourceRequest):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[DataSourceResponse | HTTPValidationError]
+    """
+
+    kwargs = _get_kwargs(
+        source_id=source_id,
+        body=body,
+        authorization=authorization,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    source_id: str,
+    *,
+    client: AuthenticatedClient | Client,
+    body: IndexDataSourceRequest,
+    authorization: None | str | Unset = UNSET,
+) -> DataSourceResponse | HTTPValidationError | None:
+    """Index Data Source
+
+     Re-index an existing data source using Hatchet workflow.
+
+    Args:
+        source_id (str):
+        authorization (None | str | Unset):
+        body (IndexDataSourceRequest):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        DataSourceResponse | HTTPValidationError
+    """
+
+    return (
+        await asyncio_detailed(
+            source_id=source_id,
+            client=client,
+            body=body,
+            authorization=authorization,
+        )
+    ).parsed
