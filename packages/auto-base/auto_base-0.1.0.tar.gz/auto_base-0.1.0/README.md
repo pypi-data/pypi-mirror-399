@@ -1,0 +1,182 @@
+# auto-base
+
+A thin wrapper for the ag2 library, providing a simplified interface for easy usage.
+
+## Installation
+
+```bash
+pip install auto-base
+```
+
+This will automatically install the required dependency `ag2`.
+
+## Usage
+
+### Basic Usage
+
+```python
+from auto_base import AutoBase
+
+# Create an instance of the wrapper
+auto = AutoBase()
+
+# Check if ag2 is available
+print(f"ag2 available: {auto.ag2_available}")
+
+# Access autogen attributes directly
+print(auto.DEFAULT_MODEL)  # Access autogen constants
+
+# Get raw autogen instance
+autogen_raw = auto.autogen
+```
+
+### Agent Creation
+
+```python
+from auto_base import AutoBase
+
+auto = AutoBase()
+
+# Create AssistantAgent
+assistant = auto.create_assistant_agent(
+    name="assistant",
+    system_message="You are a helpful AI assistant",
+    llm_config={
+        "temperature": 0.7,
+        "config_list": [
+            {"model": "gpt-4", "api_key": "YOUR_API_KEY"}
+        ]
+    }
+)
+
+# Create UserProxyAgent
+user_proxy = auto.create_user_proxy_agent(
+    name="user_proxy",
+    code_execution_config={"use_docker": False},  # Disable docker for code execution
+    human_input_mode="NEVER"  # No human input required
+)
+
+# Create GroupChat
+groupchat = auto.create_group_chat(
+    agents=[assistant, user_proxy],
+    messages=[],
+    max_round=5,
+    speaker_selection_method="auto"
+)
+
+# Create GroupChatManager
+groupchat_manager = auto.create_group_chat_manager(
+    groupchat=groupchat,
+    llm_config={
+        "config_list": [
+            {"model": "gpt-4", "api_key": "YOUR_API_KEY"}
+        ]
+    }
+)
+```
+
+### Configuration Management
+
+```python
+from auto_base import AutoBase
+
+auto = AutoBase()
+
+# Load config from dotenv file
+config_list = auto.config_list_from_dotenv(
+    dotenv_file_path=".env"
+)
+
+# Load config from JSON file
+# config_list = auto.config_list_from_json(
+#     file_path="OAI_CONFIG_LIST.json",
+#     filter_dict={"model": ["gpt-4", "gpt-3.5-turbo"]}
+# )
+
+# Get GPT-4 and GPT-3.5 config list
+# config_list = auto.config_list_gpt4_gpt35()
+```
+
+### Function Registration
+
+```python
+from auto_base import AutoBase
+
+auto = AutoBase()
+
+# Define a function to register
+def add_numbers(a, b):
+    """Add two numbers together"""
+    return a + b
+
+# Register the function
+user_proxy = auto.create_user_proxy_agent(name="user_proxy")
+auto.register_function(
+    func=add_numbers,
+    callable_agent=user_proxy,
+    name="add_numbers",
+    description="Add two numbers together"
+)
+```
+
+### Initiating Chats
+
+```python
+from auto_base import AutoBase
+
+auto = AutoBase()
+
+# Create agents
+assistant = auto.create_assistant_agent(name="assistant", system_message="You are helpful")
+user_proxy = auto.create_user_proxy_agent(name="user_proxy", human_input_mode="NEVER")
+
+# Initiate a chat between two agents
+result = auto.initiate_chat(
+    sender=user_proxy,
+    receiver=assistant,
+    message="What is the capital of France?"
+)
+
+# Or with group chat
+# groupchat = auto.create_group_chat(agents=[assistant, user_proxy])
+# manager = auto.create_group_chat_manager(groupchat=groupchat)
+# result = auto.initiate_group_chat(
+#     group_chat_manager=manager,
+#     message="What is the capital of France?"
+# )
+```
+
+## Features
+
+- Thin wrapper around autogen library with optional ag2 support
+- Simplified API for creating and managing autogen agents
+- Easy agent creation: AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+- Convenient configuration management
+- Simplified function registration for agent use
+- Easy chat initiation between agents
+- Optional ag2 integration (available if ag2 is installed)
+- Backward compatible with direct autogen access
+- Well-documented with usage examples
+
+## Development
+
+### Installation for Development
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/auto-base.git
+cd auto-base
+
+# Install in development mode
+pip install -e .
+```
+
+### Running Tests
+
+```bash
+python test_wrapper.py
+```
+
+## License
+
+MIT
