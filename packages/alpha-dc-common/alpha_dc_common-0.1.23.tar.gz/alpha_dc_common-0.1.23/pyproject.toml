@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "alpha-dc-common"
+version = "0.1.23"
+description = "Shared schemas and utils for the datacenter project."
+authors = [
+    {name = "Hang GuangLiang", email = "hanguangliang@alphaaidig.com"},
+]
+dependencies = [
+    "pydantic>=2.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dc_common"]
+
+[tool.uv]
+index-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
