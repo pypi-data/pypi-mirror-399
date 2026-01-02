@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "idrac-wrapper"
+version = "1.4"
+maintainers = [{name = "Gerard Weatherby", email = "gweatherby@uchc.edu"}]
+description = "iDRAC redfish library wrapper"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+dependencies = ["keyring", "redfish", "requests","pyyaml"]
+
+[project.scripts]
+idrac = "scripts.main:main"
+accounts = "scripts.accounts:main"
+tsr = "scripts.tsr:main"
+attribute = "scripts.attribute:main"
+network = "scripts.network:main"
+summary = "scripts.summary:main"
+info_collect = "scripts.info:main"
+
+
+[tool.setuptools]
+package-dir = { "" = "src"}
+
+
+[[tool.uv.index]]
+name = "nmrbox"
+url = "https://apt.nmrbox.org/pip"
