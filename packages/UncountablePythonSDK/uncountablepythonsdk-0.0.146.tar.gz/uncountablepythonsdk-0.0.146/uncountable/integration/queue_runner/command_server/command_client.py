@@ -1,0 +1,159 @@
+from contextlib import contextmanager
+from typing import Generator
+
+import grpc
+import simplejson as json
+
+from pkgs.serialization_util import serialize_for_api
+from uncountable.integration.queue_runner.command_server.protocol.command_server_pb2 import (
+    CancelJobRequest,
+    CancelJobResult,
+    CancelJobStatus,
+    CheckHealthRequest,
+    CheckHealthResult,
+    EnqueueJobRequest,
+    EnqueueJobResult,
+    ListQueuedJobsRequest,
+    ListQueuedJobsResult,
+    RetryJobRequest,
+    RetryJobResult,
+    VaccuumQueuedJobsRequest,
+    VaccuumQueuedJobsResult,
+)
+from uncountable.integration.queue_runner.command_server.types import (
+    CommandCancelJobStatus,
+    CommandServerBadResponse,
+    CommandServerTimeout,
+)
+from uncountable.types import queued_job_t
+
+from .protocol.command_server_pb2_grpc import CommandServerStub
+
+_LOCAL_RPC_HOST = "localhost"
+_DEFAULT_MESSAGE_TIMEOUT_SECS = 2
+
+
+@contextmanager
+def command_server_connection(
+    host: str, port: int
+) -> Generator[CommandServerStub, None, None]:
+    try:
+        with grpc.insecure_channel(f"{host}:{port}") as channel:
+            stub = CommandServerStub(channel)
+            yield stub
+    except grpc._channel._InactiveRpcError as e:
+        raise CommandServerTimeout() from e
+
+
+def send_job_queue_message(
+    *,
+    job_ref_name: str,
+    payload: queued_job_t.QueuedJobPayload,
+    host: str = "localhost",
+    port: int,
+) -> str:
+    with command_server_connection(host=host, port=port) as stub:
+        request = EnqueueJobRequest(
+            job_ref_name=job_ref_name,
+            serialized_payload=json.dumps(serialize_for_api(payload)),
+        )
+
+        response = stub.EnqueueJob(request, timeout=_DEFAULT_MESSAGE_TIMEOUT_SECS)
+
+        assert isinstance(response, EnqueueJobResult)
+        if not response.successfully_queued:
+            raise CommandServerBadResponse("queue operation was not successful")
+
+        return response.queued_job_uuid
+
+
+def send_job_cancellation_message(
+    *, queued_job_uuid: str, host: str = "localhost", port: int
+) -> CommandCancelJobStatus:
+    with command_server_connection(host=host, port=port) as stub:
+        request = CancelJobRequest(job_uuid=queued_job_uuid)
+
+        response = stub.CancelJob(request, timeout=_DEFAULT_MESSAGE_TIMEOUT_SECS)
+
+        assert isinstance(response, CancelJobResult)
+        match response.status:
+            case CancelJobStatus.NO_JOB_FOUND:
+                return CommandCancelJobStatus.NO_JOB_FOUND
+            case CancelJobStatus.CANCELLED_WITH_RESTART:
+                return CommandCancelJobStatus.CANCELLED_WITH_RESTART
+            case CancelJobStatus.JOB_ALREADY_COMPLETED:
+                return CommandCancelJobStatus.JOB_ALREADY_COMPLETED
+            case _:
+                raise CommandServerBadResponse(f"unknown status: {response.status}")
+
+
+def send_retry_job_message(
+    *,
+    job_uuid: str,
+    host: str = "localhost",
+    port: int,
+) -> str:
+    with command_server_connection(host=host, port=port) as stub:
+        request = RetryJobRequest(uuid=job_uuid)
+
+        try:
+            response = stub.RetryJob(request, timeout=_DEFAULT_MESSAGE_TIMEOUT_SECS)
+            assert isinstance(response, RetryJobResult)
+            if not response.successfully_queued:
+                raise CommandServerBadResponse("queue operation was not successful")
+
+            return response.queued_job_uuid
+        except grpc.RpcError as e:
+            raise ValueError(e.details())  # type: ignore
+
+
+def check_health(*, host: str = _LOCAL_RPC_HOST, port: int) -> bool:
+    with command_server_connection(host=host, port=port) as stub:
+        request = CheckHealthRequest()
+
+        response = stub.CheckHealth(request, timeout=_DEFAULT_MESSAGE_TIMEOUT_SECS)
+
+        assert isinstance(response, CheckHealthResult)
+
+        return response.success
+
+
+def send_list_queued_jobs_message(
+    *,
+    status: queued_job_t.JobStatus | None,
+    offset: int,
+    limit: int,
+    host: str = "localhost",
+    port: int,
+) -> list[ListQueuedJobsResult.ListQueuedJobsResultItem]:
+    with command_server_connection(host=host, port=port) as stub:
+        request = ListQueuedJobsRequest(
+            offset=offset,
+            limit=limit,
+            status=status,
+        )
+
+        try:
+            response = stub.ListQueuedJobs(
+                request, timeout=_DEFAULT_MESSAGE_TIMEOUT_SECS
+            )
+        except grpc.RpcError as e:
+            raise ValueError(e.details())  # type: ignore
+
+        assert isinstance(response, ListQueuedJobsResult)
+        return list(response.queued_jobs)
+
+
+def send_vaccuum_queued_jobs_message(*, host: str = "localhost", port: int) -> None:
+    with command_server_connection(host=host, port=port) as stub:
+        request = VaccuumQueuedJobsRequest()
+
+        try:
+            response = stub.VaccuumQueuedJobs(
+                request, timeout=_DEFAULT_MESSAGE_TIMEOUT_SECS
+            )
+        except grpc.RpcError as e:
+            raise ValueError(e.details())  # type: ignore
+
+        assert isinstance(response, VaccuumQueuedJobsResult)
+        return None
