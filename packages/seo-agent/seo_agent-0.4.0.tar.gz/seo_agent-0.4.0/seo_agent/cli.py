@@ -1,0 +1,334 @@
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Iterable, List
+
+from . import __version__
+from .audit import SeoAuditAgent
+from .baseline import build_baseline, diff_baselines, load_baseline, render_diff_markdown, render_diff_text, save_baseline
+from .checks.registry import describe_checks
+from .config import ConfigError, load_config
+from .constants import DEFAULT_TIMEOUT, USER_AGENT
+from .integrations.pagespeed import load_pagespeed_metrics
+from .integrations.search_console import load_gsc_pages_csv
+from .network import normalize_url
+
+
+def _flag_in_args(argv: List[str], flag: str) -> bool:
+    if flag in argv:
+        return True
+    prefix = f"{flag}="
+    return any(arg.startswith(prefix) for arg in argv)
+
+
+def _split_patterns(values: List[str] | None) -> List[str]:
+    patterns: List[str] = []
+    for value in values or []:
+        for part in str(value).split(","):
+            part = part.strip()
+            if part:
+                patterns.append(part)
+    return patterns
+
+
+def _finalize_patterns(
+    raw_values: List[str] | None,
+    default_values: List[str] | None,
+    argv: List[str],
+    flag: str,
+) -> List[str]:
+    if _flag_in_args(argv, flag):
+        return _split_patterns(raw_values)
+    if default_values:
+        return list(default_values)
+    return []
+
+
+def _normalize_list_default(value: object | None) -> List[str] | None:
+    if value is None:
+        return None
+    if isinstance(value, list):
+        return [str(item) for item in value if str(item).strip()]
+    return None
+
+
+def _load_config_defaults(argv: List[str]) -> tuple[dict[str, object], list[str], str | None]:
+    config_parser = argparse.ArgumentParser(add_help=False)
+    config_parser.add_argument("--config", help="Path to an INI config file.")
+    config_args, _ = config_parser.parse_known_args(argv)
+    if not config_args.config:
+        return {}, [], None
+    values, unknown = load_config(config_args.config)
+    return values, unknown, config_args.config
+
+
+def parse_args(argv: Iterable[str]) -> argparse.Namespace:
+    argv_list = list(argv)
+    config_values, config_unknown, config_path = _load_config_defaults(argv_list)
+    crawl_include_default = _normalize_list_default(config_values.pop("crawl_include", None))
+    crawl_exclude_default = _normalize_list_default(config_values.pop("crawl_exclude", None))
+    parser = argparse.ArgumentParser(description="Run a technical SEO audit for a URL.")
+    parser.add_argument("--version", action="version", version=f"seo-agent {__version__}")
+    parser.add_argument("--config", default=config_path, help="Path to an INI config file with defaults.")
+    parser.add_argument("url", nargs="?", help="URL to audit (e.g., https://example.com)")
+    parser.add_argument("--goal", help="Primary goal for the audit (traffic growth, technical cleanup, migration prep, etc.)")
+    parser.add_argument(
+        "--insecure",
+        action="store_true",
+        help="Skip SSL certificate verification (use only if certificate errors block auditing).",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=DEFAULT_TIMEOUT,
+        help=f"Network timeout in seconds (default: {DEFAULT_TIMEOUT}).",
+    )
+    parser.add_argument(
+        "--user-agent",
+        default=USER_AGENT,
+        help="User-Agent header to send with requests.",
+    )
+    parser.add_argument(
+        "--enable-plugins",
+        action="store_true",
+        help="Enable loading additional checks from installed entry points (group: seo_agent.checks).",
+    )
+    parser.add_argument(
+        "--list-checks",
+        action="store_true",
+        help="List available checks and exit.",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["text", "json", "markdown", "sarif", "github"],
+        default="text",
+        help="Output format. Defaults to text.",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Quiet mode: suppresses non-essential prompts/errors; useful for CI.",
+    )
+    parser.add_argument(
+        "--fail-on-critical",
+        action="store_true",
+        help="Exit with non-zero status if critical issues are found (good for CI gates).",
+    )
+    parser.add_argument(
+        "--crawl-depth",
+        type=int,
+        default=0,
+        help="Optional crawl depth to sample internal pages for template-level issues (0 disables crawling).",
+    )
+    parser.add_argument(
+        "--crawl-limit",
+        type=int,
+        default=5,
+        help="Maximum number of additional pages to sample when crawling (only used if depth > 0 or --crawl-sitemaps).",
+    )
+    parser.add_argument(
+        "--crawl-delay",
+        type=float,
+        default=0.3,
+        help="Minimum delay (seconds) between crawl requests; the agent honors the greater of this and robots.txt crawl-delay.",
+    )
+    parser.add_argument(
+        "--crawl-max-seconds",
+        type=float,
+        default=20.0,
+        help="Maximum time budget (seconds) for crawl sampling (0 disables the time limit).",
+    )
+    parser.add_argument(
+        "--crawl-sitemaps",
+        action="store_true",
+        help="Seed crawl from sitemap URLs (respects --crawl-limit).",
+    )
+    parser.add_argument(
+        "--crawl-include",
+        action="append",
+        help="Glob pattern(s) to include in crawl sampling (repeatable or comma-separated).",
+    )
+    parser.add_argument(
+        "--crawl-exclude",
+        action="append",
+        help="Glob pattern(s) to exclude from crawl sampling (repeatable or comma-separated).",
+    )
+    parser.add_argument(
+        "--check-links",
+        action="store_true",
+        help="Enable bounded internal link checking via HEAD requests (may increase audit time).",
+    )
+    parser.add_argument(
+        "--link-check-limit-per-page",
+        type=int,
+        default=3,
+        help="Maximum number of internal links to HEAD-check per page when --check-links is enabled.",
+    )
+    parser.add_argument(
+        "--report",
+        help="Optional path to write the report output to a file (respects --format).",
+    )
+    parser.add_argument(
+        "--save-baseline",
+        help="Optional path to save a baseline JSON (issues + metadata) for later comparison.",
+    )
+    parser.add_argument(
+        "--compare",
+        help="Optional path to a previously saved baseline JSON to compare against.",
+    )
+    parser.add_argument(
+        "--psi-json",
+        help="Optional path to a PageSpeed Insights / Lighthouse JSON file to enrich performance reporting.",
+    )
+    parser.add_argument(
+        "--gsc-pages-csv",
+        help="Optional path to a Search Console 'Pages' export CSV to weight priorities by impressions/clicks.",
+    )
+    if config_values:
+        parser.set_defaults(**config_values)
+    args = parser.parse_args(argv_list)
+    args.crawl_include = _finalize_patterns(args.crawl_include, crawl_include_default, argv_list, "--crawl-include")
+    args.crawl_exclude = _finalize_patterns(args.crawl_exclude, crawl_exclude_default, argv_list, "--crawl-exclude")
+    setattr(args, "config_unknown", config_unknown)
+    return args
+
+
+def render_check_list(descriptions: List[dict[str, object]], plugins_enabled: bool) -> str:
+    total = len(descriptions)
+    lines = [f"Available checks ({total}):"]
+    for item in descriptions:
+        name = item.get("name", "unknown")
+        include = "yes" if item.get("include_on_crawled_pages") else "no"
+        lines.append(f"- {name} (runs on crawled pages: {include})")
+    if plugins_enabled:
+        lines.append("Plugins: enabled")
+    else:
+        lines.append("Tip: use --enable-plugins to include installed plugin checks.")
+    return "\n".join(lines)
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    try:
+        args = parse_args(argv if argv is not None else sys.argv[1:])
+    except ConfigError as exc:
+        print(str(exc))
+        return 1
+    config_unknown = getattr(args, "config_unknown", [])
+    if config_unknown and not args.quiet and args.config:
+        unknown_list = ", ".join(sorted(str(item) for item in config_unknown))
+        print(f"Config file {args.config} has unknown keys: {unknown_list}")
+    if args.list_checks:
+        descriptions = describe_checks(enable_plugins=args.enable_plugins)
+        print(render_check_list(descriptions, args.enable_plugins))
+        return 0
+    url = args.url or input("Enter the URL to audit: ").strip()
+    if not url:
+        print("A URL is required.")
+        return 1
+    try:
+        url = normalize_url(url)
+    except ValueError as exc:
+        print(f"Invalid URL: {exc}")
+        return 1
+
+    goal = args.goal
+    if not goal and not args.quiet:
+        goal = input("What's your main goal for this audit (traffic growth, technical fixes, migration prep)? ").strip()
+
+    timeout = max(1, int(args.timeout))
+    agent = SeoAuditAgent(
+        verify_ssl=not args.insecure,
+        user_agent=args.user_agent,
+        timeout=timeout,
+        output_format=args.format,
+        crawl_delay=args.crawl_delay,
+        check_links=args.check_links,
+        link_check_limit_per_page=args.link_check_limit_per_page,
+        enable_plugins=args.enable_plugins,
+    )
+    page_metrics = None
+    if args.gsc_pages_csv:
+        try:
+            page_metrics = load_gsc_pages_csv(args.gsc_pages_csv)
+        except OSError as exc:
+            if not args.quiet:
+                print(f"Could not load Search Console CSV from {args.gsc_pages_csv}: {exc}")
+
+    report, issues = agent.audit_with_details(
+        url,
+        goal or "",
+        crawl_depth=args.crawl_depth,
+        crawl_limit=args.crawl_limit,
+        include_sitemaps=args.crawl_sitemaps,
+        crawl_max_seconds=args.crawl_max_seconds,
+        page_metrics=page_metrics,
+        crawl_include=args.crawl_include,
+        crawl_exclude=args.crawl_exclude,
+    )
+
+    output = report
+    current_baseline = None
+    if args.save_baseline or args.compare:
+        current_baseline = build_baseline(url, goal or "", issues)
+
+    if args.save_baseline and current_baseline is not None:
+        save_baseline(args.save_baseline, current_baseline)
+
+    if args.compare and current_baseline is not None:
+        baseline = load_baseline(args.compare)
+        diff = diff_baselines(baseline, current_baseline)
+        if args.format == "json" and output.lstrip().startswith("{"):
+            data = json.loads(output)
+            data["compare"] = {"baseline_path": args.compare, **diff}
+            output = json.dumps(data, indent=2)
+        elif args.format == "markdown":
+            output = f"{output}\n\n{render_diff_markdown(diff)}"
+        else:
+            output = f"{output}\n\n{render_diff_text(diff)}"
+
+    if args.psi_json:
+        try:
+            metrics = load_pagespeed_metrics(args.psi_json)
+        except (OSError, json.JSONDecodeError) as exc:
+            if not args.quiet:
+                print(f"Could not load PageSpeed JSON from {args.psi_json}: {exc}")
+        else:
+            if args.format == "json" and output.lstrip().startswith("{"):
+                data = json.loads(output)
+                data["pagespeed"] = metrics
+                output = json.dumps(data, indent=2)
+            elif args.format == "markdown":
+                lines = ["## PageSpeed metrics"]
+                for k, v in metrics.items():
+                    if v is None:
+                        continue
+                    lines.append(f"- **{k}:** {v}")
+                output = f"{output}\n\n" + "\n".join(lines)
+            else:
+                lines = ["PageSpeed metrics"]
+                for k, v in metrics.items():
+                    if v is None:
+                        continue
+                    lines.append(f"- {k}: {v}")
+                output = f"{output}\n\n" + "\n".join(lines)
+
+    print(output)
+    if args.report:
+        try:
+            report_path = Path(args.report)
+            if report_path.parent and not report_path.parent.exists():
+                report_path.parent.mkdir(parents=True, exist_ok=True)
+            report_path.write_text(output, encoding="utf-8")
+        except OSError as exc:
+            print(f"Could not write report to {args.report}: {exc}")
+
+    if args.fail_on_critical and any(i.severity == "critical" for i in issues):
+        return 2
+    return 0
+
+
+if __name__ == "__main__":  # pragma: no cover - CLI entry
+    sys.exit(main())
