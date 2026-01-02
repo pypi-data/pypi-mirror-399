@@ -1,0 +1,236 @@
+# TruffleHog Processor
+
+A Python library for processing, filtering, and deduplicating TruffleHog scan results with support for verified findings and custom detectors.
+
+## Features
+
+- ✅ **Filter findings**: Keep only verified findings and custom detector findings
+- ✅ **Smart deduplication**: Automatic deduplication with priority rules
+  - Built-in Verified > Custom Verified > Custom Unverified > Built-in Unverified
+- ✅ **Custom detector support**: Handle custom regex detectors alongside built-in detectors
+- ✅ **Proper handling**: Findings that are both verified AND custom appear only in verified list
+- ✅ **Flexible output**: Get JSONL format or structured JSON with verbose mode
+- ✅ **Simple API**: Easy to use with minimal configuration
+
+## Installation
+
+```bash
+pip install trufflehog-processor
+```
+
+## Quick Start
+
+### Basic Usage
+
+```python
+from trufflehog_processor import process_trufflehog_results, get_final_json
+
+# TruffleHog JSON output (JSONL format)
+json_output = """
+{"DetectorName": "Github", "Verified": true, "Raw": "ghp_abc123"}
+{"DetectorName": "CustomRegex", "Verified": false, "Raw": "ghp_abc123"}
+{"DetectorName": "CustomRegex", "Verified": true, "Raw": "sk_live_123"}
+"""
+
+# Process results
+results = process_trufflehog_results(
+    json_output,
+    custom_detector_names=['CustomRegex']
+)
+
+# Access results
+print(f"Verified: {len(results['verified'])}")
+print(f"Custom: {len(results['custom'])}")
+print(f"Final: {len(results['deduplicated'])}")
+print(f"Duplicates removed: {results['summary']['duplicates_removed']}")
+
+# Get final JSON output (default: JSONL format with verified + custom)
+final_json = get_final_json(
+    json_output,
+    custom_detector_names=['CustomRegex'],
+    verbose=False  # Set to True for complete structured JSON
+)
+print(final_json)
+```
+
+### Advanced Usage
+
+```python
+from trufflehog_processor import process_trufflehog_results, Processor
+
+# Create processor instance
+processor = Processor(
+    custom_detector_names=['CustomRegex', 'UsernamePasswordPair'],
+    deduplicate=True
+)
+
+# Process results
+results = processor.process(trufflehog_output)
+
+# Access parsed findings
+findings = processor.parse(trufflehog_output)
+```
+
+## Deduplication Logic
+
+The library implements a multi-phase deduplication strategy:
+
+### Priority Order
+1. **Built-in Verified** (highest priority)
+2. **Custom Verified**
+3. **Custom Unverified**
+4. **Built-in Unverified** (lowest priority, filtered out)
+
+### Deduplication Rules
+
+1. **Phase 1**: If same secret found by Built-in Verified and Custom → Keep Built-in Verified
+2. **Phase 2**: If same secret found by Custom and Built-in Unverified → Keep Custom
+3. **Phase 3**: Remove all remaining Built-in Unverified findings
+
+### Special Cases
+
+- **Finding that is both Verified AND Custom**: Appears only in `verified` list (not in `custom`)
+- **Same secret in multiple categories**: Highest priority category is kept
+- **Within-group duplicates**: Removed automatically
+
+## API Reference
+
+### `process_trufflehog_results()`
+
+Main function to process TruffleHog results.
+
+**Parameters:**
+- `json_output` (str): TruffleHog JSON output (JSONL or multi-line JSON)
+- `custom_detector_names` (List[str]): Names of custom detectors (e.g., `['CustomRegex']`)
+- `deduplicate_results` (bool): Whether to deduplicate findings (default: `True`)
+- `filter_detectors` (Optional[List[str]]): Only keep findings from these detectors
+- `exclude_detectors` (Optional[List[str]]): Exclude findings from these detectors
+- `only_verified` (bool): Only keep verified findings (default: `False`)
+
+**Returns:**
+```python
+{
+    'verified': [...],           # Verified findings (built-in + custom verified)
+    'custom': [...],             # Custom detector findings (verified + unverified)
+    'deduplicated': [...],      # Final deduplicated list (verified + custom)
+    'removed': {
+        'duplicates': [...]     # Duplicates removed (for reference)
+    },
+    'summary': {
+        'total_input': int,                    # Total findings input
+        'verified_count': int,                 # Count of verified findings
+        'custom_count': int,                   # Count of custom findings
+        'not_verified_builtin_count': int,     # Count of built-in unverified (before filtering)
+        'not_verified_removed': int,          # Count of built-in unverified removed
+        'final_count': int,                    # Final count after deduplication
+        'duplicates_removed': int,            # Total duplicates removed
+        'filtered_out': int                    # Count filtered by filter options
+    }
+}
+```
+
+### `get_final_json()`
+
+Get final JSON output in TruffleHog JSONL format or structured JSON.
+
+**Parameters:**
+- `trufflehog_output` (str): TruffleHog JSON output
+- `custom_detector_names` (List[str]): Names of custom detectors
+- `deduplicate` (bool): Whether to deduplicate (default: `True`)
+- `verbose` (bool): If `True`, return complete structured JSON. If `False` (default), return JSONL format with verified + custom only
+- `filter_detectors` (Optional[List[str]]): Filter by detector names
+- `exclude_detectors` (Optional[List[str]]): Exclude detector names
+- `only_verified` (bool): Only keep verified findings
+
+**Returns:**
+- `str`: JSON string (JSONL format if `verbose=False`, structured JSON if `verbose=True`)
+
+**Example:**
+```python
+# Default: JSONL format (one JSON object per line, pretty-printed)
+output = get_final_json(json_output, ['CustomRegex'], verbose=False)
+
+# Verbose: Complete structured JSON with all sections
+output = get_final_json(json_output, ['CustomRegex'], verbose=True)
+```
+
+### `get_final_json_dict()`
+
+Same as `get_final_json()` but returns a dictionary instead of JSON string.
+
+**Returns:**
+- `Dict[str, Any]`: Dictionary with processed results (if `verbose=True`) or list of findings (if `verbose=False`)
+
+## Example: Lambda Function
+
+```python
+import json
+import subprocess
+from trufflehog_processor import get_final_json
+
+def lambda_handler(event, context):
+    # Run TruffleHog
+    result = subprocess.run([
+        'trufflehog', 'filesystem', '/tmp/page.html',
+        '--json', '--config', '/opt/config.yaml'
+    ], capture_output=True, text=True)
+    
+    # Process results
+    final_json = get_final_json(
+        result.stdout,
+        custom_detector_names=['CustomRegex', 'UsernamePasswordPair'],
+        verbose=False  # Get JSONL format
+    )
+    
+    # Parse and alert on findings
+    findings = [json.loads(line) for line in final_json.strip().split('\n') if line.strip()]
+    
+    if findings:
+        send_alert(findings)
+    
+    return {
+        'statusCode': 200,
+        'findings': len(findings)
+    }
+```
+
+## Example: Processing Results
+
+```python
+from trufflehog_processor import process_trufflehog_results
+
+# Sample TruffleHog output
+trufflehog_output = """
+{"DetectorName": "Github", "Verified": true, "Raw": "ghp_secret123"}
+{"DetectorName": "CustomRegex", "Verified": false, "Raw": "ghp_secret123"}
+{"DetectorName": "CustomRegex", "Verified": true, "Raw": "sk_live_123"}
+"""
+
+# Process
+results = process_trufflehog_results(
+    trufflehog_output,
+    custom_detector_names=['CustomRegex']
+)
+
+# Results:
+# - verified: 2 findings (Github + CustomRegex verified)
+# - custom: 0 findings (CustomRegex unverified was duplicate, CustomRegex verified is in verified)
+# - final_count: 2
+# - duplicates_removed: 1 (CustomRegex unverified duplicate of Github verified)
+```
+
+## Bug Fixes (v1.0.0)
+
+- ✅ **Fixed**: Finding that is both verified AND custom now appears only in `verified` list
+- ✅ **Fixed**: `deduplicate=False` now correctly skips all deduplication phases
+- ✅ **Fixed**: Correct calculation of `duplicates_removed` in summary
+- ✅ **Fixed**: Logic error in custom filtering (Step 2)
+- ✅ **Removed**: Redundant final deduplication step
+
+## License
+
+MIT
+
+## Version
+
+Current version: **1.0.1**
