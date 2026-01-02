@@ -1,0 +1,222 @@
+Metadata-Version: 2.4
+Name: antporter
+Version: 1.0.1
+Summary: A simple tool for splitting and merging files to bypass HPC cluster file upload size limits
+Author: AntPorter Team
+License: MIT
+Project-URL: Homepage, https://github.com/givemeone1astkiss/antporter
+Project-URL: Repository, https://github.com/givemeone1astkiss/antporter
+Keywords: file-split,file-merge,hpc,chunk,transfer
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: System :: Archiving
+Classifier: Topic :: Utilities
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: tqdm>=4.65.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Dynamic: license-file
+
+# AntPorter
+
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+A simple and efficient file splitting and reassembly tool designed to circumvent file upload size limitations on HPC clusters.
+
+---
+
+## ✨ Features
+
+- 🚀 **Fast & Efficient** - Optimized for large file operations
+- 🔒 **Data Integrity** - MD5 checksum verification
+- 📊 **Progress Tracking** - Real-time progress bars
+- 💾 **Resume Support** - Continue interrupted operations
+- 🛠️ **Easy to Use** - Simple command-line interface
+- 🐍 **Pure Python** - Only depends on tqdm, cross-platform
+
+## 📦 Installation
+
+```bash
+pip install antporter
+```
+
+Or using uv:
+
+```bash
+uv pip install antporter
+```
+
+## 🚀 Quick Start
+
+### 1. Split a File
+
+```bash
+antporter split large_file.tar.gz --chunk-size 100MB
+```
+
+This creates:
+- `large_file.tar.gz.part001`
+- `large_file.tar.gz.part002`
+- `large_file.tar.gz.part003`
+- ...
+- `large_file.tar.gz.meta.json`
+
+### 2. Upload to HPC
+
+```bash
+scp large_file.tar.gz.* username@hpc-cluster:/path/to/destination/
+```
+
+### 3. Merge on HPC
+
+```bash
+antporter merge large_file.tar.gz.meta.json
+```
+
+## 📖 Usage
+
+### Split Command
+
+```bash
+antporter split <file> --chunk-size <size> [options]
+```
+
+**Options:**
+- `--chunk-size, -s` - Chunk size (e.g., 100MB, 1GB, 500KB)
+- `--output-dir, -o` - Output directory
+- `--no-resume` - Disable resume functionality
+
+### Merge Command
+
+```bash
+antporter merge <metadata> [options]
+```
+
+**Options:**
+- `--output-dir, -o` - Output directory
+- `--cleanup, -c` - Delete chunks after merge
+- `--no-verify` - Skip MD5 verification (not recommended)
+
+### Info Command
+
+```bash
+antporter info <metadata> [--chunks]
+```
+
+## 💡 Examples
+
+### Scenario 1: Upload Large Dataset to HPC (100MB limit)
+
+```bash
+# Local machine
+antporter split dataset.tar.gz --chunk-size 95MB --output-dir ./upload
+
+# Upload
+cd upload
+scp * username@hpc:/scratch/user/
+
+# On HPC
+ssh username@hpc
+cd /scratch/user/
+antporter merge dataset.tar.gz.meta.json
+```
+
+### Scenario 2: Resume Interrupted Split
+
+```bash
+# Start splitting
+antporter split large_file.bin --chunk-size 100MB
+
+# ... interrupted ...
+
+# Resume (automatically skips completed chunks)
+antporter split large_file.bin --chunk-size 100MB
+```
+
+### Scenario 3: Auto Cleanup
+
+```bash
+antporter merge large_file.tar.gz.meta.json --cleanup
+```
+
+## 🐍 Python API
+
+```python
+from antporter import FileSplitter, FileMerger
+
+# Split file
+splitter = FileSplitter.from_size_string(
+    input_file="large_file.tar.gz",
+    chunk_size_str="100MB",
+    output_dir="./chunks"
+)
+metadata_path = splitter.split()
+
+# Merge file
+merger = FileMerger(
+    metadata_file=metadata_path,
+    verify=True,
+    cleanup=False
+)
+output_path = merger.merge()
+```
+
+## 📝 Metadata Format
+
+```json
+{
+  "original_filename": "data.tar.gz",
+  "original_size": 1073741824,
+  "original_md5": "abc123...",
+  "chunk_size": 104857600,
+  "chunk_count": 11,
+  "chunks": [
+    {
+      "index": 1,
+      "filename": "data.tar.gz.part001",
+      "size": 104857600,
+      "md5": "def456..."
+    }
+  ],
+  "created_at": "2025-12-29T10:00:00",
+  "version": "1.0"
+}
+```
+
+## 🔧 Development
+
+```bash
+# Clone repository
+git clone https://github.com/yourusername/antporter.git
+cd antporter
+
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Format code
+black src/antporter
+
+# Lint code
+flake8 src/antporter
+```
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details
+
