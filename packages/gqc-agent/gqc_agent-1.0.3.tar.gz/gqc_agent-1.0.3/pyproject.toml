@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gqc-agent"          # PyPI package name
+version = "1.0.3"
+description = "GQC Agent provides a multi-agent AI pipeline for intent classification, query rephrasing, and note creation using GPT and Gemini models."
+readme = "README.md"
+requires-python = ">=3.11"
+
+license = {text = "MIT"}
+
+authors = [
+  { name="BE Developers", email="be.dev@bigentities.com" }
+]
+
+keywords = [
+  "gqc-agent",
+  "intent-classification",
+  "query-rephraser",
+  "notes-creator",
+  "openai-models",
+  "gemini-models"
+]
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3 :: Only",
+]
+
+# --- CORE DEPENDENCIES (Installed by default when user installs gqc-agent) ---
+dependencies = [
+  "openai>=2.8.1",
+  "google-genai>=1.52.0",
+  "pydantic>=2.12.5",
+  "requests>=2.32.5",
+  "httpx>=0.28.1",
+  "anyio>=4.12.0"
+]
+
+# --- INCLUDE SYSTEM PROMPT FILES IN PACKAGE ---
+[tool.setuptools.package-data]
+"gqc_agent" = ["core/_system_prompts/*.md"]
