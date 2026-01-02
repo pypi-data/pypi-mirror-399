@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "build_meta_plus"
+version = "0.1.0"
+description = "A setuptools backend that supports pre- and post-build hooks via pyproject.toml"
+authors = [{ name = "Ronny Rentner", email = "build_meta_plus.code@ronny-rentner.de" }]
+readme = "readme.md"
+license = "MIT"
+license-files = ["license.txt"]
+requires-python = ">=3.9"
+keywords = ["setuptools", "build", "backend", "hooks", "pep517"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = ["setuptools>=61"]
+
+[project.urls]
+Homepage = "https://github.com/ronny-rentner/build_meta_plus"
+Repository = "https://github.com/ronny-rentner/build_meta_plus.git"
+Issues = "https://github.com/ronny-rentner/build_meta_plus/issues"
+
+[tool.setuptools]
+py-modules = ["build_meta_plus"]
+
+[tool.build_meta_plus]
+post-build = ["rm -rf build_meta_plus.egg-info"]
