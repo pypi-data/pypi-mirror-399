@@ -1,0 +1,18 @@
+
+---
+
+## 🧪 `tests/test_rules.py` (starter test)
+
+```python
+from ksero_payer_rules import extract_fields, validate_fields
+
+def test_uhc_card():
+    text = "UNITEDHEALTHCARE Member ID: 999999876 Group: IB7654"
+    baseline = extract_fields(text)
+    validated = validate_fields(baseline)
+
+    assert validated["payer"] == "Unitedhealthcare"
+    assert validated["specialty"] == "medical"
+    assert validated["member_id"] == "999999876"
+    assert validated["group_number"] == "IB7654"
+    assert validated["confidence_score"] > 0.5
