@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pystrom"
+description = "Unofficial MyStrom API Client"
+readme = "README.md"
+authors = [{ name = "Rafael Urben", email = "github@rafaelurben.ch" }]
+maintainers = [{ name = "Rafael Urben", email = "github@rafaelurben.ch" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+requires-python = ">= 3.11"
+dependencies = [
+    "requests>=2.25.1",
+    "packaging>=20.8",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "black>=25.1.0",
+    "mypy>=1.16.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/rafaelurben/python-mystrom"
+GitHub = "https://github.com/rafaelurben/python-mystrom"
+Issues = "https://github.com/rafaelurben/python-mystrom/issues"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages]
+find = { namespaces = false }
+
+[tool.setuptools.dynamic]
+version = { file = ["_version.txt"] }
+
+[tool.black]
+line-length = 100
+target-version = ['py311', 'py312', 'py313']
+include = '\.pyi?$'
