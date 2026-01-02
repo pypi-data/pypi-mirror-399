@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Log - Tessera{% endblock %}
+
+{% block content %}
+<section>
+  <h2>Audit Log</h2>
+
+  <div class="filters" style="margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; padding: 0.75rem 1rem; background: var(--light-gray); border: 1px solid #ddd;">
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <label for="filter-entity-type" style="margin: 0; font-size: 0.875rem; white-space: nowrap;">Entity Type:</label>
+      <select id="filter-entity-type" style="width: 120px; padding: 0.4rem; margin: 0;" onchange="onEntityTypeChange()">
+        <option value="">All</option>
+        <option value="team">Teams</option>
+        <option value="asset">Assets</option>
+        <option value="contract">Contracts</option>
+        <option value="proposal">Proposals</option>
+        <option value="registration">Registrations</option>
+        <option value="api_key">API Keys</option>
+        <option value="sync">Sync</option>
+      </select>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <label for="filter-action" style="margin: 0; font-size: 0.875rem; white-space: nowrap;">Action:</label>
+      <select id="filter-action" style="width: 180px; padding: 0.4rem; margin: 0;">
+        <option value="">All actions</option>
+      </select>
+    </div>
+    <div style="display: flex; gap: 0.5rem; margin-left: auto;">
+      <button onclick="loadAuditEvents()" style="padding: 0.4rem 1rem;">Filter</button>
+      <button class="secondary" onclick="clearFilters()" style="padding: 0.4rem 1rem;">Clear</button>
+    </div>
+  </div>
+
+  <div id="audit-list">
+    <div class="loading">Loading...</div>
+  </div>
+
+  <div id="pagination" style="margin-top: 1rem;"></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentOffset = 0;
+const limit = 50;
+
+// Mapping of entity types to their valid actions
+const entityTypeActions = {
+  'team': [
+    { value: 'team.created', label: 'Team Created' },
+    { value: 'team.updated', label: 'Team Updated' },
+    { value: 'team.deleted', label: 'Team Deleted' },
+  ],
+  'asset': [
+    { value: 'asset.created', label: 'Asset Created' },
+    { value: 'asset.updated', label: 'Asset Updated' },
+    { value: 'asset.deleted', label: 'Asset Deleted' },
+  ],
+  'contract': [
+    { value: 'contract.published', label: 'Contract Published' },
+    { value: 'contract.deprecated', label: 'Contract Deprecated' },
+    { value: 'contract.force_published', label: 'Contract Force Published' },
+  ],
+  'proposal': [
+    { value: 'proposal.created', label: 'Proposal Created' },
+    { value: 'proposal.acknowledged', label: 'Proposal Acknowledged' },
+    { value: 'proposal.approved', label: 'Proposal Approved' },
+    { value: 'proposal.rejected', label: 'Proposal Rejected' },
+    { value: 'proposal.force_approved', label: 'Proposal Force Approved' },
+    { value: 'proposal.withdrawn', label: 'Proposal Withdrawn' },
+  ],
+  'registration': [
+    { value: 'registration.created', label: 'Registration Created' },
+    { value: 'registration.deleted', label: 'Registration Deleted' },
+  ],
+  'api_key': [
+    { value: 'api_key.created', label: 'API Key Created' },
+    { value: 'api_key.revoked', label: 'API Key Revoked' },
+  ],
+  'sync': [
+    { value: 'sync.dbt', label: 'dbt Sync' },
+    { value: 'sync.dbt_upload', label: 'dbt Upload Sync' },
+    { value: 'sync.openapi', label: 'OpenAPI Import' },
+    { value: 'sync.graphql', label: 'GraphQL Import' },
+  ],
+};
+
+// All actions for when no entity type is selected
+const allActions = Object.values(entityTypeActions).flat();
+
+function onEntityTypeChange() {
+  const entityType = document.getElementById('filter-entity-type').value;
+  const actionSelect = document.getElementById('filter-action');
+
+  // Reset action selection
+  actionSelect.value = '';
+
+  // Populate action dropdown based on entity type
+  if (!entityType) {
+    // Show all actions
+    actionSelect.innerHTML = '<option value="">All actions</option>' +
+      allActions.map(a => `<option value="${a.value}">${escapeHtml(a.label)}</option>`).join('');
+  } else {
+    // Show only actions for this entity type
+    const actions = entityTypeActions[entityType] || [];
+    actionSelect.innerHTML = '<option value="">All actions</option>' +
+      actions.map(a => `<option value="${a.value}">${escapeHtml(a.label)}</option>`).join('');
+  }
+}
+
+function clearFilters() {
+  document.getElementById('filter-entity-type').value = '';
+  document.getElementById('filter-action').value = '';
+  currentOffset = 0;
+  onEntityTypeChange();
+  loadAuditEvents();
+}
+
+function getActionClass(action) {
+  if (action.includes('force') || action.includes('rejected')) return 'status-deprecated';
+  if (action.includes('created') || action.includes('published') || action.includes('approved')) return 'status-active';
+  if (action.includes('deleted') || action.includes('revoked') || action.includes('withdrawn')) return 'status-deprecated';
+  return 'status-pending';
+}
+
+function formatPayload(payload) {
+  if (!payload || Object.keys(payload).length === 0) return '-';
+  const items = Object.entries(payload)
+    .filter(([k, v]) => v !== null && v !== undefined)
+    .map(([k, v]) => `<strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(v))}`)
+    .join(', ');
+  return items || '-';
+}
+
+function formatAuditDetails(event) {
+  const parts = [];
+
+  // Add entity ID with copy button
+  parts.push(`<div class="audit-detail-row"><span class="audit-label">ID:</span> <code class="copyable" onclick="copyToClipboard('${event.entity_id}')" title="Click to copy">${event.entity_id.substring(0, 8)}...</code></div>`);
+
+  // Add actor info if present
+  if (event.actor_id) {
+    parts.push(`<div class="audit-detail-row"><span class="audit-label">Actor:</span> <code class="copyable" onclick="copyToClipboard('${event.actor_id}')" title="Click to copy">${event.actor_id.substring(0, 8)}...</code></div>`);
+  }
+
+  // Format payload based on entity type
+  if (event.payload && Object.keys(event.payload).length > 0) {
+    const payload = event.payload;
+
+    // FQN is the most important - show prominently
+    if (payload.fqn) {
+      parts.push(`<div class="audit-detail-row"><span class="audit-label">FQN:</span> <span class="audit-fqn">${escapeHtml(payload.fqn)}</span></div>`);
+    }
+
+    // Version info
+    if (payload.version) {
+      parts.push(`<div class="audit-detail-row"><span class="audit-label">Version:</span> ${escapeHtml(payload.version)}</div>`);
+    }
+
+    // Force flag
+    if (payload.force !== undefined) {
+      parts.push(`<div class="audit-detail-row"><span class="audit-label">Force:</span> ${payload.force ? 'yes' : 'no'}</div>`);
+    }
+
+    // Triggered by
+    if (payload.triggered_by) {
+      parts.push(`<div class="audit-detail-row"><span class="audit-label">Source:</span> ${escapeHtml(payload.triggered_by)}</div>`);
+    }
+
+    // Other payload items (exclude ones we already showed)
+    const shown = ['fqn', 'version', 'force', 'triggered_by'];
+    const other = Object.entries(payload)
+      .filter(([k, v]) => !shown.includes(k) && v !== null && v !== undefined)
+      .map(([k, v]) => `${escapeHtml(k)}: ${escapeHtml(String(v).substring(0, 50))}${String(v).length > 50 ? '...' : ''}`)
+      .join(', ');
+    if (other) {
+      parts.push(`<div class="audit-detail-row audit-detail-other">${other}</div>`);
+    }
+  }
+
+  return parts.join('');
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showSuccess('Copied to clipboard');
+  }).catch(() => {
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    showSuccess('Copied to clipboard');
+  });
+}
+
+async function loadAuditEvents() {
+  const container = document.getElementById('audit-list');
+  container.innerHTML = '<div class="loading">Loading...</div>';
+
+  const entityType = document.getElementById('filter-entity-type').value;
+  const action = document.getElementById('filter-action').value;
+
+  try {
+    const params = { offset: currentOffset, limit };
+    if (entityType) params.entity_type = entityType;
+    if (action) params.action = action;
+
+    const data = await api.listAuditEvents(params);
+
+    if (!data.results || data.results.length === 0) {
+      container.innerHTML = '<div class="empty">No audit events found.</div>';
+      document.getElementById('pagination').innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = `
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th style="width: 140px;">Timestamp</th>
+            <th style="width: 100px;">Type</th>
+            <th style="width: 160px;">Action</th>
+            <th style="min-width: 200px;">Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.results.map(e => `
+            <tr>
+              <td style="white-space: nowrap; font-size: 0.8rem;">${formatDate(e.occurred_at)}</td>
+              <td><span class="status">${escapeHtml(e.entity_type.toUpperCase())}</span></td>
+              <td><span class="status ${getActionClass(e.action)}">${escapeHtml(e.action.toUpperCase())}</span></td>
+              <td style="font-size: 0.8rem;">${formatAuditDetails(e)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+
+    // Pagination and results count
+    const paginationContainer = document.getElementById('pagination');
+    const totalPages = Math.ceil(data.total / limit);
+    const currentPage = Math.floor(currentOffset / limit) + 1;
+    const showingStart = currentOffset + 1;
+    const showingEnd = Math.min(currentOffset + data.results.length, data.total);
+
+    if (totalPages > 1) {
+      paginationContainer.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: var(--gray);">Showing ${showingStart}-${showingEnd} of ${data.total} results</span>
+          <div>
+            <button class="secondary" ${currentOffset === 0 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">Prev</button>
+            <span style="margin: 0 1rem;">Page ${currentPage} of ${totalPages}</span>
+            <button class="secondary" ${currentPage >= totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Next</button>
+          </div>
+        </div>
+      `;
+    } else {
+      paginationContainer.innerHTML = `<span style="color: var(--gray);">Showing ${data.results.length} of ${data.total} results</span>`;
+    }
+  } catch (error) {
+    showError(error.message);
+    container.innerHTML = '<div class="error">Failed to load audit events. Admin access required.</div>';
+  }
+}
+
+function goToPage(page) {
+  currentOffset = (page - 1) * limit;
+  loadAuditEvents();
+}
+
+// Initialize action dropdown with all actions
+onEntityTypeChange();
+loadAuditEvents();
+</script>
+{% endblock %}
