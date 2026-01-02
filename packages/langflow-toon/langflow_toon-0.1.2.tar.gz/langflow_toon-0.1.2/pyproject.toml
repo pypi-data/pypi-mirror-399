@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "langflow-toon"
+version = "0.1.2"
+description = "TOON (Token-Oriented Object Notation) converter component for Langflow"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Langflow TOON Contributors"}
+]
+keywords = ["langflow", "toon", "llm", "token-optimization", "data-format"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "tiktoken>=0.5.0",
+    "xmltodict>=0.13.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/toon-format/toon"
+Repository = "https://github.com/toon-format/toon"
+Issues = "https://github.com/toon-format/toon/issues"
+
+[tool.setuptools.packages.find]
+include = ["langflow_toon*"]
+
+[tool.setuptools.package-data]
+langflow_toon = ["py.typed"]
