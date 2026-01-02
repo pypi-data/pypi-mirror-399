@@ -1,0 +1,108 @@
+[project]
+name = "onixpy"
+version = "0.1.2"
+description = "ONIX for Books library. Models validate by field name and serialize by alias (pydantic v2 flags)."
+readme = { file = "README.md", content-type = "text/markdown" }
+authors = [
+    { name = "Hodei Navarro", email = "hodei.navarro@outlook.com" }
+]
+license = { file = "LICENSE.md" }
+license-files = ["LICENSE.md"]
+requires-python = ">=3.10"
+
+# Additional metadata
+keywords = ["onix", "metadata", "publishing", "pydantic", "xml", "json"]
+classifiers = [
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Text Processing",
+    "Intended Audience :: Developers",
+]
+urls = { "Homepage" = "https://github.com/hodeinavarro/onixpy", "Issues" = "https://github.com/hodeinavarro/onixpy/issues" }
+
+dependencies = [
+    "lxml>=4.8.0",
+    "pydantic>=2.12.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+sources = ["src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/onix"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+    "README.md",
+    "LICENSE.md",
+]
+
+
+[dependency-groups]
+dev = [
+    "lxml-stubs>=0.5.1",
+    "pytest-cov>=7.0.0",
+    "pytest>=9.0.1",
+    "ruff>=0.14.10",
+    "ty>=0.0.7",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",                    # Verbose
+    "--strict-markers",      # Strict marker usage
+    "--tb=short",           # Shorter traceback format
+]
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == '__main__':",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+precision = 2
+show_missing = true
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.ty]
+# ty is experimental - these settings may change
+# Exclude tests from type checking because ty doesn't understand
+# Pydantic's validate_by_name/validate_by_alias settings (we prefer
+# validation by model field name instead of alias)
+
+[tool.ty.src]
+include = ["src/", "tests/"]
