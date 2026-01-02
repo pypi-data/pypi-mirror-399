@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stats_module"
+version = "0.0.1"
+dependencies = []
+
+# Nouvelle section pour la configuration des outils
+[tool.setuptools]
+packages = ["stats"]  # Spécifie où trouver les packages
+
+# Configuration de pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"] # Chemins où chercher les tests
+pythonpath = ["stats"] # Ajoute stats au PYTHONPATH pour les imports
+
+# Options par défaut pour pytest
+addopts = [
+    "-v",              # Mode verbeux
+    "--tb=short",      # Traceback court
+    "--strict-markers", # Exige la déclaration des markers
+]
