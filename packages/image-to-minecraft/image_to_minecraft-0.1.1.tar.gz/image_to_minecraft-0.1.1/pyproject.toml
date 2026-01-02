@@ -1,0 +1,25 @@
+[project]
+name = "image-to-minecraft"
+version = "0.1.1"
+authors = [
+  { name="Nikita Gamygin", email="nikita.gamygin@gmail.com" },
+]
+description = "Takes an image and recreates it from a set of given blocks"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+dependencies = [
+    "pillow>=12.0.0",
+    "numpy>=2.0.0"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+image_to_minecraft = ["blocks.json", "blocks/*.png"]
