@@ -1,0 +1,29 @@
+[project]
+name = "camel-py"
+version = "0.2.0"
+description = "A lightweight Python client for Ollama with context management and streaming support."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Narendrakumar S", email = "narendrkumarsuresh@gmail.com" },
+]
+
+dependencies = [
+    "httpx>=0.28.1",
+    "ruff>=0.14.10",
+    "yaspin>=3.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Narendrakumar-Suresh/camel"
+Repository = "https://github.com/Narendrakumar-Suresh/camel"
+Issues = "https://github.com/Narendrakumar-Suresh/camel/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["camel"]
