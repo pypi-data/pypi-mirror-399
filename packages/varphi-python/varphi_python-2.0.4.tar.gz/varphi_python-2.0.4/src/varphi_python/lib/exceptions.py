@@ -1,0 +1,2 @@
+class VarphiRuntimeError(Exception):
+    pass
