@@ -1,0 +1,86 @@
+Metadata-Version: 2.4
+Name: sparktype
+Version: 0.1.0
+Summary: Generate static types from OpenAPI specifications
+Author: hntrl
+License: MIT
+Project-URL: Homepage, https://github.com/hntrl/sparktype
+Project-URL: Repository, https://github.com/hntrl/sparktype
+Project-URL: Issues, https://github.com/hntrl/sparktype/issues
+Keywords: openapi,typescript,codegen,types,schema,zod,python
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Code Generators
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+
+# sparktype
+
+Generate static types from OpenAPI specifications.
+
+## Installation
+
+```bash
+pip install sparktype
+# or
+pipx install sparktype
+```
+
+## Usage
+
+```bash
+# Generate types using typegen.jsonc in current directory
+sparktype generate
+
+# Specify config file
+sparktype generate --config ./path/to/typegen.jsonc
+
+# Initialize a new config file
+sparktype init
+
+# Validate config file
+sparktype validate
+```
+
+## Configuration
+
+Create a `typegen.jsonc` file:
+
+```jsonc
+{
+  "specs": {
+    "api": {
+      "path": "./openapi.yaml"
+    }
+  },
+  "outputs": [
+    {
+      "path": "./types.py",
+      "format": "python",
+      "spec": "api"
+    }
+  ]
+}
+```
+
+## Supported Output Formats
+
+- `typescript` - TypeScript interfaces
+- `zod` - Zod schemas with inferred types
+- `zod-typescript` - Both Zod schemas and TypeScript interfaces
+- `python` - Python TypedDict classes
+- `go` - Go structs with JSON tags
+
+## Documentation
+
+For full documentation, visit: https://github.com/hntrl/sparktype
+
