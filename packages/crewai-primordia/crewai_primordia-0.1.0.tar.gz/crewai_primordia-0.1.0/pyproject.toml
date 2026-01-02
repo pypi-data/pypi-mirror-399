@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "crewai-primordia"
+version = "0.1.0"
+description = "Primordia economic metering for CrewAI - track crew costs with machine-readable receipts"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [{ name = "Primordia", email = "dev@primordia.dev" }]
+keywords = ["crewai", "ai", "agents", "metering", "costs", "settlement"]
+dependencies = ["crewai>=0.1.0"]
+
+[project.optional-dependencies]
+submit = ["requests>=2.28.0"]
+
+[project.urls]
+Homepage = "https://primordia.dev"
+Kernel = "https://clearing.kaledge.app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["crewai_primordia"]

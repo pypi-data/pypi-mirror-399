@@ -1,0 +1,43 @@
+Metadata-Version: 2.4
+Name: crewai-primordia
+Version: 0.1.0
+Summary: Primordia economic metering for CrewAI - track crew costs with machine-readable receipts
+Project-URL: Homepage, https://primordia.dev
+Project-URL: Kernel, https://clearing.kaledge.app
+Author-email: Primordia <dev@primordia.dev>
+License-Expression: MIT
+Keywords: agents,ai,costs,crewai,metering,settlement
+Requires-Python: >=3.9
+Requires-Dist: crewai>=0.1.0
+Provides-Extra: submit
+Requires-Dist: requests>=2.28.0; extra == 'submit'
+Description-Content-Type: text/markdown
+
+# crewai-primordia
+
+Track your CrewAI costs with machine-readable receipts.
+
+## Install
+
+```bash
+pip install crewai-primordia
+```
+
+## Usage
+
+```python
+from crewai import Crew, Agent, Task
+from crewai_primordia import PrimordiaMeter
+
+meter = PrimordiaMeter(agent_id="my-crew")
+
+with meter:
+    result = crew.kickoff()
+
+print(f"Cost: ${meter.get_total_usd():.4f}")
+```
+
+## Links
+
+- Kernel: https://clearing.kaledge.app
+- Docs: https://primordia.dev
