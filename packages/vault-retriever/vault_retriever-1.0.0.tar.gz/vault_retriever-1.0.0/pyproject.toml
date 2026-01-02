@@ -1,0 +1,48 @@
+[project]
+name = "vault-retriever"
+version = "1.0.0"
+description = "Vault Retriever - Obsidian 知识库智能检索服务"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "chyax98", email = "chyax98@gmail.com" }
+]
+keywords = ["obsidian", "mcp", "retriever", "semantic-search", "knowledge-base", "rag"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Text Processing :: Indexing",
+]
+requires-python = ">=3.12"
+dependencies = [
+    "bm25s>=0.2.14",
+    "fastembed>=0.7.4",
+    "fastmcp>=2.14.1",
+    "jieba>=0.42.1",
+    "lancedb>=0.26.0",
+    "networkx>=3.6.1",
+    "psutil>=7.2.0",
+    "scipy>=1.16.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/chyax98/vault-retriever"
+Repository = "https://github.com/chyax98/vault-retriever"
+
+[project.scripts]
+vault-retriever = "server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["server.py", "config.py", "vault", "search"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
