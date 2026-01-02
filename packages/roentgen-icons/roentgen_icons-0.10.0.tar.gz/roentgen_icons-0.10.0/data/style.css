@@ -1,0 +1,220 @@
+:root {
+    --preview-width: 600px;
+    --border-opacity: 0.1;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.icon-viewer-section {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    width: 100%;
+    border-top: 1px solid rgba(var(--fg-color), var(--border-opacity));
+    border-bottom: 1px solid rgba(var(--fg-color), var(--border-opacity));
+    margin: 3rem 0;
+}
+
+.icon-grid-section {
+    width: 50%;
+    border-right: 1px solid rgba(var(--fg-color), var(--border-opacity));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.icon-list {
+    flex: 1;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr));
+    gap: 0.5rem;
+    padding: 1rem;
+    align-content: start;
+}
+
+.icon-item {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.icon-item svg {
+    fill: rgba(var(--fg-color));
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.icon-item:hover, .icon-item.selected {
+    background: rgba(var(--fg-color), 0.1);
+}
+
+.icon-preview-section {
+    position: sticky;
+    top: 0;
+    min-width: 600px;
+    width: 50%;
+    border-right: 1px solid rgba(var(--fg-color), var(--border-opacity));
+    height: 100vh;
+}
+
+.icon-info-section {
+    position: sticky;
+    top: 0;
+    width: 300px;
+    min-width: 300px;
+    max-width: 300px;
+    overflow-y: auto;
+    background: rgba(var(--bg-color));
+    flex: 0 0 var(--info-width);
+    height: 100vh;
+}
+
+.icon-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.icon-preview svg {
+    width: 400px;
+    height: 400px;
+}
+
+.icon-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+}
+
+.icon-controls .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.icon-controls .control-group button {
+    flex: 1;
+    width: 100%;
+}
+
+.size-control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.size-control-header label {
+    color: rgba(var(--fg-color));
+}
+
+.size-value {
+    font-family: ui-monospace, monospace;
+    color: rgba(var(--fg-color));
+    min-width: 4em;
+    text-align: right;
+}
+
+.icon-info {
+    min-height: 16rem;
+    padding: 1rem;
+}
+
+.icon-info #iconName {
+    margin: 0;
+}
+
+.icon-info .identifier {
+    font-family: ui-monospace, monospace;
+}
+
+.icon-info .description {
+    line-height: 1.5;
+}
+
+.icon-info .tags {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.icon-info .tag {
+    padding: 0rem 0.5rem;
+    border: 1px solid rgba(var(--fg-color), 0.5);
+    border-radius: 0.25rem;
+}
+
+/* Add styles for control points */
+.control-point {
+    fill: rgba(var(--fg-color));
+    stroke-width: 0.1;
+}
+
+.curve-point {
+    fill: rgba(var(--fg-color));
+}
+
+.control-line {
+    stroke: rgba(var(--fg-color));
+    opacity: 0.3;
+}
+
+.curve-line {
+    stroke: rgba(var(--fg-color));
+}
+
+/* TODO(enzet): rewrite this, it looks wrong. */
+@media (max-width: 200px) {
+    .icon-grid-section {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: 200px;
+        border-right: none;
+        border-bottom: 1px solid rgba(var(--fg-color), var(--border-opacity));
+    }
+
+    .icon-preview-section {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: 50%;
+        border-right: none;
+        border-bottom: 1px solid rgba(var(--fg-color), var(--border-opacity));
+        flex: 0 0 50%;
+    }
+
+    .icon-info-section {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: 50%;
+        flex: 0 0 50%;
+    }
+}
+
+.grid-line {
+    stroke: rgba(var(--fg-color));
+    stroke-opacity: 0.5;
+}
+
+.grid-elements {
+    pointer-events: none;
+}
+
+.search-container {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(var(--fg-color), var(--border-opacity));
+}
+
+#iconIdentifier {
+    font-family: "Iosevka Custom";
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+}
