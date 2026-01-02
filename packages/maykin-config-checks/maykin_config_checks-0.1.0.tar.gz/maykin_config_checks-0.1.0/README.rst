@@ -1,0 +1,151 @@
+
+
+Welcome to Maykin Configuration Checks' documentation!
+======================================================
+
+:Version: 0.1.0
+:Source: https://github.com/maykinmedia/config-checks
+:Keywords: ``Django``, ``Maykin``, ``health checks``
+:PythonVersion: 3.12, 3.13
+
+|build-status| |code-quality| |ruff| |coverage| |docs|
+
+|python-versions| |django-versions| |pypi-version|
+
+This library aims to standardise how health checks for Maykin Django applications 
+are run. The checks are meant to validate that the configuration that is normally
+performed in the Admin or via ``django-setup-configuration`` is correct.
+
+.. contents::
+
+.. section-numbering::
+
+
+Installation
+============
+
+Requirements
+------------
+
+* Python 3.12 or above
+* Django 4.2 or newer
+
+
+Install
+-------
+
+.. code-block:: bash
+
+    pip install maykin-config-checks
+
+Add ``maykin_config_checks`` to the Django ``INSTALLED_APPS``:
+
+.. code-block:: python
+
+    INSTALLED_APPS = [
+        ...
+        "maykin_config_checks",
+        ...
+    ]
+
+
+Usage
+=====
+
+View
+----
+
+To have an API view that returns the results of the performed health checks,
+add the following to the ``urlpatterns``:
+
+.. code-block:: python
+
+    from django.urls import path
+
+    from maykin_config_checks.api.views import HealthChecksView
+
+    urlpatterns = [
+        ...
+        path(
+            "health-checks",
+            HealthChecksView.as_view(
+                checks_collector=my_checks_collector_fn
+            ),
+            name="health-checks",
+        ),
+    ]
+
+Where ``my_checks_collector_fn`` is a ``Callable[[], Iterable[HealthCheck]]``. It is used to retrieve which health checks should
+be performed by the view. You can also add the view multiple times to the ``urlpatters`` with different ``checks_collector`` arguments 
+if you want to have multiple health check views that run different checks.
+
+Management command
+------------------
+
+There is also a management command that can be used to run health checks from the CLI.
+
+.. code-block:: bash
+
+    django-admin config_checks --checks-collector dotted.path.to.my_checks_collector_fn
+
+
+
+Local development
+=================
+
+To develop the library locally, use:
+
+.. code-block:: bash
+
+    uv pip install -r pyproject.toml --all-extras
+
+To run the test app, in the root of the repository run:
+
+.. code:: bash
+
+    export DJANGO_SETTINGS_MODULE=testapp.settings
+    export PYTHONPATH=$PYTHONPATH:`pwd`
+
+Then, you can run:
+
+.. code:: bash
+
+    django-admin runserver
+
+Running tests
+=============
+
+To run the tests without tox, you can do the following (from the root of the repository):
+
+.. code:: bash
+
+    export DJANGO_SETTINGS_MODULE=testapp.settings
+    export PYTHONPATH=$PYTHONPATH:`pwd`
+    pytest tests
+
+
+.. |build-status| image:: https://github.com/maykinmedia/config-checks/workflows/Run%20CI/badge.svg
+    :alt: Build status
+    :target: https://github.com/maykinmedia/config-checks/actions?query=workflow%3A%22Run+CI%22
+
+.. |code-quality| image:: https://github.com/maykinmedia/config-checks/workflows/Code%20quality%20checks/badge.svg
+     :alt: Code quality checks
+     :target: https://github.com/maykinmedia/config-checks/actions?query=workflow%3A%22Code+quality+checks%22
+
+.. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+    :target: https://github.com/astral-sh/ruff
+    :alt: Ruff
+
+.. |coverage| image:: https://codecov.io/gh/maykinmedia/config-checks/branch/main/graph/badge.svg
+    :target: https://codecov.io/gh/maykinmedia/config-checks
+    :alt: Coverage status
+
+.. |docs| image:: https://app.readthedocs.org/projects/config-checks/badge/?version=latest
+    :alt: Documentation Status
+
+.. |python-versions| image:: https://img.shields.io/pypi/pyversions/maykin-config-checks.svg
+
+.. |django-versions| image:: https://img.shields.io/pypi/djversions/maykin-config-checks.svg
+
+.. |pypi-version| image:: https://img.shields.io/pypi/v/maykin-config-checks.svg
+    :target: https://pypi.org/project/maykin-config-checks/
