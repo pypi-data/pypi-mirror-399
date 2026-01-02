@@ -1,0 +1,243 @@
+"""Generate self-contained HTML reports."""
+
+from pathlib import Path
+from typing import Any
+
+
+def generate_histogram_svg(durations: list[float], width: int = 400, height: int = 150) -> str:
+    """Generate inline SVG histogram."""
+    if not durations:
+        return ""
+
+    min_val = min(durations)
+    max_val = max(durations)
+    if max_val == min_val:
+        return ""
+
+    bins = 30
+    bin_width = (max_val - min_val) / bins
+    counts = [0] * bins
+
+    for d in durations:
+        idx = min(int((d - min_val) / bin_width), bins - 1)
+        counts[idx] += 1
+
+    max_count = max(counts) if counts else 1
+    bar_width = width / bins
+
+    svg = f'<svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">'
+    svg += f'<rect width="{width}" height="{height}" fill="#1e1e1e"/>'
+
+    for i, count in enumerate(counts):
+        bar_height = (count / max_count) * (height - 20)
+        x = i * bar_width
+        y = height - bar_height - 10
+        svg += f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_width - 1:.1f}" height="{bar_height:.1f}" fill="#4a9eff"/>'
+
+    svg += "</svg>"
+    return svg
+
+
+def generate_sparkline_svg(values: list[float], width: int = 200, height: int = 40) -> str:
+    """Generate inline SVG sparkline."""
+    if not values or len(values) < 2:
+        return ""
+
+    min_val = min(values)
+    max_val = max(values)
+    if max_val == min_val:
+        return ""
+
+    points = []
+    step_x = width / (len(values) - 1)
+
+    for i, val in enumerate(values):
+        x = i * step_x
+        y = height - ((val - min_val) / (max_val - min_val)) * (height - 4) - 2
+        points.append(f"{x:.1f},{y:.1f}")
+
+    path = "M " + " L ".join(points)
+
+    svg = f'<svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">'
+    svg += f'<rect width="{width}" height="{height}" fill="#1e1e1e"/>'
+    svg += f'<path d="{path}" stroke="#4a9eff" stroke-width="1.5" fill="none"/>'
+    svg += "</svg>"
+    return svg
+
+
+def format_number(value: float, decimals: int = 2) -> str:
+    """Format number with commas."""
+    return f"{value:,.{decimals}f}"
+
+
+def generate_html_report(results: dict[str, Any], output_path: Path, spike_threshold: float, window_ms: float) -> None:
+    """Generate complete HTML report."""
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latency Analysis Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #58a6ff; margin-bottom: 10px; }
+        h2 { color: #79c0ff; margin-top: 30px; margin-bottom: 15px; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
+        h3 { color: #a5d6ff; margin-top: 20px; margin-bottom: 10px; }
+        .group { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px; margin-bottom: 30px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: #0d1117;
+        }
+        th {
+            background: #21262d;
+            color: #58a6ff;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #30363d;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #21262d;
+        }
+        tr:hover { background: #161b22; }
+        .metric-value { color: #79c0ff; font-weight: 500; }
+        .bad { color: #f85149; }
+        .good { color: #3fb950; }
+        .warn { color: #d29922; }
+        .chart-container { margin: 20px 0; text-align: center; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .stat-label { color: #8b949e; font-size: 0.9em; margin-bottom: 5px; }
+        .stat-value { color: #58a6ff; font-size: 1.5em; font-weight: 600; }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #30363d;
+            color: #8b949e;
+            font-size: 0.9em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Latency Analysis Report</h1>
+        <p style="color: #8b949e; margin-bottom: 30px;">Generated by Latency Lens</p>
+"""
+
+    for group_name, group_data in results.items():
+        if not group_data:
+            continue
+
+        basic = group_data.get("basic", {})
+        percentiles = group_data.get("percentiles", {})
+        jitter = group_data.get("jitter", {})
+        spikes = group_data.get("spikes", [])
+        windows = group_data.get("windows", [])
+        rows = group_data.get("rows", [])
+
+        group_title = group_name if group_name != "all" else "Overall"
+        html += f'<div class="group"><h2>{group_title}</h2>\n'
+
+        # Summary stats
+        html += '<div class="stats-grid">'
+        html += f'<div class="stat-card"><div class="stat-label">Count</div><div class="stat-value">{basic.get("count", 0):,}</div></div>'
+        html += f'<div class="stat-card"><div class="stat-label">Min</div><div class="stat-value">{format_number(basic.get("min", 0.0))} ms</div></div>'
+        html += f'<div class="stat-card"><div class="stat-label">Max</div><div class="stat-value">{format_number(basic.get("max", 0.0))} ms</div></div>'
+        html += f'<div class="stat-card"><div class="stat-label">Avg</div><div class="stat-value">{format_number(basic.get("avg", 0.0))} ms</div></div>'
+        html += "</div>\n"
+
+        # Percentiles
+        html += '<h3>Percentiles</h3><table><thead><tr><th>Percentile</th><th>Value (ms)</th></tr></thead><tbody>'
+        for q in [0.5, 0.9, 0.95, 0.99]:
+            val = percentiles.get(q, 0.0)
+            html += f'<tr><td>p{int(q*100)}</td><td class="metric-value">{format_number(val)}</td></tr>'
+        html += "</tbody></table>\n"
+
+        # Jitter metrics
+        html += '<h3>Jitter Metrics</h3><table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>'
+        html += f'<tr><td>Std Dev</td><td class="metric-value">{format_number(jitter.get("std_dev", 0.0))} ms</td></tr>'
+        html += f'<tr><td>MAD</td><td class="metric-value">{format_number(jitter.get("mad", 0.0))} ms</td></tr>'
+        stability = jitter.get("stability", 0.0)
+        stability_class = "good" if stability > 70 else "warn" if stability > 40 else "bad"
+        html += f'<tr><td>Stability</td><td class="metric-value {stability_class}">{format_number(stability, 1)}/100</td></tr>'
+        html += "</tbody></table>\n"
+
+        # Histogram
+        if rows:
+            durations = [r.dur_ms for r in rows]
+            html += '<h3>Duration Distribution</h3>'
+            html += '<div class="chart-container">'
+            html += generate_histogram_svg(durations)
+            html += "</div>\n"
+
+            # Sparkline
+            if len(durations) > 1:
+                html += '<h3>Timeline</h3>'
+                html += '<div class="chart-container">'
+                html += generate_sparkline_svg(durations[:500])
+                html += "</div>\n"
+
+        # Spikes
+        if spikes:
+            html += f'<h3>Top Spikes (Threshold: {spike_threshold:.1f} ms)</h3>'
+            html += '<table><thead><tr><th>Rank</th><th>Timestamp</th><th>Duration</th><th>Name</th><th>Track</th></tr></thead><tbody>'
+            for i, spike in enumerate(spikes[:20], 1):
+                html += f'<tr>'
+                html += f'<td>{i}</td>'
+                html += f'<td>{format_number(spike.ts_ms)} ms</td>'
+                html += f'<td class="metric-value bad">{format_number(spike.dur_ms)} ms</td>'
+                html += f'<td>{spike.name or "-"}</td>'
+                html += f'<td style="color: #8b949e;">{spike.track or "-"}</td>'
+                html += "</tr>"
+            html += "</tbody></table>\n"
+
+        # Worst windows
+        if windows:
+            html += f'<h3>Worst Windows ({window_ms:.0f} ms)</h3>'
+            html += '<table><thead><tr><th>Rank</th><th>Start</th><th>End</th><th>p99</th><th>Total</th><th>Count</th></tr></thead><tbody>'
+            for i, window in enumerate(windows[:20], 1):
+                html += f'<tr>'
+                html += f'<td>{i}</td>'
+                html += f'<td>{format_number(window.start_ms)} ms</td>'
+                html += f'<td>{format_number(window.end_ms)} ms</td>'
+                html += f'<td class="metric-value bad">{format_number(window.p99)} ms</td>'
+                html += f'<td>{format_number(window.total_ms)} ms</td>'
+                html += f'<td>{window.count}</td>'
+                html += "</tr>"
+            html += "</tbody></table>\n"
+
+        html += "</div>\n"
+
+    html += """
+        <div class="footer">
+            <p>Generated by <a href="https://github.com/latency-lens/latency-lens" style="color: #58a6ff;">Latency Lens</a></p>
+        </div>
+    </div>
+</body>
+</html>"""
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html)
+

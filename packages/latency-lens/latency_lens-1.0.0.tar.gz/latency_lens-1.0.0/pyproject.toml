@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "latency-lens"
+version = "1.0.0"
+description = "Latency and jitter analysis for performance-critical systems"
+requires-python = ">=3.11"
+dependencies = [
+  "click>=8.1",
+  "rich>=13.7"
+]
+
+[project.scripts]
+latency-lens = "latency_lens.cli:main"

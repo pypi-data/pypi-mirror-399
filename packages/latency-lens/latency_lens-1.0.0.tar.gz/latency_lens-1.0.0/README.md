@@ -1,0 +1,253 @@
+# Latency Lens
+
+**See p99 latency and jitter — not averages.**
+
+Latency Lens is a clean, language-agnostic latency and jitter analyzer. It transforms raw timing data into actionable insights, revealing the performance characteristics that averages hide.
+
+## Why Latency Lens?
+
+Averages lie. A system with 99% of requests at 10ms and 1% at 1000ms has an average of 19.9ms, but users experience 1000ms spikes. Latency Lens shows you:
+
+- **Percentiles** (p50, p90, p95, p99) — where your tail latency lives
+- **Jitter metrics** — standard deviation, MAD, and stability scores
+- **Spike detection** — identify and rank the worst outliers
+- **Worst windows** — find time periods with degraded performance
+
+Think of it as "Wireshark for time."
+
+## Installation
+
+```bash
+# Using pipx (recommended)
+pipx install latency-lens
+
+# Or from source
+pip install -e .
+
+# With fast JSON parsing (optional)
+pip install -e ".[fast]"
+```
+
+## Quick Start
+
+```bash
+# Analyze CSV data
+latency-lens analyze examples/sample.csv
+
+# Generate HTML report
+latency-lens report examples/sample.csv --html report.html
+
+# Group by event name
+latency-lens analyze examples/sample.csv --by name
+
+# Filter specific events
+latency-lens analyze examples/sample.csv --filter "render"
+```
+
+## Input Formats
+
+### CSV
+
+Supports both header and headerless formats:
+
+```csv
+ts,dur,name,track
+1000.0,12.5,render,main
+1012.5,8.3,update,main
+```
+
+Or headerless (first column = timestamp, second = duration):
+
+```csv
+1000.0,12.5
+1012.5,8.3
+1020.8,15.2
+```
+
+**Column names accepted:**
+- Timestamp: `ts`, `timestamp`, `time`
+- Duration: `dur`, `duration`, `delta`
+- Name: `name`, `event`, `span`
+- Track: `track`, `thread`, `category`, `tid`
+
+**Auto-detection:**
+- Timestamps in seconds (> 1e9) or milliseconds are auto-detected
+- If only timestamps are present, durations are derived as deltas
+
+### JSON
+
+Array of objects:
+
+```json
+[
+  {"ts": 1000.0, "dur": 12.5, "name": "render", "track": "main"},
+  {"ts": 1012.5, "dur": 8.3, "name": "update", "track": "main"}
+]
+```
+
+Chrome trace format:
+
+```json
+{
+  "traceEvents": [
+    {"ph": "X", "ts": 1000000, "dur": 12500, "name": "render", "tid": 1}
+  ]
+}
+```
+
+## CLI Reference
+
+### `analyze`
+
+Display analysis results in the terminal:
+
+```bash
+latency-lens analyze <path> [options]
+```
+
+**Options:**
+- `--format {csv|json|auto}` — Input format (default: auto-detect)
+- `--by {name|track|none}` — Group results by field (default: none)
+- `--filter <regex>` — Filter rows matching pattern on name/track
+- `--spike-ms <float>` — Spike detection threshold (default: 16.6)
+- `--window-ms <float>` — Rolling window size for worst windows (default: 1000)
+- `--top <int>` — Number of top spikes/windows to show (default: 10)
+- `--quantiles <str>` — Comma-separated quantiles (default: 0.5,0.9,0.95,0.99)
+- `--csv <path>` — Export normalized CSV
+
+### `report`
+
+Generate HTML report:
+
+```bash
+latency-lens report <path> --html <output.html> [options]
+```
+
+Same options as `analyze`, plus:
+- `--html <path>` — Output HTML file (required)
+
+## Understanding the Metrics
+
+### Percentiles
+
+Percentiles show the distribution of your latency:
+
+- **p50 (median)**: Half of requests are faster, half are slower
+- **p90**: 90% of requests are faster than this
+- **p95**: 95% of requests are faster than this
+- **p99**: 99% of requests are faster than this
+
+**Why p99 matters:** If your p99 is 100ms but average is 10ms, 1% of users experience 10x worse performance.
+
+### Jitter Metrics
+
+**Standard Deviation**: Measures spread around the mean. Higher = more variable.
+
+**MAD (Median Absolute Deviation)**: More robust than std dev, less affected by outliers. Measures spread around the median.
+
+**Stability Score (0-100)**: Composite metric based on:
+- p99/p50 ratio (penalty for tail latency)
+- Spike rate (penalty for frequent outliers)
+
+Higher is better. Scores:
+- 70-100: Stable
+- 40-70: Moderate variability
+- 0-40: High variability
+
+### Spike Detection
+
+Identifies durations exceeding the threshold (default: 16.6ms, ~60 FPS). Shows:
+- Timestamp when spike occurred
+- Duration of the spike
+- Event name and track (if available)
+- Ranked by severity
+
+### Worst Windows
+
+Finds time windows (default: 1000ms) with the highest p99 latency or total time. Useful for identifying:
+- Periods of sustained degradation
+- Correlations with external events
+- Performance regressions over time
+
+## Export Normalized Data
+
+Export your data in a normalized format for further analysis:
+
+```bash
+latency-lens analyze data.csv --csv normalized.csv
+```
+
+Output format:
+```csv
+ts_ms,dur_ms,name,track
+1000.0,12.5,render,main
+1012.5,8.3,update,main
+```
+
+## Examples
+
+### Analyze frame timing data
+
+```bash
+latency-lens analyze frame_times.csv --spike-ms 16.6 --top 20
+```
+
+### Group by event type
+
+```bash
+latency-lens analyze trace.json --by name
+```
+
+### Find worst performance periods
+
+```bash
+latency-lens analyze data.csv --window-ms 5000 --top 5
+```
+
+### Generate comprehensive report
+
+```bash
+latency-lens report data.csv --html report.html --by track --spike-ms 33.3
+```
+
+## How It Works
+
+1. **Parse** — Reads CSV or JSON, auto-detects formats and units
+2. **Normalize** — Converts all timestamps/durations to milliseconds
+3. **Analyze** — Computes percentiles, jitter, spikes, and windows
+4. **Report** — Displays results in terminal or generates HTML
+
+**Percentile method:** Uses linear interpolation for consistent results across sample sizes.
+
+## Contributing
+
+Contributions welcome! Areas for improvement:
+
+- **Plugins** — Support for more input formats (Prometheus, InfluxDB, etc.)
+- **Trace ingestion** — Direct integration with tracing systems
+- **Rust core** — Performance-critical path in Rust for speed
+- **Visualizations** — Interactive charts and flame graphs
+- **Streaming** — Real-time analysis of live data
+
+## Roadmap
+
+- [ ] Plugin system for custom input formats
+- [ ] Direct trace ingestion (OpenTelemetry, Jaeger, etc.)
+- [ ] Rust core for faster processing
+- [ ] Interactive HTML visualizations
+- [ ] Streaming/real-time mode
+- [ ] Statistical tests (anomaly detection)
+- [ ] Comparison mode (before/after analysis)
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+## Credits
+
+Built with minimal dependencies:
+- `rich` — Beautiful terminal output
+- `orjson` (optional) — Fast JSON parsing
+
+No pandas, no numpy, no bloat. Just fast, focused analysis.
+
