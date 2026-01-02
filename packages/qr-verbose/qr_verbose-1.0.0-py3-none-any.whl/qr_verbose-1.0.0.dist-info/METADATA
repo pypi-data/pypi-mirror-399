@@ -1,0 +1,73 @@
+Metadata-Version: 2.4
+Name: qr-verbose
+Version: 1.0.0
+Summary: A QR code generator with detailed visualization
+Author-email: Nikolay Malkovsky <malkovskynv@gmail.com>
+License: MIT
+Project-URL: Homepage, https://sourcecraft.dev/malkovskynv/qr-verbose
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: qrcode
+Requires-Dist: numpy
+Requires-Dist: pillow
+Dynamic: license-file
+
+# QR Verbose
+
+`qr-verbose` is a Python package for generating QR codes with detailed visualization desined mainly for educational purposes. You can generate a scannable QR code with `qr-verbose`, more importantly you can also generate the same QR with intermediate level information rarely available in QR code generators/encoders.
+## Installation
+
+Install the required dependencies:
+
+```bash
+pip install qr-verbose
+```
+or from sources
+```bash
+git clone https://git@git.sourcecraft.dev/malkovskynv/qr-verbose.git
+cd qr-verbose
+pip install .
+```
+
+`qr-verbose` is provided as CLI entry point, check
+
+```bash
+qr-verbose --help
+```
+
+If `qr-verbose` is not available check the `PATH` variable, when the package is installed pip will show a warning about CLI script not being part of the `PATH`. You can either add the Python bin path to the `PATH` variable or specify the full path to the installed location of the script.
+
+## Usage
+
+You can generate a regular scannable QR code like this
+
+```bash
+qr-verbose -m 2 -v 3 \
+    --logo-path docs/images/logo_example.png \
+    --logo-radius=3.5 \
+    -e M \
+    -o regular.png \
+    t.me/a_zachem_eto_nuzhno  
+```
+
+![](https://malkovskynv.sourcecraft.site/qr-verbose/images/regular.png){align=center width=400px}
+
+The same but unmasked and with visual data layout
+
+```bash
+qr-verbose -m -1 -v 3 \
+    --logo-path docs/images/logo_example.png \
+    --logo-radius=3.5 \
+    -e M \
+    -t ascii \
+    -o ascii.png \
+    t.me/a_zachem_eto_nuzhno  
+```
+
+![ascii](https://malkovskynv.sourcecraft.site/qr-verbose/images/ascii.png){align=center width=400px}
+
+More examples can be found in the [docs](https://malkovskynv.sourcecraft.site/qr-verbose/tutorial.html)
