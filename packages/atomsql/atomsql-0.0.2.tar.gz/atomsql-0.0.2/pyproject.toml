@@ -1,0 +1,42 @@
+[project]
+name = "atomsql"
+version = "0.0.2"
+description = "A lightweight Object-Relational Mapping (ORM) library for Python with support for SQLite and PostgreSQL"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+    {name = "Prashant Singh", email = "box_prashant@outlook.com"}
+]
+keywords = ["orm", "database", "sqlite", "postgresql", "sql"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "psycopg[binary]>=3.3.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/prashant-fintech/atomsql"
+Repository = "https://github.com/prashant-fintech/atomsql"
+Issues = "https://github.com/prashant-fintech/atomsql/issues"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.0",
+    "pytest>=9.0.1",
+    "ruff>=0.4.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
