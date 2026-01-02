@@ -1,0 +1,436 @@
+[common]
+root_path = "/Users/vlad/Proj/mine"
+branch = "main"
+remote = "vladistan"
+parallelism = 32
+timeout = 300
+
+[remotes]
+170d = { base_url = "ssh://git@gitlab.umbctraining.com/" }
+arsenale = { base_url = "ssh://git@github.com/arsenale-bioyards/" }
+bbuck = { base_url = "ssh://git@bitbucket.org/vladistan/" }
+bbuck-vp = { base_url = "ssh://git@bitbucket.org/vladsprivate/" }
+ebiq = { base_url = "ssh://git@github.com/Ebiquity/" }
+ghpub = { base_url = "https://github.com/" }
+vladistan = { base_url = "ssh://git@github.com/vladistan/", branch = "main", parallelism = 24, timeout = 600 }
+sav = { base_url = "https://git.savannah.gnu.org/git/" }
+
+[projects]
+"ProvTrace" = { branch = "master" }
+"ai-tools/chroma-ui" = { slug = "thakkaryash94/chroma-ui", remote = "ghpub", branch = "main" }
+"ai-tools/cline" = { slug = "cline/cline", remote = "ghpub", branch = "main" }
+"ai-tools/roo-code" = { slug = "RooVetGit/Roo-Code", remote = "ghpub", branch = "main" }
+"ai-tools/system-prompts" = { slug = "x1xhlol/system-prompts-and-models-of-ai-tools", remote = "ghpub", branch = "main" }
+"ai-tools/vector-admin" = { slug = "Mintplex-Labs/vector-admin", remote = "ghpub", branch = "master" }
+
+"app/survey/backend" = { slug = "birthday-party-survey-backend" }
+"app/survey/frontend" = { slug = "birthday-party-survey" }
+"app/survey/infra" = { slug = "birthday-party-survey-infra" }
+
+
+"archive/BuildThings" = { branch = "master", status = "archived" }
+"archive/ClusterAppliance-One" = { branch = "master", status = "archived" }
+"archive/Coursera-DL" = { branch = "master", status = "archived" }
+"archive/DaveCustomApp" = { branch = "master", status = "archived" }
+"archive/DreamhostGoolgeMigrator" = { branch = "master", status = "archived" }
+"archive/FuzzrBox" = { branch = "master", status = "archived" }
+"archive/LogGobbler" = { branch = "master", status = "archived" }
+"archive/ProstateProcess" = { branch = "master", status = "archived" }
+"archive/UIMA_Proj" = { branch = "master", status = "archived" }
+"archive/arm/IoMux2Uboot" = { branch = "master", status = "archived" }
+"archive/arm/arm-training-kitrix" = { branch = "webapp-2", status = "archived" }
+"archive/arm/imx_usb_loader" = { branch = "master", status = "archived" }
+"archive/arm/pp-epdc-test" = { branch = "master", status = "archived" }
+"archive/arm/slides" = { slug = "umbc-arm-assembly-course-materials", remote = "bbuck", branch = "master", status = "archived" }
+"archive/arm/u-boot-imx" = { branch = "master", status = "archived" }
+"archive/arm/uboot" = { branch = "master", status = "archived" }
+"archive/blobs_microservice" = { branch = "master", status = "archived" }
+"archive/boxes-to-ovf" = { branch = "master", status = "archived" }
+"archive/boxes-to-ovf-2" = { slug="boxes-to-ovf",  branch = "master", status = "archived" }
+"archive/coursera" = { branch = "master", status = "archived" }
+"archive/cppncss" = { branch = "master", status = "archived" }
+"archive/docker-ansible" = { branch = "master", status = "archived" }
+"archive/docker-browsers" = { branch = "master", status = "archived" }
+"archive/docker-s3cmd" = { branch = "master", status = "archived" }
+"archive/docker/docker-node-python" = { branch = "master", status = "archived" }
+"archive/docker/docker-python-app" = { branch = "master", status = "archived" }
+"archive/docker/gradle-docker" = { branch = "master", status = "archived" }
+"archive/exp-js-unit-tests" = { branch = "master", status = "archived" }
+"archive/hadoop/hamake" = { branch = "master", status = "archived" }
+"archive/hadoop/pig" = { branch = "master", status = "archived" }
+"archive/hadoop/common" = { slug = "hadoop-common", branch = "trunk" }
+"archive/hadoop/hdfs" = { slug = "hadoop-hdfs", branch = "trunk" }
+"archive/hadoop/mapreduce" = { slug = "hadoop-mapreduce", branch = "trunk" }
+"archive/infra/pt-puppet" = { remote = "bbuck-vp", branch = "master", status = "archived" }
+"archive/infra/puppet/dev" = { slug = "puppet-infra-dev", branch = "env/dev", status = "archived" }
+"archive/infra/puppet/puppet-awscli" = { branch = "master", status = "archived" }
+"archive/infra/puppet/puppet-gocd" = { branch = "master", status = "archived" }
+"archive/infra/puppet/puppet-justhub" = { branch = "master", status = "archived" }
+"archive/infra/puppet/puppet-sonarqube" = { branch = "master", status = "archived" }
+"archive/infra/winboxes" = { remote = "bbuck-vp", branch = "master", status = "archived" }
+"archive/jboss-as-quickstart" = { branch = "master", status = "archived" }
+"archive/kontagent-python-client-library" = { branch = "master", status = "archived" }
+"archive/packer-post-processor-vagrant-vmware-ovf" = { branch = "master", status = "archived" }
+"archive/pplans/makesdcard" = { slug = "pplans-makesdcard", remote = "bbuck", branch = "master", status = "archived" }
+"archive/sonar/sonar-cxx" = { branch = "master", status = "archived" }
+"archive/sonar/sonar-scanner" = { branch = "master", status = "archived" }
+"archive/sonar/sonar-xquery-plugin" = { branch = "master", status = "archived" }
+"archive/taxtime/mlvagrant" = { branch = "master", status = "archived" }
+"archive/taxtime/roxy" = { branch = "master", status = "archived" }
+"archive/taxtime/taxtime-provision-ml" = { remote = "bbuck", branch = "master", status = "archived" }
+"archive/teacompetition" = { remote = "bbuck", branch = "master", status = "archived" }
+"archive/vagrant-vcenter" = { branch = "master", status = "archived" }
+"archive/veenome/veenome-scan" = { branch = "master", status = "archived" }
+"archive/wordle-solver" = { status = "archived" }
+
+
+"arsenale/Mechanical-Parts" = { remote = "arsenale" }
+"arsenale/ai" = { remote = "arsenale" }
+"arsenale/archive/ai/ada-expts" = { remote = "arsenale" }
+"arsenale/archive/ai/bo" = { remote = "arsenale" }
+"arsenale/archive/ai/bo-yeast-gem" = { remote = "arsenale" }
+"arsenale/archive/ai/news-bot" = { remote = "arsenale" }
+"arsenale/archive/firmware/Piccolo_Firmware_Portenta" = { remote = "arsenale" }
+"arsenale/archive/firmware/Reactor-Electronics-Firmware" = { remote = "arsenale" }
+"arsenale/archive/firmware/WaterHeater" = { remote = "arsenale" }
+"arsenale/archive/firmware/air-blast_testing" = { remote = "arsenale" }
+"arsenale/archive/firmware/json_over_mqtt" = { remote = "arsenale" }
+"arsenale/archive/os/br_operator" = { remote = "arsenale" }
+"arsenale/archive/os/br_supervisor" = { remote = "arsenale" }
+"arsenale/archive/os/piccolo_alerting" = { remote = "arsenale" }
+"arsenale/archive/os/piccolo_os" = { remote = "arsenale" }
+"arsenale/archive/os/piccolo_protocol_manager" = { remote = "arsenale" }
+"arsenale/archive/os/piccolo_scheduler" = { remote = "arsenale" }
+"arsenale/common-ds" = { slug = "messages", remote = "arsenale" }
+"arsenale/data-dictionary" = { remote = "arsenale" }
+"arsenale/data-processor" = { remote = "arsenale" }
+"arsenale/dotfiles" = { remote = "arsenale" }
+"arsenale/firmware" = { remote = "arsenale" }
+"arsenale/gh-workflows" = { remote = "arsenale" }
+"arsenale/gpt-researcher" = { remote = "arsenale" }
+"arsenale/infrastructure" = { remote = "arsenale" }
+"arsenale/interview-workspace" = { remote = "arsenale" }
+"arsenale/llm-apps" = { remote = "arsenale" }
+"arsenale/news-qa" = { remote = "arsenale" }
+"arsenale/os" = { remote = "arsenale" }
+
+"arsenale/fqa-qa" = { remote = "arsenale" }
+"arsenale/procurement-cv" = { remote = "arsenale" }
+"arsenale/exp-analysis" = { remote = "arsenale" }
+"arsenale/ifc" = { remote = "arsenale" }
+"arsenale/temp-cfd-bot" = { remote = "arsenale" }
+"arsenale/data_modelling" = { remote = "arsenale" }
+"arsenale/amphasys-data-modelling" = { remote = "arsenale" }
+
+
+
+"blog" = { slug = "blog_v-lad_org", branch = "master" }
+
+"casl/idms-app" = { slug = "casl-idms-app" }
+"casl/idms-infra" = { slug = "casl-idms-infra" }
+
+"code_for_boston/greeenbutton" = { slug = "greenbutton_objects" }
+"code_for_boston/home-energy-analysis-tool" = { slug = "codeforboston/home-energy-analysis-tool", remote = "ghpub", branch = "main" }
+
+"conn-craze" = { slug = "conn-craze-pvt" }
+"crafts" = { }
+
+"d3-cloud" = { branch = "master" }
+
+"dotfiles-codespaces" = { }
+"dotfiles-public" = { branch = "personal-mac" }
+"ds-browser" = { slug = "aws-public-ds-browser" }
+
+"free-programming-books" = { branch = "master" }
+"gatsby-themes" = { }
+
+"gocd/gocd" = { branch = "master" }
+"gocd/gocd-backup" = { branch = "master" }
+"gocd/gocd-s3-artifacts" = { branch = "master" }
+"gocd/gocd-slack-build-notifier" = { branch = "master" }
+
+"half-eaten-donut" = { }
+"hangman" = { slug = "mysteryword" }
+"hangman.old_to_reconcile" = { slug = "hangman" }
+"ebooks-and-guides" = { remote = "ghpub", slug = "abhinavmishra14/ebooks-and-guides", branch = "master" }
+
+"infra-goodies" = { branch = "master" }
+
+"infra/cicd-docker" = { branch = "master" }
+"infra/global" = { slug = "infra-tf-dev" }
+"infra/gocd-dbl-yaml-configs" = { branch = "master" }
+"infra/otel-collector" = { slug = "opentelemetry-collector-contrib" }
+"infra/vpn-boxes" = { branch = "master" }
+"infra/proxmox/ansible-initial-server" = { branch = "master" }
+"infra/proxmox/ansible-setup-proxmox-localbox" = { branch = "master" }
+"infra/proxmox/packer-proxmox-templates" = { branch = "master" }
+"infra/proxmox/temp-ansible-proxmox-setup" = { branch = "master" }
+"infra/ansible/elasticsearch" = { slug = "ansible-role-elasticsearch",  branch = "master" }
+
+"learn/RepData_PeerAssessment1" = { branch = "master" }
+"learn/arduino" = { slug = "learn-arduino" }
+"learn/advent-of-code" = { branch = "master", slug = "learn-adventcode" }
+"learn/fastapi" = { branch = "master", slug = "learn-fastapi" }
+"learn/ios" = { branch = "master", slug = "learn-ios-1" }
+"learn/coursera-codingmatrix" = { slug = "coursera-codingmatrix-2", remote = "bbuck", branch = "master" }
+"learn/five-lines" = { }
+"learn/workouts" = { slug = "learn-things" }
+"learn/dvc-getting-started" = {  }
+"learn/gh-actions-course-proj" = {  }
+
+# Fly
+"learn/fly/dictaphone/django" = { slug = "fly-apps/django-dictaphone", remote = "ghpub", branch = "main" }
+"learn/fly/dictaphone/nextjs" = { slug = "fly-apps/nextjs-dictaphone", remote = "ghpub", branch = "main" }
+"learn/fly/dictaphone/dnode" = { slug = "fly-apps/node-dictaphone", remote = "ghpub", branch = "main" }
+"learn/fly/dictaphone/node" = { slug = "fly-apps/node-dictaphone", remote = "ghpub", branch = "main" }
+"learn/fly/dictaphone/phoenix" = { slug = "fly-apps/phoenix-dictaphone", remote = "ghpub", branch = "main" }
+"learn/fly/hello-fly" = { slug = "fly-apps/hello-fly", remote = "ghpub", branch = "main" }
+
+"learn/github/actions" = { slug = "learn-gh-actions" }
+"learn/gpu" = { slug = "learn-gpu" }
+"learn/hadoop/hadoop-book" = { branch = "master" }
+"learn/hello-world" = { branch = "master" }
+"learn/hellogitworld" = { branch = "master" }
+"learn/job-dsl-gradle-example" = { branch = "master" }
+"learn/k8s" = { slug = "learn-k8s" }
+"learn/llms/eng-book" = { slug = "LLM-Engineers-Handbook" }
+"learn/llms/esm-take-1" = { slug = "learn-llms-esm-take1" }
+"learn/llms/megaparse" = { slug = "QuivrHQ/MegaParse", remote = "ghpub", branch = "main" }
+"learn/my-hadoop-book-excercises" = { remote = "bbuck", branch = "master" }
+"learn/nextflow" = { slug = "learn-nextflow" }
+"learn/ps-azure-train-webapp" = { remote = "bbuck", branch = "master" }
+"learn/react" = { slug = "learn-react" }
+"learn/redjackhw1" = { remote = "bbuck", branch = "with_time_split" }
+"learn/redjackhwhadoop" = { remote = "bbuck", branch = "master" }
+"learn/remix/blues" = { slug = "remix-blues-stack-try" }
+"learn/rust" = { slug = "learn-rust" }
+"learn/serverless-workshop" = { branch = "master" }
+"learn/scheme" = { slug = "learn-scheme" }
+"learn/stackthings" = { remote = "bbuck", branch = "master" }
+"learn/typescript" = { slug = "learn-typescript" }
+"learn/vagrant-examples" = { remote = "bbuck-vp", branch = "master" }
+"learn/vercel/nextjs" = { slug = "vercel-nextjs-try" }
+"learn/vercel/vite-react" = { slug = "vercel-try" }
+"learn/zenml" = { slug = "zenml-vscode-tutorial", branch = "develop" }
+"learn/zenml-vscode" = { slug = "zenml-vscode-tutorial-extension", branch = "develop" }
+
+
+
+"linkml/biolink-model" = { slug = "biolink/biolink-model", remote = "ghpub" }
+"linkml/data-dictionary" = { remote = "arsenale", branch = "main" }
+"linkml/grip" = { branch = "master" }
+"linkml/linkml" = { }
+"linkml/linkml-fitness-app" = { slug = "fitness-app" }
+"linkml/linkml-model" = { }
+"linkml/linkml-runtime" = { }
+"linkml/qudt" = { slug = "linkml-qudt" }
+"linkml/pokemon" = { slug = "linkml-pokemon" }
+"linkml/pokemon-app" = { }
+"linkml/rdf-uploader" = { }
+
+
+"mls/cdiscount-models" = { branch = "master" }
+"mls/personalized_medicine" = { branch = "master" }
+"mls/skyscaleconfig" = { branch = "master" }
+
+
+"noworkflow" = { slug = "gems-uff/noworkflow", remote = "ghpub", branch = "master" }
+"prov-viewer" = { slug = "gems-uff/prov-viewer", remote = "ghpub", branch = "master" }
+
+"ref/chef-bento" = { slug = "chef/bento", remote = "ghpub", branch = "main" }
+"ref/dotfiles-dcreager" = { slug = "dcreager/dotfiles-public", remote = "ghpub", branch = "linux" }
+"ref/packer-rockylinux" = { slug = "ynlamy/packer-rockylinux9", remote = "ghpub", branch = "main" }
+"ref/packer-ubuntu" = { slug = "ynlamy/packer-ubuntuserver24_04", remote = "ghpub", branch = "main" }
+"ref/python-blueprint" = { slug = "johnthagen/python-blueprint", remote = "ghpub", branch = "main" }
+
+"repo" = { slug = "repo-common", branch = "master" }
+
+"robotyper" = { slug = "robotyper-all", branch = "master" }
+"slack-sender" = { remote = "bbuck", branch = "extract-chatter" }
+
+"slides/amia-poster" = { remote = "bbuck", status = "archived", branch = "master" }
+"slides/biomath-biomath-admin-vpc" = { slug = "slides-biomath-admin-vpc", branch = "master", status = "archived" }
+"slides/biomath-presentation" = { slug = "slides-biomath-presentation", branch = "master", status = "archived" }
+"slides/biomath-login-experience" = { "branch" = "master", status = "archived", slug = "slides-biomath-login-experience" }
+"slides/microservices-talk" = { branch = "master", status = "archived" }
+"slides/microservices-talk.FIND_OUT_AND_REMOVE_IF_NEEDED" = { slug = "microservicestalk", remote = "bbuck" }
+"slides/mls-skyscale-slides" = { branch = "master", status = "archived" }
+"slides/sbml-pathway-rdf-intro" = { slug = "slides-sbml-pathways-rdf-intro", branch = "master", status = "archived" }
+"slides/slides-cloudchecker" = { branch = "master", status = "archived" }
+"slides/slides-python-imports-talk" = { branch = "master", status = "archived" }
+"slides/slides-python-ycomb-talk" = { branch = "master", status = "archived" }
+"slides/slides-qcon2017sf" = { branch = "master", status = "archived" }
+"slides/slides-sd-python-techdebt" = { branch = "master", status = "archived" }
+"slides/sonar/SonarPresentation" = { branch = "master", status = "archived" }
+"slides/thesis-pitch" = { slug = "thesis-initial-slides", branch = "master" }
+
+"solfege" = { remote = "sav", branch = "master" }
+
+
+"taxtime/archive/taxtime-deploy" = { remote = "bbuck", branch = "master" }
+"taxtime/blobservice" = { slug = "TaxTime-BlobService", branch = "master" }
+"taxtime/nextgen/backend" = { slug = "txnextgen-backend" }
+"taxtime/nextgen/data-model" = { slug = "txnextgen-data-model" }
+"taxtime/nextgen/deployer" = { slug = "txnextgen-deployer" }
+"taxtime/nextgen/frontend" = { slug = "txnextgen-frontend" }
+"taxtime/nextgen/infra" = { slug = "txnextgen-infra" }
+"taxtime/nextgen/loader-gmail" = { slug = "txnextgen-loader-gmail" }
+"taxtime/taxtime" = { remote = "bbuck", branch = "master" }
+"taxtime/txtime-2025" = { }
+"taxtime/xqsync" = { branch = "master" }
+
+"tdd/GildedRose" = { branch = "master" }
+"tdd/kotlin-matrix" = { branch = "master" }
+"tdd/events" = { slug = "tddevents", remote = "bbuck", branch = "master" }
+
+"terminals/cool-retro-term" = { branch="master", slug = "Swordfish90/cool-retro-term", remote = "ghpub" }
+"terminals/iterm" = { slug = "gnachman/iTerm2", remote = "ghpub", branch = "master" }
+
+
+"thesis/Git2PROV" = { branch = "master" }
+"thesis/agentic-experiments-claude" = { slug = "agentic-experiments" }
+"thesis/agentic-experiments-roo" = { slug = "agentic-experiments" }
+"thesis/apache/ambari" = { branch = "trunk" }
+"thesis/apache/ambari-metrics" = { branch = "master" }
+"thesis/apache/ambari-python3" = { slug = "wuzhuoming/ambari-python3", remote = "ghpub", branch = "trunk_py3" }
+"thesis/apache/bigtop" = { slug = "apache/bigtop", remote = "ghpub", branch = "master" }
+"thesis/apache/hadoop" = { slug = "apache/hadoop", remote = "ghpub", branch = "trunk" }
+"thesis/apache/lsb-core" = { }
+"thesis/apache/spark" = { slug = "apache/spark", remote = "ghpub", branch = "master" }
+"thesis/biolink-model" = { slug = "biolink/biolink-model", remote = "ghpub", branch = "master" }
+"thesis/claude-flow" = { }
+"thesis/dvc" = { }
+"thesis/experiments/exp-01" = { slug = "thesis-final-exp01-nlp" }
+"thesis/experiments/exp-02" = { slug = "thesis-final-exp02-cc-fraud" }
+"thesis/experiments/exp-03" = { slug = "thesis-final-exp-03-tf" }
+"thesis/final" = { slug = "thesis-final" }
+"thesis/git2prov.reboot" = { slug = "git2prov-r" }
+"thesis/infra" = { slug = "thesis-infra" }
+"thesis/infra/kubespray" = { branch = "release-2.29", slug = "kubernetes-sigs/kubespray", remote = "ghpub" }
+"thesis/lekhak" = { }
+"thesis/linkml" = { }
+"thesis/linkml-model" = { }
+"thesis/linkml-pokemon" = { }
+"thesis/linkml-runtime" = { }
+"thesis/md2conf" = { branch = "master" }
+"thesis/nmdc-model" = { slug = "microbiomedata/submission-schema", branch = "main" }
+"thesis/papers/compare-ds-using-kg-ann" = { slug = "paper-compare-ds-using-kg-ann" }
+"thesis/papers/ieee-template" = { slug = "paper-IEEE-template-for-ref" }
+"thesis/papers/test-oleaf" = { slug = "paper-testoverleaf" }
+"thesis/papers/using-agents-to-aid-kg-dataset-descriptions" = { slug = "paper-using-agents-to-aid-kg-dataset-descriptions" }
+"thesis/papers/using-kg-to-describe-datasets" = { slug = "paper-using-kg-to-describe-datasets" }
+"thesis/papers/using-llm-to-aid-kg-dataset-descriptions" = { slug = "paper-using-llm-to-aid-kg-dataset-descriptions" }
+"thesis/pdf-splitter" = { }
+"thesis/pokemon" = { slug = "linkml-pokemon" }
+"thesis/proposal/crystalia_collector" = { slug = "crystalia-collector", branch = "master" }
+"thesis/proposal/crystalia_docs" = { slug = "crystalia-public-docs" }
+"thesis/proposal/paper" = { slug = "thesis-proposal", branch = "master" }
+"thesis/proposal/reproduce14" = { slug = "Reproduce14", remote = "ebiq", branch = "master" }
+"thesis/proposal/slides" = { slug = "thesis-initial-slides", branch = "master" }
+"thesis/proposal/startdog-cluster" = { slug = "thesis-startdog-cluster", branch = "master" }
+"thesis/proposal/w3id" = { slug = "w3id.org", branch = "master" }
+"thesis/purl-tent" = { }
+"thesis/py-markdown-table" = { }
+"thesis/rdfs/bg-config" = { slug = "rdfs-bg-config" }
+"thesis/thesis-pitch" = { slug = "thesis-initial-slides", branch = "master" }
+"thesis/wiki2beamer" = { }
+"thesis/apache/ambari-repo" = {  }
+"thesis/jenkins-hash" = { slug = "jenkins-hash-js", branch = "master" }
+
+
+"tla/tla-challenge-16" = { slug = "TLAChallenge", branch = "master", status = "archived" }
+"tla/tla-challenge-17" = { branch = "master", status = "archived" }
+"tla/tla-challenge-18" = { status = "archived", branch = "task-7" }
+"tla/codebreaker-2018-blockchain" = { branch = "master", status = "archived" }
+"tla/codebreaker-2018-explore" = { branch = "master", status = "archived" }
+"tla/codebreaker-2018-model" = { branch = "master", status = "archived" }
+"tla/codebreaker-2018-jenkins-seed" = { branch = "master", status = "archived" }
+
+"umbc-tc/2015/arm/arm-training-app" = { branch = "master" }
+
+"util/autorevision" = { branch = "master" }
+"util/aws4c" = { branch = "master" }
+"util/aws_mon_robot" = { branch = "master" }
+"util/awsmon" = { branch = "master" }
+"util/gcp-courier" = { }
+"util/gitinspector" = { remote = "ghpub", slug = "cyberlytics/gitinspector", branch = "master" }
+"util/homebrew-core" = { branch = "master" }
+"util/homebrew-cask" = { branch = "master" }
+"util/homebrew-gizmos" = { branch = "master" }
+"util/nodemaster" = { }
+"util/pre-commit-xmllint" = { }
+"util/rdf-uploader" = { }
+"util/repo-find-orphans" = { }
+"util/zsh_history_sorted" = { branch = "master" }
+"web-uploader" = {  }
+
+# Deleted
+"build-infra" = { status = "deleted" }
+"Droid-Kernel-1" = { status = "deleted" }
+"gnu.io.android" = { branch = "master", status = "deleted" }
+"gnu.io.android.test" = { branch = "master", status = "deleted" }
+
+# CASL locally deleted
+"jscep" = { status = "deleted" }
+"casl-android-client-ssl-cert-app" = { status = "deleted" }
+"casl-cli-cert-app" = { status = "deleted" }
+"casl-cli-cert-ca" = { status = "deleted" }
+"casl-cli-cert-service" = { status = "deleted" }
+"casl-cli-cert-stack" = { status = "deleted" }
+"casl-cli-cert-web" = { status = "deleted" }
+"casl-idexchange-client-java" = { status = "deleted" }
+"casl-scep" = { status = "deleted" }
+"casl-qr-try-01" = { status = "deleted" }
+
+# Old USPTO
+"percona-pam-plugin" = { status = "deleted" }
+"archive/uspto/USPTOKerberos" = { branch = "master", status = "deleted" }
+"archive/uspto/bdr-infra" = { slug = "bdr-configuration-management", remote = "bbuck", branch = "master", status = "deleted" }
+"archive/uspto/bdr-loader" = { slug = "bdr-searchtool-loader", remote = "bbuck", branch = "develop", status = "deleted" }
+"archive/uspto/uspto_ptab" = { branch = "develop", status = "deleted" }
+"archive/uspto/uspto_ptab-1" = { branch = "master", status = "deleted" }
+
+"cloud-courier" = {  }
+"cognito-backup-restore" = { branch = "master" }
+"cs50" = { branch = "master" }
+"hackathon-tv5" = {  }
+"haizi-boombox" = { branch = "master" }
+"infra-ansible-ipsec" = {  }
+"infra-ansible-ipsec-box" = { branch = "master" }
+"anthropic-quickstarts" = {  }
+"armerj.github.io" = { branch = "master" }
+"ci-slack-poster" = { branch = "master" }
+"claude-code" = {  }
+"dotfiles-base" = { branch = "master" }
+"es6-plato" = { branch = "master" }
+"gh-actions-test" = {  }
+"gitpod-agda" = {  }
+"marklogic-samplestack" = { branch = "master" }
+"matplotlib" = {  }
+"mock-api-example" = { branch = "master" }
+"my-nf-pipeline" = { branch = "master" }
+"nocode" = { branch = "master" }
+"ohmyzsh" = { branch = "master" }
+"party-spark-survey" = {  }
+"practice-angular-storybook" = { branch = "master" }
+"archive/python-py3k-format-sprint" = { slug = "py3k-__format__-sprint", branch = "master" }
+"pyvcproj" = { branch = "master" }
+"learn/qcon-kafka-class" = { slug = "qcon-microservices", branch = "master" }
+"teriminals/qmltermwidget" = { branch = "master" }
+"linkml/qudt-public-repo" = {  }
+"restore-chrome-history" = {  }
+"s3matic" = { branch = "master" }
+"simhash-js" = { branch = "master" }
+"tea-competition" = { branch = "master" }
+"terraform-provider-proxmox" = { branch = "master" }
+"tf-umbc-class" = { branch = "master" }
+"tflint-ruleset-opa" = {  }
+"troubleshoot-cms-threads" = { branch = "master" }
+"try-dev-containers" = {  }
+"txnextgen-frontend-tmp" = {  }
+"umbctc-ml-class-2021-08" = {  }
+"vending-machine-kata" = { branch = "master" }
+"vscode-remote-try-go" = {  }
+"webdav-sync" = { branch = "master" }
+"webpack-stats-graph" = { branch = "master" }
+"x86-assembly-exam" = { branch = "master" }

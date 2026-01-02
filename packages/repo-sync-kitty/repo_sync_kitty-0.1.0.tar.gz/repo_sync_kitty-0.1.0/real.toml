@@ -1,0 +1,46 @@
+[common]
+root_path = "~/Proj/mine"
+branch = "main"
+remote = "mine"
+parallelism = 8
+
+[remotes]
+ghpub = { base_url = "https://github.com/" }
+gitlab = { base_url = "https://gitlab.com/", branch = "master" }
+
+[remotes.mine]
+base_url = "ssh://git@github.com/vladistan/"
+branch = "main"
+parallelism = 2
+timeout = 600
+
+[projects]
+## Archives
+"archive/blobs_microservice" = { branch = "master" }
+"archive/boxes-to-ovf" = { branch = "master" }
+"archive/boxes-to-ovf-2" = { slug="boxes-to-ovf", branch = "master" }
+"archive/coursera" = { slug = "vladistan/archive/coursera", branch = "master" }
+"archive/docker-browsers" = {  branch = "master" }
+"archive/docker-s3cmd" = { slug = "docker-s3cmd", branch = "master" }
+"archive/exp-js-unit-tests" = { slug = "exp-js-unit-tests", branch = "master" }
+"taxtime/xqsync" = { branch = "master" }
+
+# Utilities
+"util/autorevision" = { branch = "master" }
+"util/aws4c" = {  branch = "master" }
+"util/awsmon" = { branch = "master" }
+"archive/FuzzrBox" = { slug = "FuzzrBox", branch = "master" }
+
+"thesis/apache/ambari" = { branch = "trunk" }
+"thesis/apache/ambari-metrics" = { branch = "master" }
+
+"util/zsh_history_sorted" = { branch = "master" }
+"web-uploader" = {}
+
+
+
+[projects."libs/linkml"]
+slug = "linkml/linkml"
+remote = "ghpub"
+branch = "main"
+
