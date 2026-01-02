@@ -1,0 +1,78 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      NUMISTA_API_KEY: ${{ secrets.NUMISTA_API_KEY }}
+      PYTHONWARNINGS: "ignore::ResourceWarning"
+    strategy:
+      matrix:
+        python-version: ["3.13"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run linting
+        run: |
+          uv run ruff check src/ tests/
+
+      - name: Run type checking
+        run: |
+          uv run mypy src/
+          uv run pyright src/
+
+      - name: Run unit tests
+        run: |
+          uv run pytest tests/ -v --ignore=tests/integration --tb=short
+
+      - name: Run integration tests (if API key configured)
+        if: env.NUMISTA_API_KEY != ''
+        run: |
+          uv run pytest tests/integration -v --tb=short
+
+      - name: Check code coverage (unit only)
+        if: env.NUMISTA_API_KEY == ''
+        run: |
+          uv run pytest \
+            --cov=src/numistalib \
+            --cov-report=term \
+            --cov-report=xml \
+            --cov-fail-under=65 \
+            tests/ --ignore=tests/integration
+
+      - name: Check code coverage (with integration)
+        if: env.NUMISTA_API_KEY != ''
+        run: |
+          uv run pytest \
+            --cov=src/numistalib \
+            --cov-report=term \
+            --cov-report=xml \
+            --cov-fail-under=65 \
+            tests/ -v
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.13'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
