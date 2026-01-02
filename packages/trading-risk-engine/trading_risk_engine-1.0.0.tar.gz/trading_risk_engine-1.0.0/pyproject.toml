@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trading-risk-engine"
+version = "1.0.0"
+description = "Kill-switch and risk control engine for live trading bots"
+readme = "README.md"
+license = "LicenseRef-Commercial"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [
+    {name = "Risk Engine Team"}
+]
+keywords = [
+    "trading",
+    "risk-management",
+    "algo-trading",
+    "freqtrade",
+    "kill-switch",
+    "position-sizing",
+    "drawdown",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Typing :: Typed",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourname/risk-engine"
+Documentation = "https://github.com/yourname/risk-engine#readme"
+Repository = "https://github.com/yourname/risk-engine.git"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["risk_engine*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["risk_engine"]
+omit = ["tests/*", "*/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

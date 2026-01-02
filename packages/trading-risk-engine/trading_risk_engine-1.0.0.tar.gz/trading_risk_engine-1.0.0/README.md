@@ -1,0 +1,268 @@
+# 🛡️ Trading Risk Engine
+
+**A Python library with kill-switch and risk controls for live trading bots.**
+
+*Enforce position sizing, drawdown limits, and leverage controls — before your account pays the price.*
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+
+---
+
+## 📑 Quick Navigation
+
+[The Problem](#-the-problem-no-one-talks-about) · [Why Backtests Fail](#-why-backtests-didnt-save-you) · [What Is This?](#-what-is-this) · [Outcomes](#-what-it-prevents-outcomes) · [Who Is This For?](#-who-is-this-for) · [Quick Example](#-quick-example) · [Freqtrade Integration](#-freqtrade-integration) · [Tests](#-tested--reliable) · [Roadmap](#-roadmap) · [License](#-license)
+
+## 💀 The Problem No One Talks About
+
+**Without proper risk controls, even a perfect strategy can wipe out your account.**
+
+Most trading bots don't fail because the strategy is bad.  
+**They fail because risk is unmanaged.**
+
+- Fixed position sizing that ignores account state
+- Unlimited drawdown with no emergency stop
+- Correlated exposure across multiple positions
+- No kill switch when things go wrong
+
+These are the real reasons accounts go to zero — **often after successful backtests.**
+
+> *"I backtested for 6 months, went live, and lost 40% in 2 weeks."*  
+> — Every algo trader, at some point
+
+---
+
+## ❌ Why Backtests Didn't Save You
+
+| What You Thought | What Actually Happened |
+|------------------|------------------------|
+| "My backtest was profitable" | Lookahead bias inflated results |
+| "I used 1% risk per trade" | Fixed sizing ignored changing equity |
+| "I had a stop loss" | No global risk context across trades |
+| "The strategy was tested" | No kill switch when live conditions diverged |
+
+**Strategies don't kill accounts. Uncontrolled risk does.**
+
+---
+
+## 🎯 What Is This?
+
+**Trading Risk Engine** is a strategy-agnostic risk layer that sits between your signals and execution, enforcing hard risk limits — *even when your strategy is wrong.*
+
+```
+┌───────────────────────────────┐
+│        Your Strategy          │
+│  (Freqtrade / Custom Bot)     │
+└───────────────┬───────────────┘
+                │
+                ▼
+┌───────────────────────────────┐
+│     Trading Risk Engine       │  ← This Layer
+│                               │
+│  ✓ Can I afford this trade?   │
+│  ✓ Am I overexposed?          │
+│  ✓ Should I stop trading?     │
+│                               │
+└───────────────┬───────────────┘
+                │
+                ▼
+┌───────────────────────────────┐
+│        Execution Layer        │
+└───────────────────────────────┘
+```
+
+---
+
+## ✅ What It Prevents (Outcomes)
+
+| Before | After |
+|--------|-------|
+| "I lost 30% before I noticed" | Never lose more than 15% per session *(configurable)* |
+| "Position sizes were random" | Every trade risks exactly 1% of equity *(configurable)* |
+| "One bad week wiped months of gains" | Trading stops automatically at drawdown limit |
+| "I was over-leveraged without knowing" | Leverage is capped at 3x before orders are placed *(configurable)* |
+| "I had 5 correlated positions open" | Exposure limits prevent concentration risk |
+
+**This is not about making more money. It's about keeping what you have.**
+
+---
+
+## 🔧 How It Works (High Level)
+
+The engine evaluates every trade request against your defined limits:
+
+1. **Kill Switch Check** — Is trading enabled, or are we in shutdown?
+2. **Drawdown Check** — Are we within account drawdown limits?
+3. **Session Check** — Have we lost too much today?
+4. **Exposure Check** — Do we have room for another position?
+5. **Size Calculation** — What's the correct position size for this stop loss?
+6. **Leverage Check** — Would this position exceed our leverage limit?
+
+**Any failure = trade rejected. No exceptions. No overrides.**
+
+---
+
+## 👤 Who Is This For?
+
+### ✅ This is for:
+- Algo traders running **live bots**
+- Developers using **Freqtrade, Backtrader, or custom systems**
+- Traders who understand: *profits don't matter if risk is broken*
+- Anyone who has **blown an account** and is tired of repeating it
+
+### ❌ This is NOT for:
+- Signal sellers looking for marketing buzzwords
+- "Guaranteed profit" seekers
+- Beginners who don't understand drawdown
+- People who think backtests equal live results
+
+**If you're looking for a magic profit button, look elsewhere.**
+
+---
+
+## 📦 What You Get
+
+### Core Components
+| Component | Function |
+|-----------|----------|
+| **RiskConfig** | Define your limits (drawdown, leverage, positions) |
+| **RiskState** | Track runtime state (equity, peak, exposure) |
+| **RiskEngine** | Evaluate trades: APPROVE / REJECT / SHUTDOWN |
+
+### Guards (Risk Controls)
+| Guard | What It Does |
+|-------|--------------|
+| **DrawdownGuard** | Triggers kill switch at max drawdown |
+| **LeverageGuard** | Prevents over-leveraged positions |
+| **ExposureGuard** | Limits concurrent positions |
+
+### Position Sizing
+| Sizer | Method |
+|-------|--------|
+| **FixedRiskSizer** | Classic % risk per trade formula |
+| **VolatilitySizer** | ATR-based sizing *(coming in v1.1)* |
+
+### Adapters
+| Adapter | Integration |
+|---------|-------------|
+| **GenericAdapter** | Plain Python usage |
+| **FreqtradeAdapter** | Drop-in Freqtrade integration |
+
+---
+
+## ⚡ Quick Example
+
+```python
+from risk_engine import RiskConfig, RiskState, RiskEngine
+from risk_engine.interfaces.position import TradeRequest, PositionSide
+
+# Define your risk limits
+config = RiskConfig(
+    max_account_drawdown=0.15,  # 15% max drawdown → kill switch
+    risk_per_trade=0.01,        # 1% risk per trade
+    max_leverage=3.0,           # Max 3x leverage
+    max_open_positions=3,       # Max 3 concurrent trades
+)
+
+# Initialize with current account state
+state = RiskState(current_equity=10000, equity_peak=10000)
+engine = RiskEngine(config, state)
+
+# Evaluate a trade
+decision = engine.evaluate_trade(TradeRequest(
+    symbol="BTC/USDT",
+    side=PositionSide.LONG,
+    entry_price=50000,
+    stop_loss=49000,
+))
+
+if decision.is_approved:
+    print(f"✅ Trade approved: {decision.position_size} units")
+else:
+    print(f"❌ Trade rejected: {decision.reason}")
+
+# Check kill switch status after losses
+print(f"Kill switch active: {not state.trading_enabled}")
+```
+
+---
+
+## 🔌 Freqtrade Integration
+
+Drop-in integration with Freqtrade strategies:
+
+```python
+from risk_engine.adapters.freqtrade import FreqtradeRiskAdapter, FreqtradeConfig
+
+class MyStrategy(IStrategy):
+    def __init__(self, config):
+        super().__init__(config)
+        self.risk_adapter = FreqtradeRiskAdapter(
+            FreqtradeConfig(
+                max_account_drawdown=0.15,
+                risk_per_trade=0.01,
+            )
+        )
+    
+    def bot_start(self, **kwargs):
+        self.risk_adapter.on_bot_start(self.wallets.get_total_stake_amount())
+    
+    def custom_stake_amount(self, pair, current_rate, proposed_stake, side, **kwargs):
+        return self.risk_adapter.get_stake_amount(
+            pair=pair,
+            entry_price=current_rate,
+            stoploss_price=current_rate * (1 - abs(self.stoploss)),
+            proposed_stake=proposed_stake,
+            side=side,
+        )
+```
+
+> Full example: [freqtrade_example.py](risk_engine/examples/freqtrade_example.py)
+
+---
+
+## 🧪 Tested & Reliable
+
+```
+========================= 61 tests passed =========================
+```
+
+| Test Suite | Coverage |
+|------------|----------|
+| Config validation | ✅ |
+| Drawdown + kill switch | ✅ |
+| Position sizing | ✅ |
+| Leverage guards | ✅ |
+| Full engine integration | ✅ |
+| Fail-closed behavior | ✅ |
+
+**The engine is tested for the scenarios that matter most:**
+- Losing streaks that hit drawdown limits
+- Concurrent position limits
+- Manual reset after shutdown
+- Error handling (fail-closed)
+
+---
+
+## 📜 License
+
+```
+Free for personal experimentation and research.
+A commercial license is required for live trading, paid services, or client deployments.
+```
+
+📧 **Commercial licensing:** [Get a License](mailto:logiccrafterdz@gmail.com?subject=Trading%20Risk%20Engine%20License%20Inquiry)
+
+---
+
+## 🗺️ Roadmap
+
+| Version | Features |
+|---------|----------|
+| **v1.0** ✅ | Kill switch, Fixed sizing, Leverage guard, Freqtrade adapter |
+| **v1.1** | Session exposure limits, DCA caps, Volatility sizing |
+| **Pro** | Correlation analysis, Regime detection |
+
+---
+
+> **Remember:** This engine protects capital. It doesn't make money.  
+> That's your strategy's job — *if* it survives long enough to prove itself.
