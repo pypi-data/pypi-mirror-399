@@ -1,0 +1,135 @@
+[project]
+name = "numistalib"
+version = "0.1.1"
+description = "Numista API wrapper"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [{name = "Andy Wells", email = "wells10440@gmail.com"}]
+dependencies = [
+    "pydantic>=2.12.5", # Strict models/validation
+    "pydantic-settings>=2.5.0", # Config from env
+    "rich>=14.2.0", # CLI rendering
+    "click>=8.1.0", # CLI commands
+    "ccy>=1.7.1",
+    "httpx>=0.28.1",
+    "pycountry>=24.6.1",
+    "hishel[httpx]>=1.1.6", # RFC 9111-compliant HTTP caching (AGENTS.MD Section 14)
+    "pyrate-limiter>=3.9.0", # Rate limiting (transport-level)
+    "tenacity>=9.0.0",
+    "textual-image>=0.8.4",
+    "beautifulsoup4>=4.14.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/wells01440/numistalib"
+Documentation = "https://numistalib.readthedocs.io/"
+Source = "https://github.com/wells01440/numistalib"
+Issues = "https://github.com/wells01440/numistalib/issues"
+Changelog = "https://github.com/wells01440/numistalib/blob/main/CHANGELOG.md"
+NumistaAPI = "https://en.numista.com/api/doc/index.php"
+NumistaConditions = "https://en.numista.com/conditions.php"
+NumistaLegal = "https://en.numista.com/legal.php"
+NumistaPricingAPI = "https://en.numista.com/api/pricing.php"
+
+[project.scripts]
+numistalib = "numistalib.cli:main"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.10", # Linting / formatting
+    "pytest>=9.0.1",
+    "bump2version>=1.0.1", # Version management 
+    "pytest-mock>=3.14.0", 
+    "pytest-cov>=7.0.0", 
+    "radon>=6.0.1", # Complexity metrics
+    "types-requests>=2.31.0.202409.0", # Stubs for strict mypy
+    "types-pillow>=10.2.0.20240520", # Pillow type stubs
+    "uv",
+    "xenon>=0.9.3",
+    "pyright>=1.1.0", 
+    "mypy>=1.19.1",
+    "pydocstyle>=6.3.0", # NumPy docstring validation
+    "interrogate>=1.7.0", # Docstring coverage enforcement
+    "darglint>=1.8.1", # Docstring argument validation
+]
+
+docs = [
+    "sphinx>=7.2.0",
+    "sphinx-rtd-theme>=2.0.0",
+    "myst-parser>=2.0.0",
+    "sphinx-autodoc-typehints>=1.25.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+src = ["src"]
+exclude = ["tests"]
+preview = true
+indent-width = 4
+
+
+[tool.ruff.lint]
+select = [
+  "E", "W",   # pycodestyle
+  "F",        # pyflakes
+  "B", "C",   # bugbear
+  "UP",       # pyupgrade
+  "I",        # isort
+  "N",        # pep8-naming
+  "BLE",      # flake8-blind-except
+  "C90",      # mccabe complexity
+  "T20",      # flake8-print
+  "TID",      # flake8-tidy-imports
+  "ARG",      # flake8-unused-arguments
+  "PTH",      # flake8-use-pathlib
+  "PLC", "PLE", "PLR", "PLW",  # pylint
+  "RUF",      # ruff-specific rules
+  "Q",        # flake8-quotes
+]
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+ignore = ["E501"]  # Line length handled by config
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
+include = ["src"]
+exclude = ["**/__pycache__", ".venv", "build", "dist", "alembic", "tests"]
+reportMissingImports = true
+reportMissingTypeStubs = false
+reportUnknownParameterType = true
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUntypedFunctionDecorator = false
+reportUntypedClassDecorator = false
+reportUntypedBaseClass = false
+reportUnusedFunction = true
+reportOptionalMemberAccess = false
+reportOptionalSubscript = false
+
+[tool.mypy]
+python_version = "3.13"
+strict = false
+ignore_missing_imports = true
+mypy_path = "src"
+namespace_packages = true
+explicit_package_bases = true
