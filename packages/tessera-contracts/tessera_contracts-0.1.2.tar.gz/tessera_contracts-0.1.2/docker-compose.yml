@@ -1,0 +1,65 @@
+# Tessera - Production-ready docker-compose
+# Usage: docker compose up
+#
+# For demo with sample data: docker compose -f docker-compose.dev.yml -p tessera-dev up
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: tessera
+      POSTGRES_PASSWORD: tessera
+      POSTGRES_DB: tessera
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tessera"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://tessera:tessera@db:5432/tessera
+      REDIS_URL: redis://redis:6379/0
+      BOOTSTRAP_API_KEY: tessera-dev-key
+      AUTH_DISABLED: "false"
+      ADMIN_EMAIL: admin@tessera.dev
+      ADMIN_PASSWORD: adminpass123
+      ADMIN_NAME: Admin
+      API_HOST: "0.0.0.0"
+      API_PORT: "8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  postgres_data:
+  redis_data:
