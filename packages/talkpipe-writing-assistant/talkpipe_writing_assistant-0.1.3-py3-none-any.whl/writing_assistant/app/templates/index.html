@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalkPipe Writing Assistant</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1><img src="/static/logo.png" alt="Writing Assistant Logo" class="header-logo">TalkPipe Writing Assistant</h1>
+                <div class="header-controls">
+                    <div class="file-menu-dropdown">
+                        <button id="file-menu-btn" class="btn btn-primary btn-small">📁 File ▾</button>
+                        <div id="file-menu-content" class="dropdown-menu">
+                            <a href="#" id="new-document-btn" class="dropdown-item">📄 New</a>
+                            <a href="#" id="save-document-btn" class="dropdown-item">💾 Save</a>
+                            <a href="#" id="save-as-document-btn" class="dropdown-item">💾 Save As</a>
+                            <a href="#" id="load-document-btn" class="dropdown-item">📂 Open</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" id="create-snapshot-btn" class="dropdown-item">📸 Create Snapshot</a>
+                            <a href="#" id="revert-snapshot-btn" class="dropdown-item">⏮️ Revert to Snapshot</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" id="import-document-btn" class="dropdown-item">📥 Import</a>
+                            <a href="#" id="export-document-btn" class="dropdown-item">📤 Export</a>
+                        </div>
+                        <input type="file" id="file-input" accept=".json" style="display: none;">
+                    </div>
+                    <button id="copy-document-btn" class="btn btn-outline btn-small">📋 Copy</button>
+                    <button id="dark-mode-toggle" class="dark-mode-toggle" title="Toggle dark mode"></button>
+                    <button id="settings-btn" class="btn btn-secondary btn-small">⚙️ Settings</button>
+                    <span id="user-email" class="user-info" style="margin-left: 10px; color: var(--text-secondary);"></span>
+                    <button id="logout-btn" class="btn btn-secondary btn-small">🚪 Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="title-section">
+            <div class="title-row">
+                <div class="title-input-group">
+                    <label for="document-title" class="title-label">Document Title:</label>
+                    <input type="text" id="document-title" value="" placeholder="Enter document title...">
+                </div>
+                <div class="filename-display">
+                    <span id="current-filename" class="filename-text">Unsaved Document</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="editor-container">
+                <div class="editor-header">
+                    <h2>Document</h2>
+                    <div class="editor-controls">
+                        <button id="copy-document-btn-editor" class="btn btn-secondary btn-small">📋 Copy</button>
+                    </div>
+                </div>
+
+                <div class="editor-main">
+                    <div class="document-editor">
+                        <textarea id="document-text" placeholder="Start typing your document here...
+
+Separate sections with blank lines. When you place your cursor in a section, suggestions will appear below."></textarea>
+                    </div>
+
+                    <div class="resize-handle" id="resize-handle"></div>
+
+                    <div class="suggestion-panel">
+                        <div class="suggestion-header">
+                            <h3>AI Suggestion</h3>
+                            <div class="suggestion-info">
+                                <span id="current-section-info">Select a section to see suggestions</span>
+                            </div>
+                        </div>
+                        <div class="suggestion-content">
+                            <div class="generation-mode-selection">
+                                <div class="generation-mode-buttons">
+                                    <button class="mode-btn" data-mode="ideas" title="Get creative ideas and suggestions to expand or improve your content. The AI will provide actionable recommendations for enhancing structure, style, clarity, flow, and impact." disabled>
+                                        <span class="mode-icon">💡</span>
+                                        <span class="mode-label">Ideas</span>
+                                    </button>
+                                    <button class="mode-btn" data-mode="rewrite" title="Completely rewrite the paragraph for maximum clarity, engagement, and impact while preserving the core message. Great for transforming rough drafts into polished content." disabled>
+                                        <span class="mode-icon">✏️</span>
+                                        <span class="mode-label">Rewrite</span>
+                                    </button>
+                                    <button class="mode-btn" data-mode="improve" title="Enhance the paragraph while preserving its structure. Improves word choices, sentence flow, precision, and engagement without fundamental restructuring." disabled>
+                                        <span class="mode-icon">✨</span>
+                                        <span class="mode-label">Improve</span>
+                                    </button>
+                                    <button class="mode-btn" data-mode="proofread" title="Correct grammar, spelling, punctuation, and basic clarity issues while preserving your voice and intent. Minimal changes for correctness only." disabled>
+                                        <span class="mode-icon">🔍</span>
+                                        <span class="mode-label">Proofread</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="suggestion-controls">
+                                <button id="use-suggestion-btn" class="btn btn-success btn-small" disabled>← Use This Text (Ctrl+U)</button>
+                            </div>
+                            <div id="suggestion-text" class="suggestion-text">Position your cursor in a section above to see AI suggestions for that section.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="modal-close" id="close-settings-modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-tabs">
+                        <button class="settings-tab-btn active" data-settings-tab="metadata">Writing Settings</button>
+                        <button class="settings-tab-btn" data-settings-tab="generation">AI Settings</button>
+                    </div>
+
+                    <div class="settings-tab-content active" id="metadata-settings">
+                        <div class="metadata-form">
+                            <div class="settings-section">
+                                <div class="form-group">
+                                    <label for="writing-style">Writing Style:</label>
+                                    <select id="writing-style" name="writing_style">
+                                        <option value="formal">Formal</option>
+                                        <option value="casual">Casual</option>
+                                        <option value="academic">Academic</option>
+                                        <option value="creative">Creative</option>
+                                        <option value="technical">Technical</option>
+                                        <option value="persuasive">Persuasive</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="target-audience">Target Audience:</label>
+                                    <input type="text" id="target-audience" name="target_audience" placeholder="e.g., general public, experts, students...">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="tone">Tone:</label>
+                                    <select id="tone" name="tone">
+                                        <option value="neutral">Neutral</option>
+                                        <option value="professional">Professional</option>
+                                        <option value="friendly">Friendly</option>
+                                        <option value="authoritative">Authoritative</option>
+                                        <option value="conversational">Conversational</option>
+                                        <option value="enthusiastic">Enthusiastic</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="background-context">Background Context:</label>
+                                    <textarea id="background-context" name="background_context" rows="4" placeholder="Provide any background information, context, or specific instructions that should guide the text generation..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="generation-directive">Generation Directive:</label>
+                                    <textarea id="generation-directive" name="generation_directive" rows="3" placeholder="Specific instructions for how to transform or enhance the user's text (e.g., 'expand with examples', 'summarize key points', 'add citations')..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="word-limit">Approximate Word Limit:</label>
+                                    <input type="number" id="word-limit" name="word_limit" placeholder="e.g., 100, 500, 1000" min="10" max="10000">
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" id="save-to-document-btn" class="btn btn-primary">💾 Save to Document</button>
+                                <button type="button" id="save-as-default-btn" class="btn btn-success">🌐 Save as Default</button>
+                                <button type="button" id="reset-metadata-btn" class="btn btn-secondary">🔄 Reset to Defaults</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-tab-content" id="generation-settings">
+                        <div class="generation-form">
+                            <div class="settings-section">
+                                <div class="form-group">
+                                    <label for="ai-source">AI Source:</label>
+                                    <input type="text" id="ai-source" name="source" placeholder="e.g., OpenAI, Anthropic, local model...">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="ai-model">Model:</label>
+                                    <input type="text" id="ai-model" name="model" placeholder="e.g., gpt-4, claude-3, llama-2...">
+                                </div>
+
+                                <div class="settings-section">
+                                    <h4>Environment Variables</h4>
+                                    <small class="form-help">Configure environment variables for AI services. These are stored in your browser's local storage and sent with each generation request.</small>
+
+                                    <div id="env-vars-container">
+                                        <!-- Environment variables will be added here dynamically -->
+                                    </div>
+
+                                    <button type="button" id="add-env-var-btn" class="btn btn-secondary btn-small">+ Add Environment Variable</button>
+                                </div>
+
+                                <div class="settings-section">
+                                    <h4>Hotkeys</h4>
+                                    <div class="form-group">
+                                        <label for="generate-hotkey">Generate Text Hotkey:</label>
+                                        <input type="text" id="generate-hotkey" name="generate_hotkey" placeholder="e.g., Ctrl+G, Alt+G, Ctrl+Shift+G" maxlength="20">
+                                        <small class="form-help">Use combinations like Ctrl+G, Alt+Shift+T, etc.</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="use-text-hotkey">Use Text Hotkey:</label>
+                                        <input type="text" id="use-text-hotkey" name="use_text_hotkey" placeholder="e.g., Ctrl+U, Alt+U, Ctrl+Enter" maxlength="20">
+                                        <small class="form-help">Use combinations like Ctrl+U, Alt+Shift+A, etc.</small>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="button" id="save-generation-settings-btn" class="btn btn-primary">Save AI Settings</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load Document Modal -->
+        <div id="load-document-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Open Document</h2>
+                    <button class="modal-close" id="close-load-modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="load-documents-list" class="documents-list">
+                        <!-- Documents will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="refresh-documents-btn" class="btn btn-secondary">Refresh</button>
+                    <button id="close-load-modal-footer" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Save As Modal -->
+    <div id="save-as-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Save Document As</h2>
+                <button class="modal-close" id="close-save-as-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="save-as-filename">Filename:</label>
+                    <input type="text" id="save-as-filename" placeholder="Enter filename..." class="filename-input">
+                    <small class="form-help">The .json extension will be added automatically</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-save-as-btn" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-save-as-btn" class="btn btn-primary">Save As</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Document Modal -->
+    <div id="new-document-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Document</h2>
+                <button class="modal-close" id="close-new-document-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new-document-title">Document Title:</label>
+                    <input type="text" id="new-document-title" placeholder="Enter document title...">
+                </div>
+                <div class="form-group">
+                    <label for="new-document-outline">Initial Content:</label>
+                    <textarea id="new-document-outline" rows="8" placeholder="Enter your initial document content here.&#10;&#10;Separate sections with blank lines.&#10;Each paragraph or section will be processed individually for AI suggestions."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-new-document-btn" class="btn btn-secondary">Cancel</button>
+                <button id="create-new-document-btn" class="btn btn-success">Create Document</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revert to Snapshot Modal -->
+    <div id="revert-snapshot-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Revert to Snapshot</h2>
+                <button class="modal-close" id="close-revert-snapshot-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="snapshots-list" class="documents-list">
+                    <!-- Snapshots will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="close-revert-snapshot-footer" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication handling - make available globally
+        window.getAuthToken = function() {
+            return localStorage.getItem('access_token');
+        };
+
+        window.getAuthHeaders = function() {
+            const token = window.getAuthToken();
+            if (token) {
+                return {
+                    'Authorization': `Bearer ${token}`
+                };
+            }
+            return {};
+        };
+
+        async function checkAuth() {
+            const token = window.getAuthToken();
+            if (!token) {
+                window.location.href = '/login';
+                return null;
+            }
+
+            try {
+                const response = await fetch('/auth/check', {
+                    headers: window.getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return data;
+                } else {
+                    // Token is invalid or expired
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('token_type');
+                    window.location.href = '/login';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                // Don't redirect on network errors, only on auth failures
+                if (error.message && error.message.includes('401')) {
+                    window.location.href = '/login';
+                }
+                return null;
+            }
+        }
+
+        async function logout() {
+            try {
+                // Call logout endpoint
+                await fetch('/auth/jwt/logout', {
+                    method: 'POST',
+                    headers: window.getAuthHeaders()
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+
+            // Clear local storage and redirect
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('token_type');
+            window.location.href = '/login';
+        }
+
+        // Initialize after DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check auth on page load (non-blocking)
+            checkAuth().then(user => {
+                if (user) {
+                    // Display user email
+                    const emailElement = document.getElementById('user-email');
+                    if (emailElement) {
+                        emailElement.textContent = user.email;
+                    }
+                }
+            }).catch(err => {
+                console.error('Auth check error:', err);
+                // Don't block page load on auth errors
+            });
+
+            // Logout button handler
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to logout?')) {
+                        logout();
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
