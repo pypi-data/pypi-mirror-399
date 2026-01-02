@@ -1,0 +1,78 @@
+[build-system]
+requires = [ "setuptools>=61.0", "wheel",]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sangreal_bt"
+version = "0.1.6"
+description = "A high-performance vector backtesting framework for quantitative strategies"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+keywords = [ "backtesting", "quantitative", "finance", "vector", "trading", "strategy", "investment",]
+classifiers = [ "Development Status :: 4 - Beta", "Intended Audience :: Developers", "Intended Audience :: Financial and Insurance Industry", "Intended Audience :: Science/Research", "Topic :: Office/Business :: Financial", "Topic :: Scientific/Engineering", "Topic :: Software Development :: Libraries :: Python Modules", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3.6", "Programming Language :: Python :: 3.7", "Programming Language :: Python :: 3.8", "Programming Language :: Python :: 3.9", "Programming Language :: Python :: 3.10", "Programming Language :: Python :: 3.11", "Operating System :: OS Independent", "Operating System :: POSIX", "Operating System :: Microsoft :: Windows", "Operating System :: MacOS", "Natural Language :: Chinese (Simplified)", "Natural Language :: English",]
+requires-python = ">=3.6"
+dependencies = [ "attrs>=19.0.0", "pandas>=1.0.0", "numpy>=1.18.0", "addict>=2.2.0", "python-dateutil>=2.8.0",]
+[[project.authors]]
+name = "liubola"
+email = "lby3523@gmail.com"
+
+[[project.maintainers]]
+name = "liubola"
+email = "lby3523@gmail.com"
+
+[project.optional-dependencies]
+dev = [ "pytest>=6.0.0", "pytest-cov>=2.10.0", "black>=21.0.0", "flake8>=3.8.0", "mypy>=0.800",]
+plotting = [ "matplotlib>=3.0.0", "seaborn>=0.11.0",]
+performance = [ "numba>=0.50.0", "cython>=0.29.0",]
+
+[project.urls]
+Homepage = "https://github.com/liubola/sangreal-bt"
+Repository = "https://github.com/liubola/sangreal-bt"
+"Bug Reports" = "https://github.com/liubola/sangreal-bt/issues"
+Documentation = "https://github.com/liubola/sangreal-bt/blob/main/README.md"
+
+[project.scripts]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.black]
+line-length = 88
+target-version = [ "py36", "py37", "py38", "py39", "py310", "py311",]
+include = "\\.pyi?$"
+extend-exclude = "/(\n  # directories\n  \\.eggs\n  | \\.git\n  | \\.hg\n  | \\.mypy_cache\n  | \\.tox\n  | \\.venv\n  | build\n  | dist\n)/\n"
+
+[tool.mypy]
+python_version = "3.6"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.setuptools.package-data]
+"*" = [ "*.py",]
+
+[tool.pytest.ini_options]
+testpaths = [ "tests",]
+python_files = [ "test_*.py", "*_test.py",]
+python_classes = [ "Test*",]
+python_functions = [ "test_*",]
+addopts = [ "--strict-markers", "--strict-config", "--verbose",]
+
+[tool.coverage.run]
+source = [ "sangreal_bt",]
+omit = [ "*/tests/*", "*/test_*", "setup.py",]
+
+[tool.coverage.report]
+exclude_lines = [ "pragma: no cover", "def __repr__", "if self.debug:", "if settings.DEBUG", "raise AssertionError", "raise NotImplementedError", "if 0:", "if __name__ == .__main__.:", "class .*\\bProtocol\\):", "@(abc\\.)?abstractmethod",]
+
+[tool.setuptools.packages.find]
+exclude = [ "tests*", "docs*", "examples*",]
