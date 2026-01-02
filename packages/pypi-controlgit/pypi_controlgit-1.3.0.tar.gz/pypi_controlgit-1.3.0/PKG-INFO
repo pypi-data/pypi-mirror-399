@@ -1,0 +1,174 @@
+Metadata-Version: 2.4
+Name: pypi-controlgit
+Version: 1.3.0
+Summary: ControlGit - Git account and repository settings management
+Home-page: https://github.com/abucodingai/controlgit-py
+Author: Abu Shariff
+Author-email: abu.shariffaiml@gmail.com
+Project-URL: GitHub CLI, https://cli.github.com
+Project-URL: Documentation, https://github.com/abucodingai/controlgit-py
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Version Control :: Git
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.28.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: black>=22.0; extra == "dev"
+Requires-Dist: flake8>=4.0; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# ControlGit
+
+ControlGit is a lightweight Git account and repository settings management tool. It's a subset of SmartGit focused on controlling Git configuration without deployment capabilities.
+
+## Features
+
+- **Account Settings**: Manage global Git user configuration
+- **Repository Settings**: Manage repository-specific Git configuration
+- **Remote Management**: Add, remove, and update Git remotes
+- **GitHub Authentication**: Store and manage GitHub credentials
+- **GitHub CLI Integration**: Optional integration with GitHub CLI
+
+## Installation
+
+```bash
+pip install pypi-controlgit
+```
+
+## Quick Start
+
+### Account Management
+
+```bash
+# Show global Git configuration
+controlgit account config
+
+# Set user name
+controlgit account name "Your Name"
+
+# Set user email
+controlgit account email "your.email@example.com"
+
+# Set custom configuration
+controlgit account set core.editor "vim"
+```
+
+### Repository Management
+
+```bash
+# Show repository configuration
+controlgit repo config my-repo
+
+# Set repository configuration
+controlgit repo set my-repo core.ignorecase true
+
+# List remotes
+controlgit repo remotes my-repo
+
+# Add remote
+controlgit repo add-remote my-repo origin https://github.com/user/repo.git
+
+# Remove remote
+controlgit repo remove-remote my-repo origin
+
+# Update remote URL
+controlgit repo set-remote-url my-repo origin https://github.com/user/new-repo.git
+```
+
+### GitHub Authentication
+
+```bash
+# Set credentials manually
+controlgit auth set username token --2fa 123456
+
+# Use GitHub CLI for interactive login
+controlgit auth set
+
+# Check authentication status
+controlgit auth status
+
+# Clear credentials
+controlgit auth clear
+```
+
+## Commands
+
+### auth
+- `auth set [username] [password]` - Set GitHub credentials
+- `auth status` - Show authentication status
+- `auth clear` - Clear stored credentials
+
+### account
+- `account config` - Show global Git configuration
+- `account set <key> <value>` - Set global Git configuration
+- `account name <name>` - Set global user name
+- `account email <email>` - Set global user email
+
+### repo
+- `repo config <name>` - Show repository configuration
+- `repo set <name> <key> <value>` - Set repository configuration
+- `repo remotes <name>` - List repository remotes
+- `repo add-remote <name> <remote-name> <url>` - Add remote
+- `repo remove-remote <name> <remote-name>` - Remove remote
+- `repo set-remote-url <name> <remote-name> <url>` - Update remote URL
+
+## Options
+
+- `--path <path>` - Working directory (default: current directory)
+- `--github-user <username>` - GitHub username (default: abucodingai)
+
+## Requirements
+
+- Python 3.8+
+- Git 2.0+
+- GitHub CLI (gh) 2.0+ (optional, for interactive login)
+
+## License
+
+MIT License
+
+## Author
+
+Abu Shariff (abu.shariffaiml@gmail.com)
+
+
+
+## System Requirements
+
+This package requires the following system tools to be installed:
+
+- **Git**: Version 2.0 or higher
+  - Windows: https://git-scm.com/download/win
+  - macOS: `brew install git`
+  - Linux: `apt-get install git` or `yum install git`
+
+- **GitHub CLI (gh)**: Version 2.0 or higher
+  - Windows: `choco install gh` or download from https://cli.github.com
+  - macOS: `brew install gh`
+  - Linux: https://cli.github.com/manual/installation
+
+After installation, authenticate with GitHub:
+```bash
+gh auth login
+```
