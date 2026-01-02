@@ -1,0 +1,19 @@
+[project]
+name = "wtx-fs-mcp"
+version = "0.1.0"
+description = "本地文件的各类操作: 移动、复制等。支持文件和文件夹"
+readme = "README.md"
+authors = [
+    { name = "lishuai", email = "lis@geovis.com.cn" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.25.0",
+]
+
+[project.scripts]
+wtx-fs-mcp = "wtx_fs_mcp:main"
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
