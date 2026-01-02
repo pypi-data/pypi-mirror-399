@@ -1,0 +1,120 @@
+Metadata-Version: 2.4
+Name: libra-ai-sdk
+Version: 1.0.0
+Summary: Official Libra AI SDK for Python
+Author-email: IndoNusaCorp <dev@libra-ai.com>
+License: MIT
+Project-URL: Homepage, https://libra-ai.com
+Project-URL: Documentation, https://libra-ai.com/docs
+Project-URL: Repository, https://github.com/indonusacorp/libra-ai-sdk-python
+Project-URL: Issues, https://github.com/indonusacorp/libra-ai-sdk-python/issues
+Keywords: libra,libra-ai,ai,chatbot,sdk,api,gemini
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.25.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.20; extra == "dev"
+Requires-Dist: black>=23.0; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+
+# libra-ai-sdk
+
+Official Libra AI SDK for Python.
+
+## Installation
+
+```bash
+pip install libra-ai-sdk
+```
+
+## Quick Start
+
+```python
+from libra_ai import LibraAI
+
+libra = LibraAI('lak_your_api_key')
+
+# Simple usage
+answer = libra.ask('What is Python?')
+print(answer)
+
+# With options
+response = libra.chat(
+    'Explain machine learning',
+    temperature=0.5,
+    max_tokens=1000
+)
+print(response['data']['message'])
+```
+
+## API Reference
+
+### Constructor
+
+```python
+LibraAI(api_key: str, base_url: str = 'https://libra-ai.com')
+```
+
+- `api_key` - Your Libra API key (starts with `lak_`)
+- `base_url` - Optional custom base URL
+
+### Methods
+
+#### `chat(message, **options)`
+
+Send a message and get the full response object.
+
+```python
+response = libra.chat(
+    'Hello!',
+    model='default',
+    max_tokens=2048,
+    temperature=0.7,
+    system_prompt='You are a helpful assistant'
+)
+```
+
+#### `ask(message, **options)`
+
+Simple method that returns just the AI response as a string.
+
+```python
+answer = libra.ask('What is AI?')
+```
+
+#### `get_info()`
+
+Get API info and rate limits.
+
+```python
+info = libra.get_info()
+```
+
+## Rate Limits
+
+| Tier | Requests/min | Requests/day | Max Tokens |
+|------|-------------|--------------|------------|
+| Basic | 10 | 100 | 2048 |
+| Pro | 60 | 1000 | 8192 |
+
+## Requirements
+
+- Python >= 3.8
+- requests >= 2.25.0
+
+## License
+
+MIT © IndoNusaCorp
