@@ -1,0 +1,37 @@
+name: Upload Python Package
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+env:
+  PIP_ROOT_USER_ACTION: ignore
+
+jobs:
+  tests:
+    uses: ./.github/workflows/unit.yaml
+
+  deploy:
+    needs: [tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install twine build nox[uv]
+      - name: update citation date
+        run: nox -s release-date
+      - name: Update version from release tag
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Updating version to $VERSION"
+          pip install commitizen
+          cz bump --yes $VERSION
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: python -m build && twine upload dist/*

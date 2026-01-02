@@ -1,0 +1,295 @@
+# Simple LANGuage support for the Web (using AI)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?logo=opensourceinitiative&logoColor=white)](LICENSE)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?logo=git&logoColor=white)](https://conventionalcommits.org)
+[![ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?logo=prettier&logoColor=white)](https://github.com/prettier/prettier)
+[![pre-commit](https://img.shields.io/badge/pre--commit-active-yellow?logo=pre-commit&logoColor=white)](https://pre-commit.com/)
+[![PyPI](https://img.shields.io/pypi/v/slangweb?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/slangweb/)
+[![build](https://img.shields.io/github/actions/workflow/status/fitoprincipe/slangweb/unit.yaml?logo=github&logoColor=white)](https://github.com/fitoprincipe/slangweb/actions/workflows/unit.yaml)
+[![coverage](https://img.shields.io/codecov/c/github/fitoprincipe/slangweb?logo=codecov&logoColor=white)](https://codecov.io/gh/fitoprincipe/slangweb)
+[![docs](https://img.shields.io/readthedocs/slangweb?logo=readthedocs&logoColor=white)](https://slangweb.readthedocs.io/en/latest/)
+
+## Overview
+
+Use AI models from Hugging Face to translate your website.
+
+The system works with two different approaches:
+
+- [**Dynamic**](#2-dynamic): Translation on-the-fly. It's easy to integrate with any framework. Can be slow if the text is too long.
+- [**Static**](#1-static): Use a translation lookup file based on sentences. To use a key based approach would require an extra layer of complexity (maybe in the future). The lookup file must be created before deployment. This approach is harder (sometimes impossible) to integrate with any framework, for example, Flask + jinja2 templates. It's fast.
+
+At the moment, only ROMANCE languages are included by using the model [Helsinki-NLP/opus-mt-en-ROMANCE](https://huggingface.co/Helsinki-NLP/opus-mt-en-ROMANCE). This model can translate to the following languages:
+
+| Language                     | Code  | Language              | Code  | Language   | Code |
+| ---------------------------- | ----- | --------------------- | ----- | ---------- | ---- |
+| Spanish                      | es    | Spanish (Uruguay)     | es_uy | Neapolitan | nap  |
+| Spanish (Argentina)          | es_ar | Spanish (Venezuela)   | es_ve | Sicilian   | scn  |
+| Spanish (Chile)              | es_cl | Portuguese            | pt    | Venetian   | vec  |
+| Spanish (Colombia)           | es_co | Portuguese (Brazil)   | pt_br | Aragonese  | an   |
+| Spanish (Costa Rica)         | es_cr | Portuguese (Portugal) | pt_pt | Arpitan    | frp  |
+| Spanish (Dominican Republic) | es_do | French                | fr    | Corsican   | co   |
+| Spanish (Ecuador)            | es_ec | French (Belgium)      | fr_be | Friulian   | fur  |
+| Spanish (El Salvador)        | es_sv | French (Switzerland)  | fr_ch | Ladin      | lld  |
+| Spanish (Guatemala)          | es_gt | French (Canada)       | fr_ca | Ladino     | lad  |
+| Spanish (Honduras)           | es_hn | French (France)       | fr_fr | Latin      | la   |
+| Spanish (Mexico)             | es_mx | Italian               | it    | Ligurian   | lij  |
+| Spanish (Nicaragua)          | es_ni | Italian (Italy)       | it_it | Mirandese  | mwl  |
+| Spanish (Panama)             | es_pa | Catalan               | ca    | Occitan    | oc   |
+| Spanish (Peru)               | es_pe | Galician              | gl    | Romansh    | rm   |
+| Spanish (Puerto Rico)        | es_pr | Romanian              | ro    | Sardinian  | sc   |
+| Spanish (Spain)              | es_es | Lombard               | lmo   | Walloon    | wa   |
+
+This package creates a folder inside your repo to store a configuration file and other files for the models.
+
+## Installation
+
+Simply install via pip:
+
+`pip install slangweb`
+
+## Initialization
+
+Let's suppose you have the following folder structure:
+
+```
+my_site/
+├── app.py            # main application entry
+├── src/              # source package / modules
+│   ├── index.py      # main site logic / translator usage example
+└── pages/            # HTML/templates/pages for the site
+    └── a_page.html   # example module representing a page
+```
+
+Open a terminal, activate the environment in which you installed the package, and run:
+
+```bash
+(.venv) C:\my_site>slangweb init
+```
+
+This will create the [configuration file](#configuration-file) and the [models lookup file](#models-lookup).
+
+## Configuration file
+
+The configuration file (json) has the following structure:
+
+```json
+{
+  "base_folder": "slangweb",
+  "models_lookup_file": "models_lookup.json",
+  "models_folder": "models",
+  "lookups_folder": "lookups",
+  "default_language": "en",
+  "encoding": "utf-8",
+  "source_folders": ["."],
+  "supported_languages": ["es"],
+  "translator_class": "SW"
+}
+```
+
+- `base_folder`: is the main folder where all files will be stored (including the config file).
+- `models_lookup_file`: name of the models lookup file. This file will and must be placed inside `base_folder`.
+- `models_folder`: folder where the models will and must be stored. Also, must be inside `base_folder`.
+- `lookups_folder`: folder where the [translations lookup](#1-static) files will be stored.
+- `default_language`: The base language of the site. At the moment only **en**glish is supported.
+- `encoding`: Encoding for the lookup files. At the moment only `utf-8` is supported.
+- `source_folders`: Folders that contain the source python file where the slangweb translator class is implemented. Developers can modify this at will.
+- `supported_languages`: Languages that the site will support. There will be one [translation lookup](#translation-lookups) file for each language.
+- `translator_class`: The class that will be used for static translations across the site. See the [Usage](#usage) section.
+
+## Models lookup
+
+The `models_lookup.json` has the following structure:
+
+```json
+{
+    "es": {
+        "model": "Helsinki-NLP/opus-mt-en-ROMANCE",
+        "name": "Spanish"
+    },
+    ...
+}
+```
+
+This file created automatically. Other languages and models can be added if needed.
+
+## Usage
+
+Once all the configuration was created and modified (if needed), you need to download the models using the CLI application:
+
+```bash
+(.venv) C:\my_site>slangweb download-models
+```
+
+This will download all the models needed for the languages included in the section `supported_languages` in the [configuration file](#configuration-file).
+
+Finally, you can start implementing it in your python files. There are two main ways of using this package: [statically](#1-static) and [dynamically](#2-dynamic)
+
+### 1. Static
+
+For each language listed in the section `supported_languages` in the [configuration file](#configuration-file) a `translation lookup` file will be created inside the `lookups_folder`. The `translation lookup` file is a json containing all relations between the sentences in the original language and the translated version. For example (spanish):
+
+`es.json`
+
+```json
+{
+    "Hello World": "Hola Mundo",
+    ...
+}
+```
+
+The purpose of this approach it to avoid translating on-the-fly to gain loading speed.
+
+To use the static translation system you can call the instance, which is the same as calling the method `.get_translation`:
+
+```python
+from slangweb import Translator
+SW = Translator()
+translation = SW("Translate this")
+same_translation = SW.get_translation("Translate this")
+```
+
+Example using Dash:
+
+```python
+from slangweb import Translator
+
+# Init Translator
+# the variable name must match the "translator_class" in the config file
+SW = Translator()
+
+def layout(lang: str = 'en'):
+    SW.set_language(lang)
+    return html.Div([
+        html.H2(SW('This is Test for the static translation system.')),
+        html.H2(SW("Thanks for using SlangWeb!"))
+    ])
+```
+
+There are 2 ways to create the `translation lookup` files:
+
+1. by running the website in `localhost` and accessing the pages.
+2. by running the CLI:
+
+```bash
+(.venv) C:\my_site>slangweb sync
+```
+
+This will create the following file `C:\my_site\slangweb\lookups\es.json`
+
+```json
+{
+  "This is a Test for the static translation system.": "Esta es una prueba para el sistema de traducción estática.",
+  "Thanks for using SlangWeb!": "¡Gracias por usar SlangWeb!"
+}
+```
+
+### 2. Dynamic
+
+In this case, the `translation lookup` file will not be created, and the translation will happen on-the-fly.
+
+In your code (using Dash):
+
+```python
+from slangweb import Translator
+
+# Init Translator
+SW = Translator()
+t = SW.translate
+
+def layout(lang: str = 'en'):
+    SW.set_language(lang)
+    return html.Div([
+        html.H2(t('This is Test for the static translation system.')),
+        html.H2(t("Thanks for using SlangWeb!"))
+    ])
+```
+
+## Complete examples
+
+You can use the CLI application to download a complete example
+
+### Dash
+
+1. Choose the folder where the example will live and navigate to it in the Command Line. I will assume that the folder does not exist yet, thus I will create it.
+
+```
+C:/>mkdir slangweb-examples
+C:/>cd slangweb-examples
+C:/slangweb-examples>
+```
+
+2. Create a virtual environment. You can use the virtual environment manager that you prefer. I will use uv. Activate it.
+
+```
+C:/slangweb-examples>uv venv --python 3.11
+C:/slangweb-examples>.venv\Scripts\activate
+(slangweb-examples) C:/slangweb-examples>
+```
+
+3. Install `slangweb`
+
+```
+(slangweb-examples) C:/slangweb-examples>uv pip install slangweb
+```
+
+4. Clone the example using the CLI command
+
+```
+(slangweb-examples) C:/slangweb-examples>slangweb install-example dash
+```
+
+5. Navigate into it and install it as a package.
+
+```
+(slangweb-examples) C:/slangweb-examples>cd slangweb_dash_example
+(slangweb-examples) C:/slangweb-examples/slangweb_dash_example>
+```
+
+6. Initialize `slangweb`
+
+```
+(slangweb-examples) C:/slangweb-examples/slangweb_dash_example>slangweb init
+Configuration file created at 'C:\slangweb-examples\slangweb_dash_example\slangweb\config.json'
+Models lookup file created at 'C:\slangweb-examples\slangweb_dash_example\slangweb\models_lookup.json'
+Initialized slangweb project structure in folder 'slangweb'.
+```
+
+7. (optional) open the `config.json` with a text editor and update the list of `supported_languages`
+
+8. Download the models
+
+```
+(slangweb-examples) C:/slangweb-examples/slangweb_dash_example>slangweb download-models
+```
+
+9. Sync to create the language lookup files (as many as languages you have selected)
+
+```
+(slangweb-examples) C:/slangweb-examples/slangweb_dash_example>slangweb sync
+```
+
+10. Run the example
+
+```
+(slangweb-examples) C:/slangweb-examples/slangweb_dash_example>python app.py
+```
+
+11. Open example website
+
+Open [http://127.0.0.1:8050/en/home](http://127.0.0.1:8050/en/home) in your browser.
+
+## Recommendations & caveats
+
+- Model downloads can be large; ensure enough disk space.
+- For production, prefer Static lookups where possible for performance.
+- Dynamic translation may add latency; consider caching translations.
+- If using private Hugging Face models, set the HF_TOKEN environment variable before running CLI/tools:
+
+```powershell
+setx HF_TOKEN "your_token_here"
+```
+
+## Credits
+
+This package was created with [Copier](https://copier.readthedocs.io/en/latest/) and the [@12rambau/pypackage](https://github.com/12rambau/pypackage) 0.1.18 project template.

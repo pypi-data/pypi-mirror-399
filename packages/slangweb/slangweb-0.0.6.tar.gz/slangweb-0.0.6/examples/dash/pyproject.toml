@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling>=1.0.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "slangweb_dash_example"
+version = "0.0.1"
+description = "slangweb app"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "slangweb",
+    "dash"
+]
+
+[project.scripts]
+slangweb-test = "app:run_app"
