@@ -1,0 +1,162 @@
+# OAuth-enabled deployment with Authentik
+# Usage: docker compose -f docker-compose.yml -f docker-compose.oauth.yml up
+#
+# This overlay adds Authentik identity provider for OAuth authentication.
+# Requires AUTHENTIK_* environment variables to be set.
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────
+  # mcvsphere MCP Server (with OAuth + HTTPS via Caddy)
+  # ─────────────────────────────────────────────────────────────────────────
+  mcvsphere:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcvsphere
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    env_file:
+      - .env.oauth
+    environment:
+      - MCP_TRANSPORT=streamable-http
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8080
+    networks:
+      - mcvsphere-network
+      - caddy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    labels:
+      # Caddy reverse proxy via caddy-docker-proxy
+      caddy: mcp.localhost
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy.tls: internal
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # PostgreSQL for Authentik
+  # ─────────────────────────────────────────────────────────────────────────
+  authentik-db:
+    image: postgres:16-alpine
+    container_name: mcvsphere-authentik-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authentik
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: ${AUTHENTIK_DB_PASSWORD:?AUTHENTIK_DB_PASSWORD required}
+    volumes:
+      - authentik-db-data:/var/lib/postgresql/data
+    networks:
+      - authentik-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authentik"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Redis for Authentik
+  # ─────────────────────────────────────────────────────────────────────────
+  authentik-redis:
+    image: redis:7-alpine
+    container_name: mcvsphere-authentik-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - authentik-redis-data:/data
+    networks:
+      - authentik-internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Authentik Server
+  # ─────────────────────────────────────────────────────────────────────────
+  authentik-server:
+    image: ghcr.io/goauthentik/server:2024.10.4
+    container_name: mcvsphere-authentik-server
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:?AUTHENTIK_SECRET_KEY required}
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_DB_PASSWORD}
+      # Bootstrap admin user (first run only)
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL:-admin@localhost}
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD:-}
+    ports:
+      - "${AUTHENTIK_PORT:-9000}:9000"
+      - "${AUTHENTIK_HTTPS_PORT:-9443}:9443"
+    volumes:
+      - authentik-media:/media
+      - authentik-templates:/templates
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    networks:
+      - authentik-internal
+      - mcvsphere-network
+      - caddy
+    healthcheck:
+      test: ["CMD", "ak", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      # Caddy reverse proxy via caddy-docker-proxy
+      caddy: ${AUTHENTIK_HOST:-auth.l.supported.systems}
+      caddy.reverse_proxy: "{{upstreams 9000}}"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Authentik Worker (background tasks)
+  # ─────────────────────────────────────────────────────────────────────────
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:2024.10.4
+    container_name: mcvsphere-authentik-worker
+    restart: unless-stopped
+    command: worker
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-db
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_DB_PASSWORD}
+    volumes:
+      - authentik-media:/media
+      - authentik-templates:/templates
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    networks:
+      - authentik-internal
+
+networks:
+  authentik-internal:
+    driver: bridge
+  mcvsphere-network:
+    external: true
+    name: ${COMPOSE_PROJECT_NAME:-mcvsphere}_default
+  caddy:
+    external: true
+
+volumes:
+  authentik-db-data:
+  authentik-redis-data:
+  authentik-media:
+  authentik-templates:

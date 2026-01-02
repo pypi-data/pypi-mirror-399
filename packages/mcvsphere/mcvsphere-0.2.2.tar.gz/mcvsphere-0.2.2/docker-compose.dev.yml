@@ -1,0 +1,22 @@
+# Development proxy for mcvsphere running on host
+# Usage: docker compose -f docker-compose.dev.yml up -d
+
+services:
+  # Proxy container - just provides caddy labels for host-running server
+  mcvsphere-proxy:
+    image: alpine:latest
+    container_name: mcvsphere-proxy
+    command: ["sleep", "infinity"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - caddy
+    labels:
+      # Caddy reverse proxy to host-running mcvsphere server
+      caddy: mcp.l.supported.systems
+      # Use caddy network gateway (172.18.0.1) to reach host services
+      caddy.reverse_proxy: "172.18.0.1:8080"
+
+networks:
+  caddy:
+    external: true
