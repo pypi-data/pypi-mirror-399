@@ -1,0 +1,50 @@
+
+[build-system]
+requires = ["setuptools>=64.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py3dic"
+dynamic = ["version"]
+authors = [
+    {name = "N. Papadakis", email = "npapnet@gmail.com"},
+]
+description = "A package for Digital Image Correlation (DIC) analysis in Python 3."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "scipy",
+    "numpy",
+    "matplotlib",
+    "seaborn",
+    "pandas",
+    "openpyxl",
+    "ipykernel",
+    "jupyter",
+    "tqdm",
+    "opencv-python",
+]
+
+[project.urls]
+Documentation = "https://npapnet.github.io/py3dic/"
+Source = "https://github.com/npapnet/py3dic"
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+tk_dic_full = "py3dic.guis.tk_dic_analysis.tk_dic_analysis_launcher:tk_dic_full_launcher"
+tk_dic_analysis = "py3dic.guis.tk_dic_analysis.tk_dic_analysis_launcher:tk_analysis_app_launcher"
+tk_dic_merge = "py3dic.guis.tk_merge_dic_ut.tk_merge_launcher:tk_merge_launcher"
+tk_dic_viewer = "py3dic.guis.viewer_app.viewer_launcher:tk_viewer_app_launcher"
+dic_strainmaps = "py3dic.guis.tk_gen_strainmaps.__main__:run_strainmap_generator"
+py3dic-jinan-converter = "py3dic.testing_machine.max_testing.__main__:main"
+
+
+[tool.setuptools.dynamic]
+version = {attr = "py3dic.__version__"}

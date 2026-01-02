@@ -1,0 +1,1 @@
+from .cv2_area_selector import AreaSelectorCV2

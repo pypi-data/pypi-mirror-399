@@ -1,0 +1,1 @@
+#__init__.py in test/dic/core
