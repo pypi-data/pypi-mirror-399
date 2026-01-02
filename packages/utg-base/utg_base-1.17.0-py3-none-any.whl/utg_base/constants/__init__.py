@@ -1,0 +1,1 @@
+from .available_languages import AVAILABLE_LANGUAGES
