@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: llamaindex-primordia
+Version: 0.1.0
+Summary: Primordia metering for LlamaIndex
+Project-URL: Kernel, https://clearing.kaledge.app
+License-Expression: MIT
+Requires-Python: >=3.9
+Requires-Dist: llama-index-core>=0.10.0
+Description-Content-Type: text/markdown
+
+# llamaindex-primordia
+
+Track LlamaIndex costs.
+
+```bash
+pip install llamaindex-primordia
+```
+
+```python
+from llamaindex_primordia import PrimordiaCallback
+from llama_index.core import Settings
+
+Settings.callback_manager.add_handler(PrimordiaCallback("my-agent"))
+```
