@@ -1,0 +1,265 @@
+# Ancient Science of Numbers
+
+A Python library implementing the complete numerology system from "The Ancient Science of Numbers" by Luo Clement (1908). This library provides functions to calculate and analyze names, birth dates, harmonies, cycles, and all associated properties according to the principles outlined in the book.
+
+## Features
+
+- **Name Number Calculation**: Calculate name numbers from full names
+- **Birth Number Calculation**: Calculate birth numbers from birth dates
+- **Harmony Analysis**: Determine harmony groups (Triads: 1-5-7, 2-4-8, 3-6-9) and check if name and birth numbers are in harmony
+- **Letter Analysis**: Analyze Cornerstone (first letter), Keystone (middle letter), and Capstone (last letter)
+- **Cycle Calculations**: Calculate life cycles based on letters in a name
+- **Color Associations**: Get color associations for numbers
+- **Keynote/Musical Note Associations**: Get musical note associations for numbers
+- **Complete Analysis**: Comprehensive analysis combining all components with recommendations
+
+## Installation
+
+```bash
+pip install ancient-science-of-numbers
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/yourusername/ancient-science-of-numbers.git
+cd ancient-science-of-numbers
+pip install -e .
+```
+
+## Quick Start
+
+```python
+from ancient_science_of_numbers import analyze_name, analyze_birth, full_analysis
+
+# Analyze a name
+name_result = analyze_name("John Doe")
+print(f"Name Number: {name_result.name_number}")
+print(f"Cornerstone: {name_result.cornerstone}")
+print(f"Capstone: {name_result.capstone}")
+print(f"Color: {name_result.color}")
+print(f"Keynote: {name_result.keynote}")
+
+# Analyze a birth date
+birth_result = analyze_birth(15, 8, 1769)  # day, month, year
+print(f"Birth Number: {birth_result.birth_number}")
+print(f"Color: {birth_result.color}")
+
+# Full analysis
+result = full_analysis("John Doe", 15, 8, 1769)
+print(f"In Harmony: {result.are_in_harmony}")
+print(f"Recommendations: {result.recommendations}")
+```
+
+## Usage Examples
+
+### Basic Name Analysis
+
+```python
+from ancient_science_of_numbers import analyze_name
+
+result = analyze_name("Napoleon Bonaparte")
+print(f"Name Number: {result.name_number}")
+print(f"Cornerstone: {result.cornerstone} ({result.cornerstone_number})")
+print(f"Keystone: {result.keystone} ({result.keystone_number})")
+print(f"Capstone: {result.capstone} ({result.capstone_number})")
+print(f"Is Perfect: {result.is_perfect}")
+print(f"Harmony Group: {result.harmony_group}")
+```
+
+### Birth Date Analysis
+
+```python
+from ancient_science_of_numbers import analyze_birth
+
+# Using day only (primary method from the book)
+result = analyze_birth(15)  # August 15
+print(f"Birth Number: {result.birth_number}")
+
+# Using full date
+result = analyze_birth(15, 8, 1769)  # August 15, 1769
+print(f"Birth Number: {result.birth_number}")
+print(f"Color: {result.color}")
+print(f"Keynote: {result.keynote}")
+```
+
+### Harmony Checking
+
+```python
+from ancient_science_of_numbers import analyze_name, analyze_birth, are_in_harmony
+
+name_result = analyze_name("John Doe")
+birth_result = analyze_birth(15)
+
+if are_in_harmony(name_result.name_number, birth_result.birth_number):
+    print("Name and birth numbers are in harmony!")
+else:
+    print("Name and birth numbers are not in harmony.")
+```
+
+### Cycle Analysis
+
+```python
+from ancient_science_of_numbers.cycles import calculate_cycles, get_current_cycle
+
+# Calculate all cycles
+cycles = calculate_cycles("John Doe")
+for cycle in cycles:
+    print(f"Cycle {cycle['position']}: {cycle['letter']} ({cycle['number']})")
+    print(f"  Characteristics: {cycle['characteristics']}")
+
+# Get current cycle by age
+current = get_current_cycle("John Doe", age=25)
+print(f"Current Cycle: {current['letter']}")
+```
+
+### Letter Characteristics
+
+```python
+from ancient_science_of_numbers.letters import (
+    get_cornerstone,
+    get_keystone,
+    get_capstone,
+    is_living_letter,
+    get_letter_characteristics,
+)
+
+name = "John Doe"
+print(f"Cornerstone: {get_cornerstone(name)}")
+print(f"Keystone: {get_keystone(name)}")
+print(f"Capstone: {get_capstone(name)}")
+
+# Check if letter is a "Living Letter"
+if is_living_letter('L'):
+    print("L is a Living Letter")
+
+# Get letter characteristics
+char = get_letter_characteristics('A')
+print(f"A characteristics: {char['characteristics']}")
+```
+
+### Full Analysis with Recommendations
+
+```python
+from ancient_science_of_numbers import full_analysis
+
+result = full_analysis("John Doe", 15, 8, 1769)
+
+print("=== Name Analysis ===")
+print(f"Name Number: {result.name_analysis.name_number}")
+print(f"Cornerstone: {result.name_analysis.cornerstone}")
+print(f"Capstone: {result.name_analysis.capstone}")
+print(f"Is Perfect: {result.name_analysis.is_perfect}")
+
+print("\n=== Birth Analysis ===")
+print(f"Birth Number: {result.birth_analysis.birth_number}")
+print(f"Color: {result.birth_analysis.color}")
+
+print("\n=== Harmony ===")
+print(f"In Harmony: {result.are_in_harmony}")
+
+print("\n=== Recommendations ===")
+for rec in result.recommendations:
+    print(f"- {rec}")
+```
+
+## API Reference
+
+### Main Functions
+
+- `analyze_name(name: str, preserve_master: bool = True) -> NameAnalysis`
+- `analyze_birth(day: int, month: Optional[int] = None, year: Optional[int] = None, preserve_master: bool = True) -> BirthAnalysis`
+- `full_analysis(name: str, day: int, month: Optional[int] = None, year: Optional[int] = None, preserve_master: bool = True) -> FullAnalysis`
+
+### Core Functions
+
+- `letter_to_number(letter: str) -> int`
+- `reduce_number(number: int, preserve_master: bool = True) -> int`
+- `calculate_name_number(name: str, preserve_master: bool = True) -> int`
+- `calculate_birth_number(day: int, month: Optional[int] = None, year: Optional[int] = None, preserve_master: bool = True) -> int`
+
+### Harmony Functions
+
+- `get_harmony_group(number: int) -> Optional[int]`
+- `are_in_harmony(number1: int, number2: int) -> bool`
+- `get_harmony_numbers(group: int) -> list[int]`
+
+### Letter Functions
+
+- `get_cornerstone(name: str) -> Optional[str]`
+- `get_keystone(name: str) -> Optional[str]`
+- `get_capstone(name: str) -> Optional[str]`
+- `is_living_letter(letter: str) -> bool`
+- `get_letter_characteristics(letter: str) -> Dict[str, Any]`
+- `analyze_name_structure(name: str) -> Dict[str, Any]`
+
+### Cycle Functions
+
+- `calculate_cycles(name: str) -> List[Dict[str, Any]]`
+- `get_current_cycle(name: str, age: Optional[int] = None, cycle_position: Optional[int] = None) -> Optional[Dict[str, Any]]`
+- `get_cycle_by_letter(name: str, letter: str) -> List[Dict[str, Any]]`
+
+### Color and Keynote Functions
+
+- `get_color_for_number(number: int, preserve_master: bool = True) -> Optional[str]`
+- `get_keynote_for_number(number: int, preserve_master: bool = True) -> Optional[str]`
+
+## Harmony Groups (Triads)
+
+The system recognizes three harmony groups:
+
+- **First Triad**: 1, 5, 7
+- **Second Triad**: 2, 4, 8
+- **Third Triad**: 3, 6, 9
+
+Numbers within the same triad are considered harmonious.
+
+## Master Numbers
+
+The library recognizes master numbers (11, 22, 33) and can preserve them during calculations when `preserve_master=True` (default).
+
+## Letter-to-Number Mapping
+
+The standard mapping used:
+- A, J, S = 1
+- B, K, T = 2
+- C, L, U = 3
+- D, M, V = 4
+- E, N, W = 5
+- F, O, X = 6
+- G, P, Y = 7
+- H, Q, Z = 8
+- I, R = 9
+
+## Living Letters
+
+The following letters are considered "Living Letters" with special properties:
+L, M, N, R, S, T
+
+## Testing
+
+Run tests with:
+
+```bash
+python -m pytest tests/
+```
+
+Or with coverage:
+
+```bash
+python -m pytest tests/ --cov=ancient_science_of_numbers
+```
+
+## License
+
+MIT License
+
+## References
+
+- "The Ancient Science of Numbers" by Luo Clement (1908)
+- [Original PDF](https://upload.wikimedia.org/wikipedia/commons/1/13/The_Ancient_Science_of_Numbers_by_Luo_Clement_%281908%29.pdf)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
