@@ -1,0 +1,76 @@
+Metadata-Version: 2.4
+Name: fastrtc-voice-agent
+Version: 0.1.1
+Summary: A modular voice agent with swappable STT/TTS/LLM backends
+Project-URL: Repository, https://github.com/SonDePoisson/voice-agent
+Author: Clement Poisson
+License: MIT
+Keywords: agent,edge-tts,fastrtc,llm,stt,tts,voice,whisper
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Multimedia :: Sound/Audio :: Speech
+Requires-Python: >=3.12
+Requires-Dist: edge-tts>=7.2.7
+Requires-Dist: faster-whisper>=1.2.1
+Requires-Dist: fastrtc[vad]>=0.0.34
+Requires-Dist: librosa>=0.10
+Requires-Dist: numpy>=1.24
+Requires-Dist: ollama>=0.6.1
+Requires-Dist: pip>=25.3
+Requires-Dist: pydub>=0.25.1
+Requires-Dist: twine>=6.2.0
+Provides-Extra: all
+Requires-Dist: edge-tts>=7.2.7; extra == 'all'
+Requires-Dist: faster-whisper>=1.2.1; extra == 'all'
+Requires-Dist: fastrtc[vad]>=0.0.34; extra == 'all'
+Requires-Dist: ollama>=0.6.1; extra == 'all'
+Requires-Dist: openai-whisper>=20250625; extra == 'all'
+Requires-Dist: pydub>=0.25.1; extra == 'all'
+Provides-Extra: edge-tts
+Requires-Dist: edge-tts>=7.2.7; extra == 'edge-tts'
+Requires-Dist: pydub>=0.25.1; extra == 'edge-tts'
+Provides-Extra: faster-whisper
+Requires-Dist: faster-whisper>=1.2.1; extra == 'faster-whisper'
+Provides-Extra: fastrtc
+Requires-Dist: fastrtc[vad]>=0.0.34; extra == 'fastrtc'
+Provides-Extra: ollama
+Requires-Dist: ollama>=0.6.1; extra == 'ollama'
+Provides-Extra: whisper
+Requires-Dist: openai-whisper>=20250625; extra == 'whisper'
+Description-Content-Type: text/markdown
+
+# fastrtc-voice-agent
+
+A modular voice agent built on [FastRTC](https://github.com/gradio-app/fastrtc)
+
+## Installation
+
+```bash
+pip install fastrtc-voice-agent
+```
+
+## Example
+
+```python
+from fastrtc import ReplyOnPause, Stream
+from voice_agent import create_agent, AgentConfig, STTConfig, TTSConfig, LLMConfig
+
+config = AgentConfig(
+    system_prompt="You are a helpful voice assistant.",
+    stt=STTConfig(backend="faster_whisper", model_size="small"),
+    tts=TTSConfig(backend="edge", voice="en-US-AvaMultilingualNeural"),
+    llm=LLMConfig(backend="ollama", model="llama3.2:3b"),
+)
+
+agent = create_agent(config)
+
+stream = Stream(
+    ReplyOnPause(agent.create_fastrtc_handler()),
+    modality="audio",
+    mode="send-receive",
+)
+
+stream.ui.launch()
+```
