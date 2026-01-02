@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ProxyPatternPool"
+version = "11.6"
+authors = [ { name = "Fabien Coelho", email = "proxy.pool@coelho.net" } ]
+description = "Generic Proxy and Pool Classes for Python"
+readme = "README.md"
+license = "CC0-1.0"
+requires-python = ">= 3.10"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[project.urls]
+repository = "https://github.com/zx80/proxy-pattern-pool"
+documentation = "https://zx80.github.io/proxy-pattern-pool/"
+issues = "https://github.com/zx80/proxy-pattern-pool/issues"
+package = "https://pypi.org/project/ProxyPatternPool/"
+
+[tool.setuptools]
+py-modules = [ "ProxyPatternPool" ]
+
+[project.optional-dependencies]
+local = [
+  "werkzeug",
+  "eventlet",
+  # NOTE not supported on 2025-03-06
+  "gevent; python_version < '3.13'"
+]
+dev = [ "mypy", "pyright", "flake8", "black", "ruff", "pytest", "coverage", "pymarkdownlnt" ]
+doc = [ "mkdocs", "mkdocs-material", "mkdocstrings[python]" ]
+pub = [ "build", "wheel", "twine" ]

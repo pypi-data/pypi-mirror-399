@@ -1,0 +1,27 @@
+
+[dev]
+mypy
+pyright
+flake8
+black
+ruff
+pytest
+coverage
+pymarkdownlnt
+
+[doc]
+mkdocs
+mkdocs-material
+mkdocstrings[python]
+
+[local]
+werkzeug
+eventlet
+
+[local:python_version < "3.13"]
+gevent
+
+[pub]
+build
+wheel
+twine
