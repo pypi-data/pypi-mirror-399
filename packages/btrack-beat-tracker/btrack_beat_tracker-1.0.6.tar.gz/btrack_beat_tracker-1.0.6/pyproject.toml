@@ -1,0 +1,22 @@
+[build-system]
+requires = [
+    "scikit-build-core",
+    "pybind11",
+    "numpy"
+]
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+build-dir = "build/{wheel_tag}"
+build.verbose = true
+
+[project]
+name = "btrack-beat-tracker"
+version = "1.0.6"
+description = "Python bindings for the BTrack beat tracker"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "GPLv3" }
+authors = [
+  { name = "Adam Stark" }
+]
