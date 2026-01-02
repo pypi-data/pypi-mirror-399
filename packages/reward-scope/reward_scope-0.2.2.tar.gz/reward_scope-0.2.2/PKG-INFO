@@ -1,0 +1,49 @@
+Metadata-Version: 2.4
+Name: reward-scope
+Version: 0.2.2
+Summary: Reward debugging and hacking detection for reinforcement learning
+Author: RewardScope Contributors
+Keywords: reinforcement-learning debugging reward-shaping robotics
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.21.0
+Requires-Dist: gymnasium>=0.28.0
+Requires-Dist: fastapi>=0.100.0
+Requires-Dist: uvicorn[standard]>=0.23.0
+Requires-Dist: jinja2>=3.1.0
+Requires-Dist: websockets>=11.0
+Requires-Dist: click>=8.0.0
+Provides-Extra: sb3
+Requires-Dist: stable-baselines3>=2.0.0; extra == "sb3"
+Provides-Extra: wandb
+Requires-Dist: wandb>=0.15.0; extra == "wandb"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: ruff>=0.0.280; extra == "dev"
+Provides-Extra: all
+Requires-Dist: stable-baselines3>=2.0.0; extra == "all"
+Requires-Dist: wandb>=0.15.0; extra == "all"
+Requires-Dist: pytest>=7.0.0; extra == "all"
+Requires-Dist: black>=23.0.0; extra == "all"
+Requires-Dist: ruff>=0.0.280; extra == "all"
+Dynamic: author
+Dynamic: classifier
+Dynamic: description-content-type
+Dynamic: keywords
+Dynamic: license-file
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
