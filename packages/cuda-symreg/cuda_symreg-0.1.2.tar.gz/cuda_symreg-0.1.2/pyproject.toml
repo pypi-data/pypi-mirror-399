@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cuda_symreg"
+version = "0.1.2"
+description = "Regresión Simbólica con CUDA"
+readme = "README.md"
+authors = [{name = "Ariel Lisímaco Pincay Pérez", email = "arielpincay812@gmail.com"}]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.20.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# Esto es vital para que el .so se incluya en el paquete instalado
+"cuda_symreg" = ["lib/*.so"]
