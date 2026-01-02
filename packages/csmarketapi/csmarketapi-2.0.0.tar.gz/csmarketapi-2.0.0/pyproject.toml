@@ -1,0 +1,49 @@
+[project]
+name = "csmarketapi"
+version = "2.0.0"
+description = "The official python library for CSMarketAPI"
+readme = "README.md"
+authors = [{ name = "Luis", email = "luis@softwerk.ai" }]
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2.11.7",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "ruff",
+]
+test = [
+    "dotenv>=0.9.9",
+    "pytest",
+    "pytest-asyncio",
+]
+
+[tool.setuptools]
+license-files = ["LICENSE*"]
+
+[project.urls]
+Homepage = "https://github.com/softwerk-org/csmarketapi-python"
+Issues = "https://github.com/softwerk-org/csmarketapi-python/issues"
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-v --tb=short"
