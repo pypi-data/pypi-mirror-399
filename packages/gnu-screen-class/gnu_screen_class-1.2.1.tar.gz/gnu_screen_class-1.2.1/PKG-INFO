@@ -1,0 +1,141 @@
+Metadata-Version: 2.4
+Name: gnu-screen-class
+Version: 1.2.1
+Summary: wrapper around gnu screen
+Author: Gerard
+Author-email: gweatherby@uchc.edu
+License: MIT License
+        
+        Copyright (c) 2023 NMRhub
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Homepage, https://github.com/NMRhub/gnuscreen
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# gnuscreen
+Wrapper around GNU screen
+
+### As Python module
+```plaintext
+Help on package gnuscreen:
+
+NAME
+    gnuscreen
+
+PACKAGE CONTENTS
+    main
+
+CLASSES
+    builtins.object
+        GnuScreen
+    
+    class GnuScreen(builtins.object)
+     |  GnuScreen(id: int, name: str, launched: datetime.datetime, attached: bool) -> None
+     |  
+     |  GnuScreen(id: int, name: str, launched: datetime.datetime, attached: bool)
+     |  
+     |  Methods defined here:
+     |  
+     |  __eq__(self, other)
+     |  
+     |  __init__(self, id: int, name: str, launched: datetime.datetime, attached: bool) -> None
+     |  
+     |  __repr__(self)
+     |  
+     |  close(self)
+     |      Close screen
+     |  
+     |  execute(self, cmds: Iterable[str]) -> None
+     |      Execute commands on screen
+     |  
+     |  ----------------------------------------------------------------------
+     |  Static methods defined here:
+     |  
+     |  get(name: str) -> 'GnuScreen'
+     |      Get existing screen or create new one
+     |  
+     |  list() -> Iterable[ForwardRef('GnuScreen')]
+     |      List existing screens
+     |  
+     |  query(name: str) -> Union[ForwardRef('GnuScreen'), NoneType]
+     |      Get existing screen if it exists
+     |  
+     |  ----------------------------------------------------------------------
+     |  Readonly properties defined here:
+     |  
+     |  exists
+     |      Return true if screen with 'name' exists
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  __annotations__ = {'attached': <class 'bool'>, 'id': <class 'int'>, 'l...
+     |  
+     |  __dataclass_fields__ = {'attached': Field(name='attached',type=<class ...
+     |  
+     |  __dataclass_params__ = _DataclassParams(init=True,repr=True,eq=True,or...
+     |  
+     |  __hash__ = None
+
+DATA
+    Iterable = typing.Iterable
+    Optional = typing.Optional
+    gnuscreen_logger = <Logger gnuscreen (WARNING)>
+
+VERSION
+    1.1
+
+FILE
+    /git/NMRhub/gnuscreen/src/gnuscreen/__init__.py
+
+
+
+```
+
+### Command line interface 
+Although intended for primarily as a module, a command line interface is provided
+```
+usage: gnuscreen [-h] [-l LOGLEVEL]
+                 (--list | --start START | --query QUERY | --close CLOSE | --execute EXECUTE [EXECUTE ...] | --version)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -l LOGLEVEL, --loglevel LOGLEVEL
+                        Python logging level
+  --list                List screens
+  --start START         Start screen if necesary
+  --query QUERY         Test for existing screen
+  --close CLOSE         Close screen if it exits
+  --execute EXECUTE [EXECUTE ...]
+                        Execute commands on screen: screen name, commands
+  --version             show version
+```
