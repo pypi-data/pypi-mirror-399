@@ -1,0 +1,197 @@
+# Google Alerts MCP Server
+
+A Google Alerts plugin based on MCP (Model Context Protocol) that retrieves news articles on specific topics by simulating browser workflows. This plugin dynamically extracts state parameters from Google Alerts pages to avoid detection and blocking.
+
+## Features
+
+- **Dynamic State Extraction**: Automatically extracts `window.STATE` parameters from Google Alerts pages
+- **Anti-Detection Mechanism**: Uses fresh tokens and session cookies for each request to avoid blocking
+- **Multi-Language Support**: Supports searches in Chinese, English, and other languages
+- **Browser Workflow Simulation**: Fully simulates browser access flow: visit homepage → extract cookies/state → build preview URL
+- **No Hardcoded Parameters**: All authentication tokens and state parameters are dynamically extracted, no hardcoded values
+- **URL Cleaning Feature**: Configurable option to remove Google redirect parameters and get direct news links
+
+## Workflow
+
+1. **Get Initial Cookies**: Visit `https://www.google.com/alerts?hl={language}` to get initial cookies
+2. **State Parameter Extraction**: Extract `window.STATE` parameters from the page, including authentication tokens
+3. **Build Preview URL**: Use extracted parameters and search query to build preview URL
+4. **Get Content**: Use correct cookies and state parameters to get preview page
+5. **Article Parsing**: Extract article titles, URLs, snippets, and sources from HTML response
+
+## Installation
+
+Using UV package manager:
+
+```bash
+# Clone the project
+git clone https://github.com/ycrao/google-alerts-mcp.git
+cd google-alerts-mcp
+
+# Install dependencies
+uv sync
+
+# Activate virtual environment
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+# Or run directly
+uv run python src/google_alerts_mcp/server.py
+```
+
+## Usage
+
+### Running as MCP Server
+
+Add to your MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "google-alerts": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/ABSOLUTE/PATH/TO/google-alerts-mcp/src/google_alerts_mcp/",
+        "run",
+        "server.py"
+      ],
+      "env": {}
+    }
+  }
+}
+```
+
+Or if published as a package:
+
+```json
+{
+  "mcpServers": {
+    "google-alerts": {
+      "command": "uvx",
+      "args": ["google-alerts-mcp"],
+      "env": {}
+    }
+  }
+}
+```
+
+### Available Tools
+
+#### `search_google_alerts`
+
+Search Google Alerts news articles for specific topics.
+
+**Parameters:**
+- `query` (required): Search query/topic (e.g., "silver", "bitcoin", "artificial intelligence")
+- `language` (optional): Language code (default: "zh-CN")
+- `region` (optional): Region code (default: "US")
+- `clean_urls` (optional): Whether to clean Google redirect parameters for direct links (default: true)
+
+**Example:**
+```json
+{
+  "query": "bitcoin",
+  "language": "en-US",
+  "region": "US",
+  "clean_urls": true
+}
+```
+
+**URL Cleaning Feature:**
+- When `clean_urls=true`, automatically removes Google redirect parameters and returns direct news website links
+- When `clean_urls=false`, preserves original Google redirect URLs
+- Before cleaning: `https://www.google.com/url?q=https://example.com/article&sa=U&ved=...`
+- After cleaning: `https://example.com/article`
+
+## Technical Details
+
+### Dynamic Parameter Extraction
+
+The server extracts the following parameters from `window.STATE`:
+- `domain`: Google domain (usually "com")
+- `language`: Language code from state
+- `region`: Region code from state
+- `number_param`: Numeric parameter (varies by language)
+- `locale_format`: Locale format string
+- `token`: Authentication token (key to avoiding detection)
+
+### Anti-Detection Features
+
+- Fresh token extraction for each request
+- Session cookie persistence
+- Proper browser headers
+- No hardcoded authentication parameters
+- Graceful degradation when token extraction fails
+
+## Testing
+
+Run the test suite to verify functionality:
+
+```bash
+# Test complete MCP server functionality
+python test_mcp_server.py
+```
+
+## Test Examples
+
+```python
+# Test search functionality
+import asyncio
+from google_alerts_mcp.server import GoogleAlertsClient
+
+async def test():
+    client = GoogleAlertsClient()
+    try:
+        # Chinese search
+        articles = await client.get_preview_content("白银", "zh-CN")
+        for article in articles:
+            print(f"Title: {article.title}")
+            print(f"URL: {article.url}")
+            print(f"Snippet: {article.snippet}")
+            print(f"Source: {article.source}")
+            print("-" * 50)
+        
+        # English search (with URL cleaning enabled)
+        client_clean = GoogleAlertsClient(clean_urls=True)
+        articles = await client_clean.get_preview_content("bitcoin", "en-US")
+        for article in articles:
+            print(f"Title: {article.title}")
+            print(f"URL: {article.url}")  # Direct link, no Google redirect parameters
+            print(f"Snippet: {article.snippet}")
+            print(f"Source: {article.source}")
+            print("-" * 50)
+        await client_clean.close()
+        
+        # English search (preserve original URLs)
+        client_original = GoogleAlertsClient(clean_urls=False)
+        articles = await client_original.get_preview_content("bitcoin", "en-US")
+        for article in articles:
+            print(f"Title: {article.title}")
+            print(f"URL: {article.url}")  # Contains Google redirect parameters
+            print(f"Snippet: {article.snippet}")
+            print(f"Source: {article.source}")
+            print("-" * 50)
+        await client_original.close()
+    finally:
+        await client.close()
+
+asyncio.run(test())
+```
+
+## Important Notes
+
+1. **Dynamic Tokens**: The system now fully relies on dynamically extracted tokens, no longer using any hardcoded values
+2. **URL Cleaning**: URL cleaning is enabled by default, can be disabled with `clean_urls=false` parameter to preserve original Google redirect URLs
+3. **Request Frequency**: Avoid overly frequent requests, recommend appropriate intervals
+4. **Error Handling**: If token extraction fails, requests will fail gracefully rather than using outdated hardcoded values
+5. **Real-time State**: Each search gets fresh state parameters, ensuring optimal anti-detection effectiveness
+
+## Dependencies
+
+- **mcp**: Model Context Protocol support
+- **httpx**: Async HTTP client
+- **beautifulsoup4**: HTML parsing
+- **pydantic**: Data validation and serialization
+
+## License
+
+MIT License
