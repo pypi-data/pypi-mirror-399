@@ -1,0 +1,50 @@
+# reCAPTCHA v2 Image Solver
+
+Simple Python tool that auto-solves Google's reCAPTCHA v2 "select all squares" puzzles using Selenium + YOLO.
+
+https://github.com/user-attachments/assets/22308be7-3a90-4757-8799-b47008b32bf0
+
+## How it works
+- Spots objects (cars, buses, crosswalks, etc.) in the images
+- Clicks the right tiles for you
+- Works with 3x3, 4x4, static, and dynamic challenges
+
+### 1. virtual environment (optional but recommended)
+```bash
+python -m venv venv
+# Linux/macOS
+source venv/bin/activate
+# Windows
+venv\Scripts\activate
+```
+
+### 2. Install
+```bash
+pip install capx
+```
+
+(For the latest dev version straight from GitHub:)
+```bash
+pip install git+https://github.com/mahdi-marjani/recaptcha-bypass.git
+```
+
+### 3. Quick example
+```python
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+from recaptcha_bypass import RecaptchaSolver
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.get("https://www.google.com/recaptcha/api2/demo")
+
+solver = RecaptchaSolver(driver)
+solver.solve()  # Done!
+
+input("Press Enter to quit...")
+driver.quit()
+```
+
+Also works with Firefox – check `src/recaptcha_bypass/main.py` for examples.
+
+Have fun! 🚀
