@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maze-email-service"
+version = "0.1.4"
+description = "Reusable email service using Azure Communication Services"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "Your Name", email = "you@company.com" }
+]
+
+dependencies = [
+  "azure-communication-email>=1.0.0",
+  "pydantic>=2.0",
+  "pydantic-settings>=2.0",
+  "jinja2>=3.1",
+  "email-validator>=2.3.0",
+  "pydantic-settings>=1.12.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "black",
+  "ruff"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
