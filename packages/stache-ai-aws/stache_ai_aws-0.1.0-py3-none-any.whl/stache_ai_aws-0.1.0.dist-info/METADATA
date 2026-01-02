@@ -1,0 +1,55 @@
+Metadata-Version: 2.4
+Name: stache-ai-aws
+Version: 0.1.0
+Summary: AWS providers bundle for Stache AI (includes S3 Vectors, DynamoDB, and Bedrock)
+Author: Stache Contributors
+License: MIT
+Project-URL: Homepage, https://github.com/stache-ai/stache-ai
+Project-URL: Repository, https://github.com/stache-ai/stache-ai
+Keywords: stache,rag,ai,aws,bedrock,dynamodb,s3vectors
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: stache-ai-s3vectors>=0.1.0
+Requires-Dist: stache-ai-dynamodb>=0.1.0
+Requires-Dist: stache-ai-bedrock>=0.1.0
+
+# stache-ai-aws
+
+AWS providers bundle for [Stache AI](https://github.com/stache-ai/stache-ai).
+
+This metapackage installs all AWS-based providers for Stache:
+- **stache-ai-bedrock** - LLM and Embedding via AWS Bedrock
+- **stache-ai-dynamodb** - Namespace and Document Index via DynamoDB
+- **stache-ai-s3vectors** - Vector storage via S3 Vectors
+
+## Installation
+
+```bash
+pip install stache-ai-aws
+```
+
+This is equivalent to:
+```bash
+pip install stache-ai-bedrock stache-ai-dynamodb stache-ai-s3vectors
+```
+
+## Usage
+
+```python
+from stache_ai.config import Settings
+
+settings = Settings(
+    llm_provider="bedrock",
+    embedding_provider="bedrock",
+    vectordb_provider="s3vectors",
+    namespace_provider="dynamodb",
+    document_index_provider="dynamodb"
+)
+```
