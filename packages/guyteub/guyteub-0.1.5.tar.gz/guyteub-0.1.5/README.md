@@ -1,0 +1,203 @@
+# Guyteub
+
+**Visualisez vos statistiques GitHub directement dans le terminal**
+
+Un outil CLI moderne et élégant pour afficher les profils GitHub, les repositories, les calendriers d'activité et les statistiques détaillées avec une interface colorée et professionnelle.
+
+## Fonctionnalités
+
+- **Profil GitHub** - Informations complètes, stats et top 10 repositories
+- **Repositories détaillés** - Liste exhaustive avec description, langages, stars, forks
+- **Calendrier d'activité** - Visualisation style GitHub sur 365 jours avec heatmap
+- **Statistiques avancées** - Répartition des événements, top repos, séries de contributions
+- **Interface Rich** - Design moderne et coloré avec panneaux, tableaux et graphiques
+- **Performance** - Rapide et léger, utilise l'API GitHub
+
+## Installation
+
+```bash
+pip install guyteub
+```
+
+## Utilisation
+
+### Profil utilisateur (vue par défaut)
+
+Affiche le profil avec informations, métadonnées, stats et top 10 repositories :
+
+```bash
+guyteub -u TISEPSE
+```
+
+### Repositories détaillés
+
+Liste tous les repositories avec toutes les informations (description, langage, stars, forks, issues, license, etc.) :
+
+```bash
+guyteub -u TISEPSE --repo
+
+# Limiter le nombre de repos affichés
+guyteub -u TISEPSE --repo --limit 10
+```
+
+### Calendrier d'activité (365 jours)
+
+Visualisation GitHub-style avec heatmap horizontal sur 365 jours :
+
+```bash
+guyteub -u TISEPSE --activity
+```
+
+Affiche :
+
+- Calendrier horizontal avec mois (Jan, Fév, Mar...)
+- 7 jours de la semaine (Lun à Dim)
+- Intensité en 5 niveaux : ░ ▒ ▓ █ █
+- Couleurs : vert → cyan → magenta
+- Stats : total contributions, série maximale
+
+### Statistiques détaillées
+
+Statistiques complètes avec répartition des événements, top repos et timeline :
+
+```bash
+guyteub -u TISEPSE --stats
+```
+
+Affiche :
+
+- Stats d'activité (total événements, jours actifs, séries)
+- Répartition par type (commits, PRs, issues, etc.)
+- Top 5 dépôts les plus actifs
+- Timeline des 10 dernières activités
+
+## Toutes les commandes
+
+```bash
+# Aide
+guyteub -h
+
+# Profil complet
+guyteub -u USERNAME
+
+# Repos détaillés (limité à N)
+guyteub -u USERNAME --repo --limit 20
+
+# Calendrier annuel
+guyteub -u USERNAME --activity
+
+# Statistiques détaillées
+guyteub -u USERNAME --stats
+```
+
+## Exemples de sortie
+
+### Profil
+
+```text
+╭─ GitHub Profile ─────────────────────────────╮
+│ Baptiste                                     │
+│ https://github.com/username                  │
+╰──────────────────────────────────────────────╯
+
+╭─── Info ───╮ ╭─ Metadata ─╮ ╭─── Stats ───╮
+│ @user      │ │ Joined     │ │ Repos: 42   │
+│ Paris      │ │ Updated    │ │ Followers...│
+╰────────────╯ ╰────────────╯ ╰─────────────╯
+
+╭────────── Repositories ──────────╮
+│ Nom         URL            Stars │
+│ ──────────────────────────────────│
+│ project-1   github.com...  125 JS│
+│ ...                               │
+╰──────────────────────────────────╯
+```
+
+### Calendrier d'activité
+
+```text
+╭─── Calendrier d'activité (365 jours) ───╮
+│        Jan  Fév  Mar  Avr  Mai  Jun ...  │
+│                                           │
+│  Lun   ░░░▒▓█░░░░▒▓░░░░░░░░ ...          │
+│  Mer   ░░░░░░▒▓█▒░░░░░░░░░ ...           │
+│  Ven   ░░░░░▒▓▓▒░░░░░░░░░░ ...           │
+│  Dim   ░░░░░░░▒▓░░░░░░░░░░ ...           │
+│                                           │
+│  Moins ░ ▒ ▓ █ █ Plus                     │
+│  243 contributions - 8 jours max          │
+╰───────────────────────────────────────────╯
+```
+
+## Développement
+
+### Installation en mode développement
+
+```bash
+# Clone le projet
+git clone https://github.com/votre-username/guyteub.git
+cd guyteub
+
+# Crée et active un environnement virtuel
+python3 -m venv venv
+source venv/bin/activate  # Linux/Mac
+# ou
+venv\Scripts\activate     # Windows
+
+# Installe en mode éditable
+pip install -e .
+```
+
+### Structure du projet
+
+```text
+guyteub/
+├── guyteub/
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── app.py                    # CLI et arguments
+│   ├── github_scrapper.py        # Affichage profil/repos
+│   ├── github_activity_api.py    # API GitHub events
+│   ├── activity_processor.py     # Traitement données
+│   └── activity_visualizer.py    # Calendrier/stats
+├── setup.py
+├── pyproject.toml
+├── README.md
+└── LICENSE
+```
+
+## Dépendances
+
+- **requests** - Requêtes API GitHub
+- **rich** - Interface terminal moderne et colorée
+
+## Fonctionnalités avancées
+
+- **Retry automatique** - Jusqu'à 3 tentatives en cas d'erreur réseau
+- **Timeout adaptatif** - 30 secondes pour une meilleure fiabilité
+- **Gestion d'erreurs robuste** - Messages clairs et informatifs
+- **Cache-friendly** - Utilise l'API GitHub de manière optimale
+
+## Contribution
+
+Les contributions sont les bienvenues ! N'hésite pas à ouvrir une issue ou une pull request.
+
+## License
+
+MIT License - voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+## Crédits
+
+Développé par Baptiste
+
+**Technologies utilisées :**
+
+- [Rich](https://github.com/Textualize/rich) - Interface terminal moderne
+- [GitHub REST API](https://docs.github.com/en/rest) - Données GitHub
+- [Requests](https://requests.readthedocs.io/) - Client HTTP Python
+
+## Limitations
+
+- **API Rate Limit** : 60 requêtes/heure sans token (5000 avec token)
+- **Activité récente** : Les événements GitHub sont limités aux 90 derniers jours
+- **Données publiques** : Seules les informations publiques sont accessibles

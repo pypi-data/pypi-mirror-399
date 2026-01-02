@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "guyteub"
+version = "0.1.5"
+description = "Outils pour afficher les stats GitHub dans un terminal"
+readme = "README.md"
+authors = [{name = "Baptiste"}]
+license = {text = "MIT"}
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+]
+dependencies = [
+    "requests",
+    "rich",
+]
+
+[project.scripts]
+guyteub = "guyteub.app:main"
+
+[project.urls]
+Homepage = "https://github.com/votre-username/guyteub"
