@@ -1,0 +1,127 @@
+Metadata-Version: 2.4
+Name: haniwers
+Version: 1.9.5
+Summary: Analysis tool for TanQ/FunQ project
+License: MIT
+License-File: LICENSE
+Keywords: muon
+Author: Shota Takahashi (KMI)
+Author-email: shotakaha@kmi.nagoya-u.ac.jp
+Requires-Python: >=3.10
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Requires-Dist: altair (>=5.2.0)
+Requires-Dist: click (>=8.1.3)
+Requires-Dist: deprecated (>=1.2.14)
+Requires-Dist: esptool (>=4.8.1)
+Requires-Dist: hvplot (>=0.11.0)
+Requires-Dist: icecream (>=2.1.2)
+Requires-Dist: loguru (>=0.7.0)
+Requires-Dist: matplotlib (>=3.8.4)
+Requires-Dist: pandas (>=2.2.3)
+Requires-Dist: pendulum (>=3.0.0)
+Requires-Dist: platformdirs (>=4.2.2)
+Requires-Dist: plotly (>=6.0.1)
+Requires-Dist: polars (>=1.5.0)
+Requires-Dist: pyarrow (>=18.1.0)
+Requires-Dist: pydantic (>=2.7.1)
+Requires-Dist: pyserial (>=3.5)
+Requires-Dist: python-dotenv (>=1.0.1)
+Requires-Dist: scipy (>=1.11.1)
+Requires-Dist: tomli (>=2.0.1)
+Requires-Dist: tqdm (>=4.65.0)
+Requires-Dist: typer (>=0.15.2)
+Requires-Dist: vl-convert-python (>=1.1.0)
+Project-URL: Homepage, https://qumasan.gitlab.io/haniwers/docs/
+Project-URL: Repository, https://gitlab.com/qumasan/haniwers/
+Description-Content-Type: text/markdown
+
+![GitLab Tag](https://img.shields.io/gitlab/v/tag/qumasan%2Fhaniwers?sort=semver&style=for-the-badge) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/haniwers?style=for-the-badge) ![GitLab License](https://img.shields.io/gitlab/license/qumasan%2Fhaniwers?style=for-the-badge)
+![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/qumasan%2Fhaniwers?style=for-the-badge) ![GitLab Last Commit](https://img.shields.io/gitlab/last-commit/qumasan%2Fhaniwers?style=for-the-badge)
+
+---
+
+# Haniwers : ハニワーズ
+
+墳Qの解析コード（個人用）
+
+![w:300](./docs/_static/haniwer.png)
+
+## 概要
+
+宇宙線検出器OSECHIでデータを取得・解析するPythonツール。
+
+- ✅ データ取得（DAQ）
+- ✅ データ処理・解析
+- ✅ スレッショルド測定
+
+---
+
+# ユーザー向け：インストール
+
+## PyPiからインストール
+
+```bash
+$ pipx install haniwers
+$ haniwers --help
+```
+
+## コマンド例
+
+```bash
+$ haniwers version           # バージョン確認
+$ haniwers daq --help        # データ取得
+$ haniwers scan              # 閾値測定
+$ haniwers fit               # 閾値計算
+```
+
+詳細は `haniwers docs` でオンラインヘルプを確認できます。
+
+---
+
+# 開発者向け：開発に参加する
+
+## クイックスタート
+
+```bash
+# 1. リポジトリをクローン
+$ git clone https://gitlab.com/qumasan/haniwers.git
+$ cd haniwers
+
+# 2. Docker イメージをビルド（初回のみ）
+$ docker compose build base
+
+# 3. テストを実行
+$ docker compose run --rm test
+
+# 4. CLI コマンドを実行
+$ docker compose run --rm cli haniwers --help
+```
+
+## ブランチ運用
+
+| ブランチ | 用途 |
+|---------|------|
+| **main** | 最新の安定版 |
+| **v1** | 新機能開発（推奨） |
+| **v0** | ドキュメント修正のみ |
+
+## 詳細ドキュメント
+
+- **[開発者ガイド](docs/developers/index.md)**：環境構築、ブランチ管理、貢献方法
+- **[Dockerガイド](docs/developers/containers.md)**：Dockerを使った開発環境
+- **[公式ドキュメント](https://haniwers.readthedocs.io/)**：APIリファレンス
+
+---
+
+# リンク
+
+- **[公式ドキュメント](https://haniwers.readthedocs.io/)**
+- **[解析ログブック](https://qumasan.gitlab.io/haniwers/)**
+- **[このリポジトリ](https://gitlab.com/qumasan/haniwers/)**
+
