@@ -1,0 +1,702 @@
+"""Document metadata extraction utilities.
+
+This module provides functions to extract rich metadata from documents
+for enhanced citation display in the RAG pipeline.
+
+Extraction strategy:
+1. Explicit metadata first (YAML headers, PDF metadata)
+2. LLM-based extraction as fallback
+3. Graceful degradation to filename if all else fails
+"""
+
+import json
+import logging
+import re
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
+import requests
+from llama_index.core.schema import Document
+
+logger = logging.getLogger(__name__)
+
+
+class DocumentType(Enum):
+    """Document types, as groups of sources defined in sources.json."""
+
+    BOOK = "book"
+    LIBRARY = "library"
+    PAPERS = "papers"
+
+
+# ============================================================================
+# Explicit Metadata Extraction
+# ============================================================================
+
+
+def extract_yaml_header_metadata(content: str) -> Optional[Dict[str, Any]]:
+    """Extract metadata from YAML-like header in markdown files.
+
+    Looks for headers in format:
+        # Title: Some Title
+        # Authors: Author1, Author2
+        # Year: 2023
+        # ArXiv ID: 1234.5678
+
+    Args:
+        content: Document text content
+
+    Returns:
+        Dictionary with extracted metadata or None if no header found
+    """
+    lines = content.split("\n")
+    metadata = {}
+
+    # Only check first 20 lines for header
+    for line in lines[:20]:
+        line = line.strip()
+
+        # Match pattern: # Key: Value
+        match = re.match(r"^#\s*([^:]+):\s*(.+)$", line)
+        if match:
+            key = match.group(1).strip().lower()
+            value = match.group(2).strip()
+
+            # Map common keys
+            if key == "title":
+                metadata["title"] = value
+            elif key in ["author", "authors"]:
+                metadata["authors"] = value
+            elif key == "year":
+                metadata["year"] = value
+            elif key in ["arxiv id", "arxiv_id"]:
+                metadata["arxiv_id"] = value
+
+    # Return None if no metadata found
+    if not metadata:
+        return None
+
+    logger.info(f"Extracted YAML metadata: {metadata}")
+    return metadata
+
+
+def extract_pdf_metadata(file_path: Path) -> Optional[Dict[str, Any]]:
+    """Extract metadata from PDF file info dict.
+
+    Uses PyMuPDF to read PDF metadata (Title, Author, Subject, etc.)
+
+    NOTE: This only extracts year from creation date. Title and authors
+    are NOT extracted from embedded metadata because they are often
+    incorrect (e.g., publisher names instead of authors, journal names
+    in titles). Use LLM extraction for title/authors instead.
+
+    Args:
+        file_path: Path to PDF file
+
+    Returns:
+        Dictionary with extracted metadata (only year) or None if extraction fails
+    """
+    try:
+        import pymupdf
+
+        doc = pymupdf.open(str(file_path))
+        pdf_metadata = doc.metadata
+
+        if not pdf_metadata:
+            return None
+
+        metadata = {}
+
+        # Only extract year from creation date (reliable)
+        # Do NOT extract title/authors from embedded metadata (often wrong)
+        if pdf_metadata.get("creationDate"):
+            date_match = re.search(r"D:(\d{4})", pdf_metadata["creationDate"])
+            if date_match:
+                metadata["year"] = date_match.group(1)
+                logger.info(f"Extracted year from PDF metadata: {metadata['year']}")
+
+        doc.close()
+
+        if not metadata:
+            return None
+
+        return metadata
+
+    except Exception as e:
+        logger.warning(f"Failed to extract PDF metadata: {e}")
+        return None
+
+
+def extract_explicit_metadata(
+    doc: Document, file_path: Path
+) -> Optional[Dict[str, Any]]:
+    """Extract metadata from explicit sources (YAML headers, PDF metadata).
+
+    Tries YAML header first (for markdown), then PDF metadata.
+
+    Args:
+        doc: LlamaIndex Document object
+        file_path: Path to source file
+
+    Returns:
+        Dictionary with extracted metadata or None if no explicit metadata found
+    """
+    # Try YAML header extraction (for markdown files)
+    if file_path.suffix.lower() in [".md", ".markdown"]:
+        yaml_metadata = extract_yaml_header_metadata(doc.text)
+        if yaml_metadata:
+            return yaml_metadata
+
+    # Try PDF metadata extraction
+    if file_path.suffix.lower() == ".pdf":
+        pdf_metadata = extract_pdf_metadata(file_path)
+        if pdf_metadata:
+            return pdf_metadata
+
+    return None
+
+
+# ============================================================================
+# LLM-based Metadata Extraction
+# ============================================================================
+
+
+def extract_metadata_with_llm(
+    doc: Document,
+    file_path: Path,
+    ollama_url: str,
+    model: str = "qwen2.5-coder:7b",
+    max_chars: int = 3000,
+) -> Dict[str, Any]:
+    """Use LLM to extract title and authors from document content.
+
+    Args:
+        doc: LlamaIndex Document object
+        file_path: Path to source file
+        ollama_url: Ollama API base URL
+        model: Ollama model to use for extraction
+        max_chars: Maximum characters to send to LLM
+
+    Returns:
+        Dictionary with extracted metadata (may have None values)
+    """
+    # Extract first N characters
+    excerpt = doc.text[:max_chars]
+
+    # Build prompt
+    prompt = f"""You are a document metadata extractor. Extract the title and \
+authors from the following document excerpt.
+
+CRITICAL RULES:
+1. Title: Extract the COMPLETE main paper/article/chapter title
+   - Titles may span multiple lines - combine them into one string
+   - Ignore journal names that appear before the title
+   - Example: If you see "IEEE Transactions..." followed by
+     "Three-Dimensional Location\nof Circular Features",
+     the title is "Three-Dimensional Location of Circular Features"
+2. Authors: Extract ONLY the individual person names who WROTE the document
+   - DO NOT extract journal names (e.g., "IEEE Transactions", "Nature")
+   - DO NOT extract publisher names (e.g., "Springer", "ACM", "IEEE")
+   - DO NOT extract conference names (e.g., "CVPR", "NeurIPS")
+   - DO NOT extract institution names (e.g., "MIT", "Stanford")
+   - Authors are PEOPLE with first and last names (e.g., "John Smith, Jane Doe")
+   - Ignore titles like "Member, IEEE" or "Fellow, IEEE" - those are not author names
+3. If more than 4 authors, list all of them (do not use "et al." - we'll format that later)
+4. Return ONLY valid JSON with no additional text
+5. If you cannot find a clear title or authors, use null
+
+Examples of CORRECT extraction:
+- Title spanning lines: "Three-Dimensional Location Estimation of Circular
+  Features for Machine Vision"
+- Authors: "Reza Safaee-Rad, Ivo Tchoukanov, Kenneth Carless Smith,
+  Bensiyon Benhabib"
+
+Examples of INCORRECT author extraction (DO NOT DO THIS):
+- "IEEE Transactions on Robotics" ✗ (this is a journal)
+- "Springer-Verlag" ✗ (this is a publisher)
+- "Member, IEEE" ✗ (this is a title, not an author)
+
+Return format (JSON only):
+{{
+  "title": "string or null",
+  "authors": "string or null"
+}}
+
+Document excerpt:
+---
+{excerpt}
+---
+
+JSON response:"""
+
+    try:
+        # Call Ollama API
+        response = requests.post(
+            f"{ollama_url}/api/generate",
+            json={"model": model, "prompt": prompt, "stream": False},
+            timeout=30,
+        )
+        response.raise_for_status()
+
+        # Parse response
+        result = response.json()
+        llm_output = result.get("response", "").strip()
+
+        # Parse JSON from LLM output
+        metadata = _parse_llm_json_response(llm_output)
+
+        if metadata.get("title"):
+            logger.info(
+                f"LLM extracted metadata: title='{metadata['title']}', "
+                f"authors='{metadata.get('authors')}'"
+            )
+        else:
+            logger.warning(
+                f"LLM extraction returned no title for {file_path.name}. "
+                f"Raw LLM output: {llm_output[:200]}"
+            )
+        return metadata
+
+    except Exception as e:
+        logger.warning(f"LLM metadata extraction failed for {file_path.name}: {e}")
+        return {"title": None, "authors": None}
+
+
+def _parse_llm_json_response(response: str) -> Dict[str, Any]:
+    """Parse JSON from LLM response with error handling.
+
+    Args:
+        response: Raw LLM response text
+
+    Returns:
+        Dictionary with title and authors (may be None)
+    """
+    # Remove markdown code blocks if present
+    cleaned = response.strip()
+    if cleaned.startswith("```"):
+        # Remove opening ```json or ``` and closing ```
+        lines = cleaned.split("\n")
+        if lines[0].startswith("```"):
+            lines = lines[1:]  # Remove first line
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]  # Remove last line
+        cleaned = "\n".join(lines)
+
+    try:
+        # Try direct JSON parse
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        # Try to extract JSON object with balanced braces
+        match = re.search(r"\{.*\}", cleaned, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+
+    # Fallback: return empty metadata
+    logger.warning(f"Failed to parse LLM JSON response: {response[:100]}...")
+    return {"title": None, "authors": None}
+
+
+# ============================================================================
+# Helper Functions
+# ============================================================================
+
+
+def _get_paper_group_metadata(module_name: str, sources_config: Dict) -> Dict[str, Any]:
+    """Get paper group metadata from sources.json.
+
+    Args:
+        module_name: Module/category name (e.g., "dl_foundations")
+        sources_config: Loaded sources.json config
+
+    Returns:
+        Dict with group_display_name and description
+    """
+    if not sources_config:
+        return {}
+
+    papers = sources_config.get("papers", {})
+    category = papers.get(module_name, {})
+
+    return {
+        "group_display_name": category.get("display_name"),
+        "group_description": category.get("description"),
+    }
+
+
+def _get_arxiv_metadata_from_config(
+    arxiv_id: str, module_name: str, sources_config: Dict
+) -> Optional[Dict[str, Any]]:
+    """Get ArXiv paper metadata from sources.json.
+
+    Args:
+        arxiv_id: ArXiv paper ID (e.g., "1512.03385")
+        module_name: Module/category name (e.g., "dl_foundations")
+        sources_config: Loaded sources.json config
+
+    Returns:
+        Dict with title, authors, year, source_url or None if not found
+    """
+    if not sources_config:
+        raise ValueError("sources_config is required.")
+
+    papers = sources_config.get("papers", {})
+
+    if not papers:
+        raise ValueError("No 'papers' section found in sources_config.")
+
+    category = papers.get(module_name)
+
+    if not category or "items" not in category:
+        raise ValueError(
+            f"Module '{module_name}' not found in 'papers' section of sources_config."
+        )
+
+    # Look up by arxiv ID key
+    item = category["items"].get(arxiv_id)
+
+    if not item:
+        return None
+
+    return {
+        "title": item.get("title"),
+        "authors": item.get("authors"),
+        "year": item.get("year"),
+        "source_url": item.get("url"),
+        "arxiv_id": arxiv_id,
+    }
+
+
+def format_authors(authors: Union[str, List, None]) -> Optional[str]:
+    """Format authors for display.
+
+    Converts to "LastName et al." format if more than 3 authors.
+
+    Args:
+        authors: Author string or list
+
+    Returns:
+        Formatted author string or None
+    """
+    if not authors:
+        return None
+
+    # Handle list input
+    if isinstance(authors, list):
+        authors = ", ".join(authors)
+
+    # Count authors (split by comma or "and")
+    author_list = re.split(r",|\band\b", authors)
+    author_list = [a.strip() for a in author_list if a.strip()]
+
+    if len(author_list) == 0:
+        return None
+    elif len(author_list) == 1:
+        return author_list[0]
+    elif len(author_list) <= 3:
+        return ", ".join(author_list)
+    else:
+        # Extract first author's last name
+        first_author = author_list[0]
+        # Try to get last name (assumes "First Last" or "Last, First" format)
+        if "," in first_author:
+            last_name = first_author.split(",")[0].strip()
+        else:
+            parts = first_author.split()
+            last_name = parts[-1] if parts else first_author
+
+        return f"{last_name} et al."
+
+
+# ============================================================================
+# Specialized Metadata Extraction Functions
+# ============================================================================
+
+
+def get_document_type_from_config(
+    module_name: str, sources_config: Dict
+) -> DocumentType:
+    """Get document type for a module from sources.json."""
+
+    books = sources_config.get("books", {})
+    libraries = sources_config.get("libraries", {})
+    papers = sources_config.get("papers", {})
+
+    if module_name in books:
+        return DocumentType.BOOK
+    elif module_name in libraries:
+        return DocumentType.LIBRARY
+    elif module_name in papers:
+        return DocumentType.PAPERS
+
+    raise ValueError(f"Module '{module_name}' is not found among sources.")
+
+
+def get_book_metadata_from_config(
+    module_name: str, sources_config: Dict
+) -> Dict[str, Any]:
+    """Get book metadata from sources.json.
+
+    Args:
+        module_name: Module name (e.g., "book_linear_algebra_cherney")
+        sources_config: Loaded sources.json config
+
+    Returns:
+        Dict with title, authors, source_url, book_display_name
+    """
+    if not sources_config:
+        raise ValueError("sources_config is required.")
+
+    book_info = sources_config["books"].get(module_name, {})
+
+    if not book_info:
+        raise ValueError(
+            f"Cannot find a book with module name '{module_name}' in sources.json."
+        )
+
+    title = book_info.get("title")
+    authors = book_info.get("authors", [])
+    description = book_info.get("description", "")
+    category = book_info.get("category", "")
+
+    # Convert list to string if needed
+    if isinstance(authors, list):
+        authors = ", ".join(authors)
+
+    # Format for display
+    formatted_authors = format_authors(authors)
+    book_display_name = f"{title}, {formatted_authors}" if formatted_authors else title
+
+    return {
+        "title": title,
+        "doc_type": "book",
+        "authors": authors,
+        "formatted_authors": formatted_authors,
+        "source_url": book_info.get("source"),
+        "book_display_name": book_display_name,
+        "description": description,
+        "category": category,
+    }
+
+
+def extract_book_chapter_metadata(
+    file_path: Path, book_metadata: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Extract metadata for book chapters from sources.json.
+
+    Args:
+        file_path: Path to markdown chapter file
+        book_metadata_cache: Cache dict keyed by module name
+
+    Returns:
+        Metadata dict with title, authors, display_name, book_display_name, doc_type, source_url
+    """
+
+    # Start with base book metadata
+    metadata = book_metadata.copy()
+
+    try:
+        title = metadata["title"]
+        formatted_authors = metadata["formatted_authors"]
+    except KeyError as e:
+        raise ValueError(
+            f"Book metadata is missing required key: {e}. "
+            f"Ensure book metadata is loaded correctly."
+        )
+
+    # Extract chapter number from filename if present
+    # Supports formats: Ch01, Ch.01, Chapter_01, __01_, etc.
+    chapter_match = re.search(
+        r"(?:ch(?:apter)?[._\s]?(\d+)|__(\d+)_)",
+        file_path.stem,
+        re.IGNORECASE,
+    )
+
+    if chapter_match:
+        # Get chapter number from whichever group matched
+        chapter_num = chapter_match.group(1) or chapter_match.group(2)
+        # Build chapter-specific display name
+        chapter_title = f"{title} Ch.{chapter_num}"
+        metadata["display_name"] = (
+            f"{chapter_title}, {formatted_authors}"
+            if formatted_authors
+            else chapter_title
+        )
+        logger.debug(f"  Chapter {chapter_num}: {file_path.name}")
+    else:
+        # No chapter number found, use book title as-is
+        metadata["display_name"] = metadata["book_display_name"]
+
+    return metadata
+
+
+def extract_arxiv_metadata_from_config(
+    file_path: Path, module_name: str, sources_config: Dict
+) -> Optional[Dict[str, Any]]:
+    """Extract complete metadata for ArXiv papers from sources.json.
+
+    Args:
+        file_path: Path to document file
+        module_name: Module/category name (e.g., "dl_foundations")
+        sources_config: Contents of config/sources.json
+
+    Returns:
+        Complete metadata dict if ArXiv ID found in config, None otherwise
+    """
+
+    arxiv_id = file_path.stem
+
+    metadata = _get_arxiv_metadata_from_config(arxiv_id, module_name, sources_config)
+
+    if not metadata:
+        raise ValueError(
+            f"ArXiv ID {arxiv_id} not found in sources.json under module {module_name}."
+        )
+
+    title = metadata.get("title")
+    authors = format_authors(
+        metadata.get("authors")
+    )  # Converting to first author et al.
+
+    metadata["display_name"] = f"{title}, {authors}"
+    metadata["doc_type"] = "paper"
+
+    # Add group-level metadata for UI display
+    group_metadata = _get_paper_group_metadata(module_name, sources_config)
+    metadata.update(group_metadata)
+
+    return metadata
+
+
+def extract_library_metadata_from_config(
+    module_name: str, sources_config: Dict
+) -> Dict[str, Any]:
+    """Extract metadata for library documentation from config.
+
+    Args:
+        module_name: Module name (e.g., "pytorch", "numpy")
+        sources_config: Contents of config/sources.json
+
+    Returns:
+        Metadata dict with title, source_url, doc_type
+    """
+
+    lib_info = sources_config.get("libraries", {}).get(module_name, None)
+
+    if not lib_info:
+        raise ValueError(
+            f"Library '{module_name}' not found in sources.json 'libraries' section."
+        )
+
+    # Build title from library name and version
+    title = module_name.rsplit("_", 1)[0]  # Remove version suffix if present
+    title = title[0].upper() + title[1:].lower()  # Capitalize first letter
+
+    version = lib_info.get("version", "")
+    library_dispay_name = f"{title} {version}"
+
+    return {
+        "title": title,
+        "authors": None,
+        "generator_type": lib_info.get("doc_type"),
+        "library_display_name": library_dispay_name,
+        "source_url": lib_info.get("doc_root"),
+        "doc_type": "library_doc",
+    }
+
+
+def extract_library_module_metadata(
+    file_path: Path, library_metadata: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Extract metadata for library documentation modules.
+    Args:
+        file_path: Path to document file
+        library_metadata: Metadata dict for the library
+    Returns:
+        Metadata dict with title, authors, display_name, library_display_name, doc_type, source_url
+    """
+
+    # Read first line to get source URL
+    with open(file_path, "r", encoding="utf-8") as f:
+        first_line = f.readline().strip()
+
+    # Extract URL from format: # Source: https://...
+    source_url = None
+    if first_line.startswith("# Source: "):
+        source_url = first_line.replace("# Source: ", "").strip()
+
+    if not source_url:
+        raise ValueError(
+            f"Source URL not found in first line of {file_path.name}. "
+            f"Expected format: '# Source: <URL>'"
+        )
+
+    # Build metadata from library base
+    metadata = library_metadata.copy()
+
+    metadata["source_url"] = source_url
+
+    # Format display_name based on doc_type
+    library_display_name = library_metadata.get("library_display_name", "")
+    generator_type = library_metadata.get("generator_type", "")
+
+    if generator_type == "sphinx":
+        module_name = source_url.rstrip("/").split("/")[-1]
+        metadata["display_name"] = f"{library_display_name} > {module_name}"
+    else:
+        # For doxygen or other types, just use library_display_name
+        metadata["display_name"] = library_display_name
+
+    return metadata
+
+
+def extract_uploaded_pdf_metadata(
+    doc: Document, file_path: Path, ollama_url: str
+) -> Dict[str, Any]:
+    """Extract metadata for user-uploaded PDFs using LLM only.
+
+    Args:
+        doc: LlamaIndex Document object
+        file_path: Path to document file
+        ollama_url: Ollama API URL
+
+    Returns:
+        Metadata dict with title, authors, display_name, doc_type
+    """
+    logger.info(f"Extracting metadata for uploaded PDF: {file_path.name}")
+
+    # Always use LLM extraction for uploaded PDFs
+    metadata = extract_metadata_with_llm(doc, file_path, ollama_url)
+
+    # Force doc_type to uploaded_pdf
+    metadata["doc_type"] = "uploaded_pdf"
+
+    # Format title
+    if not metadata.get("title"):
+        logger.warning(f"No title found in LLM extraction for {file_path.name}.")
+        # Simply use filename as title fallback
+        metadata["title"] = file_path.stem
+
+    title = metadata["title"]
+
+    # Format authors
+    if not metadata.get("authors"):
+        logger.warning(f"No authors found in LLM extraction for {file_path.name}.")
+        metadata["authors"] = ""
+        formatted_authors = ""
+    else:
+        formatted_authors = format_authors(metadata["authors"])
+
+    if not formatted_authors:
+        metadata["display_name"] = title
+    else:
+        metadata["display_name"] = f"{title}, {formatted_authors}"
+
+    # Add source URL as file URI
+    metadata["source_url"] = file_path.as_uri()
+
+    return metadata
+    return metadata
