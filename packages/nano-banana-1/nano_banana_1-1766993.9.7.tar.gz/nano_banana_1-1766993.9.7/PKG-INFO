@@ -1,0 +1,146 @@
+Metadata-Version: 2.4
+Name: nano-banana-1
+Version: 1766993.9.7
+Summary: High-quality integration for https://supermaker.ai/image/nano-banana/
+Home-page: https://supermaker.ai/image/nano-banana/
+Author: SuperMaker
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+Dynamic: summary
+
+# nano-banana-1
+
+A streamlined Python library for interacting with and showcasing the capabilities of the nano-banana-1 service. Designed for easy integration with the Supermaker.ai nano-banana-1 image generation platform.
+
+## Installation
+
+Install the `nano-banana-1` package using pip:
+bash
+pip install nano-banana-1
+
+## Basic Usage
+
+Here are a few examples demonstrating how to use the `nano-banana-1` library.  These examples assume you have obtained the necessary API key or credentials as described on the Supermaker.ai website.
+
+**1. Generating a Basic Image:**
+
+This example demonstrates the simplest image generation request.
+python
+from nano_banana_1 import NanoBanana
+
+# Replace with your actual API key
+api_key = "YOUR_API_KEY"
+banana = NanoBanana(api_key)
+
+try:
+    image_url = banana.generate_image(prompt="A delicious nano-banana")
+    print(f"Image URL: {image_url}")
+    # Further processing: save the image, display it, etc.
+except Exception as e:
+    print(f"Error generating image: {e}")
+
+**2. Generating an Image with Advanced Parameters:**
+
+This example shows how to use more specific parameters to influence the image generation.
+python
+from nano_banana_1 import NanoBanana
+
+# Replace with your actual API key
+api_key = "YOUR_API_KEY"
+banana = NanoBanana(api_key)
+
+try:
+    image_url = banana.generate_image(
+        prompt="A futuristic nano-banana robot",
+        style="cyberpunk",
+        quality="high",
+        resolution="1024x1024"
+    )
+    print(f"Image URL: {image_url}")
+except Exception as e:
+    print(f"Error generating image: {e}")
+
+**3. Working with Image Variations:**
+
+This example demonstrates how to generate variations of an existing image.
+python
+from nano_banana_1 import NanoBanana
+
+# Replace with your actual API key
+api_key = "YOUR_API_KEY"
+banana = NanoBanana(api_key)
+
+# Replace with the URL of the image you want to create variations from
+base_image_url = "URL_OF_YOUR_BASE_IMAGE"
+
+try:
+    variation_urls = banana.generate_image_variations(base_image_url, num_variations=3)
+    print("Image Variation URLs:")
+    for url in variation_urls:
+        print(url)
+except Exception as e:
+    print(f"Error generating image variations: {e}")
+
+**4. Checking API Usage:**
+
+This example retrieves your current API usage statistics.
+python
+from nano_banana_1 import NanoBanana
+
+# Replace with your actual API key
+api_key = "YOUR_API_KEY"
+banana = NanoBanana(api_key)
+
+try:
+    usage_data = banana.get_usage_stats()
+    print(f"API Usage: {usage_data}")
+    # Process and display the usage data as needed
+except Exception as e:
+    print(f"Error retrieving usage stats: {e}")
+
+## Feature List
+
+*   **Image Generation:** Generate images based on text prompts.
+*   **Style Control:** Specify the desired style for image generation (e.g., realistic, artistic, cartoon).
+*   **Quality and Resolution Control:** Adjust the quality and resolution of the generated images.
+*   **Image Variations:** Create variations of existing images.
+*   **API Usage Tracking:** Monitor your API usage and remaining credits.
+*   **Error Handling:** Robust error handling to manage potential issues during API calls.
+*   **Simplified Interface:** Provides an easy-to-use Python interface for interacting with the nano-banana-1 service.
+*   **Asynchronous Support:** (Future enhancement) Potential for asynchronous operation for improved performance in concurrent applications.
+
+## License
+
+MIT License
+
+Copyright (c) 2023
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+This project is a gateway to the nano-banana-1 ecosystem. For advanced features and full capabilities, please visit: https://supermaker.ai/image/nano-banana/
