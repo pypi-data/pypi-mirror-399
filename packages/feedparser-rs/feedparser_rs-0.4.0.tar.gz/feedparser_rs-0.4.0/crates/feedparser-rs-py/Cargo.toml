@@ -1,0 +1,26 @@
+[package]
+name = "feedparser-rs-py"
+version.workspace = true
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+description = "High-performance RSS/Atom/JSON Feed parser for Python (drop-in feedparser replacement)"
+repository = "https://github.com/bug-ops/feedparser-rs"
+keywords = ["rss", "atom", "feed", "parser", "python"]
+categories = ["parsing", "web-programming"]
+publish = false  # Published via maturin to PyPI
+readme = "README.md"
+
+[lib]
+name = "feedparser_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+feedparser-rs = { path = "../feedparser-rs-core" }
+pyo3 = { workspace = true, features = ["extension-module", "chrono"] }
+chrono = { workspace = true, features = ["clock"] }
+once_cell = { workspace = true }
+
+[features]
+default = ["http"]
+http = ["feedparser-rs/http"]
