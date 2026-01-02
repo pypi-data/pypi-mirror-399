@@ -1,0 +1,42 @@
+Metadata-Version: 2.4
+Name: km-search-tui
+Version: 0.0.9
+Summary: 空明码查询工具 - 使用 Textual 开发的 TUI 应用，可以查询编码和中文的对应关系
+License-File: LICENSE
+Requires-Python: >=3.14
+Requires-Dist: duckdb>=1.4.3
+Requires-Dist: textual-dev>=1.8.0
+Requires-Dist: textual>=6.8.0
+Description-Content-Type: text/markdown
+
+# 空明码TUI查询工具
+
+## 简介
+
+空明码TUI查询工具是一个基于Python的命令行TUI工具，用于查询字词的空明码编码或根据编码查询字词。
+本项目完全由AI coder完成，本人未参与任何编码，如果有Bug都是AI写的。
+
+## 功能
+
+- 通过编码查询字词
+- 通过字词查询编码
+- 使用duckdb保存查询历史
+- 可以导出历史查询字词，方便在跟打器中进行练习
+
+## 安装使用
+
+本项目发布在[Pypi](https://pypi.org/project/km-search-tui/)
+
+在有Python的环境中，可以使用pip 或 pipx 安装使用：
+
+```
+pip install km-search-tui
+
+or
+
+pipx install km-search-tui
+```
+
+建议使用pipx，因为它会在一个独立的环境中安装，这样不会污染系统环境。
+安装好后，执行`km-search`即可启动程序。
+
