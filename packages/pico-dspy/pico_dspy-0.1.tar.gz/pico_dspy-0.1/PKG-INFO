@@ -1,0 +1,87 @@
+Metadata-Version: 2.4
+Name: pico-dspy
+Version: 0.1
+Author-email: Marcin Bachry <hegel666@gmail.com>
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: json-repair>=0.54.2
+Requires-Dist: pydantic>=2.0
+Requires-Dist: regex>=2023.10.3
+Requires-Dist: wrapt
+Dynamic: license-file
+
+# pico-dspy
+
+A stripped-down version of dspy: https://github.com/stanfordnlp/dspy
+
+## Use case
+
+`dspy` may be too bulky and slow to import in some cases, especially
+during highly iterative development with code auto
+reloaders. `pico-dspy` lets you use the usual signature+predict flow
+during development and switch your dspy-compatible signatures to the
+regular `dspy` when you need GEPA, fine tuning, etc.
+
+## Limitations
+
+Several features or limitations compared to `dspy`:
+
+* uses `pydantic-ai` instead of `litellm`, as `litellm` is infamously
+  slow to import (https://github.com/BerriAI/litellm/issues/7605)
+
+* uses lazy imports (with `wrapt`) to reduce import time
+
+* just inference, no GEPA or anything
+
+* only `JSONAdapter`, only one `LM` type
+
+* only `Predict` supported
+
+* text inference only
+
+* no tool support
+
+* no async api
+
+* no loading and saving
+
+* no `dspy.configure`
+
+* tested only with gemini
+
+## What works
+
+```
+import pico_dspy as dspy
+
+
+class EmailParse(dspy.Signature):
+    """
+    Parse a raw email.
+    """
+    raw_email = dspy.InputField(desc="Raw email")
+    subject = dspy.OutputField(desc="Email subject")
+    body = dspy.OutputField(desc="Email text body")
+    attachments: list[str] = dspy.OutputField(desc="Email text attachments")
+
+
+RAW_EMAIL = """\
+From : foo@example.net
+To: bar@example.net
+Subject: hello
+
+Hello there
+-- bar
+"""
+
+lm = dspy.LM('gemini/gemini-2.5-flash-lite')
+pred = dspy.Predict(signature=EmailParse)
+result = pred(lm=lm, raw_email=RAW_EMAIL)
+print(dict(result))
+print(result.get_lm_usage())
+```
+
+## Install
+
+`pip install pico-dspy`
