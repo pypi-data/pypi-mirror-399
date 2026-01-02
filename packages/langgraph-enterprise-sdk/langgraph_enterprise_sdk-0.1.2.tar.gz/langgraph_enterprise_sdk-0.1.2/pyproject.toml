@@ -1,0 +1,206 @@
+# ============================================================
+# BUILD SYSTEM
+# ============================================================
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+# ============================================================
+# PROJECT METADATA
+# ============================================================
+
+[project]
+name = "langgraph-enterprise-sdk"
+version = "0.1.2"
+description = "Enterprise-grade Agent Platform SDK built on LangGraph principles (TOON + ZAD)"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+
+authors = [
+  { name = "Ganesh Kinkar Giri", email = "k.ganeshgiri@gmail.com" }
+]
+
+keywords = [
+  "langgraph",
+  "agentic-ai",
+  "enterprise-ai",
+  "multi-agent",
+  "a2a",
+  "mcp",
+  "llm",
+  "rag",
+  "governance",
+  "platform-engineering"
+]
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Topic :: System :: Distributed Computing",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+
+
+# ============================================================
+# BASE DEPENDENCIES (LIGHTWEIGHT ONLY)
+# ============================================================
+# ⚠️ CRITICAL:
+# - NO databases
+# - NO search engines
+# - NO cloud SDKs
+# - NO C extensions
+# This guarantees TestPyPI install success
+# ============================================================
+
+dependencies = [
+  "fastapi>=0.110",
+  "pydantic>=2.6",
+  "typing-extensions>=4.10",
+  "tenacity>=8.2",
+  "structlog>=24.1",
+  "prometheus-client>=0.20",
+  "opentelemetry-api>=1.24",
+  "httpx>=0.27",
+  "websockets>=12.0",
+  "python-dotenv>=1.0"
+]
+
+
+# ============================================================
+# OPTIONAL DEPENDENCIES (ENTERPRISE FEATURES)
+# ============================================================
+
+[project.optional-dependencies]
+
+# ---------- DATA STORES ----------
+postgres = ["psycopg2-binary>=2.9"]
+redis = ["redis>=5.0"]
+
+# ---------- KNOWLEDGE GRAPH ----------
+neo4j = ["neo4j>=5.18"]
+
+# ---------- VECTOR / SEARCH ----------
+opensearch = ["opensearch-py>=2.4"]
+
+# ---------- CLOUD ----------
+aws = ["boto3>=1.34"]
+
+# ---------- LLM PROVIDERS ----------
+llm-openai = ["openai>=1.14"]
+llm-azure = ["openai>=1.14"]
+llm-anthropic = ["anthropic>=0.21"]
+llm-ollama = ["ollama>=0.1"]
+llm-llama-cpp = ["llama-cpp-python>=0.2.55"]
+llm-groq = ["groq>=0.9.0"]
+
+all-llms = [
+  "openai>=1.14",
+  "anthropic>=0.21",
+  "ollama>=0.1",
+  "llama-cpp-python>=0.2.55",
+  "groq>=0.9.0"
+]
+
+# ---------- PROTOCOLS ----------
+a2a = ["a2a-python-sdk>=0.1.0"]
+mcp = []
+
+# ---------- SECURITY ----------
+security = [
+  "python-jose>=3.3",
+  "cryptography>=42.0"
+]
+
+# ---------- DEV / CI ----------
+dev = [
+  "pytest>=8.1",
+  "pytest-asyncio>=0.23",
+  "pytest-cov>=4.1",
+  "ruff>=0.4",
+  "black>=24.3",
+  "mypy>=1.9",
+  "pre-commit>=3.6"
+]
+
+# ---------- FULL ENTERPRISE INSTALL ----------
+enterprise = [
+  "langgraph-enterprise-sdk[postgres,redis,neo4j,opensearch,aws]",
+  "langgraph-enterprise-sdk[all-llms]",
+  "langgraph-enterprise-sdk[security,a2a,mcp]"
+]
+
+
+# ============================================================
+# PROJECT URLS
+# ============================================================
+
+[project.urls]
+Homepage = "https://github.com/your-org/langgraph-enterprise-sdk"
+Documentation = "https://github.com/your-org/langgraph-enterprise-sdk/docs"
+Repository = "https://github.com/your-org/langgraph-enterprise-sdk"
+Issues = "https://github.com/your-org/langgraph-enterprise-sdk/issues"
+
+
+# ============================================================
+# SETUPTOOLS CONFIG
+# ============================================================
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["langgraph_enterprise_sdk", "langgraph_enterprise_sdk.*"]
+
+
+# ============================================================
+# TESTING
+# ============================================================
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q"
+markers = [
+  "unit",
+  "integration",
+  "security",
+  "durability",
+  "load"
+]
+
+
+# ============================================================
+# FORMATTING & LINTING
+# ============================================================
+
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+
+# ============================================================
+# TYPE CHECKING
+# ============================================================
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
+warn_unused_configs = true

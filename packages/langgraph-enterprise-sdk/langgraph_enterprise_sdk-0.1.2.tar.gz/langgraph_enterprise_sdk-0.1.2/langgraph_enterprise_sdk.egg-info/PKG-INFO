@@ -1,0 +1,544 @@
+Metadata-Version: 2.4
+Name: langgraph-enterprise-sdk
+Version: 0.1.2
+Summary: Enterprise-grade Agent Platform SDK built on LangGraph principles (TOON + ZAD)
+Author-email: Ganesh Kinkar Giri <k.ganeshgiri@gmail.com>
+License:                                  Apache License
+                                   Version 2.0, January 2004
+                                http://www.apache.org/licenses/
+        
+           TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+        
+           1. Definitions.
+        
+              "License" shall mean the terms and conditions for use, reproduction,
+              and distribution as defined by Sections 1 through 9 of this document.
+        
+              "Licensor" shall mean the copyright owner or entity authorized by
+              the copyright owner that is granting the License.
+        
+              "Legal Entity" shall mean the union of the acting entity and all
+              other entities that control, are controlled by, or are under common
+              control with that entity. For the purposes of this definition,
+              "control" means (i) the power, direct or indirect, to cause the
+              direction or management of such entity, whether by contract or
+              otherwise, or (ii) ownership of fifty percent (50%) or more of the
+              outstanding shares, or (iii) beneficial ownership of such entity.
+        
+              "You" (or "Your") shall mean an individual or Legal Entity
+              exercising permissions granted by this License.
+        
+              "Source" form shall mean the preferred form for making modifications,
+              including but not limited to software source code, documentation
+              source, and configuration files.
+        
+              "Object" form shall mean any form resulting from mechanical
+              transformation or translation of a Source form, including but
+              not limited to compiled object code, generated documentation,
+              and conversions to other media types.
+        
+              "Work" shall mean the work of authorship, whether in Source or
+              Object form, made available under the License, as indicated by a
+              copyright notice that is included in or attached to the work
+              (an example is provided in the Appendix below).
+        
+              "Derivative Works" shall mean any work, whether in Source or Object
+              form, that is based on (or derived from) the Work and for which the
+              editorial revisions, annotations, elaborations, or other modifications
+              represent, as a whole, an original work of authorship. For the purposes
+              of this License, Derivative Works shall not include works that remain
+              separable from, or merely link (or bind by name) to the interfaces of,
+              the Work and Derivative Works thereof.
+        
+              "Contribution" shall mean any work of authorship, including
+              the original version of the Work and any modifications or additions
+              to that Work or Derivative Works thereof, that is intentionally
+              submitted to Licensor for inclusion in the Work by the copyright owner
+              or by an individual or Legal Entity authorized to submit on behalf of
+              the copyright owner. For the purposes of this definition, "submitted"
+              means any form of electronic, verbal, or written communication sent
+              to the Licensor or its representatives, including but not limited to
+              communication on electronic mailing lists, source code control systems,
+              and issue tracking systems that are managed by, or on behalf of, the
+              Licensor for the purpose of discussing and improving the Work, but
+              excluding communication that is conspicuously marked or otherwise
+              designated in writing by the copyright owner as "Not a Contribution."
+        
+              "Contributor" shall mean Licensor and any individual or Legal Entity
+              on behalf of whom a Contribution has been received by Licensor and
+              subsequently incorporated within the Work.
+        
+           2. Grant of Copyright License. Subject to the terms and conditions of
+              this License, each Contributor hereby grants to You a perpetual,
+              worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+              copyright license to reproduce, prepare Derivative Works of,
+              publicly display, publicly perform, sublicense, and distribute the
+              Work and such Derivative Works in Source or Object form.
+        
+           3. Grant of Patent License. Subject to the terms and conditions of
+              this License, each Contributor hereby grants to You a perpetual,
+              worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+              (except as stated in this section) patent license to make, have made,
+              use, offer to sell, sell, import, and otherwise transfer the Work,
+              where such license applies only to those patent claims licensable
+              by such Contributor that are necessarily infringed by their
+              Contribution(s) alone or by combination of their Contribution(s)
+              with the Work to which such Contribution(s) was submitted. If You
+              institute patent litigation against any entity (including a
+              cross-claim or counterclaim in a lawsuit) alleging that the Work
+              or a Contribution incorporated within the Work constitutes direct
+              or contributory patent infringement, then any patent licenses
+              granted to You under this License for that Work shall terminate
+              as of the date such litigation is filed.
+        
+           4. Redistribution. You may reproduce and distribute copies of the
+              Work or Derivative Works thereof in any medium, with or without
+              modifications, and in Source or Object form, provided that You
+              meet the following conditions:
+        
+              (a) You must give any other recipients of the Work or
+                  Derivative Works a copy of this License; and
+        
+              (b) You must cause any modified files to carry prominent notices
+                  stating that You changed the files; and
+        
+              (c) You must retain, in the Source form of any Derivative Works
+                  that You distribute, all copyright, patent, trademark, and
+                  attribution notices from the Source form of the Work,
+                  excluding those notices that do not pertain to any part of
+                  the Derivative Works; and
+        
+              (d) If the Work includes a "NOTICE" text file as part of its
+                  distribution, then any Derivative Works that You distribute must
+                  include a readable copy of the attribution notices contained
+                  within such NOTICE file, excluding those notices that do not
+                  pertain to any part of the Derivative Works, in at least one
+                  of the following places: within a NOTICE text file distributed
+                  as part of the Derivative Works; within the Source form or
+                  documentation, if provided along with the Derivative Works; or,
+                  within a display generated by the Derivative Works, if and
+                  wherever such third-party notices normally appear. The contents
+                  of the NOTICE file are for informational purposes only and
+                  do not modify the License. You may add Your own attribution
+                  notices within Derivative Works that You distribute, alongside
+                  or as an addendum to the NOTICE text from the Work, provided
+                  that such additional attribution notices cannot be construed
+                  as modifying the License.
+        
+              You may add Your own copyright statement to Your modifications and
+              may provide additional or different license terms and conditions
+              for use, reproduction, or distribution of Your modifications, or
+              for any such Derivative Works as a whole, provided Your use,
+              reproduction, and distribution of the Work otherwise complies with
+              the conditions stated in this License.
+        
+           5. Submission of Contributions. Unless You explicitly state otherwise,
+              any Contribution intentionally submitted for inclusion in the Work
+              by You to the Licensor shall be under the terms and conditions of
+              this License, without any additional terms or conditions.
+              Notwithstanding the above, nothing herein shall supersede or modify
+              the terms of any separate license agreement you may have executed
+              with Licensor regarding such Contributions.
+        
+           6. Trademarks. This License does not grant permission to use the trade
+              names, trademarks, service marks, or product names of the Licensor,
+              except as required for reasonable and customary use in describing the
+              origin of the Work and reproducing the content of the NOTICE file.
+        
+           7. Disclaimer of Warranty. Unless required by applicable law or
+              agreed to in writing, Licensor provides the Work (and each
+              Contributor provides its Contributions) on an "AS IS" BASIS,
+              WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+              implied, including, without limitation, any warranties or conditions
+              of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+              PARTICULAR PURPOSE. You are solely responsible for determining the
+              appropriateness of using or redistributing the Work and assume any
+              risks associated with Your exercise of permissions under this License.
+        
+           8. Limitation of Liability. In no event and under no legal theory,
+              whether in tort (including negligence), contract, or otherwise,
+              unless required by applicable law (such as deliberate and grossly
+              negligent acts) or agreed to in writing, shall any Contributor be
+              liable to You for damages, including any direct, indirect, special,
+              incidental, or consequential damages of any character arising as a
+              result of this License or out of the use or inability to use the
+              Work (including but not limited to damages for loss of goodwill,
+              work stoppage, computer failure or malfunction, or any and all
+              other commercial damages or losses), even if such Contributor
+              has been advised of the possibility of such damages.
+        
+           9. Accepting Warranty or Additional Liability. While redistributing
+              the Work or Derivative Works thereof, You may choose to offer,
+              and charge a fee for, acceptance of support, warranty, indemnity,
+              or other liability obligations and/or rights consistent with this
+              License. However, in accepting such obligations, You may act only
+              on Your own behalf and on Your sole responsibility, not on behalf
+              of any other Contributor, and only if You agree to indemnify,
+              defend, and hold each Contributor harmless for any liability
+              incurred by, or claims asserted against, such Contributor by reason
+              of your accepting any such warranty or additional liability.
+        
+           END OF TERMS AND CONDITIONS
+        
+           APPENDIX: How to apply the Apache License to your work.
+        
+              To apply the Apache License to your work, attach the following
+              boilerplate notice, with the fields enclosed by brackets "[]"
+              replaced with your own identifying information. (Don't include
+              the brackets!)  The text should be enclosed in the appropriate
+              comment syntax for the file format. We also recommend that a
+              file or class name and description of purpose be included on the
+              same "printed page" as the copyright notice for easier
+              identification within third-party archives.
+        
+           Copyright [yyyy] [name of copyright owner]
+        
+           Licensed under the Apache License, Version 2.0 (the "License");
+           you may not use this file except in compliance with the License.
+           You may obtain a copy of the License at
+        
+               http://www.apache.org/licenses/LICENSE-2.0
+        
+           Unless required by applicable law or agreed to in writing, software
+           distributed under the License is distributed on an "AS IS" BASIS,
+           WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+           See the License for the specific language governing permissions and
+           limitations under the License.
+        
+Project-URL: Homepage, https://github.com/your-org/langgraph-enterprise-sdk
+Project-URL: Documentation, https://github.com/your-org/langgraph-enterprise-sdk/docs
+Project-URL: Repository, https://github.com/your-org/langgraph-enterprise-sdk
+Project-URL: Issues, https://github.com/your-org/langgraph-enterprise-sdk/issues
+Keywords: langgraph,agentic-ai,enterprise-ai,multi-agent,a2a,mcp,llm,rag,governance,platform-engineering
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: System :: Distributed Computing
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: fastapi>=0.110
+Requires-Dist: pydantic>=2.6
+Requires-Dist: typing-extensions>=4.10
+Requires-Dist: tenacity>=8.2
+Requires-Dist: structlog>=24.1
+Requires-Dist: prometheus-client>=0.20
+Requires-Dist: opentelemetry-api>=1.24
+Requires-Dist: httpx>=0.27
+Requires-Dist: websockets>=12.0
+Requires-Dist: python-dotenv>=1.0
+Provides-Extra: postgres
+Requires-Dist: psycopg2-binary>=2.9; extra == "postgres"
+Provides-Extra: redis
+Requires-Dist: redis>=5.0; extra == "redis"
+Provides-Extra: neo4j
+Requires-Dist: neo4j>=5.18; extra == "neo4j"
+Provides-Extra: opensearch
+Requires-Dist: opensearch-py>=2.4; extra == "opensearch"
+Provides-Extra: aws
+Requires-Dist: boto3>=1.34; extra == "aws"
+Provides-Extra: llm-openai
+Requires-Dist: openai>=1.14; extra == "llm-openai"
+Provides-Extra: llm-azure
+Requires-Dist: openai>=1.14; extra == "llm-azure"
+Provides-Extra: llm-anthropic
+Requires-Dist: anthropic>=0.21; extra == "llm-anthropic"
+Provides-Extra: llm-ollama
+Requires-Dist: ollama>=0.1; extra == "llm-ollama"
+Provides-Extra: llm-llama-cpp
+Requires-Dist: llama-cpp-python>=0.2.55; extra == "llm-llama-cpp"
+Provides-Extra: llm-groq
+Requires-Dist: groq>=0.9.0; extra == "llm-groq"
+Provides-Extra: all-llms
+Requires-Dist: openai>=1.14; extra == "all-llms"
+Requires-Dist: anthropic>=0.21; extra == "all-llms"
+Requires-Dist: ollama>=0.1; extra == "all-llms"
+Requires-Dist: llama-cpp-python>=0.2.55; extra == "all-llms"
+Requires-Dist: groq>=0.9.0; extra == "all-llms"
+Provides-Extra: a2a
+Requires-Dist: a2a-python-sdk>=0.1.0; extra == "a2a"
+Provides-Extra: mcp
+Provides-Extra: security
+Requires-Dist: python-jose>=3.3; extra == "security"
+Requires-Dist: cryptography>=42.0; extra == "security"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.1; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23; extra == "dev"
+Requires-Dist: pytest-cov>=4.1; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+Requires-Dist: black>=24.3; extra == "dev"
+Requires-Dist: mypy>=1.9; extra == "dev"
+Requires-Dist: pre-commit>=3.6; extra == "dev"
+Provides-Extra: enterprise
+Requires-Dist: langgraph-enterprise-sdk[aws,neo4j,opensearch,postgres,redis]; extra == "enterprise"
+Requires-Dist: langgraph-enterprise-sdk[all-llms]; extra == "enterprise"
+Requires-Dist: langgraph-enterprise-sdk[a2a,mcp,security]; extra == "enterprise"
+Dynamic: license-file
+
+# LangGraph Enterprise SDK
+
+> **An enterprise-grade Agent Platform SDK inspired by LangGraph, built with TOON & ZAD principles, designed for governance, security, scalability, and multi-agent systems.**
+
+---
+
+## 🚀 Overview
+
+LangGraph Enterprise SDK is a **production-ready Agent Platform SDK** that provides a **governed, secure, and extensible foundation** for building **single-agent and multi-agent systems** in enterprise and regulated environments.
+
+This SDK does **not replace LangGraph**.  
+Instead, it **hardens and operationalizes agent execution**, adding the layers required for **real-world production use**.
+
+---
+
+## 🎯 Why This SDK Exists
+
+Most agent frameworks are optimized for:
+- Prototyping
+- Demos
+- Experiments
+
+They are **not sufficient** for:
+- Governance & compliance
+- Multi-tenant isolation
+- Long-running agents
+- Human-in-the-loop workflows
+- Deterministic replay & audit
+- Security boundaries
+- Enterprise DevOps & SRE operations
+
+This SDK fills that gap.
+
+---
+
+## 🧠 Core Design Principles
+
+### 1️⃣ TOON – Tool-Oriented Orchestration Nodes
+- Nodes **only orchestrate**
+- Tools perform **side effects**
+- LLMs perform **reasoning**
+- Clear separation of responsibilities
+
+### 2️⃣ ZAD – Zero-Action Design
+- No implicit state mutation
+- No hidden side effects
+- Deterministic execution
+- Replayable workflows
+
+### 3️⃣ Enterprise-First Architecture
+- Security & governance are **first-class**
+- Observability is **built-in**
+- Persistence & recovery are **mandatory**
+- Protocols (A2A, MCP) are **standards-based**
+
+---
+
+## 🧩 High-Level Architecture
+
+```
+Client / UI
+     |
+Server (Control Plane)
+(Auth, Tenancy, Lifecycle)
+     |
+Execution Runtime
+(GraphExecutor, Scheduler)
+     |
+Workflows
+(Planner, Supervisor)
+     |
+Nodes (TOON)
+     |
+LLMs (Reasoning) ---- Tools (Side Effects)
+```
+
+---
+
+## 📦 Key Capabilities
+
+### ✅ Agent Execution
+- Deterministic graph execution
+- Retry & cancellation support
+- Lifecycle hooks
+- Streaming events
+
+### ✅ Multi-Agent Workflows
+- Planner / Supervisor model
+- Explicit delegation
+- A2A-ready design
+
+### ✅ Governance
+- Approval workflows
+- Audit logging
+- Compliance policies
+- Quotas & rate limits
+
+### ✅ Security
+- Authentication & Authorization
+- RBAC
+- Tenant & execution isolation
+- Secrets abstraction
+
+### ✅ Persistence & Durability
+- Checkpointing
+- Snapshots (time-travel)
+- Crash recovery
+- Replay & resume
+
+### ✅ Memory & RAG
+- Postgres / Redis memory
+- pgvector / OpenSearch vector stores
+- Embedding abstraction
+
+### ✅ Knowledge Graph
+- Neo4j integration
+- SOP / Runbook reasoning
+- Dependency & impact analysis
+
+### ✅ LLM Abstraction
+- OpenAI
+- Azure OpenAI
+- Anthropic
+- Ollama
+- LLaMA-cpp
+- Groq
+- Custom / on-prem models
+
+### ✅ MCP (Model Context Protocol)
+- Tool invocation via protocol
+- HTTP / stdio / WebSocket
+- Secure metadata propagation
+
+### ✅ Observability
+- Structured logging
+- Metrics (Prometheus)
+- Tracing (OpenTelemetry)
+- Dashboard registry
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── api/
+├── execution/
+├── workflows/
+├── tools/
+├── llm/
+├── memory/
+├── graph_store/
+├── mcp/
+├── a2a/
+├── governance/
+├── security/
+├── persistence/
+├── streaming/
+├── observability/
+├── server/
+├── utils/
+└── connectors/
+```
+
+---
+
+## ⚙️ Installation
+
+### Core SDK
+```bash
+pip install langgraph-enterprise-sdk
+```
+
+### Full Enterprise Install
+```bash
+pip install "langgraph-enterprise-sdk[enterprise]"
+```
+
+### LLM Providers
+```bash
+pip install "langgraph-enterprise-sdk[all-llms]"
+```
+
+---
+
+## 🧪 Testing
+
+Enterprise-grade test strategy:
+
+```
+tests/
+├── unit/
+├── integration/
+├── security/
+├── durability/
+└── load/
+```
+
+Run all tests:
+```bash
+pytest
+```
+
+---
+
+## 🔐 Security Model
+
+- Zero-trust by default
+- AuthN → AuthZ → Policy → Isolation → Execution
+- Tools are sandboxed
+- No implicit privilege escalation
+- Multi-tenant safe
+
+---
+
+## 🔄 Relation to LangGraph
+
+| LangGraph | This SDK |
+|----------|----------|
+| Graph execution | Deterministic runtime |
+| Nodes | TOON-compliant nodes |
+| State | Immutable ZAD state |
+| Memory | Enterprise memory + RAG |
+| Tools | Sandboxed & governed |
+| Agents | Multi-agent workflows |
+| Server | Control plane |
+| Governance | Built-in |
+
+LangGraph can be used **inside** this SDK but is **not exposed directly** to application teams.
+
+---
+
+## 🏢 Who Should Use This?
+
+✔ Platform Engineering Teams  
+✔ Enterprise AI / GenAI Teams  
+✔ Regulated Industries (Banking, Healthcare, Telecom)  
+✔ DevSecOps & SRE Teams  
+✔ Organizations building **agent platforms**, not just agents  
+
+---
+
+## 🤝 Contributing
+
+See `CONTRIBUTING.md`
+
+---
+
+## 📜 License
+
+Apache 2.0 — see `LICENSE`
+
+---
+
+## 🏁 Final Note
+
+This repository is **not a demo**.  
+It is a **platform-grade foundation** for building **safe, scalable, enterprise AI agents**.
