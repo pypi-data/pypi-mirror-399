@@ -1,0 +1,47 @@
+[project]
+name = "portwatch-tui"
+version = "0.1.0"
+description = "A tactical port scanner dashboard for developers"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "MarcusL11", email = "marclert@gmail.com" }]
+license = { text = "MIT" }
+keywords = [
+  "port",
+  "scanner",
+  "network",
+  "dashboard",
+  "terminal",
+  "tui",
+  "monitoring",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Operating System :: OS Independent",
+  "Topic :: System :: Networking :: Monitoring",
+  "Topic :: Utilities",
+]
+dependencies = ["textual>=0.50.0", "psutil>=5.9.0", "rich>=13.0.0"]
+
+[project.urls]
+Homepage = "https://github.com/MarcusL11/portwatch"
+Repository = "https://github.com/MarcusL11/portwatch"
+Issues = "https://github.com/MarcusL11/portwatch/issues"
+
+[project.scripts]
+portwatch = "portwatch.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["portwatch"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

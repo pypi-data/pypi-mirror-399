@@ -1,0 +1,85 @@
+Metadata-Version: 2.4
+Name: portwatch-tui
+Version: 0.1.0
+Summary: A tactical port scanner dashboard for developers
+Project-URL: Homepage, https://github.com/MarcusL11/portwatch
+Project-URL: Repository, https://github.com/MarcusL11/portwatch
+Project-URL: Issues, https://github.com/MarcusL11/portwatch/issues
+Author-email: MarcusL11 <marclert@gmail.com>
+License: MIT
+License-File: LICENSE
+Keywords: dashboard,monitoring,network,port,scanner,terminal,tui
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: System :: Networking :: Monitoring
+Classifier: Topic :: Utilities
+Requires-Python: >=3.10
+Requires-Dist: psutil>=5.9.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: textual>=0.50.0
+Description-Content-Type: text/markdown
+
+# PORTWATCH
+
+A tactical port scanner dashboard for developers. See what's running on your machine at a glance.
+
+```
+╔═══════════════════════════════════════╗
+║  ▓▓▓ P O R T W A T C H ▓▓▓  v0.1.0    ║
+╚═══════════════════════════════════════╝
+```
+
+## Installation
+
+```bash
+cd portwatch
+pip install -e .
+```
+
+Or run directly:
+
+```bash
+pip install textual psutil rich
+python -m portwatch
+```
+
+## Usage
+
+```bash
+portwatch
+```
+
+## Keybindings
+
+| Key | Action |
+|-----|--------|
+| `↑↓` | Navigate ports |
+| `Enter` | Open action menu |
+| `b` | Open in browser |
+| `k` | Kill process |
+| `c` | Copy port |
+| `r` | Manual refresh |
+| `1/2/5` | Set refresh rate |
+| `q` | Quit |
+
+## Features
+
+- Live auto-refresh (configurable 1s/2s/5s)
+- Category grouping (Web, Database, Queue, DevTools, System)
+- Process details (PID, memory, uptime, cmdline)
+- Quick actions (browser, kill, copy)
+- Docker container detection
+- Tactical military aesthetic
+
+## Requirements
+
+- Python 3.10+
+- macOS / Linux (Windows partial support)
