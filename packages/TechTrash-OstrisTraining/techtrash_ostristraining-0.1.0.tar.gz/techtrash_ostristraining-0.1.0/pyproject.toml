@@ -1,0 +1,34 @@
+[project]
+name = "TechTrash_OstrisTraining"
+version = "0.1.0"
+authors = [
+  { name="Clapin Arthur", email="clapin.arthur@gmail.com" },
+]
+description = "A package to use the OstrisTraining"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "asyncio==4.0.0",
+    "nvidia-ml-py==13.580.82",
+    "pynvml==13.0.1",
+    # Needed to parse/edit nested YAML fields safely (datasets folder_path, trigger_word, etc.)
+    "pyyaml==6.0.2",
+    "requests==2.32.3",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICENSE*"]
+
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ostristraining"]
+include = [
+  # Template config used by `ostristraining.example`
+  "src/ostristraining/example_config.yaml",
+]
