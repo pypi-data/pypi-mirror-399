@@ -1,0 +1,83 @@
+name: tests
+
+on:
+  push:
+  pull_request_target:
+  schedule: # This is useful for keeping the cache fit and ready
+    - cron: "42 3 * * 0" # Every Sunday morning when I am fast asleep :)
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: python-${{ matrix.python-version }} on ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+        python-version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+          # `trino` (v0.336.0) depends on `orjson` (v3.11.5)
+          # which does not support Python 3.14t
+          # https://github.com/ijl/orjson/issues/591#issuecomment-3160351169
+          # - "3.14t"
+        exclude:
+          # greenlet v3.2.4 is not available for Python 3.14t on Windows
+          # and fails to compile there. Not much we can do about that right now.
+          - os: windows-latest
+            python-version: "3.14t"
+
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      UV_CACHE_DIR: /tmp/.uv-cache
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Cache folder for data
+        uses: actions/cache@v5
+        id: cache-folder
+        with:
+          path: |
+            cache_opensky
+          enableCrossOsArchive: true
+          key: opensky-${{ hashFiles('uv.lock') }}
+
+      - name: Install the project
+        run: uv sync --dev --python ${{ matrix.python-version }} --extra rs1090 --extra cartes
+
+      - name: Linting and formatting
+        run: |
+          uv run ruff check
+          uv run ruff format --check
+
+      - name: Type checking
+        if: ${{ matrix.python-version != '3.9' }}
+        run: uvx ty check src tests
+
+      - name: Run tests
+        if: ${{ (matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest') || steps.cache-folder.outputs.cache-hit == 'true' }}
+        env:
+          OPENSKY_USERNAME: ${{ secrets.OPENSKY_USERNAME }}
+          OPENSKY_PASSWORD: ${{ secrets.OPENSKY_PASSWORD }}
+          OPENSKY_CACHE: ${{ github.workspace }}/cache_opensky
+        run: uv run pytest
+
+      - name: Minimize uv cache
+        run: uv cache prune --ci
