@@ -1,0 +1,22 @@
+Metadata-Version: 2.4
+Name: betterlist
+Version: 0.1.0
+Summary: list+ : list() compatible materialization with transparent caching
+Author: You
+License: MIT
+Project-URL: Homepage, https://pypi.org/project/listplus/
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# listplus
+
+`listplus.listp()` is `list()`-compatible, but can cache materialized results.
+
+## Usage
+
+```python
+from listplus import listp, cached
+
+xs = listp(cached("users:v1", (x for x in range(10))))
+ys = listp(cached(("expensive", 123), some_generator()))
+```
