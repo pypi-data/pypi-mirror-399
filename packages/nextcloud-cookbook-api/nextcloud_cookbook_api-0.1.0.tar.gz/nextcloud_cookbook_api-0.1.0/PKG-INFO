@@ -1,0 +1,133 @@
+Metadata-Version: 2.4
+Name: nextcloud_cookbook_api
+Version: 0.1.0
+Summary: Python API client for nextcloud cookbook app API
+Home-page: https://github.com/infinityofspace/nextcloud_cookbook_api
+Author: infinityofspace
+License: MIT
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Utilities
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: requests<3.0,>=2.0
+Requires-Dist: pydantic<3.0,>=2.0
+Requires-Dist: setuptools>=41.6.0
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# Nextcloud cookbook API
+
+Python API client for nextcloud cookbook app API
+
+--- 
+
+### Table of contents
+
+1. [About](#about)
+2. [Installation](#installation)
+    1. [Installation from pip](#installation-from-pip)
+    2. [Installation from source](#installation-from-source)
+3. [Usage](#usage)
+4. [License](#license)
+
+## About
+
+This is a Python API client for the Nextcloud Cookbook app API. It allows you to interact with your Nextcloud Cookbook
+instance programmatically, enabling you to manage recipes, ingredients, and other related data.
+
+## Installation
+
+### Installation from pip
+
+Install the latest version of the API client from pip:
+
+```commandline
+pip install nextcloud-cookbook-api
+```
+
+You can also very easily update to a newer version:
+
+```commandline
+pip install -U nextcloud-cookbook-api
+```
+
+### Installation from source
+
+You can also install the latest version of the API client directly from source:
+
+```commandline
+git clone https://github.com/infinityofspace/nextcloud_cookbook_api.git
+cd nextcloud_cookbook_api
+pip install .
+```
+
+## Usage
+
+You can find the full documentation for the API
+client [here](https://infinityofspace.github.io/nextcloud_cookbook_api/).
+
+## Development
+
+### Setup environment
+
+First get the source code:
+
+```commandline
+git clone https://github.com/infinityofspace/nextcloud_cookbook_api.git
+cd nextcloud_cookbook_api
+```
+
+Now create a virtual environment, activate it and install all dependencies with the following commands:
+
+```commandline
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Now you can start developing.
+
+### Contributing
+
+Feel free to contribute to this project by creating a pull request. Before you create a pull request, make sure that you
+code meets the following requirements (you can use the specified commands to check/fulfill the requirements):
+
+1. check unit tests: `python -m unittest tests/**/*.py`
+2. format the code: `ruff format`
+3. check linting errors: `ruff check`
+
+### Tests
+
+You can run the tests with the following command:
+
+```commandline
+python -m unittest tests/*.py
+```
+
+### Documentation
+
+To build the documentation, you can use the following commands:
+
+```commandline
+sphinx-apidoc -f -o docs/source nextcloud_cookbook_api
+cd docs && make html
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](License) file for details.
