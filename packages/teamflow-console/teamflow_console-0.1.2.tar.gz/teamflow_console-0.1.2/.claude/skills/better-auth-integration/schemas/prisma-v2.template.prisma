@@ -1,0 +1,454 @@
+/**
+ * Better Auth v2 - Prisma Database Schema
+ *
+ * Features:
+ * - OAuth token encryption fields
+ * - Account linking support
+ * - Organization multi-tenancy
+ * - 2FA and passkey support
+ * - Enhanced security fields
+ *
+ * Setup:
+ * 1. Copy to schema.prisma
+ * 2. Run: npx prisma generate
+ * 3. Run: npx prisma db push (or prisma migrate dev)
+ */
+
+// ===========================================
+// DATASOURCE CONFIGURATION
+// ===========================================
+datasource db {
+  provider = "postgresql" // Change to: "mysql" | "sqlite" | "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================
+// GENERATOR CONFIGURATION
+// ===========================================
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ===========================================
+// USER MODEL WITH ENHANCED FIELDS
+// ===========================================
+model User {
+  id            String    @id @default(cuid())
+
+  // Core authentication fields
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  name          String?
+  image         String?
+
+  // Enhanced profile fields
+  displayName   String?
+  bio           String?
+  avatar        String?
+
+  // User preferences (JSON)
+  preferences   Json?
+
+  // Role-based access control
+  role          String    @default("user")
+  // Possible values: "user", "admin", "moderator", "editor", "owner", etc.
+
+  // Security fields
+  lastLoginAt   DateTime?
+  loginAttempts Int       @default(0)
+  lockedUntil   DateTime?
+
+  // Two-factor authentication
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret  String? @db.Text
+
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Soft delete
+  deletedAt     DateTime?
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  organizations OrganizationMember[]
+  passkeys      Passkey[]
+  auditLogs     AuditLog[]
+  invitations   Invitation[]
+
+  // Indexes
+  @@index([email])
+  @@index([role])
+  @@index([createdAt])
+  @@index([lastLoginAt])
+  @@map("users")
+}
+
+// ===========================================
+// ACCOUNT MODEL WITH OAUTH ENCRYPTION
+// ===========================================
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+
+  // Account type and provider
+  type              String  // "oauth" | "email" | "credential"
+  provider          String  // "github" | "google" | "discord" | "microsoft" | etc.
+  providerAccountId String  // User's ID at the provider
+
+  // OAuth tokens (ENCRYPTED at rest)
+  // Better Auth v2 encrypts these automatically when encryptOAuthTokens is true
+  refreshToken      String? @db.Text
+  accessToken       String? @db.Text
+  expiresAt         Int?
+  tokenType         String?
+  scope             String?
+  idToken           String? @db.Text
+  sessionState      String?
+
+  // Additional OAuth data
+  refreshTokenExpiresAt Int?
+
+  // Account linking
+  email            String?
+
+  // Timestamps
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Constraints
+  @@unique([provider, providerAccountId])
+  @@unique([userId, provider]) // One account per provider per user
+  @@index([userId])
+  @@index([email])
+  @@map("accounts")
+}
+
+// ===========================================
+// SESSION MODEL WITH ENHANCED SECURITY
+// ===========================================
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  // Session metadata for security
+  ipAddress    String?
+  userAgent    String?
+  deviceFingerprint String?
+
+  // Session type
+  type         String?  @default("web") // "web" | "mobile" | "api"
+
+  // 2FA verification status
+  twoFactorVerified Boolean @default(false)
+
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastActiveAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId])
+  @@index([expires])
+  @@index([sessionToken])
+  @@map("sessions")
+}
+
+// ===========================================
+// VERIFICATION TOKEN MODEL
+// ===========================================
+model VerificationToken {
+  identifier String   // Email or user ID
+  token      String   @unique
+  expires    DateTime
+
+  // Token type for different flows
+  type       String?  // "email_verification" | "password_reset" | "2fa" | "magic_link"
+
+  // Additional metadata
+  metadata   Json?
+
+  // Timestamps
+  createdAt  DateTime @default(now())
+
+  // Constraints
+  @@unique([identifier, token])
+  @@index([expires])
+  @@map("verification_tokens")
+}
+
+// ===========================================
+// PASSKEY MODEL (WEBAUTHN)
+// ===========================================
+model Passkey {
+  id          String   @id @default(cuid())
+  userId      String
+
+  // Passkey identifier
+  credentialId String @unique
+
+  // Public key data
+  publicKey   String   @db.Text
+  counter     BigInt
+
+  // Passkey metadata
+  name        String?  // User-friendly name
+  deviceType  String?  // "singleDevice" | "multiDevice"
+  transports  String[] // ["ble", "nfc", "usb", "internal", "hybrid"]
+
+  // Backup state
+  backupEligible Boolean @default(false)
+  backupState     Boolean @default(false)
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId])
+  @@index([credentialId])
+  @@map("passkeys")
+}
+
+// ===========================================
+// ORGANIZATION MODEL (MULTI-TENANCY)
+// ===========================================
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  logo        String?
+
+  // Organization metadata
+  domain      String?  // Custom domain
+  settings    Json?    // Organization settings
+
+  // Subscription/Billing
+  plan        String   @default("free") // "free" | "pro" | "enterprise"
+  planExpires DateTime?
+
+  // Organization owner
+  ownerId     String
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members     OrganizationMember[]
+  invitations Invitation[]
+
+  // Indexes
+  @@index([slug])
+  @@index([ownerId])
+  @@map("organizations")
+}
+
+// ===========================================
+// ORGANIZATION MEMBER MODEL WITH RBAC
+// ===========================================
+model OrganizationMember {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+
+  // Role within organization
+  role           String   @default("member")
+  // Values: "owner", "admin", "member", "moderator", "analyst", "editor", "viewer"
+
+  // Member status
+  status         String   @default("active") // "active" | "invited" | "suspended"
+
+  // Custom permissions (optional)
+  permissions    String[] // Override default role permissions
+
+  // Metadata
+  invitedBy      String?
+  joinedAt       DateTime @default(now())
+
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Constraints
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@index([organizationId])
+  @@index([role])
+  @@map("organization_members")
+}
+
+// ===========================================
+// INVITATION MODEL
+// ===========================================
+model Invitation {
+  id             String   @id @default(cuid())
+  organizationId String
+  email          String
+  role           String   @default("member")
+
+  // Invitation details
+  token          String   @unique
+  invitedBy      String
+
+  // Status tracking
+  status         String   @default("pending") // "pending" | "accepted" | "expired" | "revoked"
+  acceptedBy     String?
+
+  // Expiration
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+
+  // Metadata
+  message        String?
+
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User?         @relation(fields: [invitedBy], references: [id])
+
+  // Indexes
+  @@index([email])
+  @@index([token])
+  @@index([organizationId])
+  @@index([expiresAt])
+  @@map("invitations")
+}
+
+// ===========================================
+// AUDIT LOG MODEL
+// ===========================================
+model AuditLog {
+  id          String   @id @default(cuid())
+
+  // Actor
+  userId      String?  // Null for system events
+  organizationId String? // Organization context
+
+  // Action details
+  action      String   // "login", "logout", "create", "update", "delete", "invite", etc.
+  resourceType String? // "user", "organization", "session", "passkey"
+  resourceId   String? // ID of affected resource
+
+  // Request metadata
+  ipAddress   String?
+  userAgent   String?
+  requestId   String?
+
+  // Additional data
+  metadata    Json?    // Additional event data
+  oldValues   Json?    // Previous values for updates
+  newValues   Json?    // New values for updates
+
+  // Status
+  status      String   @default("success") // "success" | "failure" | "warning"
+  errorMessage String?
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+
+  // Indexes for queries
+  @@index([userId])
+  @@index([organizationId])
+  @@index([action])
+  @@index([resourceType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ===========================================
+// API KEY MODEL (Optional)
+// ===========================================
+model ApiKey {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+
+  // API key details
+  keyHash     String   @unique // Hashed API key
+  keyPrefix   String   // First few characters for identification
+
+  // Permissions
+  permissions String[] // API-specific permissions
+
+  // Rate limiting
+  rateLimit   Int?     // Requests per hour
+
+  // Status
+  isActive    Boolean  @default(true)
+  lastUsedAt  DateTime?
+
+  // Expiration
+  expiresAt   DateTime?
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId])
+  @@index([keyHash])
+  @@index([keyPrefix])
+  @@map("api_keys")
+}
+
+// ===========================================
+// OAUTH CONSENT MODEL (Optional)
+// ===========================================
+model OAuthConsent {
+  id              String   @id @default(cuid())
+  userId          String
+  clientId        String
+
+  // Granted scopes
+  scopes          String[]
+
+  // Status
+  active          Boolean  @default(true)
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime?
+  revokedAt       DateTime?
+
+  // Metadata
+  metadata        Json?
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Constraints
+  @@unique([userId, clientId])
+  @@index([clientId])
+  @@map("oauth_consent")
+}
+
+// ===========================================
+// USER RELATIONS FOR OAuthConsent
+// ===========================================
+// Note: Add this relation to the User model if using OAuth consent
+// oauthConsents   OAuthConsent[]
