@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opttx"
+version = "0.1.0a1"
+description = "JAX/Flax/Optax optimizer manager"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Tianshi Xu" }
+]
+dependencies = [
+  "jax>=0.4.20",
+  "jaxlib>=0.4.20",
+  "optax>=0.2.0",
+  "flax>=0.8.0",
+]
+keywords = ["jax", "optax", "flax", "optimizer"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/Hitenze/opttx"
+Repository = "https://github.com/Hitenze/opttx"
+Issues = "https://github.com/Hitenze/opttx/issues"
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[tool.setuptools]
+packages = { find = { include = ["opttx*"], exclude = ["tests*", "ref*", "docs*", "examples*"] } }
+include-package-data = false
