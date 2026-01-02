@@ -1,0 +1,29 @@
+# Example manifest for repo-sync-kitty
+# Demonstrates mixed format: one-line compact and multi-line expanded
+
+[common]
+root_path = "~/Projects/my-team"
+branch = "main"
+remote = "mine"
+parallelism = 4
+
+[remotes]
+ghpub = { base_url = "https://github.com/" }
+gitlab = { base_url = "https://gitlab.com/", branch = "master" }
+
+[remotes.mine]
+base_url = "ssh://git@github.com/vladistan/"
+branch = "develop"
+parallelism = 2
+timeout = 600
+
+[projects]
+"libs/linkml-runtime" = { slug = "linkml/linkml-runtime", remote = "ghpub" }
+"infra/global" = { slug = "infra" }
+"infra/global-dev" = { slug = "infra", branch = "feature" }
+"archive/old-tool" = { slug = "old-tool", status = "archived" }
+
+[projects."libs/linkml"]
+slug = "linkml/linkml"
+remote = "ghpub"
+branch = "main"
