@@ -1,0 +1,40 @@
+profile_name: "Finance_v1"
+description: "Strict financial compliance profile. Blocks insider trading terms, stock tips, and sensitive financial PII using semantic analysis."
+detectors:
+  pii:
+    enabled: true
+    patterns: 
+      - "EMAIL"
+      - "PHONE"
+      - "SSN"
+      - "CREDIT_CARD"
+  injection:
+    enabled: true
+  secrets:
+    enabled: true
+  topics:
+    enabled: true
+    # Financial specific blocking
+    block_list: 
+      - "investment advice"
+      - "stock tip"
+      - "buy stock"
+      - "sell stock"
+      - "insider trading"
+      - "crypto"
+      - "bitcoin"
+  semantic_blocking:
+    enabled: true
+    threshold: 0.25
+    forbidden_intents:
+      - "insider trading"
+      - "securities fraud"
+      - "money laundering"
+      - "tax evasion"
+      - "bypassing safety protocols"
+      - "illegal financial activity"
+      - "trading based on rumors"
+      - "buying stock on non-public info"
+      - "structuring deposits"
+      - "smurfing"
+      - "avoiding reporting requirements"

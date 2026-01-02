@@ -1,0 +1,21 @@
+profile_name: "Healthcare_v1"
+description: "HIPAA-aligned profile. Aggressively redacts medical record numbers and blocks discussion of specific diagnoses or prescriptions."
+detectors:
+  pii:
+    enabled: true
+    patterns: 
+      - "EMAIL"
+      - "PHONE"
+      - "SSN"
+  injection:
+    enabled: true
+  secrets:
+    enabled: true
+  semantic_blocking:
+    enabled: true
+    threshold: 0.45
+    forbidden_intents:
+      - "providing medical diagnosis"
+      - "prescribing medication"
+      - "giving clinical medical advice"
+      - "interpreting medical test results"
