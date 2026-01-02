@@ -1,0 +1,25 @@
+[project]
+name = "etsi-watchdog"
+version = "3.0.0"
+description = "Real-time data drift detection for machine learning pipelines."
+authors = [{name = "Etsi", email = "etsi.hq@gmail.com"}]
+license = {text = "BSD-2-Clause"}
+dependencies = [
+    "pandas>=1.0.0",
+    "numpy",
+    "scipy",
+    "slack_sdk",
+    "scikit-learn",
+    "jinja2",
+    "matplotlib",
+    "seaborn"
+]
+readme = "README.md"
+requires-python = ">=3.8"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["etsi*"]
