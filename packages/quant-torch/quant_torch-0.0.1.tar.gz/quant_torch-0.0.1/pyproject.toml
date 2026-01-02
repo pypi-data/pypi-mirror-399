@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quant-torch"
+version = "0.0.1"
+description = "ML Forecasting and Backtesting Framework"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Sycritz", email = "anis.medjdoul01@gmail.com"}
+]
+keywords = ["quantitative-finance", "machine-learning", "backtesting", "pytorch"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "torch>=2.0",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+    "typer>=0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+]
+viz = [
+    "matplotlib>=3.7",
+    "plotly>=5.0",
+]
+
+[project.scripts]
+quantml = "quantml.cli.main:app"
+
+[project.urls]
+Homepage = "https://github.com/Sycritz/quant-torch"
+Documentation = "https://github.com/Sycritz/quant-torch#readme"
+Repository = "https://github.com/Sycritz/quant-torch"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["quantml*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "N", "W"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true

@@ -1,0 +1,213 @@
+# Quant-Torch
+
+A modular, extensible Python framework for financial time-series forecasting and trading strategy evaluation.
+
+---
+
+## Overview
+
+Quant-Torch unifies data ingestion, feature engineering, ML forecasting models, signal generation, and backtesting into a clean, research-friendly and production-lean architecture.
+
+**Target Users:**
+- Quantitative ML beginners and intermediate learners
+- Students building portfolio projects  
+- Researchers needing reproducible pipelines
+- Developers exploring systematic trading architectures
+
+---
+
+## Installation
+
+```bash
+# Clone repository
+git clone https://github.com/yourusername/quant-torch.git
+cd quant-torch
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# or: venv\Scripts\activate  # Windows
+
+# Install in development mode
+pip install -e ".[dev]"
+```
+
+---
+
+## Quick Start
+
+```python
+# Example workflow (implement as you build modules)
+from quantml.data import CSVLoader
+from quantml.features import FeaturePipeline
+from quantml.models import get_model
+from quantml.training import Trainer
+from quantml.signals import ThresholdGenerator
+from quantml.backtesting import BacktestEngine
+from quantml.evaluation import sharpe_ratio
+
+# 1. Load data
+data = CSVLoader().load("data/btc_daily.csv")
+
+# 2. Create features
+pipeline = FeaturePipeline(config)
+features = pipeline.fit_transform(data)
+
+# 3. Train model
+model = get_model("lstm", model_config)
+trainer = Trainer(model, ...)
+trainer.fit(train_loader, val_loader)
+
+# 4. Generate signals
+predictions = model.predict(test_features)
+signals = ThresholdGenerator(thresholds).generate(predictions)
+
+# 5. Backtest
+engine = BacktestEngine(config)
+result = engine.run(signals, prices)
+
+# 6. Evaluate
+print(f"Sharpe Ratio: {result.metrics['sharpe']:.2f}")
+```
+
+---
+
+## Architecture
+
+```
+┌──────────┐    ┌───────────┐    ┌────────┐    ┌─────────┐
+│   Data   │───▶│  Features │───▶│ Models │───▶│ Signals │
+└──────────┘    └───────────┘    └────────┘    └─────────┘
+                                                    │
+                    ┌───────────────────────────────┘
+                    ▼
+            ┌──────────────┐    ┌────────────┐
+            │ Backtesting  │───▶│ Evaluation │
+            └──────────────┘    └────────────┘
+```
+
+---
+
+## Module Overview
+
+| Module | Purpose |
+|--------|---------|
+| `core/` | Protocols, schemas, exceptions — foundation layer |
+| `data/` | Data loading, transforms, PyTorch datasets |
+| `features/` | Technical indicators, statistical features |
+| `models/` | ML model definitions (LSTM, TCN, Transformer) |
+| `training/` | Training loop, callbacks, time-series CV |
+| `signals/` | Convert predictions to trading signals |
+| `backtesting/` | Backtest engine with cost models |
+| `evaluation/` | Performance metrics (Sharpe, drawdown, etc.) |
+| `visualization/` | Equity curves, forecast plots |
+| `cli/` | Command-line interface |
+| `utils/` | Config, logging, reproducibility |
+
+Each module contains a `.instructions.md` file with detailed implementation guidance.
+
+---
+
+## Configuration
+
+Experiments are driven by YAML configuration:
+
+```yaml
+# configs/experiment.yaml
+data:
+  source: csv
+  path: data/btc_daily.csv
+  
+features:
+  sequence_length: 60
+  indicators:
+    - name: sma
+      params: { period: 20 }
+
+model:
+  type: lstm
+  params:
+    hidden_size: 128
+    num_layers: 2
+
+training:
+  epochs: 100
+  early_stopping:
+    patience: 10
+
+signals:
+  type: threshold
+  params:
+    buy_threshold: 0.01
+    sell_threshold: -0.01
+```
+
+---
+
+## CLI Usage
+
+```bash
+# Train a model
+quantml train --config configs/experiment.yaml
+
+# Run backtest
+quantml backtest --config configs/experiment.yaml
+
+# Full pipeline
+quantml run --config configs/experiment.yaml
+```
+
+---
+
+## Development
+
+### Running Tests
+```bash
+pytest
+pytest --cov=quantml  # with coverage
+```
+
+### Project Structure
+```
+quant-torch/
+├── quantml/           # Main package
+├── tests/             # Test suite
+├── configs/           # YAML configurations
+├── docs/              # Documentation
+├── examples/          # Example scripts
+└── scripts/           # Utility scripts
+```
+
+---
+
+## Version Roadmap
+
+### v0.1 (Current)
+- Basic data loaders and transforms
+- LSTM model with base forecaster abstraction
+- Simple backtest engine
+- Core metrics (Sharpe, drawdown)
+- CLI for training and backtesting
+
+### v0.2
+- TCN and Transformer models
+- Realistic backtesting (slippage, fees)
+- More indicators
+- Visualization module
+
+### v0.3
+- Full documentation
+- Config-driven experiments
+- Clean extensibility patterns
+
+---
+
+## License
+
+MIT License — see LICENSE file for details.
+
+---
+
+## Contributing
+
+See CONTRIBUTING.md for guidelines.
