@@ -1,0 +1,152 @@
+Metadata-Version: 2.4
+Name: docxfa
+Version: 1.0.0
+Summary: A Python library for creating .docx files with Persian/Arabic RTL support
+Home-page: https://github.com/yourusername/docxfa
+Author: Your Name
+Author-email: Your Name <your.email@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/yourusername/docxfa
+Project-URL: Bug Reports, https://github.com/yourusername/docxfa/issues
+Project-URL: Source, https://github.com/yourusername/docxfa
+Keywords: docx,persian,arabic,rtl,word,document,office
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Text Processing :: Markup
+Classifier: Topic :: Office/Business :: Office Suites
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
+# docxfa
+
+`docxfa` is a Python library for creating .docx files with full support for Persian/Arabic RTL (right-to-left) text. It allows you to create Word documents from scratch with mixed RTL/LTR content, proper styling, and formatting.
+
+## Features
+
+- Create .docx files from scratch
+- Full support for RTL (Persian/Arabic) and LTR (English) text
+- Mixed RTL/LTR text within a single paragraph
+- Paragraph styling (alignment, bold, colors, font size, etc.)
+- Rich text paragraphs with multiple styles in a single line
+- Proper handling of Persian/Arabic fonts and text direction
+- Generates OOXML-compliant files that open without recovery errors
+
+## Installation
+
+```bash
+pip install docxfa
+```
+
+## Usage
+
+### Basic Usage
+
+```python
+from docxfa import docx_editor
+
+# Create a new document
+doc = docx_editor()
+
+# Create the document structure
+doc.create_document()
+
+# Add a simple paragraph
+doc.add_paragraph("سلام دنیا!", properties={'font_name': 'Tahoma', 'font_size': 12, 'rtl': True})
+
+# Save the document
+doc.save("output.docx")
+```
+
+### Advanced Usage with Mixed Text
+
+```python
+from docxfa import docx_editor
+
+doc = docx_editor()
+doc.create_document()
+
+# Add a paragraph with mixed RTL/LTR text
+parts = [
+    ("متن فارسی ", {'font_name': 'Tahoma', 'font_size': 12, 'rtl': True}),
+    ("English text ", {'font_name': 'Arial', 'font_size': 12, 'rtl': False}),
+    ("و دوباره فارسی", {'font_name': 'Tahoma', 'font_size': 12, 'rtl': True})
+]
+
+doc.add_rich_text_paragraph(parts)
+doc.save("mixed_text.docx")
+```
+
+### Paragraph Styling
+
+```python
+from docxfa import docx_editor
+
+doc = docx_editor()
+doc.create_document()
+
+# Add styled paragraph
+properties = {
+    'font_name': 'Tahoma',
+    'font_size': 14,
+    'bold': True,
+    'color': 'FF0000',  # Red color
+    'rtl': True,
+    'alignment': 'right'  # Right alignment for RTL text
+}
+
+doc.add_paragraph("پاراگراف استایل دار", properties=properties)
+doc.save("styled.docx")
+```
+
+## API
+
+### `docx_editor` class
+
+#### `create_document()`
+Creates a new blank Word document with all necessary namespaces.
+
+#### `add_paragraph(text, properties=None)`
+Adds a new paragraph with a single style for the entire text.
+
+- `text`: The text content of the paragraph
+- `properties`: Dictionary of styling properties
+
+#### `add_rich_text_paragraph(parts, paragraph_properties=None)`
+Adds a paragraph with multiple text runs, each with its own style.
+
+- `parts`: A list of tuples, where each tuple is (text, properties_dict)
+- `paragraph_properties`: A dictionary for paragraph-level properties like alignment
+
+#### `save(output_path)`
+Saves the document to a .docx file.
+
+## Properties
+
+Available properties for text styling:
+
+- `font_name`: Font name (e.g., 'Tahoma', 'Arial')
+- `font_size`: Font size in points
+- `bold`: Boolean for bold text
+- `color`: Hex color code (e.g., 'FF0000' for red)
+- `rtl`: Boolean for right-to-left text direction
+- `alignment`: Alignment ('left', 'center', 'right', 'justify')
+- `highlight`: Highlight color
+- `underline`: Boolean for underlined text
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
