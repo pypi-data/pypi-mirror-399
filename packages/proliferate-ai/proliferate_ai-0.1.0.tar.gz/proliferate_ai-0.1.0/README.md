@@ -1,0 +1,141 @@
+# proliferate
+
+Python SDK for Proliferate Error Monitoring.
+
+## Installation
+
+```bash
+pip install proliferate
+```
+
+## Quick Start
+
+```python
+import proliferate
+
+# Initialize the SDK
+proliferate.init(
+    endpoint="https://your-api.com/api/v1/errors",
+    api_key="pk_your_api_key",
+    environment="production",
+    release="1.0.0",
+)
+
+# Set user context (optional)
+proliferate.set_user({
+    "id": "user_123",
+    "email": "user@example.com",
+})
+
+# Set account context (optional)
+proliferate.set_account({
+    "id": "acct_456",
+    "name": "Acme Corp",
+})
+```
+
+## Automatic Error Capture
+
+After initialization, the SDK automatically captures:
+- Uncaught exceptions (`sys.excepthook`)
+- Unhandled exceptions in threads (`threading.excepthook`)
+
+## Manual Error Capture
+
+```python
+# Capture an exception
+try:
+    risky_operation()
+except Exception as e:
+    proliferate.capture_exception(e, extra={"order_id": "order_789"})
+
+# Capture current exception (in except block)
+try:
+    another_operation()
+except Exception:
+    proliferate.capture_exception()  # Captures current exception
+
+# Capture a message
+proliferate.capture_message("User attempted invalid action", level="warning")
+```
+
+## API
+
+### `proliferate.init(endpoint, api_key, environment=None, release=None)`
+
+Initialize the SDK.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `endpoint` | `str` | Yes | API endpoint URL |
+| `api_key` | `str` | Yes | Project API key (format: `pk_{project_slug}_{random}`) |
+| `environment` | `str` | No | Environment name |
+| `release` | `str` | No | Release version |
+
+**API Key Notes:**
+- API keys are project-scoped. Each project can have multiple API keys.
+- Keys follow the format `pk_{project_slug}_{random_hex}` (e.g., `pk_my-app-default_a1b2c3d4e5f6`)
+- Revoked keys will return a `401 Unauthorized` error with message "API key has been revoked"
+- You can manage API keys from the dashboard under Project Settings > API Keys
+
+### `proliferate.set_user(user)`
+
+Set user context for error reports.
+
+```python
+proliferate.set_user({"id": "user_123", "email": "user@example.com"})
+proliferate.set_user(None)  # Clear user context
+```
+
+### `proliferate.set_account(account)`
+
+Set account context for error reports.
+
+```python
+proliferate.set_account({"id": "acct_456", "name": "Acme Corp"})
+proliferate.set_account(None)  # Clear account context
+```
+
+### `proliferate.capture_exception(exception=None, extra=None)`
+
+Capture an exception.
+
+```python
+try:
+    risky_operation()
+except Exception as e:
+    proliferate.capture_exception(e, extra={"additional_data": "value"})
+```
+
+### `proliferate.capture_message(message, level="info", extra=None)`
+
+Capture a message.
+
+```python
+proliferate.capture_message("Something happened", level="warning", extra={"context": "value"})
+```
+
+## Thread Safety
+
+The SDK uses thread-local storage for user and account context. Each thread maintains its own context, making it safe to use in multi-threaded applications.
+
+```python
+import threading
+
+def worker(user_id):
+    # Each thread can have different context
+    proliferate.set_user({"id": user_id})
+    # ... do work ...
+
+threads = [
+    threading.Thread(target=worker, args=(f"user_{i}",))
+    for i in range(10)
+]
+for t in threads:
+    t.start()
+```
+
+## Requirements
+
+- Python 3.10+
+- No external dependencies (uses stdlib only)

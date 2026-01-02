@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proliferate-ai"
+version = "0.1.0"
+description = "Proliferate Error Monitoring SDK for Python"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
+]
+keywords = ["error-monitoring", "error-tracking", "exception-handling", "proliferate"]
+
+[project.optional-dependencies]
+fastapi = [
+    "starlette>=0.27.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+    "fastapi>=0.100.0",
+    "httpx>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/withkeystone/proliferation"
+Documentation = "https://github.com/withkeystone/proliferation/tree/main/sdks/python"
+Repository = "https://github.com/withkeystone/proliferation"
+Issues = "https://github.com/withkeystone/proliferation/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+# Ignore Optional[X] vs X | None style preference - we use Optional for Python 3.9 compat
+ignore = ["UP007", "UP045", "UP037"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
