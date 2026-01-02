@@ -1,0 +1,117 @@
+Metadata-Version: 2.4
+Name: treesitter-mcp
+Version: 0.1.3
+Summary: MCP server for code analysis using Tree-sitter
+Project-URL: Homepage, https://github.com/pwno-io/treesitter-mcp
+Project-URL: Repository, https://github.com/pwno-io/treesitter-mcp
+Project-URL: Issues, https://github.com/pwno-io/treesitter-mcp/issues
+Author: pwno-io
+Keywords: ast,cli,code-analysis,mcp,tree-sitter
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development :: Compilers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.10
+Requires-Dist: mcp
+Requires-Dist: pydantic
+Requires-Dist: tree-sitter-c
+Requires-Dist: tree-sitter-cpp
+Requires-Dist: tree-sitter-go
+Requires-Dist: tree-sitter-java
+Requires-Dist: tree-sitter-javascript
+Requires-Dist: tree-sitter-php
+Requires-Dist: tree-sitter-python
+Requires-Dist: tree-sitter-rust
+Requires-Dist: tree-sitter-typescript
+Requires-Dist: tree-sitter>=0.22.0
+Provides-Extra: dev
+Requires-Dist: pytest; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# Tree-sitter MCP Server
+
+A Model Context Protocol (MCP) server for code analysis using Tree-sitter. This tool provides capabilities to parse code, extract symbols, generate call graphs, find usages, and run custom queries against C, C++, and Python code.
+
+## Features
+
+-   **AST Retrieval**: Get the full Abstract Syntax Tree (AST) of a file.
+-   **Symbol Extraction**: Find function and variable definitions.
+-   **Call Graph**: Generate a call graph for C/C++ functions.
+-   **Tree-sitter Queries**: Run custom S-expression queries against your code.
+-   **Usage Finder**: Find usages of functions and variables.
+-   **Dependency Extraction**: List file dependencies (includes/imports).
+-   **Multi-Language Support**: Currently supports C, C++, and Python.
+
+## Installation
+
+### Prerequisites
+
+-   Python 3.10+
+-   `pip`
+
+### Setup
+
+1.  Clone the repository.
+2.  Install the package:
+    ```bash
+    # Using uv (recommended)
+    uv pip install -e .
+    
+    # Or using pip
+    pip install -e .
+    ```
+
+This will install the `treesitter-mcp` command-line tool.
+
+You can also run it directly without installation using `uvx`:
+```bash
+uvx treesitter-mcp
+```
+
+## Usage
+
+### MCP Server (Default)
+
+By default, `treesitter-mcp` runs as an MCP server in stdio mode:
+
+```bash
+treesitter-mcp
+```
+
+This is perfect for integrating with MCP clients like Claude Desktop. See `docs/MCP_USAGE.md` for configuration instructions.
+
+### HTTP Mode
+
+To run the server in HTTP mode for testing or development:
+
+```bash
+treesitter-mcp --http --port 8000 --host 127.0.0.1
+```
+
+### Example with uvx
+
+```bash
+# Run in stdio mode (default)
+uvx treesitter-mcp
+
+# Run in HTTP mode
+uvx treesitter-mcp --http --port 8000
+
+Configure your MCP client (e.g., Claude Desktop) to use this server. See `docs/MCP_USAGE.md` for detailed configuration instructions.
+
+## Supported Languages
+
+-   **C**: Full support (Symbols, Call Graph, Queries, Usage).
+-   **C++**: Full support.
+-   **Python**: Full support.
+
+## Documentation
+
+See the `docs/` directory for more details:
+-   [API Reference](docs/API.md)
+-   [MCP Server Usage](docs/MCP_USAGE.md)
+-   [Architecture](docs/ARCHITECTURE.md)
