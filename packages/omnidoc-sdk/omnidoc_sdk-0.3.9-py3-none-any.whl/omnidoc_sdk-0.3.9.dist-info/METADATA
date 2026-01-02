@@ -1,0 +1,261 @@
+Metadata-Version: 2.4
+Name: omnidoc-sdk
+Version: 0.3.9
+Summary: Enterprise-grade SDK for document ingestion, OCR, semantic chunking, and RAG-ready processing
+Author-email: Ganesh Kinkar Giri <k.ganeshgiri@example.com>
+License: Apache-2.0
+Keywords: document-intelligence,pdf,ocr,rag,semantic-chunking,agentic-ai,enterprise-ai
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Text Processing
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: pypdf>=4.0.0
+Requires-Dist: pdfplumber>=0.11.0
+Requires-Dist: pdf2image>=1.17.0
+Requires-Dist: Pillow>=10.0.0
+Requires-Dist: pytesseract>=0.3.10
+Requires-Dist: opencv-python>=4.9.0
+Requires-Dist: numpy>=1.24
+Requires-Dist: chardet>=5.2.0
+Requires-Dist: regex>=2023.12.25
+Provides-Extra: office
+Requires-Dist: python-docx>=1.1.0; extra == "office"
+Requires-Dist: openpyxl>=3.1.2; extra == "office"
+Requires-Dist: python-pptx>=0.6.23; extra == "office"
+Provides-Extra: data
+Requires-Dist: pandas>=2.1.0; extra == "data"
+Requires-Dist: pyarrow>=15.0.0; extra == "data"
+Provides-Extra: docs
+Requires-Dist: markdown>=3.6; extra == "docs"
+Requires-Dist: beautifulsoup4>=4.12.0; extra == "docs"
+Requires-Dist: lxml>=5.1.0; extra == "docs"
+Provides-Extra: archive
+Requires-Dist: py7zr>=0.21.0; extra == "archive"
+Requires-Dist: rarfile>=4.2; extra == "archive"
+Provides-Extra: code
+Requires-Dist: nbformat>=5.10.0; extra == "code"
+Requires-Dist: pygments>=2.17.0; extra == "code"
+Provides-Extra: cloud-ocr
+Requires-Dist: boto3>=1.34.0; extra == "cloud-ocr"
+Requires-Dist: azure-ai-formrecognizer>=3.3.0; extra == "cloud-ocr"
+Provides-Extra: layout
+Requires-Dist: layoutparser>=0.3.4; extra == "layout"
+Provides-Extra: vlm
+Requires-Dist: torch>=2.0; extra == "vlm"
+Requires-Dist: transformers>=4.41.0; extra == "vlm"
+Provides-Extra: privacy
+Requires-Dist: presidio-analyzer>=2.2.0; extra == "privacy"
+Requires-Dist: presidio-anonymizer>=2.2.0; extra == "privacy"
+Provides-Extra: media
+Requires-Dist: ffmpeg-python>=0.2.0; extra == "media"
+Requires-Dist: openai-whisper>=20231117; extra == "media"
+Provides-Extra: all
+Requires-Dist: python-docx>=1.1.0; extra == "all"
+Requires-Dist: openpyxl>=3.1.2; extra == "all"
+Requires-Dist: python-pptx>=0.6.23; extra == "all"
+Requires-Dist: pandas>=2.1.0; extra == "all"
+Requires-Dist: pyarrow>=15.0.0; extra == "all"
+Requires-Dist: markdown>=3.6; extra == "all"
+Requires-Dist: beautifulsoup4>=4.12.0; extra == "all"
+Requires-Dist: lxml>=5.1.0; extra == "all"
+Requires-Dist: py7zr>=0.21.0; extra == "all"
+Requires-Dist: rarfile>=4.2; extra == "all"
+Requires-Dist: nbformat>=5.10.0; extra == "all"
+Requires-Dist: pygments>=2.17.0; extra == "all"
+Requires-Dist: boto3>=1.34.0; extra == "all"
+Requires-Dist: azure-ai-formrecognizer>=3.3.0; extra == "all"
+Requires-Dist: layoutparser>=0.3.4; extra == "all"
+Requires-Dist: torch>=2.0; extra == "all"
+Requires-Dist: transformers>=4.41.0; extra == "all"
+Requires-Dist: presidio-analyzer>=2.2.0; extra == "all"
+Requires-Dist: presidio-anonymizer>=2.2.0; extra == "all"
+Requires-Dist: ffmpeg-python>=0.2.0; extra == "all"
+Requires-Dist: openai-whisper>=20231117; extra == "all"
+
+# OmniDoc PDF Intelligence SDK
+
+**Enterprise-grade PDF understanding for Agentic AI, RAG, and automation systems**
+
+---
+
+## 🚀 Overview
+
+**OmniDoc** is a production-ready PDF intelligence SDK designed to convert **raw PDFs (documents, slides, brochures, scanned files)** into **clean, structured, agent-ready outputs**.
+
+It goes beyond OCR by applying **layout intelligence, semantic normalization, metric extraction, and agent-native serialization**.
+
+Built for:
+- Agentic AI systems
+- RAG (Retrieval-Augmented Generation)
+- Knowledge Bases
+- Autonomous remediation & workflows
+- Enterprise document automation
+
+---
+
+## 🧠 Core Capabilities
+
+### Supported PDF Types
+- Digital PDFs
+- Slide decks & brochures
+- Scanned PDFs
+- Mixed-content PDFs
+
+### Intelligence Layers
+- PDF type detection (digital vs scanned)
+- OCR (Tesseract / AWS Textract)
+- Layout-aware block ordering
+- Vision-Language Models (Donut – optional)
+- Slide → report restructuring
+- Heading detection & paragraph merging
+- Bullet normalization
+- Table → metric extraction
+- Noise & artifact removal
+- RAG-ready chunking
+
+### Output Formats
+- Python-native `Document`
+- **Enterprise JSON**
+- **Agent-native TOON**
+
+---
+
+## 📦 Installation
+
+```bash
+pip install omnidoc
+```
+
+### System Dependencies (macOS / Linux)
+
+```bash
+brew install poppler tesseract
+```
+
+Optional:
+
+```bash
+pip install pdf2image pytesseract
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+PDF
+ │
+ ├─ Detection (Digital / Scanned)
+ │
+ ├─ Extraction
+ │   ├─ Text
+ │   ├─ OCR
+ │   └─ Layout ML
+ │
+ ├─ Cleaning & Normalization
+ │
+ ├─ Slide → Report Structuring
+ │
+ ├─ Table & Metric Processing
+ │
+ └─ Output
+     ├─ Document
+     ├─ JSON
+     └─ TOON
+```
+
+---
+
+## 🔧 Core API
+
+### extract_pdf()
+
+```python
+extract_pdf(
+    path: str,
+    enable_layout: bool = True,
+    enable_cloud_ocr: bool = False,
+    enable_vlm: bool = False,
+    enable_pii_masking: bool = False,
+    output_format: str = "document"  # document | json | toon
+)
+```
+
+---
+
+## 📄 Example — Plain Text
+
+```python
+from omnidoc.pdf.pipeline import extract_pdf
+
+doc = extract_pdf("sample.pdf", enable_layout=True)
+print(doc.raw_text)
+```
+
+---
+
+## 📄 Example — JSON (RAG Ready)
+
+```python
+from omnidoc.pdf.pipeline import extract_pdf
+import json
+
+result = extract_pdf(
+    "sample.pdf",
+    enable_layout=True,
+    enable_cloud_ocr=True,
+    output_format="json"
+)
+
+print(json.dumps(result, indent=2))
+```
+
+---
+
+## 🤖 Example — TOON (Agent Output)
+
+```python
+toon = extract_pdf(
+    "sample.pdf",
+    enable_layout=True,
+    output_format="toon"
+)
+
+print(toon)
+```
+
+---
+
+## 🧪 Real Use Case — RAG Pipeline
+
+```python
+doc = extract_pdf("strategy.pdf", output_format="json")
+
+for chunk in doc["chunks"]:
+    vector_db.add(chunk["text"], metadata=chunk)
+```
+
+---
+
+## 🔐 Enterprise Design
+
+- Deterministic output
+- No stdout hijacking
+- No numeric loss
+- Agent-safe serialization
+- Optional PII masking
+- Cloud OCR fallback
+
+---
+
+## 📜 License
+
+© 2025 OmniDoc — Internal / Enterprise SDK
