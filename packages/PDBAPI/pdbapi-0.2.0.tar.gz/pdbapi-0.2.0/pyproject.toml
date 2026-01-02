@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=61.0", "versioningit"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PDBAPI"
+version = "0.2.0"
+description = "Python library for accessing RCSB Protein Data Bank (PDB) data and files"
+
+requires-python = ">=3.12"
+license = {text = "MIT"}
+keywords = ["pdb", "protein", "structure", "bioinformatics", "rcsb", "api"]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pylinks>=0.1.0,<0.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.10",
+    "black>=23.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+]
+
+
+[project.urls]
+Homepage = "https://github.com/scinformatic/pdbapi"
+Documentation = "https://github.com/scinformatic/pdbapi/blob/main/README.md"
+Repository = "https://github.com/scinformatic/pdbapi"
+"Bug Tracker" = "https://github.com/scinformatic/pdbapi/issues"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "live: tests that require live API access (use --live to run)",
+    "slow: slow tests (typically integration tests)",
+]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=pdbapi",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+
+[tool.coverage.run]
+source = ["src/pdbapi"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@overload",
+]
