@@ -1,0 +1,176 @@
+import os
+
+from syncweb import str_utils
+from syncweb.log_utils import log
+from syncweb.syncthing import SyncthingNode
+
+
+class Syncweb(SyncthingNode):
+    def cmd_accept(self, device_ids, folder_ids, introducer=False):
+        device_count = 0
+        for path in device_ids:
+            try:
+                device_id = str_utils.extract_device_id(path)
+                self.add_device(deviceID=device_id, introducer=introducer)
+                device_count += 1
+            except ValueError:
+                log.error("Invalid Device ID %s", path)
+
+        if not folder_ids:
+            return device_count
+
+        existing_folders = self.folders()
+        existing_folder_ids = {f["id"] for f in existing_folders}
+        for fid in folder_ids:
+            if fid in existing_folder_ids:
+                self.add_folder_devices(fid, device_ids)
+                # pause and resume devices to unstuck them (ie. "Unexpected folder ID in ClusterConfig")
+                for device_id in device_ids:
+                    self.pause(device_id)
+                for device_id in device_ids:
+                    self.resume(device_id)
+            else:
+                log.error(f"[%s] Not an known folder-id '%s'", self.name, fid)
+
+        return device_count
+
+    def cmd_drop(self, device_ids, folder_ids):
+        device_count = 0
+        if folder_ids:
+            existing_folders = self.folders()
+            existing_folder_ids = {f["id"] for f in existing_folders}
+            for fid in folder_ids:
+                if fid in existing_folder_ids:
+                    self.remove_folder_devices(fid, device_ids)
+                    # pause and resume devices to immediately drop existing connections
+                    for device_id in device_ids:
+                        self.pause(device_id)
+                    for device_id in device_ids:
+                        self.resume(device_id)
+                else:
+                    log.error(f"[%s] Not an known folder ID '%s'", self.name, fid)
+
+            return device_count
+
+        for path in device_ids:
+            try:
+                device_id = str_utils.extract_device_id(path)
+                self.delete_device(device_id)
+                self.delete_pending_device(device_id)
+                device_count += 1
+            except ValueError:
+                log.error("Invalid Device ID %s", path)
+
+        return device_count
+
+    def create_folder_id(self, path):
+        existing_folders = set(self.folder_stats().keys())
+
+        name = str_utils.basename(path)
+        if name not in existing_folders:
+            return name
+
+        return str_utils.sep_replace(path)
+
+    def cmd_init(self, paths):
+        folder_count = 0
+        for path in paths:
+            os.makedirs(path, exist_ok=True)
+            path = os.path.realpath(path)
+
+            if path in self.folder_roots:
+                folder_id = self.folder_roots[path]
+            else:
+                folder_id = self.create_folder_id(path)
+                self.add_folder(id=folder_id, label=str_utils.basename(path), path=path, type="sendonly")
+                self.set_ignores(folder_id, lines=[])
+                folder_count += 1
+
+            print(f"sync://{folder_id}#{self.device_id}")
+        return folder_count
+
+    def cmd_join(self, urls, prefix=".", decode=True):
+        device_count, folder_count = 0, 0
+        for url in urls:
+            ref = str_utils.parse_syncweb_path(url, decode=decode)
+            if ref.device_id:
+                self.add_device(deviceID=ref.device_id)
+                device_count += 1
+
+            if ref.folder_id:
+                default_path = os.path.realpath(prefix)
+                path = os.path.join(default_path, ref.folder_id)
+                os.makedirs(path, exist_ok=True)
+
+                if path in self.folder_roots:
+                    folder_id = self.folder_roots[path]
+                else:
+                    folder_id = self.create_folder_id(path)
+                    self.add_folder(
+                        id=folder_id, label=str_utils.basename(path), path=path, type="receiveonly", paused=True
+                    )
+                    self.set_ignores(folder_id)
+                    self.resume_folder(folder_id)
+                    folder_count += 1
+
+                if ref.device_id:
+                    self.add_folder_devices(ref.folder_id, [ref.device_id])
+
+                if ref.subpath:
+                    # TODO: ask to confirm if ref.subpath == "/" ?
+                    # or check size first?
+                    self.add_ignores(folder_id, [ref.subpath])
+
+        return device_count, folder_count
+
+    def add_ignores(self, folder_id: str, unignores: list[str]):
+        existing = set(s for s in self.ignores(folder_id)["ignore"] if not s.startswith("// Syncweb-managed"))
+
+        new = set()
+        for p in unignores:
+            if p.startswith("//"):
+                continue
+            if not p.startswith("!/"):
+                p = "!/" + p
+            new.add(p)
+
+        combined = new.union(existing)
+        ordered = (
+            ["// Syncweb-managed"]
+            + sorted([p for p in combined if p.startswith("!")])
+            + sorted([p for p in combined if not p.startswith("!") and p != "*"])
+            + ["*"]
+        )
+
+        self.set_ignores(folder_id, lines=ordered)
+
+    def device_short2long(self, short):
+        matches = [d for d in self.devices_list if d.startswith(short)]
+        if len(matches) == 1:
+            dev_id = matches[0]
+            return dev_id
+        return None
+
+    def device_long2name(self, long):
+        short = long[:7]
+
+        try:
+            name = self.devices_dict[long].get("name")
+            if not name or name.lower() in ("syncweb", "syncthing"):
+                return short
+            return f"{name} ({short})"
+        except KeyError:
+            return f"{short}-???????"
+
+    def accept_devices(self, device_ids, introducer=False):
+        for device_id in device_ids:
+            # name = device_id[:7]
+            log.info(f"[%s] Accepting device %s", self.name, device_id)
+            cfg = {
+                "deviceID": device_id,
+                # "name": name,
+                "addresses": ["dynamic"],
+                "compression": "metadata",
+                "introducer": introducer,
+            }
+            self._put(f"config/devices/{device_id}", json=cfg)
