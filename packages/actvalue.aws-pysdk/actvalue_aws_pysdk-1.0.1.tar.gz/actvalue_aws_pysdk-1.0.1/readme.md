@@ -1,0 +1,177 @@
+# AWS Python SDK
+
+Simple wrapper for AWS boto3 SDK commonly used functions.
+
+## Features
+
+- 📦 S3 operations (read, write, copy, list, delete, signed URLs)
+- 🔐 SSM Parameter Store integration
+- ⚡ Lambda function invocation (async and sync)
+- 🚀 Optimized for AWS Lambda and serverless environments
+
+## Installation
+
+```bash
+pip install actvalue.aws-pysdk
+```
+
+Or with uv:
+
+```bash
+uv add actvalue.aws-pysdk
+```
+
+## Configuration
+
+Provide the following environment variables:
+
+- `ENV`: `development` | `production` | ...
+- `AWSPROFILE`: A named profile (non-default) in the credential file, e.g.: `myprofile`
+- `AWSREGION`: A region name, e.g.: `eu-west-1`
+
+**Note:** `AWSPROFILE` and `AWSREGION` are needed in development only. Production uses the default session/client configuration.
+
+## Usage
+
+### S3 Operations
+
+```python
+from aws_pysdk import s3_write, s3_read, s3_read_to_string, s3_get_signed_url
+import os
+
+# Write to S3
+s3_write('my-bucket', 'hello.txt', 'Hello World', 'text/plain')
+
+# Read from S3
+response = s3_read('my-bucket', 'hello.txt')
+content = response['Body'].read()
+
+# Read directly to string
+content_str = s3_read_to_string('my-bucket', 'hello.txt')
+
+# Get signed URL for reading
+read_url = s3_get_signed_url(
+    {'Bucket': 'my-bucket', 'Key': 'file.txt'},
+    'READ',
+    3600  # expires in 1 hour
+)
+
+# Get signed URL for writing
+write_url = s3_get_signed_url(
+    {'Bucket': 'my-bucket', 'Key': 'file.txt', 'ContentType': 'text/plain'},
+    'WRITE',
+    3600
+)
+```
+
+### SSM Parameter Store
+
+```python
+from aws_pysdk import ssm_load_parameters
+import os
+
+# Define parameters to load
+params = [
+    {'name': '/app/bucket/name', 'env_var_name': 'MY_BUCKET', 'decrypt': False},
+    {'name': '/app/api/key', 'env_var_name': 'API_KEY', 'decrypt': True},
+]
+
+# Load parameters into environment variables
+ssm_load_parameters(params)
+
+# Access loaded parameters
+my_bucket = os.environ['MY_BUCKET']
+api_key = os.environ['API_KEY']
+```
+
+### Lambda Function Invocation
+
+```python
+from aws_pysdk import lambda_invoke, lambda_invoke_with_response
+
+# Asynchronous invocation (fire and forget)
+lambda_invoke('my-function', {'key': 'value'})
+
+# Synchronous invocation (wait for response)
+result = lambda_invoke_with_response('my-function', {'key': 'value'})
+print(result)  # Parsed JSON response
+
+# Invoke with ARN
+lambda_invoke_with_response(
+    'arn:aws:lambda:region:account:function:my-function',
+    {'data': 'payload'}
+)
+```
+
+## Development
+
+### Prerequisites
+
+- Python 3.11+
+- [uv](https://github.com/astral-sh/uv) (recommended) or pip
+
+### Setup with uv (recommended)
+
+```bash
+# Install dependencies
+make install
+
+# Run tests
+make test
+
+# Format code
+make format
+
+# Lint code
+make lint
+
+# Build package
+make build
+```
+
+### Available Make Commands
+
+```bash
+make help           # Show all available commands
+make install        # Install dependencies with uv
+make test           # Run tests with pytest
+make lint           # Lint code with ruff
+make format         # Format code with ruff
+make build          # Build package with uv
+make publish        # Publish to PyPI
+make publish-test   # Publish to Test PyPI
+make clean          # Clean build artifacts
+make venv           # Show virtual environment location
+```
+
+### Manual Setup
+
+```bash
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install package in development mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+```
+
+## Publishing
+
+### To Test PyPI
+
+```bash
+make publish-test
+```
+
+### To Production PyPI
+
+```bash
+make publish
+```
+
+## License
+
+MIT
