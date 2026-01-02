@@ -1,0 +1,527 @@
+# VibeGate
+
+[![PyPI version](https://badge.fury.io/py/vibegate.svg)](https://badge.fury.io/py/vibegate)
+[![CI](https://github.com/maxadamsky/VibeGate/actions/workflows/ci.yml/badge.svg)](https://github.com/maxadamsky/VibeGate/actions/workflows/ci.yml)
+[![semantic-release](https://img.shields.io/badge/semantic--release-automated-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+
+**VibeGate makes code quality checks friendly and actionable.**
+
+It's a powerhouse quality engine under the hood—running all your Python checks in one command—but surfaces results in plain English with clear next steps.
+
+## For Normal Humans: Quickstart
+
+**Install VibeGate:**
+
+```bash
+pip install vibegate
+```
+
+**Run it on your Python project:**
+
+```bash
+vibegate start .
+```
+
+This one command does everything:
+- Creates a config file if you don't have one
+- Checks if you have the tools you need
+- Runs comprehensive quality checks on your code
+- Creates easy-to-read reports
+
+**See the results:**
+
+Open `.vibegate/plain_report.md` for a friendly summary of what VibeGate found.
+
+**Want the web viewer?** (Optional)
+
+```bash
+pip install "vibegate[ui]"
+vibegate ui . --static
+```
+
+Then open your browser to `http://127.0.0.1:8787` to view results interactively.
+
+## What VibeGate Creates
+
+When you run `vibegate start .` or `vibegate check .`, you get these files:
+
+| File | What It Is | Who It's For |
+|------|-----------|--------------|
+| `.vibegate/plain_report.md` | Friendly report in plain English | Everyone |
+| `artifacts/vibegate_report.md` | Technical details and metrics | Developers & CI |
+| `artifacts/fixpack.json` | Machine-readable action plan | Tools & automation |
+| `.vibegate/agent_prompt.md` | Instructions for AI coding assistants | Claude Code, GitHub Copilot, Cursor |
+| `.vibegate/agent_prompt.json` | Machine-readable AI instructions | AI agents |
+| `evidence/vibegate.jsonl` | Complete audit trail (proof log) | Compliance & debugging |
+
+**What's the difference between reports?**
+
+- **Plain Report** (`.vibegate/plain_report.md`): Explains what's wrong in simple terms, why it matters, and what to do about it
+- **Technical Report** (`artifacts/vibegate_report.md`): Shows you exact file paths, line numbers, error codes, and technical details
+- **Fix Pack** (`artifacts/fixpack.json`): Lists every issue as a task with step-by-step fix instructions
+
+## Friendly vs Deep Detail
+
+You can control how much information VibeGate shows you:
+
+```bash
+# Simple mode (default) - just the highlights
+vibegate check .
+
+# Deep mode - includes all technical details
+vibegate check . --detail deep
+```
+
+In simple mode, the plain report shows you the first few examples of each type of problem.
+
+In deep mode, you get everything: full finding lists, severity breakdowns, fingerprints, and proof logs.
+
+**Important:** The detail flag only changes what's shown in the plain report. The gate decision (PASS or FAIL) is always deterministic and never changes based on detail level.
+
+## Optional: Local Model Helpers
+
+VibeGate can use a local AI model to make code quality issues easier to understand. The helper runs **entirely on your machine**—no data leaves your computer.
+
+### What the helper does
+
+- **Plain English explanations** of technical findings
+- **Better fix prompts** for AI coding assistants
+- **Context-aware suggestions** based on your actual code patterns
+
+### Two ways to run helpers locally
+
+#### Option 1: Ollama (Easy path)
+
+**Install Ollama:**
+```bash
+# macOS
+brew install ollama
+
+# Linux
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Windows
+# Download from https://ollama.com/download
+```
+
+**Run the setup wizard:**
+```bash
+vibegate init .
+```
+
+The wizard will:
+1. Detect Ollama
+2. Let you choose a model
+3. Download it for you
+4. Add the config to `vibegate.yaml`
+
+**Example config** (added automatically by the wizard):
+```yaml
+llm:
+  enabled: true
+  provider: ollama
+  cache_dir: .vibegate/llm_cache
+  ollama:
+    base_url: http://localhost:11434
+    model: qwen2.5-coder:7b
+    temperature: 0.3
+  features:
+    explain_findings: true
+    generate_prompts: true
+```
+
+#### Option 2: OpenAI-Compatible Server (Advanced)
+
+If you're running a local OpenAI-compatible server like vLLM, LM Studio, or llama.cpp server:
+
+```yaml
+llm:
+  enabled: true
+  provider: openai_compatible
+  cache_dir: .vibegate/llm_cache
+  openai_compatible:
+    base_url: http://localhost:8000/v1  # Your local server
+    model: Qwen/Qwen2.5-Coder-7B-Instruct
+    temperature: 0.3
+    timeout_sec: 60
+    # extra_headers: {}  # Optional: for auth if your server requires it
+  features:
+    explain_findings: true
+    generate_prompts: true
+```
+
+**Note:** Most local servers don't require authentication. If your server does, use `extra_headers`:
+
+```yaml
+    extra_headers:
+      Authorization: "Bearer <your-token>"
+```
+
+### Model picker
+
+Here's a quick guide to choosing a model:
+
+| Model | Speed | Quality | Memory | Notes |
+|-------|-------|---------|--------|-------|
+| **Qwen2.5-Coder 7B** | ⚡⚡⚡ | ⭐⭐⭐ | 4GB | Default choice. Fast, good quality |
+| **Qwen2.5-Coder 14B** | ⚡⚡ | ⭐⭐⭐⭐ | 8GB | Better explanations, slower |
+| **DeepSeek-Coder-V2 16B** | ⚡ | ⭐⭐⭐⭐⭐ | 10GB | Best quality, needs powerful machine |
+| **CodeLlama 7B** | ⚡⚡⚡ | ⭐⭐ | 4GB | Older, still works fine |
+
+**License note:** These models can be run locally because the weights are available. Licenses vary (some are OSI licenses like Apache 2.0, others are custom model licenses). Always check the model license before production use:
+- Qwen2.5-Coder 7B/14B: Apache 2.0
+- DeepSeek-Coder-V2: Model License applies to weights; code is MIT
+- Code Llama: Llama license terms
+
+To use these models with Ollama:
+
+```bash
+# For Qwen (recommended)
+ollama pull qwen2.5-coder:7b
+# or
+ollama pull qwen2.5-coder:14b
+
+# For DeepSeek (requires more memory)
+ollama pull deepseek-coder-v2:16b
+
+# For CodeLlama
+ollama pull codellama:7b
+```
+
+## Philosophy: Deterministic Core + Optional Helper
+
+**The gate decision (PASS or FAIL) is always deterministic.** It never involves AI models.
+
+The optional helper model is used ONLY to:
+1. Translate technical findings into friendly English
+2. Generate better prompts for AI coding assistants
+3. Suggest context-aware fixes
+
+**The helper cannot and does not:**
+- Change whether the gate passes or fails
+- Suppress findings
+- Modify your code
+- Send data to external services
+
+## Contributing and Roadmap
+
+Want to contribute or see what's planned?
+
+- **Product vision:** `docs/PRODUCT_VISION.md`
+- **Technical architecture:** `docs/ARCHITECTURE.md`
+- **Local model setup:** `docs/LOCAL_MODELS.md`
+- **Roadmap:** `docs/OPEN_CORE_ROADMAP.md`
+- **Contributing guide:** `CONTRIBUTING.md`
+- **Release process:** `docs/RELEASING.md`
+
+## What Checks Run
+
+VibeGate orchestrates comprehensive quality checks:
+
+### Always enabled (if tools available)
+- **Code formatting** (ruff format)
+- **Linting** (ruff check)
+- **Type checking** (pyright)
+- **Tests** (pytest)
+- **Dependency hygiene** (lockfile validation)
+- **Configuration safety** (debug mode detection, CORS wildcards, secrets in code)
+- **Error handling** (empty except blocks, missing logging)
+- **Defensive programming** (None checks, array bounds, zero division)
+- **Code complexity** (function length, nesting depth)
+- **Dead code detection** (unreachable code, commented code)
+
+### Optional (when tools installed)
+- **Security scanning** (bandit)
+- **Secret detection** (gitleaks)
+- **Vulnerability scanning** (osv-scanner, offline mode)
+- **Advanced dead code** (vulture)
+
+### Framework-specific (when configured)
+- **Runtime smoke tests** (FastAPI, Django, Flask - optional)
+
+## Installation Options
+
+### For running on other projects (recommended)
+
+```bash
+pipx install "vibegate[tools]"
+```
+
+This keeps VibeGate isolated and available globally.
+
+### In a project virtualenv
+
+```bash
+pip install "vibegate[tools]"
+```
+
+### Minimal (no quality tools bundled)
+
+```bash
+pip install vibegate
+```
+
+You'll need to install `ruff`, `pyright`, `pytest`, etc. separately.
+
+### For VibeGate contributors
+
+```bash
+git clone https://github.com/maxadamsky/VibeGate.git
+cd VibeGate
+pip install -e ".[dev]"
+```
+
+## Common Workflows
+
+### One-command workflow (humans)
+
+```bash
+vibegate start .
+```
+
+Does everything: init if needed, verify tools, run checks, show friendly summary.
+
+### Evolution workflow (maintainers)
+
+```bash
+vibegate evolve .
+```
+
+Full cycle: check → triage (optional) → tune → propose
+
+This helps you improve check quality over time by:
+1. Running checks
+2. Letting you label findings (false positive / true positive / acceptable risk)
+3. Generating tuning insights from labeled findings
+4. Creating actionable proposals for rule refinement
+
+### Step-by-step workflow (CI or manual control)
+
+```bash
+vibegate init .      # Create config
+vibegate doctor .    # Verify tools
+vibegate check .     # Run checks
+vibegate triage .    # Label findings (interactive)
+vibegate tune .      # Generate tuning insights
+vibegate propose .   # Create proposal pack
+```
+
+### From source (without installing console script)
+
+```bash
+python -m vibegate start .
+python -m vibegate check .
+```
+
+## Framework Integration
+
+### FastAPI
+
+```yaml
+# vibegate.yaml
+project:
+  app_module: "app.main:app"
+
+checks:
+  runtime_smoke:
+    enabled: true
+    command: "uvicorn app.main:app --host 127.0.0.1 --port 8000"
+    health_url: "http://127.0.0.1:8000/healthz"
+```
+
+### Django
+
+```yaml
+checks:
+  runtime_smoke:
+    enabled: true
+    command: "python manage.py runserver 8000"
+    health_url: "http://127.0.0.1:8000/health/"
+```
+
+### Flask
+
+```yaml
+checks:
+  runtime_smoke:
+    enabled: true
+    command: "flask run --port 8000"
+    health_url: "http://127.0.0.1:8000/health"
+```
+
+## Using in CI
+
+### GitHub Actions
+
+```yaml
+- name: Install VibeGate
+  run: pipx install "vibegate[tools]"
+
+- name: Run quality gate
+  run: |
+    vibegate doctor .
+    vibegate check .
+```
+
+**Exit codes:**
+- `0` = PASS (all checks passed)
+- `1` = FAIL (blocking issues found)
+- `2` = CONFIG ERROR (invalid configuration)
+
+## Suppressing Findings
+
+You can suppress specific findings in `.vibegate/suppressions.yaml`:
+
+```yaml
+schema_version: v1alpha1
+suppressions:
+  - fingerprint: "sha256:abc123..."
+    rule_id: "B404"
+    justification: "subprocess.run() is safe here - input is validated"
+    expires_at: "2025-12-31T00:00:00Z"
+    actor: "security-team"
+```
+
+**Important:** Suppressions affect CI/CD behavior (suppressed findings don't cause failures).
+
+For quality tracking (without affecting CI), use **labels** instead:
+
+```bash
+vibegate label sha256:abc123... --false-positive --reason "type-annotation-context"
+```
+
+Labels help tune checks over time but don't suppress findings.
+
+## Profiles
+
+Use profiles to switch between different configurations:
+
+```yaml
+profile: "strict"
+
+profiles:
+  fast:
+    checks:
+      tests:
+        enabled: false
+
+  strict:
+    checks:
+      sast:
+        enabled: true
+        severity_threshold: high
+
+  ci:
+    checks:
+      runtime_smoke:
+        enabled: true
+```
+
+## Plugin System
+
+VibeGate supports custom checks via plugins. See `examples/hello-plugin/` for a complete example.
+
+1. Install plugin: `pip install -e examples/hello-plugin`
+2. Enable in config:
+   ```yaml
+   plugins:
+     checks:
+       enabled:
+         - hello
+   ```
+3. Run: `vibegate check .`
+
+## Self-Hosting: VibeGate Validates Itself
+
+**VibeGate uses itself to enforce quality standards.**
+
+| Metric | Status |
+|--------|--------|
+| **VibeGate Check** | ✅ PASS |
+| **Empty Except Blocks** | ✅ 0 |
+| **Zero Division Guards** | ✅ 0 |
+| **Bounds Validation** | ✅ 0 |
+
+This demonstrates that defensive programming checks are practical for real-world code.
+
+## Troubleshooting
+
+### Config validation fails
+
+```bash
+vibegate init . --force
+```
+
+This overwrites `vibegate.yaml` with fresh defaults.
+
+### Missing tools
+
+```bash
+vibegate doctor .
+```
+
+This shows which tools are missing and how to install them.
+
+### Help
+
+```bash
+vibegate --help
+vibegate check --help
+```
+
+## Development
+
+### Run tests
+
+```bash
+make test
+make test-cov      # with coverage
+make coverage      # HTML report
+```
+
+### Run VibeGate on itself
+
+```bash
+make gate
+```
+
+### Build and test release
+
+```bash
+./scripts/build_and_smoke.sh
+```
+
+## Release Workflow
+
+Releases are **fully automated** using semantic-release based on Conventional Commits.
+
+**How it works:**
+1. Merge PRs with conventional commit messages (`feat:`, `fix:`, etc.)
+2. semantic-release runs automatically on push to `main`
+3. If releasable commits exist, it:
+   - Determines next version
+   - Updates `CHANGELOG.md`
+   - Creates git tag
+   - Publishes to PyPI via Trusted Publishing
+   - Creates GitHub Release
+
+**Commit types:**
+- `feat:` → minor bump (0.1.0 → 0.2.0)
+- `fix:` → patch bump (0.1.0 → 0.1.1)
+- `feat!:` or `BREAKING CHANGE:` → major bump (0.1.0 → 1.0.0)
+
+See `docs/RELEASING.md` for details.
+
+## License
+
+MIT License - see `LICENSE` file.
+
+## Links
+
+- **GitHub**: https://github.com/maxadamsky/VibeGate
+- **PyPI**: https://pypi.org/project/vibegate/
+- **Issues**: https://github.com/maxadamsky/VibeGate/issues
+- **Docs**: https://github.com/maxadamsky/VibeGate/tree/main/docs
