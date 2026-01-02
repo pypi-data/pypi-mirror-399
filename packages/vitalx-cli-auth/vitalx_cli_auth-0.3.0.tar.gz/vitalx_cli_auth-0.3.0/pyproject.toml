@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "vitalx-cli-auth"
+version = "0.3.0"
+description = "Vital Horizon AI CLI authentication support package"
+authors = ["Vital <developers@tryvital.io>"]
+license = "AGPL-3.0-only"
+homepage = "https://www.tryvital.com/"
+documentation = "https://docs.tryvital.io/"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Topic :: Software Development",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research"
+]
+readme = "README.md"
+
+packages = [
+  { include = "vitalx" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.32"
+filelock = "^3.15"
+
+[tool.poetry.group.dev.dependencies]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
