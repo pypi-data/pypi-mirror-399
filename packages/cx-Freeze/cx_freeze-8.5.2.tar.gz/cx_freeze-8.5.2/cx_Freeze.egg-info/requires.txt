@@ -1,0 +1,62 @@
+freeze-core>=0.4.0
+packaging>=24
+setuptools<81,>=78.1.1
+
+[:python_version == "3.10"]
+tomli>=2.0.1
+
+[:sys_platform == "darwin"]
+dmgbuild>=1.6.1
+
+[:sys_platform == "linux"]
+filelock>=3.20.1
+
+[:sys_platform == "linux" and platform_machine == "aarch64"]
+patchelf<0.18,>=0.16.1
+
+[:sys_platform == "linux" and platform_machine == "armv7l"]
+patchelf<0.18,>=0.16.1
+
+[:sys_platform == "linux" and platform_machine == "i686"]
+patchelf<0.18,>=0.16.1
+
+[:sys_platform == "linux" and platform_machine == "ppc64le"]
+patchelf<0.18,>=0.16.1
+
+[:sys_platform == "linux" and platform_machine == "s390x"]
+patchelf<0.18,>=0.16.1
+
+[:sys_platform == "linux" and platform_machine == "x86_64"]
+patchelf<0.18,>=0.16.1
+
+[:sys_platform == "win32" and platform_machine != "ARM64"]
+lief<=0.17.1,>=0.15.1
+
+[:sys_platform == "win32" and platform_machine == "ARM64" and python_version <= "3.13"]
+lief<=0.17.1,>=0.15.1
+
+[:sys_platform == "win32" and python_version >= "3.13"]
+python-msilib>=0.4.1
+
+[dev]
+bump-my-version==1.2.5
+pre-commit==4.5.1
+
+[doc]
+
+[doc:python_version >= "3.11"]
+sphinx==8.2.3
+sphinx-issues==5.0.1
+sphinx-new-tab-link==0.8.1
+sphinx-tabs==3.4.7
+furo==2025.9.25
+myst-parser==4.0.1
+
+[tests]
+coverage==7.13.0
+filelock>=3.20.1
+pytest==9.0.2
+pluggy==1.6.0
+pytest-mock==3.15.1
+pytest-timeout==2.4.0
+pytest-xdist==3.8.0

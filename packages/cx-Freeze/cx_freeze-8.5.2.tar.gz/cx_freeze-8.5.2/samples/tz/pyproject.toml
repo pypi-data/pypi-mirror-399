@@ -1,0 +1,13 @@
+[project]
+name = "test_tz"
+version = "0.1.2.3"
+description = "cx_Freeze script to test zoneinfo/tzdata"
+dependencies = ["tzdata"]
+
+[tool.cxfreeze]
+executables = ["test_tz.py"]
+
+[tool.cxfreeze.build_exe]
+include_msvcr = true
+excludes = ["tkinter", "unittest"]
+silent = true

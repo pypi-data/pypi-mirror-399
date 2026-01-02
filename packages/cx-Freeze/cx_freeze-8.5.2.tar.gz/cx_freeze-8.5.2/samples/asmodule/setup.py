@@ -1,0 +1,25 @@
+"""A very simple setup script to create a single executable built from a module
+which includes an executable section protected by:
+if __name__ == '__main__'.
+"""
+
+#
+# Run the build process by running the command 'python setup.py build'
+#
+# If everything works well you should find a subdirectory in the build
+# subdirectory that contains the files needed to run the script without Python
+from cx_Freeze import setup
+
+options = {
+    "build_exe": {
+        "include_msvcr": True,
+    }
+}
+
+setup(
+    name="asmodule",
+    version="0.1",
+    description="Sample cx_Freeze script",
+    options=options,
+    executables=["asmodule.py"],
+)

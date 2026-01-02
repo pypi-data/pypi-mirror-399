@@ -1,0 +1,12 @@
+include LICENSE.md
+include Makefile
+include requirements.txt
+include requirements-dev.txt
+recursive-include cx_Freeze/hooks *.conf *.sh *.qrc
+recursive-include cx_Freeze/importshed *.pyi
+recursive-include doc Makefile *.py *.rst *.txt
+recursive-include samples *.*
+prune samples/*/build
+prune samples/*/dist
+prune samples/*/wheelhouse
+recursive-include tests *.md *.py *.txt
