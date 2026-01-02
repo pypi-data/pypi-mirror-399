@@ -1,0 +1,72 @@
+Metadata-Version: 2.4
+Name: joyous-departures
+Version: 2.0.1
+Summary: Generate warm, heartfelt goodbye messages for email templates
+Project-URL: Homepage, https://github.com/siviter-xyz/joyous-departures
+Project-URL: Repository, https://github.com/siviter-xyz/joyous-departures
+Author: siviter.xyz
+License: MIT
+Keywords: email,goodbye,messages,sign-off,templates
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Text Processing :: Markup
+Requires-Python: >=3.10
+Provides-Extra: dev
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# Joyous Departures
+
+Generate warm, heartfelt goodbye messages for email templates.
+
+## Installation
+
+```bash
+pip install joyous-departures
+# or
+uv pip install joyous-departures
+```
+
+## Usage
+
+```python
+import asyncio
+from joyous_departures import generate_goodbye
+
+async def main():
+    # Basic usage
+    message = await generate_goodbye()
+    print(message)  # "Wishing you a joyous day, Good Soul ❤️"
+
+    # With custom name
+    message = await generate_goodbye(template_args={"name": "Alice"})
+    print(message)  # "May your path be filled with joy, Alice 🌻"
+
+    # Without emojis
+    message = await generate_goodbye(use_emojis=False)
+    print(message)  # "Wishing you a joyous day, Good Soul"
+
+asyncio.run(main())
+```
+
+## Synchronous Usage
+
+```python
+from joyous_departures import generate_goodbye_sync
+
+message = generate_goodbye_sync(template_args={"name": "Alice"})
+print(message)
+```
+
+## License
+
+MIT
+
