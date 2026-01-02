@@ -1,0 +1,115 @@
+[project]
+name = "tinygrid"
+version = "0.1.0-alpha"
+authors = [
+    { name = "Kevin Kenyon", email = "kevin@poweredbylight.com" }
+]
+description = "A unified Python SDK for accessing grid data from all major US Independent System Operators (ISOs)"
+requires-python = ">=3.10"
+readme = "README.md"
+license = "MIT"
+keywords = ["ercot", "iso", "electricity", "grid", "energy", "api", "sdk"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "pyercot",
+    "python-dotenv>=1.0.0",
+    "tenacity>=8.0.0",
+    "pandas>=2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/kvkenyon/tinygrid"
+Repository = "https://github.com/kvkenyon/tinygrid"
+Issues = "https://github.com/kvkenyon/tinygrid/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "pyright>=1.1.0",
+    "pandas>=2.3.3",
+    "respx>=0.21.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+]
+
+[tool.coverage.run]
+source = ["tinygrid"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "F",      # Pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # unused imports
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.1.0",
+    "jupyterlab>=4.5.1",
+    "kaleido>=1.2.0",
+    "nbformat>=5.10.4",
+    "plotly>=6.5.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["tinygrid*"]
+exclude = ["pyercot*", "configs*", "tests*"]
+
+[tool.uv.sources]
+pyercot = { path = "./pyercot", editable = true }
