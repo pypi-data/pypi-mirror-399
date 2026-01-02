@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medimagecleaner"
+version = "0.2.0"
+description = "Comprehensive package for removing PHI from medical images"
+readme = "README.md"
+authors = [
+    {name = "Akinboye Yusuff", email = "mailakinboye@gmail.com"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["medical imaging", "dicom", "deidentification", "phi removal", "hipaa", "privacy"]
+requires-python = ">=3.8"
+dependencies = [
+    "pydicom>=2.3.0",
+    "numpy>=1.20.0",
+    "opencv-python>=4.5.0",
+    "Pillow>=9.0.0",
+]
+
+[project.optional-dependencies]
+ocr = ["pytesseract>=0.3.9"]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+    "mypy>=0.950",
+]
+all = ["pytesseract>=0.3.9"]
+
+[project.urls]
+Homepage = "https://github.com/akinboye/medimagecleaner"
+Documentation = "https://github.com/akinboye/medimagecleaner#readme"
+Repository = "https://github.com/akinboye/medimagecleaner"
+Issues = "https://github.com/akinboye/medimagecleaner/issues"
+"Author Website" = "https://akinboye.dev/"
+
+[project.scripts]
+medimagecleaner = "medimagecleaner.cli:main"
+
+[tool.setuptools]
+packages = ["medimagecleaner"]
+
+[tool.setuptools.package-data]
+medimagecleaner = ["*.py"]
