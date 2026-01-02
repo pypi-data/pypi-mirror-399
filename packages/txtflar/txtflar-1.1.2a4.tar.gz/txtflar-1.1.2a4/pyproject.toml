@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[bdist_wheel]
+universal = 1
+
+[project]
+name = "txtflar"
+version = "1.1.2a4"
+dependencies = [
+    "babelfish >= 0.6.1",
+    "chardet >= 5.2.0",
+    "langdetect >= 1.0.9",
+    "importlib-metadata; python_version >= '3.11'"
+]
+readme = "README.md"
+description = "TeXT file language-aware rename"
+license-files = ["LICENSE.txt"]
+authors = [
+  {name = "Luis López", email = "luis@cuarentaydos.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.11"
+
+[project.urls]
+Homepage = "https://github.com/ldotlopez/txtflar"
+Issues = "https://github.com/ldotlopez/txtflar/issues"
+Repository = "https://github.com/ldotlopez/txtflar.git"
+
+[tool.setuptools]
+packages = ["txtflar"]
+
+[tool.black]
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.1",
+]
+
+[project.scripts]
+txtflar = "txtflar:main"
