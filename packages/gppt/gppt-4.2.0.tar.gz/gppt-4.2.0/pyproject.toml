@@ -1,0 +1,93 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [ "hatchling", "uv-dynamic-versioning" ]
+
+[project]
+name = "gppt"
+description = "Get your Pixiv token (for running upbit/pixivpy)"
+readme = "README.md"
+keywords = [
+  "api",
+  "pixiv",
+  "token",
+]
+license = { text = "MIT" }
+authors = [ { name = "eggplants", email = "w10776e8w@yahoo.co.jp" } ]
+requires-python = ">=3.10,<4"
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Typing :: Typed",
+]
+dynamic = [ "version" ]
+dependencies = [
+  "install-playwright>=0.1.1",
+  "pixivpy3>=3.7.5,<4",
+  "playwright>=1.57",
+  "pwinput>=1.0.3,<2",
+  "requests>=2.32.3,<3",
+]
+
+urls.Repository = "https://github.com/eggplants/get-pixivpy-token"
+scripts.gppt = "gppt.main:main"
+
+[dependency-groups]
+dev = [
+  "pymarkdownlnt>=0.9.33",
+  "pyproject-fmt>=2.11.1",
+  "pytest>=9.0.2",
+  "pytest-cov>=7",
+]
+docs = [
+  "pdoc>=16",
+]
+
+[tool.hatch.version]
+# tool.hatch.version.source is not listed in official schema.
+# https://github.com/ninoseki/uv-dynamic-versioning/issues/21
+source = "uv-dynamic-versioning"
+
+[tool.hatch.build.targets.sdist]
+include = [ "gppt" ]
+
+[tool.hatch.build.targets.wheel]
+include = [ "gppt" ]
+
+[tool.uv]
+preview = true
+default-groups = [
+  "dev",
+  "docs",
+]
+exclude-newer = "P7D"
+
+[tool.ruff]
+line-length = 120
+format.indent-style = "space"
+format.quote-style = "double"
+lint.select = [ "ALL" ]
+lint.ignore = [ "COM812" ]
+lint.per-file-ignores."gppt/auth.py" = [
+  "T201", # `print` found
+]
+lint.per-file-ignores."gppt/main.py" = [
+  "T201", # `print` found
+  "T203", # `pprint` found
+]
+lint.per-file-ignores."tests/*.py" = [
+  "D",
+  "S101", # Use of `assert` detected
+]
+lint.pydocstyle.convention = "google"
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "semver"
+fallback-version = "0.0.0"
