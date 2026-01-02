@@ -1,0 +1,177 @@
+# MCP eRegistrations BPA
+
+**AI-powered Service Design for Government Digital Transformation**
+
+An MCP server that enables AI assistants like Claude to design, configure, and deploy government services on the eRegistrations BPA platform using natural language.
+
+## What It Does
+
+Design and configure BPA services through conversation:
+
+```
+You: Create a "Business License" service
+Claude: Created service with registration. Service ID: abc-123
+
+You: Add a reviewer role
+Claude: Added "Reviewer" role to the service
+
+You: Set a $50 processing fee
+Claude: Created fixed cost of $50 attached to the registration
+```
+
+Each step uses the right MCP tool. Full audit trail. Rollback if needed.
+
+## Prerequisites
+
+Install [uv](https://docs.astral.sh/uv/) (includes `uvx`):
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+## Quick Install
+
+**For Claude Desktop** — add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "BPA-elsalvador-dev": {
+      "command": "uvx",
+      "args": ["mcp-eregistrations-bpa"],
+      "env": {
+        "BPA_INSTANCE_URL": "https://bpa.dev.els.eregistrations.org",
+        "KEYCLOAK_URL": "https://login.dev.els.eregistrations.org",
+        "KEYCLOAK_REALM": "SV"
+      }
+    }
+  }
+}
+```
+
+**For Claude Code** — add to `.mcp.json` in your project:
+
+```json
+{
+  "mcpServers": {
+    "BPA-elsalvador-dev": {
+      "command": "uvx",
+      "args": ["mcp-eregistrations-bpa"],
+      "env": {
+        "BPA_INSTANCE_URL": "https://bpa.dev.els.eregistrations.org",
+        "KEYCLOAK_URL": "https://login.dev.els.eregistrations.org",
+        "KEYCLOAK_REALM": "SV"
+      }
+    }
+  }
+}
+```
+
+That's it. On first use, a browser opens for Keycloak login. Your BPA permissions apply automatically.
+
+> **Tip:** Name each MCP after its instance (e.g., `BPA-elsalvador-dev`, `BPA-kenya-test`) to manage multiple environments.
+
+## 69 MCP Tools
+
+| Category          | Capabilities                                          |
+| ----------------- | ----------------------------------------------------- |
+| **Services**      | Create, read, update, copy, export, transform to YAML |
+| **Registrations** | Full CRUD with parent service linking                 |
+| **Institutions**  | Assign/unassign institutions to registrations         |
+| **Roles**         | Create reviewer/approver/processor roles              |
+| **Bots**          | Configure workflow automation                         |
+| **Determinants**  | Text and select conditional logic                     |
+| **Costs**         | Fixed fees and formula-based pricing                  |
+| **Documents**     | Link document requirements to registrations           |
+| **Workflows**     | Intent-based natural language service design          |
+| **Audit**         | Complete operation history with rollback              |
+| **Analysis**      | Service inspection and dependency mapping             |
+
+## Natural Language Workflows
+
+Ask Claude to design services using plain English:
+
+| What you say                            | What happens                                         |
+| --------------------------------------- | ---------------------------------------------------- |
+| "Create a permit service"               | Creates service + registration with proper structure |
+| "Add a reviewer role to this service"   | Adds UserRole with 'processing' assignment           |
+| "Set a $75 application fee"             | Creates fixed cost attached to registration          |
+| "Add document requirement for ID proof" | Links requirement to the registration                |
+
+The workflow system extracts your intent, validates inputs, and executes multi-step operations with full audit trail.
+
+## Key Features
+
+**Audit Trail** — Every operation logged (who, what, when). Query history with `audit_list`.
+
+**Rollback** — Undo any write operation. Restore previous state with `rollback`.
+
+**Export** — Get complete service definitions as clean YAML for review or version control.
+
+**Copy** — Clone existing services with selective component inclusion.
+
+## Example Session
+
+```
+You: List all services
+
+Claude: Found 12 services. [displays table with IDs, names, status]
+
+You: Analyze the "Business Registration" service
+
+Claude: [shows registrations, roles, determinants, documents, costs]
+        Found 3 potential issues: orphaned determinant, missing cost...
+
+You: Create a copy called "Business Registration v2"
+
+Claude: Created service with ID abc-123. Copied 2 registrations,
+        4 roles, 8 determinants. Audit ID: xyz-789
+```
+
+## Authentication
+
+Uses Keycloak OIDC with Authorization Code + PKCE:
+
+1. Browser opens automatically on first connection
+2. Login with your BPA credentials
+3. Tokens managed automatically with refresh
+4. Your BPA permissions apply to all operations
+
+## Configuration
+
+| Variable           | Description                 | Required |
+| ------------------ | --------------------------- | -------- |
+| `BPA_INSTANCE_URL` | BPA server URL              | Yes      |
+| `KEYCLOAK_URL`     | Keycloak server URL         | Yes      |
+| `KEYCLOAK_REALM`   | Keycloak realm name         | Yes      |
+| `LOG_LEVEL`        | DEBUG, INFO, WARNING, ERROR | No       |
+
+Logs: `~/.config/mcp-eregistrations-bpa/server.log`
+
+## Development
+
+```bash
+# Clone and install
+git clone https://github.com/unctad-ai/mcp-eregistrations-bpa.git
+cd mcp-eregistrations-bpa
+uv sync
+
+# Run tests (800+ tests)
+uv run pytest
+
+# Lint and format
+uv run ruff check . && uv run ruff format .
+```
+
+## License
+
+Copyright (c) 2025-2026
+UN for Trade & Development (UNCTAD)
+Division on Investment and Enterprise (DIAE)
+Business Facilitation Section
+
+All rights reserved. See [LICENSE](LICENSE).
+
+---
+
+Part of [eRegistrations](https://businessfacilitation.org)
