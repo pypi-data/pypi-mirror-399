@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-khalti-integration"
+version = "0.0.4"
+authors = [
+  { name="Utsav Gurmachhan Magar", email="me@ryuuzu.xyz" },
+]
+description = "A Django integration for Khalti Payment Gateway in Nepal."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Framework :: Django",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "django>=3.2",
+    "pydantic>=2.10.6",
+    "requests>=2.25.1",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ryuuzu-xyz/django-khalti-integration"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.html", "*.css", "*.js"]
