@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RISC-V CPU Block Diagram</title>
+    <script src="https://unpkg.com/@viz-js/viz@3.2.4/lib/viz-standalone.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; padding: 20px; }
+        .container { background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); padding: 30px; max-width: 100%; }
+        h1 { color: #333; margin-bottom: 10px; font-weight: 600; }
+        .subtitle { color: #666; margin-bottom: 20px; font-size: 14px; }
+        .controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        #diagram { border: 1px solid #eee; border-radius: 8px; padding: 20px; background: #fafafa; overflow: auto; min-height: 500px; }
+        #diagram svg { max-width: 100%; height: auto; }
+        .legend { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: flex; gap: 25px; flex-wrap: wrap; align-items: center; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .legend-line { width: 30px; height: 3px; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .error { color: #d32f2f; padding: 20px; background: #ffebee; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 RISC-V CPU Block Diagram</h1>
+        <p class="subtitle">Generated with RTLViz | ⚠️ RtlViz can make mistakes, so double-check it</p>
+        
+        <div class="controls">
+            <button onclick="zoomIn()">🔍 Zoom In</button>
+            <button onclick="zoomOut()">🔍 Zoom Out</button>
+            <button onclick="resetZoom()">↺ Reset</button>
+            <button onclick="downloadSVG()">💾 Download SVG</button>
+        </div>
+        
+        <div id="diagram">
+            <div class="loading">⏳ Rendering diagram with Viz.js...</div>
+        </div>
+        
+        <div class="legend">
+            <strong>Legend:</strong>
+            <div class="legend-item">
+                <span class="legend-line" style="background: black;"></span>
+                <span>Data Path</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-line" style="background: transparent; border-top: 2px dashed #1565C0;"></span>
+                <span>Control Signal</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const dotSource = `digraph "RISC-V CPU Block Diagram" {
+    // Layout for readable RTL diagrams
+    layout=dot;
+    rankdir=LR;
+    splines=ortho;
+    overlap=false;
+    newrank=true;
+    compound=true;
+    
+    // Wide spacing for clarity
+    nodesep=0.4;
+    ranksep=0.8;
+    margin=0.5;
+    pad=0.5;
+    
+    // Default node style
+    node [
+        fontname="Arial",
+        fontsize=10,
+        penwidth=1.2,
+        margin="0.15,0.08"
+    ];
+    
+    // Default edge style  
+    edge [
+        fontname="Arial",
+        fontsize=8,
+        penwidth=1.0,
+        arrowsize=0.6
+    ];
+
+    subgraph cluster_Control {
+        label=<<B><FONT POINT-SIZE="18">Control</FONT></B>>;
+        labeljust=l;
+        style="filled,rounded";
+        fillcolor="#F3E5F5";
+        color="#7B1FA2";
+        fontname="Arial";
+        margin=15;
+
+        Control [label="Controller\\n[Control]", shape=component, style="filled", fillcolor="#F8BBD9", width=1.0, height=0.5, fontsize=9, tooltip="Controller"];
+        ALU_Control [label="ALU\\n[ALU_Control]", shape=box, style="filled", fillcolor="#ECEFF1", width=0.9, height=0.45, fontsize=9, tooltip="ALU"];
+        VALU_Control [label="ALU\\n[VALU_Control]", shape=box, style="filled", fillcolor="#ECEFF1", width=0.9, height=0.45, fontsize=9, tooltip="ALU"];
+    }
+
+    subgraph cluster_Datapath {
+        label=<<B><FONT POINT-SIZE="18">Datapath</FONT></B>>;
+        labeljust=l;
+        style="filled,rounded";
+        fillcolor="#FFF3E0";
+        color="#EF6C00";
+        fontname="Arial";
+        margin=15;
+
+        Add_PC [label="ALU\\n[Add_PC]", shape=box, style="filled", fillcolor="#ECEFF1", width=0.9, height=0.45, fontsize=9, tooltip="ALU"];
+        AddSum [label="ALU\\n[AddSum]", shape=box, style="filled", fillcolor="#ECEFF1", width=0.9, height=0.45, fontsize=9, tooltip="ALU"];
+        ALU [label="ALU\\n[ALU]", shape=box, style="filled", fillcolor="#ECEFF1", width=0.9, height=0.45, fontsize=9, tooltip="ALU"];
+        HazradDetect [label="ALU\\n[HazradDetect]", shape=box, style="filled", fillcolor="#ECEFF1", width=0.9, height=0.45, fontsize=9, tooltip="ALU"];
+        aluToDM [label="Multiplexer\\n[aluToDM]", shape=trapezium, style="filled", fillcolor="#FFF9C4", width=0.5, height=0.7, fontsize=9, orientation=90, tooltip="Multiplexer"];
+        VALU [label="ALU\\n[VALU]", shape=box, style="filled", fillcolor="#ECEFF1", width=0.9, height=0.45, fontsize=9, tooltip="ALU"];
+    }
+
+    subgraph cluster_Logic {
+        label=<<B><FONT POINT-SIZE="18">Logic</FONT></B>>;
+        labeljust=l;
+        style="filled,rounded";
+        fillcolor="#E8F5E9";
+        color="#2E7D32";
+        fontname="Arial";
+        margin=15;
+
+        PC [label="PC\\n[PC]", shape=box, style="filled", fillcolor="#ECEFF1", width=0.9, height=0.45, fontsize=9, tooltip="PC"];
+        shiftLeft [label="Shift1\\n[shiftLeft]", shape=box, style="filled", fillcolor="#B2EBF2", width=0.8, height=0.4, fontsize=9, tooltip="Shift1"];
+        PCImmExtend [label="Sign_Extend\\n[PCImmExtend]", shape=box, style="filled", fillcolor="#B2EBF2", width=0.8, height=0.4, fontsize=9, tooltip="Sign_Extend"];
+        IF_ID [label="IF_ID\\n[IF_ID]", shape=box, style="filled", fillcolor="#E8EAF6", width=0.3, height=0.8, fontsize=8, tooltip="IF_ID"];
+        Sign_Extend [label="Sign_Extend\\n[Sign_Extend]", shape=box, style="filled", fillcolor="#B2EBF2", width=0.8, height=0.4, fontsize=9, tooltip="Sign_Extend"];
+        ID_EX [label="ID_EX\\n[ID_EX]", shape=box, style="filled", fillcolor="#E8EAF6", width=0.3, height=0.8, fontsize=8, tooltip="ID_EX"];
+        ForwardingUnit [label="ForwardingUnit\\n[ForwardingUnit]", shape=diamond, style="filled", fillcolor="#FFCDD2", width=0.6, height=0.6, fontsize=9, tooltip="ForwardingUnit"];
+        ForwardToData1 [label="Multiplexer\\n[ForwardToData1]", shape=trapezium, style="filled", fillcolor="#FFF9C4", width=0.5, height=0.7, fontsize=9, orientation=90, tooltip="Multiplexer"];
+        ForwardToData2 [label="Multiplexer\\n[ForwardToData2]", shape=trapezium, style="filled", fillcolor="#FFF9C4", width=0.5, height=0.7, fontsize=9, orientation=90, tooltip="Multiplexer"];
+    }
+
+    subgraph cluster_Memory {
+        label=<<B><FONT POINT-SIZE="18">Memory</FONT></B>>;
+        labeljust=l;
+        style="filled,rounded";
+        fillcolor="#FCE4EC";
+        color="#C2185B";
+        fontname="Arial";
+        margin=15;
+
+        Instruction_Memory [label="Memory\\n[Instruction_Memory]", shape=box3d, style="filled", fillcolor="#C8E6C9", width=1.0, height=0.5, fontsize=9, tooltip="Memory"];
+        EX_MEM [label="Memory\\n[EX_MEM]", shape=box3d, style="filled", fillcolor="#C8E6C9", width=1.0, height=0.5, fontsize=9, tooltip="Memory"];
+        Data_Memory [label="Memory\\n[Data_Memory]", shape=box3d, style="filled", fillcolor="#C8E6C9", width=1.0, height=0.5, fontsize=9, tooltip="Memory"];
+        MEM_WB [label="Memory\\n[MEM_WB]", shape=box3d, style="filled", fillcolor="#C8E6C9", width=1.0, height=0.5, fontsize=9, tooltip="Memory"];
+    }
+
+    subgraph cluster_Multiplexers {
+        label=<<B><FONT POINT-SIZE="18">Multiplexers</FONT></B>>;
+        labeljust=l;
+        style="filled,rounded";
+        fillcolor="#E3F2FD";
+        color="#1565C0";
+        fontname="Arial";
+        margin=15;
+
+        pcSelect [label="Multiplexer\\n[pcSelect]", shape=trapezium, style="filled", fillcolor="#FFF9C4", width=0.5, height=0.7, fontsize=9, orientation=90, tooltip="Multiplexer"];
+        MUX_ALUSrc [label="Multiplexer\\n[MUX_ALUSrc]", shape=trapezium, style="filled", fillcolor="#FFF9C4", width=0.5, height=0.7, fontsize=9, orientation=90, tooltip="Multiplexer"];
+        MUX_Control [label="Multiplexer\\n[MUX_Control]", shape=trapezium, style="filled", fillcolor="#FFF9C4", width=0.5, height=0.7, fontsize=9, orientation=90, tooltip="Multiplexer"];
+    }
+
+    subgraph cluster_Registers {
+        label=<<B><FONT POINT-SIZE="18">Registers</FONT></B>>;
+        labeljust=l;
+        style="filled,rounded";
+        fillcolor="#E0F7FA";
+        color="#00838F";
+        fontname="Arial";
+        margin=15;
+
+        Registers [label="Register\\n[Registers]", shape=box3d, style="filled", fillcolor="#B3E5FC", width=0.9, height=0.45, fontsize=9, tooltip="Register"];
+        memToReg [label="Multiplexer\\n[memToReg]", shape=trapezium, style="filled", fillcolor="#FFF9C4", width=0.5, height=0.7, fontsize=9, orientation=90, tooltip="Multiplexer"];
+    }
+
+
+    // Cluster ordering
+    Control -> Add_PC [style=invis, weight=10];
+    Add_PC -> PC [style=invis, weight=10];
+    PC -> Instruction_Memory [style=invis, weight=10];
+    Instruction_Memory -> pcSelect [style=invis, weight=10];
+    pcSelect -> Registers [style=invis, weight=10];
+
+    // Connections
+    AddSum -> pcSelect [penwidth=1.0, weight=2];
+    pcSelect -> PC [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    HazradDetect -> PC [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    Data_Memory -> Instruction_Memory [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    PC -> Instruction_Memory [penwidth=1.0, weight=2];
+    shiftLeft -> AddSum [penwidth=1.0, weight=2];
+    IF_ID -> PCImmExtend [penwidth=1.0, weight=2];
+    PC -> IF_ID [penwidth=1.0, weight=2];
+    Instruction_Memory -> IF_ID [penwidth=1.0, weight=2];
+    HazradDetect -> IF_ID [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    Data_Memory -> Registers [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    MEM_WB -> Registers [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    memToReg -> Registers [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    IF_ID -> ID_EX [penwidth=1.0, weight=2];
+    PCImmExtend -> ID_EX [penwidth=1.0, weight=2];
+    Registers -> ID_EX [penwidth=1.0, weight=2];
+    Sign_Extend -> ID_EX [penwidth=1.0, weight=2];
+    MUX_Control -> ID_EX [penwidth=1.0, weight=2];
+    ID_EX -> MUX_ALUSrc [penwidth=1.0, weight=2];
+    ID_EX -> ALU_Control [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    MUX_ALUSrc -> ALU [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    ALU_Control -> ALU [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    ID_EX -> HazradDetect [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    Control -> MUX_Control [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    EX_MEM -> ForwardingUnit [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    ID_EX -> ForwardingUnit [penwidth=1.0, weight=2];
+    MEM_WB -> ForwardingUnit [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    ID_EX -> ForwardToData1 [penwidth=1.0, weight=2];
+    EX_MEM -> ForwardToData1 [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    memToReg -> ForwardToData1 [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    ID_EX -> ForwardToData2 [penwidth=1.0, weight=2];
+    EX_MEM -> ForwardToData2 [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    memToReg -> ForwardToData2 [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    ID_EX -> EX_MEM [penwidth=1.0, weight=2];
+    ALU -> EX_MEM [penwidth=1.0, weight=2];
+    VALU -> EX_MEM [penwidth=1.0, weight=2];
+    ForwardToData2 -> EX_MEM [penwidth=1.0, weight=2];
+    aluToDM -> Data_Memory [penwidth=1.0, weight=2];
+    EX_MEM -> Data_Memory [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    aluToDM -> MEM_WB [penwidth=1.0, weight=2];
+    EX_MEM -> MEM_WB [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    Data_Memory -> MEM_WB [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    MEM_WB -> memToReg [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    EX_MEM -> aluToDM [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    MUX_ALUSrc -> VALU [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+    VALU_Control -> VALU [style=dashed, color="#1565C0", penwidth=0.8, weight=2];
+}`;
+        let scale = 1;
+        let svgContent = '';
+        
+        async function renderDiagram() {
+            try {
+                const viz = await Viz.instance();
+                const svg = viz.renderSVGElement(dotSource);
+                svgContent = svg.outerHTML;
+                document.getElementById('diagram').innerHTML = svgContent;
+            } catch (error) {
+                document.getElementById('diagram').innerHTML = 
+                    '<div class="error">❌ Error rendering diagram: ' + error.message + '</div>';
+                console.error(error);
+            }
+        }
+        
+        function zoomIn() { scale *= 1.2; applyZoom(); }
+        function zoomOut() { scale *= 0.8; applyZoom(); }
+        function resetZoom() { scale = 1; applyZoom(); }
+        
+        function applyZoom() {
+            const svg = document.querySelector('#diagram svg');
+            if (svg) {
+                svg.style.transform = `scale(${scale})`;
+                svg.style.transformOrigin = 'top left';
+            }
+        }
+        
+        function downloadSVG() {
+            if (svgContent) {
+                const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'risc-v_cpu_block_diagram_diagram.svg';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+        
+        renderDiagram();
+    </script>
+</body>
+</html>
