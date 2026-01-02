@@ -1,0 +1,6 @@
+from typing import Any
+
+__all__ = ['coerce_optional_string', 'get_field']
+
+def get_field(source: Any, name: str) -> Any: ...
+def coerce_optional_string(value: Any) -> str | None: ...
