@@ -1,0 +1,125 @@
+Metadata-Version: 2.4
+Name: visual-cataloguer
+Version: 0.1.1
+Summary: Batch catalogue physical collections using visual dividers (QR codes) and automated image processing
+License: MIT
+License-File: LICENSE
+Keywords: cataloguing,collection,inventory,ocr,qr-code,retro-games
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Topic :: Database
+Classifier: Topic :: Multimedia :: Graphics :: Capture
+Requires-Python: >=3.11
+Requires-Dist: click>=8.0.0
+Requires-Dist: exifread>=3.0.0
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: opencv-python>=4.8.0
+Requires-Dist: pillow>=10.0.0
+Requires-Dist: pytesseract>=0.3.10
+Requires-Dist: rawpy>=0.18.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: tqdm>=4.65.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.13.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.0.0; extra == 'dev'
+Requires-Dist: pytest>=8.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.8.0; extra == 'dev'
+Requires-Dist: types-pillow; extra == 'dev'
+Provides-Extra: web
+Requires-Dist: fastapi>=0.100.0; extra == 'web'
+Requires-Dist: python-multipart>=0.0.6; extra == 'web'
+Requires-Dist: sqlalchemy>=2.0.0; extra == 'web'
+Requires-Dist: uvicorn>=0.23.0; extra == 'web'
+Description-Content-Type: text/markdown
+
+# visual-cataloguer
+
+Batch catalogue physical collections using visual dividers (QR codes) and automated image processing.
+
+## The Problem
+
+You have thousands of items (retro games, books, vinyl, tools) in boxes. You need them in a searchable database. Manual entry would take weeks.
+
+## The Solution
+
+1. Print QR code dividers (one per box)
+2. Photograph: `divider → items → items → black frame → divider → ...`
+3. Run `viscatalog process ./photos`
+4. Browse your collection
+
+## How It Works
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│ Load Image  │────▶│  Classify   │────▶│   Process   │
+│ (ARW/JPG)   │     │ Image Type  │     │ Accordingly │
+└─────────────┘     └─────────────┘     └─────────────┘
+                           │
+           ┌───────────────┼───────────────┐
+           ▼               ▼               ▼
+     ┌──────────┐    ┌──────────┐    ┌──────────┐
+     │   BOX    │    │  BLACK   │    │   GAME   │
+     │ DIVIDER  │    │  FRAME   │    │   ITEM   │
+     └──────────┘    └──────────┘    └──────────┘
+```
+
+- **Box Divider**: QR code or text (e.g., "BOX-1") - starts a new box
+- **Black Frame**: Dark image - ends current box
+- **Game Item**: Everything else - catalogued with OCR
+
+## Features
+
+- Merges photos from multiple cameras by EXIF timestamp
+- QR code detection (OpenCV) + OCR fallback (Tesseract)
+- RAW file support (.ARW Sony files via rawpy)
+- SQLite database with JPEG BLOBs (single portable file)
+- SHA256 deduplication for resume capability
+
+## Installation
+
+```bash
+# Clone and install
+git clone https://github.com/retroverse-studios/visual-cataloguer.git
+cd visual-cataloguer
+uv sync
+```
+
+**System dependencies:**
+- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) - `brew install tesseract`
+
+## Usage
+
+```bash
+# Process images from two cameras
+viscatalog process \
+    --input-dir-1 ./NEX3N \
+    --input-dir-2 ./RX100 \
+    --database ./collection.db
+
+# View statistics
+viscatalog stats -d ./collection.db
+
+# List boxes
+viscatalog list --boxes -d ./collection.db
+
+# Search items
+viscatalog search "zelda" -d ./collection.db
+```
+
+## Development
+
+```bash
+# Run tests
+uv run pytest
+
+# Type checking
+uv run mypy cataloguer
+
+# Linting
+uv run ruff check cataloguer
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE)
