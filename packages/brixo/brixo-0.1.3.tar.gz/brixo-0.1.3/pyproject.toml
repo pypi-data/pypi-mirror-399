@@ -1,0 +1,96 @@
+[project]
+name = "brixo"
+version = "0.1.3"
+description = "The Brixo Python SDK"
+readme = "README.md"
+authors = [
+    { name = "Brixo Engineering", email = "sdk@brixo.com" }
+]
+requires-python = ">=3.10.0,<4"
+dependencies = [
+    "openinference-instrumentation-langchain>=0.1.55",
+    "openinference-instrumentation-openai>=0.1.41",
+    "opentelemetry-exporter-otlp>=1.38.0",
+    "opentelemetry-sdk>=1.38.0",
+    "traceloop-sdk>=0.49.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "bandit>=1.7.7",
+    "mypy>=1.10.0",
+    "pip-audit>=2.7.2",
+    "pre-commit>=4.5.1",
+    "pytest>=9.0.1",
+    "ruff>=0.6.9",
+    "twine>=5.1.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.11,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "bandit>=1.7.7",
+    "mypy>=1.10.0",
+    "pip-audit>=2.7.2",
+    "pre-commit>=4.5.1",
+    "pytest>=9.0.1",
+    "ruff>=0.6.9",
+    "twine>=5.1.1",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+indent-width = 4
+exclude = [
+    ".cache",
+    ".local",
+    ".venv",
+    "__pypackages__",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "I",  # import sorting
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "SIM" # flake8-simplify
+]
+extend-select = [
+    "C90", # flake8-comprehensions
+    "RET", # flake8-return
+    "PL"   # pylint compatibility
+]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+show_error_codes = true
+pretty = true
+
+[tool.pytest.ini_options]
+addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers",
+]
+testpaths = [
+    "tests",
+]
+pythonpath = [
+    "src",
+]
