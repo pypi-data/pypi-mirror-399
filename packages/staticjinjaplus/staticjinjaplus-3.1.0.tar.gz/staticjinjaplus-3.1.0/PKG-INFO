@@ -1,0 +1,77 @@
+Metadata-Version: 2.4
+Name: staticjinjaplus
+Version: 3.1.0
+Summary: A sweet spot between staticjinja and a full-blown static site generator.
+Home-page: https://github.com/EpocDotFr/staticjinjaplus
+Author: Maxime "Epoc" Gross
+Author-email: contact.nospam@epoc.nospam.fr
+License: DBAD
+Project-URL: Documentation, https://epocdotfr.github.io/staticjinjaplus/
+Project-URL: Source code, https://github.com/EpocDotFr/staticjinjaplus
+Project-URL: Issue tracker, https://github.com/EpocDotFr/staticjinjaplus/issues
+Project-URL: Changelog, https://github.com/EpocDotFr/staticjinjaplus/releases
+Keywords: static,website,site,generator,staticjinja,jinja,jinja2
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Operating System :: OS Independent
+Classifier: Environment :: Console
+Classifier: Environment :: Web Environment
+Classifier: Topic :: Internet :: WWW/HTTP :: Site Management
+Classifier: Topic :: Text Processing :: Markup :: XML
+Classifier: Topic :: Text Processing :: Markup :: HTML
+Classifier: Topic :: Text Processing :: Markup :: Markdown
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Intended Audience :: Developers
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: staticjinja~=5.0
+Requires-Dist: webassets~=3.0
+Requires-Dist: htmlmin~=0.1
+Requires-Dist: rjsmin~=1.2
+Requires-Dist: environs~=14.0
+Requires-Dist: markdown~=3.6
+Provides-Extra: dev
+Requires-Dist: mkdocs~=1.6; extra == "dev"
+Requires-Dist: build~=1.2; extra == "dev"
+Requires-Dist: setuptools>=69; extra == "dev"
+Requires-Dist: twine~=6.0; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+
+# staticjinjaplus
+
+A sweet spot between [staticjinja](https://staticjinja.readthedocs.io/en/latest/) and a full-blown static  site generator.
+
+![Python versions](https://img.shields.io/pypi/pyversions/staticjinjaplus.svg) ![Version](https://img.shields.io/pypi/v/staticjinjaplus.svg) ![License](https://img.shields.io/pypi/l/staticjinjaplus.svg)
+
+[PyPI](https://pypi.org/project/staticjinjaplus/) - [Documentation](https://epocdotfr.github.io/staticjinjaplus/) - [Source code](https://github.com/EpocDotFr/staticjinjaplus) - [Issue tracker](https://github.com/EpocDotFr/staticjinjaplus/issues) - [Changelog](https://github.com/EpocDotFr/staticjinjaplus/releases)
+
+## Development
+
+### Getting source code and installing the package with dev dependencies
+
+  1. Clone the repository
+  2. From the root directory, run: `pip install -e ".[dev]"`
+
+### Releasing the package
+
+From the root directory, run `python setup.py upload`. This will build the package, create a git tag and publish on PyPI.
+
+`__version__` in `staticjinjaplus/__version__.py` must be updated beforehand. It should adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+An associated GitHub release must be created following the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
