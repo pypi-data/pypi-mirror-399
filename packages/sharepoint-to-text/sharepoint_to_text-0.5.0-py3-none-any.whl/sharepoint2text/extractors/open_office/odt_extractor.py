@@ -1,0 +1,726 @@
+"""
+ODT Document Extractor
+======================
+
+Extracts text content, metadata, and structure from OpenDocument Text (.odt)
+files created by LibreOffice, OpenOffice, and other ODF-compatible applications.
+
+File Format Background
+----------------------
+ODT files are ZIP archives containing XML files following the OASIS OpenDocument
+specification (ISO/IEC 26300). Key components:
+
+    content.xml: Document body (paragraphs, tables, lists, drawings)
+    meta.xml: Metadata (title, author, dates, statistics)
+    styles.xml: Style definitions, master pages, headers/footers
+    settings.xml: Application settings
+    Pictures/: Embedded images
+
+Document Structure in content.xml:
+    - office:document-content: Root element
+    - office:body: Container for document content
+    - office:text: Text document body
+    - text:p: Paragraphs
+    - text:h: Headings (with outline-level attribute)
+    - table:table: Tables with rows and cells
+    - text:list: Ordered and unordered lists
+    - draw:frame: Containers for images and text boxes
+
+XML Namespaces
+--------------
+The module uses standard ODF namespaces:
+    - office: Document structure
+    - text: Text content elements
+    - table: Table elements
+    - draw: Drawing/image elements
+    - style: Style definitions
+    - meta: Metadata elements
+    - dc: Dublin Core metadata
+    - xlink: Hyperlink references
+    - fo: XSL-FO compatible properties
+    - svg: SVG compatible properties
+
+Dependencies
+------------
+Python Standard Library only:
+    - zipfile: ZIP archive handling
+    - xml.etree.ElementTree: XML parsing
+    - mimetypes: Image content type detection
+
+Extracted Content
+-----------------
+The extractor retrieves:
+    - paragraphs: Text paragraphs with style information and runs
+    - tables: Table data as nested lists
+    - headers/footers: From styles.xml master pages
+    - footnotes/endnotes: Note content with IDs
+    - annotations: Comments with creator and date
+    - hyperlinks: Link text and URLs
+    - bookmarks: Named locations in document
+    - images: Embedded images with binary data
+    - styles: List of style names used
+    - full_text: Complete text in reading order
+
+Special Element Handling
+------------------------
+ODF uses special elements for whitespace preservation:
+    - text:s: Space element (text:c attribute for count)
+    - text:tab: Tab character
+    - text:line-break: Soft line break
+
+These are converted to appropriate characters during extraction.
+
+Known Limitations
+-----------------
+- Tracked changes (revisions) are not separately reported
+- Text boxes in drawings may not extract all content
+- Math formulas are not converted (extracted as-is)
+- Nested tables may not preserve complete structure
+- Password-protected files are not supported
+- Form controls are not extracted
+
+Usage
+-----
+    >>> import io
+    >>> from sharepoint2text.extractors.open_office.odt_extractor import read_odt
+    >>>
+    >>> with open("document.odt", "rb") as f:
+    ...     for doc in read_odt(io.BytesIO(f.read()), path="document.odt"):
+    ...         print(f"Title: {doc.metadata.title}")
+    ...         print(f"Creator: {doc.metadata.creator}")
+    ...         print(f"Paragraphs: {len(doc.paragraphs)}")
+    ...         print(doc.full_text[:500])
+
+See Also
+--------
+- odp_extractor: For OpenDocument Presentation files
+- ods_extractor: For OpenDocument Spreadsheet files
+- docx_extractor: For Microsoft Word files
+
+Maintenance Notes
+-----------------
+- All extraction functions use the shared NS namespace dictionary
+- _get_text_recursive handles special whitespace elements
+- Headers/footers are in styles.xml, not content.xml
+- Images are stored in Pictures/ folder within the ZIP
+"""
+
+import io
+import logging
+import mimetypes
+import zipfile
+from typing import Any, Generator
+from xml.etree import ElementTree as ET
+
+from sharepoint2text.extractors.data_types import (
+    OdtAnnotation,
+    OdtBookmark,
+    OdtContent,
+    OdtHeaderFooter,
+    OdtHyperlink,
+    OdtImage,
+    OdtMetadata,
+    OdtNote,
+    OdtParagraph,
+    OdtRun,
+)
+
+logger = logging.getLogger(__name__)
+
+
+class _OdtContext:
+    """
+    Cached context for ODT extraction.
+
+    Opens the ZIP file once and caches all parsed XML documents.
+    This avoids repeatedly parsing the same XML files.
+    """
+
+    def __init__(self, file_like: io.BytesIO):
+        self.file_like = file_like
+        file_like.seek(0)
+
+        # Cache for parsed XML roots
+        self._content_root: ET.Element | None = None
+        self._meta_root: ET.Element | None = None
+        self._styles_root: ET.Element | None = None
+
+        # Cache for namelist
+        self._namelist: set[str] = set()
+
+        # Reference to open zipfile for image extraction
+        self._zipfile: zipfile.ZipFile | None = None
+
+    def load(self, z: zipfile.ZipFile) -> None:
+        """Load and parse all XML files from the ZIP."""
+        self._zipfile = z
+        self._namelist = set(z.namelist())
+
+        # Parse content.xml
+        if "content.xml" in self._namelist:
+            with z.open("content.xml") as f:
+                self._content_root = ET.parse(f).getroot()
+
+        # Parse meta.xml
+        if "meta.xml" in self._namelist:
+            with z.open("meta.xml") as f:
+                self._meta_root = ET.parse(f).getroot()
+
+        # Parse styles.xml
+        if "styles.xml" in self._namelist:
+            with z.open("styles.xml") as f:
+                self._styles_root = ET.parse(f).getroot()
+
+    @property
+    def content_root(self) -> ET.Element | None:
+        """Get cached content.xml root."""
+        return self._content_root
+
+    @property
+    def meta_root(self) -> ET.Element | None:
+        """Get cached meta.xml root."""
+        return self._meta_root
+
+    @property
+    def styles_root(self) -> ET.Element | None:
+        """Get cached styles.xml root."""
+        return self._styles_root
+
+    @property
+    def namelist(self) -> set[str]:
+        """Get cached namelist."""
+        return self._namelist
+
+    def open_file(self, path: str) -> io.BufferedReader:
+        """Open a file from the ZIP archive."""
+        if self._zipfile is None:
+            raise RuntimeError("Context not loaded")
+        return self._zipfile.open(path)
+
+
+# ODF namespaces
+NS = {
+    "office": "urn:oasis:names:tc:opendocument:xmlns:office:1.0",
+    "text": "urn:oasis:names:tc:opendocument:xmlns:text:1.0",
+    "style": "urn:oasis:names:tc:opendocument:xmlns:style:1.0",
+    "table": "urn:oasis:names:tc:opendocument:xmlns:table:1.0",
+    "draw": "urn:oasis:names:tc:opendocument:xmlns:drawing:1.0",
+    "xlink": "http://www.w3.org/1999/xlink",
+    "dc": "http://purl.org/dc/elements/1.1/",
+    "meta": "urn:oasis:names:tc:opendocument:xmlns:meta:1.0",
+    "fo": "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0",
+    "svg": "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0",
+}
+
+
+def _get_text_recursive(element: ET.Element) -> str:
+    """Recursively extract all text from an element and its children."""
+    parts = []
+    if element.text:
+        parts.append(element.text)
+
+    for child in element:
+        # Handle special elements
+        tag = child.tag.split("}")[-1] if "}" in child.tag else child.tag
+
+        if tag == "s":
+            # Space element - get count attribute
+            count = int(child.get(f"{{{NS['text']}}}c", "1"))
+            parts.append(" " * count)
+        elif tag == "tab":
+            parts.append("\t")
+        elif tag == "line-break":
+            parts.append("\n")
+        elif tag == "note":
+            # Skip notes in main text extraction
+            pass
+        elif tag == "annotation":
+            # Skip annotations in main text extraction
+            pass
+        else:
+            parts.append(_get_text_recursive(child))
+
+        if child.tail:
+            parts.append(child.tail)
+
+    return "".join(parts)
+
+
+def _extract_metadata_from_context(ctx: _OdtContext) -> OdtMetadata:
+    """Extract metadata from cached meta.xml root."""
+    logger.debug("Extracting ODT metadata")
+    metadata = OdtMetadata()
+
+    root = ctx.meta_root
+    if root is None:
+        return metadata
+
+    # Find the office:meta element
+    meta_elem = root.find(".//office:meta", NS)
+    if meta_elem is None:
+        return metadata
+
+    # Extract Dublin Core elements
+    title = meta_elem.find("dc:title", NS)
+    if title is not None and title.text:
+        metadata.title = title.text
+
+    description = meta_elem.find("dc:description", NS)
+    if description is not None and description.text:
+        metadata.description = description.text
+
+    subject = meta_elem.find("dc:subject", NS)
+    if subject is not None and subject.text:
+        metadata.subject = subject.text
+
+    creator = meta_elem.find("dc:creator", NS)
+    if creator is not None and creator.text:
+        metadata.creator = creator.text
+
+    date = meta_elem.find("dc:date", NS)
+    if date is not None and date.text:
+        metadata.date = date.text
+
+    language = meta_elem.find("dc:language", NS)
+    if language is not None and language.text:
+        metadata.language = language.text
+
+    # Extract meta elements
+    keywords = meta_elem.find("meta:keyword", NS)
+    if keywords is not None and keywords.text:
+        metadata.keywords = keywords.text
+
+    initial_creator = meta_elem.find("meta:initial-creator", NS)
+    if initial_creator is not None and initial_creator.text:
+        metadata.initial_creator = initial_creator.text
+
+    creation_date = meta_elem.find("meta:creation-date", NS)
+    if creation_date is not None and creation_date.text:
+        metadata.creation_date = creation_date.text
+
+    editing_cycles = meta_elem.find("meta:editing-cycles", NS)
+    if editing_cycles is not None and editing_cycles.text:
+        try:
+            metadata.editing_cycles = int(editing_cycles.text)
+        except ValueError:
+            pass
+
+    editing_duration = meta_elem.find("meta:editing-duration", NS)
+    if editing_duration is not None and editing_duration.text:
+        metadata.editing_duration = editing_duration.text
+
+    generator = meta_elem.find("meta:generator", NS)
+    if generator is not None and generator.text:
+        metadata.generator = generator.text
+
+    return metadata
+
+
+def _extract_paragraphs(body: ET.Element) -> list[OdtParagraph]:
+    """Extract paragraphs from the document body."""
+    logger.debug("Extracting ODT paragraphs")
+    paragraphs = []
+
+    # Find all paragraphs (text:p) and headings (text:h)
+    for elem in body.iter():
+        tag = elem.tag.split("}")[-1] if "}" in elem.tag else elem.tag
+
+        if tag in ("p", "h"):
+            text = _get_text_recursive(elem)
+            style_name = elem.get(f"{{{NS['text']}}}style-name")
+            outline_level = None
+
+            if tag == "h":
+                level = elem.get(f"{{{NS['text']}}}outline-level")
+                if level:
+                    try:
+                        outline_level = int(level)
+                    except ValueError:
+                        pass
+
+            # Extract runs (text:span elements)
+            runs = []
+            for span in elem.findall(".//text:span", NS):
+                span_text = _get_text_recursive(span)
+                span_style = span.get(f"{{{NS['text']}}}style-name")
+                runs.append(OdtRun(text=span_text, style_name=span_style))
+
+            paragraphs.append(
+                OdtParagraph(
+                    text=text,
+                    style_name=style_name,
+                    outline_level=outline_level,
+                    runs=runs,
+                )
+            )
+
+    return paragraphs
+
+
+def _extract_tables(body: ET.Element) -> list[list[list[str]]]:
+    """Extract tables from the document body."""
+    logger.debug("Extracting ODT tables")
+    tables = []
+
+    for table in body.findall(".//table:table", NS):
+        table_data = []
+        for row in table.findall(".//table:table-row", NS):
+            row_data = []
+            for cell in row.findall(".//table:table-cell", NS):
+                # Get all text from paragraphs in the cell
+                cell_texts = []
+                for p in cell.findall(".//text:p", NS):
+                    cell_texts.append(_get_text_recursive(p))
+                row_data.append("\n".join(cell_texts))
+            if row_data:
+                table_data.append(row_data)
+        if table_data:
+            tables.append(table_data)
+
+    return tables
+
+
+def _extract_hyperlinks(body: ET.Element) -> list[OdtHyperlink]:
+    """Extract hyperlinks from the document."""
+    logger.debug("Extracting ODT hyperlinks")
+    hyperlinks = []
+
+    for link in body.findall(".//text:a", NS):
+        href = link.get(f"{{{NS['xlink']}}}href", "")
+        text = _get_text_recursive(link)
+        if href:
+            hyperlinks.append(OdtHyperlink(text=text, url=href))
+
+    return hyperlinks
+
+
+def _extract_notes(body: ET.Element) -> tuple[list[OdtNote], list[OdtNote]]:
+    """Extract footnotes and endnotes from the document."""
+    logger.debug("Extracting ODT notes")
+    footnotes = []
+    endnotes = []
+
+    for note in body.findall(".//text:note", NS):
+        note_id = note.get(f"{{{NS['text']}}}id", "")
+        note_class = note.get(f"{{{NS['text']}}}note-class", "footnote")
+
+        # Get note body text
+        note_body = note.find("text:note-body", NS)
+        text = ""
+        if note_body is not None:
+            text_parts = []
+            for p in note_body.findall(".//text:p", NS):
+                text_parts.append(_get_text_recursive(p))
+            text = "\n".join(text_parts)
+
+        note_obj = OdtNote(id=note_id, note_class=note_class, text=text)
+
+        if note_class == "endnote":
+            endnotes.append(note_obj)
+        else:
+            footnotes.append(note_obj)
+
+    return footnotes, endnotes
+
+
+def _extract_annotations(body: ET.Element) -> list[OdtAnnotation]:
+    """Extract annotations/comments from the document."""
+    logger.debug("Extracting ODT annotations")
+    annotations = []
+
+    for annotation in body.findall(".//office:annotation", NS):
+        creator_elem = annotation.find("dc:creator", NS)
+        creator = creator_elem.text if creator_elem is not None else ""
+
+        date_elem = annotation.find("dc:date", NS)
+        date = date_elem.text if date_elem is not None else ""
+
+        # Get annotation text
+        text_parts = []
+        for p in annotation.findall(".//text:p", NS):
+            text_parts.append(_get_text_recursive(p))
+        text = "\n".join(text_parts)
+
+        annotations.append(OdtAnnotation(creator=creator, date=date, text=text))
+
+    return annotations
+
+
+def _extract_bookmarks(body: ET.Element) -> list[OdtBookmark]:
+    """Extract bookmarks from the document."""
+    logger.debug("Extracting ODT bookmarks")
+    bookmarks = []
+
+    # Bookmark start elements
+    for bookmark in body.findall(".//text:bookmark", NS):
+        name = bookmark.get(f"{{{NS['text']}}}name", "")
+        if name:
+            bookmarks.append(OdtBookmark(name=name))
+
+    for bookmark in body.findall(".//text:bookmark-start", NS):
+        name = bookmark.get(f"{{{NS['text']}}}name", "")
+        if name:
+            bookmarks.append(OdtBookmark(name=name))
+
+    return bookmarks
+
+
+def _extract_images_from_context(ctx: _OdtContext, body: ET.Element) -> list[OdtImage]:
+    """Extract images from the document using cached context."""
+    logger.debug("Extracting ODT images")
+    images = []
+
+    for frame in body.findall(".//draw:frame", NS):
+        name = frame.get(f"{{{NS['draw']}}}name", "")
+        width = frame.get(f"{{{NS['svg']}}}width")
+        height = frame.get(f"{{{NS['svg']}}}height")
+
+        # Find image element
+        image_elem = frame.find("draw:image", NS)
+        if image_elem is not None:
+            href = image_elem.get(f"{{{NS['xlink']}}}href", "")
+
+            if href and not href.startswith("http"):
+                # Internal image reference
+                try:
+                    if href in ctx.namelist:
+                        with ctx.open_file(href) as img_file:
+                            img_data = img_file.read()
+                            content_type = (
+                                mimetypes.guess_type(href)[0]
+                                or "application/octet-stream"
+                            )
+                            images.append(
+                                OdtImage(
+                                    href=href,
+                                    name=name or href.split("/")[-1],
+                                    content_type=content_type,
+                                    data=io.BytesIO(img_data),
+                                    size_bytes=len(img_data),
+                                    width=width,
+                                    height=height,
+                                )
+                            )
+                except Exception as e:
+                    logger.debug(f"Failed to extract image {href}: {e}")
+                    images.append(OdtImage(href=href, name=name, error=str(e)))
+            elif href:
+                # External image reference
+                images.append(
+                    OdtImage(
+                        href=href,
+                        name=name,
+                        width=width,
+                        height=height,
+                    )
+                )
+
+    return images
+
+
+def _extract_headers_footers_from_context(
+    ctx: _OdtContext,
+) -> tuple[list[OdtHeaderFooter], list[OdtHeaderFooter]]:
+    """Extract headers and footers from cached styles.xml root."""
+    logger.debug("Extracting ODT headers/footers")
+    headers = []
+    footers = []
+
+    root = ctx.styles_root
+    if root is None:
+        return headers, footers
+
+    # Headers and footers are in master-styles
+    master_styles = root.find(".//office:master-styles", NS)
+    if master_styles is None:
+        return headers, footers
+
+    for master_page in master_styles.findall("style:master-page", NS):
+        # Regular header
+        header = master_page.find("style:header", NS)
+        if header is not None:
+            text = _get_text_recursive(header)
+            if text.strip():
+                headers.append(OdtHeaderFooter(type="header", text=text))
+
+        # Left header
+        header_left = master_page.find("style:header-left", NS)
+        if header_left is not None:
+            text = _get_text_recursive(header_left)
+            if text.strip():
+                headers.append(OdtHeaderFooter(type="header-left", text=text))
+
+        # Regular footer
+        footer = master_page.find("style:footer", NS)
+        if footer is not None:
+            text = _get_text_recursive(footer)
+            if text.strip():
+                footers.append(OdtHeaderFooter(type="footer", text=text))
+
+        # Left footer
+        footer_left = master_page.find("style:footer-left", NS)
+        if footer_left is not None:
+            text = _get_text_recursive(footer_left)
+            if text.strip():
+                footers.append(OdtHeaderFooter(type="footer-left", text=text))
+
+    return headers, footers
+
+
+def _extract_styles_from_context(ctx: _OdtContext) -> list[str]:
+    """Extract style names from cached content.xml and styles.xml roots."""
+    logger.debug("Extracting ODT styles")
+    styles = set()
+
+    # Extract from cached content.xml
+    if ctx.content_root is not None:
+        for style in ctx.content_root.findall(".//style:style", NS):
+            name = style.get(f"{{{NS['style']}}}name")
+            if name:
+                styles.add(name)
+
+    # Extract from cached styles.xml
+    if ctx.styles_root is not None:
+        for style in ctx.styles_root.findall(".//style:style", NS):
+            name = style.get(f"{{{NS['style']}}}name")
+            if name:
+                styles.add(name)
+
+    return list(styles)
+
+
+def _extract_full_text(body: ET.Element) -> str:
+    """Extract full text from the document body in reading order."""
+    logger.debug("Extracting ODT full text")
+    all_text = []
+
+    def process_element(elem):
+        """Process element and extract text in document order."""
+        tag = elem.tag.split("}")[-1] if "}" in elem.tag else elem.tag
+
+        if tag in ("p", "h"):
+            text = _get_text_recursive(elem)
+            if text.strip():
+                all_text.append(text)
+        elif tag == "table":
+            # Process table cells
+            for row in elem.findall(".//table:table-row", NS):
+                for cell in row.findall(".//table:table-cell", NS):
+                    for p in cell.findall(".//text:p", NS):
+                        text = _get_text_recursive(p)
+                        if text.strip():
+                            all_text.append(text)
+        elif tag == "list":
+            # Process list items
+            for item in elem.findall(".//text:list-item", NS):
+                for p in item.findall(".//text:p", NS):
+                    text = _get_text_recursive(p)
+                    if text.strip():
+                        all_text.append(text)
+        else:
+            # Recurse for container elements
+            for child in elem:
+                process_element(child)
+
+    process_element(body)
+    return "\n".join(all_text)
+
+
+def read_odt(
+    file_like: io.BytesIO, path: str | None = None
+) -> Generator[OdtContent, Any, None]:
+    """
+    Extract all relevant content from an OpenDocument Text (.odt) file.
+
+    Primary entry point for ODT file extraction. Opens the ZIP archive,
+    parses content.xml and meta.xml, and extracts text, formatting,
+    and embedded content.
+
+    This function uses a generator pattern for API consistency with other
+    extractors, even though ODT files contain exactly one document.
+
+    Args:
+        file_like: BytesIO object containing the complete ODT file data.
+            The stream position is reset to the beginning before reading.
+        path: Optional filesystem path to the source file. If provided,
+            populates file metadata (filename, extension, folder) in the
+            returned OdtContent.metadata.
+
+    Yields:
+        OdtContent: Single OdtContent object containing:
+            - metadata: OdtMetadata with title, creator, dates, etc.
+            - paragraphs: List of OdtParagraph with text and runs
+            - tables: List of tables as 3D lists (table > row > cell)
+            - headers/footers: From master pages in styles.xml
+            - images: List of OdtImage with binary data
+            - hyperlinks: List of OdtHyperlink with text and URL
+            - footnotes/endnotes: OdtNote objects
+            - annotations: OdtAnnotation objects with creator and date
+            - bookmarks: OdtBookmark objects
+            - styles: List of style names
+            - full_text: Complete document text
+
+    Raises:
+        ValueError: If content.xml is missing or document body not found.
+
+    Example:
+        >>> import io
+        >>> with open("report.odt", "rb") as f:
+        ...     data = io.BytesIO(f.read())
+        ...     for doc in read_odt(data, path="report.odt"):
+        ...         print(f"Title: {doc.metadata.title}")
+        ...         print(f"Tables: {len(doc.tables)}")
+        ...         print(f"Images: {len(doc.images)}")
+
+    Performance Notes:
+        - ZIP file is opened once and all XML is cached
+        - content.xml and styles.xml are parsed once and reused
+    """
+    # Create context and load all XML files once
+    ctx = _OdtContext(file_like)
+
+    with zipfile.ZipFile(file_like, "r") as z:
+        ctx.load(z)
+
+        # Validate content.xml exists
+        if ctx.content_root is None:
+            raise ValueError("Invalid ODT file: content.xml not found")
+
+        # Find the document body
+        body = ctx.content_root.find(".//office:body/office:text", NS)
+        if body is None:
+            raise ValueError("Invalid ODT file: document body not found")
+
+        # Extract metadata from cached meta.xml
+        metadata = _extract_metadata_from_context(ctx)
+
+        # Extract content from body
+        paragraphs = _extract_paragraphs(body)
+        tables = _extract_tables(body)
+        hyperlinks = _extract_hyperlinks(body)
+        footnotes, endnotes = _extract_notes(body)
+        annotations = _extract_annotations(body)
+        bookmarks = _extract_bookmarks(body)
+        images = _extract_images_from_context(ctx, body)
+        headers, footers = _extract_headers_footers_from_context(ctx)
+        styles = _extract_styles_from_context(ctx)
+        full_text = _extract_full_text(body)
+
+    # Populate file metadata from path
+    metadata.populate_from_path(path)
+
+    yield OdtContent(
+        metadata=metadata,
+        paragraphs=paragraphs,
+        tables=tables,
+        headers=headers,
+        footers=footers,
+        images=images,
+        hyperlinks=hyperlinks,
+        footnotes=footnotes,
+        endnotes=endnotes,
+        annotations=annotations,
+        bookmarks=bookmarks,
+        styles=styles,
+        full_text=full_text,
+    )
