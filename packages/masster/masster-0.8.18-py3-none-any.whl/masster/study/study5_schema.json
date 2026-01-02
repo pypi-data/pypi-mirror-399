@@ -1,0 +1,551 @@
+{
+  "consensus_df": {
+    "columns": {
+      "adduct_charge_top": {
+        "dtype": "pl.Int64",
+        "order": 27
+      },
+      "adduct_group": {
+        "dtype": "pl.Int64",
+        "order": 36
+      },
+      "adduct_mass_neutral_top": {
+        "dtype": "pl.Float64",
+        "order": 28
+      },
+      "adduct_mass_shift_top": {
+        "dtype": "pl.Float64",
+        "order": 29
+      },
+      "adduct_of": {
+        "dtype": "pl.Int64",
+        "order": 35
+      },
+      "adduct_top": {
+        "dtype": "pl.Utf8",
+        "order": 26
+      },
+      "adducts": {
+        "dtype": "pl.Object",
+        "order": 25
+      },
+      "charge_mean": {
+        "dtype": "pl.Float64",
+        "order": 23
+      },
+      "chrom_coherence_mean": {
+        "dtype": "pl.Float64",
+        "order": 17
+      },
+      "chrom_height_scaled_mean": {
+        "dtype": "pl.Float64",
+        "order": 20
+      },
+      "chrom_prominence_mean": {
+        "dtype": "pl.Float64",
+        "order": 18
+      },
+      "chrom_prominence_scaled_mean": {
+        "dtype": "pl.Float64",
+        "order": 19
+      },
+      "chrom_sanity_mean": {
+        "dtype": "pl.Float64",
+        "order": 16
+      },
+      "consensus_id": {
+        "dtype": "pl.Int64",
+        "order": 0
+      },
+      "consensus_uid": {
+        "dtype": "pl.Utf8",
+        "order": 1
+      },
+      "id_source": {
+        "dtype": "pl.String",
+        "order": 34
+      },
+      "id_top_adduct": {
+        "dtype": "pl.String",
+        "order": 32
+      },
+      "id_top_class": {
+        "dtype": "pl.String",
+        "order": 31
+      },
+      "id_top_name": {
+        "dtype": "pl.String",
+        "order": 30
+      },
+      "id_top_score": {
+        "dtype": "pl.Float64",
+        "order": 33
+      },
+      "inty_mean": {
+        "dtype": "pl.Float64",
+        "order": 15
+      },
+      "iso": {
+        "dtype": "pl.Object",
+        "order": 21
+      },
+      "iso_mean": {
+        "dtype": "pl.Float64",
+        "order": 22
+      },
+      "mz": {
+        "dtype": "pl.Float64",
+        "order": 5
+      },
+      "mz_end_mean": {
+        "dtype": "pl.Float64",
+        "order": 14
+      },
+      "mz_max": {
+        "dtype": "pl.Float64",
+        "order": 12
+      },
+      "mz_min": {
+        "dtype": "pl.Float64",
+        "order": 11
+      },
+      "mz_start_mean": {
+        "dtype": "pl.Float64",
+        "order": 13
+      },
+      "number_ms2": {
+        "dtype": "pl.Int64",
+        "order": 24
+      },
+      "number_samples": {
+        "dtype": "pl.Int64",
+        "order": 3
+      },
+      "quality": {
+        "dtype": "pl.Float64",
+        "order": 2
+      },
+      "rt": {
+        "dtype": "pl.Float64",
+        "order": 4
+      },
+      "rt_delta_mean": {
+        "dtype": "pl.Float64",
+        "order": 10
+      },
+      "rt_end_mean": {
+        "dtype": "pl.Float64",
+        "order": 9
+      },
+      "rt_max": {
+        "dtype": "pl.Float64",
+        "order": 7
+      },
+      "rt_min": {
+        "dtype": "pl.Float64",
+        "order": 6
+      },
+      "rt_start_mean": {
+        "dtype": "pl.Float64",
+        "order": 8
+      }
+    }
+  },
+  "consensus_mapping_df": {
+    "columns": {
+      "consensus_id": {
+        "dtype": "pl.Int64",
+        "order": 0
+      },
+      "feature_id": {
+        "dtype": "pl.Int64",
+        "order": 1
+      },
+      "sample_id": {
+        "dtype": "pl.Int64",
+        "order": 2
+      }
+    }
+  },
+  "consensus_ms2": {
+    "columns": {
+      "consensus_id": {
+        "dtype": "pl.Int64",
+        "order": 0
+      },
+      "energy": {
+        "dtype": "pl.Float64",
+        "order": 4
+      },
+      "feature_id": {
+        "dtype": "pl.Int64",
+        "order": 1
+      },
+      "number_frags": {
+        "dtype": "pl.Int64",
+        "order": 5
+      },
+      "prec_coherence": {
+        "dtype": "pl.Float64",
+        "order": 7
+      },
+      "prec_inty": {
+        "dtype": "pl.Float64",
+        "order": 6
+      },
+      "prec_prominence_scaled": {
+        "dtype": "pl.Float64",
+        "order": 8
+      },
+      "sample_id": {
+        "dtype": "pl.Int64",
+        "order": 2
+      },
+      "scan_id": {
+        "dtype": "pl.Int64",
+        "order": 3
+      },
+      "spec": {
+        "dtype": "pl.Object",
+        "order": 9
+      }
+    }
+  },
+  "diff_df": {
+    "columns": {
+      "diff_id": {
+        "dtype": "pl.Utf8",
+        "order": 0
+      },
+      "pairing": {
+        "dtype": "pl.Utf8",
+        "order": 1
+      },
+      "refs": {
+        "dtype": "pl.List(pl.Utf8)",
+        "order": 3
+      },
+      "samples": {
+        "dtype": "pl.List(pl.Utf8)",
+        "order": 2
+      }
+    }
+  },
+  "features_df": {
+    "columns": {
+      "adduct": {
+        "dtype": "pl.Utf8",
+        "order": 16
+      },
+      "adduct_charge": {
+        "dtype": "pl.Int64",
+        "order": 17
+      },
+      "adduct_group": {
+        "dtype": "pl.Int64",
+        "order": 20
+      },
+      "adduct_mass_neutral": {
+        "dtype": "pl.Float64",
+        "order": 19
+      },
+      "adduct_mass_shift": {
+        "dtype": "pl.Float64",
+        "order": 18
+      },
+      "charge": {
+        "dtype": "pl.Int32",
+        "order": 13
+      },
+      "chrom": {
+        "dtype": "pl.Object",
+        "order": 21
+      },
+      "chrom_area": {
+        "dtype": "pl.Float64",
+        "order": 22
+      },
+      "chrom_coherence": {
+        "dtype": "pl.Float64",
+        "order": 25
+      },
+      "chrom_end": {
+        "dtype": "pl.Float64",
+        "order": 24
+      },
+      "chrom_height_scaled": {
+        "dtype": "pl.Float64",
+        "order": 28
+      },
+      "chrom_prominence": {
+        "dtype": "pl.Float64",
+        "order": 26
+      },
+      "chrom_prominence_scaled": {
+        "dtype": "pl.Float64",
+        "order": 27
+      },
+      "chrom_sanity": {
+        "dtype": "pl.Float64",
+        "order": 29
+      },
+      "chrom_start": {
+        "dtype": "pl.Float64",
+        "order": 23
+      },
+      "feature_id": {
+        "dtype": "pl.Int64",
+        "order": 0
+      },
+      "feature_uid": {
+        "dtype": "pl.Utf8",
+        "order": 1
+      },
+      "filled": {
+        "dtype": "pl.Boolean",
+        "order": 33
+      },
+      "inty": {
+        "dtype": "pl.Int64",
+        "order": 11
+      },
+      "iso": {
+        "dtype": "pl.Int32",
+        "order": 14
+      },
+      "iso_of": {
+        "dtype": "pl.Int64",
+        "order": 15
+      },
+      "ms1_spec": {
+        "dtype": "pl.Object",
+        "order": 30
+      },
+      "ms2_scans": {
+        "dtype": "pl.Object",
+        "order": 31
+      },
+      "ms2_specs": {
+        "dtype": "pl.Object",
+        "order": 32
+      },
+      "mz": {
+        "dtype": "pl.Float64",
+        "order": 3
+      },
+      "mz_end": {
+        "dtype": "pl.Float64",
+        "order": 10
+      },
+      "mz_start": {
+        "dtype": "pl.Float64",
+        "order": 9
+      },
+      "quality": {
+        "dtype": "pl.Float64",
+        "order": 12
+      },
+      "rt": {
+        "dtype": "pl.Float64",
+        "order": 4
+      },
+      "rt_delta": {
+        "dtype": "pl.Float64",
+        "order": 8
+      },
+      "rt_end": {
+        "dtype": "pl.Float64",
+        "order": 7
+      },
+      "rt_original": {
+        "dtype": "pl.Float64",
+        "order": 5
+      },
+      "rt_start": {
+        "dtype": "pl.Float64",
+        "order": 6
+      },
+      "sample_id": {
+        "dtype": "pl.Int64",
+        "order": 2
+      }
+    }
+  },
+  "id_df": {
+    "columns": {
+      "consensus_id": {
+        "dtype": "pl.Int64",
+        "order": 0
+      },
+      "consensus_uid": {
+        "dtype": "pl.Utf8",
+        "order": 1
+      },
+      "iso": {
+        "dtype": "pl.Int64",
+        "order": 3
+      },
+      "lib_id": {
+        "dtype": "pl.Int64",
+        "order": 2
+      },
+      "matcher": {
+        "dtype": "pl.String",
+        "order": 4
+      },
+      "mz_delta": {
+        "dtype": "pl.Float64",
+        "order": 5
+      },
+      "rt_delta": {
+        "dtype": "pl.Null",
+        "order": 6
+      },
+      "score": {
+        "dtype": "pl.Float64",
+        "order": 7
+      }
+    }
+  },
+  "lib_df": {
+    "columns": {
+      "adduct": {
+        "dtype": "pl.String",
+        "order": 11
+      },
+      "class": {
+        "dtype": "pl.String",
+        "order": 5
+      },
+      "cmpd_id": {
+        "dtype": "pl.Int64",
+        "order": 1
+      },
+      "db": {
+        "dtype": "pl.String",
+        "order": 19
+      },
+      "db_id": {
+        "dtype": "pl.String",
+        "order": 18
+      },
+      "formula": {
+        "dtype": "pl.String",
+        "order": 9
+      },
+      "inchi": {
+        "dtype": "pl.String",
+        "order": 7
+      },
+      "inchikey": {
+        "dtype": "pl.String",
+        "order": 8
+      },
+      "iso": {
+        "dtype": "pl.Int64",
+        "order": 10
+      },
+      "lib_id": {
+        "dtype": "pl.Int64",
+        "order": 0
+      },
+      "lib_source": {
+        "dtype": "pl.Utf8",
+        "order": 2
+      },
+      "m": {
+        "dtype": "pl.Float64",
+        "order": 13
+      },
+      "mz": {
+        "dtype": "pl.Float64",
+        "order": 15
+      },
+      "name": {
+        "dtype": "pl.Utf8",
+        "order": 3
+      },
+      "probability": {
+        "dtype": "pl.Float64",
+        "order": 12
+      },
+      "quant_group": {
+        "dtype": "pl.Int64",
+        "order": 17
+      },
+      "rt": {
+        "dtype": "pl.Null",
+        "order": 16
+      },
+      "shortname": {
+        "dtype": "pl.String",
+        "order": 4
+      },
+      "smiles": {
+        "dtype": "pl.String",
+        "order": 6
+      },
+      "z": {
+        "dtype": "pl.Int64",
+        "order": 14
+      }
+    }
+  },
+  "samples_df": {
+    "columns": {
+      "num_features": {
+        "dtype": "pl.Int64",
+        "order": 10
+      },
+      "num_ms1": {
+        "dtype": "pl.Int64",
+        "order": 11
+      },
+      "num_ms2": {
+        "dtype": "pl.Int64",
+        "order": 12
+      },
+      "sample_batch": {
+        "dtype": "pl.Int64",
+        "order": 8
+      },
+      "sample_color": {
+        "dtype": "pl.Utf8",
+        "order": 6
+      },
+      "sample_group": {
+        "dtype": "pl.Utf8",
+        "order": 7
+      },
+      "sample_id": {
+        "dtype": "pl.Int64",
+        "order": 0
+      },
+      "sample_name": {
+        "dtype": "pl.Utf8",
+        "order": 1
+      },
+      "sample_path": {
+        "dtype": "pl.Utf8",
+        "order": 2
+      },
+      "sample_sequence": {
+        "dtype": "pl.Int64",
+        "order": 9
+      },
+      "sample_source": {
+        "dtype": "pl.Utf8",
+        "order": 5
+      },
+      "sample_type": {
+        "dtype": "pl.Utf8",
+        "order": 3
+      },
+      "sample_uid": {
+        "dtype": "pl.Utf8",
+        "order": 4
+      }
+    }
+  },
+  "schema_version": "1.2"
+}
