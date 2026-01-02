@@ -1,0 +1,76 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    env:
+      UV_CACHE_DIR: /tmp/.uv-cache
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Configure Git Credentials
+        run: |
+          git config user.name github-actions[bot]
+
+      - name: Aggressive free disk space
+        run: |
+          echo "################################"
+          echo "Disk usage BEFORE cleanup:"
+          echo "################################"
+          df -h
+
+          echo "Removing hosted toolcache..."
+          rm -rf /opt/hostedtoolcache || true
+
+          echo "Removing .NET..."
+          rm -rf /usr/share/dotnet || true
+
+          echo "Removing Android SDK..."
+          rm -rf /usr/local/lib/android || true
+
+          echo "Removing GHC / Haskell..."
+          rm -rf /opt/ghc || true
+          rm -rf /usr/local/.ghcup || true
+
+          echo "Docker prune (just in case runner had leftovers)..."
+          docker container prune -f || true
+          docker image prune -af || true
+          docker volume prune -f || true
+
+          echo "################################"
+          echo "Disk usage AFTER cleanup:"
+          echo "################################"
+          df -h
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - uses: actions/cache@v5.0.1
+        with:
+          path: /tmp/.uv-cache
+          key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Install the project
+        run: uv sync --extra docs
+
+      - name: Deploy documentation
+        run: PYTHONPATH=. uv run mkdocs gh-deploy --force
