@@ -1,0 +1,377 @@
+"""Orbita browser installer."""
+
+import os
+import platform
+import tarfile
+import zipfile
+import shutil
+from pathlib import Path
+from typing import Optional
+import urllib.request
+
+
+class OrbitaInstaller:
+    """Install Orbita browser from GoLogin (v141)."""
+    
+    def __init__(self):
+        """Initialize installer."""
+        self.system = platform.system()
+        self.machine = platform.machine().lower()
+        
+        # Load config
+        from .config import get_config
+        self.config = get_config()
+        
+        # Get download URLs from config
+        self.version = self.config.get("browser.version", "141")
+        self.urls = self.config.get("browser.orbita_urls", {})
+    
+    def install(self, set_default: bool = False, set_playwright: bool = False) -> bool:
+        """Install Orbita browser (v141 fixed).
+        
+        Args:
+            set_default: Set as system default chromium
+            set_playwright: Set as default browser for Playwright
+        
+        Returns:
+            True if successful
+        """
+        install_dir = self._get_install_dir()
+        
+        # Check if already installed
+        executable = self._get_executable_path(install_dir)
+        already_installed = executable and Path(executable).exists()
+        
+        if already_installed:
+            print(f"✅ Orbita already installed at: {install_dir}")
+        else:
+            print(f"📥 Downloading Orbita browser (v{self.version})...")
+            
+            # Determine platform
+            platform_key = self._get_platform_key()
+            if not platform_key:
+                print(f"❌ Unsupported platform: {self.system} {self.machine}")
+                return False
+            
+            # Download
+            try:
+                archive_path = self._download_orbita(platform_key, install_dir.parent)
+            except Exception as e:
+                print(f"❌ Download failed: {e}")
+                print(f"\n💡 Manual installation:")
+                print(f"   1. Download Orbita from: https://gologin.com/download")
+                print(f"   2. Extract to: {install_dir}")
+                return False
+            
+            # Extract
+            print(f"📦 Extracting...")
+            try:
+                self._extract(archive_path, install_dir)
+            except Exception as e:
+                print(f"❌ Extract failed: {e}")
+                return False
+            finally:
+                # Clean up
+                if archive_path and archive_path.exists():
+                    archive_path.unlink()
+            
+            # Set permissions
+            if self.system in ["Darwin", "Linux"]:
+                self._set_permissions(install_dir)
+            
+            print(f"✅ Orbita installed to: {install_dir}")
+        
+        # Set as system default chromium
+        if set_default:
+            self._set_as_default(install_dir)
+        
+        # Set as Playwright default
+        if set_playwright:
+            self._set_playwright_default(install_dir)
+        
+        return True
+    
+    def _set_as_default(self, install_dir: Path) -> None:
+        """Set Orbita as system default chromium."""
+        if self.system not in ["Linux", "Darwin"]:
+            print("⚠️  --default only supported on Linux/macOS")
+            return
+        
+        executable = self._get_executable_path(install_dir)
+        if not executable:
+            print("❌ Orbita executable not found")
+            return
+        
+        # Try system-level first, fallback to user-level
+        if self.system == "Linux":
+            system_bin = Path("/usr/bin/chromium")
+            user_bin = Path.home() / ".local" / "bin" / "chromium"
+            
+            # Try system-level (needs sudo)
+            if self._try_system_link(system_bin, executable):
+                return
+            
+            # Fallback to user-level
+            self._setup_user_link(user_bin, executable)
+        
+        elif self.system == "Darwin":
+            # macOS: use user-level only
+            user_bin = Path.home() / ".local" / "bin" / "chromium"
+            self._setup_user_link(user_bin, executable)
+    
+    def _try_system_link(self, system_bin: Path, executable: str) -> bool:
+        """Try to create system-level symlink (needs sudo)."""
+        import subprocess
+        
+        # Backup original if exists
+        if system_bin.exists() and not system_bin.is_symlink():
+            backup = system_bin.with_suffix('.org')
+            print(f"📦 Backing up {system_bin} → {backup}")
+            result = subprocess.run(['sudo', 'mv', str(system_bin), str(backup)], capture_output=True)
+            if result.returncode != 0:
+                print(f"⚠️  sudo failed, trying user-level...")
+                return False
+        
+        # Remove existing symlink
+        if system_bin.is_symlink():
+            subprocess.run(['sudo', 'rm', str(system_bin)], capture_output=True)
+        
+        # Create symlink
+        result = subprocess.run(['sudo', 'ln', '-s', executable, str(system_bin)], capture_output=True)
+        if result.returncode == 0:
+            print(f"✅ System default: {system_bin} → {executable}")
+            return True
+        
+        print(f"⚠️  sudo failed, trying user-level...")
+        return False
+    
+    def _setup_user_link(self, user_bin: Path, executable: str) -> None:
+        """Setup user-level symlink and PATH."""
+        user_bin.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Remove existing
+        if user_bin.exists() or user_bin.is_symlink():
+            user_bin.unlink()
+        
+        # Create symlink
+        user_bin.symlink_to(executable)
+        print(f"✅ User default: {user_bin} → {executable}")
+        
+        # Add to PATH in ~/.bashrc
+        bashrc = Path.home() / ".bashrc"
+        path_line = 'export PATH="$HOME/.local/bin:$PATH"'
+        
+        if bashrc.exists():
+            content = bashrc.read_text()
+            if '.local/bin' not in content:
+                with open(bashrc, 'a') as f:
+                    f.write(f'\n# User local bin\n{path_line}\n')
+                print(f"✅ Added ~/.local/bin to PATH in ~/.bashrc")
+        else:
+            bashrc.write_text(f'# User local bin\n{path_line}\n')
+        
+        print(f"\n💡 Run: source ~/.bashrc")
+    
+    def _set_playwright_default(self, install_dir: Path) -> None:
+        """Set Orbita as default browser for Playwright."""
+        if self.system not in ["Linux", "Darwin"]:
+            print("⚠️  --default only supported on Linux/macOS")
+            return
+        
+        # Get Playwright chromium revision
+        revision = self._get_playwright_revision()
+        if not revision:
+            revision = "1124"  # fallback
+        
+        # Use Playwright default directory
+        playwright_dir = Path.home() / ".cache" / "ms-playwright"
+        playwright_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create symlink: chromium-{revision}/chrome-linux → ~/orbita-browser
+        chromium_dir = playwright_dir / f"chromium-{revision}"
+        if self.system == "Linux":
+            target_dir = chromium_dir / "chrome-linux"
+        else:
+            target_dir = chromium_dir / "chrome-mac"
+        
+        chromium_dir.mkdir(parents=True, exist_ok=True)
+        if target_dir.exists() or target_dir.is_symlink():
+            target_dir.unlink() if target_dir.is_symlink() else shutil.rmtree(target_dir)
+        
+        target_dir.symlink_to(install_dir)
+        print(f"✅ Symlink: {target_dir} → {install_dir}")
+        
+        # Write to ~/.bashrc
+        bashrc = Path.home() / ".bashrc"
+        env_line = f'export PLAYWRIGHT_BROWSERS_PATH="{playwright_dir}"'
+        
+        if bashrc.exists():
+            content = bashrc.read_text()
+            if "PLAYWRIGHT_BROWSERS_PATH" in content:
+                lines = [l for l in content.split('\n') if "PLAYWRIGHT_BROWSERS_PATH" not in l]
+                lines.append(env_line)
+                bashrc.write_text('\n'.join(lines))
+            else:
+                with open(bashrc, 'a') as f:
+                    f.write(f'\n# Orbita as default Playwright browser\n{env_line}\n')
+        else:
+            bashrc.write_text(f'# Orbita as default Playwright browser\n{env_line}\n')
+        
+        print(f"✅ PLAYWRIGHT_BROWSERS_PATH={playwright_dir}")
+        print(f"\n💡 Run: source ~/.bashrc")
+    
+    def _get_playwright_revision(self) -> str:
+        """Get Playwright chromium revision from installed package."""
+        try:
+            import json
+            import playwright
+            pkg_dir = Path(playwright.__file__).parent
+            browsers_json = pkg_dir / "driver" / "package" / "browsers.json"
+            if browsers_json.exists():
+                data = json.loads(browsers_json.read_text())
+                for b in data.get("browsers", []):
+                    if b.get("name") == "chromium":
+                        return b.get("revision")
+        except:
+            pass
+        return None
+    
+    def _get_platform_key(self) -> Optional[str]:
+        """Get platform key for downloads."""
+        if self.system == "Linux":
+            return "linux"
+        elif self.system == "Darwin":
+            if self.machine in ["arm64", "aarch64"]:
+                return "darwin-arm"
+            return "darwin"
+        elif self.system == "Windows":
+            return "windows"
+        return None
+    
+    def _get_install_dir(self) -> Path:
+        """Get installation directory."""
+        if self.system == "Darwin":
+            # macOS: ~/orbita-browser/
+            return Path.home() / "orbita-browser"
+        elif self.system == "Linux":
+            # Linux: ~/orbita-browser/
+            return Path.home() / "orbita-browser"
+        elif self.system == "Windows":
+            # Windows: ~/orbita-browser/
+            return Path.home() / "orbita-browser"
+        return Path.home() / "orbita-browser"
+    
+    def _get_executable_path(self, install_dir: Path) -> Optional[str]:
+        """Get executable path within install directory."""
+        if self.system == "Darwin":
+            candidates = [
+                install_dir / "Orbita.app" / "Contents" / "MacOS" / "Orbita",
+                install_dir / "chrome",
+            ]
+        elif self.system == "Linux":
+            candidates = [
+                install_dir / "chrome",
+                install_dir / "orbita",
+            ]
+        elif self.system == "Windows":
+            candidates = [
+                install_dir / "chrome.exe",
+                install_dir / "orbita.exe",
+            ]
+        else:
+            return None
+        
+        for path in candidates:
+            if path.exists():
+                return str(path)
+        return None
+    
+    def _download_orbita(self, platform_key: str, dest_dir: Path) -> Path:
+        """Download Orbita from GoLogin official source.
+        
+        Args:
+            platform_key: Platform identifier
+            dest_dir: Destination directory
+            
+        Returns:
+            Path to downloaded archive
+        """
+        url = self.urls.get(platform_key)
+        if not url:
+            raise ValueError(f"No URL for platform: {platform_key}")
+        
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Archive name
+        if self.system == "Windows":
+            archive_name = "orbita.zip"
+        else:
+            archive_name = "orbita.tar.gz"
+        
+        archive_path = dest_dir / archive_name
+        
+        print(f"   URL: {url}")
+        
+        def reporthook(block_num, block_size, total_size):
+            if total_size > 0:
+                downloaded = block_num * block_size
+                percent = min(100, downloaded * 100 / total_size)
+                mb_downloaded = downloaded / (1024 * 1024)
+                mb_total = total_size / (1024 * 1024)
+                print(f"\r   Progress: {percent:.1f}% ({mb_downloaded:.1f}/{mb_total:.1f} MB)", end="")
+        
+        urllib.request.urlretrieve(url, archive_path, reporthook)
+        print()  # Newline
+        return archive_path
+    
+    def _extract(self, archive_path: Path, dest_dir: Path):
+        """Extract Orbita archive.
+        
+        Args:
+            archive_path: Archive file
+            dest_dir: Destination directory
+        """
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Extract to temporary directory first
+        temp_extract = dest_dir.parent / f"{dest_dir.name}_temp"
+        temp_extract.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            if archive_path.suffix == ".zip":
+                with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+                    zip_ref.extractall(temp_extract)
+            elif ".tar" in archive_path.name:
+                with tarfile.open(archive_path, 'r:*') as tar:
+                    tar.extractall(temp_extract)
+            
+            # Check if archive created a nested directory with same name
+            extracted_items = list(temp_extract.iterdir())
+            if len(extracted_items) == 1 and extracted_items[0].is_dir():
+                nested_dir = extracted_items[0]
+                # If nested dir has same name as dest_dir, move its contents up
+                if nested_dir.name == dest_dir.name or nested_dir.name in ["orbita-browser", "Orbita-browser"]:
+                    # Move contents from nested dir to dest_dir
+                    for item in nested_dir.iterdir():
+                        shutil.move(str(item), str(dest_dir))
+                    shutil.rmtree(temp_extract)
+                else:
+                    # Move the single directory to dest_dir
+                    shutil.move(str(nested_dir), str(dest_dir))
+                    shutil.rmtree(temp_extract)
+            else:
+                # Multiple items or single file - move all to dest_dir
+                for item in extracted_items:
+                    shutil.move(str(item), str(dest_dir))
+                shutil.rmtree(temp_extract)
+        except Exception as e:
+            # Cleanup temp directory on error
+            if temp_extract.exists():
+                shutil.rmtree(temp_extract)
+            raise e
+    
+    def _set_permissions(self, install_dir: Path):
+        """Set executable permissions."""
+        executable = self._get_executable_path(install_dir)
+        if executable:
+            os.chmod(executable, 0o755)
