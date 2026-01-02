@@ -1,0 +1,49 @@
+Metadata-Version: 2.3
+Name: idios
+Version: 0.1.1
+Summary: A terminal code editor for those of us who aren't into vim.
+Author: Daniel Roy Greenfeld
+Author-email: Daniel Roy Greenfeld <daniel@feldroy.com>
+Requires-Dist: textual[syntax]>=3.0.0
+Requires-Dist: typer>=0.21.0
+Requires-Python: >=3.14
+Description-Content-Type: text/markdown
+
+# idios
+
+Idios (ἴδιος) is an Ancient Greek word that means:
+
+- one’s own
+- personal
+- distinct / peculiar to an individual
+- private, not involved in public affairs, which eventually turned into the word "idiot"
+
+It's also a terminal code editor for those of us who aren't into vim.
+
+## Features
+
+- Powered by Textual TUI
+- Runs in the shell
+- File browsing that can be opened or closed with cmd-b
+- File search can be done by toggling cmd-o
+- Files can be saved with cmd-s
+- Text editor with code highlighting for the current open file
+- Copy (cmd-c) and paste (cmd-v) uses standard IDE keys
+- If not pointed at a file, opens the current directory, default open file is any README.md that may exist
+- Responsive, resize the window and it still looks good
+
+## Install
+
+```sh
+uv tool idios
+```
+
+Currently idios is untested with any other installation method. If it works for your installation method, let me know and I'll update this page.
+
+## Usage
+
+Once installed, point it at the file you want to view.
+
+```sh
+idios myproject/
+```
