@@ -1,0 +1,38 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  # -------------------------
+  # Local hooks for uv + ruff + mypy
+  # -------------------------
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: Ruff Lint Check
+        entry: uv
+        language: system
+        args: ["run", "ruff", "check", "src", "tests"]
+        pass_filenames: false
+
+      - id: ruff-format-check
+        name: Ruff Format Check
+        entry: uv
+        language: system
+        args: ["run", "ruff", "format", "--check", "src", "tests"]
+        pass_filenames: false
+
+      - id: mypy
+        name: Type Checking with Mypy
+        entry: uv
+        language: system
+        args: ["run", "mypy", "src"]
+        pass_filenames: false
