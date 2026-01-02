@@ -1,0 +1,46 @@
+# Table Metrics
+**Table Metrics** is a Python library implementing widely used evaluation metrics for table extraction and table structure recognition tasks.
+
+Currently supported metrics:
+
+- **GriTS** - Grid Table Similarity ([arXiv:2203.12555](https://arxiv.org/abs/2203.12555))
+
+  - GriTS_Top – topology / structure similarity
+
+  - GriTS_Con – cell content similarity
+
+  - GriTS_Loc – spatial (layout) similarity using bounding boxes
+
+- **TEDS** – Tree Edit Distance-based Similarity ([arXiv:2208.00385](https://arxiv.org/abs/2208.00385))
+
+## Installation
+
+```sh
+pip install table-metrics
+```
+
+## Quick Start
+```python
+from docling.document_converter import DocumentConverter
+from table_metrics import (
+    grits_top_score,
+    grits_con_score,
+    teds_score,
+)
+
+
+converter = DocumentConverter()
+doc = converter.convert("your.pdf")
+
+extracted_html_table = doc.document.tables[0].export_to_html()
+true_html_table = (
+    "<table><tr><td>We</td><td>love</td><td>open</td><td>source</td></tr></table>"
+)
+
+print("GriTS_Top:", grits_top_score(true_html_table, extracted_html_table))
+print("GriTS_Con:", grits_con_score(true_html_table, extracted_html_table))
+print("TEDS:", teds_score(true_html_table, extracted_html_table))
+```
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)

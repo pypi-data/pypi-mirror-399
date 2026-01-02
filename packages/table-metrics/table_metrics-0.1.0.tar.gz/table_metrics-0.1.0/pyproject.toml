@@ -1,0 +1,27 @@
+[project]
+name = "table-metrics"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "gu1show",email = "denissolovyov57@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "apted (>=1.0.3,<2.0.0)",
+    "lxml (>=6.0.2,<7.0.0)",
+    "rapidfuzz (>=3.14.1,<4.0.0)",
+    "numpy (>=2.4.0,<3.0.0)",
+]
+
+[tool.poetry]
+packages = [{include = "table_metrics", from = "src"}]
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.18.2"
+pytest = "^8.4.2"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
