@@ -1,0 +1,64 @@
+Metadata-Version: 2.4
+Name: everai
+Version: 0.2.41
+Summary: Client library to manage everai infrastructure
+Author-email: mc <mc@expvent.com>
+Maintainer-email: mc <mc@expvent.com>
+Project-URL: Homepage, https://everai.expvent.com
+Project-URL: Documentation, https://everai.expvent.com
+Project-URL: Repository, https://github.com/expvent/everai
+Project-URL: Issues, https://github.com/expvent/everai/issues
+Project-URL: Changelog, https://github.com/expvent/everai/blob/main/CHANGELOG.md
+Keywords: expvent,ever,everai,ai,inference,serveless,autoscaling
+Classifier: Development Status :: 4 - Beta
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: synchronicity~=0.6.2
+Requires-Dist: everai-builtin-autoscaler~=0.1.47
+Requires-Dist: Flask~=3.0.2
+Requires-Dist: requests~=2.31.0
+Requires-Dist: Werkzeug~=3.0.1
+Requires-Dist: contextvars~=2.4
+Requires-Dist: jsonpickle~=3.0.3
+Requires-Dist: tzlocal~=5.2
+Requires-Dist: python-dotenv~=1.0.1
+Requires-Dist: gevent~=24.2.1
+Requires-Dist: pymongo~=4.6.2
+Requires-Dist: argcomplete~=3.3.0
+Requires-Dist: tabulate~=0.9.0
+Requires-Dist: deprecation~=2.1.0
+Requires-Dist: pyyaml~=6.0.1
+Requires-Dist: timeloop~=1.0.2
+Requires-Dist: regex==2023.12.25
+Requires-Dist: tqdm~=4.66.2
+Requires-Dist: docker~=7.1.0
+Requires-Dist: dockerpty~=0.4.1
+Requires-Dist: urllib3>=1.26.0
+Requires-Dist: python-dateutil~=2.9.0.post0
+Requires-Dist: pydantic~=2.7.0
+Requires-Dist: bigtree==0.19.3
+Requires-Dist: tenacity==8.2.3
+Provides-Extra: dev
+Requires-Dist: pytest~=8.0.2; extra == "dev"
+Requires-Dist: pytest-cov~=4.1.0; extra == "dev"
+Provides-Extra: build
+Requires-Dist: build~=1.2.1; extra == "build"
+Requires-Dist: wheel~=0.41.2; extra == "build"
+Requires-Dist: twine~=5.0.0; extra == "build"
+Dynamic: license-file
+
+## 自动补全
+
+```shell
+# 激活全局的python自动补全
+activate-global-python-argcomplete
+```
+
+将下列内容添加到你的shell配置中，例如~/.bashrc 或者 ~/.zshrc
+```
+eval "$(register-python-argcomplete ever)"
+eval "$(register-python-argcomplete everai)" 
+```
