@@ -1,0 +1,341 @@
+Metadata-Version: 2.4
+Name: iflow-mcp_phelanshao_abacus-mcp-server
+Version: 0.1.0
+Summary: A Model Context Protocol server for ABACUS first-principles calculations
+Project-URL: Homepage, https://github.com/iflow-mcp/abacus-mcp-server
+Project-URL: Repository, https://github.com/iflow-mcp/abacus-mcp-server
+Project-URL: Documentation, https://abacus-mcp-server.readthedocs.io/
+Project-URL: Bug Reports, https://github.com/iflow-mcp/abacus-mcp-server/issues
+Project-URL: ABACUS Official, https://abacus.deepmodeling.com/
+Author-email: phelanshao <contact@example.com>
+License: MIT
+License-File: LICENSE
+Keywords: abacus,dft,first-principles,materials-science,mcp,quantum-chemistry
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Classifier: Topic :: Scientific/Engineering :: Physics
+Requires-Python: >=3.8
+Requires-Dist: ase>=3.22.0
+Requires-Dist: fastmcp>=0.1.0
+Requires-Dist: numpy>=1.21.0
+Requires-Dist: psutil>=5.8.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: python-json-logger>=2.0.0
+Requires-Dist: scipy>=1.7.0
+Description-Content-Type: text/markdown
+
+# ABACUS MCP Server
+
+**中文** | [English](README_EN.md) | [快速开始](QUICK_START.md) | [Quick Start](QUICK_START_EN.md)
+
+基于Model Context Protocol (MCP)的ABACUS第一性原理计算服务器。主要用于量子化学和材料科学计算。
+
+## 主要功能
+
+### 计算功能
+- SCF计算 - 自洽场电子结构计算
+- 结构优化 - 几何优化和晶胞优化
+- 分子动力学 - MD模拟和轨迹分析
+- 能带结构 - 电子能带结构计算
+- 态密度 - 电子态密度计算
+- 电荷密度 - 电荷密度分析
+
+### 智能助手
+- 参数建议 - 根据计算类型推荐合适参数
+- 输入验证 - 检查参数设置是否合理
+- 故障诊断 - 帮助解决计算中的问题
+- 成本估算 - 评估计算资源需求
+
+### 结果分析
+- 智能解释 - 自动分析计算结果
+- 优化建议 - 根据结果提供改进建议
+- 性能监控 - 跟踪计算性能
+
+### PyABACUS集成
+- Python接口 - 支持PyABACUS Python接口
+- 模块化分析 - 集成ModuleBase、ModuleNAO、hsolver等模块
+- 工作流指导 - PyABACUS使用示例和最佳实践
+
+## 安装
+
+### 系统要求
+- Python 3.8+
+- ABACUS软件包
+- 足够的计算资源
+
+### Python依赖
+```bash
+pip install fastmcp ase numpy psutil
+```
+
+### ABACUS安装
+参考[ABACUS官方文档](https://abacus.deepmodeling.com/)安装。
+
+## 快速开始
+
+### 1. 下载代码
+```bash
+git clone <repository-url>
+cd abacus-mcp-server
+```
+
+### 2. 安装依赖
+```bash
+pip install -r requirements.txt
+```
+
+### 3. 配置ABACUS
+确保ABACUS在系统PATH中：
+```bash
+abacus --version
+```
+
+### 4. 准备赝势文件
+```bash
+mkdir pseudos
+# 把赝势文件放到pseudos目录
+```
+
+### 5. 启动服务器
+```bash
+python src/server.py
+```
+
+## MCP客户端配置
+
+### Claude Desktop配置
+
+在Claude Desktop设置中添加：
+
+```json
+{
+  "mcpServers": {
+    "abacus-mcp-server": {
+      "command": "python",
+      "args": ["/path/to/abacus-mcp-server/src/server.py"],
+      "env": {"PYTHONPATH": "/path/to/abacus-mcp-server"}
+    }
+  }
+}
+```
+
+### Roo Code配置
+
+1. 打开Roo Code设置
+2. 找到MCP服务器部分
+3. 添加上面的配置
+
+### 使用示例
+
+**基础SCF计算**
+```
+我想对硅晶体进行SCF计算，请帮我设置参数。
+```
+
+**结构优化**
+```
+我有个钙钛矿结构需要优化几何并计算带隙。
+```
+
+**能带结构**
+```
+计算石墨烯沿Γ-M-K-Γ路径的能带结构。
+```
+
+**故障排除**
+```
+我的ABACUS计算不收敛，SCF一直振荡，帮我看看。
+```
+
+## 使用指南
+
+### 基本工作流
+
+1. 准备赝势文件到 `pseudos/` 目录
+2. 在MCP客户端中描述你的计算需求
+3. 服务器会自动设置参数并运行计算
+4. 查看结果和建议
+
+### 常用计算类型
+
+**硅能带结构计算**
+```
+计算硅晶体的能带结构，晶格常数5.43 Å，沿Γ-X-L-Γ路径。
+```
+
+**钙钛矿结构优化**
+```
+优化BaTiO3几何结构并计算电子性质。
+```
+
+**收敛问题诊断**
+```
+我的MoS2计算不收敛，SCF在-150.5和-150.8 Ry间振荡，用的ecutwfc=80 Ry。
+```
+
+**PyABACUS工作流**
+```
+用PyABACUS分析原子轨道重叠，需要LCAO计算和重叠矩阵。
+```
+
+### 基本工作流
+
+1. **创建结构**
+```python
+# 使用create_structure工具创建原子结构
+structure = create_structure(
+    formula_or_data="Si2",
+    input_format="formula",
+    crystalstructure="diamond",
+    a=5.43
+)
+```
+
+2. **验证输入**
+```python
+# 验证计算参数
+validation = validate_input(
+    input_params={
+        "ecutwfc": 100,
+        "scf_thr": 1e-6,
+        "basis_type": "pw"
+    },
+    structure_dict=structure["data"]
+)
+```
+
+3. **运行计算**
+```python
+# 执行SCF计算
+scf_result = run_scf(
+    structure_dict=structure["data"],
+    input_params={
+        "ecutwfc": 100,
+        "scf_thr": 1e-6
+    },
+    kpoints_definition={
+        "mode": "Monkhorst-Pack",
+        "size": [4, 4, 4]
+    },
+    pseudo_potential_map={"Si": "Si.UPF"}
+)
+```
+
+4. **分析结果**
+```python
+# 查看计算结果和建议
+print(scf_result["data"]["interpretation"])
+print(scf_result["data"]["recommendations"])
+```
+
+### MCP资源
+
+- `abacus://system/status` - 系统状态
+- `abacus://docs/input_parameters` - 参数文档
+- `abacus://examples/scf` - SCF示例
+- `abacus://calculations/{task_id}/results` - 计算结果
+- `abacus://calculations/{task_id}/logs` - 计算日志
+
+## 配置
+
+### 环境变量
+```bash
+export ABACUS_COMMAND="/path/to/abacus"
+export PSEUDO_DIR="/path/to/pseudos"
+export ABACUS_WORK_DIR="/path/to/calculations"
+```
+
+### 配置文件
+创建`config.json`：
+```json
+{
+  "abacus_command": "abacus",
+  "pseudo_base_path": "./pseudos",
+  "work_directory": "./calculations"
+}
+```
+
+## 故障排除
+
+### 常见问题
+
+**ABACUS未找到**
+```bash
+which abacus
+abacus --version
+```
+
+**赝势文件缺失**
+```bash
+ls -la pseudos/
+```
+
+**内存不足**
+- 减少ecutwfc值
+- 使用更稀疏的k点网格
+
+### 调试模式
+```bash
+export LOG_LEVEL="DEBUG"
+python src/server.py
+```
+
+## PyABACUS集成
+
+### 安装
+```bash
+git clone https://github.com/deepmodeling/abacus-develop.git
+cd abacus-develop/python
+pip install .
+```
+
+### 使用
+```python
+import pyabacus as m
+s = m.ModuleBase.Sphbes()
+result = s.sphbesj(1, 0.0)
+```
+
+## 主要工具
+
+### 结构管理
+- `create_structure` - 创建原子结构
+- `validate_structure` - 验证结构
+- `convert_structure` - 格式转换
+
+### 计算执行
+- `run_scf` - SCF计算
+- `run_optimization` - 结构优化
+- `run_md` - 分子动力学
+
+### 性质分析
+- `calculate_band_structure` - 能带结构
+- `calculate_dos` - 态密度
+- `calculate_charge_density` - 电荷密度
+
+### 智能助手
+- `suggest_parameters` - 参数建议
+- `diagnose_failure` - 故障诊断
+- `validate_input` - 输入验证
+
+### 任务管理
+- `get_calculation_status` - 计算状态
+- `list_recent_calculations` - 最近计算
+- `get_calculation_results` - 计算结果
+
+## 许可证
+
+MIT许可证，详见[LICENSE](LICENSE)文件。
+
+## 支持
+
+- [GitHub Issues](issues/) - 问题报告
+- [ABACUS官网](https://abacus.deepmodeling.com/) - 官方文档
