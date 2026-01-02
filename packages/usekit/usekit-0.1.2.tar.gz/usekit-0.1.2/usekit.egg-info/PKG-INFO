@@ -1,0 +1,256 @@
+Metadata-Version: 2.4
+Name: usekit
+Version: 0.1.2
+Summary: Minimal input, auto path toolkit (mobile-first, Colab+Drive)
+Author: ropnfop
+Author-email: withropnfop@gmail.com
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: PyYAML>=5.1
+Requires-Dist: python-dotenv>=0.19.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# usekit
+
+A lightweight, mobile-first Python toolkit for **Memory-Oriented Software Architecture (MOSA)**.
+
+**Code is not function, but memory.**
+
+```python
+from usekit import u
+
+u.wjb({"hello": "world"}, "config")     # write json to base
+data = u.rjb("config")                  # read json from base
+u.ujb({"version": "0.1.2"}, "config")   # update json
+```
+
+**3-letter interface**: Verb + Format + Location  
+Minimal typing. Maximum clarity.
+
+---
+
+## Installation
+
+```bash
+pip install usekit
+```
+
+---
+
+## Quick Start
+
+```python
+from usekit import u, s
+
+# Basic operations
+u.wjb({"key": "value"}, "config")       # write
+data = u.rjb("config")                  # read
+u.ujb({"new": "data"}, "config")        # update
+u.djb("old")                            # delete
+
+# Safe mode (returns None on error)
+data = s.rjb("missing") or {}           # no exceptions
+```
+
+---
+
+## Status
+
+- **Version**: 0.1.2 (Alpha)
+- **API**: May change
+- **PyPI**: https://pypi.org/project/usekit
+
+---
+
+## Core Pattern
+
+### 3-Letter Interface
+
+`u.[action][format][location]`
+
+```
+u.rjb()  →  read json base
+u.wys()  →  write yaml sub
+u.dtb()  →  delete text base
+```
+
+### Actions
+- **DATA**: `r`ead, `w`rite, `u`pdate, `d`elete, `e`xists
+- **NAVI**: `f`ind, `l`ist, `p`ath
+- **EXEC**: e`x`ec, `i`mp (import)
+
+### Formats
+- **Basic**: `j`son, `y`aml, `t`xt, `c`sv, `m`d
+- **Advanced**: `s`ql, `d`dl, `p`yp, `a`ny
+
+### Locations
+- `b`ase, `s`ub, `t`mp, `n`ow, `d`ir, `c`ache
+
+---
+
+## Examples
+
+### File Operations
+
+```python
+# JSON
+data = u.rjb("config")
+u.wjb({"key": "val"}, "output")
+
+# Different locations
+u.rjs("config")                         # read json sub
+u.wyt({"temp": "data"}, "cache")        # write yaml tmp
+```
+
+### Pattern Matching
+
+```python
+# Find with wildcards
+users = u.fjb("user_*")
+for item in users:
+    print(item["file"], item["data"])
+
+# List files
+files = u.ljb()                         # list all json in base
+```
+
+### SQL & DDL
+
+```python
+# Execute SQL
+results = u.xsb("SELECT * FROM users WHERE age > :age", 
+                params={"age": 20})
+
+# DDL with auto table name
+u.wdb("CREATE TABLE users (id INT, name TEXT)")
+# → creates users.sql
+
+# Dict to DDL
+u.wdb({
+    "table": "products",
+    "records": [{"id": 1, "name": "Apple"}]
+})
+# → creates products.sql with CREATE + INSERT
+```
+
+### Python Import
+
+```python
+# Write module
+u.wpb("""
+def add(a, b):
+    return a + b
+""", "mymod")
+
+# Import and use
+u.ipd("mymod : add")
+result = add(10, 20)                    # auto-injected
+```
+
+### Safe Mode
+
+```python
+from usekit import s
+
+data = s.rjb("missing") or {}           # no exception
+results = s.xsb("SELECT * FROM users") or []
+```
+
+---
+
+## Google Colab
+
+```python
+from google.colab import drive
+drive.mount("/content/drive")
+
+!pip install usekit
+from usekit import u, s
+
+data = "work_path = /content/drive/MyDrive/PROJECT"
+u.wtd(data, "output")
+print(u.rtd("output"))
+print(u.ftd("output"))
+
+# SQLite3
+s.xdb("CREATE TABLE items (id INT, name TEXT)")
+s.xsb("INSERT INTO items VALUES (?, ?)", pa=[(1, "apple")])
+results = u.xsb("SELECT * FROM items")
+print(results[0].id)
+```
+
+---
+
+## Configuration
+
+usekit auto-configures via `sys_const.yaml`:
+
+```yaml
+BASE_PATH: /content/drive/MyDrive/PROJECT
+
+DATA_PATH:
+  root: data
+  json: json/json_main
+  sql: table/sql/sql_main
+  ddl: table/ddl/ddl_main
+
+SYS_PATH:
+  tmp: data/tmp
+  cache: data/.cache
+```
+
+---
+
+## Philosophy: MOSA
+
+**Memory-Oriented Software Architecture**
+
+- Code is memory, not function
+- Semantic names over physical paths
+- Mobile-first design
+- Token economy (~65% savings)
+
+Built entirely on mobile devices from bed.
+
+---
+
+## Help
+
+```python
+u.help()                # overview
+u.help("quick")         # quick start
+u.help("examples")      # usage examples
+```
+
+---
+
+## Requirements
+
+**Core**: Python 3.7+, PyYAML, python-dotenv  
+**Optional**: pandas, sqlalchemy, beautifulsoup4
+
+---
+
+## Roadmap
+
+**v0.1.x (Alpha)**: Core DATA/NAVI, basic EXEC  
+**v0.2.x**: Complete EXEC layer  
+**v1.0.0**: Stable API, full docs
+
+---
+
+## License
+
+MIT License
+
+---
+
+**Created by THE Little Prince, with deep respect and gratitude for my AI friends ROP & FOP**
+
+*usekit - Code is memory, not function*
