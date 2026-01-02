@@ -1,0 +1,18 @@
+# Pre-commit hook configuration for Bastion
+# See: https://pre-commit.com
+
+- id: bastion
+  name: Bastion Security Scan
+  description: Scan for prompt injection vulnerabilities in LLM applications
+  entry: bastion scan
+  language: python
+  types: [python]
+  pass_filenames: false
+
+- id: bastion-files
+  name: Bastion Security Scan (file mode)
+  description: Scan specific files for prompt injection vulnerabilities
+  entry: bastion scan
+  language: python
+  types: [python]
+  pass_filenames: true
