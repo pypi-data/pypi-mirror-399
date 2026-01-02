@@ -1,0 +1,155 @@
+# pygcpinventory
+
+**GCP Project Inventory Collection Library** - A lightweight Python library for collecting metadata from Google Cloud Platform objects across multiple services.
+
+## Overview
+
+`pygcpinventory` provides a unified interface to discover and collect metadata from GCP resources including:
+- ⏰ Cloud Scheduler jobs (TRIGGER)
+- 🔄 Cloud Workflows (WORKFLOW)
+- ⚡ Cloud Functions (FUNCTION)
+- 📊 BigQuery datasets (DATASET)
+- 🪣 Cloud Storage buckets (BUCKET)
+- 📨 Pub/Sub topics (TOPIC)
+- 📝 Logging sinks (SINK)
+
+## Features
+
+- **Stable Object IDs**: Consistent ID generation across runs (OBJ0001, OBJ0002, ...)
+- **Type-Safe**: Full type hints and enum-based object types
+- **Minimal Dependencies**: Only requires GCP client libraries
+- **Test-Driven**: 91% code coverage with comprehensive tests
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+## Quick Start
+
+```python
+from gcpinventory import ETLObject, ObjectType, ObjectIDAssigner
+
+# Create GCP objects
+objects = [
+    ETLObject(
+        object_id=None,
+        object_type=ObjectType.TRIGGER,
+        name="daily-scheduler",
+        gcp_resource_name="projects/my-project/locations/us-central1/jobs/daily-scheduler"
+    ),
+    ETLObject(
+        object_id=None,
+        object_type=ObjectType.WORKFLOW,
+        name="etl-workflow",
+        gcp_resource_name="projects/my-project/locations/us-central1/workflows/etl-workflow"
+    ),
+]
+
+# Assign stable IDs
+assigner = ObjectIDAssigner()
+assigner.assign_ids(objects)
+
+# Use the objects
+for obj in objects:
+    print(f"{obj.object_id}: {obj.name} ({obj.object_type.value})")
+```
+
+**Output:**
+```
+OBJ0001: daily-scheduler (TRIGGER)
+OBJ0002: etl-workflow (WORKFLOW)
+```
+
+## Core Components
+
+### ETLObject
+Represents a discovered GCP object with metadata:
+- `object_id`: Unique identifier (OBJ0001, OBJ0002, ...)
+- `object_type`: Type of GCP resource (ObjectType enum)
+- `name`: Object name
+- `gcp_resource_name`: Full GCP resource path
+- `metadata`: Additional service-specific metadata (dict)
+
+### ObjectType Enum
+Seven supported GCP object types:
+- `TRIGGER` - Cloud Scheduler jobs
+- `WORKFLOW` - Cloud Workflows
+- `FUNCTION` - Cloud Functions
+- `DATASET` - BigQuery datasets
+- `BUCKET` - Cloud Storage buckets
+- `TOPIC` - Pub/Sub topics
+- `SINK` - Logging sinks
+
+### ObjectIDAssigner
+Assigns stable, unique IDs to objects:
+- Generates IDs in format OBJ0001, OBJ0002, ...
+- Deduplication: same object always gets same ID
+- Supports reverse lookup (ID → name)
+
+## Development
+
+```bash
+# Install dev dependencies
+pip install -r requirements-dev.txt
+
+# Run tests
+pytest
+
+# Run tests with coverage
+pytest --cov=gcpinventory --cov-report=html
+
+# Format code
+black gcpinventory tests
+isort gcpinventory tests
+```
+
+## Testing
+
+**Test Coverage:** 91% (27/27 tests passing)
+
+```bash
+# Run all tests (unit + integration)
+pytest tests/ -v
+
+# Run unit tests only
+pytest tests/test_models.py tests/test_assigner.py -v
+
+# Run integration tests with real GCP credentials
+pytest tests/test_integration_gcp.py -v
+```
+
+### Integration Tests
+
+Integration tests validate the package with real GCP service accounts:
+
+- **Authentication**: Verifies service account loading and GCP API connectivity
+- **BigQuery Collection**: Tests fetching real datasets and creating ETLObjects
+- **Cloud Scheduler**: Tests collecting Cloud Scheduler jobs as TRIGGER objects
+- **ID Assignment**: Validates stable ID generation with production data
+- **Serialization**: Tests ETLObject.to_dict() with real GCP metadata
+
+**Requirements:**
+- Service account file at: `E:\A\GCP_ETL_Pipeline\hackathon\SyncFlow_GCP_Intelligence\config\service-account.json`
+- GCP project: `prismatic-smoke-463810-c1`
+- APIs enabled: BigQuery, Cloud Scheduler
+
+## Project Structure
+
+```
+gcpinventory/
+├── __init__.py          # Public API
+├── version.py           # Version info
+├── models.py            # Data models (ETLObject, ObjectType, EdgeType)
+└── assigner.py          # ID assignment logic
+
+tests/
+├── test_models.py            # Model tests (11 tests)
+├── test_assigner.py          # Assigner tests (8 tests)
+└── test_integration_gcp.py   # Integration tests with real GCP (8 tests)
+```
+
+## License
+
+Apache License 2.0

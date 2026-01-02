@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pygcpinventory"
+version = "0.1.0"
+description = "GCP Project Inventory Collection Library"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "OpenMetadata Integration Team", email = "integration@openmetadata.org"}
+]
+keywords = ["gcp", "google-cloud", "metadata", "inventory", "etl", "bigquery", "cloud-scheduler"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "google-api-python-client>=2.126.0",
+    "google-auth>=2.29.0",
+    "google-cloud-asset>=3.26.1",
+    "google-cloud-bigquery>=3.20.1",
+    "google-cloud-functions>=1.14.2",
+    "google-cloud-pubsub>=2.20.0",
+    "google-cloud-scheduler>=2.13.4",
+    "protobuf>=4.25.3",
+    "googleapis-common-protos>=1.63.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/open-metadata/openmetadata"
+Documentation = "https://github.com/open-metadata/openmetadata"
+Repository = "https://github.com/open-metadata/openmetadata"
+Issues = "https://github.com/open-metadata/openmetadata/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=gcpinventory --cov-report=html --cov-report=term"
+
+[tool.black]
+line-length = 100
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+line_length = 100
