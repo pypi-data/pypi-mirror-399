@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: mp-browser
+Version: 0.1.8
+Summary: Lightweight fingerprint browser SDK
+Author: fpbrowser team
+Requires-Python: >=3.9
+Requires-Dist: boto3>=1.34.0
+Requires-Dist: requests>=2.31.0
+Provides-Extra: all
+Requires-Dist: fpbrowser[cli,cloud,gui]; extra == 'all'
+Provides-Extra: cli
+Requires-Dist: click>=8.3.1; extra == 'cli'
+Provides-Extra: cloud
+Requires-Dist: playwright>=1.40.0; extra == 'cloud'
+Requires-Dist: redis>=5.0.0; extra == 'cloud'
+Provides-Extra: gui
+Requires-Dist: fastapi>=0.109.0; extra == 'gui'
+Requires-Dist: sqlalchemy>=2.0.0; extra == 'gui'
+Requires-Dist: uvicorn>=0.27.0; extra == 'gui'
