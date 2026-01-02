@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=65.5.1", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "HedgeTech"
+version = "0.2.0b1"
+description = "A unified, high-performance API layer that powers all trading infrastructure across the HedgeTech ecosystem, providing modular, scalable, and real-time interfaces for market data, order management, and execution systems."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+
+authors = [
+    { name = "hedgetech.ir", email = "info@hedgetech.ir" }
+]
+
+keywords = [
+  "hedge", "finance", "financial-markets", "stocks", "equities",
+  "trading", "algo-trading", "algorithmic-trading", "automated-trading",
+  "oms", "order-management-system", "execution", "orderbook", "real-time",
+  "high-frequency", "portfolio-management", "risk-management",
+  "market-data", "exchange-api", "sdk", "python", "async", "websocket"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+
+
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+
+    "Development Status :: 4 - Beta",
+
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: System :: Networking",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+
+    "Framework :: AsyncIO",
+    "Typing :: Typed"
+]
+
+dependencies = [
+  "httpx[http2]<=0.28.1",
+  "brotli<=1.2.0",
+  "zstd<=1.5.7.2",
+  "PyJWT<=2.10.1",
+  "websockets<=15.0.1",
+  "pillow<=12.0.0",
+]
+
+[project.urls]
+Homepage = "https://hedgetech.ir/landing/"
+Documentation = "https://github.com/HedgeTech-ir/HedgeTech/blob/main/README.md"
+Repository = "https://github.com/HedgeTech-ir/HedgeTech"
