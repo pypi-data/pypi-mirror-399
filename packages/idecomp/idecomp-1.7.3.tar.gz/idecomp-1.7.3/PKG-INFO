@@ -1,0 +1,87 @@
+Metadata-Version: 2.4
+Name: idecomp
+Version: 1.7.3
+Summary: idecomp
+Project-URL: Documentation, https://rjmalves.github.io/idecomp/
+Project-URL: Repository, https://github.com/rjmalves/idecomp/
+Author-email: Rogerio Alves <rogerioalves.ee@gmail.com>, Mariana Noel <marianasimoesnoel@gmail.com>
+License: MIT License
+        
+        Copyright (c) 2022 Rogerio Alves
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+License-File: LICENSE.md
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.10
+Requires-Dist: cfinterface>=1.8
+Requires-Dist: numpy>=2.0
+Requires-Dist: pandas>=2.2
+Provides-Extra: dev
+Requires-Dist: matplotlib; extra == 'dev'
+Requires-Dist: mypy; extra == 'dev'
+Requires-Dist: numpydoc; extra == 'dev'
+Requires-Dist: plotly; extra == 'dev'
+Requires-Dist: pytest; extra == 'dev'
+Requires-Dist: pytest-cov; extra == 'dev'
+Requires-Dist: ruff; extra == 'dev'
+Requires-Dist: sphinx; extra == 'dev'
+Requires-Dist: sphinx-gallery; extra == 'dev'
+Requires-Dist: sphinx-rtd-theme; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# idecomp
+
+[![tests](https://github.com/rjmalves/idecomp/actions/workflows/main.yml/badge.svg)](https://github.com/rjmalves/idecomp/actions/workflows/main.yml)  
+[![codecov](https://codecov.io/gh/rjmalves/idecomp/branch/main/graph/badge.svg?token=ZSJBGO81JP)](https://codecov.io/gh/rjmalves/idecomp)
+
+O `idecomp` é um pacote Python para manipulação dos arquivos
+de entrada e saída do programa [DECOMP](http://www.cepel.br/pt_br/produtos/decomp-modelo-de-planejamento-da-operacao-de-sistemas-hidrotermicos-interligados-de-curto-prazo.htm). O DECOMP é desenvolvido pelo [CEPEL](http://www.cepel.br/) e utilizado para os estudos de planejamento e operação do Sistema Interligado Nacional (SIN).
+
+O idecomp oferece:
+
+- Meios para leitura dos arquivos de entrada e saída do DECOMP
+
+- Facilidades para estudo e análise dos dados utilizando DataFrames do pandas
+
+- Dados estruturados em modelos com o uso do paradigma de orientação a objetos (OOP)
+
+
+## Instalação
+
+O idecomp é compatível com versões de Python >= 3.8.
+
+É possível instalar a versão distribuída oficialmente com pip:
+
+```
+python -m pip install idecomp
+```
+
+É possível realizar a instalação da versão de desenvolvimento fazendo o uso do Git.
+
+```
+pip install git+https://github.com/rjmalves/idecomp
+```
+
+## Documentação
+
+Guias, tutoriais e as referências podem ser encontrados no site oficial do pacote: https://rjmalves.github.io/idecomp
