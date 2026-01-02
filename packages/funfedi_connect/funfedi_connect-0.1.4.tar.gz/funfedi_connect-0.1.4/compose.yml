@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2023-2025 Helge
+#
+# SPDX-License-Identifier: MIT
+
+services:
+  pasture-one-actor:
+    image: docker.io/helgekr/containers-runner
+    volumes:
+      [
+        "./features:/opt/pasture/features",
+        "./tests:/opt/pasture/tests",
+        "./test_shell.sh:/opt/test_shell.sh",
+        "./allure-results:/opt/pasture/allure-results",
+        "./funfedi_connect:/opt/pasture/funfedi_connect",
+      ]
+    command: python -m fediverse_pasture.one_actor --port 80
+    # stdin_open: true
+    # tty: true
+    # user: "1000:1000"
+networks:
+  default:
+    name: fediverse-pasture
+    external: true
