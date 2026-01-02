@@ -1,0 +1,13 @@
+from setuptools import setup
+
+setup(
+    name="tf-guard", # or 'ftltf'
+    version="0.1.1",
+    py_modules=["main", "parser", "analyzer"],
+    install_requires=["click", "openai", "rich", "python-dotenv"],
+    entry_points={
+        "console_scripts": [
+            "ftltf=main:cli",
+        ],
+    },
+)
