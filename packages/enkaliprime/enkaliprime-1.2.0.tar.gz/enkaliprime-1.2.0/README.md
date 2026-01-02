@@ -1,0 +1,721 @@
+<div align="center">
+
+# 🐍 EnkaliPrime Python SDK
+
+<p align="center">
+  <strong>The official Python client for EnkaliPrime Chat API</strong>
+</p>
+
+<p align="center">
+  <em>Build intelligent, RAG-enabled conversational AI experiences in Python</em>
+</p>
+
+<p align="center">
+  <a href="https://www.python.org/downloads/">
+    <img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.8+">
+  </a>
+  <a href="https://pypi.org/project/enkaliprime/">
+    <img src="https://img.shields.io/badge/PyPI-enkaliprime-FF6B35?style=for-the-badge&logo=pypi&logoColor=white" alt="PyPI">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge" alt="MIT License">
+  </a>
+  <a href="https://api.enkaliprime.com/docs">
+    <img src="https://img.shields.io/badge/Docs-api.enkaliprime.com-6366F1?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Documentation">
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/async-supported-00D4AA?style=flat-square" alt="Async Support">
+  <img src="https://img.shields.io/badge/streaming-enabled-00D4AA?style=flat-square" alt="Streaming">
+  <img src="https://img.shields.io/badge/type_hints-complete-00D4AA?style=flat-square" alt="Type Hints">
+  <img src="https://img.shields.io/badge/stub_files-included-00D4AA?style=flat-square" alt="Stub Files">
+  <img src="https://img.shields.io/badge/RAG-enabled-00D4AA?style=flat-square" alt="RAG Enabled">
+</p>
+
+---
+
+[**Installation**](#-installation) • [**Quick Start**](#-quick-start) • [**Examples**](#-examples) • [**API Reference**](#-api-reference) • [**Contributing**](#-contributing)
+
+</div>
+
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 🤖 AI-Powered Chat
+- **RAG-Enabled** — Retrieval-Augmented Generation
+- **Knowledge Base** — Custom context injection
+- **Multi-turn** — Conversation history tracking
+- **Streaming Support** — Real-time response streaming
+
+</td>
+<td width="50%">
+
+### ⚡ Modern Python
+- **Async/Await** — Full async support
+- **Type Hints** — Complete typing coverage with Literal types
+- **Context Managers** — Clean resource handling
+- **Loading States** — Visual progress indicators
+- **Cross-Editor Support** — Enhanced IntelliSense for all IDEs
+- **Runtime Type Guards** — Additional type safety
+- **Stub Files** — Pure type information (.pyi files)
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🌊 Real-time Streaming
+- **Live Responses** — Character-by-character
+- **Callbacks** — Custom chunk handlers
+- **Progress Tracking** — Monitor generation
+
+</td>
+<td width="50%">
+
+### 🔌 Framework Ready
+- **FastAPI** — Async web apps
+- **Flask** — Traditional web apps
+- **Django** — Enterprise applications
+
+</td>
+</tr>
+</table>
+
+### 🔧 Enhanced Type System
+
+The SDK includes advanced type annotations for superior developer experience across all editors:
+
+```python
+from enkaliprime import EnkaliPrimeClient, LoadingConfig, SpinnerStyle, ColorName
+
+# Full type safety with literal types
+client.send_message(
+    message="Hello!",
+    session_id="session_123",
+    loading={
+        "message": "Thinking",
+        "style": "brain",  # Literal type - autocomplete shows all options
+        "color": "cyan"    # Literal type - autocomplete shows color options
+    }
+)
+```
+
+**Type Features:**
+- **Literal Types** — Exact value autocomplete for enums and options
+- **Generic Types** — Type-safe collections and responses
+- **Union Types** — Precise type unions for flexible APIs
+- **Stub Files** — Pure type information for all editors (.pyi files)
+- **Runtime Guards** — Additional type safety at runtime
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client["🐍 Python Application"]
+        App[Your App]
+        SDK[EnkaliPrime SDK]
+        App --> SDK
+    end
+    
+    subgraph EnkaliBridge["☁️ EnkaliBridge Gateway"]
+        Resolve["/resolve"]
+        Chat["/chat"]
+    end
+    
+    subgraph Backend["🔧 EnkaliPrime Backend"]
+        Auth[Authentication]
+        RAG[RAG Engine]
+        KB[(Knowledge Base)]
+        AI[AI Model]
+    end
+    
+    SDK -->|"1. Resolve API Key"| Resolve
+    Resolve -->|"2. Return Connection"| SDK
+    SDK -->|"3. Send Message"| Chat
+    Chat --> Auth
+    Auth --> RAG
+    RAG --> KB
+    RAG --> AI
+    AI -->|"4. Stream Response"| SDK
+    SDK -->|"5. Return to App"| App
+    
+    style Client fill:#1e293b,stroke:#3b82f6,color:#fff
+    style EnkaliBridge fill:#0f172a,stroke:#8b5cf6,color:#fff
+    style Backend fill:#0f172a,stroke:#22c55e,color:#fff
+```
+
+---
+
+## 📦 Installation
+
+### From PyPI (Recommended)
+
+```bash
+pip install enkaliprime
+```
+
+### From Source
+
+```bash
+pip install git+https://github.com/enkaliprime/python-sdk.git
+```
+
+### With Development Dependencies
+
+```bash
+pip install enkaliprime[dev]
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1️⃣ Get Your API Key
+
+1. Log in to [EnkaliPrime Dashboard](https://enkaliprime.com/dashboard)
+2. Navigate to **SDK Hub** → **Create Connection**
+3. Copy your `unified_api_key` (starts with `ek_bridge_`)
+
+### 2️⃣ Initialize the Client
+
+```python
+from enkaliprime import EnkaliPrimeClient
+
+client = EnkaliPrimeClient({
+    "unified_api_key": "ek_bridge_your_key_here",
+    "base_url": "https://sdk.enkaliprime.com"
+})
+```
+
+### 3️⃣ Start Chatting
+
+```python
+# Create a session
+session = client.create_session(agent_name="AI Assistant")
+
+# Send a message
+response = client.send_message(
+    message="Hello! What can you help me with?",
+    session_id=session.id
+)
+
+print(response)
+# "Hi there! I can help you with..."
+```
+
+---
+
+## 🔄 Data Flow
+
+```mermaid
+sequenceDiagram
+    participant App as 🐍 Your App
+    participant SDK as 📦 SDK
+    participant Bridge as ☁️ EnkaliBridge
+    participant AI as 🤖 AI Engine
+
+    App->>SDK: EnkaliPrimeClient(config)
+    Note over SDK: Initialize client
+    
+    App->>SDK: create_session()
+    SDK-->>App: ChatSession
+    
+    App->>SDK: send_message("Hello!")
+    SDK->>Bridge: POST /resolve (first call)
+    Bridge-->>SDK: Connection details
+    SDK->>Bridge: POST /chat
+    Bridge->>AI: Process with RAG
+    AI-->>Bridge: Generate response
+    
+    alt Streaming Enabled
+        Bridge-->>SDK: Stream chunks
+        SDK-->>App: on_chunk callback
+    else Standard Response
+        Bridge-->>SDK: Full response
+    end
+    
+    SDK-->>App: "Hi! How can I help?"
+    
+    App->>SDK: end_session()
+    SDK-->>App: Session closed
+```
+
+---
+
+## 📚 Examples
+
+### Basic Chat
+
+```python
+from enkaliprime import EnkaliPrimeClient
+
+# Initialize
+client = EnkaliPrimeClient({
+    "unified_api_key": "ek_bridge_xxx",
+    "base_url": "https://sdk.enkaliprime.com"
+})
+
+# Chat
+session = client.create_session()
+response = client.send_message("What's the weather?", session.id)
+print(response)
+
+# Cleanup
+client.close()
+```
+
+### Async Usage
+
+```python
+import asyncio
+from enkaliprime import EnkaliPrimeClient
+
+async def chat():
+    async with EnkaliPrimeClient({
+        "unified_api_key": "ek_bridge_xxx",
+        "base_url": "https://sdk.enkaliprime.com"
+    }) as client:
+        session = client.create_session()
+        
+        response = await client.send_message_async(
+            message="Tell me a joke",
+            session_id=session.id
+        )
+        print(response)
+
+asyncio.run(chat())
+```
+
+### Streaming Responses
+
+```python
+from enkaliprime import EnkaliPrimeClient
+
+client = EnkaliPrimeClient({...})
+session = client.create_session()
+
+# Stream with callback
+def on_chunk(text):
+    print(text, end="", flush=True)
+
+client.send_message(
+    message="Write a poem about coding",
+    session_id=session.id,
+    stream=True,
+    on_chunk=on_chunk
+)
+```
+
+### Context Manager
+
+```python
+from enkaliprime import EnkaliPrimeClient
+
+# Automatic cleanup
+with EnkaliPrimeClient({...}) as client:
+    session = client.create_session()
+    response = client.send_message("Hello!", session.id)
+# Client automatically closed
+```
+
+### Loading States
+
+```python
+from enkaliprime import EnkaliPrimeClient
+
+client = EnkaliPrimeClient({...})
+session = client.create_session()
+
+# Simple loading spinner
+response = client.send_message(
+    message="Explain quantum physics",
+    session_id=session.id,
+    loading=True  # Shows "Thinking..." with spinner
+)
+
+# Custom loading message
+response = client.send_message(
+    message="Write a poem",
+    session_id=session.id,
+    loading="Composing..."  # Custom message
+)
+
+# Full customization
+response = client.send_message(
+    message="Complex analysis",
+    session_id=session.id,
+    loading={
+        "message": "Processing",
+        "style": "brain",  # brain, dots, moon, arrows, etc.
+        "color": "magenta"  # cyan, green, yellow, blue, magenta, white
+    }
+)
+```
+
+### Interactive Chat
+
+```python
+from enkaliprime import EnkaliPrimeClient
+
+client = EnkaliPrimeClient({
+    "unified_api_key": "ek_bridge_your_key_here",
+    "base_url": "https://sdk.enkaliprime.com"
+})
+
+# Session Creation
+session = client.create_session(agent_name="Pycon Demo Agent")
+
+# Input Message
+message = input("Ask me anything: ")
+
+# Send Message
+response = client.send_message(
+    message=message,
+    session_id=session.id
+)
+
+print("Pycon Agent:", response)
+```
+
+---
+
+## 🔌 Framework Integrations
+
+### FastAPI
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+from enkaliprime import EnkaliPrimeClient
+
+app = FastAPI()
+client = EnkaliPrimeClient({...})
+
+class ChatRequest(BaseModel):
+    message: str
+    session_id: str
+
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    response = await client.send_message_async(
+        message=request.message,
+        session_id=request.session_id
+    )
+    return {"response": response}
+```
+
+### Flask
+
+```python
+from flask import Flask, request, jsonify
+from enkaliprime import EnkaliPrimeClient
+
+app = Flask(__name__)
+client = EnkaliPrimeClient({...})
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.json
+    response = client.send_message(
+        message=data["message"],
+        session_id=data["session_id"]
+    )
+    return jsonify({"response": response})
+```
+
+### Django
+
+```python
+# views.py
+from django.http import JsonResponse
+from enkaliprime import EnkaliPrimeClient
+import json
+
+client = EnkaliPrimeClient({...})
+
+def chat_view(request):
+    data = json.loads(request.body)
+    response = client.send_message(
+        message=data["message"],
+        session_id=data["session_id"]
+    )
+    return JsonResponse({"response": response})
+```
+
+---
+
+## 📖 API Reference
+
+### `EnkaliPrimeClient`
+
+The main client class for interacting with EnkaliPrime.
+
+```python
+client = EnkaliPrimeClient(config)
+```
+
+#### Config Options
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|:--------:|---------|-------------|
+| `unified_api_key` | `str` | ✅ | — | Your EnkaliBridge API key |
+| `base_url` | `str` | ✅ | — | EnkaliBridge gateway URL |
+| `user_id` | `str` | ❌ | `None` | User identifier for tracking |
+| `timeout` | `int` | ❌ | `30` | Request timeout (seconds) |
+| `max_retries` | `int` | ❌ | `3` | Maximum retry attempts |
+
+#### Methods
+
+| Method | Description | Returns |
+|--------|-------------|---------|
+| `send_message(message, session_id, ...)` | Send a message synchronously with optional loading animation | `str` |
+| `send_message_async(message, session_id, ...)` | Send a message asynchronously | `str` |
+| `create_session(agent_name, ...)` | Create a new chat session | `ChatSession` |
+| `end_session()` | End the current session | `ChatSession \| None` |
+| `get_connection()` | Get resolved connection info | `ResolvedConnection` |
+| `clear_history()` | Clear conversation history | `None` |
+| `get_history()` | Get conversation history | `list[dict]` |
+| `close()` | Close HTTP clients | `None` |
+
+#### `send_message()` Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|:--------:|---------|-------------|
+| `message` | `str` | ✅ | — | The user's message text |
+| `session_id` | `str` | ✅ | — | Current session ID |
+| `context` | `list[dict]` | ❌ | `None` | Conversation history as list of {role, content} dicts |
+| `stream` | `bool` | ❌ | `False` | Enable streaming response |
+| `on_chunk` | `callable` | ❌ | `None` | Callback for streaming chunks |
+| `loading` | `bool \| str \| dict` | ❌ | `False` | Loading animation config |
+
+**Loading Parameter Options:**
+
+- `False` (default): No animation
+- `True`: Default spinner with "Thinking" message
+- `"Custom message"`: Custom loading message
+- `{"message": "...", "style": "...", "color": "..."}`: Full config
+
+**Available Styles:** `dots`, `line`, `dots2`, `bounce`, `pulse`, `moon`, `brain`, `arrows`, `bar`, `simple`  
+**Available Colors:** `cyan`, `green`, `yellow`, `blue`, `magenta`, `white`
+
+---
+
+### Data Models
+
+```mermaid
+classDiagram
+    class ChatMessage {
+        +str id
+        +str text
+        +bool is_user
+        +str timestamp
+        +MessageStatus status
+        +str session_id
+        +to_dict() dict
+    }
+    
+    class ChatSession {
+        +str id
+        +str agent_name
+        +bool is_active
+        +str start_time
+        +str? end_time
+        +to_dict() dict
+    }
+    
+    class ResolvedConnection {
+        +str connection_id
+        +str widget_id
+        +str widget_name
+        +str base_url
+        +bool is_active
+    }
+    
+    class ChatApiConfig {
+        +str unified_api_key
+        +str base_url
+        +str? user_id
+        +int timeout
+        +validate() None
+    }
+```
+
+---
+
+### Exceptions
+
+| Exception | Description | HTTP Code |
+|-----------|-------------|:---------:|
+| `EnkaliPrimeError` | Base exception for all SDK errors | — |
+| `AuthenticationError` | Invalid or expired API key | 401 |
+| `ConnectionError` | Network connectivity issues | — |
+| `APIError` | API returned an error response | varies |
+| `StreamingError` | Error during streaming | — |
+| `ValidationError` | Invalid request parameters | 400 |
+
+```python
+from enkaliprime import (
+    EnkaliPrimeClient,
+    AuthenticationError,
+    ConnectionError,
+    APIError
+)
+
+try:
+    response = client.send_message(...)
+except AuthenticationError:
+    print("Check your API key!")
+except ConnectionError:
+    print("Network issue, retrying...")
+except APIError as e:
+    print(f"API error {e.status_code}: {e.message}")
+```
+
+---
+
+## 🧪 Testing
+
+### Run the Test Suite
+
+```bash
+# Install dev dependencies
+pip install enkaliprime[dev]
+
+# Run tests
+pytest
+
+# With coverage
+pytest --cov=enkaliprime
+```
+
+### Quick Verification
+
+```python
+from enkaliprime import EnkaliPrimeClient, __version__
+
+print(f"SDK Version: {__version__}")
+
+client = EnkaliPrimeClient({
+    "unified_api_key": "ek_bridge_xxx",
+    "base_url": "https://sdk.enkaliprime.com"
+})
+
+# Test connection
+connection = client.get_connection()
+print(f"Connected to: {connection.widget_name}")
+```
+
+---
+
+## 📁 Project Structure
+
+```
+enkaliprime/
+├── __init__.py        # Package exports
+├── client.py          # EnkaliPrimeClient class
+├── models.py          # Data models (ChatMessage, etc.)
+├── exceptions.py      # Custom exceptions
+└── py.typed           # PEP 561 type marker
+
+examples/
+├── basic_usage.py     # Simple usage example
+├── streaming_example.py
+├── async_example.py
+├── interactive_chat.py
+└── fastapi_integration.py
+
+tests/
+├── test_client.py
+└── test_models.py
+```
+
+---
+
+## 🛡️ Security
+
+- ✅ API keys are never logged
+- ✅ HTTPS-only communication
+- ✅ Secure credential handling
+- ✅ No sensitive data in errors
+
+### Best Practices
+
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# ✅ Good: Use environment variables
+client = EnkaliPrimeClient({
+    "unified_api_key": os.getenv("ENKALI_API_KEY"),
+    "base_url": os.getenv("ENKALI_BASE_URL")
+})
+
+# ❌ Bad: Hardcoded credentials
+client = EnkaliPrimeClient({
+    "unified_api_key": "ek_bridge_xxx",  # Never do this!
+})
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+```bash
+# Clone the repo
+git clone https://github.com/enkaliprime/python-sdk.git
+cd python-sdk
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Format code
+black enkaliprime
+isort enkaliprime
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🔗 Links
+
+<div align="center">
+
+| Resource | Link |
+|----------|------|
+| 📖 **Documentation** | [api.enkaliprime.com/docs](https://api.enkaliprime.com/docs) |
+| 🏠 **Website** | [api.enkaliprime.com](https://api.enkaliprime.com) |
+| 📦 **PyPI** | [pypi.org/project/enkaliprime](https://pypi.org/project/enkaliprime/) |
+| 🐙 **GitHub** | [github.com/enkaliprime/python-sdk](https://github.com/enkaliprime/python-sdk) |
+| 📧 **Support** | [support@enkaliprime.com](mailto:support@enkaliprime.com) |
+
+</div>
+
+---
+
+<div align="center">
+
+### Built with ❤️ by the EnkaliPrime Team
+
+<sub>© 2024 EnkaliPrime. All rights reserved.</sub>
+
+</div>
