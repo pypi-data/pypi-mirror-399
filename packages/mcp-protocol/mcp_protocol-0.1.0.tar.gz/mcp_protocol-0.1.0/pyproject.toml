@@ -1,0 +1,37 @@
+[project]
+name = "mcp-protocol"
+version = "0.1.0"
+readme = "README.md"
+
+requires-python = ">=3.11"
+
+dependencies = [
+    "pydantic"
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "ruff",
+]
+test = [
+    "pytest",
+]
+
+[project.urls]
+Homepage = "https://github.com/hezhangjian/mcp-protocol"
+Repository = "https://github.com/hezhangjian/mcp-protocol"
+Documentation = "https://github.com/hezhangjian/mcp-protocol#readme"
+
+[tool.mypy]
+python_version = "3.11"
+
+[tool.ruff]
+line-length = 120
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+flyway = ["py.typed"]
