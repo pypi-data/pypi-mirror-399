@@ -1,0 +1,205 @@
+Metadata-Version: 2.4
+Name: pyriodic_backend
+Version: 0.2.0
+Summary: A backend for the small web
+Project-URL: Homepage, https://codeberg.org/stfn/pyriodic-backend
+Project-URL: Issues, https://codeberg.org/stfn/pyriodic-backend/issues
+Author-email: STFN <stfndev@protonmail.com>
+License-Expression: GPL-3.0-or-later
+License-File: COPYING
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.9
+Requires-Dist: beautifulsoup4>4.13
+Requires-Dist: pydantic>2.11
+Description-Content-Type: text/markdown
+
+# Pyriodic Backend
+
+## *Backend for the small web*
+
+The aim of this project is to make the simplest possible "backend" for static
+HTML websites.
+
+Pyriod Backend is not a backend in the traditional sense, it does not handle the
+request-response cycle. What it allows is to periodically (hence the name)
+update certain parts of the website with data. A usecase would be showing the
+weather, or the server load. The updating is being done on registering functions
+that are linked to specific tag ids in the provided HTML document. The
+registered functions can do whatever, as long as they return a string of text.
+
+Pyriodic Backend does not have or require any specific server software like
+`gunicorn`. The only requirements are Python and cron, and both can be found in
+even the most minimal Linux distros or containers.
+
+*This is a very early alpha version, there might be breaking changes in the future*
+
+## Usage example
+
+1. Create a virtual environment and install the package
+
+    ```
+    python3 -m venv venv
+    source /venv/bin/activate
+    pip install pyriodic-backend
+    ```
+
+2. Create a new Python file `main.py`
+
+    ```python
+    import os
+    from pyriodic_backend.entities import HTMLFile
+    from pyriodic_backend.pyriodic_backend import PyriodicBackend
+
+    def get_temperature():
+        # here would be gathering data from sensors
+        return "21.2"
+
+    def get_humidity():
+        # here would be gathering data from sensors
+        return "73%"
+
+    def get_load():
+        load = os.getloadavg()
+        return ", ".join([str(round(x, 2)) for x in load])
+
+    index_file = HTMLFile("/var/www/html/index.html")
+
+    pyriodic_backend = PyriodicBackend()
+
+    pyriodic_backend.register(html_file=index_file, tag_id="temperature", func=get_temperature, interval=1)
+    pyriodic_backend.register(html_file=index_file, tag_id="humidity", func=get_humidity, interval=4)
+    pyriodic_backend.register(html_file=index_file, tag_id="cpu_load", func=get_load, interval=1)
+    pyriodic_backend.run()
+    ```
+
+    And the corresponding HTML file:
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        The current temperature is <span id="temperature"></span>
+        The current humidity is <span id="humidity"></span>
+        The CPU load is <span id="cpu_load"></span>
+    </body>
+    </html>
+    ```
+
+### Explanation
+
+The first step is to write the functions that will update the specific tags
+in the HTML document based on their ids. Then it is required to create
+`HTMLFile` entities with absolute links to the files that need to be updated.
+One or more files can be updated in a single run. After that, the functions
+need to be linked to the files by using the `.register()` method. Finally
+the last thing is to `.run()` the update.
+
+### Keeping State
+
+The script itself is stateless unless you create your own means to retain
+data between script executions.
+
+Pyriodic Backend keeps its own log of when a function was run for the last time,
+to allow intervals longer than one minute. Currently this is being handled by a
+JSON file created in the venv, which keeps the
+function signatures and their last run time. In the future I will add more
+possible ways to keep track of function execution, maybe Redis or something
+similar. Suggestions are very welcome.
+
+### Custom location of the JSON file
+
+By default, the JSON file is created in the same directory as the installed
+library within the Python virtual environment. The file is not meant to be
+viewable or editable by humans. But if you want to store the database JSON file
+in a custom location, you can do it with:
+
+```
+from pyriodic_backend.backend import FileJSONBackend
+
+pyriodic_backend = PyriodicBackend(backend=FileJSONBackend(file_path="/home/user/customdb.json"))
+```
+
+The location needs to be writable for the user running the script.
+
+## System setup of Pyriodic Backend
+
+Pyriodic Backend requires cron to work. Cron is preinstalled in most, if not
+all, Linux distributions.
+
+The preferred way is to run Pyriodic Backend every minute, and define the
+actual intervals of functions execution in code.
+
+To run PB in cron, open the cron editing tool in the terminal:
+
+```
+crontab -e
+```
+
+At the bottom of the file add the proper cron stanza, it will be very similar to this:
+
+```
+* * * * * /home/user/my-project/venv/bin/python /home/user/my-project/main.py
+```
+
+The five stars at the beginning define that the script will be run every
+minute. Cron requires that both the Python executable and the script file be
+provided with absolute paths. You will need to adjust the paths to match
+your setup. The easiest way to check if the paths are correct is to paste
+the line into the terminal (without the asterisks) and see if it works.
+
+In result, the script will be run every minute. The *interval* argument when
+registering a method defines how many minutes must pass between each
+function call. In the example above, the `get_humidity` method will be run
+every 4 minutes. One minute is the default.
+
+## File permissions when updating HTML files
+
+HTML files served by typical HTTP servers like Nginx or Lighttpd usually
+live in system directories like `/var/www/html` and are owned by the `root`
+or `www-data` users. The simplest way to allow PB to update them is to add
+it to the root user cron:
+
+```
+sudo crontab -e
+```
+
+This way the whole script will be run as root, which should allow the files
+to be updated.
+
+## Adding logging
+
+Pyriodic Backend has support for logging. To enable logging, at the
+beginning of the `main.py` file, import the `logging` module and configure the
+logger using `logging.basicConfig()` as shown below:
+
+```
+import logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format="%(asctime)s %(message)s",
+    filename="/home/user/my-project/pyriodic_backend.log",
+    encoding="utf-8",
+    level=logging.DEBUG,
+)
+```
+
+## Allowing partial updates
+
+At the defalt settings, if any of the methods for a given file, raises an
+Exception, the whole file is not modified. This is to prevent incosistently
+updated pages. To enable partial updates, set it in the PyriodicBackend
+invocation:
+
+```
+pyriodic_backend = PyriodicBackend(allow_partial=True)
+```
+
+## Contributions
+
+Contributions are most welcome! And feel free to raise an issue with any feedback or bug report.
