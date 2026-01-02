@@ -1,0 +1,103 @@
+import os
+import unittest
+from unittest.mock import MagicMock, patch
+
+from youtube_to_docs import infographic
+
+
+class TestInfographic(unittest.TestCase):
+    def setUp(self):
+        # Mock environment variables
+        self.env_patcher = patch.dict(
+            os.environ,
+            {
+                "GEMINI_API_KEY": "fake_gemini_key",
+            },
+        )
+        self.env_patcher.start()
+
+    def tearDown(self):
+        self.env_patcher.stop()
+
+    @patch("youtube_to_docs.infographic.genai.Client")
+    def test_generate_infographic_gemini(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+
+        # Mocking the stream response for generate_content_stream
+        mock_chunk = MagicMock()
+        mock_part = MagicMock()
+        mock_part.inline_data.data = b"fake_gemini_bytes"
+        mock_chunk.candidates = [MagicMock(content=MagicMock(parts=[mock_part]))]
+
+        mock_client.models.generate_content_stream.return_value = [mock_chunk]
+
+        image_bytes = infographic.generate_infographic(
+            "gemini-2.5-flash-image", "Summary text", "Video Title"
+        )
+
+        self.assertEqual(image_bytes, b"fake_gemini_bytes")
+        mock_client.models.generate_content_stream.assert_called_once()
+
+    @patch("youtube_to_docs.infographic.genai.Client")
+    def test_generate_infographic_imagen(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_resp = MagicMock()
+
+        # Mocking the response structure for generate_images
+        mock_image = MagicMock()
+        mock_image.image.image_bytes = b"fake_imagen_bytes"
+        mock_resp.generated_images = [mock_image]
+
+        mock_client.models.generate_images.return_value = mock_resp
+
+        image_bytes = infographic.generate_infographic(
+            "imagen-4.0-generate-001", "Summary text", "Video Title"
+        )
+
+        self.assertEqual(image_bytes, b"fake_imagen_bytes")
+        mock_client.models.generate_images.assert_called_once()
+
+    def test_generate_infographic_none_model(self):
+        image_bytes = infographic.generate_infographic(
+            None, "Summary text", "Video Title"
+        )
+        self.assertIsNone(image_bytes)
+
+    def test_generate_infographic_unsupported_model(self):
+        image_bytes = infographic.generate_infographic(
+            "unsupported-model", "Summary text", "Video Title"
+        )
+        self.assertIsNone(image_bytes)
+
+    @patch("youtube_to_docs.infographic.genai.Client")
+    def test_generate_infographic_imagen_no_images(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+        mock_resp = MagicMock()
+        mock_resp.generated_images = []
+        mock_client.models.generate_images.return_value = mock_resp
+
+        image_bytes = infographic.generate_infographic(
+            "imagen-4.0-generate-001", "Summary text", "Video Title"
+        )
+        self.assertIsNone(image_bytes)
+
+    @patch("youtube_to_docs.infographic.genai.Client")
+    def test_generate_infographic_gemini_no_data(self, mock_client_cls):
+        mock_client = mock_client_cls.return_value
+
+        # Mocking a stream with no inline data
+        mock_chunk = MagicMock()
+        mock_chunk.candidates = [
+            MagicMock(content=MagicMock(parts=[MagicMock(inline_data=None)]))
+        ]
+
+        mock_client.models.generate_content_stream.return_value = [mock_chunk]
+
+        image_bytes = infographic.generate_infographic(
+            "gemini-2.5-flash-image", "Summary text", "Video Title"
+        )
+        self.assertIsNone(image_bytes)
+
+
+if __name__ == "__main__":
+    unittest.main()
