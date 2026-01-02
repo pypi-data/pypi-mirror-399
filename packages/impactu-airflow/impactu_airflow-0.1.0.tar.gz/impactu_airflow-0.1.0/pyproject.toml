@@ -1,0 +1,77 @@
+[project]
+name = "impactu_airflow"
+version = "0.1.0"
+description = "Apache Airflow DAGs and ETL processes for ImpactU"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "BSD-2-Clause"}
+authors = [
+    {name = "Colav", email = "grupocolav@udea.edu.co"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Framework :: Apache Airflow",
+]
+dependencies = [
+    "apache-airflow-providers-mongo>=5.3.0",
+    "pymongo>=4.15.5",
+    "pandas>=2.1.4",
+    "requests>=2.32.5",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["*"]
+exclude = ["tests*", "docs*", "logs*", "cache*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+"tests/**" = ["S101"]     # Allow assert in tests
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+
+[[tool.mypy.overrides]]
+module = [
+    "airflow.*",
+    "pandas.*",
+    "pymongo.*",
+    "requests.*",
+    "pytest.*",
+    "mongomock.*",
+]
+ignore_missing_imports = true
