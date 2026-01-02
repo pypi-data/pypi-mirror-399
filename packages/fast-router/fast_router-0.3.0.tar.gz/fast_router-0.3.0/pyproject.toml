@@ -1,0 +1,63 @@
+[project]
+name = "fast-router"
+version = "0.3.0"
+description = "A simple and intuitive file-based router for FastAPI applications."
+authors = [
+  { name = "Lftobs", email = "noreply@github.com" }
+]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.13"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+    "Framework :: FastAPI",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Typing :: Typed",
+]
+dependencies = [
+    "fastapi>=0.116.1",
+    "tree-sitter>=0.25.2",
+    "tree-sitter-python>=0.25.0",
+    "uvicorn>=0.35.0",
+]
+
+[project.urls]
+Homepage = "https://lftobs.github.io/FastRouter/"
+Repository = "https://github.com/Lftobs/FastRouter"
+Issues = "https://github.com/Lftobs/FastRouter/issues"
+Documentation = "https://lftobs.github.io/FastRouter/"
+
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+
+[tool.ruff]
+exclude = ["tests"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "mkdocs-material>=9.6.21",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "ruff>=0.12.6",
+    "twine>=6.2.0",
+]
+
+[tool.hatch.build]
+include = [
+  "/src",
+  "/README.md",
+  "/pyproject.toml",
+]
