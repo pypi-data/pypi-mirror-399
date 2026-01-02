@@ -1,0 +1,86 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "thai-drg-grouper"
+version = "2.0.0"
+description = "Thai DRG Grouper - Multi-version support for Linux/Mac/Windows"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    { name = "AegisX Platform", email = "contact@aegisx.io" }
+]
+keywords = ["drg", "thai-drg", "healthcare", "medical-coding", "hospital", "grouper"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+dependencies = [
+    "dbfread>=2.0.7",
+]
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings[python]>=0.24.0",
+    "mkdocs-autorefs>=0.5.0",
+]
+all = [
+    "thai-drg-grouper[api,dev,docs]",
+]
+
+[project.scripts]
+thai-drg-grouper = "thai_drg_grouper.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/aegisx-platform/thai-drg-grouper"
+Documentation = "https://github.com/aegisx-platform/thai-drg-grouper#readme"
+Repository = "https://github.com/aegisx-platform/thai-drg-grouper"
+Issues = "https://github.com/aegisx-platform/thai-drg-grouper/issues"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/data",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/thai_drg_grouper"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
