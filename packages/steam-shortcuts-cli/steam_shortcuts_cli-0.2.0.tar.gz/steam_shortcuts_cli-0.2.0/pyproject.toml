@@ -1,0 +1,29 @@
+[project]
+name = "steam-shortcuts-cli"
+version = "0.2.0"
+description = "A simple cli to manage steam external shortcuts"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Benno Evers" }]
+requires-python = ">=3.14"
+dependencies = ["docopt", "pydantic>=2.0"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Games/Entertainment",
+]
+
+[project.urls]
+Homepage = "https://github.com/lava/steam-shortcuts-cli"
+Repository = "https://github.com/lava/steam-shortcuts-cli"
+Issues = "https://github.com/lava/steam-shortcuts-cli/issues"
+
+[project.scripts]
+steam-shortcuts-cli = "steam_shortcuts_cli.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
