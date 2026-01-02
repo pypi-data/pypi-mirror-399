@@ -1,0 +1,97 @@
+[project]
+name = "babylab"
+version = "0.8.0"
+description = "A GUI for the SJD Babylab REDCap database"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "gongcastro", email = "gongarciacastro@gmail.com" },
+]
+dependencies = [
+    "dateutils>=0.6.12",
+    "dotenv>=0.9.9",
+    "polars>=1.33.1",
+    "pyarrow>=22.0.0",
+    "requests>=2.32.5",
+]
+
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: MacOS"
+]
+
+dependencies = [
+  "dotenv>=0.9.9",
+  "polars>=1.32.2",
+  "python-dateutil>=2.9.0.post0",
+  "pytz>=2025.2",
+  "requests",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.13.2",
+
+]
+
+[project.urls]
+Documentation = "https://github.com/NeuroDevComp/babylab-redcap#readme"
+Issues = "https://github.com/NeuroDevComp/babylab-redcap/issues"
+Source = "https://github.com/NeuroDevComp/babylab-redcap"
+
+[tool.setuptools]
+py-modules = []
+
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:babylab tests}"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "docs/",
+  ".env",
+  ".gitignore",
+]
+
+[tool.coverage.run]
+source_pkgs = ["babylab", "tests"]
+branch = true
+parallel = true
+omit = [
+  "babylab/__init__.py",
+]
+
+[tool.coverage.paths]
+babylab = ["babylab", "*/babylab-redcap/babylab"]
+tests = ["tests", "*/babylab/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+[tool.ruff.lint]
+select = ["I"]
+extend-select = ["B"]
