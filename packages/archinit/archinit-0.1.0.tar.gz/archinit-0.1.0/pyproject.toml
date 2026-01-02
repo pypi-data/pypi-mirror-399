@@ -1,0 +1,33 @@
+[project]
+name = "archinit"
+version = "0.1.0"
+description = "cli tool for generating clean architecture project structure"
+requires-python = ">=3.8"
+license = { text = "GPLv3" }
+authors = [
+    { name = "Lev", email = "leofisherking@gmail.com" },
+]
+dependencies = [
+    "build>=1.2.2.post1",
+    "twine>=6.1.0",
+    "typer>=0.16.0",
+]
+
+[project.urls]
+telegram = "https://t.me/gabellum"
+
+
+[project.scripts]
+archinit = "archinit.main:app"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.8",
+]
+
+[tool.ruff]
+fix = true
+line-length = 88
+
+[tool.ruff.lint]
+extend-select = ["COM812", "E501"]
