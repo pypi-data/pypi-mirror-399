@@ -1,0 +1,32 @@
+[project]
+name = "iterutil"
+version = "0.1.2"
+description = "A simple iterator wrapper for rust-style iterator chaining"
+authors = [
+    { name="Luke Scherrer", email="lukescherrer2@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.13"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/lscherrer2/iterutil"
+Issues = "https://github.com/lscherrer2/iterutil/issues"
+
+[tool.setuptools]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+iterutil = ["*.pyi"]
