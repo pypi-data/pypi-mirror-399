@@ -1,0 +1,699 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource xmlns="http://www.wxwidgets.org/wxxrc" version="2.5.3.0">
+	<object class="wxPanel" name="UpkPanel">
+		<style>wxTAB_TRAVERSAL</style>
+		<object class="wxBoxSizer" name="sizer_upk_main">
+			<orient>wxHORIZONTAL</orient>
+			<object class="sizeritem">
+				<flag>wxALL|wxEXPAND</flag>
+				<border>5</border>
+				<option>1</option>
+				<object class="wxNotebook" name="notebook_upk">
+					<object>
+						<label>Start page</label>
+						<style>wxTAB_TRAVERSAL</style>
+						<bg>#F0F0F0</bg>
+						<object class="wxPanel" name="page_start">
+							<style>wxTAB_TRAVERSAL</style>
+							<object class="wxBoxSizer" name="sizer_start">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="text_start">
+										<label>This tool allows to easily generate ESPHome YAML configuration, having either:
+- ESPHome-Kickstart running
+- Cloudcutter device profile
+- full firmware dump
+
+Choose a mode of operation to begin:</label>
+										<wrap>-1</wrap>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxCommandLinkButton" name="button_kickstart">
+										<label>Grab from ESPHome-Kickstart</label>
+										<note>If you have flashed Kickstart to a device</note>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxCommandLinkButton" name="button_cloudcutter">
+										<label>Build from Cloudcutter device profile</label>
+										<note>If your device has a matching manufacturer/model profile</note>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxCommandLinkButton" name="button_dump">
+										<label>Analyze firmware dump</label>
+										<note>If you read a firmware .BIN with ltchiptool or bk7231tools</note>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+					<object>
+						<label>Options</label>
+						<style>wxTAB_TRAVERSAL</style>
+						<bg>#F0F0F0</bg>
+						<object class="wxPanel" name="page_opts">
+							<style>wxTAB_TRAVERSAL</style>
+							<object class="wxBoxSizer" name="sizer_opts_main">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="text_opts">
+										<label>You can set various options related to the generated YAML.
+The default choices are usually fine in most cases.</label>
+										<wrap>-1</wrap>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxBoxSizer" name="sizer_opts_horz">
+										<orient>wxHORIZONTAL</orient>
+										<object class="sizeritem">
+											<flag>wxALL|wxEXPAND</flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="sizer_opts_vert1">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxCheckBox" name="opts_esphome_block">
+														<label>Include esphome: block</label>
+														<checked>1</checked>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxCheckBox" name="opts_name_mac">
+														<label>Add MAC to device name</label>
+														<checked>1</checked>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxCheckBox" name="opts_common">
+														<label>Add common components</label>
+														<checked>1</checked>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxCheckBox" name="opts_web_server">
+														<label>Add Web Server &amp;&amp; Captive Portal</label>
+														<checked>1</checked>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxCheckBox" name="opts_restart">
+														<label>Add restart button &amp;&amp; sensor</label>
+														<checked>1</checked>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxCheckBox" name="opts_uptime">
+														<label>Add uptime sensor</label>
+														<checked>1</checked>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxCheckBox" name="opts_lt_version">
+														<label>Add LT version sensor</label>
+														<checked>1</checked>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<flag>wxALL|wxEXPAND</flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="sizer_opts_vert2">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="text_wifi_ssid">
+														<label>Wi-Fi SSID</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="opts_wifi_ssid">
+														<value>!secret wifi__ssid</value>
+														<value>!secret wifi__ssid</value>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="text_wifi_password">
+														<label>Wi-Fi password</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="opts_wifi_password">
+														<value>!secret wifi__password</value>
+														<value>!secret wifi__password</value>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="text_ota_password">
+														<label>OTA password</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="opts_ota_password">
+														<value>!secret ota__password</value>
+														<value>!secret ota__password</value>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="text_api_password">
+														<label>API password</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="opts_api_password">
+														<value>!secret api__password</value>
+														<value>!secret api__password</value>
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL</flag>
+									<border>5</border>
+									<object class="wxButton" name="button_generate">
+										<label>Generate</label>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+					<object>
+						<label>ESPHome YAML</label>
+						<style>wxTAB_TRAVERSAL</style>
+						<bg>#F0F0F0</bg>
+						<object class="wxPanel" name="page_esphome">
+							<style>wxTAB_TRAVERSAL</style>
+							<object class="wxGridBagSizer" name="sizer_esphome">
+								<vgap>0</vgap>
+								<hgap>0</hgap>
+								<growablerows>2</growablerows>
+								<growablecols>0</growablecols>
+								<flexibledirection>wxBOTH</flexibledirection>
+								<nonflexiblegrowmode>wxFLEX_GROWMODE_SPECIFIED</nonflexiblegrowmode>
+								<object class="sizeritem">
+									<cellpos>0,0</cellpos>
+									<cellspan>1,1</cellspan>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="text_esphome_1">
+										<label>This page shows a suggested YAML config for your device.</label>
+										<wrap>500</wrap>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<cellpos>0,1</cellpos>
+									<cellspan>2,1</cellspan>
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxButton" name="button_esphome_copy">
+										<label>Copy</label>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<cellpos>1,0</cellpos>
+									<cellspan>1,1</cellspan>
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="text_esphome_2">
+										<label>We do not take responsibility for using this tool and the generated configs.</label>
+										<wrap>500</wrap>
+										<font>
+											<size>9</size>
+											<weight>bold</weight>
+										</font>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<cellpos>2,0</cellpos>
+									<cellspan>1,2</cellspan>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<option>1</option>
+									<object class="wxTextCtrl" name="input_esphome">
+										<style>wxTE_MULTILINE|wxTE_READONLY</style>
+										<font>
+											<size>11</size>
+											<face>Consolas</face>
+										</font>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+					<object>
+						<label>Source data</label>
+						<style>wxTAB_TRAVERSAL</style>
+						<bg>#F0F0F0</bg>
+						<object class="wxPanel" name="page_source">
+							<style>wxTAB_TRAVERSAL</style>
+							<object class="wxBoxSizer" name="box_sizer_13">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<flag>wxEXPAND</flag>
+									<border>5</border>
+									<option>1</option>
+									<object class="wxBoxSizer" name="box_sizer_14">
+										<orient>wxHORIZONTAL</orient>
+										<object class="sizeritem">
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="sizer_source_data">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="text_source_data_2">
+														<label>Storage data JSON:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<option>1</option>
+													<object class="wxTextCtrl" name="input_source_data">
+														<style>wxTE_MULTILINE|wxTE_READONLY</style>
+														<font>
+															<size>11</size>
+															<face>Consolas</face>
+														</font>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="sizer_source_extras">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxALL</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="text_source_extras">
+														<label>Additional data passed to UPK2ESPHome:</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxALL|wxEXPAND</flag>
+													<border>5</border>
+													<option>1</option>
+													<object class="wxTextCtrl" name="input_source_extras">
+														<style>wxTE_MULTILINE|wxTE_READONLY</style>
+														<font>
+															<size>11</size>
+															<face>Consolas</face>
+														</font>
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="text_source_data">
+										<label>This page shows the extracted Storage Area JSON.
+It contains a device schema and some other information that are useful for building Cloudcutter profiles.
+If Cloudcutter doesn't support your device yet, consider submitting the JSON to the issues page:</label>
+										<wrap>0</wrap>
+										<style>wxST_ELLIPSIZE_END</style>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxHyperlinkCtrl" name="link_source_data">
+										<label>https://github.com/tuya-cloudcutter/tuya-cloudcutter/issues</label>
+										<style>wxHL_DEFAULT_STYLE</style>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+					<object>
+						<label>Schema Download</label>
+						<style>wxTAB_TRAVERSAL</style>
+						<bg>#F0F0F0</bg>
+						<object class="wxPanel" name="page_schema">
+							<style>wxTAB_TRAVERSAL</style>
+							<object class="wxBoxSizer" name="sizer_schema">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="m_staticText">
+										<label>This page allows to download device schema model descriptions from the Tuya Cloud API.
+
+Having the schema model allows UPK2ESPHome to generate YAML with appropriate datapoints (DPIDs) for TuyaMCU.</label>
+										<wrap>0</wrap>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="text_guided_1">
+										<label>All necessary parameters have been filled out for you, based on the device configuration you chose.</label>
+										<wrap>0</wrap>
+										<font>
+											<size>9</size>
+											<style>italic</style>
+										</font>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxStaticText" name="text_guided_2">
+										<label>Press Download to start the process.</label>
+										<wrap>-1</wrap>
+										<font>
+											<size>9</size>
+											<weight>bold</weight>
+										</font>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticLine" name="static_line">
+										<style>wxLI_HORIZONTAL</style>
+										<size>20,-1d</size>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxLEFT|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxBoxSizer" name="box_sizer">
+										<orient>wxHORIZONTAL</orient>
+										<object class="sizeritem">
+											<flag></flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="box_sizer_2">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxTOP|wxBOTTOM|wxRIGHT</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText_4">
+														<label>Firmware Key</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxBOTTOM|wxRIGHT|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="input_firmware_key" />
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<flag></flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="box_sizer_3">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxTOP|wxBOTTOM|wxRIGHT</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText_5">
+														<label>Product Key</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxBOTTOM|wxRIGHT|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="input_product_key" />
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<flag></flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="box_sizer_4">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxTOP|wxBOTTOM|wxRIGHT</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText_6">
+														<label>Factory Pin</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxBOTTOM|wxRIGHT|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="input_factory_pin" />
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<flag></flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="box_sizer_5">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxTOP|wxBOTTOM|wxRIGHT</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText_7">
+														<label>Software Version</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxBOTTOM|wxRIGHT|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="input_software_ver" />
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticLine" name="static_line_2">
+										<style>wxLI_HORIZONTAL</style>
+										<size>20,-1d</size>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxCollapsiblePane" name="collapsible_schema">
+										<label>Show all options (advanced)</label>
+										<collapsed>1</collapsed>
+										<style>wxCP_DEFAULT_STYLE|wxCP_NO_TLW_RESIZE</style>
+										<object class="panewindow">
+											<object class="wxBoxSizer" name="box_sizer_6">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxLEFT|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxBoxSizer" name="box_sizer_7">
+														<orient>wxHORIZONTAL</orient>
+														<object class="sizeritem">
+															<flag></flag>
+															<border>5</border>
+															<option>1</option>
+															<object class="wxBoxSizer" name="box_sizer_9">
+																<orient>wxVERTICAL</orient>
+																<object class="sizeritem">
+																	<flag>wxBOTTOM|wxRIGHT</flag>
+																	<border>5</border>
+																	<object class="wxStaticText" name="m_staticText_8">
+																		<label>License UUID</label>
+																		<wrap>-1</wrap>
+																	</object>
+																</object>
+																<object class="sizeritem">
+																	<flag>wxBOTTOM|wxRIGHT|wxEXPAND</flag>
+																	<border>5</border>
+																	<object class="wxTextCtrl" name="input_uuid" />
+																</object>
+															</object>
+														</object>
+														<object class="sizeritem">
+															<flag></flag>
+															<border>5</border>
+															<option>1</option>
+															<object class="wxBoxSizer" name="box_sizer_11">
+																<orient>wxVERTICAL</orient>
+																<object class="sizeritem">
+																	<flag>wxBOTTOM|wxRIGHT</flag>
+																	<border>5</border>
+																	<object class="wxStaticText" name="m_staticText_10">
+																		<label>License AuthKey</label>
+																		<wrap>-1</wrap>
+																	</object>
+																</object>
+																<object class="sizeritem">
+																	<flag>wxBOTTOM|wxRIGHT|wxEXPAND</flag>
+																	<border>5</border>
+																	<object class="wxTextCtrl" name="input_auth_key" />
+																</object>
+															</object>
+														</object>
+														<object class="sizeritem">
+															<flag>wxTOP|wxBOTTOM|wxRIGHT</flag>
+															<border>5</border>
+															<option>1</option>
+															<object class="wxStaticText" name="m_staticText_9">
+																<wrap>-1</wrap>
+															</object>
+														</object>
+														<object class="sizeritem">
+															<flag>wxTOP|wxBOTTOM|wxRIGHT</flag>
+															<border>5</border>
+															<option>1</option>
+															<object class="wxStaticText" name="m_staticText_11">
+																<wrap>-1</wrap>
+															</object>
+														</object>
+													</object>
+												</object>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxCommandLinkButton" name="button_schema_download">
+										<label>Download</label>
+										<note>Connect to Tuya Cloud API to fetch device schema</note>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxStaticLine" name="static_line_3">
+										<style>wxLI_HORIZONTAL</style>
+										<size>20,-1d</size>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<flag>wxLEFT|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxBoxSizer" name="box_sizer_8">
+										<orient>wxHORIZONTAL</orient>
+										<object class="sizeritem">
+											<flag></flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="box_sizer_10">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxTOP|wxBOTTOM|wxRIGHT</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText_12">
+														<label>Device category</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxBOTTOM|wxRIGHT|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="input_device_category">
+														<style>wxTE_READONLY</style>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<flag></flag>
+											<border>5</border>
+											<option>1</option>
+											<object class="wxBoxSizer" name="box_sizer_12">
+												<orient>wxVERTICAL</orient>
+												<object class="sizeritem">
+													<flag>wxTOP|wxBOTTOM|wxRIGHT</flag>
+													<border>5</border>
+													<object class="wxStaticText" name="m_staticText_13">
+														<label>Model name</label>
+														<wrap>-1</wrap>
+													</object>
+												</object>
+												<object class="sizeritem">
+													<flag>wxBOTTOM|wxRIGHT|wxEXPAND</flag>
+													<border>5</border>
+													<object class="wxTextCtrl" name="input_device_name">
+														<style>wxTE_READONLY</style>
+													</object>
+												</object>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<flag>wxTOP|wxBOTTOM|wxRIGHT|wxALIGN_BOTTOM</flag>
+											<border>5</border>
+											<object class="wxButton" name="button_schema_response">
+												<label>Show full response</label>
+												<enabled>0</enabled>
+											</object>
+										</object>
+									</object>
+								</object>
+							</object>
+						</object>
+					</object>
+				</object>
+			</object>
+		</object>
+	</object>
+</resource>

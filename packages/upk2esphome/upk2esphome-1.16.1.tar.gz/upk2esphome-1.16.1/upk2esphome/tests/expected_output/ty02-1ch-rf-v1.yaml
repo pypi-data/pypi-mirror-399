@@ -1,0 +1,35 @@
+output:
+  - platform: libretiny_pwm
+    id: output_cold
+    pin: P8
+
+light:
+  - platform: monochromatic
+    id: light_monochromatic
+    name: Light
+    output: output_cold
+
+remote_receiver:
+  pin:
+    number: P7
+    inverted: true
+    mode: INPUT_PULLUP
+  # dump: all
+
+binary_sensor:
+  - platform: gpio
+    id: binary_switch_1
+    pin:
+      number: P14
+      inverted: true
+      mode: INPUT_PULLUP
+    on_press:
+      then: []
+  - platform: gpio
+    id: binary_switch_2
+    pin:
+      number: P1
+      inverted: true
+      mode: INPUT_PULLUP
+    on_press:
+      then: []
