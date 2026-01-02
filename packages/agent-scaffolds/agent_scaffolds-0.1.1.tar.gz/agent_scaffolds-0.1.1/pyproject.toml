@@ -1,0 +1,35 @@
+[project]
+name = "agent-scaffolds"
+version = "0.1.1"
+description = "agent-scaffolds"
+authors = [
+    {name = "Zahcoder34",email = "Zakhriw@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "ascender-framework (>=2.0.4,<3.0.0)",
+    "attp-client (==0.0.19b4)",
+    "prompt-toolkit (>=3.0.45,<4.0.0)"
+]
+
+
+[tool.poetry]
+name = "agent-scaffolds"
+version = "0.1.0"
+description = "agent-scaffolds"
+authors = ["Zahcoder34 <Zakhriw@gmail.com>"]
+readme = "README.md"
+packages = [
+    { include = "agenthub", from = "src" },
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.mcp.dependencies]
+mcp = "^1.25.0"
+fastapi-mcp = "^0.4.0"
+
