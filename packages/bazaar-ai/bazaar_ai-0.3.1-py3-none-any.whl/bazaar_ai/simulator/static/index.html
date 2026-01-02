@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazaar AI Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <style>
+        /* Custom scrollbar styling */
+        body::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        body::-webkit-scrollbar-track {
+            background: #fef3c7; /* amber-100 to match background */
+        }
+        
+        body::-webkit-scrollbar-thumb {
+            background: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 6px;
+        }
+        
+        body::-webkit-scrollbar-thumb:hover {
+            background: #f3f4f6;
+            border-color: #374151;
+        }
+        
+        /* Firefox scrollbar styling */
+        body {
+            scrollbar-width: thin;
+            scrollbar-color: #ffffff #fef3c7;
+        }
+
+        /* Fix button hover jitter */
+        button {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 min-h-screen p-6 overflow-y-scroll">
+
+<div id="app" class="max-w-7xl mx-auto">
+    <div id="connection-status" class="flex items-center justify-center h-screen">
+        <div class="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
+            <div class="mb-4">
+            </div>
+            <h2 class="text-2xl font-bold mb-4">Bazaar AI Simulation</h2>
+            <div class="animate-pulse mb-4">
+                <div class="h-2 bg-gray-300 rounded mb-2"></div>
+                <div class="h-2 bg-gray-300 rounded w-3/4 mx-auto"></div>
+            </div>
+            <p class="text-gray-600 mb-4">Connecting to game server...</p>
+            <p class="text-sm text-gray-500">Make sure the Python backend is running on ws://localhost:8765</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const cardStyles = {
+    DIAMOND: { 
+        bg: 'bg-[#C8334A]', 
+        border: 'border-[#8F1F32]', 
+        borderColor: '#8F1F32',
+        text: 'Ruby' 
+    },
+    GOLD: { 
+        bg: 'bg-[#F0C24F]', 
+        border: 'border-[#B58A2E]', 
+        borderColor: '#B58A2E',
+        text: 'Gold' 
+    },
+    SILVER: { 
+        bg: 'bg-[#6FA0C8]', 
+        border: 'border-[#3F6E99]', 
+        borderColor: '#3F6E99',
+        text: 'Silver' 
+    },
+    FABRIC: { 
+        bg: 'bg-[#9A6FC4]', 
+        border: 'border-[#6B4A93]', 
+        borderColor: '#6B4A93',
+        text: 'Fabric' 
+    },
+    SPICE: { 
+        bg: 'bg-[#9ACD32]',
+        border: 'border-[#6E9E22]', 
+        borderColor: '#6E9E22',
+        text: 'Spice' 
+    },
+    LEATHER: { 
+        bg: 'bg-[#A8744E]', 
+        border: 'border-[#6F4A2F]', 
+        borderColor: '#6F4A2F',
+        text: 'Leather' 
+    },
+    CAMEL: { 
+        bg: 'bg-[#E19A4F]', 
+        border: 'border-[#A86A2F]', 
+        borderColor: '#A86A2F',
+        text: 'Camel' 
+    }
+};
+
+let ws = null;
+let gameState = null;
+let isPlaying = false;
+let playSpeed = 1000;
+let availableAgents = [];
+
+function connectWebSocket() {
+    ws = new WebSocket('ws://localhost:8765');
+
+    ws.onopen = () => {
+        console.log('Connected to game server');
+        fetchAvailableAgents();
+        renderGame();
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.agents) {
+            availableAgents = data.agents;
+        } else {
+            gameState = data;
+            // Sync isPlaying with server state if game ended
+            if (gameState.isTerminal) {
+                isPlaying = false;
+            }
+        }
+        renderGame();
+    };
+
+    ws.onclose = () => {
+        console.log('Disconnected from game server');
+        setTimeout(connectWebSocket, 2000);
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+}
+
+function sendCommand(command, data = {}) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ command, ...data }));
+        
+        // If resetting, also reset local state
+        if (command === 'reset') {
+            isPlaying = false;
+        }
+    }
+}
+
+function fetchAvailableAgents() {
+    sendCommand('getAgents');
+}
+
+function updateSpeed(speed) {
+    playSpeed = parseInt(speed);
+    sendCommand('setSpeed', { speed: playSpeed });
+}
+
+function handleBuildPlayButton() {
+    if (!gameState) return;
+    
+    if (gameState.buildMode) {
+        // In build mode - trigger build
+        selectAgents();
+    } else {
+        // In play mode - toggle play/pause
+        togglePlay();
+    }
+}
+
+function selectAgents() {
+    const agent1 = document.getElementById('agent1').value;
+    const agent2 = document.getElementById('agent2').value;
+    sendCommand('selectAgents', { agent1, agent2 });
+}
+
+function createCard(goodType, size = 'lg') {
+    const style = cardStyles[goodType] || cardStyles.LEATHER;
+    const sizeClass = size === 'sm' ? 'w-14 h-20 text-xs' : 'w-20 h-28 text-sm';
+    
+    return `
+        <div class="${style.bg} ${style.border} border-2 rounded-lg ${sizeClass} flex items-center justify-center font-bold text-white shadow-lg">
+            <div>${style.text}</div>
+        </div>
+    `;
+}
+
+function createTokenDisplay(coins, goodType = null) {
+    if (!coins || coins.length === 0) return '';
+    
+    let colorClass = 'bg-gray-500';
+    if (goodType && cardStyles[goodType]) {
+        colorClass = cardStyles[goodType].bg;
+    }
+    
+    return coins.map(value => `
+        <div class="${colorClass} text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold shadow-sm">
+            ${value}
+        </div>
+    `).join('');
+}
+
+function getActionDescription(action) {
+    if (!action) return '';
+    
+    const makeGoodSpan = (type) => {
+        const style = cardStyles[type];
+        return `<span class="font-semibold" style="color: ${style?.borderColor}">${style?.text || type}</span>`;
+    };
+    
+    if (action.type === 'SELL') {
+        return `<span class="italic">sold ${action.count} ${makeGoodSpan(action.goodType)}</span>`;
+    } else if (action.type === 'TAKE') {
+        return `<span class="italic">took ${action.count} ${makeGoodSpan(action.goodType)}</span>`;
+    } else if (action.type === 'TRADE') {
+        const offered = Object.entries(action.offered || {})
+            .map(([type, count]) => `${count} ${makeGoodSpan(type)}`)
+            .join(', ');
+        const requested = Object.entries(action.requested || {})
+            .map(([type, count]) => `${count} ${makeGoodSpan(type)}`)
+            .join(', ');
+        return `<span class="italic">traded (${offered}) for (${requested})</span>`;
+    }
+    return 'Unknown action';
+}
+
+function renderGame() {
+    if (!gameState) return;
+
+    const app = document.getElementById('app');
+    
+    // Preserve dropdown selections
+    const currentAgent1 = document.getElementById('agent1')?.value || (availableAgents[0] || '');
+    const currentAgent2 = document.getElementById('agent2')?.value || (availableAgents[1] || availableAgents[0] || '');
+    const currentSpeed = document.getElementById('speedSelector')?.value || '1000';
+    
+    const marketCards = Object.entries(gameState.market || {})
+        .flatMap(([goodType, count]) => 
+            Array(count).fill(goodType).map(type => createCard(type))
+        )
+        .join('');
+
+    // Calculate how many cards are in the market
+    const currentMarketSize = Object.values(gameState.market || {}).reduce((sum, count) => sum + count, 0);
+    const maxMarketSize = 5;
+    const emptySlots = Math.max(0, maxMarketSize - currentMarketSize);
+
+    // Add placeholder cards for empty slots
+    const placeholderCards = '<div class="w-20 h-28 border-2 border-dashed border-gray-300 rounded-lg bg-gray-100"></div>'.repeat(emptySlots);
+
+    const players = gameState.players.map((player, idx) => {
+        const isActive = player.name === gameState.currentPlayer;
+        
+        let statusPill = '';
+        if (gameState.isTerminal) {
+            if (gameState.scoresCalculated) {
+                const scores = gameState.players.map(p => p.score);
+                const maxScore = Math.max(...scores);
+                const winners = gameState.players.filter(p => p.score === maxScore);
+                
+                if (winners.length > 1) {
+                    statusPill = '<span class="bg-gray-500 text-white px-2 py-1 rounded text-xs font-bold">TIE</span>';
+                } else if (player.score === maxScore) {
+                    statusPill = '<span class="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">WINNER</span>';
+                }
+            } else {
+                const scores = gameState.players.map(p => p.score);
+                const maxScore = Math.max(...scores);
+                if (player.score === maxScore) {
+                    statusPill = '<span class="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">LEADING</span>';
+                }
+            }
+        } else if (isActive && gameState.hasStarted) {
+            statusPill = '<span class="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse">ACTIVE</span>';
+        }
+        
+        // Calculate current hand size (excluding camels)
+        const currentHandSize = Object.entries(player.goods || {})
+            .filter(([type]) => type !== 'CAMEL')
+            .reduce((sum, [, count]) => sum + count, 0);
+        
+        const maxHandSize = 7;
+        const emptyHandSlots = Math.max(0, maxHandSize - currentHandSize);
+        
+        const handCards = Object.entries(player.goods || {})
+            .filter(([type]) => type !== 'CAMEL')
+            .flatMap(([goodType, count]) => 
+                Array(count).fill(goodType).map(type => createCard(type, 'sm'))
+            )
+            .join('');
+        
+        // Add placeholder cards for empty hand slots
+        const placeholderHandCards = '<div class="w-14 h-20 border-2 border-dashed border-gray-300 rounded-lg bg-gray-100"></div>'.repeat(emptyHandSlots);
+
+        return `
+            <div class="border-4 rounded-xl p-4 ${isActive && gameState.hasStarted ? 'border-green-500 bg-green-50 shadow-xl' : 'border-gray-300 bg-gray-50'}">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-xl font-bold">${player.name}</h3>
+                        ${statusPill}
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="flex items-center gap-1 bg-gray-600 px-3 py-1 rounded-lg">
+                        <span class="font-semibold text-gray-50"><i class="fa-solid fa-coins"></i></span>
+                        <span class="font-bold text-lg text-gray-50">${player.score}</span>
+                    </div>
+                    <div class="flex items-center gap-1 bg-gray-200 px-3 py-1 rounded-lg">
+                        <span class="font-semibold text-gray-500"><i class="fa-solid fa-3"></i>x</span>
+                        <span class="font-bold text-gray-500">${player.bonusCounts?.THREE ?? 0}</span>
+                    </div>
+                    <div class="flex items-center gap-1 bg-gray-200 px-3 py-1 rounded-lg">
+                        <span class="font-semibold text-gray-500"><i class="fa-solid fa-4"></i>x</span>
+                        <span class="font-bold text-gray-500">${player.bonusCounts?.FOUR ?? 0}</span>
+                    </div>
+                    <div class="flex items-center gap-1 bg-gray-200 px-3 py-1 rounded-lg">
+                        <span class="font-semibold text-gray-500"><i class="fa-solid fa-5"></i>x</span>
+                        <span class="font-bold text-gray-500">${player.bonusCounts?.FIVE ?? 0}</span>
+                    </div>
+                    <div class="flex items-center gap-1 bg-[#E19A4F] px-3 py-1 rounded-lg">
+                        <span class="font-semibold text-[#A86A2F]"><i class="fa-solid fa-horse"></i></span>
+                        <span class="font-bold text-[#A86A2F]">${player.goods.CAMEL || 0}</span>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <div class="flex gap-2 flex-wrap">${handCards}${placeholderHandCards}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    const marketCoinsDisplay = Object.keys(cardStyles)
+        .filter(goodType => goodType !== 'CAMEL')
+        .map(goodType => {
+            const coins = gameState.marketCoins?.[goodType] || [];
+            const style = cardStyles[goodType];
+            return `
+            <div class="flex items-start gap-2">
+                <div class="flex flex-col items-start">
+                    <div class="${style.border} border-2 rounded-lg p-2 min-w-[310px] min-h-[20px] flex gap-1 flex-wrap max-w-[400px]">
+                        <div class="flex items-center"><p class="m-0 text-sm font-bold min-w-[50px]">${style.text}</p></div>
+                        ${coins.length > 0 ? createTokenDisplay(coins, goodType) : '<span class="text-white text-sm opacity-50 inline-block min-w-[28px] min-h-[28px]"></span>'}
+                    </div>
+                </div>
+            </div>
+            `;
+        }).join('');
+
+    const bonusTokensDisplay = ['THREE', 'FOUR', 'FIVE'].map(bonusType => {
+        const count = gameState.marketBonusCounts?.[bonusType] || 0;
+        const bonusNum = bonusType === 'THREE' ? '3' : bonusType === 'FOUR' ? '4' : '5';
+        return `
+        <div class="flex items-start gap-2">
+            <div class="border-2 border-gray-600 rounded-lg p-2 min-w-[310px] min-h-[40px] flex gap-1 flex-wrap max-w-[400px]">
+                <div class="flex items-center"><p class="m-0 text-sm font-bold min-w-[50px] min-h-[28px]"><i class="fa-solid fa-${bonusNum}"></i>x</p></div>
+                ${count > 0 ? Array(count).fill(0).map(() => `
+                    <div class="bg-gray-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold shadow-sm">
+                        <i class="fa-solid fa-question"></i>
+                    </div>
+                `).join('') : '<span class="text-gray-600 text-xs opacity-50"></span>'}
+            </div>
+        </div>
+        `;
+    }).join('');
+
+    // Determine market status text
+    let marketStatusText = '';
+    if (!gameState.hasStarted) {
+        marketStatusText = 'Closed';
+    } else if (gameState.isTerminal) {
+        if (gameState.scoresCalculated) {
+            marketStatusText = 'Closed';
+        } else if (gameState.lastAction && gameState.lastAction.actor) {
+            marketStatusText = `Closed | Round ${gameState.round}: ${gameState.lastAction.actor} ${getActionDescription(gameState.lastAction)}`;
+        } else {
+            marketStatusText = 'Closed';
+        }
+    } else {
+        if (gameState.lastAction && gameState.lastAction.actor) {
+            marketStatusText = `Open | Round ${gameState.round}: ${gameState.lastAction.actor} ${getActionDescription(gameState.lastAction)}`;
+        } else {
+            marketStatusText = 'Open | Market just opened';
+        }
+    }
+
+    // Agent selector with preserved values and disabled state
+    const agentSelector = availableAgents.length > 0 ? `
+        <div class="flex gap-2 items-center bg-white rounded-lg px-3 py-2 border-2 border-gray-300">
+            <select id="agent1" class="border border-gray-300 rounded px-2 py-1 text-sm" ${!gameState.buildMode ? 'disabled' : ''}>
+                ${availableAgents.map(a => `<option value="${a}" ${a === currentAgent1 ? 'selected' : ''}>${a}</option>`).join('')}
+            </select>
+            <span class="font-semibold">vs</span>
+            <select id="agent2" class="border border-gray-300 rounded px-2 py-1 text-sm" ${!gameState.buildMode ? 'disabled' : ''}>
+                ${availableAgents.map(a => `<option value="${a}" ${a === currentAgent2 ? 'selected' : ''}>${a}</option>`).join('')}
+            </select>
+        </div>
+    ` : '';
+
+    // Determine button state and icon
+    let buttonIcon = '';
+    let buttonDisabled = false;
+    let buttonClasses = 'text-2xl transition-transform duration-200 transform hover:scale-110';
+    
+    if (gameState.buildMode) {
+        // Build mode - show hammer
+        buttonIcon = '<i class="fa-solid fa-hammer text-[#A86A2F] hover:text-[#8B5A2B]"></i>';
+    } else if (gameState.isTerminal) {
+        // Game ended - show play but disabled
+        buttonIcon = '<i class="fa-solid fa-play text-green-600"></i>';
+        buttonDisabled = true;
+        buttonClasses += ' opacity-50 cursor-not-allowed';
+    } else {
+        // Play mode - show play/pause based on isPlaying state
+        if (isPlaying) {
+            buttonIcon = '<i class="fa-solid fa-pause text-red-600 hover:text-red-500"></i>';
+        } else {
+            buttonIcon = '<i class="fa-solid fa-play text-green-600 hover:text-green-500"></i>';
+        }
+    }
+
+    app.innerHTML = `
+<div class="flex items-center justify-between gap-4 mb-4">
+<div class="flex flex-col gap-1">
+        <h2 class="text-xl font-bold text-gray-800">Market</h2>
+        <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full ${gameState.hasStarted && !gameState.isTerminal ? 'bg-green-500' : 'bg-gray-500'}"></span>
+            <span class="font-semibold">${marketStatusText}</span>
+        </div>
+    </div>
+    
+    <div class="flex gap-4 items-center">
+        ${agentSelector}
+        
+        <select id="speedSelector" class="border-2 border-gray-300 rounded px-2 py-1 text-sm" onchange="updateSpeed(this.value)">
+            <option value="1000" ${currentSpeed === '1000' ? 'selected' : ''}>Slow</option>
+            <option value="500" ${currentSpeed === '500' ? 'selected' : ''}>Normal</option>
+            <option value="100" ${currentSpeed === '100' ? 'selected' : ''}>Fast</option>
+        </select>
+        
+        <button onclick="handleBuildPlayButton()" class="w-6 flex items-center justify-center ${buttonClasses}" ${buttonDisabled ? 'disabled' : ''}>
+            ${buttonIcon}
+        </button>
+
+        ${gameState.isTerminal && !gameState.scoresCalculated 
+            ? `<button onclick="sendCommand('calculate')" class="w-6 flex items-center justify-center text-2xl transition-transform duration-200 transform hover:scale-110">
+                <i class="fa-solid fa-calculator text-purple-600 hover:text-purple-500"></i>
+               </button>`
+            : `<button onclick="sendCommand('step')" class="w-6 flex items-center justify-center text-2xl transition-transform duration-200 transform hover:scale-110" ${!gameState.gameLoaded || isPlaying || gameState.isTerminal ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+                <i class="fa-solid fa-forward-step text-blue-600 hover:text-blue-500"></i>
+               </button>`
+        }
+
+        <button onclick="sendCommand('reset')" class="w-6 flex items-center justify-center text-2xl transition-transform duration-200 transform hover:scale-110" ${!gameState.gameLoaded ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+            <i class="fa-solid fa-rotate-right text-black hover:text-gray-800"></i>
+        </button>
+    </div>
+</div>
+
+<div class="flex gap-4 justify-center flex-wrap mb-4">
+    ${marketCards}${placeholderCards}
+    <span class="inline-flex flex-col items-center justify-center border-2 border-gray-800 bg-gray-700 text-gray-100 px-4 py-2 rounded-lg font-semibold">
+        <span class="text-xl leading-none">${gameState.gameLoaded ? gameState.deckSize : '0'}</span>
+        <span class="text-sm tracking-wide text-gray-300">goods left</span>
+    </span>
+</div>
+
+<div class="mt-4 pt-4 border-t border-gray-200 mb-6">
+    <div class="grid grid-cols-3 md:grid-cols-3 gap-4">${marketCoinsDisplay}${bonusTokensDisplay}</div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    ${players}
+</div>
+    `;
+}
+
+function togglePlay() {
+    if (!gameState.gameLoaded || gameState.isTerminal) return;
+    isPlaying = !isPlaying;
+    sendCommand(isPlaying ? 'play' : 'pause');
+    renderGame(); // Re-render immediately to update button
+}
+
+connectWebSocket();
+</script>
+</body>
+</html>
