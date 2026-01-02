@@ -1,0 +1,1 @@
+STRAIN_COMPONENTS = ("strain_xx", "strain_yy", "strain_xy")
