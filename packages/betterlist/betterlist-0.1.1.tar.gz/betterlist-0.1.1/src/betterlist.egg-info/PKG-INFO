@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: betterlist
+Version: 0.1.1
+Summary: betterlist: list() materialization with transparent caching via betterlist[iterable]
+Author: You
+License: MIT
+Project-URL: Homepage, https://pypi.org/project/betterlist/
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# betterlist
+
+`betterlist` is a tiny library that materializes iterables like `list()`, but can cache the result.
+
+## Primary API
+
+```python
+import betterlist
+
+xs = betterlist[range(5)]           # -> [0, 1, 2, 3, 4]
+ys = betterlist[(x*x for x in xs)]  # -> [0, 1, 4, 9, 16]

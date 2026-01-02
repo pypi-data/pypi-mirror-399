@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "betterlist"
+version = "0.1.1"
+description = "betterlist: list() materialization with transparent caching via betterlist[iterable]"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name="You"}]
+dependencies = []
+
+[project.urls]
+Homepage = "https://pypi.org/project/betterlist/"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
