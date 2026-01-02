@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cnat"
+version = "0.1.0"
+description = "Write code in your native language. Cnat translates it into standard code."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+  {name = "Caleb M. Sibanda", email = "darkian.dev@gmail.com"}
+]
+
+keywords = [
+    "translator",
+    "native language",
+    "code",
+    "i18n",
+    "shona",
+    "localization"
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Compilers",
+  "Intended Audience :: Developers"
+]
+
+[project.scripts]
+cnat = "cnat.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cnat*"]
+
+[project.urls]
+Homepage = "https://github.com/2kDarki/cnat"
+Documentation = "https://github.com/2kDarki/cnat#readme"
+Repository = "https://github.com/2kDarki/cnat"
+Issues = "https://github.com/2kDarki/cnat/issues"
+
+[tool.setuptools.package-data]
+cnat = ["py.typed"]
