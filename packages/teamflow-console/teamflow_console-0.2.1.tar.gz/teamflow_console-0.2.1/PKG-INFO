@@ -1,0 +1,106 @@
+Metadata-Version: 2.4
+Name: teamflow-console
+Version: 0.2.1
+Summary: TeamFlow Console App - Phase 1: In-Memory Task Distribution
+Project-URL: Homepage, https://github.com/MrOwaisAbdullah/Teamflow
+Project-URL: Documentation, https://github.com/MrOwaisAbdullah/Teamflow#readme
+Project-URL: Repository, https://github.com/MrOwaisAbdullah/Teamflow
+Project-URL: Bug Tracker, https://github.com/MrOwaisAbdullah/Teamflow/issues
+Author-email: Owais Abdullah <contact@owaisabdullah.dev>
+Maintainer-email: Owais Abdullah <contact@owaisabdullah.dev>
+License: MIT
+License-File: LICENSE
+Keywords: cli,productivity,task-management,team,terminal
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Office/Business :: Scheduling
+Classifier: Topic :: Utilities
+Requires-Python: >=3.13
+Requires-Dist: pydantic>=2.5.0
+Requires-Dist: rich>=13.7.0
+Requires-Dist: typer>=0.12.0
+Provides-Extra: dev
+Requires-Dist: black>=23.12.0; extra == 'dev'
+Requires-Dist: build>=0.10.0; extra == 'dev'
+Requires-Dist: isort>=5.13.0; extra == 'dev'
+Requires-Dist: mypy>=1.7.0; extra == 'dev'
+Requires-Dist: pylint>=3.0.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.1.0; extra == 'dev'
+Requires-Dist: pytest-mock>=3.12.0; extra == 'dev'
+Requires-Dist: pytest>=7.4.0; extra == 'dev'
+Requires-Dist: twine>=4.0.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# TeamFlow Console App
+
+[![PyPI](https://img.shields.io/pypi/v/teamflow-console)](https://pypi.org/project/teamflow-console/)
+[![Python](https://img.shields.io/pypi/pyversions/teamflow-console)](https://pypi.org/project/teamflow-console/)
+[![License](https://img.shields.io/pypi/l/teamflow-console)](https://github.com/MrOwaisAbdullah/Teamflow/blob/main/LICENSE)
+
+Interactive menu-driven console application for task distribution in small agencies.
+
+## Installation
+
+```bash
+# Install from PyPI
+pip install teamflow-console
+
+# Or install with pipx (recommended for isolated environments)
+pipx install teamflow-console
+```
+
+## Quick Start
+
+```bash
+# Run the application
+teamflow
+```
+
+## Features
+
+- **Interactive Menu Navigation**: No command memorization required
+- **Task Management**: Create, view, update, complete, and delete tasks
+- **User & Team Management**: Create users with roles and skills, create teams
+- **Task Assignment**: Assign tasks to team members with workload warnings
+- **Task Filtering**: Filter by status, priority, and assignee
+- **Keyboard Shortcuts**: Quick actions for power users (c=create, l=list, q=quit)
+
+## First Run
+
+1. Launch `python -m src.main`
+2. See main menu with numbered options
+3. Press `1` for Task Management
+4. Press `1` to Create Task
+5. Follow the prompts (title, description, priority, assignee)
+6. Task created! Press `l` to list all tasks
+
+## Tech Stack
+
+- Python 3.13+
+- typer (CLI framework)
+- rich (terminal UI)
+- pydantic (data validation)
+- pytest (testing)
+
+## Project Structure
+
+```
+src/
+├── models/      # Pydantic data models
+├── services/    # Business logic layer
+├── cli/         # CLI interface (menus, prompts)
+└── lib/         # Utilities (formatting, storage)
+tests/
+├── unit/        # Model and service tests
+├── integration/ # End-to-end workflow tests
+└── contract/    # Interface contract tests
+```
+
+## License
+
+MIT
