@@ -1,0 +1,44 @@
+# NanoFlow: The "Blind" Inference Engine 🧅🚀
+
+**NanoFlow** is a lightweight, high-performance LLM inference engine optimized for **Zero-Copy** interoperability and **Layer-Wise** execution.
+
+## 🌟 Key Features
+
+*   **Universal Format Support:** Decoupled Compute Engine. Load weights in Python (Safetensors, PyTorch, GGUF, ONNX) and pass raw pointers to C++.
+*   **Zero-Copy Adapter:** No data duplication. C++ operates directly on Python-allocated memory.
+*   **"Onion System" Architecture:** 
+    *   **Memory Isolation:** Fixed "Hot Buffer" for active layer weights.
+    *   **Temporal Segmentation:** Streams layers just-in-time, allowing 70B models to run on consumer hardware.
+*   **Cross-Platform:** Native support for Windows (MSVC) and Linux (GCC/Clang).
+*   **Powered by GGML:** Utilizes the raw math performance of the GGML library.
+
+## 📦 Installation
+
+```bash
+pip install nanoflow-llm
+```
+
+## 🚀 Usage (Universal Adapter)
+
+```python
+import torch
+from safetensors.torch import load_file
+import nanoflow_ext
+
+# 1. Load Data (Python)
+tensors = load_file("model.safetensors")
+tensor_data = tensors["layer1.weight"]
+
+# 2. Pass Pointer (Zero-Copy)
+engine = nanoflow_ext.NanoFlowEngine(ram_limit_mb=256)
+engine.set_weights(
+    name="layer1.weight", 
+    raw_pointer=tensor_data.data_ptr(), 
+    rows=tensor_data.shape[0], 
+    cols=tensor_data.shape[1], 
+    ggml_type_id=0 # F32
+)
+
+# 3. Compute (C++)
+engine.compute("layer1.weight")
+```
