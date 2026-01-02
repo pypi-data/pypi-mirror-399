@@ -1,0 +1,119 @@
+Metadata-Version: 2.4
+Name: iltero-cli
+Version: 0.1.1
+Summary: Unified CLI for Iltero platform
+Author: Iltero Team
+License: Apache-2.0
+License-File: LICENSE
+Requires-Python: >=3.11
+Requires-Dist: attrs>=25.4.0
+Requires-Dist: click>=8.1.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: jinja2>=3.1.0
+Requires-Dist: keyring>=25.0.0
+Requires-Dist: orjson>=3.10.0
+Requires-Dist: packaging>=24.0
+Requires-Dist: pydantic-settings>=2.4.0
+Requires-Dist: pydantic>=2.8.0
+Requires-Dist: python-dateutil>=2.9.0.post0
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: rich>=13.7.0
+Requires-Dist: typer[all]>=0.12.0
+Provides-Extra: dev
+Requires-Dist: black>=24.8.0; extra == 'dev'
+Requires-Dist: mypy>=1.11.0; extra == 'dev'
+Requires-Dist: openapi-python-client>=0.27.1; extra == 'dev'
+Requires-Dist: pre-commit>=3.8.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.23.0; extra == 'dev'
+Requires-Dist: pytest-cov>=5.0.0; extra == 'dev'
+Requires-Dist: pytest-mock>=3.14.0; extra == 'dev'
+Requires-Dist: pytest>=8.3.0; extra == 'dev'
+Requires-Dist: ruff>=0.5.0; extra == 'dev'
+Provides-Extra: scanners
+Requires-Dist: checkov>=3.2.0; extra == 'scanners'
+Requires-Dist: requests>=2.32.0; extra == 'scanners'
+Description-Content-Type: text/markdown
+
+# Iltero CLI
+
+**Command-line interface for the Iltero platform**
+
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![PyPI version](https://img.shields.io/pypi/v/iltero-cli.svg)](https://pypi.org/project/iltero-cli/)
+
+## Installation
+
+```bash
+pip install iltero-cli
+```
+
+**Requirements:** Python 3.11 or higher
+
+## Quick Start
+
+### 1. Configure Authentication
+
+Get your API token from the Iltero platform, then:
+
+```bash
+# Set your token (stored securely in system keyring)
+iltero auth set-token
+
+# Or use environment variable
+export ILTERO_TOKEN=itk_u_your_token_here
+```
+
+### 2. Verify Connection
+
+```bash
+iltero auth status
+```
+
+### 3. Basic Usage
+
+```bash
+# List workspaces
+iltero workspace list
+
+# Create a stack
+iltero stack create --name my-stack --workspace my-workspace
+
+# Run compliance scan
+iltero scan static --path ./terraform
+
+# View help
+iltero --help
+```
+
+## Configuration
+
+Configure via environment variables or config file (`~/.iltero/config.yaml`):
+
+```bash
+export ILTERO_TOKEN=itk_u_your_token          # API token (required)
+export ILTERO_API_URL=https://api.iltero.io  # Backend URL
+export ILTERO_OUTPUT_FORMAT=json              # Output format: table, json, yaml
+```
+
+## Available Commands
+
+- `iltero auth` - Authentication management
+- `iltero workspace` - Workspace operations
+- `iltero environment` - Environment management
+- `iltero stack` - Stack lifecycle operations
+- `iltero scan` - Local compliance scanning
+- `iltero compliance` - Compliance and violations
+- `iltero registry` - Module and template registry
+- `iltero token` - Token management
+
+Run `iltero <command> --help` for detailed command documentation.
+
+## Support
+
+- **Documentation**: https://docs.iltero.io/cli
+- **Website**: https://iltero.io
+
+## License
+
+Apache License 2.0 - see [LICENSE](LICENSE) file for details.

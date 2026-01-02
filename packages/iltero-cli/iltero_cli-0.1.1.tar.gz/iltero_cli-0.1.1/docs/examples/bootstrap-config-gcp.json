@@ -1,0 +1,17 @@
+{
+  "cloud_config": {
+    "provider": "gcp",
+    "project_id": "my-gcp-project",
+    "region": "us-central1",
+    "service_account_email": "terraform@my-gcp-project.iam.gserviceaccount.com",
+    "plan_bucket": "my-terraform-plans"
+  },
+  "terraform_backend": {
+    "type": "gcs",
+    "config": {
+      "bucket": "my-terraform-state",
+      "region": "us-central1",
+      "encrypt": true
+    }
+  }
+}
