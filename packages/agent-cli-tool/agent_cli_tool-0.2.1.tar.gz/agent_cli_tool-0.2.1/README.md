@@ -1,0 +1,265 @@
+# Agent CLI Tool
+
+[![PyPI version](https://badge.fury.io/py/agent-cli-tool.svg)](https://badge.fury.io/py/agent-cli-tool)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A powerful command-line tool for interacting with AI models (OpenAI, DeepSeek, Claude) directly from your terminal. Features a plugin-based architecture, multiple UI modes, and extensible hook system.
+
+## Features
+
+- **Three UI Modes**:
+  - `stdout` - Plain text with ANSI colors
+  - `rich` - Live markdown rendering with syntax highlighting
+  - `tui` - Full interactive terminal UI with session management
+- **AI Modes**:
+  - `default` - General purpose conversations
+  - `shell` - Generate shell commands only
+  - `code` - Generate code only
+- **Plugin System** - Hook-based architecture for extending functionality
+- **Built-in Plugins**:
+  - `@file("path")` - Inject file content into prompts
+  - `@fetch("url")` - Fetch and inject web content
+  - Shell command execution confirmation
+- **Multi-modal Input** - Command-line args, pipe, or interactive TTY
+- **Session Management** (TUI mode) - History browsing and persistence
+
+## Installation
+
+### Using pip
+
+```bash
+pip install agent-cli-tool
+```
+
+### Using uv
+
+```bash
+uv tool install agent-cli-tool
+```
+
+### From source
+
+```bash
+git clone https://github.com/Awoodwhale/agent-cli-tool.git
+cd agent-cli-tool
+uv pip install -e .
+```
+
+## Configuration
+
+Create a configuration file at `~/.config/agent-cli-tool/.env`:
+
+```bash
+# Required
+API_KEY=your_api_key
+BASE_URL=https://api.openai.com/v1
+DEFAULT_MODEL=deepseek-chat
+
+# Optional
+UI_MODE=stdout              # stdout | rich | tui
+DEFAULT_LANGUAGE=python3    # Default language for code mode
+RICH_STYLE=github-dark      # Pygments style for rich mode
+STREAM=true                 # Enable streaming
+TIMEOUT=60                  # Request timeout in seconds
+
+# Custom prompts
+DEFAULT_PROMPT=You are a helpful assistant
+SHELL_PROMPT=Provide only shell commands...
+CODE_PROMPT=Provide only code...
+
+# UI customization (for stdout/rich modes)
+USER_EMOJI=👤
+AI_EMOJI=🤖
+THINK_START_EMOJI=🤔 [Thinking]
+THINK_END_EMOJI=💡 [Done]
+```
+
+## Usage
+
+### Basic Query
+
+```bash
+agent-cli-tool "Explain quantum computing"
+```
+
+### UI Modes
+
+```bash
+# Plain text output (default)
+agent-cli-tool "What is AI?"
+
+# Markdown rendering
+agent-cli-tool --ui-mode rich "Explain machine learning"
+
+# Interactive TUI with session management
+agent-cli-tool --ui-mode tui
+```
+
+### AI Modes
+
+```bash
+# Shell mode - generates shell commands only
+agent-cli-tool --shell "list all python processes"
+
+# Code mode - generates code only
+agent-cli-tool --code "fibonacci function in python"
+```
+
+### Conversation Mode
+
+```bash
+# Multi-turn conversation
+agent-cli-tool --conversation
+# or
+agent-cli-tool -c
+```
+
+### Model Selection
+
+```bash
+agent-cli-tool -m GPT-5 "Explain quantum computing"     # GPT-5
+agent-cli-tool -m deepseek-r1 "Solve this math problem" # DeepSeek Reasoner
+agent-cli-tool -m "claude sonnet 4.5" "Write a poem"    # claude sonnet 4.5
+```
+
+### Output to File
+
+```bash
+agent-cli-tool --code "web scraper in python" --output scraper.py
+```
+
+### Using Plugins
+
+```bash
+# Inject file content
+agent-cli-tool 'Review this code: @file("src/main.py")'
+
+# Fetch web content
+agent-cli-tool 'Summarize: @fetch("https://example.com/article")'
+```
+
+### Pipe Input
+
+```bash
+echo "explain this error" | agent-cli-tool
+cat error.log | agent-cli-tool "what went wrong?"
+```
+
+## Command Line Options
+
+```
+usage: agent-cli-tool [-h] [-m MODEL] [-a] [-iu] [-ia] [-it] [-c] [-sh] [-co] [-o OUTPUT] [-u {stdout,rich,tui}] [prompt]
+
+positional arguments:
+  prompt                 User input prompt
+
+options:
+  -h, --help             Show help message
+  -m, --model MODEL      AI model to use
+  -a, --ahead            Place arg prompt before pipe prompt (default: true)
+  -iu, --ignore_user     Don't display user input
+  -ia, --ignore_ai       Don't display AI model info
+  -it, --ignore_think    Don't display AI thinking/reasoning content
+  -c, --conversation     Enable multi-turn conversation mode
+  -sh, --shell           Shell mode - output shell commands only
+  -co, --code            Code mode - output code only
+  -o, --output OUTPUT    Write output to file
+  -u, --ui-mode {stdout,rich,tui}
+                         UI rendering mode
+```
+
+## TUI Mode
+
+The TUI mode provides a full interactive terminal interface:
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+D` | Send input |
+| `Ctrl+L` | Clear input |
+| `Ctrl+E` | Toggle history panel |
+| `Ctrl+T` | New session |
+| `Ctrl+B` | Toggle markdown/raw rendering |
+| `Ctrl+G` | Edit config |
+| `Ctrl+C` | Stop streaming (double-press to exit) |
+| `Delete` | Delete selected history/session |
+| `ESC` | Close modal dialogs |
+
+### Features
+
+- Session management with automatic title generation
+- History browsing and search
+- Config editing modal
+- Persistent chat history stored in `~/.config/agent-cli-tool/history/`
+
+
+## Development
+
+### Project Structure
+
+```
+src/agent_cli_tool/
+├── __init__.py          # Entry point
+├── agents/
+│   ├── agent.py         # Central orchestration
+│   └── ai.py            # OpenAI client wrapper
+├── cli/
+│   └── cli.py           # Argument parser
+├── config/
+│   └── config.py        # Configuration management
+├── plugins/
+│   ├── __init__.py      # Plugin loader
+│   ├── fetch.py         # Web content fetcher
+│   ├── file.py          # File content injector
+│   └── shell.py         # Shell confirmation plugin
+└── ui/
+    ├── base.py          # Base renderer
+    ├── stdout.py        # Plain text renderer
+    ├── rich.py          # Markdown renderer
+    └── tui.py           # Interactive TUI renderer
+```
+
+### Architecture
+
+```
+main() → Agent → Renderer (stdout/rich/tui) → Output
+         ↓
+    CLI Args & Config
+         ↓
+    Plugin System (before/after hooks)
+         ↓
+    BaseAI → OpenAI API
+```
+
+### Creating Plugins
+
+Create a Python file in `src/agent_cli_tool/plugins/`:
+
+```python
+# my_plugin.py
+def before_ai_ask_hook(user_input: str, mode: str) -> str:
+    """Process user input before sending to AI"""
+    # Modify user_input as needed
+    return user_input
+
+def after_ai_ask_hook(ai_reply: str, mode: str) -> str:
+    """Process AI response after receiving"""
+    # Modify ai_reply as needed
+    return ai_reply
+```
+
+Plugins are auto-discovered and loaded at runtime.
+
+### Dependencies
+
+- `openai>=1.75.0` - OpenAI API client
+- `python-dotenv>=1.1.0` - Configuration management
+- `requests>=2.32.3` - HTTP requests
+- `rich>=14.0.0` - Terminal rendering
+- `textual>=6.11.0` - TUI framework
+- `wcwidth>=0.2.14` - Unicode width handling
+
+## License
+
+MIT
