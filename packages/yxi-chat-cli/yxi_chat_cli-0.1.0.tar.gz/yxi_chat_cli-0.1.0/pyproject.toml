@@ -1,0 +1,33 @@
+[project]
+name = "yxi-chat-cli"
+version = "0.1.0"
+description = "Lightweight terminal chat CLI with MCP integration"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.111.0",
+    "requests>=2.32.5",
+    "rich>=14.2.0",
+    "python-docx>=1.1.0",
+    "uvicorn>=0.30.0",
+    "langgraph>=0.2.27",
+]
+
+[project.scripts]
+yxi-chat = "chatbot:main"
+yxi = "chatbot:main"
+
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = [
+    "tasks",
+    "tasks.word_table_export",
+    "tasks.obsidian_mcp",
+    "tasks.report_generator",
+    "tasks.service_deploy",
+    "tasks.json_to_java",
+]
+py-modules = ["chatbot", "main", "mcp_client", "task_scheduler"]

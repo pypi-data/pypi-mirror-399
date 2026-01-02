@@ -1,0 +1,258 @@
+# yxi-chat-cli — 轻量级开发自动化助手
+
+基于自然语言交互的轻量级开发工具。通过 `yxi-chat-cli` 接收指令，使用 MCP（Master Control Program）调度任务，并可配合 Docker Slim 对执行容器进行体积与启动时间优化。
+
+## ✨ 项目亮点
+
+- **自然语言交互**：使用日常语言触发开发任务，降低学习成本。
+- **轻量隔离执行**：结合 Docker 与 Docker Slim，可显著减小镜像体积并加快启动速度，保证环境隔离。
+- **灵活的 MCP 调度**：支持动态添加/切换 MCP 节点，便于集中管理多环境与多任务。
+- **开箱即用的代码生成**：内置辅助函数，可按需拓展到其他语言或代码骨架。
+- **模块化与可扩展**：设计上便于扩展新任务（例如数据处理、自动化部署脚本生成等）。
+- **LangGraph 智能体**：内置 doc2java agent，自动串联 Word 表格提取与 JSON→Java 生成，可通过 `/agent doc2java ...` 一键调用。
+
+## 🚀 快速上手
+
+下面的步骤覆盖 macOS、Linux 常见场景；请根据你的系统选择合适的命令。
+
+### 1. 环境准备
+
+- 安装 Docker：参见 https://docs.docker.com/get-docker/ 。
+- 可选：安装 Docker Slim（用于优化镜像体积）：
+  - 官方仓库：https://github.com/docker-slim/docker-slim
+  - 示例安装命令（Linux/macOS）：
+    ```bash
+    curl -sL https://raw.githubusercontent.com/docker-slim/docker-slim/master/scripts/install-dockerslim.sh | sudo -E bash -
+    ```
+- 安装 Python（建议 3.7+）：macOS 可用 `brew install python`，Linux 可用对应包管理器（如 `apt` / `yum`）。
+
+### 2. 克隆项目并安装依赖
+
+```bash
+# 克隆仓库
+git clone https://github.com/yxidotai/yxi-chat-cli.git
+cd yxi-chat-cli
+
+# 推荐：使用 uv 管理依赖
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync  # 根据 pyproject.toml 安装 requests、rich 等依赖
+
+# 如需临时扩展依赖，可执行（示例）
+uv add httpx
+
+# 如果暂不使用 uv，可 fallback 到 pip
+pip install -r requirements.txt
+```
+
+（如果代码中存在子模块或单独的 `mcp/requirements.txt`，请在 `mcp` 目录内运行 `pip install -r requirements.txt`。）
+
+### 3. 构建并优化代码生成容器（可选）
+
+```bash
+# 进入代码生成服务目录（示例）
+cd app
+
+# 构建原始镜像
+docker build -t codegen-executor .
+
+# 使用 Docker Slim 优化镜像（可选）
+docker-slim build --optimize --tag codegen-executor:slim codegen-executor
+
+cd ..
+```
+
+### 4. 启动服务
+
+1. 启动 MCP 服务器（在 `mcp` 目录）：
+
+```bash
+cd mcp
+uv run python mcp.py   # 默认监听 http://localhost:8000（如需修改请查看 mcp 配置）
+```
+
+2. 启动终端 Chatbot（在项目根目录，新终端）：
+
+```bash
+uv run python chatbot.py
+```
+
+运行前可设置以下环境变量：
+- `YXI_API_KEY`：云端对话所需 API 密钥。
+- `YXI_API_BASE_URL`：自定义 yxi API 基础 URL（默认 `https://api.yxi.ai/v1`）。
+- `YXI_MODEL`：指定调用的云端模型（默认 `yxi-7b-terminal`）。
+
+若不便设置环境变量，也可以在 CLI 中执行 `/apikey set <值>` 临时配置；该值会以明文写入 `~/.yxi_chat_config.json`，请按需评估安全风险。
+
+### 5. 使用示例
+
+在 Chatbot 终端输入自然语言或命令，示例：
+
+```bash
+# 添加 MCP 服务器
+/mcp add LocalMCP http://localhost:8000
+
+# 切换到离线模式并绑定节点
+/mode offline LocalMCP
+
+# 列出现有 MCP
+/mcp list
+
+# 查看指令帮助
+/help
+
+# 将最近助理回复中的代码块复制到剪贴板（macOS）
+/copy  # 或 /c
+
+# 交互式设置 API Key
+/apikey set sk-your-key
+
+# 查看可用模型并切换
+/model list
+/model use yxi-7b-terminal
+/model default yxi-7b-terminal
+
+# 将 JSON 转成 C++ 类（回到在线模式）
+/mode online
+将 {"name":"Alice","age":30,"address":{"city":"NY"}} 转成 class Person
+
+# 离线模式直接调用工具（node 可省略为默认离线节点）
+word_tables_to_json {"doc_path":"/data/demo.docx"}
+
+# 调用 MCP 工具
+/mcp invoke json_to_cpp {"schema":{"name":"Demo"}}
+
+# 运行 Obsidian MCP（示例）并注册
+OBSIDIAN_VAULT_DIR=~/Documents/ObsidianVault OBSIDIAN_MCP_TOKEN=sk-obsidian uv run python tasks/obsidian_mcp/mcp_service.py
+/mcp add obsidian http://localhost:8025 sk-obsidian
+/mcp tools obsidian
+/mcp invoke search_notes {"query":"roadmap","limit":5}
+/mcp invoke append_note {"path":"notes/todo.md","content":"- [ ] new item"}
+
+# 将嵌套 JSON 转成 Java 类（可指定包名）
+uv run python tasks/json_to_java/generate_java.py samples/nested.json -o Output.java --package com.example.demo --class-name Root
+
+# Docker 方式运行 Obsidian MCP（示例）
+docker build -f tasks/obsidian_mcp/Dockerfile -t yxi-obsidian-mcp .
+docker run --rm -p 8025:8025 \
+  -v "$HOME/Documents/ObsidianVault:/vault" \
+  -e OBSIDIAN_VAULT_DIR=/vault \
+  -e OBSIDIAN_MCP_TOKEN=sk-obsidian \
+  yxi-obsidian-mcp
+```
+
+## 📋 核心功能
+
+**常用指令**
+- `/help`：查看可用命令与模式提示。
+# yxi-chat-cli · 轻量级开发自动化与离线工具链
+
+yxi-chat-cli 是一个以自然语言驱动的终端助手，内置多种 MCP（Master Control Program）工具，并提供 Docker 化的本地运行方案，可在完全离线的环境下完成文档解析与代码生成。
+
+## 功能速览
+
+- 对话式 CLI：用口语化指令调用工具或发起生成任务。
+- MCP 工具集：
+  - `word_tables_to_json` 将 Word 表格抽取为 JSON。
+  - `json_to_java` 将 JSON 结构生成单文件 Java POJO。
+- LangGraph 智能体：`doc2java` 串联 Word 表格提取与 Java 生成。
+- Docker 支持：两项服务均提供镜像，便于隔离部署与挂载数据卷。
+
+## 环境要求
+
+- Python 3.11+
+- Docker（可选，用于运行服务镜像）
+- 推荐使用 uv 管理依赖
+
+## 安装
+
+```bash
+git clone https://github.com/yxidotai/yxi-chat-cli.git
+cd yxi-chat-cli
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync
+```
+
+如需 pip：`pip install -r requirements.txt`
+
+## 启动 CLI（本机）
+
+```bash
+uv run python chatbot.py
+```
+
+常用指令：
+
+- `/help` 查看帮助
+- `/copy` 复制最近回复代码块
+- `/apikey set <value>` 设置云端 API Key（若需在线模型）
+- `/mode offline <node>` 切换离线并指定 MCP 节点
+- `/mcp add <name> <url> [token]` 注册 MCP 服务
+- `/agent doc2java ...` 运行文档→Java 智能体
+
+## 本地运行 MCP 服务（无需 Docker）
+
+- Word 表格：`uv run python tasks/word_table_export/mcp_service.py` （默认 0.0.0.0:8000，`WORD_MCP_HOST/PORT` 可覆盖）
+- JSON→Java：`uv run python tasks/json_to_java/mcp_service.py` （默认 0.0.0.0:8030，`JSON_TO_JAVA_HOST/PORT` 可覆盖）
+
+健康检查：`curl http://localhost:8000/healthz`、`curl http://localhost:8030/healthz`
+
+## Docker 构建与运行
+
+从仓库根目录执行：
+
+```bash
+# 构建镜像
+docker build -f tasks/word_table_export/Dockerfile -t yxi-word-mcp .
+docker build -f tasks/json_to_java/Dockerfile -t yxi-json-to-java .
+
+# 运行 Word 表格服务（挂载样例文档）
+docker run --rm -p 8000:8000 -v "$PWD/samples:/data" yxi-word-mcp
+
+# 运行 JSON→Java 服务（可挂载输出目录）
+mkdir -p output
+docker run --rm -p 8030:8030 -v "$PWD/output:/out" yxi-json-to-java
+```
+
+说明：
+
+- 服务内部端口固定为 8000（word）和 8030（java）。修改映射请同步调整 CLI 的 `--word-url` / `--java-url`。
+- 传入的文件路径必须是容器可见路径。上例将 `samples` 挂载为 `/data`，因此应使用 `/data/demo.docx`。
+- `--output-path` 指向容器内路径；若需落盘到宿主机，请挂载目录并写入挂载点（如 `/out/Output.java`）。
+
+## LangGraph 智能体：docx → 表格 → Java
+
+当两个服务已启动（端口匹配）时，可在 CLI 执行：
+
+```bash
+/agent doc2java /data/demo.docx \
+  --word-url http://localhost:8000 \
+  --java-url http://localhost:8030 \
+  --package com.example.demo \
+  --class-name Root \
+  --output-path /out/Output.java
+```
+
+若使用本机文件且直接运行本地服务，可将文档路径换为宿主机绝对路径，输出路径换为本机可写目录（例如 `/tmp/Output.java`）。
+
+## MCP 工具接口摘要
+
+- `word_tables_to_json`
+  - 输入：`doc_path`（容器可见路径）或 `doc_base64`
+  - 选项：`treat_first_row_as_header`、`keep_empty_rows`
+  - 端点：`/tools/word_tables_to_json`
+
+- `json_to_java`
+  - 输入：`json_text` 或 `json_path`，可选 `root_path`、`package`、`class_name`、`output_path`
+  - 端点：`/tools/json_to_java`
+
+## 常见问题排查
+
+- 404 或连接失败：检查容器端口映射是否与 `--word-url` / `--java-url` 一致；确保容器在运行。
+- 找不到文档：确认 `doc_path` 指向容器内可见路径（如 `/data/demo.docx`），并已通过 `-v` 挂载。
+- 输出文件丢失：`--output-path` 写在容器内，需挂载输出目录并写入挂载点（如 `/out/Output.java`）。
+- Docker 命令报错（双 `-v`）：确保卷参数格式为 `-v host_path:container_path`。
+
+## 免责声明
+
+- 本项目为实验性工具，适用于学习与内部研发，不承诺生产级稳定性或安全性。
+- 使用前请自行完成合规、审计与风险评估；对因配置或生成代码导致的损失概不负责。
