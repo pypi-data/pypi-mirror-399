@@ -1,0 +1,124 @@
+Metadata-Version: 2.4
+Name: costflow
+Version: 0.1.0
+Summary: Cost estimation & scaling analysis for pandas pipelines
+Author: Shradhit Subudhi
+License: MIT
+Project-URL: Homepage, https://github.com/shradhitsubudhi/costflow
+Project-URL: Repository, https://github.com/shradhitsubudhi/costflow
+Keywords: pandas,performance,profiling,scaling,analytics
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.24
+Requires-Dist: pandas>=2.0
+Provides-Extra: mem
+Requires-Dist: psutil>=5.9; extra == "mem"
+Provides-Extra: dev
+Requires-Dist: pytest>=7; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+Dynamic: license-file
+
+## CostFlow
+[![CI](https://github.com/shradhitsubudhi/costflow/actions/workflows/ci.yml/badge.svg)](https://github.com/shradhitsubudhi/costflow/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/costflow.svg)](https://pypi.org/project/costflow/)
+
+CostFlow measures how your pandas pipelines scale. It runs a pipeline across multiple data sizes, traces expensive DataFrame ops (merge, groupby, sort, pivot, etc.), and fits simple complexity models so you can spot bottlenecks before the code hits production.
+
+### Why use it
+- See how wall time changes as rows grow and get quick projections for larger sizes.
+- Identify the pandas operations consuming most of the traced time.
+- Estimate memory needs (when `psutil` is installed) to avoid surprises on shared machines.
+
+### Install
+```bash
+pip install .
+# for memory tracking
+pip install ".[mem]"
+```
+
+### Quickstart
+```python
+import pandas as pd
+from costflow import analyze
+from costflow.report import pretty_print
+
+def make_df(n: int) -> pd.DataFrame:
+    import numpy as np
+    rng = np.random.default_rng(0)
+    return pd.DataFrame(
+        {
+            "customer_id": rng.integers(0, 100, size=n),
+            "region": rng.choice(["NA", "EU", "APAC", "LATAM"], size=n),
+            "quantity": rng.integers(1, 10, size=n),
+            "price": rng.normal(50, 10, size=n).clip(5),
+            "discount": rng.uniform(0, 0.3, size=n),
+        }
+    )
+
+def pipeline(df):
+    df["revenue"] = df["quantity"] * df["price"] * (1 - df["discount"])
+    out = (
+        df.groupby(["customer_id", "region"])
+          .agg(total_revenue=("revenue", "sum"))
+          .reset_index()
+          .sort_values("total_revenue", ascending=False)
+    )
+    return out
+
+report = analyze(
+    pipeline_fn=pipeline,
+    make_df=make_df,
+    sizes=[1_000, 5_000, 10_000],
+    trace_ops=True,
+)
+pretty_print(report)
+```
+
+See `examples/quickstart.py` for a fuller walk-through with multiple pipelines.
+More scenarios:
+- `examples/wide_table.py` for wide numeric tables with many columns.
+- `examples/string_heavy.py` for string-heavy joins/pivots.
+
+### Interpreting the report
+- **Runs**: shows wall time and (when available) peak RSS for each dataset size.
+- **Time model**: picks the candidate scaling model with the lowest RMSE; check `r2` to see how well it fits.
+- **Memory model**: only populated when `psutil` is installed (`pip install ".[mem]"`). Without it, the memory fit is `N/A` and projections are omitted.
+- **Dominant ops**: fraction of traced time spent in the most expensive pandas operations. Tracing is best-effort: common methods are wrapped explicitly, and other DataFrame/GroupBy methods are generically wrapped, but deep pandas internals (C/numba/numexpr) are not captured.
+- **Projections**: extrapolations to common target sizes using the chosen model and the column count from your largest run. Treat these as coarse estimates—validate them with a real run when possible and prefer models with a reasonable `r2`.
+
+### Tips for better signal
+- Use at least two or three increasing sizes so the fit can distinguish between linear vs. super-linear growth.
+- Set `trace_ops=True` to find bottlenecks, then re-run with `trace_ops=False` if you want to remove tracing overhead from timings.
+- Keep pipelines functional: return a DataFrame/Series; avoid mutating global state.
+
+### CLI
+Analyze a pipeline from the command line (defaults: `pipeline`/`make_df` function names):
+```bash
+costflow --pipeline examples/quickstart.py:simple_pipeline --make-df examples/quickstart.py:make_df --sizes 1000 5000 10000
+```
+- Add `--json` to emit machine-readable output.
+- Use `--no-trace-ops` to remove tracing overhead when you just want wall-clock measurements.
+
+### Limitations and guidance
+- Tracing is shallow: pandas operations implemented in C/numexpr/numba are not visible, so dominant-op fractions reflect Python-level pandas calls.
+- Projections assume the chosen model holds; verify with a real run near your target size before making infra decisions.
+- Memory projections require `psutil`. Without it, memory fit is `N/A` and only wall-time projections are shown.
+
+### Development
+```bash
+pip install ".[dev]"
+pytest
+```
+
+### License
+MIT (see LICENSE)
