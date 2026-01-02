@@ -1,0 +1,28 @@
+# !/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+MCP主服务
+
+Authors: [author]
+Date: [date]
+"""
+from fastmcp import FastMCP
+from agent_mcp_server.mcp_logging import MCPLogger
+[import_module]
+
+def main():
+    # 设置日志
+    MCPLogger.set_log()
+
+    # --- 定义主服务 ---
+    mcp = FastMCP(name="[mcp_server_cn_name]")
+
+    # --- 挂载子服务 ---
+[mcp_sub_server]
+
+    mcp.settings.host = "[host]"
+    mcp.settings.port = [port]
+    mcp.run(transport="[transport]")
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,6 @@
+FROM registry.cn-zhangjiakou.aliyuncs.com/p-cube/python:3.10.14
+RUN mkdir /[mcp_server_name]
+ADD . /[mcp_server_name]
+RUN pip3 install -r /[mcp_server_name]/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+WORKDIR /[mcp_server_name]
+CMD ["python", "main.py"]
