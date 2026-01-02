@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "notes-md"
+version = "0.1.2"
+description = "Markdown based notes CLI that uses current directory as the notebook name."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "David Knight" }
+]
+dependencies = [
+    "click>=8.1",
+    "PyYAML>=6.0",
+]
+
+[project.scripts]
+notes-md = "notes.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/viacoffee/notes-md"
+Repository = "https://github.com/viacoffee/notes-md"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0"
+]
