@@ -1,0 +1,112 @@
+# Pre-commit hooks configuration
+# Install: pip install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Basic file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+      - id: end-of-file-fixer
+        name: Fix end of files
+      - id: check-yaml
+        name: Check YAML syntax
+      - id: check-toml
+        name: Check TOML syntax
+      - id: check-added-large-files
+        name: Check for large files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      - id: check-case-conflict
+        name: Check for case conflicts
+      - id: check-ast
+        name: Check Python AST
+      - id: check-docstring-first
+        name: Check docstring is first
+      - id: debug-statements
+        name: Check for debugger imports
+      - id: mixed-line-ending
+        name: Check mixed line endings
+        args: ['--fix=lf']
+
+  # Security - Secrets detection
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+        name: Gitleaks - Detect secrets
+
+  # Security - Additional checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: detect-private-key
+        name: Detect private keys
+      - id: detect-aws-credentials
+        name: Detect AWS credentials
+        args: ['--allow-missing-credentials']
+
+  # Python - Ruff (linting and formatting)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.10
+    hooks:
+      # Linter
+      - id: ruff
+        name: Ruff linter
+        args: [--fix]
+      # Formatter
+      - id: ruff-format
+        name: Ruff formatter
+
+  # Python - Type checking (optional - uncomment to enable)
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.11.2
+  #   hooks:
+  #     - id: mypy
+  #       name: MyPy type checking
+  #       additional_dependencies: [types-requests]
+  #       args: [--ignore-missing-imports]
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.47.0
+    hooks:
+      - id: markdownlint
+        name: Lint Markdown files
+        args: ['--fix']
+
+  # Python - Test runner (optional - runs fast tests only)
+  # Uncomment to run tests on commit
+  # - repo: local
+  #   hooks:
+  #     - id: pytest-fast
+  #       name: Fast unit tests
+  #       entry: pytest
+  #       language: system
+  #       pass_filenames: false
+  #       always_run: true
+  #       args: [-v, -m, "not slow", --tb=short]
+
+# Configuration
+default_language_version:
+  python: python3.13
+
+# Don't fail on first error
+fail_fast: false
+
+# Files to exclude
+exclude: |
+  (?x)^(
+    .*\.log|
+    .*\.pyc|
+    __pycache__/.*|
+    \.git/.*|
+    \.pytest_cache/.*|
+    \.coverage.*|
+    htmlcov/.*|
+    .*\.egg-info/.*
+  )$
