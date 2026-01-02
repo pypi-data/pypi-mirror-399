@@ -1,0 +1,30 @@
+[project]
+name = "atomic-lru"
+version = "0.0.3"
+description = "Thread-safe, dependency-free in-memory LRU storage library for Python 3.12+ (with optional TTL)"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Fabien MARTY", email = "fabien.marty@gmail.com" }]
+maintainers = [{ name = "Fabien MARTY", email = "fab@fabien-marty.dev" }]
+license = "MIT"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/fabien-marty/atomic-lru"
+Repository = "https://github.com/fabien-marty/atomic-lru.git"
+
+[tool.uv]
+required-version = ">=0.9.0"
+
+[dependency-groups]
+dev = [
+    "jinja-tree>=0.7.4",
+    "lz4>=4.4.5",
+    "pydantic>=2.12.3",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.2",
+    "ty>=0.0.7",
+    "import-linter>=2.3",
+    "dunamai>=1.25.0",
+]
