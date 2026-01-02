@@ -1,0 +1,203 @@
+Metadata-Version: 2.4
+Name: yabetoo-sdk
+Version: 0.1.0
+Summary: Yabetoo Python SDK
+Home-page: https://github.com/yabetoo/yabetoo-py
+Author: Yabetoo
+Author-email: contact@yabetoopay.com
+License: MIT
+Project-URL: Homepage, https://github.com/yabetoo/sdk-py
+Project-URL: Source, https://github.com/yabetoo/sdk-py
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Dynamic: author-email
+Dynamic: home-page
+Dynamic: requires-python
+
+# YabetooPy
+
+A Python SDK for integrating with the Yabetoo Payment API. This library provides a simple interface for processing payments, creating checkout sessions, handling disbursements, and managing remittances.
+
+## Installation
+
+```bash
+pip install yabetoo-sdk
+```
+
+## Quick Start
+
+```python
+from yabetoo import YabetooSDK
+from models.payment import CreateIntentRequest, PaymentMethodData, MomoData
+
+# Initialize the SDK with your secret key
+sdk = YabetooSDK("your_secret_key")
+
+# Create a payment intent
+intent_data = CreateIntentRequest(
+    amount=1000,
+    currency="xaf",
+    description="Test payment",
+    metadata={"order_id": "123"}
+)
+
+intent = sdk.payments.create(intent_data)
+
+# Confirm the payment intent
+confirm_data = ConfirmIntentRequest(
+    client_secret=intent.client_secret,
+    payment_method_data=PaymentMethodData(
+        type='momo',
+        momo=MomoData(
+            country='cg',
+            msisdn='+242XXXXXXXXX',
+            operator_name="mtn"
+        )
+    )
+)
+
+result = sdk.payments.confirm(intent.id, confirm_data)
+```
+
+## Features
+
+- Payment Processing
+  - Create and confirm payment intents
+  - Handle mobile money transactions
+- Checkout Sessions
+  - Create hosted checkout pages
+  - Handle success/cancel redirects
+- Disbursements
+  - Send money to recipients
+  - Track disbursement status
+- Remittances
+  - Create and manage remittance transactions
+  - Real-time status updates
+
+## Documentation
+
+### Initialization
+
+```python
+from yabetoo import YabetooSDK
+
+sdk = YabetooSDK(
+    secret_key="your_secret_key",  # Starts with sk_test for sandbox
+    options=HttpClientOptions(
+        timeout=30,
+        max_retries=3
+    )
+)
+```
+
+### Payments
+
+```python
+# Create payment intent
+intent = sdk.payments.create(CreateIntentRequest(
+    amount=5000,
+    currency="xaf",
+    description="Product purchase"
+))
+
+# Retrieve payment
+payment = sdk.payments.retrieve("payment_id")
+
+# List payments
+payments = sdk.payments.get_page(page=1, per_page=10)
+```
+
+### Checkout Sessions
+
+```python
+# Create checkout session
+session = sdk.sessions.create(CreateCheckoutSession(
+    account_id="account_123",
+    total=10000,
+    currency="xaf",
+    success_url="https://example.com/success",
+    cancel_url="https://example.com/cancel",
+    items=[
+        CheckoutItem(
+            product_id="prod_123",
+            product_name="Product Name",
+            quantity=1,
+            price=10000
+        )
+    ]
+))
+```
+
+### Disbursements
+
+```python
+# Create disbursement
+disbursement = sdk.disbursements.create(CreateDisbursementRequest(
+    amount=5000,
+    currency="xaf",
+    first_name="John",
+    last_name="Doe",
+    payment_method_data=PaymentMethodData(
+        type="momo",
+        momo=MomoData(
+            country="cg",
+            msisdn="+242XXXXXXXXX",
+            operator_name="mtn"
+        )
+    )
+))
+```
+
+### Remittances
+
+```python
+# Create remittance
+remittance = sdk.remittances.create(CreateRemittanceRequest(
+    amount=5000,
+    currency="xaf",
+    first_name="John",
+    last_name="Doe",
+    payment_method_data=PaymentMethodData(
+        type="momo",
+        momo=MomoData(
+            country="cg",
+            msisdn="+242XXXXXXXXX",
+            operator_name="mtn"
+        )
+    )
+))
+```
+
+## Error Handling
+
+The SDK throws `YabetooError` for all API-related errors:
+
+```python
+from yabetoo import YabetooError
+
+try:
+    payment = sdk.payments.retrieve("invalid_id")
+except YabetooError as e:
+    print(f"Error: {e.message}")
+    if e.code:
+        print(f"Error code: {e.code}")
+    if e.errors:
+        print("Validation errors:", e.errors)
+```
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/yabetoo/sdk-py.git
+
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+```
+
+## License
+
+MIT License - see LICENSE file for details.
