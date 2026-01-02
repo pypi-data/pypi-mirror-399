@@ -1,0 +1,82 @@
+Metadata-Version: 2.4
+Name: miu-mono
+Version: 0.1.0
+Summary: AI Agent Framework - batteries included
+License: MIT
+Requires-Python: >=3.11
+Requires-Dist: asyncclick>=8.0
+Requires-Dist: miu-code
+Requires-Dist: miu-core[all]
+Provides-Extra: all
+Requires-Dist: miu-examples; extra == 'all'
+Requires-Dist: miu-studio; extra == 'all'
+Provides-Extra: examples
+Requires-Dist: miu-examples; extra == 'examples'
+Provides-Extra: studio
+Requires-Dist: miu-studio; extra == 'studio'
+Description-Content-Type: text/markdown
+
+# miu
+
+AI Agent Framework - batteries included.
+
+## Installation
+
+```bash
+# Basic installation
+uv add miu
+
+# With web UI
+uv add "miu[studio]"
+
+# With examples
+uv add "miu[examples]"
+
+# Everything
+uv add "miu[all]"
+```
+
+## CLI Commands
+
+```bash
+# Default: Run interactive CLI
+miu
+
+# Start web server
+miu serve --port 8000
+
+# Run TUI interface
+miu tui
+
+# Show version
+miu --version
+```
+
+## Python Usage
+
+```python
+import asyncio
+from miu import ReActAgent, create_provider, AgentConfig
+
+async def main():
+    provider = create_provider("anthropic:claude-sonnet-4-20250514")
+    agent = ReActAgent(
+        provider=provider,
+        config=AgentConfig(name="assistant"),
+    )
+    response = await agent.run("What is the capital of France?")
+    print(response.get_text())
+
+asyncio.run(main())
+```
+
+## Packages
+
+- **miu-core**: Core framework (agents, providers, tools, memory)
+- **miu-code**: CLI and TUI interfaces
+- **miu-studio**: Web server and chat UI
+- **miu-examples**: Example applications
+
+## License
+
+MIT
