@@ -1,0 +1,243 @@
+Metadata-Version: 2.4
+Name: lsyiot-ys7-sdk
+Version: 1.1.0
+Summary: 萤石云开放平台 Python SDK - 支持云台控制、设备管理、播放地址获取等功能
+Author-email: fhp <chinafengheping@outlook.com>
+License: Apache-2.0
+Project-URL: Homepage, https://github.com/9kl/lsyiot_ys7_sdk
+Project-URL: Documentation, https://github.com/9kl/lsyiot_ys7_sdk#readme
+Project-URL: Repository, https://github.com/9kl/lsyiot_ys7_sdk.git
+Project-URL: Bug Tracker, https://github.com/9kl/lsyiot_ys7_sdk/issues
+Project-URL: Changelog, https://github.com/9kl/lsyiot_ys7_sdk/releases
+Keywords: ys7,ezviz,yingshiyun,萤石云,hikvision,ipc,ptz,surveillance,sdk,iot
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Multimedia :: Video
+Classifier: Topic :: System :: Networking
+Classifier: Topic :: Home Automation
+Classifier: Typing :: Typed
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.25.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: types-requests>=2.28.0; extra == "dev"
+Dynamic: license-file
+
+# lsyiot_ys7_sdk
+
+领数云萤石云SDK - Python版本
+
+## 简介
+
+这是一个用于对接萤石云开放平台API的Python SDK，提供了简单易用的接口来访问萤石云的各项服务。
+
+## 特性
+
+- ✅ **Token 自动管理** - 自动获取、缓存和刷新 AccessToken，无需手动管理
+- ✅ **10002 错误自动重试** - 当 token 过期时自动刷新并重试请求
+- ✅ **完整的类型提示** - 使用 dataclass 定义返回实体，IDE 友好
+- ✅ **统一的异常处理** - 完善的异常层次结构，便于错误处理
+
+## 安装
+
+```bash
+pip install lsyiot-ys7-sdk
+```
+
+## 快速开始
+
+```python
+from lsyiot_ys7_sdk import LsyiotYs7API, PTZDirection, PTZSpeed
+
+# 创建API实例
+api = LsyiotYs7API(
+    app_key="your_app_key",
+    app_secret="your_app_secret"
+)
+
+# 无需手动获取 token，SDK 会自动管理
+# 获取设备列表
+result = api.get_device_list(page_start=0, page_size=10)
+print(f"设备总数: {result.page.total}")
+for device in result.devices:
+    print(f"设备: {device.device_name}, 状态: {'在线' if device.status == 1 else '离线'}")
+
+# 云台控制
+api.ptz_start("DEVICE_SERIAL", 1, PTZDirection.LEFT, PTZSpeed.MEDIUM)
+api.ptz_stop("DEVICE_SERIAL", 1, direction=PTZDirection.LEFT)
+
+# 设备抓拍
+capture = api.capture("DEVICE_SERIAL", 1)
+print(f"图片地址: {capture.pic_url}")
+```
+
+## Token 自动管理
+
+SDK 内置了完善的 token 管理机制：
+
+1. **自动获取**: 首次调用 API 时自动获取 token
+2. **提前刷新**: token 过期前 5 分钟自动刷新
+3. **失败重试**: 收到 10002 错误码时自动刷新 token 并重试
+
+```python
+# 你也可以手动获取 token（可选）
+token_info = api.get_access_token()
+print(f"Token: {token_info.access_token}")
+print(f"过期时间: {token_info.expire_time}")
+```
+
+## API 参考
+
+### 初始化
+
+```python
+api = LsyiotYs7API(app_key: str, app_secret: str)
+```
+
+### Token 管理
+
+| 方法 | 说明 | 返回类型 |
+|------|------|----------|
+| `get_access_token()` | 获取 AccessToken | `AccessToken` |
+
+### 云台控制
+
+| 方法 | 说明 | 返回类型 |
+|------|------|----------|
+| `ptz_start(device_serial, channel_no, direction, speed)` | 开始云台控制 | `None` |
+| `ptz_stop(device_serial, channel_no, direction?)` | 停止云台控制 | `None` |
+| `ptz_mirror(device_serial, channel_no, command)` | 镜像翻转 | `None` |
+
+### 预置点
+
+| 方法 | 说明 | 返回类型 |
+|------|------|----------|
+| `preset_add(device_serial, channel_no)` | 添加预置点 | `PresetIndex` |
+| `preset_move(device_serial, channel_no, index)` | 调用预置点 | `None` |
+| `preset_clear(device_serial, channel_no, index)` | 清除预置点 | `None` |
+
+### 设备管理
+
+| 方法 | 说明 | 返回类型 |
+|------|------|----------|
+| `capture(device_serial, channel_no, quality?)` | 设备抓拍 | `CaptureResult` |
+| `get_device_capacity(device_serial)` | 获取设备能力集 | `DeviceCapacity` |
+| `get_device_info(device_serial)` | 获取设备信息 | `DeviceInfo` |
+| `get_device_connection_info(device_serial)` | 获取设备连接信息 | `DeviceConnectionInfo` |
+| `get_device_status(device_serial, channel?)` | 获取设备状态 | `DeviceStatus` |
+| `get_device_list(page_start?, page_size?)` | 获取设备列表 | `DeviceListResult` |
+
+### 播放地址
+
+| 方法 | 说明 | 返回类型 |
+|------|------|----------|
+| `get_live_address(device_serial, ...)` | 获取播放地址 | `LiveAddress` |
+| `get_stream_address(stream_id, protocol, ...)` | 获取直播流地址 | `StreamAddress` |
+
+## 枚举类型
+
+### PTZDirection - 云台方向
+
+```python
+PTZDirection.UP         # 上
+PTZDirection.DOWN       # 下
+PTZDirection.LEFT       # 左
+PTZDirection.RIGHT      # 右
+PTZDirection.UP_LEFT    # 左上
+PTZDirection.DOWN_LEFT  # 左下
+PTZDirection.UP_RIGHT   # 右上
+PTZDirection.DOWN_RIGHT # 右下
+PTZDirection.ZOOM_IN    # 放大
+PTZDirection.ZOOM_OUT   # 缩小
+PTZDirection.FOCUS_NEAR # 近焦距
+PTZDirection.FOCUS_FAR  # 远焦距
+PTZDirection.AUTO       # 自动
+```
+
+### PTZSpeed - 云台速度
+
+```python
+PTZSpeed.SLOW   # 慢
+PTZSpeed.MEDIUM # 适中
+PTZSpeed.FAST   # 快
+```
+
+### MirrorCommand - 镜像方向
+
+```python
+MirrorCommand.UP_DOWN    # 上下翻转
+MirrorCommand.LEFT_RIGHT # 左右翻转
+MirrorCommand.CENTER     # 中心翻转
+```
+
+## 异常处理
+
+SDK 提供了统一的异常层次结构：
+
+```python
+from lsyiot_ys7_sdk import (
+    Ys7SdkError,           # 基础异常
+    Ys7SdkAccessTokenError, # Token 相关错误
+    Ys7SdkPTZControlError,  # 云台控制错误
+    Ys7SdkDeviceCaptureError, # 抓拍错误
+    Ys7SdkDeviceError,      # 设备相关错误
+    Ys7SdkLiveStreamError,  # 直播流错误
+)
+
+try:
+    api.ptz_start("DEVICE", 1, PTZDirection.LEFT, PTZSpeed.MEDIUM)
+except Ys7SdkPTZControlError as e:
+    print(f"云台控制失败: {e}")
+except Ys7SdkError as e:
+    print(f"SDK错误: {e}")
+```
+
+## 错误码说明
+
+| 错误码 | 说明 |
+|--------|------|
+| 200 | 操作成功 |
+| 10001 | 参数错误 |
+| 10002 | accessToken异常或过期（SDK 会自动处理） |
+| 10005 | appKey被冻结 |
+| 10017 | appKey不存在 |
+| 10030 | appKey和appSecret不匹配 |
+| 60000 | 设备不支持云台控制 |
+| 60001 | 用户无云台控制权限 |
+| 60006 | 网络异常，设备不在线 |
+
+## 开发计划
+
+- [x] AccessToken 获取与自动管理
+- [x] 云台控制（PTZ）
+- [x] 预置点管理
+- [x] 设备抓拍
+- [x] 设备信息查询
+- [x] 播放地址获取
+- [ ] 录像回放
+- [ ] 告警消息
+
+## 许可证
+
+Apache-2.0
+
+## 联系方式
+
+- 作者: fhp
+- 邮箱: chinafengheping@outlook.com
