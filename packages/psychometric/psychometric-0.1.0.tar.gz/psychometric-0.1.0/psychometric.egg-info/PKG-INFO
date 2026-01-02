@@ -1,0 +1,50 @@
+Metadata-Version: 2.4
+Name: psychometric
+Version: 0.1.0
+Summary: Simple utils for psychometric computation
+Author-email: Guohao Zhang <guohao2045@gmail.com>
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: factor-analyzer>=0.5.1
+Requires-Dist: numpy>=2.4.0
+Requires-Dist: pandas>=2.3.3
+Requires-Dist: pingouin>=0.5.5
+Requires-Dist: semopy>=2.3.11
+Requires-Dist: scikit-learn<1.6
+Requires-Dist: scipy>=1.14.0
+Requires-Dist: graphviz>=0.21
+
+# Psychometric_utils
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://colehank.github.io/psychometric_utils/)
+
+一个简单心理测量学库，包括项目分析、信度分析和效度分析。
+
+- **项目分析（Item Analysis）**
+  - 难易度分析（均值/通过率）
+  - 校正题总相关（CITC）
+  - 极端组检验
+
+- **信度分析（Reliability Analysis）**
+  - Cronbach's α系数
+  - McDonald's Omega系数
+  - 分半信度
+  - 删除题目后的α分析
+
+- **效度分析（Validity Analysis）**
+  - 探索性因子分析（EFA）
+  - 验证性因子分析（CFA）
+  - 平均方差提取（AVE）
+  - 组合信度（CR）
+  - 判别效度分析
+
+## 安装
+
+使用uv安装：
+
+```bash
+uv add psychometric
+```
+
+## 使用示例
+[示例](https://colehank.github.io/psychometric_utils/)
