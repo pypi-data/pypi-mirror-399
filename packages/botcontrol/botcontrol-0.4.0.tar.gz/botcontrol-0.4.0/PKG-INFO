@@ -1,0 +1,31 @@
+Metadata-Version: 2.4
+Name: botcontrol
+Version: 0.4.0
+Summary: کتابخونه مدیریت ربات چندپلتفرمی
+Author-email: YourName <you@example.com>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/YourUsername/botcontrol
+Project-URL: Documentation, https://github.com/YourUsername/botcontrol#readme
+Project-URL: Repository, https://github.com/YourUsername/botcontrol
+Project-URL: Bug_Tracker, https://github.com/YourUsername/botcontrol/issues
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# BotControl 0.4.0
+
+کتابخونه مدیریت ربات چندپلتفرمی
+
+## نصب
+```bash
+pip install botcontrol
+from botcontrol.engine import BotEngine
+from botcontrol.context import Context
+
+bot = BotEngine()
+
+def hello(ctx: Context):
+    print(f"سلام {ctx.user_id}!")
+
+bot.add_command("سلام", hello)
+ctx = Context(user_id=123)
+bot.execute("سلام", ctx)
