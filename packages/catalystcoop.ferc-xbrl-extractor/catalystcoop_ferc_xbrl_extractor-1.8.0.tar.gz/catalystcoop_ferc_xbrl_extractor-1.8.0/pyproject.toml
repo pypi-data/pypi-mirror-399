@@ -1,0 +1,265 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling", "hatch-vcs"]
+
+[project]
+name = "catalystcoop.ferc_xbrl_extractor"
+description = "A tool for extracting data from FERC XBRL Filings."
+readme = { file = "README.rst", content-type = "text/x-rst" }
+authors = [
+    { name = "Catalyst Cooperative", email = "pudl@catalyst.coop" },
+    { name = "Zach Schira", email = "zach.schira@catalyst.coop" },
+]
+requires-python = ">=3.11,<3.15.0a0"
+dynamic = ["version"]
+license = { file = "LICENSE.txt" }
+dependencies = [
+    "arelle-release>=2.32",
+    "coloredlogs>=14.0",
+    "duckdb>=1.3.2",
+    "frictionless>=5,<6",
+    "lxml>=4.9.1",
+    "numpy>=1.16,<3",
+    "pandas>=1.5",
+    "pyarrow>=14.0.1", # required starting in pandas 3.0
+    "pydantic>=2,<3",
+    "sqlalchemy>=1.4,<3",
+    "stringcase>=1.2",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+keywords = [
+    "accounting",
+    "data",
+    "electricity",
+    "energy",
+    "federal energy regulatory commission",
+    "ferc",
+    "finance",
+    "gas",
+    "natural gas",
+    "oil",
+    "regulation",
+    "utility",
+    "xbrl",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/catalyst-cooperative/ferc-xbrl-extractor"
+"Source" = "https://github.com/catalyst-cooperative/ferc-xbrl-extractor"
+"Documentation" = "https://catalystcoop-ferc-xbrl-extractor.readthedocs.io"
+"Issue Tracker" = "https://github.com/catalyst-cooperative/ferc-xbrl-extractor/issues"
+
+[project.scripts]
+xbrl_extract = "ferc_xbrl_extractor.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "hatch>=1.16",
+    "ruff>=0.14", # A very fast linter and autofixer
+]
+docs = [
+    "doc8>=2", # Ensures clean documentation formatting
+    "furo>=2024",
+    "sphinx>=9", # The default Python documentation engine
+    "sphinx-autoapi>=3", # Generates documentation from docstrings
+    "sphinx-issues>=5", # Allows references to GitHub issues
+]
+tests = [
+    "coverage>=7", # Lets us track what code is being tested
+    "doc8>=2", # Ensures clean documentation formatting
+    "mypy>=1", # Static type checking
+    "pre-commit>=4", # Allow us to run pre-commit hooks in testing
+    "pydocstyle>=6", # Style guidelines for Python documentation
+    "pytest>=9", # Our testing framework
+    "pytest-console-scripts>=1", # Allow automatic testing of scripts
+    "pytest-cov>=7", # Pytest plugin for working with coverage
+    "pytest-mock>=3",
+    "ruff>=0.14", # A very fast linter and autofixer
+]
+types = ["types-setuptools"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/ferc_xbrl_extractor/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ferc_xbrl_extractor"]
+
+[tool.hatch.envs.default]
+description = "Default environment with all development dependencies"
+features = ["dev", "docs", "tests"]
+
+[tool.hatch.envs.test]
+description = "Run tests with pytest and collect test coverage"
+features = ["tests"]
+
+[tool.hatch.envs.test.scripts]
+coverage-erase = "coverage erase"
+unit = "pytest --cov=src/ferc_xbrl_extractor --cov-append --no-cov-on-fail --doctest-modules src/ferc_xbrl_extractor tests/unit {args}"
+integration = "pytest --cov=src/ferc_xbrl_extractor --cov-append --no-cov-on-fail tests/integration {args}"
+coverage-report = [
+    "coverage report",
+    "coverage xml",
+]
+all = [
+    "coverage-erase",
+    "unit",
+    "integration",
+    "coverage-report",
+]
+
+[tool.hatch.envs.lint]
+description = "Run linters and formatters"
+features = ["tests"]
+detached = true
+
+[tool.hatch.envs.lint.scripts]
+check = [
+    "ruff check ./",
+    "ruff format --check ./",
+]
+format = [
+    "ruff format ./",
+    "ruff check --fix ./",
+]
+all = [
+    "check",
+    "format",
+]
+
+[tool.hatch.envs.docs]
+description = "Build documentation with Sphinx"
+features = ["docs"]
+
+[tool.hatch.envs.docs.scripts]
+check = "doc8 docs/ README.rst"
+clean = "rm -rf docs/_build"
+build = [
+    "clean",
+    "check",
+    "sphinx-build -W -b html docs docs/_build/html",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
+
+[tool.ruff]
+# Configurations that apply to both the `format` and `lint` subcommands.
+target-version = "py313"
+line-length = 88
+indent-width = 4
+extend-exclude = ["src/ferc_xbrl_extractor/_version.py"]
+
+[tool.ruff.format]
+# Configuration specfic to the `format` subcommand.
+# We use black compatible formatting.
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+select = [
+    "A", # flake8-builtins
+    # "ARG", # unused arguments
+    # "B",  # flake8-bugbear
+    "C", # Limit cyclomatic complexity using mccabe
+    "D", # pydocstyle errors
+    "E", # pycodestyle errors
+    "EXE", # executable file issues
+    # "ERA", # eradicate: find commented out code
+    "F", # pyflakes
+    "I", # isort
+    "ISC", # implicit string concatenation
+    "N", # pep8-naming
+    "NPY", # NumPy specific checks
+    "PD", # pandas checks
+    "PGH", # pygrep-hooks
+    # "PL",  # pylint
+    # "PT",  # pytest style
+    "PTH", # use pathlib
+    "Q", # flake8-quotes
+    "RET", # check return values
+    "RSE", # unnecessary parenthises on raised exceptions
+    "S", # flake8-bandit
+    "SIM", # flake8-simplify
+    # "T",   # print statements found
+    "UP", # pyupgrade (use modern python syntax)
+    "W", # pycodestyle warnings
+]
+ignore = [
+    "D401", # Require imperative mood in docstrings.
+    "D417",
+    "E501", # Overlong lines.
+    "E203", # Space before ':' (black recommends to ignore)
+    "ISC001", # implicit string concatenation
+    "PD003", # Use of isna rather than isnull
+    "PD004", # Use of notna rather than notnull
+    "PD008", # Use of df.at[] rather than df.loc[]
+    "PD010", # Use of df.stack()
+    "PD013", # Use of df.unstack()
+    "PD015", # Use of pd.merge() rather than df.merge()
+    "RET504", # Ignore unnecessary assignment before return
+    "S101", # Use of assert
+]
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "double"
+multiline-quotes = "double"
+
+[tool.ruff.lint.isort]
+known-first-party = ["ferc_xbrl_extractor"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"] # Ignore unused imports
+"tests/*" = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.doc8]
+max-line-length = 88
+ignore-path = ["docs/_build"]
+
+[tool.pytest.ini_options]
+testpaths = "./"
+filterwarnings = [
+    "ignore:distutils Version classes are deprecated:DeprecationWarning",
+    "ignore:Creating a LegacyVersion:DeprecationWarning:pkg_resources[.*]",
+    "ignore:The `update_forward_refs` method is deprecated:pydantic.PydanticDeprecatedSince20:pydantic.main",
+    "ignore:datetime.datetime.utcfromtimestamp\\(\\) is deprecated:DeprecationWarning:dateutil.tz",
+]
+
+addopts = "--verbose"
+log_format = "%(asctime)s [%(levelname)8s] %(name)s:%(lineno)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+log_cli = "true"
+log_cli_level = "INFO"
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL", "ELLIPSIS"]
