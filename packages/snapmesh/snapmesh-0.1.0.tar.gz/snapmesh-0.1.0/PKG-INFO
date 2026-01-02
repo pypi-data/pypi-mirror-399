@@ -1,0 +1,57 @@
+Metadata-Version: 2.4
+Name: snapmesh
+Version: 0.1.0
+Summary: A geometry-aware adaptive meshing tool
+Author-email: Chris Burnside <christopher.g.burnside@gmail.com>
+License: MIT License
+        
+        Copyright (c) 2026 Chris Burnside
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy...
+        (search "MIT License text" to get the full standard paragraph)
+        
+Project-URL: Homepage, https://github.com/cgburnsi/snapmesh
+Project-URL: Bug Tracker, https://github.com/cgburnsi/snapmesh/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Dynamic: license-file
+
+# Snapmesh
+
+**Snapmesh** is a geometry-aware adaptive meshing tool.
+
+## Features
+- **Constraint-Based Meshing:** Define geometry (Circles, Lines) first, and the mesh snaps to it.
+- **Adaptive Refinement:** Automatically refines specific regions (like wedges or boundary layers) without creating hanging nodes.
+- **Pure Python:** Lightweight and easy to extend.
+
+## Installation
+
+```bash
+pip install snapmesh
+
+# Snapmesh
+
+... (introduction text) ...
+
+## Quick Start
+
+```python
+import snapmesh.mesh as sm
+
+# Define a circular wall
+wall = sm.CircleConstraint(0, 0, 10.0)
+
+# Create a mesh
+m = sm.Mesh()
+
+# Add nodes (simplified for brevity)
+# ...
