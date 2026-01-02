@@ -1,0 +1,295 @@
+# PreOCR
+
+A fast, CPU-only, deterministic library that detects whether files need OCR processing before expensive OCR operations.
+
+## Overview
+
+PreOCR acts as a **universal document gatekeeper** that analyzes any file type and determines:
+
+> **"Is this file already machine-readable, or do I need OCR?"**
+
+Instead of performing OCR to detect OCR, PreOCR uses intelligent file analysis:
+1. **File type detection** (MIME types, extensions)
+2. **Text extraction probes** (PDF, Office docs, plain text)
+3. **Visual/binary analysis** (images, entropy)
+4. **Decision engine** (rule-based logic)
+
+## Features
+
+- ✅ **Fast**: CPU-only, no OCR required
+- ✅ **Deterministic**: Same input → same output
+- ✅ **OCR-free**: Never performs OCR to detect OCR
+- ✅ **Extensible**: Easy to add new file type handlers
+- ✅ **Conservative**: When uncertain, defaults to "needs OCR"
+- ✅ **Page-level detection**: Analyze PDFs page-by-page (v0.2.0+)
+- ✅ **Reason codes**: Structured codes for programmatic handling (v0.2.0+)
+- ✅ **Enhanced confidence**: More accurate confidence scoring (v0.2.0+)
+
+## Supported File Types
+
+- **PDFs**: Digital PDFs (no OCR) vs Scanned PDFs (needs OCR)
+- **Images**: PNG, JPG, TIFF, etc. (always needs OCR)
+- **Office Documents**: DOCX, PPTX, XLSX (extracts text if available)
+- **Text Files**: TXT, CSV, HTML (no OCR needed)
+- **Structured Data**: JSON, XML (no OCR needed)
+- **Unknown Binaries**: Defaults to needing OCR (conservative)
+
+## Installation
+
+```bash
+pip install preocr
+```
+
+## Quick Start
+
+```python
+from preocr import needs_ocr
+
+# Check if a file needs OCR
+result = needs_ocr("document.pdf")
+
+if result["needs_ocr"]:
+    print(f"File needs OCR: {result['reason']}")
+    print(f"Reason code: {result['reason_code']}")
+    # Run your OCR here (e.g., MinerU)
+else:
+    print(f"File is already machine-readable: {result['reason']}")
+
+# Page-level analysis for PDFs
+result = needs_ocr("document.pdf", page_level=True)
+for page in result.get("pages", []):
+    if page["needs_ocr"]:
+        print(f"Page {page['page_number']} needs OCR")
+```
+
+## API Reference
+
+### `needs_ocr(file_path)`
+
+Main API function that determines if a file needs OCR.
+
+**Parameters:**
+- `file_path` (str or Path): Path to the file to analyze
+
+**Parameters:**
+- `file_path` (str or Path): Path to the file to analyze
+- `page_level` (bool, optional): If True, return page-level analysis for PDFs (default: False)
+
+**Returns:**
+Dictionary with the following keys:
+- `needs_ocr` (bool): Whether OCR is needed
+- `file_type` (str): File type category ("pdf", "image", "office", "text", etc.)
+- `category` (str): "structured" (no OCR) or "unstructured" (needs OCR)
+- `confidence` (float): Confidence score (0.0-1.0)
+- `reason` (str): Human-readable reason for the decision
+- `reason_code` (str): Structured reason code (e.g., "PDF_DIGITAL", "IMAGE_FILE", "PDF_MIXED")
+- `signals` (dict): All collected detection signals (for debugging)
+- `pages` (list, optional): Page-level results (if `page_level=True` for PDFs)
+  - Each page contains: `page_number`, `needs_ocr`, `text_length`, `confidence`, `reason_code`, `reason`
+- `page_count` (int, optional): Total number of pages (for PDFs with page-level analysis)
+- `pages_needing_ocr` (int, optional): Number of pages that need OCR
+- `pages_with_text` (int, optional): Number of pages with extractable text
+
+**Example:**
+
+```python
+result = needs_ocr("document.pdf")
+print(result)
+# {
+#     "needs_ocr": False,
+#     "file_type": "pdf",
+#     "category": "structured",
+#     "confidence": 0.9,
+#     "reason": "Digital PDF with extractable text (1234 chars)",
+#     "reason_code": "PDF_DIGITAL",
+#     "signals": {
+#         "mime": "application/pdf",
+#         "extension": "pdf",
+#         "text_length": 1234,
+#         "has_text": True,
+#         ...
+#     }
+# }
+
+# Page-level analysis
+result = needs_ocr("mixed_document.pdf", page_level=True)
+print(result["reason_code"])  # "PDF_MIXED" if some pages need OCR
+for page in result["pages"]:
+    print(f"Page {page['page_number']}: {page['reason_code']} - {page['reason']}")
+```
+
+## Usage Examples
+
+### Basic Usage
+
+```python
+from preocr import needs_ocr
+
+result = needs_ocr("my_document.pdf")
+
+if result["needs_ocr"]:
+    print("This file needs OCR processing")
+    # Your OCR code here
+else:
+    print("This file is already machine-readable")
+    print(f"Reason: {result['reason']}")
+```
+
+### Batch Processing
+
+```python
+from pathlib import Path
+from preocr import needs_ocr
+
+files = Path("documents").glob("*.pdf")
+
+for file_path in files:
+    result = needs_ocr(file_path)
+    status = "NEEDS OCR" if result["needs_ocr"] else "READY"
+    print(f"{file_path.name}: {status} ({result['reason']})")
+```
+
+### Integration with MinerU
+
+```python
+from preocr import needs_ocr
+# Assuming you have MinerU OCR available
+# from mineru import ocr
+
+def process_document(file_path):
+    result = needs_ocr(file_path)
+    
+    if result["needs_ocr"]:
+        # Only run expensive OCR if needed
+        # ocr_result = ocr(file_path)
+        print(f"Running OCR on {file_path}")
+    else:
+        # Use existing text extraction
+        print(f"Using existing text from {file_path}")
+
+# Page-level processing for PDFs
+def process_pdf_pages(file_path):
+    result = needs_ocr(file_path, page_level=True)
+    
+    if result["reason_code"] == "PDF_MIXED":
+        # Process only pages that need OCR
+        for page in result["pages"]:
+            if page["needs_ocr"]:
+                print(f"OCR needed for page {page['page_number']}")
+                # ocr_single_page(file_path, page["page_number"])
+    elif result["needs_ocr"]:
+        # All pages need OCR
+        print("All pages need OCR")
+    else:
+        # All pages are digital
+        print("All pages are digital - no OCR needed")
+```
+
+## Architecture
+
+```
+Any File
+  ↓
+File Type Detector
+  ↓
+Text Extractability Probe
+  ↓
+Visual / Binary Probe
+  ↓
+Decision Engine
+  ↓
+Result (needs_ocr: bool)
+```
+
+## Decision Logic
+
+PreOCR uses rule-based logic to make decisions:
+
+1. **Plain text formats** → NO OCR (`TEXT_FILE`)
+2. **Office docs with text** → NO OCR (`OFFICE_WITH_TEXT`)
+3. **PDFs with extractable text** → NO OCR (`PDF_DIGITAL`)
+4. **PDFs without text** → YES OCR (`PDF_SCANNED`) - likely scanned
+5. **Images** → YES OCR (`IMAGE_FILE`) - always
+6. **Unknown binaries** → YES OCR (`UNKNOWN_BINARY`) - conservative default
+
+## Reason Codes
+
+PreOCR provides structured reason codes for programmatic handling:
+
+### No OCR Needed
+- `TEXT_FILE`: Plain text file
+- `OFFICE_WITH_TEXT`: Office document with sufficient text
+- `PDF_DIGITAL`: Digital PDF with extractable text
+- `STRUCTURED_DATA`: JSON/XML files
+- `HTML_WITH_TEXT`: HTML with sufficient content
+
+### OCR Needed
+- `IMAGE_FILE`: Image file (no text extraction possible)
+- `OFFICE_NO_TEXT`: Office document with insufficient text
+- `PDF_SCANNED`: PDF appears to be scanned
+- `HTML_MINIMAL`: HTML with minimal content
+- `UNKNOWN_BINARY`: Unknown binary file type
+- `UNRECOGNIZED_TYPE`: Unrecognized file type
+
+### Page-Level Codes (for PDFs with page_level=True)
+- `PDF_PAGE_DIGITAL`: Individual page has extractable text
+- `PDF_PAGE_SCANNED`: Individual page appears scanned
+- `PDF_MIXED`: PDF contains both digital and scanned pages
+
+**Example:**
+```python
+result = needs_ocr("document.pdf")
+if result["reason_code"] == "PDF_MIXED":
+    # Handle mixed PDF
+    pass
+elif result["reason_code"] == "PDF_SCANNED":
+    # All pages need OCR
+    pass
+```
+
+## Requirements
+
+- Python 3.9+
+- See `pyproject.toml` for full dependency list
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/yuvaraj3855/preocr.git
+cd preocr
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run with coverage
+pytest --cov=preocr --cov-report=html
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+Apache License 2.0 - see [LICENSE](LICENSE) file for details.
+
+## Versioning
+
+PreOCR follows [Semantic Versioning](https://semver.org/):
+- **MAJOR**: Breaking API changes
+- **MINOR**: New features (backward-compatible)
+- **PATCH**: Bug fixes (backward-compatible)
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and changes.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/yourusername/preocr/issues)
+- **Documentation**: [GitHub README](https://github.com/yourusername/preocr#readme)
+
