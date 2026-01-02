@@ -1,0 +1,160 @@
+Metadata-Version: 2.4
+Name: splleed
+Version: 0.1.0a1
+Summary: LLM inference benchmarking harness with pluggable backends
+Author: splleed contributors
+License: MIT
+License-File: LICENSE
+Keywords: benchmark,inference,llm,performance,vllm
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.11
+Requires-Dist: httpx>=0.25
+Requires-Dist: numpy>=1.24
+Requires-Dist: pydantic>=2.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: rich>=13.0
+Requires-Dist: typer>=0.9
+Provides-Extra: cloud
+Requires-Dist: skypilot; extra == 'cloud'
+Provides-Extra: dev
+Requires-Dist: pytest-asyncio>=0.21; extra == 'dev'
+Requires-Dist: pytest>=7.0; extra == 'dev'
+Requires-Dist: ruff>=0.1; extra == 'dev'
+Provides-Extra: tgi
+Requires-Dist: text-generation; extra == 'tgi'
+Provides-Extra: transformers
+Requires-Dist: torch; extra == 'transformers'
+Requires-Dist: transformers; extra == 'transformers'
+Provides-Extra: vllm
+Requires-Dist: vllm; extra == 'vllm'
+Description-Content-Type: text/markdown
+
+# splleed
+
+LLM inference benchmarking harness with pluggable backends.
+
+## Features
+
+- **Pluggable backends**: vLLM, TGI (more coming)
+- **Comprehensive metrics**: TTFT, ITL, TPOT, throughput, E2E latency
+- **Multiple modes**: throughput, latency, serve simulation
+- **Flexible operation**: Connect to existing servers or let splleed manage them
+
+## Installation
+
+```bash
+# Clone the repo
+git clone https://github.com/Bradley-Butcher/Splleed.git
+cd Splleed
+
+# With uv (recommended)
+uv sync
+uv run splleed --help
+
+# Or with pip
+pip install -e .
+splleed --help
+```
+
+Inference engines (vLLM, TGI) are **not** bundled - install them separately as needed.
+
+## Quick Start
+
+```bash
+# Run a benchmark
+splleed run examples/vllm.yaml
+
+# Other commands
+splleed validate config.yaml   # Check config syntax
+splleed backends               # List available backends
+splleed init -o config.yaml    # Generate example config
+```
+
+## Configuration
+
+### Connect Mode
+Connect to an already-running server:
+
+```yaml
+backend:
+  type: vllm
+  endpoint: http://localhost:8000
+```
+
+### Managed Mode
+Let splleed start and stop the server:
+
+```yaml
+backend:
+  type: vllm
+  model: Qwen/Qwen2.5-0.5B-Instruct
+  port: 8000
+```
+
+### Full Example
+
+```yaml
+backend:
+  type: vllm
+  model: meta-llama/Llama-3.1-8B-Instruct
+  port: 8000
+  gpu_memory_utilization: 0.9
+
+dataset:
+  type: inline
+  prompts:
+    - "What is the capital of France?"
+    - "Explain quantum computing."
+
+benchmark:
+  mode: latency        # throughput, latency, or serve
+  concurrency: [1, 4, 8]
+  warmup: 2
+  runs: 10
+
+sampling:
+  max_tokens: 100
+  temperature: 0.0
+
+output:
+  format: json
+```
+
+See `examples/` for more configurations.
+
+## Metrics
+
+| Metric | Description |
+|--------|-------------|
+| TTFT | Time to first token |
+| ITL | Inter-token latency |
+| TPOT | Time per output token |
+| E2E | End-to-end latency |
+| Throughput | Tokens/sec |
+
+All latency metrics include p50, p95, p99, and mean.
+
+## Backend Setup
+
+For managed mode, splleed finds the engine executable via:
+
+1. Config: `executable: /path/to/vllm`
+2. Env var: `SPLLEED_VLLM_PATH` or `SPLLEED_TGI_PATH`
+3. System PATH
+
+## Adding Backends
+
+```bash
+splleed new-backend my_engine
+```
+
+See `src/splleed/backends/_template/` for the template.
+
+## License
+
+MIT
