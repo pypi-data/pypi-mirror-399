@@ -1,0 +1,43 @@
+name = "alpha-backend"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+# Cron triggers for scheduled tasks (alerts, cache refresh)
+[triggers]
+crons = ["*/5 * * * *"]  # Every 5 minutes
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "alpha-db"
+database_id = "e531d6c6-167b-4f26-a05f-84be637612ef"
+
+# KV namespace for caching
+[[kv_namespaces]]
+binding = "CACHE"
+id = "6553af8806bf4ae5940c651e87f61527"
+
+# Queue for webhook delivery (requires Workers Paid plan)
+# Uncomment when upgrading to paid plan for alerts feature
+# [[queues.producers]]
+# binding = "WEBHOOK_QUEUE"
+# queue = "alert-webhooks"
+#
+# [[queues.consumers]]
+# queue = "alert-webhooks"
+# max_batch_size = 10
+# max_retries = 3
+# dead_letter_queue = "alert-webhooks-dlq"
+
+# Environment variables (secrets set via wrangler secret)
+[vars]
+ENVIRONMENT = "development"
+API_VERSION = "v1"
+
+# Development overrides
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+# Production overrides
+[env.production]
+vars = { ENVIRONMENT = "production" }
