@@ -1,0 +1,89 @@
+Metadata-Version: 2.4
+Name: wetest-pyidb
+Version: 0.0.3
+Author: Tencent WeTest
+Author-email: WeTest@wetest.net
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: packaging
+Requires-Dist: requests
+Requires-Dist: pydantic
+Requires-Dist: wetest-osplatform
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: requires-dist
+Dynamic: requires-python
+
+# pyidb
+
+[idb](https://git.woa.com/CloudTesting/UDT/ct2-agent/tree/master/cmd/idb)的python封装
+
+## 安装
+
+支持python >= 3.8
+
+使用以下命令可以直接从腾讯pypi源进行安装
+
+```shell
+python3 -m pip install wetest-pyidb --upgrade --extra-index-url https://mirrors.tencent.com/repository/pypi/tencent_pypi/simple
+```
+
+## 已支持功能
+
+优先支持添加了json参数的命令
+
+✅ list
+
+✅ info
+
+✅ tunnel start
+
+✅ ps
+
+✅ applist
+
+✅ developer
+
+✅ launch
+
+✅ reboot
+
+✅ uninstall
+
+## 用法
+
+参考 [examples](./examples/example.py) 调用API
+
+### 初始化
+
+```python
+from pyidb import Idb
+
+# 不填写参数
+# idb_path: 会按照 PATH，home/localdevices/idb 顺序查找idb
+# 查找不到会自动下载到 home/localdevices/idb
+# udid: 使用 idb list 第一个设备的udid
+idb = Idb()
+
+# 指定 idb 路径
+idb = Idb(idb_path="/Applications/idb")
+
+# 指定 udid
+idb = Idb(udid="00008130-001968982EA0001C")
+```
+
+### 更换设备
+
+```python
+# 修改 idb_path
+idb.idb_path = "~/idb"
+
+# 修改 udid
+idb.udid = "00008030-000A350A3482402E"
+```
+
+## 作者信息 & 致谢
+
+### [**Tencent WeTest Team**](https://wetest.qq.com/)
