@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "direct-formatting-pandas-ods-reader"
+version = "0.5.3"
+description = "Read ODS files into a pandas DataFrame while preserving direct formatting (strong, emphasis, underline, superscript, subscript, and anchors) as markup (AsciiDoc, Markdown, HTML)."
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name="Yann Trividic", email="bonjour@yanntrividic.fr"}
+]
+license = { file = "LICENSE.txt" }
+dependencies = ["pandas>=2.0", "lxml>=6.0"]
+keywords = ["pandas", "ods", "spreadsheet", "direct", "formatting", "reader"]
+
+[project.urls]
+Homepage = "https://gitlab.com/yanntrividic/direct-formatting-pandas-ods-reader"
+"Bug Tracker" = "https://gitlab.com/yanntrividic/direct-formatting-pandas-ods-reader/-/issues"
+
+[project.scripts]
+direct-formatting-ods-to-csv = "direct_formatting_pandas_ods_reader.__main__:main"
