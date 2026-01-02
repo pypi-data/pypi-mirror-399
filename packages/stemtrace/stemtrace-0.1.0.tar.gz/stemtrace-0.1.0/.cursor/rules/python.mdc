@@ -1,0 +1,136 @@
+---
+description: Python coding standards for stemtrace
+globs: ["**/*.py"]
+alwaysApply: true
+---
+
+# Python Coding Standards
+
+## Python Version: 3.10+
+
+Use modern features:
+- `|` union syntax, not `Union`
+- `match` statements
+- `ParamSpec` for decorator typing
+
+## Typing (Strict Mode)
+
+All code must pass `mypy src/ --strict`.
+
+```python
+# ✅ Fully typed
+def get_task(task_id: str, include_children: bool = False) -> Task | None: ...
+
+# ❌ Missing types
+def get_task(task_id, include_children=False): ...
+```
+
+### Avoid
+- `Any` except when truly necessary
+- `cast()` unless absolutely required
+- `# type: ignore` without explanation
+
+## Pydantic Models
+
+Use Pydantic `BaseModel` for domain models:
+
+```python
+from pydantic import BaseModel, ConfigDict, Field
+
+class TaskEvent(BaseModel):
+    """Immutable task event."""
+    
+    model_config = ConfigDict(frozen=True)
+    
+    task_id: str
+    name: str
+    state: TaskState
+    timestamp: datetime
+    parent_id: str | None = None
+    retries: int = 0
+```
+
+**Key patterns:**
+- `frozen=True` — Immutable models for events
+- `validate_assignment=True` — For mutable models (TaskNode, TaskGraph)
+- `Field(default_factory=list)` — For mutable default values
+- Use `model_dump()` and `model_dump_json()` for serialization
+
+## Docstrings (REQUIRED, Google Style)
+
+**All public functions, methods, and classes MUST have docstrings.**
+
+This includes:
+- All public functions and classes
+- All `__init__` methods (brief description of initialization)
+- All API endpoints and route handlers
+- Protocol/interface methods
+
+Private functions (starting with `_`) are optional but recommended.
+
+```python
+def init(app: Celery, transport_url: str | None = None) -> Stemtrace:
+    """Initialize stemtrace event tracking.
+
+    Args:
+        app: The Celery application instance.
+        transport_url: Broker URL. If None, uses Celery's broker_url.
+
+    Returns:
+        Configured Stemtrace instance.
+
+    Raises:
+        ConfigurationError: If broker URL cannot be determined.
+    """
+
+# For __init__ methods, a brief one-liner is sufficient:
+def __init__(self, broker_url: str) -> None:
+    """Initialize consumer with broker URL and target store."""
+```
+
+## Imports (enforced by ruff)
+
+1. Standard library
+2. Third-party
+3. Local
+
+```python
+from collections.abc import Callable
+from datetime import datetime
+
+from pydantic import BaseModel
+from celery import Celery
+
+from stemtrace.core.events import TaskEvent
+```
+
+## Logging
+
+```python
+# ✅ Use %s formatting
+logger.debug("Processing task %s", task_id)
+
+# ❌ Don't use f-strings (always evaluated)
+logger.debug(f"Processing task {task_id}")
+```
+
+## Error Handling
+
+```python
+class StemtraceError(Exception):
+    """Base exception."""
+
+class ConfigurationError(StemtraceError):
+    """Invalid configuration."""
+```
+
+## Protocols
+
+```python
+class EventTransport(Protocol):
+    """Interface for event transport."""
+    
+    def publish(self, event: TaskEvent) -> None:
+        """Publish event. Fire-and-forget, never raises."""
+        ...
+```

@@ -1,0 +1,79 @@
+---
+description: General project rules for stemtrace development
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# stemtrace Project Rules
+
+## Project Overview
+
+stemtrace is an **open-source** Celery task flow visualizer. We prioritize:
+
+1. **Clean Architecture** - Clear separation of concerns
+2. **Strict Typing** - Full mypy strict mode compliance
+3. **Simplicity** - No over-engineering, minimal dependencies
+4. **Developer Experience** - Both for users and contributors
+
+## Context First
+
+Before making changes:
+1. Read `.context/active-context.md` for current focus
+2. Check `.context/progress.md` for task status
+3. Review `.context/system-patterns.md` for architecture decisions
+
+## Open Source Standards
+
+Since this is an open-source project:
+
+### Code Quality
+- All public APIs must have docstrings (Google style)
+- Type hints on all functions, methods, and class attributes
+- No `# type: ignore` without explanation
+- Keep dependencies minimal
+
+### Documentation
+- Update README.md when adding features
+- Add examples for new functionality
+- Keep CHANGELOG.md updated (follow Keep a Changelog)
+
+### Commits
+- Use conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
+- Keep commits atomic and focused
+- Reference issues when applicable
+
+## File Organization
+
+See `.cursor/rules/architecture.mdc` for module structure and boundary rules.
+
+## Naming Conventions
+
+| Type | Style | Example |
+|------|-------|---------|
+| Packages/Modules | snake_case | `stemtrace`, `signal_handlers` |
+| Classes | PascalCase | `TaskEvent`, `RedisPublisher` |
+| Functions/Methods | snake_case | `get_task_by_id` |
+| Constants | SCREAMING_SNAKE | `DEFAULT_TTL` |
+| Private | Leading underscore | `_internal_method` |
+
+## Error Handling
+
+- Use specific exception types, not bare `Exception`
+- Define custom exceptions in `core/exceptions.py`
+- Always include helpful error messages
+- Log exceptions with context, don't swallow them
+
+## Testing Requirements
+
+- All new code must have tests
+- Unit tests for `core/` (no I/O, no mocking if possible)
+- Integration tests for Redis/Celery interactions
+- Aim for high coverage but prioritize meaningful tests
+
+## What NOT to Do
+
+- Don't add features not discussed in active-context.md
+- Don't introduce new dependencies without justification
+- Don't skip type hints "to save time"
+- Don't write docstrings that just repeat the function name
+- Don't commit with failing tests or type errors

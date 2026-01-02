@@ -1,0 +1,278 @@
+---
+description: React UI and WebSocket development workflow
+globs: ["src/stemtrace/server/ui/**/*", "**/*.tsx", "**/*.ts"]
+alwaysApply: false
+---
+
+# React UI & WebSocket Development
+
+## Technology Stack
+
+| Category | Choice | Notes |
+|----------|--------|-------|
+| Framework | React 18+ | Vite bundler |
+| Routing | TanStack Router | File-based, type-safe |
+| State | TanStack Query | Server state caching |
+| Graph Viz | react-flow | Interactive DAG visualization |
+| Styling | Tailwind CSS | Utility-first |
+| Linting | Biome | Fast lint + format in one tool |
+| Testing | Vitest + Playwright | Unit + E2E (planned) |
+
+## Project Structure
+
+```
+src/stemtrace/server/ui/frontend/
+├── src/
+│   ├── main.tsx              # Entry point
+│   ├── routeTree.gen.ts      # Auto-generated (don't edit)
+│   ├── routes/
+│   │   ├── __root.tsx        # Root layout + providers
+│   │   ├── index.tsx         # Task list (/)
+│   │   ├── tasks.$taskId.tsx # Task detail
+│   │   └── graph.$rootId.tsx  # Graph view
+│   ├── components/           # Reusable UI components
+│   ├── hooks/                # Custom hooks
+│   └── api/                  # API client + queries
+├── package.json
+└── vite.config.ts
+```
+
+## Development Workflow
+
+### Starting Dev Servers
+
+Run two terminals simultaneously:
+
+```bash
+# Terminal 1: FastAPI backend
+uvicorn example_app:app --reload --port 8000
+
+# Terminal 2: Vite dev server (with HMR)
+cd src/stemtrace/server/ui/frontend
+npm run dev
+```
+
+Vite proxies API requests to FastAPI via `vite.config.ts`.
+
+### Testing WebSocket Real-Time Updates
+
+1. Open browser to `http://localhost:5173`
+2. Use browser tools to take a snapshot
+3. Trigger a Celery task (via API or CLI)
+4. Verify UI updates without refresh
+5. Check browser console for WebSocket messages
+
+## TypeScript Standards
+
+```typescript
+// ✅ Strict mode enabled
+// tsconfig.json: "strict": true
+
+// ✅ Explicit return types on exported functions
+export function useTaskList(): UseQueryResult<Task[]> { ... }
+
+// ✅ Props interfaces for components
+interface TaskListProps {
+  filters: TaskFilters;
+  onTaskClick: (taskId: string) => void;
+}
+
+// ❌ Don't use `any`
+// ❌ Don't disable eslint rules without justification
+```
+
+## Component Patterns
+
+### File Naming
+
+- Components: `PascalCase.tsx` (e.g., `TaskList.tsx`)
+- Hooks: `camelCase.ts` with `use` prefix (e.g., `useWebSocket.ts`)
+- Routes: TanStack Router conventions (e.g., `tasks.$taskId.tsx`)
+
+### Component Structure
+
+```tsx
+// TaskList.tsx
+import { useTasks } from '@/api/queries';
+
+interface TaskListProps {
+  filters: TaskFilters;
+}
+
+export function TaskList({ filters }: TaskListProps) {
+  const { data: tasks, isLoading } = useTasks(filters);
+  
+  if (isLoading) return <TaskListSkeleton />;
+  
+  return (
+    <ul>
+      {tasks?.map(task => (
+        <TaskListItem key={task.task_id} task={task} />
+      ))}
+    </ul>
+  );
+}
+```
+
+## WebSocket Hook Pattern
+
+```tsx
+// hooks/useWebSocket.ts
+export function useWebSocket(url: string) {
+  const [events, setEvents] = useState<TaskEvent[]>([]);
+  const queryClient = useQueryClient();
+  
+  useEffect(() => {
+    const ws = new WebSocket(url);
+    
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setEvents(prev => [...prev, data]);
+      // Invalidate relevant queries for real-time updates
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    };
+    
+    return () => ws.close();
+  }, [url, queryClient]);
+  
+  return events;
+}
+```
+
+## Testing
+
+### Unit Tests (Vitest) — Planned
+
+> **Note**: Vitest unit testing not yet configured for frontend components.
+
+```bash
+cd src/stemtrace/server/ui/frontend
+npm run test        # Watch mode (planned)
+npm run test:ci     # Single run + coverage (planned)
+```
+
+### E2E Tests (Playwright) ✅ REQUIRED
+
+**MUST run Playwright tests before reporting UI features complete.**
+
+Playwright browser E2E tests verify:
+- Task list and detail views
+- Graph visualization and nodes
+- **Edge visibility** (parent→child, parent→GROUP, CHORD→callback)
+- Container nodes (GROUP/CHORD) rendering
+- Registry search
+
+```bash
+# Prerequisites: Server + Worker running with test data
+stemtrace server &
+celery -A examples.celery_app worker --loglevel=info &
+python examples/celery_app.py group
+python examples/celery_app.py standalone-chord
+
+# Run tests
+cd src/stemtrace/server/ui/frontend
+npm test
+```
+
+**Key test files:**
+- `tests/graphs.spec.ts` — Graph edges, containers, visibility regression tests
+- `tests/tasks.spec.ts` — Task list and detail pages
+- `tests/registry.spec.ts` — Task registry search
+
+### Browser Testing with Cursor
+
+Use browser tools for quick visual verification:
+
+```
+1. browser_navigate to http://localhost:8000/stemtrace/
+2. browser_snapshot to inspect elements
+3. browser_click on task list items
+4. browser_take_screenshot for visual verification
+```
+
+**Always visually verify graph changes** — edges and containers can have issues not caught by unit tests.
+
+## Build Verification
+
+Before committing frontend changes:
+
+```bash
+cd src/stemtrace/server/ui/frontend
+
+# 1. Lint + format (MUST pass)
+npm run check
+
+# 2. Type check (MUST pass)
+npm run typecheck
+
+# 3. Build (MUST pass)
+npm run build
+
+# 4. E2E tests (MUST pass for UI/graph changes)
+npm test
+```
+
+All four must pass. The built `dist/` is gitignored; it's generated at package build time.
+
+## API Integration
+
+### TanStack Query Setup
+
+```tsx
+// api/client.ts
+import { QueryClient } from '@tanstack/react-query';
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5000,        // 5 seconds
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+// Base URL determined by environment
+export const API_BASE = import.meta.env.DEV 
+  ? '/api'  // Vite proxy
+  : '/stemtrace/api';
+```
+
+### Query Definitions
+
+```tsx
+// api/queries.ts
+import { useQuery } from '@tanstack/react-query';
+
+export function useTasks(filters?: TaskFilters) {
+  return useQuery({
+    queryKey: ['tasks', filters],
+    queryFn: () => fetchTasks(filters),
+  });
+}
+
+export function useTask(taskId: string) {
+  return useQuery({
+    queryKey: ['tasks', taskId],
+    queryFn: () => fetchTask(taskId),
+  });
+}
+```
+
+## Common Issues
+
+### WebSocket Connection Fails
+
+1. Check FastAPI server is running on correct port
+2. Verify WebSocket endpoint path matches
+3. Check browser console for CORS errors
+4. In dev mode, Vite proxies WS connections
+
+### HMR Not Working
+
+1. Check Vite dev server is running
+2. Verify no syntax errors in console
+3. Try hard refresh (Cmd+Shift+R)
+
+### Type Errors After Route Changes
+
+Run `npm run routes` to regenerate `routeTree.gen.ts` after adding/removing routes.

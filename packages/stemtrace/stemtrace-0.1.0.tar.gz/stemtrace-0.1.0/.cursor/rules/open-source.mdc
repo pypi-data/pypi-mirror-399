@@ -1,0 +1,261 @@
+---
+description: Open source contribution and maintenance rules
+globs: ["**/*"]
+alwaysApply: false
+---
+
+# Open Source Standards
+
+## Repository Structure
+
+### Current Structure
+
+```
+stemtrace/
+├── LICENSE              # MIT License
+├── README.md            # Project overview, quick start
+├── CONTRIBUTING.md      # How to contribute
+├── CHANGELOG.md         # Version history
+└── .github/
+    ├── dependabot.yml   # Automated dependency updates
+    └── workflows/
+        ├── ci.yml       # Lint, type check, unit/integration tests
+        ├── e2e.yml      # E2E tests (Docker + Playwright)
+        └── release.yml  # PyPI + Docker publish
+```
+
+### Recommended Additions (not yet implemented)
+
+- `CODE_OF_CONDUCT.md` — Community guidelines
+- `SECURITY.md` — Security policy
+- `.github/ISSUE_TEMPLATE/` — Bug report and feature request templates
+- `.github/PULL_REQUEST_TEMPLATE.md` — PR template
+
+## Semantic Versioning
+
+Follow SemVer 2.0.0:
+
+- **MAJOR** (1.0.0 → 2.0.0): Breaking changes
+- **MINOR** (1.0.0 → 1.1.0): New features, backward compatible
+- **PATCH** (1.0.0 → 1.0.1): Bug fixes, backward compatible
+
+Until 1.0.0:
+- 0.x.y: Anything may change
+- Be explicit about stability in README
+
+## Changelog
+
+Follow [Keep a Changelog](https://keepachangelog.com/):
+
+```markdown
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+
+### Added
+- New feature description
+
+### Changed
+- Modified behavior description
+
+### Fixed
+- Bug fix description
+
+### Removed
+- Removed feature description
+
+## [0.1.0] - 2025-12-27
+
+### Added
+- Initial release
+- Task lifecycle tracking via Celery signals
+- Redis-based event storage
+```
+
+## Conventional Commits
+
+Use conventional commit format:
+
+```
+<type>: <description>
+
+[optional body]
+```
+
+Types:
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation only
+- `refactor`: Code change that neither fixes nor adds
+- `test`: Adding/updating tests
+- `chore`: Maintenance tasks
+
+Examples:
+```
+feat: add support for task arguments hashing
+fix: handle Redis connection timeout gracefully
+docs: add installation instructions for Docker
+chore: update redis to 5.0.0
+```
+
+## Public API Guidelines
+
+### Stability
+
+- Mark experimental APIs clearly:
+  ```python
+  def experimental_feature() -> None:
+      """Experimental: API may change without notice."""
+  ```
+
+- Use `__all__` to define public API:
+  ```python
+  __all__ = ["init", "Stemtrace", "TaskEvent"]
+  ```
+
+### Deprecation
+
+When deprecating:
+
+```python
+import warnings
+
+def old_function() -> None:
+    """Deprecated: Use new_function instead."""
+    warnings.warn(
+        "old_function is deprecated, use new_function instead",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return new_function()
+```
+
+- Deprecate in one minor version
+- Remove in next major version
+- Document in CHANGELOG
+
+## Documentation Standards
+
+### README Sections
+
+1. **Title & Badges** - Name, version, CI status, license
+2. **One-liner** - What it does in one sentence
+3. **Quick Start** - Get running in < 5 minutes
+4. **Features** - Bullet list of capabilities
+5. **Installation** - pip, Docker, etc.
+6. **Usage** - Code examples
+7. **Configuration** - Options, environment variables
+8. **Contributing** - Link to CONTRIBUTING.md
+9. **License** - Link to LICENSE
+
+### Docstrings
+
+All public APIs need docstrings:
+
+```python
+def init(
+    app: Celery,
+    redis_url: str | None = None,
+) -> Stemtrace:
+    """Initialize stemtrace for a Celery application.
+
+    Args:
+        app: The Celery application instance.
+        redis_url: Redis connection URL. Defaults to Celery broker URL.
+
+    Returns:
+        Configured Stemtrace instance.
+
+    Raises:
+        ConfigurationError: If Redis URL cannot be determined.
+
+    Example:
+        >>> from celery import Celery
+        >>> from stemtrace import init
+        >>> app = Celery("myapp", broker="redis://localhost/0")
+        >>> flow = init(app)
+
+    Note:
+        Must be called before starting Celery workers.
+    """
+```
+
+## CI/CD Pipeline
+
+### Continuous Integration
+
+The project has three GitHub Actions workflows:
+
+- **ci.yml** — Runs on every push/PR: type checking, linting, unit/integration tests
+- **e2e.yml** — Runs on main: Docker-based API tests + Playwright browser tests
+- **release.yml** — Triggered by tags: publishes to PyPI and GHCR
+
+See `.github/workflows/` for actual workflow definitions.
+
+### Release Process
+
+1. Update version in `pyproject.toml`
+2. Update CHANGELOG.md
+3. Create git tag: `git tag v0.1.0`
+4. Push tag: `git push origin v0.1.0`
+5. CI publishes to PyPI and GHCR
+
+## Issue & PR Templates
+
+### Bug Report Template
+
+```markdown
+## Bug Description
+A clear description of the bug.
+
+## Steps to Reproduce
+1. Step one
+2. Step two
+3. See error
+
+## Expected Behavior
+What should happen.
+
+## Actual Behavior
+What actually happens.
+
+## Environment
+- stemtrace version:
+- Python version:
+- Celery version:
+- Redis version:
+- OS:
+
+## Additional Context
+Any other relevant information.
+```
+
+### PR Template
+
+```markdown
+## Description
+Brief description of changes.
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+## Checklist
+- [ ] Tests added/updated
+- [ ] Documentation updated
+- [ ] CHANGELOG.md updated
+- [ ] Type hints added
+- [ ] All checks pass
+```
+
+## Community Guidelines
+
+- Respond to issues within 48 hours (even if just to acknowledge)
+- Be welcoming to first-time contributors
+- Label issues appropriately (bug, enhancement, good first issue)
+- Keep discussions on-topic and respectful
+- Credit contributors in release notes

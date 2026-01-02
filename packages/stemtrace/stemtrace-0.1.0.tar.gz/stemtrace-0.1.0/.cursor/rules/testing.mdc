@@ -1,0 +1,99 @@
+---
+description: Testing standards for stemtrace
+globs: ["tests/**/*.py"]
+alwaysApply: true
+---
+
+# Testing Standards
+
+## Test Organization
+
+```
+tests/
+├── conftest.py          # Shared fixtures
+├── unit/                # Fast, isolated (no I/O)
+├── integration/         # Real services (Redis, Celery)
+└── e2e/                 # Full system (Docker)
+```
+
+## Test Categories
+
+| Category | I/O | Speed | Marker |
+|----------|-----|-------|--------|
+| Unit | None | < 5s total | (default) |
+| Integration | Redis, Celery | Medium | `@pytest.mark.integration` |
+| E2E | Docker | Slow | `@pytest.mark.e2e` |
+
+## Fakes Over Mocks
+
+```python
+class FakeTransport(EventTransport):
+    def __init__(self) -> None:
+        self.events: list[TaskEvent] = []
+    
+    def publish(self, event: TaskEvent) -> None:
+        self.events.append(event)
+```
+
+## Imports
+
+All imports must be at the top of the file. Never use inline imports inside test functions.
+
+```python
+# ✅ Correct - imports at top
+from stemtrace.server.fastapi.auth import require_api_key
+
+def test_auth() -> None:
+    router = create_router(auth_dependency=require_api_key("secret"))
+
+# ❌ Wrong - inline import
+def test_auth() -> None:
+    from stemtrace.server.fastapi.auth import require_api_key  # Don't do this
+    router = create_router(auth_dependency=require_api_key("secret"))
+```
+
+## Test Naming
+
+```python
+# Pattern: test_<action>_<condition>_<result>
+def test_get_task_with_valid_id_returns_task() -> None: ...
+def test_publish_when_broker_down_logs_warning() -> None: ...
+```
+
+## Assertions
+
+```python
+# ✅ Specific
+assert event.task_id == "abc-123"
+assert len(publisher.events) == 1
+
+# ❌ Vague
+assert event
+assert result is not None
+```
+
+## Fixtures
+
+```python
+# Shared fixture in conftest.py
+@pytest.fixture
+def sample_event() -> TaskEvent:
+    return TaskEvent(
+        task_id="test-123",
+        name="tests.sample_task",
+        state=TaskState.PENDING,
+        timestamp=datetime(2024, 1, 1, tzinfo=UTC),
+    )
+
+# FakeTransport is typically created inline in tests, not as a fixture
+# See test_consumer.py for examples
+```
+
+## Running Tests
+
+```bash
+pytest                    # Unit tests only
+pytest -m integration     # Integration tests
+pytest -m e2e             # E2E tests
+pytest --cov=stemtrace --cov-fail-under=80
+```

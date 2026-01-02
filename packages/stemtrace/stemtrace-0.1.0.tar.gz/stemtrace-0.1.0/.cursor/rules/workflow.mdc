@@ -1,0 +1,208 @@
+---
+description: Autonomous development workflow with test-driven iteration
+globs: ["src/**/*.py", "tests/**/*.py", "src/**/frontend/**/*.ts", "src/**/frontend/**/*.tsx"]
+alwaysApply: true
+---
+
+# Development Workflow
+
+## Autonomous Development Loop
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  1. UNDERSTAND → 2. IMPLEMENT → 3. VERIFY → 4. COMMIT  │
+└─────────────────────────────────────────────────────────┘
+         ↑                              │
+         └──────── Fix if fails ────────┘
+```
+
+## Step 1: Understand
+
+Before writing code:
+1. Read `.context/progress.md` and `.context/active-context.md`
+2. Identify the specific task to implement
+3. Find existing patterns in the codebase to follow
+
+## Step 2: Implement
+
+Write code following project patterns:
+1. **Tests first** — Write/update tests before implementation
+2. **Small increments** — One logical change at a time
+3. **Type everything** — Full type hints on all code
+4. **Document everything** — All public functions/classes need docstrings
+
+## Step 3: Verify (MUST PASS ALL)
+
+Run the verification suite after each implementation:
+
+```bash
+# Full verification (run after every change)
+make check
+```
+
+If `make check` doesn't exist, run manually:
+
+```bash
+# 1. Type check (MUST pass)
+mypy src/ --strict
+
+# 2. Lint (MUST pass)  
+ruff check src/ tests/
+ruff format --check src/ tests/
+
+# 3. Unit/Integration tests with coverage (MUST pass)
+pytest --cov=stemtrace --cov-report=term-missing --cov-fail-under=80
+
+# 4. Frontend lint (MUST pass)
+cd src/stemtrace/server/ui/frontend && npm run lint
+
+# 5. E2E tests (when UI/graph changes) - requires running server
+# See "E2E Testing with Playwright" section below
+```
+
+### Verification Decision Tree
+
+```
+Types pass? ──No──→ Fix type errors, re-verify
+    │
+   Yes
+    ↓
+Lint pass? ──No──→ Run `make format`, re-verify
+    │
+   Yes
+    ↓
+Tests pass? ──No──→ Fix failing tests, re-verify
+    │
+   Yes
+    ↓
+Coverage ≥80%? ──No──→ Add missing tests, re-verify
+    │
+   Yes
+    ↓
+Docstrings? ──No──→ Add missing docstrings, re-verify
+    │
+   Yes
+    ↓
+Frontend lint? ──No──→ Run `npm run fix` in frontend/, re-verify
+    │
+   Yes
+    ↓
+UI changes? ──Yes──→ Run Playwright E2E tests (see below)
+    │
+   No
+    ↓
+✅ Ready to commit
+```
+
+### Docstring Check
+
+All public functions, methods, and classes need docstrings:
+
+```bash
+# Quick check for missing docstrings (run before PR)
+python -c "
+import ast
+from pathlib import Path
+missing = []
+for py in Path('src/stemtrace').rglob('*.py'):
+    if '__pycache__' in str(py): continue
+    for node in ast.walk(ast.parse(py.read_text())):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if node.name.startswith('_') and not node.name.startswith('__'): continue
+            if not ast.get_docstring(node):
+                missing.append(f'{py}:{node.lineno} - {node.name}')
+for m in missing: print(m)
+print(f'Missing: {len(missing)}')
+"
+```
+
+Target: 0 missing docstrings for public APIs.
+
+## Step 4: Commit
+
+Only after verification passes provide a command in the chat for commit (user should commit themselves):
+
+## Quick Reference
+
+| Check | Command | Fix |
+|-------|---------|-----|
+| Types | `make types` | Add/fix type hints |
+| Lint | `make lint` | `make format` |
+| Tests | `make test` | Fix code or tests |
+| Docstrings | See script above | Add docstrings to public APIs |
+| Frontend lint | `cd frontend && npm run lint` | `npm run fix` |
+| E2E tests | `cd frontend && npm test` | Fix code or tests |
+
+## Coverage Rules
+
+- **Minimum: 80%** — No exceptions
+- New code must have tests
+- Check uncovered lines: `pytest --cov-report=term-missing`
+- Focus on `core/` first (pure logic, easy to test)
+
+## E2E Testing with Playwright
+
+**When to run E2E tests:**
+- Any changes to `TaskGraph.tsx` or graph visualization
+- Changes to edge generation or container node logic
+- API response schema changes that affect UI rendering
+- Any UI/frontend component changes
+
+**Running E2E tests:**
+
+```bash
+# Option 1: With Docker (recommended for CI)
+docker compose -f docker-compose.e2e.yml up -d --wait
+cd src/stemtrace/server/ui/frontend
+npm test
+
+# Option 2: With local server (for development)
+# Terminal 1: Start server
+stemtrace server
+
+# Terminal 2: Start worker and submit test tasks
+celery -A examples.celery_app worker --loglevel=info &
+python examples/celery_app.py group
+python examples/celery_app.py standalone-chord
+
+# Terminal 3: Run Playwright tests
+cd src/stemtrace/server/ui/frontend
+npm test
+```
+
+**Key E2E test files:**
+- `tests/graphs.spec.ts` — Graph visualization, edges, container nodes
+- `tests/tasks.spec.ts` — Task list and detail views
+- `tests/registry.spec.ts` — Task registry
+
+**Adding new E2E tests:**
+When adding UI features, add corresponding Playwright tests that verify:
+1. Elements render correctly
+2. Edges/connections are visible (for graph features)
+3. User interactions work as expected
+
+## Integration Testing Requirements
+
+When modifying `core/` models (TaskEvent, TaskNode, TaskGraph):
+- Test how changes interact with `server/store.py` (sorting, filtering, eviction)
+- Test API responses in `tests/integration/test_fastapi_integration.py`
+- Synthetic nodes (GROUP, CHORD) have `events=[]` — ensure all code handles empty events
+- **Test edge data**: Verify `children` lists are correct for edge rendering
+
+## When to Stop and Ask
+
+Stop autonomous work and ask the user when:
+- Architectural decisions are unclear
+- Multiple valid approaches exist
+- Tests reveal a design flaw
+- Coverage can't reach 80% without major refactoring
+
+## Anti-Patterns
+
+❌ Stating that feature is implemented without running full verification
+❌ Skipping tests "to save time"
+❌ Lowering coverage threshold
+❌ Using `# type: ignore` without explanation
+❌ Large changes without incremental verification
+❌ Skipping E2E tests when UI/graph logic changes
+❌ Reporting UI features complete without visual verification

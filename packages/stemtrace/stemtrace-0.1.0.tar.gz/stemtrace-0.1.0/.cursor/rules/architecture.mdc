@@ -1,0 +1,111 @@
+---
+description: Architecture rules and patterns for stemtrace
+globs: ["src/**/*.py"]
+alwaysApply: true
+---
+
+# Architecture Rules
+
+## Module Boundaries
+
+```
+┌────────────────┐
+│     core/      │  ← Pure Python, no external deps
+│  (no imports)  │
+└───────▲────────┘
+        │
+┌───────┴───────┐
+│               │
+▼               ▼
+┌─────────┐  ┌─────────┐
+│library/ │  │ server/ │  ← Both import only from core/
+└─────────┘  └─────────┘
+     ↑            ↑
+     └──── ✗ ─────┘  Never import each other
+```
+
+### core/ - Domain Layer
+- NO external dependencies except Pydantic (no redis, celery, fastapi)
+- NO I/O operations
+- Immutable Pydantic models with `frozen=True`
+- Contains: `events.py`, `graph.py`, `ports.py`, `exceptions.py`
+
+### library/ - Celery Integration
+- Imports from `core/` only
+- May import `celery`, `redis`, `pika`
+- Fire-and-forget pattern (never block tasks)
+- Contains: `signals.py`, `config.py`, `transports/`
+
+### server/ - Web Server
+- Imports from `core/` only
+- May import `fastapi`, broker libraries
+- Read-only operations only
+- Contains: `consumer.py`, `fastapi/`, `api/`, `ui/`
+
+## Protocol-Based Abstractions
+
+Define interfaces in `core/ports.py`:
+
+```python
+class EventTransport(Protocol):
+    def publish(self, event: TaskEvent) -> None: ...
+    def consume(self) -> Iterator[TaskEvent]: ...
+```
+
+Implement in `library/transports/` or `server/`.
+
+## Fire-and-Forget Publishing
+
+Never block the Celery task:
+
+```python
+def publish(self, event: TaskEvent) -> None:
+    try:
+        self._transport.send(event)
+    except TransportError:
+        logger.warning("Failed to publish", exc_info=True)
+        # Never raise - task must continue
+```
+
+## Anti-Patterns
+
+❌ **Circular imports**: `library/` importing from `server/`
+❌ **Blocking in publishers**: No retries, no sleep()
+❌ **Leaking abstractions**: No `to_redis_entry()` in core/
+❌ **God objects**: Keep classes focused
+
+## FastAPI Extension
+
+```python
+# Full extension with lifespan (recommended)
+class StemtraceExtension:
+    def __init__(
+        self,
+        broker_url: str,
+        embedded_consumer: bool = True,
+        auth_dependency: Any = None,
+    ): ...
+    @property
+    def router(self) -> APIRouter: ...
+    async def lifespan(self, app: FastAPI) -> AsyncIterator[None]: ...
+
+# Minimal router (for custom setups)
+def create_router(
+    store: GraphStore | None = None,
+    consumer: AsyncEventConsumer | None = None,
+    ws_manager: WebSocketManager | None = None,
+    auth_dependency: Any = None,
+) -> APIRouter: ...
+```
+
+## Data Flow
+
+```
+Task → Signals → Event → Transport → Broker → Consumer → Graph → API → UI
+```
+
+See `.context/system-patterns.md` for:
+- Full architecture diagrams
+- Data models (TaskEvent, TaskNode, TaskGraph)
+- Celery canvas patterns (group_id, synthetic nodes)
+- Broker transport details
