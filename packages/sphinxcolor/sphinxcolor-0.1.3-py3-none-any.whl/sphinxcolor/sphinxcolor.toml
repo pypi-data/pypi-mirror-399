@@ -1,0 +1,54 @@
+#File: sphinxcolor/sphinxcolor.toml
+
+# Author: Hadi Cahyadi <cumulus13@gmail.com>
+# Date: 2025-12-29
+# Description: 
+# License: MIT
+
+# sphinxcolor.toml - Configuration file for sphinxcolor
+# Place this file in your project root or ~/.config/sphinxcolor/
+
+[colors]
+# File path color (default: cyan)
+filepath = "#00FFFF"
+
+# WARNING/ERROR text color (default: yellow)
+warning = "#FFFF00"
+
+# ERROR specific color (default: red)
+error = "#FF0000"
+
+# Line number colors
+line_number_fg = "#FFFFFF"
+line_number_bg = "#0000FF"
+
+# Docstring/location color (default: purple)
+docstring = "#aa55ff"
+
+# Warning message colors
+message_fg = "#000000"  # Black text
+message_bg = "#00FF00"  # Green background
+
+# Tips/suggestions colors
+tips_fg = "#FFFFFF"  # White text
+tips_bg = "#5500FF"  # Purple background
+
+# Info messages (default: green)
+info = "#00FF00"
+
+[patterns]
+# Regex pattern to match file paths
+# Matches both Windows (C:\...) and Unix (/...) paths
+filepath_pattern = '^([A-Z]:\\[^:]+|/[^:]+)'
+
+# Pattern to match WARNING/ERROR keywords
+warning_pattern = '\b(WARNING|Error|ERROR)\s*:'
+
+# Pattern to match line numbers
+line_number_pattern = ':(\d+):'
+
+# Pattern to match tips/suggestions
+tips_pattern = 'use :no-index: for one of them'
+
+# You can add more custom patterns here
+# custom_pattern = 'your regex here'
