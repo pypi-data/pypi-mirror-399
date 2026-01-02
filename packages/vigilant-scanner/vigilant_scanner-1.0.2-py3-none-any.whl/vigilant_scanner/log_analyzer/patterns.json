@@ -1,0 +1,107 @@
+{
+  "XSS_Basic": {
+    "pattern": "<script|onerror\\s*=|onload\\s*=|document\\.cookie|<iframe|javascript:|vbscript:|alert\\(.*\\)|eval\\(.*\\)",
+    "severity": "HIGH",
+    "description": "Checks for common script injection vectors, inline event handlers, and JavaScript URIs."
+  },
+  "XSS_HTML_Entities": {
+    "pattern": "&lt;script|&#x3C;script|&lt;iframe|&#x3C;iframe",
+    "severity": "MEDIUM",
+    "description": "Encoded HTML entity variants frequently used in XSS attacks."
+  },
+  "SQL_Injection_Common": {
+    "pattern": "(UNION SELECT|SELECT.*FROM|DROP TABLE|INSERT INTO|DELETE FROM|WHERE.*=.*|OR 1=1|--|;--|\" OR \"|' OR '|\"=\"|'='|\"=\"|'=')",
+    "severity": "CRITICAL",
+    "description": "Generic SQL injection payloads or suspicious keywords."
+  },
+  "SQL_Injection_Blind": {
+    "pattern": "(SLEEP\\(|BENCHMARK\\(|AND \\d+=\\d+|AND SLEEP\\(|AND 1=1|XOR\\()",
+    "severity": "HIGH",
+    "description": "Common blind SQL injection techniques using time delays or logical checks."
+  },
+  "Directory_Traversal": {
+    "pattern": "(\\.\\./|%2e%2e%2f|%2e%2e%5c|\\..[/\\\\]|%c0%af|%c1%1c)",
+    "severity": "HIGH",
+    "description": "Attempted directory traversal using dot-dot-slash or encoded variants."
+  },
+  "Remote_File_Inclusion": {
+    "pattern": "(https?://[\\w./-]+\\?.*|php://input|php://filter|data:text)",
+    "severity": "CRITICAL",
+    "description": "Indicators of remote file or stream wrappers often used in RFI attacks."
+  },
+  "Command_Injection": {
+    "pattern": "(\\b(wget|curl|bash|nc|sh|python|perl|ruby|php)\\b.*\\-|;\\s*/bin/sh|&\\s*/bin/sh)",
+    "severity": "CRITICAL",
+    "description": "Common shell commands or process spawns that may indicate RCE attempts."
+  },
+  "Brute_Force": {
+    "pattern": "(Failed login attempt|Invalid password|Authorization failed|Login incorrect)",
+    "severity": "MEDIUM",
+    "description": "Generic brute force or unauthorized login attempt messages."
+  },
+  "File_Upload_Exploit": {
+    "pattern": "\\.(php|exe|sh|jsp|asp|aspx|bat|py|pl)$",
+    "severity": "HIGH",
+    "description": "Suspicious file extensions often targeted or used for malicious uploads."
+  },
+  "Open_Redirect": {
+    "pattern": "(\\bredirect=\\b|\\burl=\\b|\\bnext=\\b)(https?://)",
+    "severity": "MEDIUM",
+    "description": "Parameters that might lead to external URLs (potential open redirect)."
+  },
+  "HTTP_Method_Abuse": {
+    "pattern": "(TRACE|OPTIONS|CONNECT|HEAD|PUT|DELETE|PROPFIND|MKCOL|COPY|MOVE|LOCK|UNLOCK)",
+    "severity": "LOW",
+    "description": "Suspicious or rarely used HTTP methods that can be abused."
+  },
+  "Magento_Admin_Access": {
+    "pattern": "(/admin|/admin/|/index\\.php/admin|/index\\.php\\?route=admin)",
+    "severity": "MEDIUM",
+    "description": "Direct access to Magento admin paths, which may indicate enumeration or brute forcing."
+  },
+  "Magento_RCE_Exploit": {
+    "pattern": "(Magento\\s*exploit|Magento\\s*RCE|/app/etc/local\\.xml|/downloader/index\\.php)",
+    "severity": "CRITICAL",
+    "description": "Known Magento exploit references, attempts to access config files, or RCE points."
+  },
+  "Magento_SQLi": {
+    "pattern": "(Mage_Core_Model|Mage::getModel|\\bSELECT\\b.*\\bFROM\\b.*mage_|/index\\.php/catalog/product|\\?id=|product_id=)",
+    "severity": "HIGH",
+    "description": "Potential attempts to inject SQL into Magento’s product or model endpoints."
+  },
+  "Magento_ConfigDisclosure": {
+    "pattern": "(/app/etc/local\\.xml|/app/etc/env\\.php)",
+    "severity": "CRITICAL",
+    "description": "Direct access to Magento config files that contain DB credentials."
+  },
+  "Magento_CustomVar_Exploit": {
+    "pattern": "(admin\\/?\\?secret=|custom_var=|mage-module=)",
+    "severity": "HIGH",
+    "description": "Suspicious custom parameter usage that might indicate known or 0-day attacks on Magento modules."
+  },
+  "PHP_Webshell_Indicator": {
+    "pattern": "(c99\\.php|r57\\.php|webshell\\.php|shell\\.php|\\$_POST\\[\"cmd\"\\]|eval\\(\\$_POST|system\\(\\$_POST)",
+    "severity": "CRITICAL",
+    "description": "Common webshell file names or parameters used to execute arbitrary code."
+  },
+  "Magento_CreditCard_Leak": {
+    "pattern": "(creditcard|card_number|payment\\[cc_number\\]|payment\\[cc_exp_month\\]|payment\\[cc_exp_year\\])",
+    "severity": "CRITICAL",
+    "description": "Parameters or log lines referencing credit card data in Magento payment workflows."
+  },
+  "Magento_PHP_Unit_RCE": {
+    "pattern": "(/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin\\.php|eval-stdin\\.php)",
+    "severity": "CRITICAL",
+    "description": "Legacy exploit targeting PHPUnit in Magento installations, leading to RCE."
+  },
+  "Magento_SecurityEvents": {
+    "pattern": "(observer=|module=security|\\bMage_Security\\b|/security\\.xml)",
+    "severity": "HIGH",
+    "description": "Magento security modules or event observers that might indicate tampering or monitoring attempts."
+  },
+  "Known_Scanner_UserAgent": {
+    "pattern": "(sqlmap|nikto|acunetix|dirbuster|fimap|nessus|openvas|netsparker)",
+    "severity": "LOW",
+    "description": "Detects user-agent strings associated with well-known vulnerability scanners."
+  }
+}
