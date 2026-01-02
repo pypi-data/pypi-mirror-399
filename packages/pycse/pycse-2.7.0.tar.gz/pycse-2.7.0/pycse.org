@@ -1,0 +1,172 @@
+#+TITLE:    pycse - Python3 Computations in Science and Engineering
+#+latex_header:  \author{John Kitchin \\ jkitchin@andrew.cmu.edu \\ https://kitchingroup.cheme.cmu.edu \\ Twitter: @johnkitchin \\ https://github.com/jkitchin/pycse}
+#+TODO: TODO BROKEN | DONE
+
+#+BEGIN_EXPORT latex
+\maketitle
+#+END_EXPORT
+
+#+BEGIN_EXPORT html
+<center>
+John Kitchin <br>
+<a href="mailto:jkitchin@andrew.cmu.edu">jkitchin@andrew.cmu.edu</a> <br>
+<a href="http://kitchingroup.cheme.cmu.edu">https://kitchingroup.cheme.cmu.edu</a><br>
+Twitter: <a href="https://twitter.com/johnkitchin">@johnkitchin</a><br>
+<a href="https://github.com/jkitchin/pycse">https://github.com/jkitchin/pycse</a>
+</center>
+#+END_EXPORT
+
+[[./pycse.png]]
+
+
+#+BEGIN_EXPORT latex
+\tableofcontents
+#+END_EXPORT
+
+* Overview
+  :PROPERTIES:
+  :ID:       20755EDC-9A7C-4159-885F-D28A9CE8A7F3
+  :END:
+This is a collection of examples of using python in the kinds of scientific and engineering computations I have used in classes and research. They are organized by topics.
+
+
+I recommend the Continuum IO Anaconda python distribution (https://www.continuum.io). This distribution is free for academic use, and cheap otherwise. It is pretty complete in terms of mathematical, scientific and plotting modules. All of the examples in this book were created run with the Anaconda python distribution.
+
+#+include: pycse-chapters/basic-python.org :minlevel 1
+
+#+include: pycse-chapters/math.org :minlevel 1
+
+#+include: pycse-chapters/linear-algebra.org :minlevel 1
+
+#+include: pycse-chapters/nonlinear-algebra.org :minlevel 1
+
+#+include: pycse-chapters/statistics.org :minlevel 1
+
+#+include: pycse-chapters/data-analysis.org :minlevel 1
+
+#+include: pycse-chapters/interpolation.org :minlevel 1
+
+#+include: pycse-chapters/optimization.org :minlevel 1
+
+#+include: pycse-chapters/differential-equations.org :minlevel 1
+
+#+include: pycse-chapters/plotting.org :minlevel 1
+
+#+include: pycse-chapters/programming.org :minlevel 1
+
+#+include: pycse-chapters/miscellaneous.org :minlevel 1
+
+#+include: pycse-chapters/worked-examples.org :minlevel 1
+
+#+include: pycse-chapters/units.org :minlevel 1
+
+#+include t: pycse-chapters/license.org :minlevel 1
+
+
+* Additional References
+
+1. Tutorials on the scientific Python ecosystem: a quick introduction to central tools and techniques. The different chapters each correspond to a 1 to 2 hours course with increasing level of expertise, from beginner to expert. http://scipy-lectures.org/
+
+
+@@latex:\printindex@@
+
+* build								   :noexport:
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  en
+#+OPTIONS:   H:5 num:t toc:t \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t author:nil
+#+OPTIONS:   toc:nil TeX:t LaTeX:t skip:nil d:nil todo:nil pri:nil tags:not-in-toc
+
+# this option uses figures for images so it loads quickly
+# +OPTIONS: tex:dvipng
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:
+#+LINK_HOME:
+#+XSLT:
+#+STYLE: <link rel="stylesheet" typxe="text/css" href="pycse.css" />
+#+latex_header: \usepackage{makeidx}
+#+latex_header: \makeindex
+#+latex_header: \usepackage[nottoc]{tocbibind}
+
+
+** pdf
+
+This takes a long time.
+
+#+name: pdf
+#+BEGIN_SRC emacs-lisp :results output
+(print (current-time-string))
+(ox-manuscript-latex-pdf-process (org-latex-export-to-latex))
+(org-open-file "pycse.pdf")
+(print (current-time-string))
+#+END_SRC
+
+#+RESULTS: pdf
+: 
+: "Wed Sep 22 15:05:11 2021"
+: 
+: (pdf '"nil")
+: 
+: (html '"nil")
+: 
+: "Wed Sep 22 15:10:09 2021"
+
+
+
+** html
+
+#+name: html
+#+BEGIN_SRC emacs-lisp :results silent
+(require 'ox-publish)
+(print (current-time-string))
+(setq org-publish-project-alist
+      '(("pycse-content"
+	 :base-directory "/Users/jkitchin/Dropbox/python/pycse/"
+	 :base-extension "org"
+	 :publishing-directory "~/Dropbox/python/pycse/gh-pages/"
+	 :recursive t
+	 :exclude "tests\\|aspen\\|sandbox\\|python\\|data\\|gh-pages\\|octave-3.6.4\\|pycse-channel"
+	 :publishing-function org-html-publish-to-html
+	 :headline-levels 5             ; Just the default for this project.
+	 :auto-preamble t)
+	("pycse-static"
+	 :base-directory "/Users/jkitchin/Dropbox/python/pycse/"
+	 :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|dat\\|mat\\|txt\\|svg"
+	 :publishing-directory "~/Dropbox/python/pycse/gh-pages/"
+	 :exclude "gh-pages\\|sandbox\\|requirements\\|pycse-chapters\\|pycse-channel"
+	 :recursive t
+	 :publishing-function org-publish-attachment)
+	;; ... all the components ...
+	("pycse" :components ("pycse-content" "pycse-static"))))
+
+(org-publish "pycse")
+(print (current-time-string))
+#+END_SRC
+
+
+Now publish it to github
+
+** all targets
+
+#+BEGIN_SRC emacs-lisp :var pdf=pdf :var html=html :var push=publish
+"done"
+#+END_SRC
+
+
+** publish
+#+name: publish
+#+BEGIN_SRC sh
+cd gh-pages
+git add ipython-inline-images
+git add -f ltxpng
+git add -f ltximg
+git commit -am "new build"
+git push
+#+END_SRC
+
+#+RESULTS: publish
+| [gh-pages 2588bd8] new build |                   |                  |
+| 1 file changed               | 209 insertions(+) | 209 deletions(-) |
+

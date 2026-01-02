@@ -1,0 +1,108 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pycse"]
+core-metadata-version = "2.1"
+
+[tool.hatch.build.targets.sdist]
+core-metadata-version = "2.1"
+
+[project]
+name = "pycse"
+version = "2.7.0"
+description = "python computations in science and engineering"
+readme = {file = "README.org", content-type = "text/plain"}
+authors = [{ name = "John Kitchin", email = "jkitchin@andrew.cmu.edu" }]
+license = {text = "GPL-3.0-or-later"}
+requires-python = ">=3.9"
+dependencies = ["numpy",
+"scipy",
+"matplotlib",
+"networkx",
+"numdifftools",
+"pandas",
+"joblib",
+"requests",
+"orjson",
+"pyDOE3",
+"jax>=0.4.0",
+"jaxlib>=0.4.0",
+"optax>=0.1.0",
+"flax>=0.7.0",
+"scikit-learn>=1.0.0",
+"gmr",
+"dill",
+"ipython",
+"tabulate",
+"click"]
+
+[project.scripts]
+pycse = "pycse.cli:pycse"
+pycse_mcp = "pycse.mcp:main"
+
+[project.optional-dependencies]
+test = [
+  "pytest>=7.0",
+  "pytest-cov>=4.0",
+  "pytest-xdist>=3.0",  # Parallel test execution
+  "coverage>=7.0",
+  "plotly>=5.0",
+  "kaleido",  # Required by plotly for image export
+  "seaborn>=0.11.0",  # Required for example notebooks
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+# Enable pycodestyle (E, W) and Pyflakes (F) - matching flake8 defaults
+select = ["E", "F", "W"]
+ignore = ["E501"]  # Ignore line-too-long
+
+[tool.ruff.lint.per-file-ignores]
+"src/pycse/__init__.py" = ["F401", "F403", "E402"]
+"src/pycse/cli.py" = ["E722"]
+"src/pycse/sklearn/examples/*.py" = ["F541", "F401", "E402"]
+"src/pycse/examples/*.ipynb" = ["E402", "F821"]  # Allow imports anywhere and undefined names (cells share state)
+"docker/jupyter_nbconvert_config.py" = ["F821"]
+
+[tool.pytest.ini_options]
+# add src/ to PYTHONPATH
+pythonpath = ["src"]
+# where your tests live
+testpaths  = ["src/pycse/tests"]
+
+[tool.coverage.run]
+source = ["src/pycse"]
+omit = [
+    "*/tests/*",
+    "*/examples/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+# Exclude lines from coverage
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+]
+precision = 2
+show_missing = true
+skip_covered = false
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+# (shell-command "uv build")
+# (shell-command "uv publish")

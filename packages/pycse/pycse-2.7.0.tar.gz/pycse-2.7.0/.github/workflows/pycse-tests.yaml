@@ -1,0 +1,79 @@
+name: Run pycse tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Test with Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for testmon to detect changes
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pytest-testmon data
+        uses: actions/cache@v4
+        with:
+          path: .testmondata
+          key: testmon-${{ runner.os }}-py${{ matrix.python-version }}-${{ github.run_id }}
+          restore-keys: |
+            testmon-${{ runner.os }}-py${{ matrix.python-version }}-${{ github.head_ref || github.ref_name }}-
+            testmon-${{ runner.os }}-py${{ matrix.python-version }}-master-
+            testmon-${{ runner.os }}-py${{ matrix.python-version }}-
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install package with dependencies
+        run: |
+          uv pip install --system -e ".[test]"
+          uv pip install --system pytest-testmon
+
+      - name: Run ruff format check
+        run: |
+          uv pip install --system ruff
+          ruff format --check src/pycse
+
+      - name: Run ruff linter
+        run: |
+          ruff check src/pycse
+
+      - name: Run tests with pytest (affected tests only)
+        if: github.event_name == 'pull_request'
+        run: |
+          # On PRs, run only affected tests without coverage for speed
+          # -n auto uses all available CPU cores (2 on ubuntu-latest)
+          pytest src/pycse/tests -v --testmon -n auto
+
+      - name: Run tests with pytest (full suite with coverage)
+        if: github.event_name == 'push'
+        run: |
+          # On push to main, run full suite with coverage in parallel
+          # -n auto uses all available CPU cores (2 on ubuntu-latest)
+          pytest src/pycse/tests -v --cov=src/pycse --cov-report=term-missing --cov-report=xml -n auto --durations=20
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        if: github.event_name == 'push' && matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest'
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}

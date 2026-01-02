@@ -1,0 +1,430 @@
+* Plotting
+  :PROPERTIES:
+  :ID:       998D628D-BBCC-4F9B-975A-A439301F3CF2
+  :END:
+
+** Plot customizations - Modifying line, text and figure properties
+[[http://matlab.cheme.cmu.edu/2011/08/01/plot-customizations-modifying-line-text-and-figure-properties/][Matlab post]]
+
+Here is a vanilla plot.
+
+#+BEGIN_SRC jupyter-python
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 2 * np.pi)
+plt.plot(x, np.sin(x));
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/1b73778ba3254967f74db50a558ae963d410d3c2.png]]
+:END:
+
+Lets increase the line thickness, change the line color to red, and make the markers red circles with black outlines. I also like figures in presentations to be 6 inches high, and 4 inches wide.
+
+#+BEGIN_SRC jupyter-python
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 2 * np.pi)
+
+plt.figure(figsize=(4, 6))
+plt.plot(x, np.sin(x), lw=2, color='r', marker='o', mec='k', mfc='b')
+
+plt.xlabel('x data', fontsize=12, fontweight='bold')
+plt.ylabel('y data', fontsize=12, fontstyle='italic', color='b')
+plt.tight_layout(); # auto-adjust position of axes to fit figure.
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/36847b646e92e00a7d3aa275d7b12860aec7450f.png]]
+:END:
+
+
+*** setting all the text properties in a figure.
+
+You may notice the axis tick labels are not consistent with the labels now. If you have many plots it can be tedious to try setting each text property. Python to the rescue! With these commands you can find all the text instances, and change them all at one time! Likewise, you can change all the lines, and all the axes.
+
+
+#+BEGIN_SRC jupyter-python
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 2 * np.pi)
+
+plt.figure(figsize=(4, 6))
+plt.plot(x, np.sin(x), lw=2, color='r', marker='o', mec='k', mfc='b')
+
+plt.xlabel('x data', fontsize=12, fontweight='bold')
+plt.ylabel('y data', fontsize=12, fontstyle='italic', color='b')
+
+# set all font properties
+fig = plt.gcf()
+for o in  fig.findobj(lambda x:hasattr(x, 'set_fontname')
+		      or hasattr(x, 'set_fontweight')
+		      or hasattr(x, 'set_fontsize')):
+    o.set_fontname('Arial')
+    o.set_fontweight('bold')
+    o.set_fontsize(14)
+
+# make anything you can set linewidth to be lw=2
+def myfunc(x):
+    return hasattr(x, 'set_linewidth')
+
+for o in  fig.findobj(myfunc):
+    o.set_linewidth(2)
+
+plt.tight_layout(); # auto-adjust position of axes to fit figure.
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/f75ed131166f87312cd6e3f3e116996817fc766d.png]]
+:END:
+
+
+There are many other things you can do!
+
+** DONE Plotting two datasets with very different scales
+   CLOSED: [2014-06-19 Thu 15:26]
+   :PROPERTIES:
+   :categories: plotting
+   :date:     2013/09/13 13:55:20
+   :updated:  2014/06/19 15:26:20
+   :END:
+[[http://matlab.cheme.cmu.edu/2011/08/25/plotting-two-datasets-with-very-different-scales/][Matlab plot]]
+
+Sometimes you will have two datasets you want to plot together, but the scales will be so different it is hard to seem them both in the same plot. Here we examine a few strategies to plotting this kind of data.
+
+#+BEGIN_SRC jupyter-python 
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 2*np.pi)
+y1 = np.sin(x);
+y2 = 0.01 * np.cos(x);
+
+plt.plot(x, y1, x, y2)
+plt.legend(['y1', 'y2']);
+# in this plot y2 looks almost flat!
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/2bba1c80c78cf1d90a1b3eee2e101bdf17c9af40.png]]
+:END:
+
+
+*** Make two plots!
+
+this certainly solves the problem, but you have two full size plots, which can take up a lot of space in a presentation and report. Often your goal in plotting both data sets is to compare them, and it is easiest to compare plots when they are perfectly lined up. Doing that manually can be tedious.
+
+#+BEGIN_SRC jupyter-python
+plt.figure()
+plt.plot(x,y1)
+plt.legend(['y1'])
+
+plt.figure()
+plt.plot(x,y2)
+plt.legend(['y2']);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/fd5a035be3783cdbbf743a2dc92ac476fed0f05f.png]]
+[[file:./.ob-jupyter/df4101e98445712101192411e48688912528d9ea.png]]
+:END:
+
+
+
+*** Scaling the results
+
+Sometimes you can scale one dataset so it has a similar magnitude as the other data set. Here we could multiply y2 by 100, and then it will be similar in size to y1. Of course, you need to indicate that y2 has been scaled in the graph somehow. Here we use the legend.
+
+#+BEGIN_SRC jupyter-python 
+plt.figure()
+plt.plot(x, y1, x, 100 * y2)
+plt.legend(['y1', '100*y2']);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/e9add7ec2fcdb315d5696f4735facb20648688fb.png]]
+:END:
+
+*** Double-y axis plot
+[[index:plot!double y-axis]]
+
+Using two separate y-axes can solve your scaling problem. Note that each y-axis is color coded to the data. It can be difficult to read these graphs when printed in black and white
+
+#+BEGIN_SRC jupyter-python 
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
+ax1.plot(x, y1)
+ax1.set_ylabel('y1')
+
+ax2 = ax1.twinx()
+ax2.plot(x, y2, 'r-')
+ax2.set_ylabel('y2', color='r')
+for tl in ax2.get_yticklabels():
+    tl.set_color('r');
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/cabe58ade908c55125ea57937f6b86961e65f8d3.png]]
+:END:
+
+
+*** Subplots
+index:plot!subplot
+An alternative approach to double y axes is to use subplots.
+
+#+BEGIN_SRC jupyter-python 
+f, axes = plt.subplots(2, 1);
+axes[0].plot(x, y1)
+axes[0].set_ylabel('y1')
+
+axes[1].plot(x, y2)
+axes[1].set_ylabel('y2');
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/a07b788332cc053cd98f18c1c5b9b0a12db23b74.png]]
+:END:
+
+
+
+** Customizing plots after the fact
+   :PROPERTIES:
+   :categories: plotting
+   :date:     2013/09/16 16:27:27
+   :updated:  2013/09/16 16:32:31
+   :END:
+[[http://matlab.cheme.cmu.edu/2011/09/16/customizing-plots-after-the-fact/][Matlab post]]
+Sometimes it is desirable to make a plot that shows the data you want to present, and to customize the details, e.g. font size/type and line thicknesses afterwards. It can be tedious to try to add the customization code to the existing code that makes the plot. Today, we look at a way to do the customization after the plot is created.
+
+#+BEGIN_SRC jupyter-python
+import numpy as np
+import matplotlib.pyplot as plt
+
+f = plt.figure()
+x = np.linspace(0,2)
+y1 = x
+y2 = x**2
+y3 = x**3
+
+plt.plot(x, y1, x, y2, x, y3)
+xL = plt.xlabel('x')
+yL = plt.ylabel('f(x)')
+plt.title('plots of y = x^n')
+plt.legend(['x', 'x^2', 'x^3'], loc='best');
+
+plt.setp(f, 'size_inches', (4, 6))
+
+
+# set lines to dashed
+from matplotlib.lines import Line2D
+for o in fig.findobj(Line2D):
+    o.set_linestyle('--')
+
+#set(allaxes,'FontName','Arial','FontWeight','Bold','LineWidth',2,'FontSize',14);
+
+import matplotlib.text as text
+for o in fig.findobj(text.Text):
+    plt.setp(o, 'fontname','Arial', 'fontweight','bold', 'fontsize', 14)
+
+plt.setp(xL, 'fontstyle', 'italic')
+plt.setp(yL, 'fontstyle', 'italic');
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/32638305e9bdaa12a1a55a4f3ac4cc22a54f64ca.png]]
+:END:
+
+
+** Fancy, built-in colors in Python
+[[http://matlab.cheme.cmu.edu/2011/09/13/check-out-the-new-fall-colors/][Matlab post]]
+
+Matplotlib has a lot of built-in colors. Here is a list of them, and an example of using them.
+
+#+BEGIN_SRC jupyter-python
+import matplotlib.pyplot as plt
+from matplotlib.colors import cnames
+print(cnames.keys())
+
+plt.plot([1, 2, 3, 4], lw=2, color='moccasin', marker='o', mfc='lightblue', mec='seagreen');
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+dict_keys(['aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen', 'darkgrey', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise', 'darkviolet', 'deeppink', 'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'green', 'greenyellow', 'grey', 'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey', 'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon', 'mediumaquamarine', 'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'purple', 'rebeccapurple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan', 'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen'])
+[[file:./.ob-jupyter/c54ece399ffe92a7fbef5a4d848793c7d758a91e.png]]
+:END:
+
+
+** DONE Picasso's short lived blue period with Python
+   CLOSED: [2018-02-04 Sun 17:03]
+   :PROPERTIES:
+   :date:     2013/03/04 16:07:55
+   :updated:  2018/02/04 17:03:58
+   :categories: plotting
+   :tags:     color
+   :org-url:  http://kitchingroup.cheme.cmu.edu/org/2013/03/04/Picasso's-short-lived-blue-period-with-Python.org
+   :permalink: http://kitchingroup.cheme.cmu.edu/blog/2013/03/04/Picasso's-short-lived-blue-period-with-Python/index.html
+   :END:
+[[http://matlab.cheme.cmu.edu/2011/09/14/picassos-short-lived-blue-period-with-matlab/][Matlab post]]
+
+It is an unknown fact that Picasso had a brief blue plotting period with Matlab before moving on to his more famous paintings. It started from irritation with the default colors available in Matlab for plotting. After watching his friend van Gogh cut off his own ear out of frustration with the ugly default colors, Picasso had to do something different.
+
+#+BEGIN_SRC jupyter-python
+import numpy as np
+import matplotlib.pyplot as plt
+
+#this plots horizontal lines for each y value of m.
+for m in np.linspace(1, 50, 100):
+    plt.plot([0, 50], [m, m]);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/f7b475471795505f5f370917b93d87f42260824d.png]]
+:END:
+
+Picasso copied the table available at http://en.wikipedia.org/wiki/List_of_colors and parsed it into a dictionary of hex codes for new colors. That allowed him to specify a list of beautiful blues for his graph. Picasso eventually gave up on python as an artform, and moved on to painting.
+
+
+
+
+#+BEGIN_SRC jupyter-python
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+c = {}
+with open('../color.table') as f:
+    for line in f:
+        fields = line.split('\t')
+        colorname = fields[0].lower()
+        hexcode = fields[1]
+        c[colorname] = hexcode
+
+names = c.keys()
+names = sorted(names)
+
+print(names)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+['aero', 'aero blue', 'african violet', 'air force blue (raf)', 'air force blue (usaf)', 'air superiority blue', 'alabama crimson', 'alice blue', 'alizarin crimson', 'alloy orange', 'almond', 'amaranth', 'amazon', 'amber', 'american rose', 'amethyst', 'android green', 'anti-flash white', 'antique brass', 'antique bronze', 'antique fuchsia', 'antique ruby', 'antique white', 'ao (english)', 'apple green', 'apricot', 'aqua', 'aquamarine', 'army green', 'arsenic', 'arylide yellow', 'ash grey', 'asparagus', 'atomic tangerine', 'auburn', 'aureolin', 'aurometalsaurus', 'avocado', 'azure', 'azure mist/web', "b'dazzled blue", 'baby blue', 'baby blue eyes', 'baby pink', 'baby powder', 'baker-miller pink', 'ball blue', 'banana mania', 'banana yellow', 'barbie pink', 'barn red', 'battleship grey', 'bazaar', 'beau blue', 'beaver', 'beige', 'big dip o’ruby', 'bisque', 'bistre', 'bistre brown', 'bitter lemon', 'bitter lime', 'bittersweet', 'bittersweet shimmer', 'black', 'black bean', 'black leather jacket', 'black olive', 'blanched almond', 'blast-off bronze', 'bleu de france', 'blizzard blue', 'blond', 'blue', 'blue (crayola)', 'blue (munsell)', 'blue (ncs)', 'blue (pigment)', 'blue (ryb)', 'blue bell', 'blue sapphire', 'blue yonder', 'blue-gray', 'blue-green', 'blue-violet', 'blueberry', 'bluebonnet', 'blush', 'bole', 'bondi blue', 'bone', 'boston university red', 'bottle green', 'boysenberry', 'brandeis blue', 'brass', 'brick red', 'bright cerulean', 'bright green', 'bright lavender', 'bright maroon', 'bright pink', 'bright turquoise', 'bright ube', 'brilliant lavender', 'brilliant rose', 'brink pink', 'british racing green', 'bronze', 'bronze yellow', 'brown (traditional)', 'brown (web)', 'brown-nose', 'brunswick green', 'bubble gum', 'bubbles', 'buff', 'bulgarian rose', 'burgundy', 'burlywood', 'burnt orange', 'burnt sienna', 'burnt umber', 'byzantine', 'byzantium', 'cadet', 'cadet blue', 'cadet grey', 'cadmium green', 'cadmium orange', 'cadmium red', 'cadmium yellow', 'café au lait', 'café noir', 'cal poly green', 'cambridge blue', 'camel', 'cameo pink', 'camouflage green', 'canary yellow', 'candy apple red', 'candy pink', 'capri', 'caput mortuum', 'cardinal', 'caribbean green', 'carmine', 'carmine (m&p)', 'carmine pink', 'carmine red', 'carnation pink', 'carnelian', 'carolina blue', 'carrot orange', 'castleton green', 'catalina blue', 'catawba', 'cedar chest', 'ceil', 'celadon', 'celadon blue', 'celadon green', 'celeste (colour)', 'celestial blue', 'cerise', 'cerise pink', 'cerulean', 'cerulean blue', 'cerulean frost', 'cg blue', 'cg red', 'chamoisee', 'champagne', 'charcoal', 'charleston green', 'charm pink', 'chartreuse (traditional)', 'chartreuse (web)', 'cherry', 'cherry blossom pink', 'chestnut', 'china pink', 'china rose', 'chinese red', 'chinese violet', 'chocolate (traditional)', 'chocolate (web)', 'chrome yellow', 'cinereous', 'cinnabar', 'cinnamon', 'citrine', 'citron', 'claret', 'classic rose', 'cobalt', 'cocoa brown', 'coconut', 'coffee', 'columbia blue', 'congo pink', 'cool black', 'cool grey', 'copper', 'copper (crayola)', 'copper penny', 'copper red', 'copper rose', 'coquelicot', 'coral', 'coral pink', 'coral red', 'cordovan', 'corn', 'cornell red', 'cornflower blue', 'cornsilk', 'cosmic latte', 'cotton candy', 'cream', 'crimson', 'crimson glory', 'cyan', 'cyan (process)', 'cyber grape', 'cyber yellow', 'daffodil', 'dandelion', 'dark blue', 'dark blue-gray', 'dark brown', 'dark byzantium', 'dark candy apple red', 'dark cerulean', 'dark chestnut', 'dark coral', 'dark cyan', 'dark electric blue', 'dark goldenrod', 'dark gray', 'dark green', 'dark imperial blue', 'dark jungle green', 'dark khaki', 'dark lava', 'dark lavender', 'dark liver', 'dark liver (horses)', 'dark magenta', 'dark midnight blue', 'dark moss green', 'dark olive green', 'dark orange', 'dark orchid', 'dark pastel blue', 'dark pastel green', 'dark pastel purple', 'dark pastel red', 'dark pink', 'dark powder blue', 'dark raspberry', 'dark red', 'dark salmon', 'dark scarlet', 'dark sea green', 'dark sienna', 'dark sky blue', 'dark slate blue', 'dark slate gray', 'dark spring green', 'dark tan', 'dark tangerine', 'dark taupe', 'dark terra cotta', 'dark turquoise', 'dark vanilla', 'dark violet', 'dark yellow', 'dartmouth green', "davy's grey", 'debian red', 'deep carmine', 'deep carmine pink', 'deep carrot orange', 'deep cerise', 'deep champagne', 'deep chestnut', 'deep coffee', 'deep fuchsia', 'deep jungle green', 'deep lemon', 'deep lilac', 'deep magenta', 'deep mauve', 'deep moss green', 'deep peach', 'deep pink', 'deep ruby', 'deep saffron', 'deep sky blue', 'deep space sparkle', 'deep taupe', 'deep tuscan red', 'deer', 'denim', 'desert', 'desert sand', 'diamond', 'dim gray', 'dirt', 'dodger blue', 'dogwood rose', 'dollar bill', 'donkey brown', 'drab', 'duke blue', 'dust storm', 'earth yellow', 'ebony', 'ecru', 'eggplant', 'eggshell', 'egyptian blue', 'electric blue', 'electric crimson', 'electric cyan', 'electric green', 'electric indigo', 'electric lavender', 'electric lime', 'electric purple', 'electric ultramarine', 'electric violet', 'electric yellow', 'emerald', 'english green', 'english lavender', 'english red', 'english violet', 'eton blue', 'eucalyptus', 'fallow', 'falu red', 'fandango', 'fandango pink', 'fashion fuchsia', 'fawn', 'feldgrau', 'feldspar', 'fern green', 'ferrari red', 'field drab', 'fire engine red', 'firebrick', 'flame', 'flamingo pink', 'flattery', 'flavescent', 'flax', 'flirt', 'floral white', 'fluorescent orange', 'fluorescent pink', 'fluorescent yellow', 'folly', 'forest green (traditional)', 'forest green (web)', 'french beige', 'french bistre', 'french blue', 'french lilac', 'french lime', 'french mauve', 'french raspberry', 'french rose', 'french sky blue', 'french wine', 'fresh air', 'fuchsia', 'fuchsia (crayola)', 'fuchsia pink', 'fuchsia rose', 'fulvous', 'fuzzy wuzzy', 'gainsboro', 'gamboge', 'ghost white', 'giants orange', 'ginger', 'glaucous', 'glitter', 'go green', 'gold (metallic)', 'gold (web) (golden)', 'gold fusion', 'golden brown', 'golden poppy', 'golden yellow', 'goldenrod', 'granny smith apple', 'grape', 'gray', 'gray (html/css gray)', 'gray (x11 gray)', 'gray-asparagus', 'gray-blue', 'green (color wheel) (x11 green)', 'green (crayola)', 'green (html/css color)', 'green (munsell)', 'green (ncs)', 'green (pigment)', 'green (ryb)', 'green-yellow', 'grullo', 'guppie green', 'halayà úbe', 'han blue', 'han purple', 'hansa yellow', 'harlequin', 'harvard crimson', 'harvest gold', 'heart gold', 'heliotrope', 'hollywood cerise', 'honeydew', 'honolulu blue', "hooker's green", 'hot magenta', 'hot pink', 'hunter green', 'iceberg', 'icterine', 'illuminating emerald', 'imperial', 'imperial blue', 'imperial purple', 'imperial red', 'inchworm', 'india green', 'indian red', 'indian yellow', 'indigo', 'indigo (dye)', 'indigo (web)', 'international klein blue', 'international orange (aerospace)', 'international orange (engineering)', 'international orange (golden gate bridge)', 'iris', 'irresistible', 'isabelline', 'islamic green', 'italian sky blue', 'ivory', 'jade', 'japanese indigo', 'japanese violet', 'jasmine', 'jasper', 'jazzberry jam', 'jelly bean', 'jet', 'jonquil', 'june bud', 'jungle green', 'kelly green', 'kenyan copper', 'keppel', 'khaki (html/css) (khaki)', 'khaki (x11) (light khaki)', 'kobe', 'kobi', 'ku crimson', 'la salle green', 'languid lavender', 'lapis lazuli', 'laser lemon', 'laurel green', 'lava', 'lavender (floral)', 'lavender (web)', 'lavender blue', 'lavender blush', 'lavender gray', 'lavender indigo', 'lavender magenta', 'lavender mist', 'lavender pink', 'lavender purple', 'lavender rose', 'lawn green', 'lemon', 'lemon chiffon', 'lemon curry', 'lemon glacier', 'lemon lime', 'lemon meringue', 'lemon yellow', 'licorice', 'light apricot', 'light blue', 'light brown', 'light carmine pink', 'light coral', 'light cornflower blue', 'light crimson', 'light cyan', 'light fuchsia pink', 'light goldenrod yellow', 'light gray', 'light green', 'light khaki', 'light medium orchid', 'light moss green', 'light orchid', 'light pastel purple', 'light pink', 'light red ochre', 'light salmon', 'light salmon pink', 'light sea green', 'light sky blue', 'light slate gray', 'light steel blue', 'light taupe', 'light thulian pink', 'light yellow', 'lilac', 'lime (color wheel)', 'lime (web) (x11 green)', 'lime green', 'limerick', 'lincoln green', 'linen', 'lion', 'little boy blue', 'liver', 'liver (dogs)', 'liver (organ)', 'liver chestnut', 'lumber', 'lust', 'magenta', 'magenta (crayola)', 'magenta (dye)', 'magenta (pantone)', 'magenta (process)', 'magic mint', 'magnolia', 'mahogany', 'maize', 'majorelle blue', 'malachite', 'manatee', 'mango tango', 'mantis', 'mardi gras', 'maroon (crayola)', 'maroon (html/css)', 'maroon (x11)', 'mauve', 'mauve taupe', 'mauvelous', 'maya blue', 'meat brown', 'medium aquamarine', 'medium blue', 'medium candy apple red', 'medium carmine', 'medium champagne', 'medium electric blue', 'medium jungle green', 'medium lavender magenta', 'medium orchid', 'medium persian blue', 'medium purple', 'medium red-violet', 'medium ruby', 'medium sea green', 'medium sky blue', 'medium slate blue', 'medium spring bud', 'medium spring green', 'medium taupe', 'medium turquoise', 'medium tuscan red', 'medium vermilion', 'medium violet-red', 'mellow apricot', 'mellow yellow', 'melon', 'metallic seaweed', 'metallic sunburst', 'mexican pink', 'midnight blue', 'midnight green (eagle green)', 'midori', 'mikado yellow', 'mint', 'mint cream', 'mint green', 'misty rose', 'moccasin', 'mode beige', 'moonstone blue', 'mordant red 19', 'moss green', 'mountain meadow', 'mountbatten pink', 'msu green', 'mughal green', 'mulberry', 'mustard', 'myrtle green', 'sae/ece amber (color)']
+:END:
+
+#+BEGIN_SRC jupyter-python
+blues = [c['alice blue'],
+         c['light blue'],
+         c['baby blue'],
+         c['light sky blue'],
+         c['maya blue'],
+         c['cornflower blue'],
+         c['bleu de france'],
+         c['azure'],
+         c['blue sapphire'],
+         c['cobalt'],
+         c['blue'],
+         c['egyptian blue'],
+         c['duke blue']]
+
+ax = plt.gca()
+
+# Temporarily set the colors
+with mpl.rc_context({'axes.prop_cycle': mpl.cycler(color=blues)}):
+    #this plots horizontal lines for each y value of m.
+    for i, m in enumerate(np.linspace(1, 50, 100)):
+        plt.plot([0, 50], [m, m]);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/1a5bf3f30a09f1acac4eacf1de9233359b29d6f0.png]]
+:END:
+
+
+
+** Peak annotation in matplotlib
+   :PROPERTIES:
+   :categories: plotting
+   :END:
+
+This post is just some examples of annotating features in a plot in matplotlib. We illustrate finding peak maxima in a range, shading a region, shading peaks, and labeling a region of peaks. I find it difficult to remember the detailed syntax for these, so here are examples I could refer to later.
+
+#+BEGIN_SRC jupyter-python
+import numpy as np
+import matplotlib.pyplot as plt
+
+w, i = np.loadtxt('../data/raman.txt', usecols=(0, 1), unpack=True)
+
+plt.plot(w, i)
+plt.xlabel('Raman shift (cm$^{-1}$)')
+plt.ylabel('Intensity (counts)')
+
+ax = plt.gca()
+
+# put a shaded rectangle over a region
+ax.annotate('Some typical region', xy=(550, 15500), xycoords='data')
+ax.fill_between([700, 800], 0, [16000, 16000], facecolor='red', alpha=0.25)
+
+# shade the region in the spectrum
+ind = (w>1019) & (w<1054)
+ax.fill_between(w[ind], 0, i[ind], facecolor='gray', alpha=0.5)
+area = np.trapz(i[ind], w[ind])
+x, y = w[ind][np.argmax(i[ind])], i[ind][np.argmax(i[ind])]
+ax.annotate('Area = {0:1.2f}'.format(area), xy=(x, y),
+            xycoords='data',
+            xytext=(x + 50, y + 5000),
+            textcoords='data',
+            arrowprops=dict(arrowstyle="->",
+                            connectionstyle="angle,angleA=0,angleB=90,rad=10"))
+
+
+# find a max in this region, and annotate it
+ind = (w>1250) & (w<1252)
+x,y = w[ind][np.argmax(i[ind])], i[ind][np.argmax(i[ind])]
+ax.annotate('A peak', xy=(x, y),
+            xycoords='data',
+            xytext=(x + 350, y + 2000),
+            textcoords='data',
+            arrowprops=dict(arrowstyle="->",
+                            connectionstyle="angle,angleA=0,angleB=90,rad=10"))
+
+# find max in this region, and annotate it
+ind = (w>1380) & (w<1400)
+x,y = w[ind][np.argmax(i[ind])], i[ind][np.argmax(i[ind])]
+ax.annotate('Another peak', xy=(x, y),
+            xycoords='data',
+            xytext=(x + 50, y + 2000),
+            textcoords='data',
+            arrowprops=dict(arrowstyle="->",
+                            connectionstyle="angle,angleA=0,angleB=90,rad=10"))
+
+# indicate a region with connected arrows
+ax.annotate('CH bonds', xy=(2780, 6000), xycoords='data')
+ax.annotate('', xy=(2800., 5000.),  xycoords='data',
+            xytext=(3050, 5000), textcoords='data',
+            # the arrows connect the xy to xytext coondinates
+            arrowprops=dict(arrowstyle="<->",
+                            connectionstyle="bar",
+                            ec="k",  # edge color
+                            shrinkA=0.1, shrinkB=0.1));
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/67e873d4657d825c8b75e032761adbcdb8d05148.png]]
+:END:
+
+

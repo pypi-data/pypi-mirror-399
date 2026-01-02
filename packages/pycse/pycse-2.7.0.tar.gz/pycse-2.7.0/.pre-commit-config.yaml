@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.2
+    hooks:
+    # Run the formatter (reads config from pyproject.toml)
+    - id: ruff-format
+      files: ^src/pycse/
+    # Run the linter (reads config from pyproject.toml)
+    - id: ruff
+      args: [--fix]
+      files: ^src/pycse/
+
+  - repo: local
+    hooks:
+    - id: pytest
+      name: pytest
+      entry: pytest
+      language: system
+      types: [python]
+      pass_filenames: false
+      always_run: true
+
+  # - repo: local
+  #   hooks:
+  #   - id: pylint
+  #     name: pylint
+  #     entry: pylint pycse || true
+  #     language: system
+  #     types: [python]
+  #     args:
+  #       [
+  #       "--rcfile=setup.cfg",
+  #       "-rn", # Only display messages
+  #       "-sn", # Don't display the score
+  #       ]

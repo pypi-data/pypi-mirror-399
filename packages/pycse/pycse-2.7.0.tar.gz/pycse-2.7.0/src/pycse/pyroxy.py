@@ -1,0 +1,747 @@
+"""pyroxy - a surrogate decorator
+
+TODO: What about train / test splits?
+
+TODO: what about a random fraction of function values instead of surrogate?
+
+This is proof of concept code and it is not obviously the best approach. A
+notable limitation is that pickle and joblib cannot save this. It works ok with
+dill so far.
+
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.exceptions import NotFittedError
+import dill
+from scipy.stats.qmc import LatinHypercube
+from scipy.stats import norm
+
+
+class MaxCallsExceededException(Exception):
+    """Raised when maximum number of function calls is exceeded."""
+
+
+class _Surrogate:
+    def __init__(self, func, model, tol=1, max_calls=-1, verbose=False):
+        """Initialize a Surrogate function.
+
+        Parameters
+        ----------
+
+        func : Callable
+
+          Function that takes one argument
+
+        model : sklearn model
+
+          The model must be able to return std errors.
+
+        tol : float optional, default=1
+
+          Tolerance to use the surrogate. If the predicted error is less than
+          this we use the surrogate, otherwise use the true function and
+          retrain.
+
+        max_calls : int, default=-1,
+
+          Maximum number of calls to allow. An exception is raised if you exceed
+          this. -1 means no limit.
+
+        verbose : Boolean optional, default=False
+        If truthy, output is more verbose.
+
+        """
+        self.func = func
+        self.model = model
+        self.tol = tol
+        self.max_calls = max_calls
+        self.verbose = verbose
+        self.xtrain = None
+        self.ytrain = None
+
+        self.ntrain = 0
+        self.surrogate = 0
+        self.func_calls = 0
+
+    def add(self, X):
+        """Get data for X, add it and retrain.
+        Use this to bypass the logic for using the surrogate.
+        """
+        if (self.max_calls >= 0) and (self.func_calls + 1) > self.max_calls:
+            raise MaxCallsExceededException(f"Max func calls ({self.max_calls}) will be exceeded")
+
+        y = self.func(X)
+        self.func_calls += 1
+
+        # add it to the data. For now we add all the points
+        if self.xtrain is not None:
+            self.xtrain = np.concatenate([self.xtrain, X], axis=0)
+            self.ytrain = np.concatenate([self.ytrain, y])
+        else:
+            self.xtrain = X
+            self.ytrain = y
+
+        self.model.fit(self.xtrain, self.ytrain)
+        self.ntrain += 1
+        return y
+
+    def test(self, X):
+        """Run a test on X.
+        Runs true function on X, computes prediction errors.
+
+        Returns:
+        True if the actual errors are less than the tolerance.
+        """
+        # Ensure X is 2D for sklearn compatibility
+        X = np.atleast_2d(X)
+
+        if (self.max_calls >= 0) and (self.func_calls + 1) > self.max_calls:
+            raise MaxCallsExceededException(f"Max func calls ({self.max_calls}) will be exceeded")
+
+        y = self.func(X)
+        self.func_calls += 1
+        yp, ypse = self.model.predict(X, return_std=True)
+
+        errs = y - yp
+
+        if self.verbose:
+            print(
+                f"""Testing {X}
+            y = {y}
+            yp = {yp}
+
+            ypse = {ypse}
+            ypse < tol = {np.abs(ypse) < self.tol}
+
+            errs = {errs}
+            errs < tol = {np.abs(errs) < self.tol}
+            """
+            )
+        return (np.max(ypse) < self.tol) and (np.max(np.abs(errs)) < self.tol)
+
+    def __call__(self, X):
+        """Try to use the surrogate to predict X. if the predicted error is
+        larger than self.tol, use the true function and retrain the surrogate.
+
+        """
+        # Ensure X is 2D for sklearn compatibility
+        X = np.atleast_2d(X)
+
+        try:
+            pf, se = self.model.predict(X, return_std=True)
+
+            # if we think it is accurate enough we return it
+            if np.all(se < self.tol):
+                self.surrogate += 1
+                return pf.flatten()
+            else:
+                if self.verbose:
+                    print(
+                        f"For {X} -> {pf} err={se} is greater than {self.tol},",
+                        "running true function and returning function values and retraining",
+                    )
+
+                if (self.max_calls >= 0) and (self.func_calls + 1) > self.max_calls:
+                    raise MaxCallsExceededException(
+                        f"Max func calls ({self.max_calls}) will be exceeded"
+                    )
+                # Get the true value(s)
+                y = self.func(X)
+                self.func_calls += 1
+
+                # add it to the data. For now we add all the points
+                if self.xtrain is not None:
+                    self.xtrain = np.concatenate([self.xtrain, X], axis=0)
+                    self.ytrain = np.concatenate([self.ytrain, y])
+                else:
+                    # First data point
+                    self.xtrain = X
+                    self.ytrain = y
+
+                self.model.fit(self.xtrain, self.ytrain)
+                self.ntrain += 1
+                return y
+
+        except (AttributeError, NotFittedError):
+            if self.verbose:
+                print(f"Running {X} to initialize the model.")
+            y = self.func(X)
+            self.func_calls += 1
+
+            self.xtrain = X
+            self.ytrain = y
+
+            self.model.fit(X, y)
+            self.ntrain += 1
+            return y
+
+    def plot(self):
+        """Generate a parity plot of the surrogate.
+        Shows approximate 95% uncertainty interval in shaded area.
+        """
+
+        yp, se = self.model.predict(self.xtrain, return_std=True)
+
+        # sort these so the points are plotted sequentially in order
+        sind = np.argsort(self.ytrain.flatten())
+        y = self.ytrain.flatten()[sind]
+        yp = yp.flatten()[sind]
+        se = se.flatten()[sind]
+
+        p = plt.plot(y, yp, "b.")
+        plt.fill_between(
+            y,
+            yp + 2 * se,
+            yp - 2 * se,
+            alpha=0.2,
+        )
+        plt.xlabel("Known y-values")
+        plt.ylabel("Predicted y-values")
+        plt.title(f"R$^2$ = {self.model.score(self.xtrain, self.ytrain)}")
+        return p
+
+    def __str__(self):
+        """A string representation."""
+
+        yp, ypse = self.model.predict(self.xtrain, return_std=True)
+
+        errs = self.ytrain - yp
+
+        return f"""{len(self.xtrain)} data points obtained.
+        The model was fitted {self.ntrain} times.
+        The surrogate was successful {self.surrogate} times.
+
+        model score: {self.model.score(self.xtrain, self.ytrain)}
+        Errors:
+        MAE: {np.mean(np.abs(errs))}
+        RMSE: {np.sqrt(np.mean(errs**2))}
+        (tol = {self.tol})
+
+        """
+
+    def dump(self, fname="model.pkl"):
+        """Save the current surrogate to fname."""
+        with open(fname, "wb") as f:
+            f.write(dill.dumps(self))
+
+        return fname
+
+
+def Surrogate(function=None, *, model=None, tol=1, verbose=False, max_calls=-1):
+    """Function Wrapper for _Surrogate class
+
+    This allows me to use the class decorator with arguments.
+
+    """
+
+    def wrapper(function):
+        return _Surrogate(function, model=model, tol=tol, verbose=verbose, max_calls=max_calls)
+
+    return wrapper
+
+
+# This seems clunky, but I want this to have the syntax:
+# Surrogate.load(fname)
+
+
+def load(fname="model.pkl"):
+    """Load a surrogate from fname."""
+    with open(fname, "rb") as f:
+        return dill.loads(f.read())
+
+
+Surrogate.load = load
+
+
+class ActiveSurrogate:
+    """Build surrogate models using active learning.
+
+    This class provides methods to automatically build surrogate models by
+    iteratively sampling an input domain using acquisition functions to select
+    informative points.
+    """
+
+    @staticmethod
+    def _generate_lhs_samples(bounds, n_samples):
+        """Generate Latin Hypercube samples within bounds.
+
+        Parameters
+        ----------
+        bounds : list of tuples
+            Domain bounds as [(low1, high1), (low2, high2), ...].
+        n_samples : int
+            Number of samples to generate.
+
+        Returns
+        -------
+        samples : ndarray, shape (n_samples, n_dims)
+            LHS samples scaled to bounds.
+        """
+        n_dims = len(bounds)
+        sampler = LatinHypercube(d=n_dims)
+        unit_samples = sampler.random(n=n_samples)
+
+        # Scale from [0,1] to actual bounds
+        samples = np.zeros_like(unit_samples)
+        for i, (low, high) in enumerate(bounds):
+            samples[:, i] = low + unit_samples[:, i] * (high - low)
+
+        return samples
+
+    @staticmethod
+    def _acquisition_ei(X_candidates, model, y_best):
+        """Expected Improvement acquisition function.
+
+        Parameters
+        ----------
+        X_candidates : ndarray, shape (n_candidates, n_dims)
+            Candidate points to evaluate.
+        model : sklearn model
+            Fitted model with predict(return_std=True).
+        y_best : float
+            Current best observed value.
+
+        Returns
+        -------
+        ei : ndarray, shape (n_candidates,)
+            Expected improvement values.
+        """
+        mu, sigma = model.predict(X_candidates, return_std=True)
+        mu = mu.flatten()
+        sigma = sigma.flatten()
+
+        with np.errstate(divide="warn", invalid="ignore"):
+            Z = (mu - y_best) / sigma
+            ei = (mu - y_best) * norm.cdf(Z) + sigma * norm.pdf(Z)
+            ei[sigma == 0.0] = 0.0
+
+        return ei
+
+    @staticmethod
+    def _acquisition_ucb(X_candidates, model, kappa=2.0):
+        """Upper Confidence Bound acquisition function.
+
+        Parameters
+        ----------
+        X_candidates : ndarray, shape (n_candidates, n_dims)
+            Candidate points to evaluate.
+        model : sklearn model
+            Fitted model with predict(return_std=True).
+        kappa : float, default=2.0
+            Exploration parameter.
+
+        Returns
+        -------
+        ucb : ndarray, shape (n_candidates,)
+            UCB values.
+        """
+        mu, sigma = model.predict(X_candidates, return_std=True)
+        return mu.flatten() + kappa * sigma.flatten()
+
+    @staticmethod
+    def _acquisition_pi(X_candidates, model, y_best):
+        """Probability of Improvement acquisition function.
+
+        Parameters
+        ----------
+        X_candidates : ndarray, shape (n_candidates, n_dims)
+            Candidate points to evaluate.
+        model : sklearn model
+            Fitted model with predict(return_std=True).
+        y_best : float
+            Current best observed value.
+
+        Returns
+        -------
+        pi : ndarray, shape (n_candidates,)
+            Probability of improvement values.
+        """
+        mu, sigma = model.predict(X_candidates, return_std=True)
+        mu = mu.flatten()
+        sigma = sigma.flatten()
+
+        Z = (mu - y_best) / (sigma + 1e-9)
+        return norm.cdf(Z)
+
+    @staticmethod
+    def _acquisition_variance(X_candidates, model):
+        """Maximum Variance (pure exploration) acquisition function.
+
+        Parameters
+        ----------
+        X_candidates : ndarray, shape (n_candidates, n_dims)
+            Candidate points to evaluate.
+        model : sklearn model
+            Fitted model with predict(return_std=True).
+
+        Returns
+        -------
+        variance : ndarray, shape (n_candidates,)
+            Variance (uncertainty) values.
+        """
+        _, sigma = model.predict(X_candidates, return_std=True)
+        return sigma.flatten()
+
+    @staticmethod
+    def _stopping_mean_ratio(test_uncertainties, train_uncertainties, threshold=1.5):
+        """Mean ratio stopping criterion.
+
+        Stop when mean test uncertainty is within threshold of training uncertainty.
+
+        Parameters
+        ----------
+        test_uncertainties : ndarray
+            Uncertainties at test points.
+        train_uncertainties : ndarray
+            Uncertainties at training points.
+        threshold : float
+            Ratio threshold.
+
+        Returns
+        -------
+        bool
+            True if stopping criterion is met.
+        """
+        mean_test = np.mean(test_uncertainties)
+        mean_train = np.mean(train_uncertainties)
+        ratio = mean_test / (mean_train + 1e-9)
+        return bool(ratio < threshold)
+
+    @staticmethod
+    def _stopping_percentile(test_uncertainties, threshold=0.1):
+        """Percentile-based stopping criterion.
+
+        Stop when 95th percentile of test uncertainty drops below threshold.
+
+        Parameters
+        ----------
+        test_uncertainties : ndarray
+            Uncertainties at test points.
+        threshold : float
+            Absolute threshold.
+
+        Returns
+        -------
+        bool
+            True if stopping criterion is met.
+        """
+        percentile_95 = np.percentile(test_uncertainties, 95)
+        return bool(percentile_95 < threshold)
+
+    @staticmethod
+    def _stopping_absolute(test_uncertainties, threshold=0.1):
+        """Absolute threshold stopping criterion.
+
+        Stop when maximum test uncertainty drops below threshold.
+
+        Parameters
+        ----------
+        test_uncertainties : ndarray
+            Uncertainties at test points.
+        threshold : float
+            Absolute threshold.
+
+        Returns
+        -------
+        bool
+            True if stopping criterion is met.
+        """
+        return bool(np.max(test_uncertainties) < threshold)
+
+    @staticmethod
+    def _stopping_convergence(history, window=5, threshold=0.01):
+        """Convergence-based stopping criterion.
+
+        Stop when uncertainty change over last 'window' iterations is small.
+
+        Parameters
+        ----------
+        history : dict
+            Training history with 'mean_uncertainty' key.
+        window : int
+            Number of iterations to check.
+        threshold : float
+            Relative change threshold.
+
+        Returns
+        -------
+        bool
+            True if stopping criterion is met.
+        """
+        if len(history["mean_uncertainty"]) < window + 1:
+            return False
+
+        recent = history["mean_uncertainty"][-window:]
+        previous = history["mean_uncertainty"][-(window + 1)]
+        change = abs(np.mean(recent) - previous) / (previous + 1e-9)
+        return bool(change < threshold)
+
+    @classmethod
+    def _select_batch(cls, X_candidates, model, y_train, acquisition, batch_size):
+        """Select batch of points using sequential hallucination.
+
+        Parameters
+        ----------
+        X_candidates : ndarray, shape (n_candidates, n_dims)
+            Candidate points to select from.
+        model : sklearn model
+            Fitted model.
+        y_train : ndarray
+            Current training targets.
+        acquisition : str
+            Acquisition function name.
+        batch_size : int
+            Number of points to select.
+
+        Returns
+        -------
+        selected : ndarray, shape (batch_size, n_dims)
+            Selected points.
+        """
+        selected_indices = []
+        selected_points = []
+
+        # Copy training data for hallucination
+        y_hallucinated = y_train.copy()
+
+        for i in range(batch_size):
+            # Compute acquisition values
+            if acquisition == "ei":
+                acq_values = cls._acquisition_ei(X_candidates, model, y_hallucinated.max())
+            elif acquisition == "ucb":
+                acq_values = cls._acquisition_ucb(X_candidates, model)
+            elif acquisition == "pi":
+                acq_values = cls._acquisition_pi(X_candidates, model, y_hallucinated.max())
+            elif acquisition == "variance":
+                acq_values = cls._acquisition_variance(X_candidates, model)
+            else:
+                raise ValueError(f"Unknown acquisition: {acquisition}")
+
+            # Mask already selected points
+            acq_values = acq_values.copy()
+            for idx in selected_indices:
+                acq_values[idx] = -np.inf
+
+            # Select best point
+            best_idx = np.argmax(acq_values)
+            selected_indices.append(best_idx)
+            selected_points.append(X_candidates[best_idx])
+
+            # Hallucinate: predict value and add to training set (for next iteration)
+            if i < batch_size - 1:
+                X_new = X_candidates[best_idx : best_idx + 1]
+                y_new = model.predict(X_new)
+                y_hallucinated = np.concatenate([y_hallucinated, y_new.flatten()])
+
+        return np.array(selected_points)
+
+    @classmethod
+    def build(
+        cls,
+        func,
+        bounds,
+        model,
+        acquisition="ei",
+        stopping_criterion="mean_ratio",
+        stopping_threshold=1.5,
+        n_initial=None,
+        batch_size=1,
+        max_iterations=1000,
+        n_test_points=None,
+        n_candidates=None,
+        verbose=False,
+        callback=None,
+        tol=1.0,
+    ):
+        """Build a surrogate model using active learning.
+
+        Parameters
+        ----------
+        func : callable
+            Function to surrogate. Must accept 2D array and return 1D array.
+
+        bounds : list of tuples
+            Domain bounds as [(low1, high1), (low2, high2), ...].
+
+        model : sklearn model
+            Model with predict(X, return_std=True) interface.
+
+        acquisition : str, default='ei'
+            Acquisition function: 'ei', 'ucb', 'pi', 'variance'.
+
+        stopping_criterion : str, default='mean_ratio'
+            Stopping criterion: 'mean_ratio', 'percentile', 'absolute', 'convergence'.
+
+        stopping_threshold : float, default=1.5
+            Threshold value for stopping criterion.
+
+        n_initial : int, optional
+            Initial samples. Defaults to max(10, 5*n_dims).
+
+        batch_size : int, default=1
+            Number of points to sample per iteration.
+
+        max_iterations : int, default=1000
+            Maximum iterations before stopping.
+
+        n_test_points : int, optional
+            Test points for uncertainty estimation. Defaults to 100*n_dims.
+
+        n_candidates : int, optional
+            Candidate points for acquisition. Defaults to 50*n_dims.
+
+        verbose : bool, default=False
+            Print progress information.
+
+        callback : callable, optional
+            Function called each iteration: callback(iteration, history).
+
+        tol : float, default=1.0
+            Tolerance for returned _Surrogate object.
+
+        Returns
+        -------
+        surrogate : _Surrogate
+            Fitted surrogate model.
+
+        history : dict
+            Training history with metrics per iteration.
+        """
+        # Validate bounds
+        if not isinstance(bounds, list) or not all(
+            isinstance(b, tuple) and len(b) == 2 for b in bounds
+        ):
+            raise ValueError("bounds must be list of (low, high) tuples")
+
+        n_dims = len(bounds)
+
+        # Validate acquisition
+        valid_acquisitions = ["ei", "ucb", "pi", "variance"]
+        if acquisition not in valid_acquisitions:
+            raise ValueError(f"acquisition must be one of {valid_acquisitions}")
+
+        # Validate stopping criterion
+        valid_criteria = ["mean_ratio", "percentile", "absolute", "convergence"]
+        if stopping_criterion not in valid_criteria:
+            raise ValueError(f"stopping_criterion must be one of {valid_criteria}")
+
+        # Set defaults
+        if n_initial is None:
+            n_initial = max(10, 5 * n_dims)
+        if n_test_points is None:
+            n_test_points = 100 * n_dims
+        if n_candidates is None:
+            n_candidates = 50 * n_dims
+
+        # Initialize history
+        history = {
+            "iterations": [],
+            "n_samples": [],
+            "acquisition_values": [],
+            "mean_uncertainty": [],
+            "max_uncertainty": [],
+            "X_sampled": [],
+        }
+
+        # Generate initial samples via LHS
+        X_train = cls._generate_lhs_samples(bounds, n_initial)
+        y_train = func(X_train)
+
+        # Fit initial model
+        model.fit(X_train, y_train)
+
+        if verbose:
+            print(f"Initialized with {n_initial} LHS samples")
+
+        # Active learning loop
+        for iteration in range(max_iterations):
+            # Generate test points for uncertainty estimation
+            X_test = cls._generate_lhs_samples(bounds, n_test_points)
+            _, test_uncertainties = model.predict(X_test, return_std=True)
+
+            # Get training uncertainties
+            _, train_uncertainties = model.predict(X_train, return_std=True)
+
+            # Record metrics
+            mean_unc = np.mean(test_uncertainties)
+            max_unc = np.max(test_uncertainties)
+
+            # Check stopping criterion
+            stopping_met = False
+            if stopping_criterion == "mean_ratio":
+                stopping_met = cls._stopping_mean_ratio(
+                    test_uncertainties, train_uncertainties, stopping_threshold
+                )
+            elif stopping_criterion == "percentile":
+                stopping_met = cls._stopping_percentile(test_uncertainties, stopping_threshold)
+            elif stopping_criterion == "absolute":
+                stopping_met = cls._stopping_absolute(test_uncertainties, stopping_threshold)
+            elif stopping_criterion == "convergence":
+                stopping_met = cls._stopping_convergence(history, threshold=stopping_threshold)
+
+            if stopping_met:
+                if verbose:
+                    print(f"Stopping criterion met at iteration {iteration}")
+                break
+
+            # Generate candidate points
+            X_candidates = cls._generate_lhs_samples(bounds, n_candidates)
+
+            # Select next batch
+            X_new = cls._select_batch(X_candidates, model, y_train, acquisition, batch_size)
+
+            # Evaluate function at new points
+            y_new = func(X_new)
+
+            # Compute acquisition value for logging
+            if acquisition == "ei":
+                acq_at_selected = cls._acquisition_ei(X_new, model, y_train.max())
+            elif acquisition == "ucb":
+                acq_at_selected = cls._acquisition_ucb(X_new, model)
+            elif acquisition == "pi":
+                acq_at_selected = cls._acquisition_pi(X_new, model, y_train.max())
+            elif acquisition == "variance":
+                acq_at_selected = cls._acquisition_variance(X_new, model)
+
+            best_acq = np.max(acq_at_selected)
+
+            # Update training data
+            X_train = np.vstack([X_train, X_new])
+            y_train = np.concatenate([y_train, y_new.flatten()])
+
+            # Refit model
+            model.fit(X_train, y_train)
+
+            # Update history
+            history["iterations"].append(iteration)
+            history["n_samples"].append(len(X_train))
+            history["acquisition_values"].append(best_acq)
+            history["mean_uncertainty"].append(mean_unc)
+            history["max_uncertainty"].append(max_unc)
+            history["X_sampled"].append(X_new)
+
+            if verbose:
+                print(f"Iteration {iteration}/{max_iterations}")
+                print(f"  Samples: {len(X_train)}")
+                print(f"  Best acquisition: {best_acq:.4f}")
+                print(f"  Mean uncertainty: {mean_unc:.4f}")
+                print(f"  Max uncertainty: {max_unc:.4f}")
+
+            # Call callback if provided
+            if callback is not None:
+                callback(iteration, history)
+
+        # Create and return _Surrogate
+        surrogate = _Surrogate(func=func, model=model, tol=tol, max_calls=-1, verbose=verbose)
+
+        # Populate with training data
+        surrogate.xtrain = X_train
+        surrogate.ytrain = y_train
+        surrogate.func_calls = len(X_train)
+        surrogate.ntrain = len(history["iterations"]) + 1  # +1 for initial fit
+
+        if verbose:
+            print(f"\nActive learning complete: {len(X_train)} samples")
+
+        return surrogate, history
