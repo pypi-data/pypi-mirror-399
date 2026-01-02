@@ -1,0 +1,136 @@
+# netcl - PyOpenCL Deep Learning Playground
+
+`netcl` is an experimental PyOpenCL-based deep learning framework. It combines low-level kernels (conv/matmul/elementwise) with a lightweight autograd engine and a compact high-level API (layers, trainer, optimizers).
+
+## Installation
+```bash
+pip install netcl
+```
+Requirements: Python >= 3.10, NumPy, PyOpenCL, and an available OpenCL device (GPU or CPU).
+
+## Quick Start (toy MLP, high-level)
+```python
+import numpy as np
+from netcl.core.device import manager
+from netcl.nn.layers import Sequential, Flatten, Linear, ReLU
+from netcl.nn import functional
+from netcl.optim import Adam
+from netcl.trainer import Trainer
+from netcl.data.dataloader import DataLoader
+
+queue = manager.default(device="gpu").queue  # or device="cpu"
+
+model = Sequential(
+    Flatten(),
+    Linear(queue, 28 * 28, 128),
+    ReLU(),
+    Linear(queue, 128, 10),
+)
+opt = Adam(model.parameters(), lr=1e-3)
+trainer = Trainer(model, opt, device_queue=queue)
+
+# Toy data
+x = np.random.randn(256, 1, 28, 28).astype(np.float32)
+y = np.random.randint(0, 10, size=(256,))
+loader = DataLoader(list(zip(x, y)), batch_size=32, shuffle=True, device_queue=queue)
+
+trainer.fit(loader, epochs=1, loss_fn=functional.cross_entropy)
+```
+
+## Small CNN (layers + BatchNorm)
+```python
+import numpy as np
+from netcl.core.device import manager
+from netcl.nn import build_sequential, fast_bn_cnn_config, functional
+from netcl.optim import AdamW
+from netcl.trainer import Trainer
+from netcl.data.dataloader import DataLoader
+
+queue = manager.default(device="gpu").queue
+model = build_sequential(queue, fast_bn_cnn_config(in_ch=3, num_classes=10))
+opt = AdamW(model.parameters(), lr=1e-3, weight_decay=5e-4)
+trainer = Trainer(model, opt, device_queue=queue)
+
+x = np.random.randn(512, 3, 32, 32).astype(np.float32)
+y = np.random.randint(0, 10, size=(512,))
+loader = DataLoader(list(zip(x, y)), batch_size=64, shuffle=True, device_queue=queue)
+
+trainer.fit(loader, epochs=1, loss_fn=functional.cross_entropy)
+```
+
+## Declarative Model Config
+```python
+from netcl.core.device import manager
+from netcl.nn import build_sequential
+
+queue = manager.default(device="gpu").queue
+config = [
+    {"type": "Conv2d", "args": {"in_channels": 3, "out_channels": 16, "kernel_size": 3, "stride": 1, "pad": 1}},
+    {"type": "ReLU"},
+    {"type": "MaxPool2d", "args": {"kernel_size": 2, "stride": 2}},
+    {"type": "Flatten"},
+    {"type": "Linear", "args": {"in_features": 16 * 16 * 16, "out_features": 10}},
+]
+model = build_sequential(queue, config)
+```
+
+## Autograd (explicit Tape)
+```python
+import numpy as np
+from netcl import autograd as ag
+from netcl.core.device import manager
+from netcl.core.tensor import Tensor
+
+queue = manager.default(device="gpu").queue
+x = Tensor.from_host(queue, np.random.randn(8, 4).astype(np.float32))
+w = Tensor.from_host(queue, np.random.randn(4, 3).astype(np.float32))
+
+x_node = ag.tensor(x, requires_grad=True)
+w_node = ag.tensor(w, requires_grad=True)
+
+# y = relu(x @ w)
+logits = ag.relu(ag.matmul_op(x_node, w_node))
+target = ag.tensor(Tensor.from_host(queue, np.zeros((8, 3), dtype=np.float32)))
+loss = ag.mse_loss(logits, target)
+
+# backward
+ag.Tape().backward(loss)
+```
+
+## DataLoader + CPU Transforms
+```python
+import numpy as np
+from netcl.core.device import manager
+from netcl.data.dataloader import DataLoader
+from netcl.data.filters import to_float, normalize
+
+queue = manager.default(device="gpu").queue
+x = np.random.randint(0, 255, size=(128, 3, 32, 32), dtype=np.uint8)
+y = np.random.randint(0, 10, size=(128,))
+
+transforms = [
+    to_float(scale=255.0),
+    normalize(mean=(0.5, 0.5, 0.5), std=(0.25, 0.25, 0.25)),
+]
+loader = DataLoader(list(zip(x, y)), batch_size=32, shuffle=True, transforms=transforms, device_queue=queue)
+```
+
+## Save & Load (Sequential)
+Serialization supports `Sequential` with: `Conv2d`, `Linear`, `ReLU`, `LeakyReLU`, `Sigmoid`, `Tanh`, `Dropout`, `MaxPool2d`, `Flatten`.
+```python
+from netcl.io.serialization import save_model, load_model
+save_model(model, "model_artifact")
+model2 = load_model("model_artifact")
+```
+
+## Key Features
+- **Autograd**: Tape-based with backward for matmul, conv2d, pooling, elementwise, norms, and common losses.
+- **Layers**: `Linear`, `Conv2d`, `BatchNorm2d`, `Sequential`, `build_sequential` configs.
+- **Optimizers**: `SGD`, `Momentum`, `Adam`, `AdamW`, `RMSProp`, schedulers, and `AMPGradScaler`.
+- **Data**: `DataLoader` with prefetch, async device transfer, and CPU transforms.
+- **Ops**: Matmul, conv2d, depthwise/transpose conv, softmax, reductions, padding.
+- **Serialization**: `save_model`/`load_model` for `Sequential` models.
+
+## Notes
+- Mixed precision is experimental; it is disabled on the CPU backend.
+- Conv2d algorithms can be tuned via env flags like `NETCL_CONV_AUTOTUNE=1`.
