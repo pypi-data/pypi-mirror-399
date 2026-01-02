@@ -1,0 +1,229 @@
+void RCLConsensus::Adaptor::onModeChange(ConsensusMode before, ConsensusMode after) { JLOG(j_.info()) << "Consensus mode change before=" << to_string(before) << ", after=" << to_string(after);
+
+if ((before == ConsensusMode::proposing || before == ConsensusMode::observing) && before != after) censorshipDetector_.reset();
+
+mode_ = after;
+
+}
+
+Json::Value
+
+RCLConsensus::getJson(bool full) const
+
+{
+
+Json::Value ret;
+
+{
+
+std::lock_guard _{mutex_};
+
+ret = consensus_.getJson(full);
+
+}
+
+ret["validating"] = adaptor_.validating();
+
+return ret;
+
+}
+
+void
+
+RCLConsensus::timerEntry(NetClock::time_point const& now)
+
+{
+
+try
+
+{
+
+std::lock_guard _{mutex_};
+
+consensus_.timerEntry(now);
+
+}
+
+catch (SHAMapMissingNode const& mn)
+
+{
+
+JLOG(j_.error()) << "During consensus timerEntry: " << mn.what(); Rethrow(); } }
+
+void RCLConsensus::gotTxSet(NetClock::time_point const& now, RCLTxSet const& txSet) { try { std::lock_guard _{mutex_}; consensus_.gotTxSet(now, txSet); } catch (SHAMapMissingNode const& mn) {
+
+JLOG(j_.error()) << "During consensus gotTxSet: " << mn.what(); Rethrow(); } }
+
+void
+
+RCLConsensus::simulate(
+
+NetClock::time_point const& now,
+
+std::optional<std::chrono::milliseconds> consensusDelay)
+
+{
+
+std::lock_guard _{mutex_};
+
+consensus_.simulate(now, consensusDelay);
+
+}
+
+bool
+
+RCLConsensus::peerProposal(
+
+NetClock::time_point const& now,
+
+RCLCxPeerPos const& newProposal)
+
+{
+
+std::lock_guard _{mutex_};
+
+return consensus_.peerProposal(now, newProposal);
+
+}
+
+bool
+
+RCLConsensus::Adaptor::preStartRound(
+
+RCLCxLedger const& prevLgr,
+
+hash_set<NodeID> const& nowTrusted)
+
+{
+
+validating_ = validatorKeys_.keys &&
+
+prevLgr.seq() >= app_.getMaxDisallowedLedger() &&
+
+!app_.getOPs().isBlocked();
+
+if (validating_ && !app_.config().standalone() && app_.validators().count()) { auto const when = app_.validators().expires();
+
+if (!when || *when < app_.timeKeeper().now()) { JLOG(j_.error()) << "Voluntarily bowing out of consensus process " "because of an expired validator list."; validating_ = false; } }
+
+const bool synced = app_.getOPs().getOperatingMode() == OperatingMode::FULL;
+
+if (validating_) { JLOG(j_.info()) << "Entering consensus process, validating, synced=" << (synced ? "yes" : "no"); } else {
+
+JLOG(j_.info()) << "Entering consensus process, watching, synced=" << (synced ? "yes" : "no"); }
+
+inboundTransactions_.newRound(prevLgr.seq());
+
+if (prevLgr.ledger_
+
+
+
+>rules().enabled(featureNegativeUNL) &&
+
+!nowTrusted.empty())
+
+nUnlVote_.newValidators(prevLgr.seq() + 1, nowTrusted);
+
+return validating_ && synced;
+
+}
+
+bool
+
+RCLConsensus::Adaptor::haveValidated() const
+
+{
+
+return ledgerMaster_.haveValidated();
+
+}
+
+LedgerIndex
+
+RCLConsensus::Adaptor::getValidLedgerIndex() const
+
+{
+
+return ledgerMaster_.getValidLedgerIndex();
+
+}
+
+std::pair<std::size_t, hash_set<RCLConsensus::Adaptor::NodeKey_t>>
+
+RCLConsensus::Adaptor::getQuorumKeys() const
+
+{
+
+return app_.validators().getQuorumKeys();
+
+}
+
+std::size_t
+
+RCLConsensus::Adaptor::laggards(
+
+Ledger_t::Seq const seq,
+
+hash_set<RCLConsensus::Adaptor::NodeKey_t>& trustedKeys) const
+
+{
+
+return app_.getValidations().laggards(seq, trustedKeys);
+
+}
+
+bool
+
+RCLConsensus::Adaptor::validator() const
+
+{
+
+return validatorKeys_.keys.has_value();
+
+}
+
+void
+
+RCLConsensus::Adaptor::updateOperatingMode(std::size_t const positions) const
+
+{
+
+if (!positions && app_.getOPs().isFull())
+
+app_.getOPs().setMode(OperatingMode::CONNECTED);
+
+}
+
+void
+
+RCLConsensus::startRound(
+
+NetClock::time_point const& now,
+
+RCLCxLedger::ID const& prevLgrId,
+
+RCLCxLedger const& prevLgr,
+
+hash_set<NodeID> const& nowUntrusted,
+
+hash_set<NodeID> const& nowTrusted)
+
+{
+
+std::lock_guard _{mutex_};
+
+consensus_.startRound(
+
+now,
+
+prevLgrId,
+
+prevLgr,
+
+nowUntrusted,
+
+adaptor_.preStartRound(prevLgr, nowTrusted));
+
+}
+
+}

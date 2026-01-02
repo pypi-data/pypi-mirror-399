@@ -1,0 +1,279 @@
+if (!validatorKeys_.keys) { JLOG(j_.warn()) << "RCLConsensus::Adaptor::propose: ValidatorKeys " "not set: \n"; return; }
+
+auto const& keys =
+
+
+
+validatorKeys_.keys;
+
+prop.set_nodepubkey(keys.publicKey.data(), keys.publicKey.size());
+
+auto sig =
+
+signDigest(keys.publicKey, keys.secretKey, proposal.signingHash());
+
+prop.set_signature(sig.data(), sig.size());
+
+auto const suppression = proposalUniqueId( proposal.position(), proposal.prevLedger(), proposal.proposeSeq(), proposal.closeTime(), keys.publicKey, sig);
+
+app_.getHashRouter().addSuppression(suppression);
+
+app_.overlay().broadcast(prop);
+
+}
+
+void
+
+RCLConsensus::Adaptor::share(RCLTxSet const& txns)
+
+{
+
+inboundTransactions_.giveSet(txns.id(), txns.map_, false);
+
+}
+
+std::optional<RCLTxSet> RCLConsensus::Adaptor::acquireTxSet(RCLTxSet::ID const& setId) { if (auto txns = inboundTransactions_.getSet(setId, true)) { return RCLTxSet{std::move(txns)}; } return std::nullopt; }
+
+bool
+
+RCLConsensus::Adaptor::hasOpenTransactions() const
+
+{
+
+return !app_.openLedger().empty();
+
+}
+
+std::size_t
+
+RCLConsensus::Adaptor::proposersValidated(LedgerHash const& h) const
+
+{
+
+return app_.getValidations().numTrustedForLedger(h);
+
+}
+
+std::size_t
+
+RCLConsensus::Adaptor::proposersFinished(
+
+RCLCxLedger const& ledger,
+
+LedgerHash const& h) const
+
+{
+
+RCLValidations& vals = app_.getValidations();
+
+return vals.getNodesAfter(
+
+RCLValidatedLedger(ledger.ledger_, vals.adaptor().journal()), h);
+
+}
+
+uint256
+
+RCLConsensus::Adaptor::getPrevLedger(
+
+uint256 ledgerID,
+
+RCLCxLedger const& ledger,
+
+ConsensusMode mode)
+
+{
+
+RCLValidations& vals = app_.getValidations();
+
+uint256 netLgr = vals.getPreferred(
+
+RCLValidatedLedger{ledger.ledger_, vals.adaptor().journal()},
+
+ledgerMaster_.getValidLedgerIndex());
+
+if (netLgr != ledgerID)
+
+{
+
+if (mode != ConsensusMode::wrongLedger)
+
+app_.getOPs().consensusViewChange();
+
+JLOG(j_.debug()) << Json::Compact(app_.getValidations().getJsonTrie());
+
+}
+
+return netLgr;
+
+}
+
+auto RCLConsensus::Adaptor::onClose( RCLCxLedger const& ledger, NetClock::time_point const& closeTime, ConsensusMode mode) -> Result { const bool wrongLCL = mode == ConsensusMode::wrongLedger; const bool proposing = mode == ConsensusMode::proposing;
+
+notify(protocol::neCLOSING_LEDGER, ledger, !wrongLCL);
+
+auto const& prevLedger = ledger.ledger_;
+
+ledgerMaster_.applyHeldTransactions();
+
+ledgerMaster_.setBuildingLedger(prevLedger
+
+
+
+>info().seq + 1);
+
+auto initialLedger = app_.openLedger().current();
+
+auto initialSet =
+
+std::make_shared<SHAMap>(SHAMapType::TRANSACTION, app_.getNodeFamily());
+
+initialSet
+
+
+
+>setUnbacked();
+
+for (auto const& tx : initialLedger->txs) { JLOG(j_.trace()) << "Adding open ledger TX " << tx.first->getTransactionID(); Serializer s(2048); tx.first->add(s); initialSet->addItem( SHAMapNodeType::tnTRANSACTION_NM, make_shamapitem(tx.first->getTransactionID(), s.slice())); }
+
+if (app_.config().standalone() || (proposing && !wrongLCL)) { if (prevLedger->isFlagLedger()) {
+
+auto validations = app_.validators().negativeUNLFilter(
+
+app_.getValidations().getTrustedForLedger(
+
+prevLedger
+
+
+
+>info().parentHash, prevLedger
+
+
+
+>seq()
+
+
+
+1));
+
+if (validations.size() >= app_.validators().quorum())
+
+{
+
+feeVote_
+
+
+
+>doVoting(prevLedger, validations, initialSet);
+
+app_.getAmendmentTable().doVoting(
+
+prevLedger, validations, initialSet);
+
+}
+
+}
+
+else if (
+
+prevLedger
+
+
+
+>isVotingLedger() &&
+
+prevLedger
+
+
+
+>rules().enabled(featureNegativeUNL))
+
+{
+
+nUnlVote_.doVoting(
+
+prevLedger,
+
+app_.validators().getTrustedMasterKeys(),
+
+app_.getValidations(),
+
+initialSet);
+
+}
+
+}
+
+initialSet = initialSet
+
+
+
+>snapShot(false);
+
+if (!wrongLCL) { LedgerIndex const seq = prevLedger->info().seq + 1; RCLCensorshipDetector<TxID, LedgerIndex>::TxIDSeqVec proposed;
+
+initialSet->visitLeaves( [&proposed, seq](boost::intrusive_ptr<SHAMapItem const> const& item) { proposed.emplace_back(item->key(), seq); });
+
+censorshipDetector_.propose(std::move(proposed));
+
+}
+
+auto const setHash = initialSet->getHash().as_uint256();
+
+return Result{
+
+std::move(initialSet),
+
+RCLCxPeerPos::Proposal{
+
+initialLedger
+
+
+
+>info().parentHash,
+
+RCLCxPeerPos::Proposal::seqJoin,
+
+setHash,
+
+closeTime,
+
+app_.timeKeeper().closeTime(),
+
+validatorKeys_.nodeID}};
+
+}
+
+void
+
+RCLConsensus::Adaptor::onForceAccept(
+
+Result const& result,
+
+RCLCxLedger const& prevLedger,
+
+NetClock::duration const& closeResolution,
+
+ConsensusCloseTimes const& rawCloseTimes,
+
+ConsensusMode const& mode,
+
+Json::Value&& consensusJson)
+
+{
+
+doAccept(
+
+result,
+
+prevLedger,
+
+closeResolution,
+
+rawCloseTimes,
+
+mode,
+
+std::move(consensusJson));
+
+}
