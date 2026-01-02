@@ -1,0 +1,80 @@
+[project]
+name = "nshconfig"
+version = "0.53.1"
+description = "Fully typed configuration management, powered by Pydantic"
+authors = [{ name = "Nima Shoghi", email = "nimashoghi@gmail.com" }]
+readme = "README.md"
+requires-python = ">=3.9,<4.0"
+dependencies = [
+    "pydantic>=2",
+    "typing-extensions",
+    "eval_type_backport; python_version < '3.10'",
+]
+
+[project.optional-dependencies]
+all = [
+    "treescope; python_version >= '3.10'",
+    "pydantic-yaml",
+    "tomli",
+    "tomli-w",
+]
+extra = [
+    "treescope; python_version >= '3.10'",
+    "pydantic-yaml",
+    "tomli",
+    "tomli-w",
+]
+yaml = ["pydantic-yaml"]
+toml = ["tomli", "tomli-w"]
+docs = ["sphinx", "sphinx-rtd-theme", "myst-parser", "sphinx-copybutton"]
+
+[project.urls]
+homepage = "https://github.com/nimashoghi/nshconfig"
+
+[project.scripts]
+nshconfig-export = "nshconfig.bin.export:main"
+
+[dependency-groups]
+dev = [
+    "basedpyright",
+    "ruff",
+    "ipykernel",
+    "ipywidgets",
+    "pytest",
+    "pytest-cov",
+    "nox",
+    "packaging",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "myst-parser",
+    "sphinx-copybutton",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.basedpyright]
+typeCheckingMode = "standard"
+deprecateTypingAliases = true
+strictListInference = true
+strictDictionaryInference = true
+strictSetInference = true
+reportPrivateImportUsage = "none"
+reportMatchNotExhaustive = "warning"
+reportOverlappingOverload = "warning"
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportImplicitOverride = "warning"
+reportIncompatibleMethodOverride = "information"
+
+[tool.ruff.lint]
+select = ["FA102", "FA100"]
+ignore = ["F722", "F821", "E731", "E741"]
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "--cov=nshconfig --cov-report=term-missing"
