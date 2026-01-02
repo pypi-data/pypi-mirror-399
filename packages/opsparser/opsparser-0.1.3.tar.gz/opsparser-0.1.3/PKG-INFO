@@ -1,0 +1,93 @@
+Metadata-Version: 2.4
+Name: opsparser
+Version: 0.1.3
+Summary: A lightweight, pure Python implementation of an OpenSeesPy command monitoring tool for capturing, recording, and analyzing OpenSees command execution processes. No third-party dependencies, compatible with all OpenSeesPy versions, with no impact on original performance. Provides flexible API interfaces, supporting custom data processing and event triggering mechanisms.
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: openseespy>=3.7.1.2
+Dynamic: license-file
+
+# OpenSeesParser (OpsParser)
+
+[![Documentation Status](https://readthedocs.org/projects/opsparser/badge/?version=latest)](https://opsparser.readthedocs.io/en/latest/index.html)
+[![PyPI version](https://badge.fury.io/py/opsparser.svg)](https://badge.fury.io/py/opsparser)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Downloads](https://static.pepy.tech/badge/opsparser)](https://pepy.tech/project/opsparser)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/SeismoExt/OpsParser)
+
+OpenSeesParser (OpsParser) is a practical utility library designed for OpenSeesPy users, providing a series of convenient functions and tools to help users build and analyze structural models more efficiently.
+
+## Features
+
+- Simplifies the creation and management of OpenSeesPy models
+
+## Installation
+
+```bash
+pip install opsparser
+```
+
+## Quick Start
+
+```python
+import openseespy.opensees as old_ops
+from opsparser import OpenSeesParser
+
+# first hook all commands before your opensees code
+parser = OpenSeesParser(old_ops)
+parser.hook_all(debug = False) # Set debug = True to show parsing process
+ops = parser.enhance()         # enhanced ops module with IDE hints
+
+# your OpenSeesPy Code
+# ...
+
+# get your model's info
+from opsparser import OpenSeesCommand as Command
+# Node
+Node = Command.NODE.instance
+node_dict = Node.nodes  # node info
+
+# Materials
+Material = Command.MATERIAL.instance
+material_dict = Material.materials  # material info
+
+# Elements
+Element = Command.ELEMENT.instance
+Element_dict = Element.Elements  # Elements info
+
+# and many convient tools
+# like you can use newtag property for Node, Element, Material to get a unused tag
+Node.newtag
+Element.newtag
+Material.newtag
+
+# maybe 5 more continuous tags? Using `get_new_tags(start = 1)`
+Node.get_new_tags(5)
+
+```
+
+## Examples
+
+Check out the [examples documentation](https://opsparser.readthedocs.io/en/latest/examples/index.html) for more usage examples, including modeling and analysis of bridges, frames, and other structures.
+
+## Documentation
+
+Complete documentation is available at [OpsParser Documentation](https://opsparser.readthedocs.io/en/latest/index.html), including:
+
+- [Installation Guide](https://opsparser.readthedocs.io/en/latest/installation.html)
+- [Quick Start Guide](https://opsparser.readthedocs.io/en/latest/quick_start.html)
+- [API Reference](https://opsparser.readthedocs.io/en/latest/api.html)
+- [Known Issues](https://opsparser.readthedocs.io/en/latest/known_issues.html)
+
+## Contributing
+
+Contributions to the OpsParser project are welcome! Please participate through:
+
+1. Submitting issues and feature requests
+2. Contributing code improvements
+3. Sharing your experiences and examples using OpsParser
+
+## License
+
+OpsParser is released under the MIT License.
