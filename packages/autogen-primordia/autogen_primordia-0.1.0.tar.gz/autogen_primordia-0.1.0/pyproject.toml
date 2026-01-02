@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autogen-primordia"
+version = "0.1.0"
+description = "Primordia metering for Microsoft AutoGen"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+dependencies = ["pyautogen>=0.2.0"]
+
+[project.urls]
+Kernel = "https://clearing.kaledge.app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["autogen_primordia"]
