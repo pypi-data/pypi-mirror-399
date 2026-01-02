@@ -1,0 +1,72 @@
+name: CI Workflows
+
+on:
+  push:
+    branches:
+      master
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+
+  initial_checks:
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@v1
+    with:
+      coverage: false
+      envs: |
+        # Code style
+        - linux: codestyle
+
+  tests:
+    needs: initial_checks
+    uses: OpenAstronomy/github-actions-workflows/.github/workflows/tox.yml@v1
+    with:
+      display: true
+      coverage: codecov
+      libraries: |
+        apt:
+          - '^libxcb.*-dev'
+          - libxkbcommon-x11-0
+          - libegl1-mesa-dev
+          - libhdf5-dev
+      envs: |
+        - linux: py310-test-both-compression
+        - linux: py311-test-both-compression
+        - linux: py312-test-both-compression
+        - linux: py312-test-both
+        - linux: py312-test-qt-compression
+        - linux: py312-test-jupyter-compression
+        - linux: py312-test-qt
+        - linux: py312-test-jupyter
+        # - linux: py313-test-both
+
+        - macos: py310-test-both-compression
+        - macos: py311-test-both-compression
+        - macos: py312-test-both-compression
+        - macos: py312-test-qt-compression
+        # - macos: py312-test-jupyter-compression
+        # - macos: py313-test-both
+
+        # - windows: py310-test-both-compression
+        # - windows: py311-test-both-compression
+        # - windows: py312-test-both-compression
+        # - windows: py312-test-qt-compression
+        # - windows: py312-test-jupyter-compression
+        # - windows: py313-test-both
+
+
+  deploy-examples:
+    needs: initial_checks
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy examples to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs
