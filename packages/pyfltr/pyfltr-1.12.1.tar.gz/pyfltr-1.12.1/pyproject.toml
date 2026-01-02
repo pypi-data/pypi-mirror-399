@@ -1,0 +1,135 @@
+[project]
+name = "pyfltr"
+dynamic = ["version"]
+description = "Python Formatters, Linters, and Testers Runner."
+authors = [{ name = "aki.", email = "mark@aur.ll.to" }]
+requires-python = ">=3.11,<4.0"
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "autoflake>=2.0",
+    "black>=22.0",
+    "dill>=0.3",
+    "flake8-bugbear>=23.0",
+    "flake8-tidy-imports>=4.11.0",
+    "isort>=5.0",
+    "mypy>=1.0",
+    "natsort>=8.4.0",
+    "pylint>=3.0",
+    "pyproject-flake8>=7.0", # https://github.com/csachs/pyproject-flake8/issues/30
+    "pytest-asyncio>=1.0.0",
+    "pytest>=7.0",
+    "pyupgrade>=3.0",
+    "ruff>=0.12.1",
+    "textual>=0.80.0",
+]
+
+[project.optional-dependencies]
+pyright = [
+    "pyright[nodejs]>=1.1.403",
+]
+
+[project.urls]
+Homepage = "https://github.com/ak110/pyfltr"
+
+[project.scripts]
+pyfltr = "pyfltr.main:main"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+    "pytest-mock",
+]
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.pyfltr]
+preset = "latest"
+pyright = true
+pylint-args = ["--jobs=4"]
+
+[tool.ruff]
+# https://docs.astral.sh/ruff/configuration/
+line-length = 128
+
+[tool.ruff.lint]
+# https://docs.astral.sh/ruff/linter/#rule-selection
+select = [
+    # pydocstyle
+    "D",
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # flake8-import-conventions
+    "ICN",
+    # isort
+    "I",
+]
+ignore = [
+    "D107", # Missing docstring in `__init__`
+    "D415", # First line should end with a period
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"**_test.py" = ["D"]
+"**/__init__.py" = ["D104"]  # Missing docstring in public package
+
+[tool.isort]
+# https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#isort
+# https://pycqa.github.io/isort/docs/configuration/options.html
+profile = "black"
+
+[tool.black]
+# https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html
+skip-magic-trailing-comma = true
+
+[tool.flake8]
+# https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#flake8
+# https://flake8.pycqa.org/en/latest/user/configuration.html
+# https://pypi.org/project/flake8-tidy-imports/
+max-line-length = 88
+extend-ignore = "E203,E501"
+ban-relative-imports = "parents"
+
+[tool.mypy]
+# https://mypy.readthedocs.io/en/stable/config_file.html
+allow_redefinition = true
+check_untyped_defs = true
+ignore_missing_imports = true
+strict_optional = true
+strict_equality = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_unused_configs = true
+show_error_codes = true
+
+[tool.pytest.ini_options]
+# https://docs.pytest.org/en/latest/reference/reference.html#ini-options-ref
+addopts = "--showlocals -p no:cacheprovider --maxfail=5 --durations=30 --durations-min=0.5"
+log_level = "DEBUG"
+xfail_strict = true
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
