@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pass-client - Python API Guide</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-secondary: #1f6feb;
+      --green: #3fb950;
+      --orange: #d29922;
+      --red: #f85149;
+      --purple: #a371f7;
+      --border: #30363d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      margin-right: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .badge-blue { background: var(--accent-secondary); color: white; }
+    .badge-green { background: #238636; color: white; }
+    .badge-purple { background: #8957e5; color: white; }
+
+    nav {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      position: sticky;
+      top: 1rem;
+    }
+
+    nav h3 {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    nav a {
+      color: var(--accent);
+      text-decoration: none;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    nav a:hover {
+      background: var(--bg-tertiary);
+    }
+
+    section {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      color: var(--accent);
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      color: var(--text);
+      font-size: 1.2rem;
+      margin: 1.5rem 0 1rem 0;
+    }
+
+    h4 {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin: 1rem 0 0.5rem 0;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    code {
+      font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.9rem;
+    }
+
+    pre code {
+      color: var(--text);
+    }
+
+    p code, li code, td code {
+      background: var(--bg-tertiary);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: var(--orange);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--bg-tertiary);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background: var(--bg);
+    }
+
+    ul, ol {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    .keyword { color: var(--purple); }
+    .string { color: var(--green); }
+    .function { color: var(--accent); }
+    .comment { color: var(--text-muted); }
+    .class { color: var(--orange); }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .feature-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+    }
+
+    .feature-card h4 {
+      color: var(--accent);
+      margin: 0 0 0.5rem 0;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .warning {
+      background: rgba(210, 153, 34, 0.1);
+      border: 1px solid var(--orange);
+      border-radius: 6px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .warning::before {
+      content: "⚠️ ";
+    }
+
+    .tip {
+      background: rgba(63, 185, 80, 0.1);
+      border: 1px solid var(--green);
+      border-radius: 6px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .tip::before {
+      content: "💡 ";
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>pass-client</h1>
+      <p>A typed Python API client for pass (the standard Unix password manager)</p>
+      <span class="badge badge-blue">Python 3.10+</span>
+      <span class="badge badge-green">Async Support</span>
+      <span class="badge badge-purple">pass-otp</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <nav>
+      <h3>Quick Navigation</h3>
+      <ul>
+        <li><a href="#installation">Installation</a></li>
+        <li><a href="#quickstart">Quick Start</a></li>
+        <li><a href="#sync-client">Sync Client</a></li>
+        <li><a href="#async-client">Async Client</a></li>
+        <li><a href="#otp">OTP Support</a></li>
+        <li><a href="#errors">Error Handling</a></li>
+        <li><a href="#models">Models</a></li>
+      </ul>
+    </nav>
+
+    <section id="features">
+      <h2>Features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4>Type Hints</h4>
+          <p>Full type annotations and dataclass models</p>
+        </div>
+        <div class="feature-card">
+          <h4>Async Support</h4>
+          <p>Sync and async clients with concurrent operations</p>
+        </div>
+        <div class="feature-card">
+          <h4>OTP Extension</h4>
+          <p>Complete pass-otp support for 2FA</p>
+        </div>
+        <div class="feature-card">
+          <h4>Error Handling</h4>
+          <p>Custom exception hierarchy</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="installation">
+      <h2>Installation</h2>
+      <h4>Requirements</h4>
+      <ul>
+        <li>Python 3.10+</li>
+        <li><a href="https://www.passwordstore.org/">pass</a> installed and configured</li>
+        <li><a href="https://github.com/tadfisher/pass-otp">pass-otp</a> (optional, for OTP support)</li>
+      </ul>
+
+      <h4>Install from source</h4>
+      <pre><code><span class="comment"># Basic install</span>
+pip install -e .
+
+<span class="comment"># With dev dependencies</span>
+pip install -e <span class="string">".[dev]"</span></code></pre>
+    </section>
+
+    <section id="quickstart">
+      <h2>Quick Start</h2>
+      <pre><code><span class="keyword">from</span> pass_client <span class="keyword">import</span> <span class="class">PassClient</span>
+
+client = <span class="class">PassClient</span>()
+
+<span class="comment"># Get a password</span>
+entry = client.<span class="function">get</span>(<span class="string">"websites/github"</span>)
+<span class="function">print</span>(entry.password)
+<span class="function">print</span>(entry.username)  <span class="comment"># Parsed from metadata</span>
+
+<span class="comment"># Generate a new password</span>
+generated = client.<span class="function">generate</span>(<span class="string">"websites/newsite"</span>, length=<span class="class">20</span>)
+<span class="function">print</span>(generated.password)
+
+<span class="comment"># Insert with metadata</span>
+client.<span class="function">insert</span>(<span class="string">"websites/example"</span>, <span class="string">"mypassword"</span>, metadata={
+    <span class="string">"username"</span>: <span class="string">"user@example.com"</span>,
+    <span class="string">"url"</span>: <span class="string">"https://example.com"</span>,
+})</code></pre>
+    </section>
+
+    <section id="sync-client">
+      <h2>PassClient (Sync)</h2>
+
+      <h3>Initialization</h3>
+      <pre><code><span class="keyword">from</span> pass_client <span class="keyword">import</span> <span class="class">PassClient</span>
+
+client = <span class="class">PassClient</span>()
+<span class="comment"># Or with custom store path</span>
+client = <span class="class">PassClient</span>(store_path=<span class="class">Path</span>(<span class="string">"/custom/store"</span>))</code></pre>
+
+      <h3>Password Operations</h3>
+      <table>
+        <tr>
+          <th>Method</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>get(path)</code></td>
+          <td>Get password entry with metadata</td>
+        </tr>
+        <tr>
+          <td><code>get_password(path)</code></td>
+          <td>Get just the password string</td>
+        </tr>
+        <tr>
+          <td><code>insert(path, password, metadata)</code></td>
+          <td>Insert new entry</td>
+        </tr>
+        <tr>
+          <td><code>generate(path, length, no_symbols)</code></td>
+          <td>Generate new password</td>
+        </tr>
+        <tr>
+          <td><code>remove(path, recursive, force)</code></td>
+          <td>Remove entry or directory</td>
+        </tr>
+        <tr>
+          <td><code>move(src, dst)</code></td>
+          <td>Move/rename entry</td>
+        </tr>
+        <tr>
+          <td><code>copy(src, dst)</code></td>
+          <td>Copy entry</td>
+        </tr>
+        <tr>
+          <td><code>exists(path)</code></td>
+          <td>Check if entry exists</td>
+        </tr>
+      </table>
+
+      <h4>Examples</h4>
+      <pre><code><span class="comment"># Get password entry (includes metadata parsing)</span>
+entry = client.<span class="function">get</span>(<span class="string">"path/to/entry"</span>)
+<span class="function">print</span>(entry.password)      <span class="comment"># First line</span>
+<span class="function">print</span>(entry.username)      <span class="comment"># From "username:" field</span>
+<span class="function">print</span>(entry.url)           <span class="comment"># From "url:" field</span>
+<span class="function">print</span>(entry.metadata)      <span class="comment"># All parsed key-value pairs</span>
+
+<span class="comment"># Insert with metadata</span>
+client.<span class="function">insert</span>(<span class="string">"path/to/new"</span>, <span class="string">"password123"</span>, metadata={
+    <span class="string">"username"</span>: <span class="string">"user@example.com"</span>,
+    <span class="string">"url"</span>: <span class="string">"https://example.com"</span>,
+})
+
+<span class="comment"># Generate password</span>
+generated = client.<span class="function">generate</span>(<span class="string">"path/to/entry"</span>, length=<span class="class">25</span>)
+<span class="function">print</span>(generated.password)
+<span class="function">print</span>(generated.strength)  <span class="comment"># "weak", "moderate", "strong", "very_strong"</span></code></pre>
+
+      <h3>Search Operations</h3>
+      <pre><code><span class="comment"># List entries</span>
+entries = client.<span class="function">list</span>()              <span class="comment"># Root level</span>
+entries = client.<span class="function">list</span>(<span class="string">"websites"</span>)    <span class="comment"># Subdirectory</span>
+<span class="keyword">for</span> entry <span class="keyword">in</span> entries:
+    <span class="function">print</span>(entry.name, entry.path, entry.entry_type)
+
+<span class="comment"># Find by name pattern</span>
+results = client.<span class="function">find</span>(<span class="string">"github"</span>)
+
+<span class="comment"># Search content (grep)</span>
+results = client.<span class="function">grep</span>(<span class="string">"api.*key"</span>)</code></pre>
+
+      <h3>Git Operations</h3>
+      <pre><code><span class="comment"># Run git commands</span>
+output = client.<span class="function">git</span>(<span class="string">"status"</span>)
+output = client.<span class="function">git</span>(<span class="string">"log"</span>, <span class="string">"--oneline"</span>, <span class="string">"-5"</span>)
+
+<span class="comment"># Convenience methods</span>
+client.<span class="function">git_push</span>()
+client.<span class="function">git_pull</span>()
+
+<span class="comment"># Get commit history</span>
+commits = client.<span class="function">git_log</span>(limit=<span class="class">10</span>)
+<span class="keyword">for</span> commit <span class="keyword">in</span> commits:
+    <span class="function">print</span>(commit.hash, commit.message)</code></pre>
+    </section>
+
+    <section id="async-client">
+      <h2>AsyncPassClient</h2>
+      <p>Async version with identical API plus concurrent operations.</p>
+
+      <pre><code><span class="keyword">import</span> asyncio
+<span class="keyword">from</span> pass_client <span class="keyword">import</span> <span class="class">AsyncPassClient</span>
+
+<span class="keyword">async def</span> <span class="function">main</span>():
+    client = <span class="class">AsyncPassClient</span>()
+
+    <span class="comment"># All methods are async</span>
+    entry = <span class="keyword">await</span> client.<span class="function">get</span>(<span class="string">"websites/github"</span>)
+    <span class="function">print</span>(entry.password)
+
+    <span class="comment"># Concurrent fetches</span>
+    entries = <span class="keyword">await</span> client.<span class="function">get_many</span>([
+        <span class="string">"websites/github"</span>,
+        <span class="string">"websites/gitlab"</span>,
+        <span class="string">"email/personal"</span>,
+    ])
+    <span class="keyword">for</span> path, entry <span class="keyword">in</span> entries.items():
+        <span class="function">print</span>(<span class="string">f"</span>{path}: {entry.username}<span class="string">"</span>)
+
+    <span class="comment"># Concurrent inserts</span>
+    results = <span class="keyword">await</span> client.<span class="function">insert_many</span>([
+        (<span class="string">"sites/new1"</span>, <span class="string">"pass1"</span>, {<span class="string">"username"</span>: <span class="string">"user1"</span>}),
+        (<span class="string">"sites/new2"</span>, <span class="string">"pass2"</span>, {<span class="string">"username"</span>: <span class="string">"user2"</span>}),
+    ])
+
+asyncio.<span class="function">run</span>(main())</code></pre>
+
+      <h3>Context Manager</h3>
+      <pre><code><span class="keyword">from</span> pass_client <span class="keyword">import</span> <span class="class">AsyncPassClientContext</span>
+
+<span class="keyword">async with</span> <span class="class">AsyncPassClientContext</span>() <span class="keyword">as</span> client:
+    entry = <span class="keyword">await</span> client.<span class="function">get</span>(<span class="string">"websites/github"</span>)</code></pre>
+    </section>
+
+    <section id="otp">
+      <h2>OTP Support (pass-otp)</h2>
+      <p>Full support for the pass-otp extension for two-factor authentication.</p>
+
+      <div class="tip">
+        Install pass-otp: <code>apt install pass-extension-otp</code> (Debian/Ubuntu) or <code>brew install pass-otp</code> (macOS)
+      </div>
+
+      <h3>OTP Methods</h3>
+      <table>
+        <tr>
+          <th>Method</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>otp_code(path)</code></td>
+          <td>Generate current OTP code</td>
+        </tr>
+        <tr>
+          <td><code>otp_code_clip(path)</code></td>
+          <td>Copy OTP to clipboard</td>
+        </tr>
+        <tr>
+          <td><code>otp_uri(path)</code></td>
+          <td>Get parsed OTP URI</td>
+        </tr>
+        <tr>
+          <td><code>otp_insert(path, uri)</code></td>
+          <td>Insert new OTP entry</td>
+        </tr>
+        <tr>
+          <td><code>otp_append(path, uri)</code></td>
+          <td>Add OTP to existing entry</td>
+        </tr>
+        <tr>
+          <td><code>otp_validate(uri)</code></td>
+          <td>Validate URI syntax</td>
+        </tr>
+        <tr>
+          <td><code>otp_get(path)</code></td>
+          <td>Get full OTPEntry</td>
+        </tr>
+        <tr>
+          <td><code>otp_has(path)</code></td>
+          <td>Check if OTP configured</td>
+        </tr>
+        <tr>
+          <td><code>otp_code_many(paths)</code></td>
+          <td>Concurrent codes (async)</td>
+        </tr>
+      </table>
+
+      <h3>Usage Examples</h3>
+      <pre><code><span class="keyword">from</span> pass_client <span class="keyword">import</span> <span class="class">PassClient</span>, <span class="class">OTPUri</span>
+
+client = <span class="class">PassClient</span>()
+
+<span class="comment"># Generate OTP code</span>
+code = client.<span class="function">otp_code</span>(<span class="string">"2fa/github"</span>)
+<span class="function">print</span>(code.code)           <span class="comment"># "123456"</span>
+<span class="function">print</span>(code.formatted)      <span class="comment"># "123 456"</span>
+
+<span class="comment"># Get OTP URI details</span>
+uri = client.<span class="function">otp_uri</span>(<span class="string">"2fa/github"</span>)
+<span class="function">print</span>(uri.issuer)          <span class="comment"># "GitHub"</span>
+<span class="function">print</span>(uri.account)         <span class="comment"># "user@example.com"</span>
+<span class="function">print</span>(uri.secret)          <span class="comment"># Base32 secret</span>
+<span class="function">print</span>(uri.algorithm)       <span class="comment"># OTPAlgorithm.SHA1</span>
+<span class="function">print</span>(uri.digits)          <span class="comment"># 6</span>
+<span class="function">print</span>(uri.period)          <span class="comment"># 30 (TOTP)</span>
+
+<span class="comment"># Insert OTP (new entry)</span>
+client.<span class="function">otp_insert</span>(<span class="string">"2fa/gitlab"</span>,
+    <span class="string">"otpauth://totp/GitLab:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitLab"</span>)
+
+<span class="comment"># Insert with just the secret</span>
+client.<span class="function">otp_insert</span>(<span class="string">"2fa/aws"</span>, <span class="string">"ABCDEFGHIJKLMNOP"</span>, from_secret=<span class="class">True</span>)
+
+<span class="comment"># Append OTP to existing password entry</span>
+client.<span class="function">otp_append</span>(<span class="string">"websites/github"</span>,
+    <span class="string">"otpauth://totp/GitHub:user?secret=SECRETKEY&issuer=GitHub"</span>)
+
+<span class="comment"># Check if OTP is configured</span>
+<span class="keyword">if</span> client.<span class="function">otp_has</span>(<span class="string">"websites/github"</span>):
+    code = client.<span class="function">otp_code</span>(<span class="string">"websites/github"</span>)</code></pre>
+
+      <h3>Parsing OTP URIs</h3>
+      <pre><code><span class="keyword">from</span> pass_client <span class="keyword">import</span> <span class="class">OTPUri</span>, <span class="class">OTPType</span>, <span class="class">OTPAlgorithm</span>
+
+<span class="comment"># Parse from string</span>
+uri = <span class="class">OTPUri</span>.<span class="function">from_uri</span>(
+    <span class="string">"otpauth://totp/GitHub:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub"</span>
+)
+
+<span class="function">print</span>(uri.otp_type)        <span class="comment"># OTPType.TOTP</span>
+<span class="function">print</span>(uri.issuer)          <span class="comment"># "GitHub"</span>
+<span class="function">print</span>(uri.account)         <span class="comment"># "user@example.com"</span>
+<span class="function">print</span>(uri.secret)          <span class="comment"># "JBSWY3DPEHPK3PXP"</span>
+
+<span class="comment"># Convert back to URI string</span>
+uri_string = uri.<span class="function">to_uri</span>()</code></pre>
+
+      <h3>Async Concurrent OTP</h3>
+      <pre><code><span class="keyword">async def</span> <span class="function">get_all_codes</span>():
+    client = <span class="class">AsyncPassClient</span>()
+
+    <span class="comment"># Fetch multiple OTP codes concurrently</span>
+    codes = <span class="keyword">await</span> client.<span class="function">otp_code_many</span>([
+        <span class="string">"2fa/github"</span>,
+        <span class="string">"2fa/gitlab"</span>,
+        <span class="string">"2fa/aws"</span>,
+    ])
+
+    <span class="keyword">for</span> path, code <span class="keyword">in</span> codes.items():
+        <span class="function">print</span>(<span class="string">f"</span>{path}: {code.formatted}<span class="string">"</span>)</code></pre>
+    </section>
+
+    <section id="errors">
+      <h2>Error Handling</h2>
+      <p>All exceptions inherit from <code>PassError</code>:</p>
+
+      <pre><code><span class="keyword">from</span> pass_client <span class="keyword">import</span> (
+    <span class="class">PassClient</span>,
+    <span class="class">PassError</span>,
+    <span class="class">PassNotFoundError</span>,
+    <span class="class">PassGPGError</span>,
+    <span class="class">PassOTPNotFoundError</span>,
+    <span class="class">PassOTPExtensionNotFoundError</span>,
+)
+
+client = <span class="class">PassClient</span>()
+
+<span class="keyword">try</span>:
+    entry = client.<span class="function">get</span>(<span class="string">"nonexistent/path"</span>)
+<span class="keyword">except</span> <span class="class">PassNotFoundError</span> <span class="keyword">as</span> e:
+    <span class="function">print</span>(<span class="string">f"Entry not found: </span>{e.path}<span class="string">"</span>)
+<span class="keyword">except</span> <span class="class">PassGPGError</span> <span class="keyword">as</span> e:
+    <span class="function">print</span>(<span class="string">f"GPG decryption failed: </span>{e.message}<span class="string">"</span>)
+<span class="keyword">except</span> <span class="class">PassError</span> <span class="keyword">as</span> e:
+    <span class="function">print</span>(<span class="string">f"Pass error: </span>{e.message}<span class="string">"</span>)</code></pre>
+
+      <h3>Exception Hierarchy</h3>
+      <pre><code>PassError
+├── PassNotFoundError
+├── PassStoreNotInitializedError
+├── PassGPGError
+├── PassClipboardError
+├── PassGitError
+├── PassGenerateError
+├── PassInsertError
+└── PassOTPError
+    ├── PassOTPNotFoundError
+    ├── PassOTPInvalidURIError
+    └── PassOTPExtensionNotFoundError</code></pre>
+    </section>
+
+    <section id="models">
+      <h2>Models</h2>
+
+      <h3>PasswordEntry</h3>
+      <pre><code><span class="keyword">@dataclass</span>
+<span class="keyword">class</span> <span class="class">PasswordEntry</span>:
+    path: <span class="class">str</span>
+    password: <span class="class">str</span>
+    metadata: <span class="class">dict</span>[<span class="class">str</span>, <span class="class">str</span>]
+
+    <span class="comment"># Properties</span>
+    username: <span class="class">Optional</span>[<span class="class">str</span>]  <span class="comment"># From "username:" or "user:"</span>
+    url: <span class="class">Optional</span>[<span class="class">str</span>]       <span class="comment"># From "url:" or "site:"</span>
+    notes: <span class="class">Optional</span>[<span class="class">str</span>]     <span class="comment"># From "notes:"</span></code></pre>
+
+      <h3>OTPCode</h3>
+      <pre><code><span class="keyword">@dataclass</span>
+<span class="keyword">class</span> <span class="class">OTPCode</span>:
+    code: <span class="class">str</span>
+    path: <span class="class">str</span>
+    remaining_seconds: <span class="class">Optional</span>[<span class="class">int</span>]
+
+    <span class="comment"># Properties</span>
+    formatted: <span class="class">str</span>  <span class="comment"># "123 456" or "1234 5678"</span></code></pre>
+
+      <h3>OTPUri</h3>
+      <pre><code><span class="keyword">@dataclass</span>
+<span class="keyword">class</span> <span class="class">OTPUri</span>:
+    uri: <span class="class">str</span>
+    otp_type: <span class="class">OTPType</span>        <span class="comment"># TOTP or HOTP</span>
+    issuer: <span class="class">Optional</span>[<span class="class">str</span>]
+    account: <span class="class">str</span>
+    secret: <span class="class">str</span>
+    algorithm: <span class="class">OTPAlgorithm</span>  <span class="comment"># SHA1, SHA256, SHA512</span>
+    digits: <span class="class">int</span>              <span class="comment"># 6 or 8</span>
+    period: <span class="class">int</span>              <span class="comment"># TOTP interval (default 30)</span>
+    counter: <span class="class">Optional</span>[<span class="class">int</span>]   <span class="comment"># HOTP counter</span></code></pre>
+
+      <h3>Other Models</h3>
+      <table>
+        <tr>
+          <th>Model</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><code>StoreEntry</code></td>
+          <td>Entry in pass tree (name, path, type)</td>
+        </tr>
+        <tr>
+          <td><code>GeneratedPassword</code></td>
+          <td>Generated password with strength rating</td>
+        </tr>
+        <tr>
+          <td><code>StoreInfo</code></td>
+          <td>Password store metadata</td>
+        </tr>
+        <tr>
+          <td><code>GitCommit</code></td>
+          <td>Git commit info (hash, message, author, timestamp)</td>
+        </tr>
+        <tr>
+          <td><code>SearchResult</code></td>
+          <td>Find/grep result with context</td>
+        </tr>
+        <tr>
+          <td><code>OTPEntry</code></td>
+          <td>Full OTP entry (path + OTPUri)</td>
+        </tr>
+      </table>
+    </section>
+
+    <section id="development">
+      <h2>Development</h2>
+      <pre><code><span class="comment"># Install dev dependencies</span>
+pip install -e <span class="string">".[dev]"</span>
+
+<span class="comment"># Run tests</span>
+pytest
+
+<span class="comment"># Run tests with coverage</span>
+pytest --cov=pass_client
+
+<span class="comment"># Type checking</span>
+mypy pass_client
+
+<span class="comment"># Linting</span>
+ruff check pass_client</code></pre>
+    </section>
+  </div>
+
+  <footer>
+    <p>pass-client &bull; MIT License &bull; <a href="https://github.com/pdubbbbbs/pass-client">GitHub</a></p>
+  </footer>
+</body>
+</html>

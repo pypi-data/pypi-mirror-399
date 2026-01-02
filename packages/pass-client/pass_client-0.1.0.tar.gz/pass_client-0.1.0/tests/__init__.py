@@ -1,0 +1,1 @@
+"""Pass client test suite."""

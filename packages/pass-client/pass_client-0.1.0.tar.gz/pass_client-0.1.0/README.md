@@ -1,0 +1,420 @@
+# pass-client
+
+A typed Python API client for [pass](https://www.passwordstore.org/) (the standard Unix password manager).
+
+## Features
+
+- Full type hints and dataclass models
+- Sync and async clients
+- Complete pass-otp extension support
+- Custom exception hierarchy for error handling
+- Concurrent operations (async)
+
+## Requirements
+
+- Python 3.10+
+- [pass](https://www.passwordstore.org/) installed and configured
+- [pass-otp](https://github.com/tadfisher/pass-otp) (optional, for OTP support)
+
+## Installation
+
+```bash
+# From source
+pip install -e .
+
+# With dev dependencies
+pip install -e ".[dev]"
+```
+
+## Quick Start
+
+```python
+from pass_client import PassClient
+
+client = PassClient()
+
+# Get a password
+entry = client.get("websites/github")
+print(entry.password)
+print(entry.username)  # Parsed from metadata
+
+# Generate a new password
+generated = client.generate("websites/newsite", length=20)
+print(generated.password)
+
+# Insert with metadata
+client.insert("websites/example", "mypassword", metadata={
+    "username": "user@example.com",
+    "url": "https://example.com",
+})
+```
+
+## API Reference
+
+### PassClient
+
+The synchronous client for interacting with pass.
+
+```python
+from pass_client import PassClient
+
+client = PassClient()
+# Or with custom store path
+client = PassClient(store_path=Path("/custom/store"))
+```
+
+#### Password Operations
+
+```python
+# Get password entry (includes metadata parsing)
+entry = client.get("path/to/entry")
+print(entry.password)      # First line
+print(entry.username)      # From "username:" or "user:" field
+print(entry.url)           # From "url:" or "site:" field
+print(entry.metadata)      # All parsed key-value pairs
+
+# Get just the password
+password = client.get_password("path/to/entry")
+
+# Insert new entry
+client.insert("path/to/new", "password123")
+client.insert("path/to/new", "password123", metadata={
+    "username": "user@example.com",
+    "url": "https://example.com",
+    "notes": "My account",
+})
+client.insert("path/to/existing", "newpass", force=True)  # Overwrite
+
+# Generate password
+generated = client.generate("path/to/entry", length=25)
+generated = client.generate("path/to/entry", length=16, no_symbols=True)
+generated = client.generate("path/to/entry", in_place=True)  # Keep metadata
+print(generated.password)
+print(generated.strength)  # "weak", "moderate", "strong", "very_strong"
+
+# Remove entry
+client.remove("path/to/entry", force=True)
+client.remove("path/to/dir", recursive=True, force=True)
+
+# Move/rename
+client.move("old/path", "new/path")
+
+# Copy
+client.copy("source/path", "dest/path")
+
+# Check existence
+if client.exists("path/to/entry"):
+    print("Entry exists")
+```
+
+#### Search Operations
+
+```python
+# List entries
+entries = client.list()              # Root level
+entries = client.list("websites")    # Subdirectory
+for entry in entries:
+    print(entry.name, entry.path, entry.entry_type)
+
+# Find by name pattern
+results = client.find("github")
+for result in results:
+    print(result.path)
+
+# Search content (grep)
+results = client.grep("api.*key")
+for result in results:
+    print(result.path, result.context)
+```
+
+#### Clipboard
+
+```python
+# Copy to clipboard (clears after timeout)
+client.clip("path/to/entry")
+client.clip("path/to/entry", timeout=30)  # 30 seconds
+client.clip("path/to/entry", line=2)      # Copy second line
+```
+
+#### Git Operations
+
+```python
+# Run git commands in password store
+output = client.git("status")
+output = client.git("log", "--oneline", "-5")
+
+# Convenience methods
+client.git_push()
+client.git_pull()
+
+# Get commit history
+commits = client.git_log(limit=10)
+for commit in commits:
+    print(commit.hash, commit.message, commit.author, commit.timestamp)
+```
+
+#### Store Info
+
+```python
+info = client.info()
+print(info.store_path)     # Path to store
+print(info.gpg_id)         # GPG key ID
+print(info.git_enabled)    # Whether git is configured
+print(info.entry_count)    # Number of entries
+```
+
+### AsyncPassClient
+
+Async version with identical API plus concurrent operations.
+
+```python
+import asyncio
+from pass_client import AsyncPassClient
+
+async def main():
+    client = AsyncPassClient()
+
+    # All methods are async
+    entry = await client.get("websites/github")
+    print(entry.password)
+
+    # Concurrent fetches
+    entries = await client.get_many([
+        "websites/github",
+        "websites/gitlab",
+        "email/personal",
+    ])
+    for path, entry in entries.items():
+        print(f"{path}: {entry.username}")
+
+    # Concurrent inserts
+    results = await client.insert_many([
+        ("sites/new1", "pass1", {"username": "user1"}),
+        ("sites/new2", "pass2", {"username": "user2"}),
+    ])
+
+asyncio.run(main())
+```
+
+#### Context Manager
+
+```python
+from pass_client import AsyncPassClientContext
+
+async with AsyncPassClientContext() as client:
+    entry = await client.get("websites/github")
+```
+
+### OTP Support (pass-otp)
+
+Full support for the pass-otp extension.
+
+```python
+from pass_client import PassClient, OTPUri
+
+client = PassClient()
+
+# Generate OTP code
+code = client.otp_code("2fa/github")
+print(code.code)           # "123456"
+print(code.formatted)      # "123 456"
+
+# Copy OTP to clipboard
+client.otp_code_clip("2fa/github", timeout=10)
+
+# Get OTP URI details
+uri = client.otp_uri("2fa/github")
+print(uri.issuer)          # "GitHub"
+print(uri.account)         # "user@example.com"
+print(uri.secret)          # Base32 secret
+print(uri.algorithm)       # OTPAlgorithm.SHA1
+print(uri.digits)          # 6
+print(uri.period)          # 30 (TOTP)
+
+# Get full OTP entry
+entry = client.otp_get("2fa/github")
+print(entry.path)
+print(entry.issuer)
+print(entry.is_totp)       # True for TOTP
+
+# Check if OTP is configured
+if client.otp_has("websites/github"):
+    code = client.otp_code("websites/github")
+
+# Insert OTP (new entry)
+client.otp_insert("2fa/gitlab",
+    "otpauth://totp/GitLab:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitLab")
+
+# Insert with just the secret
+client.otp_insert("2fa/aws", "ABCDEFGHIJKLMNOP", from_secret=True)
+
+# Append OTP to existing password entry
+client.otp_append("websites/github",
+    "otpauth://totp/GitHub:user?secret=SECRETKEY&issuer=GitHub")
+
+# Validate URI syntax
+if client.otp_validate("otpauth://totp/Test:user?secret=ABC"):
+    print("Valid OTP URI")
+
+# Display QR code in terminal (requires qrencode)
+client.otp_uri_qrcode("2fa/github")
+```
+
+#### Async OTP with Concurrent Fetches
+
+```python
+async def get_all_codes():
+    client = AsyncPassClient()
+
+    # Fetch multiple OTP codes concurrently
+    codes = await client.otp_code_many([
+        "2fa/github",
+        "2fa/gitlab",
+        "2fa/aws",
+    ])
+
+    for path, code in codes.items():
+        print(f"{path}: {code.formatted}")
+```
+
+#### Parsing OTP URIs
+
+```python
+from pass_client import OTPUri, OTPType, OTPAlgorithm
+
+# Parse from string
+uri = OTPUri.from_uri(
+    "otpauth://totp/GitHub:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub"
+)
+
+print(uri.otp_type)        # OTPType.TOTP
+print(uri.issuer)          # "GitHub"
+print(uri.account)         # "user@example.com"
+print(uri.secret)          # "JBSWY3DPEHPK3PXP"
+print(uri.algorithm)       # OTPAlgorithm.SHA1
+print(uri.digits)          # 6
+print(uri.period)          # 30
+
+# Convert back to URI string
+uri_string = uri.to_uri()
+```
+
+## Error Handling
+
+All exceptions inherit from `PassError`:
+
+```python
+from pass_client import (
+    PassClient,
+    PassError,
+    PassNotFoundError,
+    PassGPGError,
+    PassOTPNotFoundError,
+    PassOTPExtensionNotFoundError,
+)
+
+client = PassClient()
+
+try:
+    entry = client.get("nonexistent/path")
+except PassNotFoundError as e:
+    print(f"Entry not found: {e.path}")
+except PassGPGError as e:
+    print(f"GPG decryption failed: {e.message}")
+except PassError as e:
+    print(f"Pass error: {e.message}")
+
+# OTP-specific errors
+try:
+    code = client.otp_code("entry/without/otp")
+except PassOTPNotFoundError as e:
+    print(f"No OTP configured for: {e.path}")
+except PassOTPExtensionNotFoundError:
+    print("Install pass-otp: apt install pass-extension-otp")
+```
+
+### Exception Hierarchy
+
+```
+PassError
+├── PassNotFoundError
+├── PassStoreNotInitializedError
+├── PassGPGError
+├── PassClipboardError
+├── PassGitError
+├── PassGenerateError
+├── PassInsertError
+└── PassOTPError
+    ├── PassOTPNotFoundError
+    ├── PassOTPInvalidURIError
+    └── PassOTPExtensionNotFoundError
+```
+
+## Models
+
+### PasswordEntry
+
+```python
+@dataclass
+class PasswordEntry:
+    path: str
+    password: str
+    metadata: dict[str, str]
+
+    # Properties
+    username: Optional[str]  # From "username:" or "user:"
+    url: Optional[str]       # From "url:" or "site:"
+    notes: Optional[str]     # From "notes:"
+```
+
+### OTPCode
+
+```python
+@dataclass
+class OTPCode:
+    code: str
+    path: str
+    remaining_seconds: Optional[int]
+
+    # Properties
+    formatted: str  # "123 456" or "1234 5678"
+```
+
+### OTPUri
+
+```python
+@dataclass
+class OTPUri:
+    uri: str
+    otp_type: OTPType        # TOTP or HOTP
+    issuer: Optional[str]
+    account: str
+    secret: str
+    algorithm: OTPAlgorithm  # SHA1, SHA256, SHA512
+    digits: int              # 6 or 8
+    period: int              # TOTP interval (default 30)
+    counter: Optional[int]   # HOTP counter
+```
+
+## Development
+
+```bash
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run tests with coverage
+pytest --cov=pass_client
+
+# Type checking
+mypy pass_client
+
+# Linting
+ruff check pass_client
+```
+
+## License
+
+MIT

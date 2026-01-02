@@ -1,0 +1,62 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pass-client"
+version = "0.1.0"
+description = "Typed Python API client for pass (Unix password store)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+  { name = "Philip Wright", email = "philip@alwaysunder.com" }
+]
+keywords = ["pass", "password", "security", "gpg", "password-store"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Security",
+  "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0",
+  "pytest-asyncio>=0.23",
+  "pytest-cov>=4.0",
+  "mypy>=1.0",
+  "ruff>=0.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/pdubbbbbs/pass-client"
+Repository = "https://github.com/pdubbbbbs/pass-client"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pass_client"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=pass_client"
+asyncio_mode = "auto"
