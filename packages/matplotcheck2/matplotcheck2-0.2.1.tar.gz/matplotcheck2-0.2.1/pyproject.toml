@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "matplotcheck2"
+version = "0.2.1"
+readme = "README.md"
+requires-python = ">=3.10"
+
+description = "Functions to check Matplotlib plot outputs"
+authors = [{ name = "Leah Wasser", email = "leah.wasser@colorado.edu" }]
+maintainers = [
+    { name = "Pete Stenger", email = "pete@stenger.io" },
+    { name = "Eliot Robson", email = "eliot.robson24@gmail.com" },
+]
+dependencies = ["matplotlib>=3.10.1", "numpy>=2.0.0", "pandas>=2.0.0"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Topic :: Software Development",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+]
+
+[project.urls]
+documentation = "https://matplotcheck2.readthedocs.io/en/latest/"
+homepage = "https://github.com/matplotcheck/matplotcheck"
+source = "https://github.com/matplotcheck/matplotcheck"
+
+[project.optional-dependencies]
+docs = [
+    "furo>=2024.8.6",
+    "sphinx>=8.1.3",
+    "sphinx-autobuild>=2024.10.3",
+    "sphinx-gallery>=0.19.0",
+]
+spatial = ["geopandas>=1.0.1", "shapely>=2.0.0"]
+timeseries = ["scipy>=1.15.2", "python-dateutil>=2.8.0"]
+folium = ["folium>=0.19.5"]
+all = [
+    "geopandas>=1.0.1",
+    "shapely>=2.0.0",
+    "scipy>=1.15.2",
+    "python-dateutil>=2.8.0",
+    "folium>=0.19.5",
+]
+
+
+[tool.black]
+line-length = 79
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "matplotcheck.base"
+disallow_untyped_defs = true
+
+[tool.setuptools.package-data]
+matplotcheck = ["py.typed"]
+
+[dependency-groups]
+dev = [
+    "folium>=0.19.5",
+    "furo>=2024.8.6",
+    "geopandas>=1.0.1",
+    "mypy>=1.0.0",
+    "pandas-stubs>=2.0.0",
+    "pytest>=7.0.1",
+    "pytest-cov>=6.0.0",
+    "python-dateutil>=2.8.0",
+    "ruff==0.14.10",
+    "scipy>=1.15.2",
+    "seaborn>=0.11.2",
+    "shapely>=2.0.0",
+    "sphinx>=8.1.3",
+    "sphinx-autobuild>=2024.10.3",
+    "sphinx-gallery>=0.19.0",
+]
+test = ["pytest>=7.0.1", "pytest-cov>=6.0.0"]
