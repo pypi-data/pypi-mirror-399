@@ -1,0 +1,234 @@
+Metadata-Version: 2.4
+Name: bibliotheca-client
+Version: 0.1.0
+Summary: Python client library for Bibliotheca data exploration platform
+Home-page: https://pantology.io/anthology
+Author: Pantology Team
+Author-email: Pantology Team <hi@pantology.io>
+License: Apache-2.0
+Project-URL: Homepage, https://pantology.io/anthology
+Project-URL: Documentation, https://pantology.io/anthology
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.28.0
+Requires-Dist: pandas>=1.5.0
+Requires-Dist: sqlglot>=20.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=22.0.0; extra == "dev"
+Requires-Dist: mypy>=0.990; extra == "dev"
+Dynamic: author
+Dynamic: home-page
+Dynamic: requires-python
+
+# Bibliotheca Client SDK
+
+Python client library for interacting with the Bibliotheca data exploration platform.
+
+## Installation
+
+```bash
+pip install bibliotheca-client
+```
+
+Or install from source:
+
+```bash
+cd client-sdk
+pip install -e .
+```
+
+## Quick Start
+
+```python
+from bibliotheca_client import BibliothecaClient
+
+# Initialize the client with your API key
+client = BibliothecaClient(
+    base_url="https://anthology.pantology.io/apis",
+    api_key="bib_xxxxxxxxxx..."  # Get from https://anthology.pantology.io/api-keys
+)
+
+# Check your usage and tier
+usage = client.get_usage()
+print(f"Tier: {usage['tier_name']}")
+print(f"Tokens Used: {usage['tokens_used_today']} / {usage['daily_limit']}")
+
+# Generate hypotheses for data exploration
+hypotheses = client.generate_hypotheses(
+    user_grouping="my-database",
+    user_context="I want to understand sales trends"
+)
+
+for hypothesis in hypotheses:
+    print(f"{hypothesis['title']}: {hypothesis['question']}")
+
+# Generate SQL from natural language
+result = client.generate_sql(
+    session_id="my-session-123",
+    user_question="What are the top 10 products by revenue?",
+    user_grouping="my-database",
+    run_debugger=True,
+    debugging_rounds=2
+)
+
+print(result['GeneratedSQL'])
+```
+
+## Authentication
+
+The Bibliotheca API uses API key authentication. Here's how to get your API key:
+
+### Getting Your API Key
+
+1. Log in to Bibliotheca at https://anthology.pantology.io
+2. Click **"API Keys"** in the left sidebar (🔑 icon)
+3. Click **"Create New API Key"**
+4. Copy your API key (shown only once!)
+5. Use it in your code or set as environment variable
+
+### Using API Keys
+
+```python
+from bibliotheca_client import BibliothecaClient
+
+# Option 1: Direct initialization
+client = BibliothecaClient(
+    base_url="https://anthology.pantology.io/apis",
+    api_key="bib_xxxxxxxxxx..."
+)
+
+# Option 2: From environment variable (recommended)
+import os
+client = BibliothecaClient(
+    base_url=os.getenv('BIBLIOTHECA_BACKEND_URL', 'https://anthology.pantology.io/apis'),
+    api_key=os.getenv('BIBLIOTHECA_API_KEY')
+)
+```
+
+### API Key Security Best Practices
+
+- **Never commit API keys to version control**
+- Use environment variables: `export BIBLIOTHECA_API_KEY='bib_xxx'`
+- Revoke keys immediately if compromised
+- Manage keys in the UI at https://anthology.pantology.io/api-keys
+
+### Rate Limits
+
+API keys have different tiers:
+- **Free**: 10,000 tokens/day (~12-13 queries)
+- **Plus**: 100,000 tokens/day (~125 queries)
+- **Premium**: Custom limits
+
+Check your usage:
+```python
+usage = client.get_usage()
+print(f"Tokens remaining: {usage['tokens_remaining']}")
+```
+
+## API Reference
+
+### BibliothecaClient
+
+#### `__init__(base_url: str, api_key: str = None, id_token: str = None)`
+Initialize the client with backend URL and API key.
+
+**Parameters:**
+- `base_url`: Backend API endpoint URL
+- `api_key`: API key from https://anthology.pantology.io/api-keys (recommended)
+- `id_token`: Firebase ID token (legacy, for backward compatibility)
+
+#### `generate_hypotheses(user_grouping: str, hypothesis_model: str = 'gemini-2.5-pro', user_context: str = "") -> List[Dict]`
+Generate data exploration hypotheses based on database schema.
+
+**Parameters:**
+- `user_grouping`: Database grouping identifier
+- `hypothesis_model`: LLM model for hypothesis generation
+- `user_context`: Optional context about exploration goals
+
+**Returns:** List of hypothesis dictionaries with `title`, `description`, and `question` fields.
+
+#### `generate_sql(session_id: str, user_question: str, user_grouping: str, **kwargs) -> Dict`
+Generate SQL query from natural language question.
+
+**Parameters:**
+- `session_id`: Session identifier for conversation tracking
+- `user_question`: Natural language question
+- `user_grouping`: Database grouping identifier
+- Additional optional parameters for model configuration
+
+**Returns:** Dictionary with `ResponseCode`, `GeneratedSQL`, `SessionId`, and `Error` fields.
+
+#### `get_available_databases() -> List[Dict]`
+Get list of available databases/groupings.
+
+**Returns:** List of database schema information.
+
+#### `get_usage() -> Dict`
+Get current API key usage and tier information.
+
+**Returns:** Dictionary with `tier_name`, `tokens_used_today`, `daily_limit`, `tokens_remaining`, and `resets_at` fields.
+
+#### `list_api_keys() -> Dict`
+List all API keys associated with your account.
+
+**Returns:** Dictionary with `keys` list and `tier` information.
+
+#### `revoke_api_key(key_id: str) -> Dict`
+Revoke an API key (useful if compromised).
+
+**Parameters:**
+- `key_id`: The key ID to revoke
+
+**Returns:** Success/error response.
+
+#### `translate_sql(sql: str, target_dialect: str) -> str`
+Translate SQL between different database dialects (e.g., PostgreSQL to BigQuery).
+
+**Parameters:**
+- `sql`: Source SQL query
+- `target_dialect`: Target SQL dialect (e.g., 'bigquery', 'postgres', 'spark')
+
+**Returns:** Translated SQL query string.
+
+#### `update_token(id_token: str)`
+Update the authentication token (legacy method for Firebase tokens).
+
+## Development
+
+### Setup Development Environment
+
+```bash
+cd client-sdk
+pip install -e ".[dev]"
+```
+
+### Running Tests
+
+```bash
+pytest
+```
+
+### Code Formatting
+
+```bash
+black bibliotheca_client/
+```
+
+## License
+
+Apache License 2.0
+
+## Support
+
+For issues and questions, please email us at hi@pantology.io
