@@ -1,0 +1,498 @@
+Metadata-Version: 2.4
+Name: onixpy
+Version: 0.1.2
+Summary: ONIX for Books library. Models validate by field name and serialize by alias (pydantic v2 flags).
+Project-URL: Homepage, https://github.com/hodeinavarro/onixpy
+Project-URL: Issues, https://github.com/hodeinavarro/onixpy/issues
+Author-email: Hodei Navarro <hodei.navarro@outlook.com>
+License: GNU LESSER GENERAL PUBLIC LICENSE
+        
+                               Version 3, 29 June 2007
+        
+        Copyright (C) 2025 "'Hodei Navarro' <hodei.navarro@outlook.com>"
+        
+        Everyone is permitted to copy and distribute verbatim copies
+        of this license document, but changing it is not allowed.
+        
+        This library is free software; you can redistribute it and/or
+        modify it under the terms of the GNU Lesser General Public
+        License as published by the Free Software Foundation; either
+        version 3 of the License, or (at your option) any later version.
+        
+        This library is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+        Lesser General Public License for more details.
+        
+        You should have received a copy of the GNU Lesser General Public License
+        along with this library.  If not, see <https://www.gnu.org/licenses/>.
+        
+        -------------------- FULL LICENSE TEXT BELOW --------------------
+        
+        GNU LESSER GENERAL PUBLIC LICENSE
+                               Version 3, 29 June 2007
+        
+         Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+         Everyone is permitted to copy and distribute verbatim copies
+         of this license document, but changing it is not allowed.
+        
+         Preamble
+        
+        The GNU Lesser General Public License is a free, copyleft license for
+        software and other kinds of works, specifically designed to permit
+        linking with non-(L)GPLed software.
+        
+        The licenses for most software are designed to take away your freedom
+        to share and change it.  By contrast, the GNU Lesser General Public
+        License is intended to guarantee your freedom to share and change free
+        software--to make sure the software is free for all its users.
+        
+        This version of the GNU Lesser General Public License applies to certain
+        programs only, and not to any other program; by contrast, the ordinary
+        GNU General Public License applies to a wider range of programs.  You
+        can apply the GNU General Public License to your programs, but
+        companies, organizations and other parties that distribute software
+        packages that include, as part of them, some covered works, may wish to
+        use the GNU Lesser General Public License instead of the ordinary GNU
+        General Public License.  The GNU Lesser General Public License allows
+        you to redistribute and modify the library, while allowing the
+        non-library work to be distributed under terms of your choice, as long
+        as these terms do not modify the library's terms.
+        
+        Terms and conditions
+        
+        0. Definitions.
+        
+        "This License" refers to version 3 of the GNU Lesser General Public License.
+        
+        "Copyright" also means copyright-like laws that apply to other kinds of
+        works, such as semiconductor masks.
+        
+        "The Program" refers to any copyrightable work licensed under this
+        License.  Each licensee is addressed as "you".
+        
+        A "work based on the Program" means either the Program or any
+        derivative work under copyright law: that is to say, a work containing
+        the Program or a portion of it, either verbatim or with modifications
+        and/or translated into another language.
+        
+        "To modify" a work means to copy from or adapt all or part of the work
+        in a fashion requiring copyright permission, other than the making of an
+        exact copy.  The resulting work is called a "modified version" of the
+        earlier work or a work "based on" the earlier work.
+        
+        "Source" form of a work means the preferred form for making modifications
+        to it.  "Object" form means any form resulting from mechanical
+        transformation or translation of a Source form, including but not
+        limited to compiled object code, generated documentation, and
+        conversions to other media types.
+        
+        A "covered work" means either the unmodified Program or a work based
+        on the Program.
+        
+        "You" means any person who propagates or modifies a covered work.
+        
+        To "propagate" a work means to do anything with it that, without
+        permission, would make you directly or secondarily liable for
+        infringement under applicable copyright law, except executing it on a
+        computer or modifying a private copy.  Propagation includes copying,
+        distribution (with or without modification), making available to the
+        public, and in some countries other activities as well.
+        
+        To "convey" a work means any kind of propagation that enables other
+        parties to make or receive copies.  Mere interaction with a user through
+        a computer network, with no transfer of a copy, is not conveying.
+        
+        1. Exception to section 0 of the GPL.
+        
+        The intent of this license is to permit linking a "work that uses the
+        Library" with a "non-source" work that is proprietary.  Section 0
+        of the GPL refers to the terms of the GPL as governing any "covered
+        work"; the following exception grants permissions that would otherwise
+        be restricted by the GPL.
+        
+        2. Basic permissions.
+        
+        All rights granted under this License are granted for the term of
+        copyright on the Program, and are irrevocable provided the stated
+        conditions are met.  This License explicitly affirms your unlimited
+        permission to run the unmodified Program.  The output from running a
+        covered work is covered by this License only if the output, given its
+        content, constitutes a covered work.  This License acknowledges your
+        rights to make, run and propagate covered works.
+        
+        3. Protecting users' legal rights from anti-circumvention law.
+        
+        No covered work shall be deemed part of an effective technological
+        measure under any applicable law fulfilling obligations under article 11
+        of the WIPO copyright treaty adopted on 20 December 1996, or similar
+        laws prohibiting or restricting circumvention of such measures.
+        
+        4. Conveying verbatim copies.
+        
+        You may convey verbatim copies of the Program's source code as you
+        receive it, in any medium, provided that you conspicuously and
+        appropriately publish on each copy an appropriate copyright notice;
+        keep intact all notices stating that this License and any
+        non-permissive terms added in accord with section 7 apply to the code;
+        and give all recipients a copy of this License along with the Program.
+        
+        5. Conveying modified source versions.
+        
+        You may convey a work based on the Program, or the modifications to
+        produce it from the Program, in the form of source code under the
+        terms of section 4, provided that you also meet all of these
+        conditions:
+        
+           a) The work must carry prominent notices stating that you modified
+           it, and giving a relevant date.
+        
+           b) The work must carry prominent notices stating that it is
+           released under this License and any conditions added under section
+           7.  This requirement modifies the requirement in section 4 to
+           "keep intact all notices".
+        
+           c) You must license the entire work, as a whole, under this
+           License to anyone who comes into possession of a copy.  This
+           License will therefore apply, along with any applicable section 7
+           additional terms, to the whole of the work, and all its parts,
+           regardless of how they are packaged.  This License gives the
+           recipient the rights to modify and propagate the work.
+        
+           d) If the work has interactive user interfaces, each such interface
+           must display Appropriate Legal Notices; however, if the Program
+           has interactive interfaces that do not display Appropriate Legal
+           Notices, your work need not make them do so.
+        
+        6. Conveying non-source forms.
+        
+        You may convey a covered work in object code form under the terms of
+        sections 4 and 5, provided that you also convey the machine-readable
+        Corresponding Source under the terms of this License, in one of the
+        following ways:
+        
+           a) Convey the object code in, or embodied in, a physical product
+           (including a physical distribution medium), accompanied by the
+           Corresponding Source fixed on a durable physical medium customarily
+           used for software interchange.
+        
+           b) Convey the object code in, or embodied in, a physical product
+           (including a physical distribution medium), accompanied by a
+           written offer, valid for at least three years and valid for as
+           long as you offer spare parts or customer support for that product, to
+           give anyone who possesses the object code either (1) a copy of the
+           Corresponding Source for all the software in the product that is
+           covered by this License, on a durable physical medium customarily
+           used for software interchange, for a price no more than your
+           reasonable cost of physically performing this distribution, or (2)
+           access to copy the Corresponding Source from a network server at no
+           charge.
+        
+           c) Convey individual copies of the object code with a copy of the
+           written offer to provide the Corresponding Source.  This alternative
+           is allowed only occasionally and noncommercially, and only if you
+           received the object code with such an offer, in accord with
+           subsection 6b.
+        
+           d) Convey the object code by offering access from a designated
+           place (gratis or for a charge), and offering equivalent access to the
+           Corresponding Source in the same way through the same place at no
+           further charge.  You need not require recipients to copy the
+           Corresponding Source along with the object code.
+        
+           e) Convey the object code using peer-to-peer transmission, provided
+           you inform other peers where the object code and Corresponding
+           Source of the work are being offered to the general public at no
+           charge under subsection 6d.
+        
+        7. Additional terms.
+        
+        Additional permissions, restrictions and conditions may be stated in
+        this License; these are called "additional terms".  Additional terms
+        that are applicable to the entire Program shall be treated as though
+        stated in this License, and are subject to its requirements.
+        
+        8. Termination.
+        
+        You may not propagate or modify a covered work except as expressly
+        provided under this License.  Any attempt otherwise to propagate or
+        modify it is void, and will automatically terminate your rights under
+        this License (including any patent licenses granted under the third
+        paragraph of section 11).
+        
+        9. Acceptance not required for having copies.
+        
+        You are not required to accept this License in order to receive or run a
+        copy of the Program.  Ancillary propagation of a covered work occurring
+        solely as a consequence of using peer-to-peer transmission to receive a
+        copy likewise does not require acceptance.
+        
+        10. Automatic licensing of downstream recipients.
+        
+        Each time you convey a covered work, the recipient automatically
+        receives a license from the original licensors, to run, modify and
+        propagate that work, subject to this License.  You are not responsible
+        for enforcing compliance by third parties with this License.
+        
+        11. Patents.
+        
+        A "contributor" is a copyright holder who authorizes use under this
+        License of the Program or a work on which the Program is based.  The
+        work thus licensed is called the contributor's "contributor version".
+        
+        (Full LGPL-3 text continues...)
+License-File: LICENSE.md
+Keywords: json,metadata,onix,publishing,pydantic,xml
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Topic :: Text Processing
+Requires-Python: >=3.10
+Requires-Dist: lxml>=4.8.0
+Requires-Dist: pydantic>=2.12.5
+Description-Content-Type: text/markdown
+
+# onixpy - ONIX for Books Library
+
+[![License: LGPL-3.0-or-later](https://img.shields.io/badge/License-LGPL--3.0--or--later-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.html)
+[![CI](https://github.com/hodeinavarro/onixpy/actions/workflows/ci.yml/badge.svg)](https://github.com/hodeinavarro/onixpy/actions) [![Codecov](https://codecov.io/gh/hodeinavarro/onixpy/branch/main/graph/badge.svg)](https://codecov.io/gh/hodeinavarro/onixpy) [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+
+A Python library for parsing and working with ONIX for Books metadata (publishing industry standard). Built with Pydantic for type-safe data models.
+
+## Features
+
+- **ONIX 3.1 Support** - Parse and create ONIX 3.1 messages with full specification coverage
+- **Type-Safe Models** - Pydantic v2 models with comprehensive type annotations
+- **Dual Format Support** - Parse from and serialize to both XML and JSON formats
+- **Reference & Short Tags** - Support for both reference names (`ONIXMessage`) and short tags (`ONIXmessage`)
+- **Smart Model Behavior** - Constructors accept snake_case field names, validate by field name, and serialize using XML aliases
+- **Code List Validation** - 30+ built-in ONIX code lists with automatic validation
+- **RNG Schema Validation** - Validate messages against RELAX NG schema
+- **Comprehensive Block Coverage** - Models for all major ONIX blocks (DescriptiveDetail, PublishingDetail, RelatedMaterial, etc.)
+
+## Installation
+
+```bash
+pip install onixpy
+```
+
+## Quick Start
+
+### Creating an ONIX Message
+
+```python
+from onix import ONIXMessage, Header, Product, ProductIdentifier, Sender
+
+# Create a complete message
+message = ONIXMessage(
+    release="3.1",
+    Header=Header(
+        Sender=Sender(sender_name="MyPublisher"),
+        SentDateTime="20231201T120000Z",
+    ),
+    Product=[
+        Product(
+            RecordReference="com.mypublisher.001",
+            NotificationType="03",  # Notification confirmed
+            ProductIdentifier=[
+                ProductIdentifier(
+                    ProductIDType="15",  # ISBN-13
+                    IDValue="9780000000001"
+                )
+            ],
+        ),
+    ],
+)
+```
+
+### Parsing ONIX
+
+```python
+from onix.parsers import json_to_message, xml_to_message
+
+# From JSON (file path, dict, or iterable)
+message = json_to_message("/path/to/message.json")
+message = json_to_message({"header": {...}, "products": [...]})
+
+# From XML (file path, string, Element, or iterable)
+message = xml_to_message("/path/to/message.xml")
+message = xml_to_message("<ONIXMessage>...</ONIXMessage>")
+
+# Using short tag names
+message = json_to_message(data, short_names=True)
+message = xml_to_message(xml_string, short_names=True)
+```
+
+### Serializing ONIX
+
+```python
+from onix.parsers import message_to_json, message_to_xml_string, save_xml, save_json
+
+# To JSON string
+json_str = message_to_json(message)
+json_str = message_to_json(message, short_names=True)  # Use short tags
+
+# To XML string
+xml_str = message_to_xml_string(message)
+xml_str = message_to_xml_string(message, short_names=True)  # Use short tags
+
+# Save to files
+save_json(message, "/path/to/output.json")
+save_xml(message, "/path/to/output.xml")
+```
+
+### Working with Code Lists
+
+```python
+from onix.lists import get_list, get_code, list_available
+
+# Get all available list numbers
+available = list_available()  # [1, 2, 5, 9, 12, 15, ...]
+
+# Get a complete code list
+list_5 = get_list(5)  # Product identifier type
+print(list_5.heading)  # "Product identifier type"
+
+# Get a specific code entry
+isbn_13 = get_code(5, "15")
+print(isbn_13.heading)  # "ISBN-13"
+print(isbn_13.notes)  # Additional information about the code
+
+# Access code lists by name
+from onix.lists import ProductIdentifierType, NameIdentifierType
+```
+
+### RNG Schema Validation
+
+```python
+from onix.validation import validate_onix_message, validate_xml_element
+from onix.parsers import message_to_xml
+
+# Validate a message
+message = ONIXMessage(...)
+is_valid, errors = validate_onix_message(message)
+if not is_valid:
+    for error in errors:
+        print(f"Validation error: {error}")
+
+# Validate raw XML
+xml_element = message_to_xml(message)
+is_valid, errors = validate_xml_element(xml_element)
+```
+
+## Project Structure
+
+```
+onixpy/
+├── src/onix/
+│   ├── __init__.py          # Public API
+│   ├── message.py           # ONIXMessage, ONIXAttributes
+│   ├── header/              # Header composites
+│   │   ├── header.py        # Header, Sender, Addressee
+│   │   └── __init__.py
+│   ├── product/             # Product models
+│   │   ├── product.py       # Product, ProductIdentifier
+│   │   ├── b1/              # Block 1: Product description
+│   │   ├── b4/              # Block 4: Publishing detail
+│   │   ├── b5/              # Block 5: Related material
+│   │   └── __init__.py
+│   ├── parsers/             # JSON/XML parsing
+│   │   ├── json.py          # JSON parser
+│   │   ├── xml.py           # XML parser
+│   │   ├── tags.py          # Tag name resolution
+│   │   └── fields.py        # Field name mapping
+│   ├── lists/               # ONIX code lists
+│   │   ├── models.py        # CodeList, CodeListEntry
+│   │   ├── list1.py         # Notification type
+│   │   ├── list5.py         # Product identifier type
+│   │   └── ...              # 30+ code lists
+│   └── validation/          # RNG schema validation
+│       └── rng.py
+└── tests/                   # Comprehensive test suite
+```
+
+## Requirements
+
+- Python 3.10+
+- pydantic >= 2.12.5
+- lxml >= 4.8.0
+
+## Development
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/hodeinavarro/onixpy.git
+cd onixpy
+
+# Install with uv (recommended)
+uv sync
+
+# Or with pip
+pip install -e ".[dev]"
+```
+
+### Testing
+
+```bash
+# Run all tests with coverage
+uv run pytest --cov=src/onix --cov-report=term-missing --cov-report=html
+
+# Run specific test categories
+uv run pytest tests/core/         # Core model tests
+uv run pytest tests/parsers/      # Parser tests
+uv run pytest tests/validation/   # Validation tests
+
+# Run with markers
+uv run pytest -m "not slow"       # Skip slow tests
+```
+
+### Code Quality
+
+```bash
+# Lint and format with ruff
+uv run ruff check .
+uv run ruff format .
+
+# Type checking with ty (experimental)
+uv run ty check
+```
+
+### Generating Code Lists
+
+```bash
+# Generate a new code list from ONIX specification
+cd scripts
+uv run python generate_codelist.py <list_number>
+
+# Example
+uv run python generate_codelist.py 44
+```
+
+## API Design Principles
+
+- **Reference names by default**: All parsers/serializers use ONIX reference tag names (e.g., `ONIXMessage`, `Header`). Short names require explicit `short_names=True`.
+- **Strict validation**: Code list values are validated against their respective lists. Invalid codes raise `ValidationError`.
+- **Field aliases**: Pydantic `Field(alias=...)` definitions are the single source of truth for XML tag/field name mapping.
+
+## Contributing
+
+Contributions are welcome! Please follow the full guidelines in [CONTRIBUTING.md](CONTRIBUTING.md), which includes our AI assistance disclosure policy and PR checklist.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes following the project conventions (see `.github/copilot-instructions.md`)
+4. Run tests and linting
+5. Submit a pull request (use the PR template and disclose any AI assistance)
+
+## License
+
+Licensed under the **GNU Lesser General Public License v3.0 (LGPL-3.0)**. See [LICENSE.md](LICENSE.md) for details.
