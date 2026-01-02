@@ -1,0 +1,107 @@
+Metadata-Version: 2.4
+Name: ai-pose-generator-3
+Version: 1766999.123.877
+Summary: High-quality integration for https://supermaker.ai/image/ai-pose-generator/
+Home-page: https://supermaker.ai/image/ai-pose-generator/
+Author: SuperMaker
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+Dynamic: summary
+
+# ai-pose-generator-3
+
+`ai-pose-generator-3` is a Python library designed to showcase and simplify interaction with the AI pose generation capabilities available through SuperMaker. This package automates common tasks, allowing developers to easily integrate AI-generated poses into their projects.
+
+## Installation
+
+You can install `ai-pose-generator-3` using pip:
+bash
+pip install ai-pose-generator-3
+
+## Basic Usage
+
+Here are a few examples demonstrating how to use `ai-pose-generator-3`:
+
+**1. Generating a Simple Pose:**
+
+This example demonstrates generating a basic standing pose.
+python
+from ai_pose_generator_3 import PoseGenerator
+
+generator = PoseGenerator()
+pose_data = generator.generate_pose(prompt="standing person")
+
+# pose_data will contain the generated pose information (e.g., JSON format)
+print(pose_data)
+
+# You can then process the pose_data to render the pose in your application.
+
+**2. Generating a Pose with Specific Attributes:**
+
+This example shows how to generate a pose with specific attributes like gender and clothing.
+python
+from ai_pose_generator_3 import PoseGenerator
+
+generator = PoseGenerator()
+pose_data = generator.generate_pose(prompt="a woman wearing a red dress, dancing")
+
+# pose_data will contain the generated pose information
+print(pose_data)
+
+**3. Generating Multiple Poses:**
+
+This example demonstrates generating multiple poses with a single request.
+python
+from ai_pose_generator_3 import PoseGenerator
+
+generator = PoseGenerator()
+poses = generator.generate_multiple_poses(prompt="two people sitting at a table", num_poses=2)
+
+for pose_data in poses:
+    print(pose_data)
+
+**4. Generating a Pose with Camera Angle Specifications:**
+
+This example demonstrates generating a pose with a specific camera angle.
+python
+from ai_pose_generator_3 import PoseGenerator
+
+generator = PoseGenerator()
+pose_data = generator.generate_pose(prompt="person looking up at the sky, low angle shot")
+
+print(pose_data)
+
+**5. Generating a Pose for Character Animation:**
+
+This example demonstrates generating a pose useful for character animation, focusing on a specific action.
+python
+from ai_pose_generator_3 import PoseGenerator
+
+generator = PoseGenerator()
+pose_data = generator.generate_pose(prompt="character jumping in the air, action pose")
+
+print(pose_data)
+
+## Features
+
+*   **Simplified Pose Generation:** Easily generate AI-driven poses with descriptive prompts.
+*   **Multiple Pose Generation:** Generate multiple poses with a single function call.
+*   **Customizable Prompts:** Fine-tune pose generation using detailed prompts to specify desired attributes.
+*   **Easy Integration:** Seamlessly integrate generated pose data into various applications and workflows.
+*   **Abstraction Layer:** Provides a higher-level interface to the underlying AI pose generation service.
+
+## License
+
+MIT License
+
+This project is a gateway to the ai-pose-generator-3 ecosystem. For advanced features and full capabilities, please visit: https://supermaker.ai/image/ai-pose-generator/
