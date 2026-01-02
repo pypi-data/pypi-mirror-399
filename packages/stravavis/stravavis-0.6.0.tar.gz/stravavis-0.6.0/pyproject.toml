@@ -1,0 +1,87 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+  "hatch-vcs",
+  "hatchling",
+]
+
+[project]
+name = "stravavis"
+description = "Create artistic visualisations with your exercise data"
+readme = "README.md"
+keywords = [
+  "artistic",
+  "artistic visualisations",
+  "exercise",
+  "exercise data",
+  "strava",
+  "visualisation",
+]
+license = "MIT"
+license-files = [ "LICENSE" ]
+maintainers = [ { name = "Hugo van Kemenade" } ]
+authors = [ { name = "Marcus Volz" } ]
+requires-python = ">=3.10"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Artistic Software",
+  "Topic :: Multimedia :: Graphics",
+  "Topic :: Scientific/Engineering :: Visualization",
+]
+dynamic = [ "version" ]
+dependencies = [
+  "calmap>=0.0.11",
+  "fit2gpx",
+  "gpxpy",
+  "matplotlib",
+  "pandas>=2",
+  "plotnine",
+  "rich",
+  "seaborn",
+  "setuptools; python_version>='3.12'", # TODO Remove when https://github.com/MarvinT/calmap/issues/22 is fixed
+]
+urls.Homepage = "https://github.com/marcusvolz/strava_py"
+urls.Source = "https://github.com/marcusvolz/strava_py"
+scripts.stravavis = "stravavis.cli:main"
+
+[tool.hatch]
+version.source = "vcs"
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
+
+[tool.ruff]
+fix = true
+
+lint.select = [
+  "C4",     # flake8-comprehensions
+  "E",      # pycodestyle errors
+  "EM",     # flake8-errmsg
+  "F",      # pyflakes errors
+  "I",      # isort
+  "ICN",    # flake8-import-conventions
+  "ISC",    # flake8-implicit-str-concat
+  "LOG",    # flake8-logging
+  "PGH",    # pygrep-hooks
+  "RUF022", # unsorted-dunder-all
+  "RUF100", # unused noqa (yesqa)
+  "UP",     # pyupgrade
+  "W",      # pycodestyle warnings
+  "YTT",    # flake8-2020
+]
+lint.ignore = [
+  "E203", # Whitespace before ':'
+  "E221", # Multiple spaces before operator
+  "E226", # Missing whitespace around arithmetic operator
+  "E241", # Multiple spaces after ','
+]
+lint.isort.known-first-party = [ "stravavis" ]
+lint.isort.required-imports = [ "from __future__ import annotations" ]
+lint.future-annotations = true
