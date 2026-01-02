@@ -1,0 +1,314 @@
+# 🧠 Nano-Wait — Adaptive & Visual Execution Engine
+
+## Nano-Wait é um motor de execução adaptativo para Python que substitui delays cegos (time.sleep) por decisões baseadas em contexto do sistema e estado visual da tela.
+
+Ele combina:
+
+- ⏱ Espera adaptativa (CPU, memória, rede)
+
+- 👁️ Visão computacional (OCR + ícones)
+
+- 🧠 Memória visual determinística (sem ML pesado)
+
+- 🖥️ API Python + CLI
+
+### 🚀 Quick Start (o essencial)
+```
+from nano_wait import wait
+
+wait(2.0)
+wait(2.0, speed="fast")
+wait(2.0, smart=True)
+```
+
+Com rede:
+```
+wait(3.0, wifi="MyNetwork", smart=True)
+```
+
+Com visão:
+```
+wait(until="logged_in", timeout=15)
+wait(icon="ok.png", timeout=10)
+```
+## ⚠️ Instalação & Dependências (LEIA ISTO)
+
+Nano-Wait não é uma biblioteca leve por padrão.
+Ela integra sistema operacional, visão computacional e automação gráfica.
+
+### 📦 Dependências Python
+
+Instaladas via pip:
+```
+pip install nano-wait
+```
+
+Incluem:
+
+- psutil
+
+- opencv-python
+
+- pytesseract
+
+- pynput
+
+- pyautogui
+
+- numpy
+
+## 🧠 Dependência EXTERNA OBRIGATÓRIA (VisionMode)
+
+👉 O Tesseract OCR precisa estar instalado no sistema operacional.
+
+macOS
+```
+brew install tesseract
+```
+Ubuntu / Debian
+```
+sudo apt install tesseract-ocr
+```
+Windows
+
+- Baixar o instalador oficial do Tesseract
+
+- Adicionar o caminho ao PATH
+
+⚠️ Sem o Tesseract, qualquer uso de OCR no VisionMode falhará imediatamente.
+
+## 🧠 Mental Model — Como o Nano-Wait funciona
+
+Nano-Wait executa continuamente:
+```
+observe → reason → wait → observe
+```
+
+Ele é composto por dois motores cooperativos:
+
+### ⏱ Adaptive Waiting Engine — quando avançar?
+
+- CPU
+
+- Memória
+
+- Wi-Fi (se disponível)
+
+- Speed / Smart Mode
+
+### 👁️ Vision Engine — o que está acontecendo?
+
+- OCR (texto)
+
+- Ícones (template matching)
+
+- Memória visual persistente
+
+👉 A execução nunca avança cegamente.
+
+## ⏱️ Adaptive Waiting Engine
+📊 PC Score (estado da máquina)
+```
+cpu_score = 10 - cpu_usage / 10
+mem_score = 10 - mem_usage / 10
+
+pc_score = (cpu_score + mem_score) / 2
+```
+
+- Intervalo: 0.0 → 10.0
+
+- Suave
+
+- Sem thresholds rígidos
+
+## 🌐 Wi-Fi Awareness (opcional)
+| Sistema | Implementação |
+| ------- | ------------- |
+| Windows | pywifi        |
+| macOS   | airport       |
+| Linux   | nmcli         |
+
+### 🧯 Casos de borda (importante)
+
+- Se o pywifi falhar no Windows
+
+- Se o comando do sistema não responder
+
+- Se não houver Wi-Fi ativo
+
+👉 Nano-Wait assume automaticamente um valor neutro:
+```
+wifi_score = 5.0
+```
+
+Isso garante:
+
+- Nenhuma exceção
+
+- Nenhum comportamento extremo
+
+- Execução previsível
+
+## 🧠 Smart Context Mode
+```
+wait(2.0, smart=True)
+```
+
+Nesse modo, o Nano-Wait calcula a agressividade automaticamente:
+```
+risk = (pc_score + wifi_score) / 2
+speed = clamp(risk, 0.5 → 5.0)
+```
+
+Ideal para:
+
+- Ambientes desconhecidos
+
+- Máquinas diferentes
+
+- Scripts distribuídos
+
+⚡ Speed Presets (manual)
+| Speed  | Valor interno |
+| ------ | ------------- |
+| slow   | 0.8           |
+| normal | 1.5           |
+| fast   | 3.0           |
+| ultra  | 6.0           |
+
+
+⚠️ Speed não define tempo fixo, apenas limite de agressividade.
+
+## ⏱️ Cálculo Final de Espera
+```
+wait_time = clamp(t / factor, 0.05 → t)
+```
+
+Garantias:
+
+- Nunca < 50 ms
+
+- Nunca > tempo base
+
+- Estável mesmo sob carga
+
+## 👁️ Vision Engine
+```
+from nano_wait.vision import VisionMode
+
+vision = VisionMode(mode="observe")
+state = vision.observe()
+```
+Modos conceituais
+
+- observe → detectar estados
+
+- learn → ensinar padrões
+
+- decision → agir conforme estado
+
+## 📚 Learn Mode — Memória Visual (sem ML)
+```
+vision.learn("Welcome", state="home")
+vision.learn_icon("ok.png", state="confirmed")
+```
+
+Os padrões são salvos em:
+```
+~/.nano-wait/vision_patterns.json
+```
+
+✔️ Determinístico
+✔️ Versionado
+✔️ Reproduzível
+✔️ Explicável
+
+## 🔍 Retorno da função wait (TIPOS)
+
+A função wait não retorna sempre a mesma coisa:
+```
+result = wait(...)
+```
+### Possíveis retornos
+⏱️ Espera por tempo
+```
+float  # tempo efetivamente aguardado
+```
+
+Exemplo:
+```
+elapsed = wait(2.0)
+```
+### 👁️ Espera visual
+```
+VisualState
+```
+
+Exemplo:
+```
+state = wait(until="logged_in")
+
+if state.detected:
+    print(state.name, state.confidence)
+```
+
+👉 Sempre valide o tipo do retorno em automações críticas.
+
+## 🖥️ CLI — Uso via Terminal
+### 📦 Instalação correta da CLI
+
+Para que o comando funcione:
+```
+nano-wait 2 --smart
+```
+
+O pacote deve expor um entry_point no setup.py ou pyproject.toml:
+```
+entry_points={
+    "console_scripts": [
+        "nano-wait=nano_wait.cli:main"
+    ]
+}
+
+```
+Sem isso, o comando não existirá no terminal, apenas a API Python.
+
+### Exemplos de uso
+```
+nano-wait 2 --smart --verbose
+nano-wait 3 --wifi MyNetwork --speed fast
+```
+
+Flags:
+
+- --smart
+
+- --wifi
+
+- --speed
+
+- --verbose
+
+- --log
+
+## 🔟 O que pode melhorar (o caminho para o 10)
+
+Documentação honesta é o que separa libs boas de libs grandes.
+
+### Próximos upgrades naturais:
+
+-  Instalação modular (nano-wait[vision])
+
+ - Lazy import do VisionMode
+
+ - Typed overloads para wait
+
+ - Exceções semânticas (VisionTimeout, ContextUnavailable)
+
+-  Benchmarks oficiais vs time.sleep
+
+-  Modo headless/documentado
+
+## 📌 Em uma frase
+
+**Nano-Wait não espera tempo — ele espera condições.**
