@@ -1,0 +1,2 @@
+class MissingContextError(RuntimeError):
+    pass
