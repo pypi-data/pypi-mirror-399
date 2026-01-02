@@ -1,0 +1,63 @@
+[tools]
+python = "3.13.3"
+uv = "0.7.18"
+
+[tasks.setup]
+run = """
+mise install
+uv sync
+uv run pre-commit install
+"""
+
+[tasks.format]
+run = "uv run ruff format ."
+
+[tasks.lint]
+run = "uv run ruff check . --fix"
+
+[tasks.fix-lint]
+run = 'uv run ruff check . --fix'
+
+[tasks.typecheck]
+run = "uv run mypy src/"
+
+[tasks.test]
+run = "uv run pytest"
+
+[tasks.test-unit]
+run = "uv run pytest -m unit"
+
+[tasks.test-integration]
+run = "uv run pytest -m integration"
+
+[tasks.test-cov]
+run = "uv run pytest --cov --cov-report=html"
+
+[tasks.check]
+run = """
+mise format
+mise lint
+mise typecheck
+mise test
+"""
+
+[tasks.pre-commit]
+run = "uv run pre-commit run --all-files"
+
+[tasks.deploy]
+run = "npx @modelcontextprotocol/inspector@latest uv run python src/main.py"
+
+
+[tasks.release-test]
+run = """
+rm -rf dist/
+uv build
+uv publish --publish-url https://test.pypi.org/legacy/
+"""
+
+[tasks.release-prod]
+run = """
+rm -rf dist/
+uv build
+uv publish
+"""

@@ -1,0 +1,30 @@
+repos:
+  - repo: local
+    hooks:
+      - id: format
+        name: format
+        entry: bash -c 'mise format'
+        language: system
+        files: \.py$
+        pass_filenames: false
+        
+      - id: lint
+        name: lint
+        entry: bash -c 'mise lint'
+        language: system
+        files: \.py$
+        pass_filenames: false
+        
+      - id: typecheck
+        name: typecheck
+        entry: bash -c 'mise typecheck'
+        language: system
+        files: \.py$
+        pass_filenames: false
+        
+      - id: test
+        name: test
+        entry: bash -c 'mise test || [ $? -eq 5 ]'  # Exit code 5 = no tests collected
+        language: system
+        files: \.py$
+        pass_filenames: false
