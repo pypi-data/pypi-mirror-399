@@ -1,0 +1,263 @@
+[project]
+name = "taskiq-dashboard"
+version = "0.4.0rc0"
+description = "An interactive dashboard for monitoring and managing Taskiq tasks."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Framework :: AsyncIO",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development",
+    "Topic :: System :: Networking",
+    "Typing :: Typed",
+    "Operating System :: OS Independent",
+]
+keywords = ["taskiq", "tasks", "distributed", "async", "admin"]
+authors = [
+    {name = "Anfimov Dima", email = "lovesolaristics@gmail.com"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    # api
+    "fastapi>=0.128.0",
+    # html templates
+    "jinja2>=3.1.6",
+    # db
+    "asyncpg>=0.31.0",
+    "sqlalchemy>=2.0.45",
+    # http client for middleware
+    "httpx>=0.28.1",
+    # other
+    "pydantic-settings>=2.12.0",
+    "dishka>=1.7.2",
+    "aiosqlite>=0.21.0",
+    "taskiq>=0.12.1",
+]
+
+[project.optional-dependencies]
+server = [
+    "granian>=2.6.0",
+]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/danfimov/taskiq-dashboard/issues"
+"Repository" = "https://github.com/danfimov/taskiq-dashboard/"
+
+[dependency-groups]
+dev = [
+    {include-group = "lint"},
+    {include-group = "test"},
+    {include-group = "docs"},
+    {include-group = "examples"},
+    "prek>=0.2.25",
+]
+lint = [
+    "ruff>=0.14.10",
+    "bandit>=1.9.2",
+    "codespell>=2.4.1",
+    "zizmor>=1.19.0",
+    "djlint>=1.36.4",
+    # type check
+    "mypy>=1.19.1",
+]
+test = [
+    "polyfactory>=3.2.0",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=7.0.0",
+    "pytest-deadfixtures>=3.0.0",
+    # for request mocking
+    "pytest-httpx>=0.36.0",
+    # for test databases management
+    "psycopg2-binary>=2.9.11",
+    "sqlalchemy-utils>=0.42.1",
+]
+docs = [
+    "zensical>=0.0.15",
+]
+examples = [
+    "taskiq-postgres[asyncpg]>=0.7.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "taskiq_dashboard"
+module-root = ""
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+exclude = [
+    ".ruff_cache",
+    ".venv",
+    "venv",
+]
+
+
+[tool.ruff.lint]
+select = [
+    "ALL",
+]
+ignore = [
+    "D100",  # Docstring in public module
+    "D104",  # Docstring in public package
+
+    # Conflicted rules
+    "D203",  # with D211
+    "D212",  # with D213
+    "COM812",  # with formatter
+
+    # temporary disable
+    "D", "ANN", "T201",
+
+    # Todo comments
+    "FIX002",
+    "TD002",
+    "TD003",
+
+    # messages in exceptions
+    "EM101",
+    "TRY003",
+
+    "RUF002",  # cyrillic letters
+]
+
+[tool.ruff.lint.isort]
+known-local-folder = ["taskiq_dashboard"]
+lines-after-imports = 2
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "PLR2004",  # ignore magic value used in comparison in tests
+    "S101",  # ignore asserts in tests
+    "D",  # ignore docstrings in tests
+    "S106",  # hard-coded password in tests
+
+    # type annotations
+    "ANN001",
+    "ANN002",
+    "ANN201",
+    "ANN202",
+    "ANN003",
+
+    # unused function argument
+    "ARG001",
+    "ARG002",
+
+    "SLF001",  # private member accessed
+
+    # exception must not use a string literal
+    "EM101",
+    "TRY003",
+
+    # comments on russian
+    "RUF003",
+
+    # __init__ files
+    "INP001",
+]
+"taskiq_dashboard/infrastructure/database/migrations/versions/*" = [
+    "N999",  # Invalid module name
+
+    # Auto-generated doc-strings by alembic
+    "D400",
+    "D415",
+]
+"scripts/*" = [
+    "ALL",
+]
+"docs/examples/*" = [
+    "S",
+    "INP",
+]
+
+[tool.ruff.lint.flake8-quotes]
+multiline-quotes = "double"
+docstring-quotes = "double"
+inline-quotes = "single"
+
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "unit: marks unit tests",
+    "integration: marks tests with real infrastructure env",
+]
+filterwarnings = []
+
+[tool.coverage.report]
+exclude_lines = [
+    "# pragma: no cover",
+    "def __repr__",
+    "def __str__",
+    "def __unicode__",
+    "if tp.TYPE_CHECKING:",
+    "pass",
+]
+show_missing = true
+skip_empty = true
+omit = [
+    "*/__init__.py",
+    "venv/*",
+    "tests/*"
+]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+python_version = "3.12"
+platform = "linux"
+follow_imports = "normal"
+ignore_missing_imports = false
+mypy_path = "stubs"
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+warn_return_any = true
+warn_unreachable = true
+warn_no_return = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+modules = ["speechkit"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
+[tool.bandit]
+skips = [
+    "B104",
+    "B107",
+]
+
+[tool.djlint]
+profile="jinja"
+files=["taskiq_dashboard/api/templates"]
+format_js=true
+format_css=true
+indent_size=4
