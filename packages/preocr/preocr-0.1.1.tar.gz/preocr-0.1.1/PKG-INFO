@@ -1,0 +1,256 @@
+Metadata-Version: 2.4
+Name: preocr
+Version: 0.1.1
+Summary: A fast, CPU-only library that detects whether files need OCR processing before expensive OCR operations
+Author: PreOCR Contributors
+License-Expression: Apache-2.0
+Project-URL: Homepage, https://github.com/yuvaraj3855/preocr
+Project-URL: Documentation, https://github.com/yuvaraj3855/preocr#readme
+Project-URL: Repository, https://github.com/yuvaraj3855/preocr
+Project-URL: Issues, https://github.com/yuvaraj3855/preocr/issues
+Keywords: ocr,document,detection,preprocessing,file-analysis
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Text Processing
+Classifier: Topic :: Multimedia :: Graphics
+Classifier: Topic :: Scientific/Engineering :: Image Recognition
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: python-magic>=0.4.27
+Requires-Dist: pdfplumber>=0.10.0
+Requires-Dist: python-docx>=1.1.0
+Requires-Dist: python-pptx>=0.6.23
+Requires-Dist: openpyxl>=3.1.0
+Requires-Dist: Pillow>=10.0.0
+Requires-Dist: beautifulsoup4>=4.12.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.1.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: mypy>=1.5.0; extra == "dev"
+Dynamic: license-file
+
+# PreOCR
+
+A fast, CPU-only, deterministic library that detects whether files need OCR processing before expensive OCR operations.
+
+## Overview
+
+PreOCR acts as a **universal document gatekeeper** that analyzes any file type and determines:
+
+> **"Is this file already machine-readable, or do I need OCR?"**
+
+Instead of performing OCR to detect OCR, PreOCR uses intelligent file analysis:
+1. **File type detection** (MIME types, extensions)
+2. **Text extraction probes** (PDF, Office docs, plain text)
+3. **Visual/binary analysis** (images, entropy)
+4. **Decision engine** (rule-based logic)
+
+## Features
+
+- ✅ **Fast**: CPU-only, no OCR required
+- ✅ **Deterministic**: Same input → same output
+- ✅ **OCR-free**: Never performs OCR to detect OCR
+- ✅ **Extensible**: Easy to add new file type handlers
+- ✅ **Conservative**: When uncertain, defaults to "needs OCR"
+
+## Supported File Types
+
+- **PDFs**: Digital PDFs (no OCR) vs Scanned PDFs (needs OCR)
+- **Images**: PNG, JPG, TIFF, etc. (always needs OCR)
+- **Office Documents**: DOCX, PPTX, XLSX (extracts text if available)
+- **Text Files**: TXT, CSV, HTML (no OCR needed)
+- **Structured Data**: JSON, XML (no OCR needed)
+- **Unknown Binaries**: Defaults to needing OCR (conservative)
+
+## Installation
+
+```bash
+pip install preocr
+```
+
+## Quick Start
+
+```python
+from preocr import needs_ocr
+
+# Check if a file needs OCR
+result = needs_ocr("document.pdf")
+
+if result["needs_ocr"]:
+    print(f"File needs OCR: {result['reason']}")
+    # Run your OCR here (e.g., MinerU)
+else:
+    print(f"File is already machine-readable: {result['reason']}")
+```
+
+## API Reference
+
+### `needs_ocr(file_path)`
+
+Main API function that determines if a file needs OCR.
+
+**Parameters:**
+- `file_path` (str or Path): Path to the file to analyze
+
+**Returns:**
+Dictionary with the following keys:
+- `needs_ocr` (bool): Whether OCR is needed
+- `file_type` (str): File type category ("pdf", "image", "office", "text", etc.)
+- `category` (str): "structured" (no OCR) or "unstructured" (needs OCR)
+- `confidence` (float): Confidence score (0.0-1.0)
+- `reason` (str): Human-readable reason for the decision
+- `signals` (dict): All collected detection signals (for debugging)
+
+**Example:**
+
+```python
+result = needs_ocr("document.pdf")
+print(result)
+# {
+#     "needs_ocr": False,
+#     "file_type": "pdf",
+#     "category": "structured",
+#     "confidence": 0.9,
+#     "reason": "digital PDF with 1234 characters of extractable text",
+#     "signals": {
+#         "mime": "application/pdf",
+#         "extension": "pdf",
+#         "text_length": 1234,
+#         "has_text": True,
+#         ...
+#     }
+# }
+```
+
+## Usage Examples
+
+### Basic Usage
+
+```python
+from preocr import needs_ocr
+
+result = needs_ocr("my_document.pdf")
+
+if result["needs_ocr"]:
+    print("This file needs OCR processing")
+    # Your OCR code here
+else:
+    print("This file is already machine-readable")
+    print(f"Reason: {result['reason']}")
+```
+
+### Batch Processing
+
+```python
+from pathlib import Path
+from preocr import needs_ocr
+
+files = Path("documents").glob("*.pdf")
+
+for file_path in files:
+    result = needs_ocr(file_path)
+    status = "NEEDS OCR" if result["needs_ocr"] else "READY"
+    print(f"{file_path.name}: {status} ({result['reason']})")
+```
+
+### Integration with MinerU
+
+```python
+from preocr import needs_ocr
+# Assuming you have MinerU OCR available
+# from mineru import ocr
+
+def process_document(file_path):
+    result = needs_ocr(file_path)
+    
+    if result["needs_ocr"]:
+        # Only run expensive OCR if needed
+        # ocr_result = ocr(file_path)
+        print(f"Running OCR on {file_path}")
+    else:
+        # Use existing text extraction
+        print(f"Using existing text from {file_path}")
+```
+
+## Architecture
+
+```
+Any File
+  ↓
+File Type Detector
+  ↓
+Text Extractability Probe
+  ↓
+Visual / Binary Probe
+  ↓
+Decision Engine
+  ↓
+Result (needs_ocr: bool)
+```
+
+## Decision Logic
+
+PreOCR uses rule-based logic to make decisions:
+
+1. **Plain text formats** → NO OCR
+2. **Office docs with text** → NO OCR
+3. **PDFs with extractable text** → NO OCR
+4. **PDFs without text** → YES OCR (likely scanned)
+5. **Images** → YES OCR (always)
+6. **Unknown binaries** → YES OCR (conservative default)
+
+## Requirements
+
+- Python 3.9+
+- See `pyproject.toml` for full dependency list
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/preocr.git
+cd preocr
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run with coverage
+pytest --cov=preocr --cov-report=html
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+Apache License 2.0 - see [LICENSE](LICENSE) file for details.
+
+## Versioning
+
+PreOCR follows [Semantic Versioning](https://semver.org/):
+- **MAJOR**: Breaking API changes
+- **MINOR**: New features (backward-compatible)
+- **PATCH**: Bug fixes (backward-compatible)
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and changes.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/yourusername/preocr/issues)
+- **Documentation**: [GitHub README](https://github.com/yourusername/preocr#readme)
+
