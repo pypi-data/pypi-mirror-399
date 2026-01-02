@@ -1,0 +1,77 @@
+# 🚦 Flask Rate Limiter – Reusable Decorator Library
+
+A reusable, production-style **rate limiting library for Flask applications**, implemented using **four industry-standard algorithms** and distributed via **PyPI**.
+
+Designed with **system design principles**, the **Strategy Pattern**, and **real-world API use cases** in mind.
+
+---
+
+## Features
+
+- Decorator-based rate limiting for Flask routes
+- Supports **four algorithms**:
+  - Fixed Window  
+  - Sliding Window  
+  - Leaky Bucket  
+  - Token Bucket
+- Per-user and per-endpoint enforcement
+- Clean, extensible **strategy-based architecture**
+- In-memory state management for simplicity
+- Optional metrics support for observability
+- Designed as a **reusable Python package**
+
+---
+
+## Important
+- All decorators are fully documented using Python docstrings, so IDEs show parameter details on hover.
+
+## Common Params:
+- algorithm (str)
+- Rate limiting algorithm to apply.
+- Supported values:
+
+- "fixed_window"
+
+- "sliding_window"
+
+- "leaky_bucket"
+
+- "token_bucket"
+
+- capacity (int)
+  - Maximum number of requests allowed within a window or bucket.
+
+- refill_rate (int, optional)
+  - Tokens added per second (used in Token Bucket).
+
+- window_size (int, optional)
+  - Time window in seconds (used in Fixed Window and Sliding Window).
+
+- user_identifier (callable, optional)
+  - Function to extract a user identifier (IP address, user ID, auth token, etc.).
+
+## Installation
+
+Install directly from PyPI:
+
+```bash
+pip install flask-rate-limiter-lite
+```
+---
+## Quick Start
+
+from flask import Flask
+from flask_rate_limiter import rate_limit
+
+app = Flask(__name__)
+
+@app.route("/api")
+@rate_limit(
+    algorithm="token_bucket",
+    capacity=10,
+    refill_rate=1
+)
+def api():
+    return "Hello, World!"
+
+
