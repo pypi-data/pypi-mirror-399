@@ -1,0 +1,98 @@
+# Payme Python Package
+
+Python package for integrating with Payme (Paycom) payment system in Uzbekistan.
+
+## Installation
+
+```bash
+pip install payme
+```
+
+## Requirements
+
+- Python 3.7+
+- Django 3.0+
+- requests 2.25.0+
+- djangorestframework 3.12.0+
+
+## Quick Start
+
+### Basic Usage
+
+```python
+from payme import Payme
+
+# Initialize Payme client
+payme = Payme(
+    payme_id="your_payme_id",
+    payme_key="your_payme_key",  # Optional, required for receipts
+    is_test_mode=True  # Set to False for production
+)
+
+# Create a card
+response = payme.cards_create(
+    number="8600123456789012",
+    expire="1225",
+    save=False
+)
+
+# Create a receipt
+receipt = payme.receipts_create(
+    account={"order_id": "12345"},
+    amount=100000,
+    description="Test payment"
+)
+```
+
+### Django Integration
+
+1. Add `payme` to your `INSTALLED_APPS`:
+
+```python
+INSTALLED_APPS = [
+    ...
+    'payme',
+]
+```
+
+2. Include Payme URLs in your `urls.py`:
+
+```python
+from django.urls import path, include
+
+urlpatterns = [
+    ...
+    path('payme/', include('payme.urls')),
+]
+```
+
+3. Configure webhook handlers in your settings:
+
+```python
+PAYME_SETTINGS = {
+    'MERCHANT_ID': 'your_merchant_id',
+    'SECRET_KEY': 'your_secret_key',
+    'ACCOUNT_PARAMS': ['order_id'],
+    'CALLBACK_CLASS': 'your_app.callbacks.PaymeCallback',
+}
+```
+
+## Features
+
+- Card management (create, verify, check, remove)
+- Receipt management (create, pay, cancel, check)
+- Payment link generation
+- Django webhook integration
+- Transaction tracking
+
+## Documentation
+
+For detailed documentation, please visit the [GitHub repository](https://github.com/yourusername/payme).
+
+## License
+
+MIT License
+
+## Support
+
+For issues and questions, please open an issue on [GitHub](https://github.com/yourusername/payme/issues).
