@@ -1,0 +1,107 @@
+[build-system]
+requires = ["flit_core >=3.7,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "pycargoebuild"
+authors = [{name = "Michał Górny", email = "mgorny@gentoo.org"}]
+license = {text = "GPL-2.0-or-later"}
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+]
+dynamic = ["version", "description"]
+readme = "README.rst"
+requires-python = ">=3.10"
+dependencies = [
+    "jinja2",
+    "license_expression",
+    "tomli >= 1.2.3; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+pretty-log = ["rich"]
+test = [
+    "pytest",
+]
+
+[project.scripts]
+pycargoebuild = "pycargoebuild.__main__:entry_point"
+
+[project.urls]
+Homepage = "https://github.com/projg2/pycargoebuild/"
+
+[tool.flit.external-data]
+directory = "data"
+
+[tool.flit.sdist]
+include = [
+    "COPYING",
+    "integration_test",
+    "test",
+    "tox.ini",
+]
+
+[tool.mypy]
+disallow_untyped_defs = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = [
+    "integration_test.*",
+    "test.*",
+]
+# requiring explicit types for all test methods would be cumbersome
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "license_expression.*",
+    "portage.*",
+    "rich.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = [
+    "test",
+]
+
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.lint]
+extend-select = [
+    "E",
+#   "N",
+    "W",
+    "I",
+#   "UP",
+#   "ANN",
+#   "B",
+    "A",
+#   "COM",
+    "CPY",
+    "C4",
+    "EXE",
+    "ISC",
+#   "PIE",
+#   "PT",
+    "Q",
+#   "RSE",
+    "RET",
+    "SLOT",
+#   "SIM",
+    "TCH",
+#   "ARG",
+#   "ERA",
+#   "PGH",
+#   "PL",
+#   "PERF",
+    "FURB",
+#   "RUF",
+]
+
+[tool.ruff.lint.flake8-copyright]
+min-file-size = 1
+notice-rgx = "\\(c\\) \\d{4}(-\\d{4})?"
