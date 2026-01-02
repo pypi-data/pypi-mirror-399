@@ -1,0 +1,87 @@
+Metadata-Version: 2.4
+Name: steam-next
+Version: 2.0.0
+Summary: Python package for interacting with Steam
+License-Expression: MIT
+License-File: LICENSE
+Keywords: valve,steam,steamid,api,webapi,steamcommunity
+Author: Rossen Georgiev
+Author-email: rossen@rgp.io
+Maintainer: Fabian Eulitz
+Maintainer-email: dev@sustineo.de
+Requires-Python: >=3.9,<4.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Provides-Extra: client
+Provides-Extra: docs
+Requires-Dist: cachetools (>=6.2.4,<7.0)
+Requires-Dist: gevent (>=1.3.0) ; extra == "client"
+Requires-Dist: gevent-eventemitter (>=2.1,<3.0) ; extra == "client"
+Requires-Dist: protobuf (>=6.33.2,<7.0) ; extra == "client"
+Requires-Dist: pycryptodomex (>=3.23.0,<4.0)
+Requires-Dist: requests (>=2.32.5,<3.0)
+Requires-Dist: sphinx (==8.2.3) ; (python_version >= "3.11") and (extra == "docs")
+Requires-Dist: sphinx_rtd_theme (==3.0.2) ; (python_version >= "3.11") and (extra == "docs")
+Requires-Dist: vdf (>=3.4.0,<4.0)
+Project-URL: documentation, https://steam-next.readthedocs.io
+Project-URL: repository, https://github.com/fabieu/steam-next
+Description-Content-Type: text/markdown
+
+[![PyPI](https://img.shields.io/pypi/v/steam-next.svg?label=pypi)](https://pypi.python.org/pypi/steam-next)
+[![Python Versions](https://img.shields.io/pypi/pyversions/steam-next.svg?label=%20&logo=python&logoColor=white)](https://pypi.python.org/pypi/steam-next)
+[![License](https://img.shields.io/pypi/l/steam-next.svg?style=flat&label=license)](https://pypi.python.org/pypi/steam-next)
+[![Docs](https://readthedocs.org/projects/steam-next/badge/?version=latest)](https://steam-next.readthedocs.io/latest/)
+
+A python module for interacting with various parts of [Steam](https://store.steampowered.com/) supporting python `3.9+`.
+
+> [!NOTE]
+> This project builds upon an earlier fork that is no longer maintained.
+> While preserving the original intent, this version introduces modern improvements, fixes, and long-term
+> maintainability.
+
+**Documentation:** https://steam-next.readthedocs.io/latest/
+
+## Features
+
+- [`SteamClient`](https://steam-next.readthedocs.io/latest/api/steam.client.html) – communication with the steam
+  network based on `gevent`
+- [`CDNClient`](https://steam-next.readthedocs.io/latest/api/steam.client.cdn.html) – access to Steam content depots
+- [`WebAuth`](https://steam-next.readthedocs.io/latest/api/steam.webauth.html) – authentication for access to
+  `store.steampowered.com` and `steamcommunity.com`
+- [`WebAPI`](https://steam-next.readthedocs.io/latest/api/steam.webapi.html) – simple API for Steam's Web API with
+  automatic population of interfaces
+- [`SteamAuthenticator`](https://steam-next.readthedocs.io/latest/api/steam.guard.html) – enable/disable/manage two
+  factor authentication for Steam accounts
+- [`SteamID`](https://steam-next.readthedocs.io/latest/api/steam.steamid.html) – convert between the various ID
+  representations with ease
+- [`Master Server Query Protocol`](https://steam-next.readthedocs.io/latest/api/steam.game_servers.html) – query
+  master servers directly or via `SteamClient`
+
+Checkout the [User guide](https://steam-next.readthedocs.io/latest/user_guide.html) for examples,
+or the [API Reference](https://steam-next.readthedocs.io/latest/api/steam.html) for details.
+
+For questions, issues or general curiosity visit the repo at
+https://github.com/fabieu/steam-next
+
+---
+
+## Install
+
+For system specific details, see
+[Installation Details](https://steam-next.readthedocs.io/latest/install.html).
+
+Install latest release version from PyPI:
+
+```bash
+# with SteamClient dependencies
+pip install -U "steam-next[client]"
+
+# without (only when using parts that do not rely on gevent and protobuf)
+pip install -U steam-next
+```
+
