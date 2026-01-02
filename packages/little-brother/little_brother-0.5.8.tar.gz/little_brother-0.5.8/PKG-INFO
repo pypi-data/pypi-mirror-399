@@ -1,0 +1,48 @@
+Metadata-Version: 2.4
+Name: little_brother
+Version: 0.5.8
+Summary: Simple parental control application monitoring specific processes on Linux hosts to monitor and limit the play time of (young) children.
+Home-page: https://github.com/marcus67/little_brother
+Author: Marcus Rickert
+Author-email: little-brother@web.de
+Requires-Python: >=3.10, <3.14
+License-File: LICENSE
+Requires-Dist: alembic==1.17.2
+Requires-Dist: babel~=2.13.1
+Requires-Dist: distro==1.9.0
+Requires-Dist: flask-babel==3.1.0
+Requires-Dist: flask-login==0.6.3
+Requires-Dist: flask-migrate==4.1.0
+Requires-Dist: flask-wtf==1.2.2
+Requires-Dist: flask==2.3.3
+Requires-Dist: humanize==4.15.0
+Requires-Dist: jinja2~=3.1.5
+Requires-Dist: jsonpickle==3.0.2
+Requires-Dist: lagom==2.7.7
+Requires-Dist: mockito==1.4.0
+Requires-Dist: prometheus-client==0.23.1
+Requires-Dist: psutil==7.2.0
+Requires-Dist: pyjwt==2.10.1
+Requires-Dist: pymysql==1.1.2
+Requires-Dist: pytest==9.0.2
+Requires-Dist: python-dateutil==2.8.2
+Requires-Dist: requests==2.32.5
+Requires-Dist: secure==2.0.0
+Requires-Dist: semver==3.0.4
+Requires-Dist: setuptools==80.9.0
+Requires-Dist: sqlalchemy==2.0.45
+Requires-Dist: typing_extensions==4.15.0
+Requires-Dist: urllib3==2.6.2
+Requires-Dist: werkzeug==3.1.4
+Requires-Dist: wtforms==3.0.1
+Requires-Dist: selenium==4.27.1
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+Tool to monitor login time of users on Debian hosts and terminate processes if usage times are exceeded. Note that this package is not meant as a simple install with PIP since it also requires additional work in the operating system (e.g. add a user, create directories, define a startup service). This is all done by the Debian package provided at https://sourceforge.net/projects/little-brother/ .
