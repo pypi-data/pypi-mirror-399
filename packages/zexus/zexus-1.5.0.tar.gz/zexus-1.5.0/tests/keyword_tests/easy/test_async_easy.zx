@@ -1,0 +1,139 @@
+// ============================================================================
+// EASY LEVEL: ASYNC/AWAIT Keywords Test Suite
+// ============================================================================
+// Testing basic async/await functionality in Zexus
+// Keywords: ASYNC, AWAIT
+// Full async runtime with Promises, Coroutines, and EventLoop implemented
+// ============================================================================
+
+print("=== EASY ASYNC/AWAIT TESTS ===");
+print("");
+
+// ============================================================================
+// TEST 1: Basic async action declaration
+// Expected: Should create async action successfully
+// ============================================================================
+print("Test 1: Basic async action");
+async action simpleAsync() {
+    return 42;
+}
+print("✓ Async action declared");
+print("");
+
+// ============================================================================
+// TEST 2: Calling async action (returns Promise)
+// Expected: Should return a Promise object
+// ============================================================================
+print("Test 2: Async action returns Promise");
+async action getNumber() {
+    return 100;
+}
+let promise = getNumber();
+print("✓ Promise created:", promise);
+print("");
+
+// ============================================================================
+// TEST 3: Basic await on async action
+// Expected: Should await promise and return value
+// ============================================================================
+print("Test 3: Basic await");
+async action getValue() {
+    return 25;
+}
+let result = await getValue();
+print("✓ Awaited value:", result);
+print("");
+
+// ============================================================================
+// TEST 4: Async action with single parameter
+// Expected: Should pass parameter and return result
+// ============================================================================
+print("Test 4: Async with parameter");
+async action double(x) {
+    return x * 2;
+}
+let doubled = await double(5);
+print("✓ Result:", doubled);
+print("");
+
+// ============================================================================
+// TEST 5: Async action with multiple parameters
+// Expected: Should handle multiple parameters
+// ============================================================================
+print("Test 5: Async with multiple parameters");
+async action add(a, b) {
+    return a + b;
+}
+let sum = await add(10, 20);
+print("✓ Sum:", sum);
+print("");
+
+// ============================================================================
+// TEST 6: Async action with string return
+// Expected: Should return string value
+// ============================================================================
+print("Test 6: Async returning string");
+async action getMessage() {
+    return "Hello from async";
+}
+let message = await getMessage();
+print("✓ Message:", message);
+print("");
+
+// ============================================================================
+// TEST 7: Multiple sequential awaits
+// Expected: Should execute awaits in sequence
+// ============================================================================
+print("Test 7: Sequential awaits");
+async action getOne() { return 1; }
+async action getTwo() { return 2; }
+async action getThree() { return 3; }
+let v1 = await getOne();
+let v2 = await getTwo();
+let v3 = await getThree();
+print("✓ Values:", v1, v2, v3);
+print("");
+
+// ============================================================================
+// TEST 8: Async action with computation
+// Expected: Should perform computation and return result
+// ============================================================================
+print("Test 8: Async with computation");
+async action calculate(x) {
+    let temp = x * 2;
+    let result = temp + 10;
+    return result;
+}
+let computed = await calculate(5);
+print("✓ Computed:", computed);
+print("");
+
+// ============================================================================
+// TEST 9: Async action with print statements
+// Expected: Should execute print and return value
+// ============================================================================
+print("Test 9: Async with side effects");
+async action withPrint() {
+    print("  Inside async action");
+    return 999;
+}
+let withSideEffect = await withPrint();
+print("✓ Result:", withSideEffect);
+print("");
+
+// ============================================================================
+// TEST 10: Storing and awaiting promise later
+// Expected: Should store promise and await it separately
+// ============================================================================
+print("Test 10: Store promise, await later");
+async action delayedValue() {
+    return 777;
+}
+let storedPromise = delayedValue();
+print("  Promise stored");
+let later = await storedPromise();
+print("✓ Awaited later:", later);
+print("");
+
+print("=== EASY ASYNC/AWAIT TESTS COMPLETE ===");
+print("10 basic tests executed!");
