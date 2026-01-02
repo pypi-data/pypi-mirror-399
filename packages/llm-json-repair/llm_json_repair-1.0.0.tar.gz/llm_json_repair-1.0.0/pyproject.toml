@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llm-json-repair"
+version = "1.0.0"
+description = "Robust JSON parsing for LLM outputs with automatic repair and field extraction"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Greg Crabtree"},
+]
+keywords = ["json", "llm", "parser", "repair", "claude", "gpt", "ai"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: General",
+]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/gcrabtree/llm-json-repair"
+Repository = "https://github.com/gcrabtree/llm-json-repair"
+Issues = "https://github.com/gcrabtree/llm-json-repair/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = false
+warn_unused_ignores = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["llm_json_repair"]
