@@ -1,0 +1,93 @@
+{
+  "dataset_info": {
+    "dataset_id": "dev01_MoTe2_QAHE",
+    "name": "MoTe2 Quantum Anomalous Hall Effect Dataset",
+    "version": "1.0.0",
+    "created_date": "2025-01-03",
+    "authors": ["Ruihao", "Jiaqi"],
+    "description": "Complete dataset for MoTe2 QAHE device including experimental data and instrument configuration"
+  },
+  "device_info": {
+    "device_id": "dev01",
+    "device_type": "MoTe2_QAHE",
+    "material": "MoTe2",
+    "measurement_type": "QAHE",
+    "sample_id": "MoTe2_Sample_001",
+    "fabrication_info": {
+      "method": "CVD",
+      "substrate": "SiO2/Si",
+      "thickness": "monolayer"
+    }
+  },
+  "data_files": {
+    "primary_data": {
+      "filename": "processed_data.mat",
+      "format": "matlab",
+      "size_mb": 4.2,
+      "description": "Processed measurement data with gate voltage sweeps",
+      "variables": {
+        "Vtg": "Top gate voltage array",
+        "Vbg": "Back gate voltage array",
+        "lockin_xx": "Longitudinal resistance measurements",
+        "lockin_xy": "Hall voltage measurements",
+        "lockin_i": "Source current measurements"
+      }
+    },
+    "raw_data": {
+      "filename": null,
+      "description": "Raw data not included in this version"
+    }
+  },
+  "instrument_configs": [
+    {
+      "instrument_id": "instr01",
+      "filename": "instr01_MoTe2_QAHE.json",
+      "type": "qdevbench.instruments.GeneralTestInstrument",
+      "description": "Primary instrument configuration for QCoDeS integration",
+      "purpose": "simulation"
+    }
+  ],
+  "measurement_conditions": {
+    "temperature": {
+      "value": "Variable",
+      "range": [1.5, 300],
+      "unit": "K"
+    },
+    "magnetic_field": {
+      "value": 8,
+      "unit": "T"
+    },
+    "measurement_setup": {
+      "equipment": "Bluefors Dilution Refrigerator",
+      "lockin_model": "SR830",
+      "frequency": "13.7 Hz",
+      "excitation": "10 nA"
+    }
+  },
+  "data_characteristics": {
+    "independent_variables": ["Vtg", "Vbg"],
+    "dependent_variables": ["lockin_xx", "lockin_xy", "lockin_i"],
+    "data_points": {
+      "vtg_points": 220,
+      "vbg_points": 900,
+      "total_measurements": 198000
+    },
+    "parameter_ranges": {
+      "Vtg": [-4.5, 0.975],
+      "Vbg": [-12.485, 1.0]
+    }
+  },
+  "usage_instructions": {
+    "qcodes_integration": "Load instrument using config file: instr01_MoTe2_QAHE.json",
+    "data_access": "Use MATFileLoader to read processed_data.mat",
+    "example_code": "device = GeneralTestInstrument('instr01', config_file='instr01_MoTe2_QAHE.json')"
+  },
+  "references": [],
+  "license": "MIT",
+  "tags": ["MoTe2", "QAHE", "2D-materials", "topological", "quantum-transport"],
+  "checksum": {
+    "algorithm": "sha256",
+    "processed_data.mat": "to_be_calculated",
+    "instr01_MoTe2_QAHE.json": "to_be_calculated"
+  }
+}
