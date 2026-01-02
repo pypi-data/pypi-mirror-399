@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  node:
+    name: Node CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+      - name: Install deps
+        run: npm ci --ignore-scripts
+      - name: Format & Lint
+        run: |
+          (npm run -s fmt || npx --yes prettier -c .) || true
+          (npm run -s lint || npx --yes eslint .)
+      - name: Type Check
+        if: hashFiles('tsconfig.json') != ''
+        run: (npm run -s typecheck || npx --yes tsc -p . --noEmit)
+      - name: Test
+        run: |
+          npm test --silent || npm run -s test
+      - name: Audit (non-blocking)
+        run: npm audit --audit-level=high || true
+
+  gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    needs: [node]
+    steps:
+      - name: All checks passed
+        run: echo "All CI checks passed"
