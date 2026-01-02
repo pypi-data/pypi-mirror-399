@@ -1,0 +1,61 @@
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
+
+[project]
+name="isssm"
+version = "0.1.0"
+description = "Importance Sampling for State Space Models (in jax)"
+readme = "README.md"
+requires-python=">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Stefan Heyder", email = "stefan.heyder@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+
+dependencies = [
+    "jax[cpu]==0.6.1",
+    "jaxtyping>=0.3.2",
+    "numpy",
+    "scipy",
+    "tensorflow-probability>=0.25.0",
+    "jaxopt",
+    "jaxlib",
+    "setuptools>=80.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "matplotlib",
+    "nbdev",
+    "ipykernel",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/stefanheyder/isssm"
+"Bug Tracker" = "https://github.com/stefanheyder/isssm/issues"
+
+[tool.nbdev]
+lib_path = "src/isssm"
+nbs_path = "nbs"
+doc_path = "_docs"
+recursive = true
+tst_flags = "notest"
+put_version_in_init = true
+
+[tool.uv.build-backend]
+module-name = "isssm"  
+module-root = "src"    
+
+[dependency-groups]
+dev = [
+    "ipykernel",
+    "matplotlib",
+    "nbdev",
+]
