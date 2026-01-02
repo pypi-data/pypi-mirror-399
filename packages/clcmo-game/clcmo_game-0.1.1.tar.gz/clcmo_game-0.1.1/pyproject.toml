@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clcmo-game"
+version = "0.1.1"
+description = "A description of your game"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pgzero>=1.2.1",
+    "pygame>=2.6.1",
+]
+
+[tool.setuptools.packages.find]
+# List only the folders that are part of your game's code
+include = ["views*", "models*", "locales*", "controllers*"]
+
