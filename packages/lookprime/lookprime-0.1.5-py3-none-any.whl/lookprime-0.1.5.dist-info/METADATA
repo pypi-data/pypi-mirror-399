@@ -1,0 +1,210 @@
+Metadata-Version: 2.4
+Name: lookprime
+Version: 0.1.5
+Summary: Ultra-fast prime lookup using memory-mapped odd-only sieve
+Author: Your Name
+License: MIT
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# lookprime
+
+**lookprime** is a high-performance prime number library for Python
+built around a **memory-mapped, odd-only, bitset sieve**.
+
+It is designed for: - extremely fast primality tests - fast prime
+counting and enumeration - repeated queries across processes - large
+limits with minimal RAM overhead - CLI benchmarking and inspection
+
+The core idea:\
+👉 build a prime sieve **once**, store it on disk, then reuse it via
+**mmap** with near-zero startup cost.
+
+------------------------------------------------------------------------
+
+## Features
+
+### Core performance
+
+-   Odd-only sieve (½ the memory of full sieve)
+-   Bitset representation (1 bit per odd number)
+-   Memory-mapped cache (`mmap`) for zero-copy sharing
+-   `int.from_bytes(...).bit_count()` for fast counting
+-   Auto-growing cache when needed
+-   Safe for multi-process use (read-only)
+
+### Python API
+
+-   `isprime(n)`
+-   `isprime_many(iterable)`
+-   `primerange(a, b)`
+-   `randprime(a, b)`
+-   `primepi(n)`
+-   `prime(n)` (nth prime, 1-indexed)
+-   `prevprime(n)`
+-   `nextprime(n)`
+-   `primes(n)` (first `n` primes)
+-   `primes_up_to(n)`
+-   `factorint(n)`
+-   `cache_info()`
+-   `clear_cache()`
+
+### CLI
+
+-   `lookprime info`
+-   `lookprime build`
+-   `lookprime benchmark`
+-   `lookprime isprime <n>`
+-   `lookprime factor <n>`
+-   `lookprime clear-cache`
+
+------------------------------------------------------------------------
+
+## Installation
+
+``` bash
+pip install lookprime
+```
+
+Python ≥ 3.9 required.
+
+------------------------------------------------------------------------
+
+## Quick Start (Python)
+
+``` python
+import lookprime
+
+lookprime.isprime(97)                 # True
+lookprime.primepi(1_000_000)          # 78498
+lookprime.primes_up_to(50)            # [2, 3, 5, 7, 11, ...]
+lookprime.factorint(123456)           # {2: 6, 3: 1, 643: 1}
+```
+
+Bulk checks:
+
+``` python
+lookprime.isprime_many([2, 3, 4, 5, 10**9 + 7])
+```
+
+------------------------------------------------------------------------
+
+## How the Cache Works
+
+-   Sieve files are stored in a platform-appropriate cache directory:
+
+    -   Linux: `~/.cache/lookprime`
+    -   macOS: `~/Library/Caches/lookprime`
+    -   Windows: `%LOCALAPPDATA%\lookprime\Cache`
+
+-   Each sieve is stored as:
+
+        lookprime_mask_<limit>.lpm
+
+-   Files are memory-mapped (`mmap`) and shared across processes
+
+-   Rebuilding happens **only if needed**
+
+To inspect cache state:
+
+``` python
+lookprime.cache_info()
+```
+
+To delete all cached sieves:
+
+``` python
+lookprime.clear_cache()
+```
+
+or from CLI:
+
+``` bash
+lookprime clear-cache
+```
+
+------------------------------------------------------------------------
+
+## CLI Usage
+
+### Show system and cache info
+
+``` bash
+lookprime info
+```
+
+------------------------------------------------------------------------
+
+### Build a sieve explicitly
+
+``` bash
+lookprime build --limit 100000000
+```
+
+------------------------------------------------------------------------
+
+### Benchmark lookup speed
+
+``` bash
+lookprime benchmark
+```
+
+Options:
+
+``` bash
+lookprime benchmark \
+  --limit 100000000 \
+  --duration 1.0 \
+  --iterations 25 \
+  --chunk 65536
+```
+
+Environment override:
+
+``` bash
+export LOOKPRIME_CHUNK=65536
+lookprime benchmark
+```
+
+------------------------------------------------------------------------
+
+### Primality from CLI
+
+``` bash
+lookprime isprime 104729
+```
+
+------------------------------------------------------------------------
+
+### Factor integers from CLI
+
+``` bash
+lookprime factor 123456
+```
+
+------------------------------------------------------------------------
+
+## Performance Notes
+
+-   `isprime(n)` is **O(1)** after cache load
+-   `primepi(n)` uses bitset population count
+-   `prime(n)` and `primes(n)` use fast bit scanning
+-   Cache memory is shared between processes
+-   No Python objects are created per lookup
+
+------------------------------------------------------------------------
+
+## Threading & Multiprocessing
+
+-   The sieve is **read-only**
+-   Safe to open in multiple processes
+-   Each process memory-maps its own view
+-   No locks required
+
+------------------------------------------------------------------------
+
+## License
+
+MIT License.
