@@ -1,0 +1,18 @@
+# Include documentation
+include README.md
+include LICENSE
+include CONTRIBUTING.md
+include requirements.txt
+
+# Include all pattern files
+recursive-include debugbuddy/patterns *.json
+
+# Include all data files
+recursive-include debugbuddy/data *.json *.sql
+
+# Exclude unnecessary files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude .git*
