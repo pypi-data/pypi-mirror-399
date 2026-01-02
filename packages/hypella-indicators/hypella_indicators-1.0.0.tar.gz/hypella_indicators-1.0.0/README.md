@@ -1,0 +1,134 @@
+# Hypella Indicators
+
+Standard library of trading indicators for the Hypella execution platform.
+
+## Installation
+
+```bash
+pip install hypella-indicators
+```
+
+## Structure
+
+Indicators are located in the `hypella_indicators/indicators` directory.
+Each indicator implements the standard interface defined in `hypella_indicators.core`.
+
+## Contributing
+
+We welcome contributions of new indicators! Please follow these guidelines to ensure consistency and quality.
+
+### Adding a New Indicator
+
+1.  **Create the Indicator File**:
+    Create a new file in `hypella_indicators/indicators/` (e.g., `ema.py`).
+
+2.  **Implement the Class**:
+    Inherit from the `Indicator` base class and implement the `calculate` method.
+    ```python
+    from hypella_indicators.core import Indicator, Candle
+    from typing import List
+
+    class EMA(Indicator):
+        def __init__(self, period: int = 8):
+            super().__init__(period=period)
+            self.period = period
+
+        def calculate(self, candles: List[Candle]) -> float:
+            # Implementation here...
+            pass
+    ```
+
+3.  **Register the Indicator**:
+    Add your new class to `hypella_indicators/indicators/__init__.py` to export it.
+
+4.  **Update Registry**:
+    Add the indicator metadata to `hypella_indicators/registry.yaml`. This is used by the Hypella platform to discover available indicators.
+    ```yaml
+    ema:
+      latest: "1.0.0"
+      versions:
+        "1.0.0":
+          class: "hypella_indicators.indicators.ema.EMA"
+          description: "Exponential Moving Average"
+          arguments:
+            period:
+          type: int
+          default: 8
+          description: "Number of periods for EMA calculation"
+    ```
+
+### Versioning & Immutability Policy
+
+To guarantee **strategy reproducibility**, Hypella Indicators follows a strict **Add-Only** policy for breaking changes. Strategies written today must produce the exact same signals 5 years from now.
+
+#### 1. Immutable Logic
+Once an indicator version (e.g., `ema` v1.0.0) is published and used, its calculation logic **MUST NOT** change.
+- **Bug Fixes**: Critical bugs in logic require a **Patch** version (e.g., v1.0.1).
+- **New Features**: New arguments or logic require a **New Version** (e.g., v1.1.0 or v2.0.0).
+
+#### 2. Creating New Versions
+If you need to change the behavior of an indicator:
+1.  **Do NOT edit definitions** of existing released classes.
+2.  **Create a New Class**: e.g., `class EMAv2(Indicator)`.
+3.  **Register New Version**: Add the new version to `registry.yaml` alongside the old one.
+
+**Example `registry.yaml` structure for multi-version support:**
+```yaml
+ema:
+  latest: "2.0.0"
+  versions:
+    "1.0.0":
+      class: "hypella_indicators.indicators.ema.EMA"
+      description: "Standard Exponential Moving Average"
+    "2.0.0":
+      class: "hypella_indicators.indicators.ema_v2.EMAv2"
+      description: "EMA with adjustable smoothing factor"
+      arguments:
+        period: { type: int, default: 14 }
+        smoothing: { type: float, default: 2.0 }
+```
+
+#### 3. Deprecation
+Old versions remain in the codebase indefinitely unless they pose a security risk. They can be marked as `deprecated: true` in the registry to warn developers against using them for new strategies, but existing strategies will continue to function.
+
+### Testing Guidelines
+Every indicator **must** have a corresponding test file in the `tests/` directory.
+
+1.  **Create Test File**:
+    Create `tests/test_<indicator_name>.py` (e.g., `tests/test_ema.py`).
+
+2.  **Use Standard Data**:
+    Use the provided `load_candles` utility to load the standardized test dataset (`tests/data/candles.json`). This dataset contains HYPE 1h candles, with the latest candle starting at 24 Dec 2025 15:00 UTC. This ensures all indicators are tested against the same market conditions.
+
+    ```python
+    from tests.utils import load_candles
+    from hypella_indicators.indicators.ema import EMA
+
+    def test_ema_calculation():
+        candles = load_candles("candles.json")
+        ema = EMA(period=8)
+        result = ema.calculate(candles)
+        
+        # Verify result against known valid value (e.g. from TradingView or known lib)
+        assert round(result, 2) == <EXPECTED_VALUE>
+    ```
+
+3.  **Required Test Cases**:
+    -   **Initialization**: Verify arguments are stored correctly.
+    -   **Insufficient Data**: Ensure it returns `0.0` or handles not enough candles gracefully.
+    -   **Precise Value**: A test asserting the exact value (to 2 decimal places) against the provided dataset.
+
+### Running Tests
+
+Run the test suite using `pytest`:
+
+```bash
+poetry run pytest
+```
+
+### Development Guidelines
+
+-   **Type Hinting**: All methods must be fully type-hinted.
+-   **Pandas/Numpy**: Use vectorized operations where possible for performance.
+-   **Zero Dependencies**: Do not add new external dependencies without prior discussion.
+

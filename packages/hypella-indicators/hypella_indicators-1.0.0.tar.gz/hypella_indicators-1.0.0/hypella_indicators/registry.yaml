@@ -1,0 +1,76 @@
+# Hypella Indicator Registry
+indicators:
+  rsi:
+    latest: "1.0.0"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.rsi.RSI"
+        description: "Relative Strength Index"
+        arguments:
+          period:
+            type: int
+            default: 14
+            description: "Number of periods for RSI calculation"
+  rsi_sma:
+    latest: "1.0.0"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.rsi_sma.RSISMA"
+        description: "Simple Moving Average of RSI"
+        arguments:
+          rsi_period:
+            type: int
+            default: 14
+            description: "RSI Lookback period"
+          sma_period:
+            type: int
+            default: 14
+            description: "Simple Moving Average period"
+  sma:
+    latest: "1.0.0"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.sma.SMA"
+        description: "Simple Moving Average"
+        arguments:
+          period:
+            type: int
+            default: 14
+            description: "Moving Average period"
+  ema:
+    latest: "1.0.0"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.ema.EMA"
+        description: "Exponential Moving Average"
+        arguments:
+          period:
+            type: int
+            default: 14
+            description: "Exponential Moving Average period"
+  volume_sma:
+    latest: "1.0.0"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.volume_sma.VolumeSMA"
+        description: "Simple Moving Average of Volume"
+        arguments:
+          period:
+            type: int
+            default: 14
+            description: "Volume SMA period"
+  bb:
+    latest: "1.0.0"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.bb.BollingerBands"
+        description: "Bollinger Bands"
+        arguments:
+          period:
+            type: int
+            default: 20
+            description: "Bollinger Bands period"
+          std_dev:
+            type: float
+            default: 2.0
+            description: "Standard Deviation Multiplier"
