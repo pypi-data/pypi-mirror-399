@@ -1,0 +1,35 @@
+id = "decoder"
+name = "Decoder"
+description = "Mistral's open-source coding assistant"
+version = "1.3.3"
+schema_version = 1
+authors = ["Mistral AI"]
+repository = "https://github.com/mistralai/decoder"
+
+[agent_servers.decoder]
+name = "Decoder"
+icon = "./icons/mistral_vibe.svg"
+
+[agent_servers.decoder.targets.darwin-aarch64]
+archive = "https://github.com/mistralai/decoder/releases/download/v1.3.3/decoder-acp-darwin-aarch64-1.3.3.zip"
+cmd = "./decoder-acp"
+
+[agent_servers.decoder.targets.darwin-x86_64]
+archive = "https://github.com/mistralai/decoder/releases/download/v1.3.3/decoder-acp-darwin-x86_64-1.3.3.zip"
+cmd = "./decoder-acp"
+
+[agent_servers.decoder.targets.linux-aarch64]
+archive = "https://github.com/mistralai/decoder/releases/download/v1.3.3/decoder-acp-linux-aarch64-1.3.3.zip"
+cmd = "./decoder-acp"
+
+[agent_servers.decoder.targets.linux-x86_64]
+archive = "https://github.com/mistralai/decoder/releases/download/v1.3.3/decoder-acp-linux-x86_64-1.3.3.zip"
+cmd = "./decoder-acp"
+
+[agent_servers.decoder.targets.windows-aarch64]
+archive = "https://github.com/mistralai/decoder/releases/download/v1.3.3/decoder-acp-windows-aarch64-1.3.3.zip"
+cmd = "./decoder-acp.exe"
+
+[agent_servers.decoder.targets.windows-x86_64]
+archive = "https://github.com/mistralai/decoder/releases/download/v1.3.3/decoder-acp-windows-x86_64-1.3.3.zip"
+cmd = "./decoder-acp.exe"
