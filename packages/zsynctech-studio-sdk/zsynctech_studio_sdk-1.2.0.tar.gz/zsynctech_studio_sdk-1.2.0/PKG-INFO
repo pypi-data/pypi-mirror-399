@@ -1,0 +1,443 @@
+Metadata-Version: 2.3
+Name: zsynctech-studio-sdk
+Version: 1.2.0
+Summary: SDK Python para criação de robôs de automação com integração completa à plataforma ZSyncTech
+Author: rodrigozavan
+Author-email: rodrigozavan <rodrigozavan104@gmail.com>
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: uuid7>=0.1.0
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: uvicorn>=0.32.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: cryptography>=43.0.0
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+
+# ZSyncTech Studio SDK
+
+SDK Python para criação de robôs de automação com integração completa à plataforma ZSyncTech.
+
+## O que é o ZSyncTech Studio SDK?
+
+O ZSyncTech Studio SDK é uma biblioteca Python desenvolvida para facilitar a criação de robôs de automação que se integram perfeitamente com a plataforma ZSyncTech. Ele fornece uma estrutura padronizada para organizar seu código em execuções, tarefas e passos, permitindo monitoramento em tempo real, tratamento de erros e rastreabilidade completa de cada operação.
+
+Com o SDK, você pode transformar qualquer script Python em um robô de automação profissional, com logs estruturados, métricas de desempenho e integração com a plataforma de gerenciamento.
+
+## Funcionalidades Principais
+
+### Decorators Intuitivos
+Use `@execution`, `@task` e `@step` para estruturar seu código de forma clara e organizada. Cada decorator adiciona automaticamente monitoramento, logging e integração com a plataforma sem necessidade de código adicional.
+
+### Monitoramento em Tempo Real
+Acompanhe o progresso das suas execuções diretamente na plataforma ZSyncTech. Veja em tempo real quantas tarefas foram processadas, quais estão em andamento e identifique rapidamente problemas quando ocorrem.
+
+### Tratamento Inteligente de Exceções
+Mapeie exceções específicas para status personalizados da plataforma. Por exemplo, configure para que uma exceção `OutOfHoursError` finalize a execução com status `OUT_OF_OPERATING_HOURS` ao invés de um erro genérico.
+
+### Deploy Simplificado
+Transforme seu robô em um serviço FastAPI que aguarda comandos da plataforma com apenas uma chamada de método. O SDK gerencia toda a comunicação HTTP, autenticação e sincronização de status automaticamente.
+
+### Gerenciamento de Credenciais
+Receba credenciais criptografadas da plataforma e descriptografe-as automaticamente usando AES-256-GCM. Suporte completo para diferentes tipos de entrada/saída (FTP, API, QUEUE).
+
+### Contexto Global Thread-Safe
+Acesse informações da execução, tarefa ou passo atual de qualquer lugar do seu código através de funções auxiliares como `get_execution()`, `get_task()` e `get_step()`.
+
+### Atualização Dinâmica de Metadados
+Atualize descrições, observações e outros campos de execuções, tarefas e passos em tempo real durante a execução usando as funções `update_execution()`, `update_task()` e `update_step()`.
+
+## Instalação
+
+```bash
+pip install zsynctech-studio-sdk
+```
+
+Ou usando uv:
+
+```bash
+uv add zsynctech-studio-sdk
+```
+
+## Exemplo Rápido
+
+```python
+from zsynctech_studio_sdk import execution, task, step, set_total_tasks
+
+@step(code="STEP-001")
+def processar_dados():
+    # Sua lógica aqui
+    print("Processando dados...")
+
+@task
+def minha_tarefa():
+    processar_dados()
+
+@execution
+def minha_execucao():
+    set_total_tasks(10)
+
+    for i in range(10):
+        minha_tarefa()
+
+if __name__ == "__main__":
+    minha_execucao()
+```
+
+## Deploy para Plataforma
+
+Para integrar com a plataforma ZSyncTech:
+
+```python
+from zsynctech_studio_sdk import execution, task, step, set_total_tasks, ExecutionStatus
+
+class OutOfHoursError(Exception):
+    pass
+
+@step(code="STEP-001")
+def passo_um():
+    print("Executando passo 1")
+
+@task
+def processar_item():
+    passo_um()
+
+@execution(
+    exception_handlers={
+        KeyboardInterrupt: ExecutionStatus.INTERRUPTED,
+        OutOfHoursError: ExecutionStatus.OUT_OF_OPERATING_HOURS
+    }
+)
+def meu_robo():
+    set_total_tasks(10)
+
+    for _ in range(10):
+        processar_item()
+
+if __name__ == "__main__":
+    meu_robo.deploy(
+        instance_id="seu-instance-id",
+        secret_key="sua-secret-key",
+        server="https://api.zsynctech.com",
+        port=8080,
+        encryption_key="sua-chave-hex-de-criptografia"
+    )
+```
+
+## Estrutura Hierárquica
+
+O SDK segue uma hierarquia de três níveis que reflete a estrutura típica de um processo de automação:
+
+```
+Execution
+├── Task 1
+│   ├── Step 1
+│   ├── Step 2
+│   └── Step 3
+├── Task 2
+│   ├── Step 1
+│   └── Step 2
+└── Task 3
+    └── Step 1
+```
+
+### Execution (Execução)
+Representa uma execução completa do robô. É o nível mais alto da hierarquia e engloba todo o processamento. Uma execução pode conter múltiplas tasks e mantém métricas gerais como total de tarefas, tarefas concluídas e tempo de execução.
+
+**Exemplo:** "Processamento diário de notas fiscais"
+
+### Task (Tarefa)
+Representa uma unidade de trabalho dentro da execução. Geralmente corresponde ao processamento de um item individual. Tasks podem ser configuradas com código personalizado e mantêm métricas dos steps executados.
+
+**Exemplo:** "Processar nota fiscal #12345"
+
+### Step (Passo)
+Representa uma ação atômica dentro de uma task. É o nível mais granular e permite rastreamento detalhado de cada operação realizada. Steps são úteis para identificar exatamente onde um erro ocorreu.
+
+**Exemplo:** "Preencher campo CNPJ", "Clicar no botão Salvar"
+
+## Funcionalidades Avançadas
+
+### Parâmetros de Execução
+
+Acesse parâmetros enviados pela plataforma durante a execução:
+
+```python
+from zsynctech_studio_sdk import execution, get_execution_parameters
+
+@execution
+def meu_robo():
+    params = get_execution_parameters()
+
+    if params:
+        print(f"Cliente: {params.clientId}")
+        print(f"Caminho de entrada: {params.inputPath}")
+        print(f"Caminho de saída: {params.outputPath}")
+
+        # Acessar credenciais descriptografadas
+        username = params.get_credential("username")
+        password = params.get_credential("password")
+```
+
+### Atualização Dinâmica de Metadados
+
+Atualize informações da execução, tarefa ou passo em tempo real:
+
+```python
+from zsynctech_studio_sdk import execution, task, step
+from zsynctech_studio_sdk import get_execution, update_execution
+from zsynctech_studio_sdk import get_task, update_task
+from zsynctech_studio_sdk import get_step, update_step
+
+@step(code="STEP-001")
+def processar_arquivo():
+    # Atualizar observação do passo atual
+    step = get_step()
+    step.observation = "Conectando ao servidor FTP..."
+    update_step(step)
+
+    # Sua lógica aqui
+
+@task
+def processar_nota():
+    # Atualizar descrição e observação da tarefa
+    task = get_task()
+    task.description = "Processando nota fiscal 12345"
+    task.observation = "50 itens encontrados"
+    update_task(task)
+
+    processar_arquivo()
+
+@execution
+def minha_execucao():
+    # Atualizar observação da execução
+    execution = get_execution()
+    execution.observation = "Processando dados do cliente XYZ"
+    update_execution(execution)
+
+    processar_nota()
+```
+
+### Códigos Dinâmicos em Tasks
+
+Defina códigos personalizados para tasks em tempo de execução:
+
+```python
+from zsynctech_studio_sdk import execution, task, set_total_tasks
+
+@task
+def processar_nota():
+    print("Processando nota fiscal...")
+
+@execution
+def meu_robo():
+    notas = ["NF-001", "NF-002", "NF-003"]
+    set_total_tasks(len(notas))
+
+    for nota_id in notas:
+        # Passar código dinâmico para a task
+        processar_nota(task_code=nota_id)
+```
+
+### Gerenciamento de Credenciais Criptografadas
+
+Trabalhe com credenciais criptografadas de forma segura:
+
+```python
+from zsynctech_studio_sdk import execution, get_execution_parameters
+
+@execution
+def meu_robo():
+    params = get_execution_parameters()
+
+    # As credenciais são descriptografadas automaticamente
+    username = params.get_credential("username")
+    password = params.get_credential("password")
+    api_key = params.get_credential("api_key")
+
+    # Use as credenciais de forma segura
+    conectar_ao_servico(username, password, api_key)
+```
+
+### Status de Execução Personalizados
+
+Todos os status disponíveis:
+
+```python
+from zsynctech_studio_sdk import ExecutionStatus
+
+# Status disponíveis:
+ExecutionStatus.WAITING              # Aguardando início
+ExecutionStatus.RUNNING              # Em execução
+ExecutionStatus.FINISHED             # Finalizada com sucesso
+ExecutionStatus.ERROR                # Erro durante execução
+ExecutionStatus.SCHEDULED            # Agendada
+ExecutionStatus.INTERRUPTED          # Interrompida
+ExecutionStatus.OUT_OF_OPERATING_HOURS  # Fora do horário de operação
+```
+
+### Controle de Logs
+
+Configure a exibição de logs:
+
+```python
+from zsynctech_studio_sdk import execution
+
+# Desabilitar logs no console
+@execution(show_logs=False)
+def meu_robo_silencioso():
+    # Logs não serão exibidos no console
+    # mas ainda serão enviados para a plataforma
+    pass
+
+# Habilitar logs (padrão)
+@execution(show_logs=True)
+def meu_robo_com_logs():
+    # Logs serão exibidos no console em tempo real
+    pass
+```
+
+### Total de Tasks Pré-definido
+
+Defina o total de tasks no decorator ou dinamicamente:
+
+```python
+from zsynctech_studio_sdk import execution, task, set_total_tasks
+
+# Opção 1: Definir no decorator
+@execution(total_tasks=100)
+def meu_robo_fixo():
+    for i in range(100):
+        processar_item()
+
+# Opção 2: Definir dinamicamente
+@execution
+def meu_robo_dinamico():
+    items = carregar_dados()
+    set_total_tasks(len(items))
+
+    for item in items:
+        processar_item()
+```
+
+## API Reference
+
+### Decorators
+
+#### `@execution`
+Marca uma função como execução principal.
+
+**Parâmetros:**
+- `show_logs` (bool): Exibir logs no console (padrão: True)
+- `total_tasks` (Optional[int]): Total de tarefas a processar
+- `exception_handlers` (Optional[dict]): Mapeamento de exceções para status
+
+**Métodos:**
+- `deploy()`: Inicia o robô como serviço FastAPI
+
+#### `@task`
+Marca uma função como tarefa.
+
+**Parâmetros de runtime:**
+- `task_code` (str): Código personalizado para a tarefa (passado como argumento)
+
+#### `@step`
+Marca uma função como passo.
+
+**Parâmetros:**
+- `code` (Optional[str]): Código identificador do passo
+
+### Funções Auxiliares
+
+#### `set_total_tasks(total: int)`
+Define o total de tarefas da execução atual.
+
+#### `get_execution_parameters() -> ExecutionParameters`
+Retorna os parâmetros da execução atual enviados pela plataforma.
+
+#### `get_execution() -> ExecutionModel`
+Retorna o modelo da execução atual.
+
+#### `update_execution(execution: ExecutionModel)`
+Atualiza a execução atual com campos modificados.
+
+#### `get_task() -> TaskModel`
+Retorna o modelo da tarefa atual.
+
+#### `update_task(task: TaskModel)`
+Atualiza a tarefa atual com campos modificados.
+
+#### `get_step() -> StepModel`
+Retorna o modelo do passo atual.
+
+#### `update_step(step: StepModel)`
+Atualiza o passo atual com campos modificados.
+
+### Models
+
+#### `ExecutionParameters`
+Parâmetros recebidos da plataforma.
+
+**Atributos principais:**
+- `instanceId` (str): ID da instância
+- `executionId` (str): ID da execução
+- `clientId` (Optional[str]): ID do cliente
+- `inputPath` (Optional[str]): Caminho de entrada
+- `outputPath` (Optional[str]): Caminho de saída
+- `credentials` (Optional[List[Credential]]): Lista de credenciais
+
+**Métodos:**
+- `get_credential(key: str) -> Optional[str]`: Obtém credencial por chave (descriptografa automaticamente)
+
+#### `Credential`
+Representa uma credencial.
+
+**Atributos:**
+- `key` (str): Chave da credencial
+- `value` (str): Valor (pode estar criptografado)
+- `encrypted` (bool): Indica se está criptografado
+
+#### `InputOutputTypes`
+Tipos de entrada/saída suportados.
+
+**Valores:**
+- `FTP`: Transferência via FTP
+- `API`: Integração via API
+- `QUEUE`: Fila de mensagens
+
+### Enums
+
+#### `ExecutionStatus`
+Status possíveis para execuções.
+
+#### `TaskStatus`
+Status possíveis para tarefas.
+
+#### `StepStatus`
+Status possíveis para passos.
+
+### Utilitários
+
+#### `decrypt(ciphertext: str, encryption_key: str) -> str`
+Descriptografa texto usando AES-256-GCM.
+
+**Parâmetros:**
+- `ciphertext` (str): Texto criptografado em Base64
+- `encryption_key` (str): Chave de criptografia em hexadecimal
+
+**Retorna:**
+- `str`: Texto descriptografado
+
+## Requisitos
+
+- Python >= 3.13
+- pydantic >= 2.0.0
+- uuid7 >= 0.1.0
+- fastapi >= 0.115.0
+- uvicorn >= 0.32.0
+- httpx >= 0.27.0
+- cryptography >= 43.0.0
+
+
+## Suporte
+
+Para suporte, entre em contato através de contato@zsynctech.com.
