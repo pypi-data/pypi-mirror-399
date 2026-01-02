@@ -1,0 +1,260 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install PDM
+        run: |
+          pip install --upgrade pip
+          pip install pdm
+
+      - name: Install dependencies
+        run: |
+          pdm install -G dev
+
+      - name: Run Ruff linter
+        run: |
+          pdm run ruff check iltero/ tests/
+        continue-on-error: false
+
+      - name: Run Ruff formatter check
+        run: |
+          pdm run ruff format --check iltero/ tests/
+        continue-on-error: false
+
+      - name: Run MyPy type checker
+        run: |
+          pdm run mypy iltero/
+        continue-on-error: true  # Type checking can be strict, warn but don't fail
+
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install PDM
+        run: |
+          pip install --upgrade pip
+          pip install pdm
+
+      - name: Install dependencies
+        run: |
+          pdm install
+
+      - name: Run Bandit security scanner
+        run: |
+          pip install bandit[toml]
+          bandit -r iltero/ -f json -o bandit-report.json || true
+          bandit -r iltero/ -f screen
+        continue-on-error: true
+
+      - name: Upload Bandit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-security-report
+          path: bandit-report.json
+          retention-days: 30
+
+      - name: Run Safety check for dependencies
+        run: |
+          pip install safety
+          safety check --json || true
+          safety check
+        continue-on-error: true
+
+      - name: Run pip-audit for dependency vulnerabilities
+        run: |
+          pip install pip-audit
+          pip-audit --format json --output pip-audit-report.json || true
+          pip-audit
+        continue-on-error: true
+
+      - name: Upload pip-audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-report
+          path: pip-audit-report.json
+          retention-days: 30
+
+  test:
+    name: Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install PDM
+        run: |
+          pip install --upgrade pip
+          pip install pdm
+
+      - name: Install dependencies
+        run: |
+          pdm install -G dev
+
+      - name: Run unit tests
+        run: |
+          pdm run pytest tests/unit/ -v --cov=iltero --cov-report=xml --cov-report=term
+
+      - name: Run integration tests
+        run: |
+          pdm run pytest tests/integration/ -v --cov=iltero --cov-append --cov-report=xml --cov-report=term
+        continue-on-error: true  # Integration tests might fail without backend
+
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: coverage.xml
+          retention-days: 30
+
+  build:
+    name: Build Package
+    runs-on: ubuntu-latest
+    needs: [code-quality, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install PDM
+        run: |
+          pip install --upgrade pip
+          pip install pdm
+
+      - name: Install dependencies
+        run: |
+          pdm install
+
+      - name: Build package
+        run: |
+          pdm build
+
+      - name: Check package
+        run: |
+          pip install twine
+          twine check dist/*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-packages
+          path: dist/
+          retention-days: 30
+
+      - name: Test package installation
+        run: |
+          python -m venv test_env
+          source test_env/bin/activate
+          pip install dist/*.whl
+          iltero --version
+          iltero --help
+          deactivate
+          rm -rf test_env
+
+  lint-docs:
+    name: Lint Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint Markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v18
+        with:
+          globs: |
+            **/*.md
+            !**/node_modules/**
+            !**/.venv/**
+            !**/htmlcov/**
+        continue-on-error: true
+
+      - name: Check links in documentation
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'no'
+          config-file: '.github/markdown-link-check-config.json'
+        continue-on-error: true
+
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [code-quality, security, test, build, lint-docs]
+    if: always()
+    steps:
+      - name: Check CI status
+        run: |
+          echo "Code Quality: ${{ needs.code-quality.result }}"
+          echo "Security: ${{ needs.security.result }}"
+          echo "Tests: ${{ needs.test.result }}"
+          echo "Build: ${{ needs.build.result }}"
+          echo "Docs Lint: ${{ needs.lint-docs.result }}"
+          
+          if [[ "${{ needs.code-quality.result }}" == "failure" ]] || \
+             [[ "${{ needs.test.result }}" == "failure" ]] || \
+             [[ "${{ needs.build.result }}" == "failure" ]]; then
+            echo "❌ CI failed"
+            exit 1
+          else
+            echo "✅ CI passed"
+          fi
