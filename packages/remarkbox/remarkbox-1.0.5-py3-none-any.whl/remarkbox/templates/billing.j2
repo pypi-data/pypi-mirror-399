@@ -1,0 +1,57 @@
+{% extends request.base_funnel_template -%}
+
+{% block title %}{{ the_title }} | {{ request.domain }}{%- endblock -%}
+{% block content -%}
+
+<center>
+<h4>{{ the_title }}</h4>
+<p>Support Remarkbox with a contribution.</p>
+
+<form method="post" action="/billing/checkout" style="display: inline;">
+    <input type="hidden" name="payment_type" value="pay_what_you_want">
+    <input type="hidden" name="duration_months" value="0">
+    {% include 'snippets/csrf.j2' %}
+    $<input type="text" name="amount" placeholder="10" required style="width: 60px; text-align: center;">
+    <button type="submit" class="green-button">Pay with Stripe</button>
+</form>
+</center>
+
+<br>
+
+{# Payment History #}
+{% if payments %}
+<fieldset>
+    <legend>Payment History</legend>
+    <table style="width: 100%;">
+        <thead>
+            <tr>
+                <th style="text-align: left;">Date</th>
+                <th style="text-align: left;">Type</th>
+                <th style="text-align: right;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.human_created_date }}</td>
+                <td>{{ payment.payment_type | replace("_", " ") | title }}</td>
+                <td style="text-align: right;">${{ "%.2f" | format(payment.amount_dollars) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</fieldset>
+<br>
+{% endif %}
+
+<center>
+<p>
+    <small>
+        Payments are securely processed by <a href="https://stripe.com" target="_blank">Stripe</a>.
+        <br>
+        Or PayPal <a href="https://www.paypal.me/russellbal/" target="_blank">@russellbal</a>
+    </small>
+</p>
+</center>
+
+{%- endblock -%}
