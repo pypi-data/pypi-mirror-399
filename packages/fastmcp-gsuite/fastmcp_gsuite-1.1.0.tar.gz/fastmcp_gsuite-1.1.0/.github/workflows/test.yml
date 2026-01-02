@@ -1,0 +1,61 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv venv
+          uv sync --dev
+          uv pip install pytest-cov
+
+      - name: Lint with ruff
+        run: |
+          uv run ruff check .
+
+      - name: Type check with mypy
+        run: |
+          uv run mypy .
+
+      - name: Test with pytest (excluding e2e tests)
+        run: |
+          uv run pytest --ignore=tests/e2e --cov=src --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # E2E tests are not executed in CI environments
+  # This is for the following reasons:
+  # 1. E2E tests require actual Google account credentials
+  # 2. MCP tests require real account connections and communication
+  # 3. Test environments need secret information via environment variables
+  #
+  # Run E2E tests in the local environment as follows:
+  #   - Standard E2E tests: dotenvx run -f .env.local -- uv run make e2e-tests
+  #   - MCP-based E2E tests: dotenvx run -f .env.local -- uv run make mcp-e2e-tests
