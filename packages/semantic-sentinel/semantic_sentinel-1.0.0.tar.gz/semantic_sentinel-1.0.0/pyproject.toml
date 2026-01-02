@@ -1,0 +1,108 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "semantic-sentinel"
+version = "1.0.0"
+description = "Enterprise-grade Security Framework for LLMs"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+  {name = "Avdhesh Singh Chouhan", email = "ai.avdhesh@gmail.com"},
+]
+keywords = ["security", "llm", "guardrails", "pii", "injection", "firewall", "ai"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+dependencies = [
+    # Core - Lightweight
+    "pydantic>=2.9.2",
+    "pyyaml>=6.0",
+    "sentence-transformers",
+    "scikit-learn",
+    "presidio-analyzer",
+    "presidio-anonymizer",
+    "spacy",
+]
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.31.1",
+    "httpx>=0.27.2",
+    "python-dotenv>=1.0.1"
+]
+openai = [
+    "openai>=1.0.0"
+]
+llamaindex = [
+    "llama-index-core>=0.10.0"
+]
+langchain = [
+    "langchain-core>=0.3.0"
+]
+plugins = [
+    "guardrails-ai",
+    "langkit",
+    "whylogs[langkit]",
+    "detoxify"
+]
+integrations = [
+    "openai>=1.0.0",
+    "llama-index-core>=0.10.0",
+    "langchain-core>=0.3.0"
+]
+all = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.31.1",
+    "httpx>=0.27.2",
+    "python-dotenv>=1.0.1",
+    "openai>=1.0.0",
+    "llama-index-core>=0.10.0",
+    "langchain-core>=0.3.0",
+    "guardrails-ai",
+    "langkit",
+    "whylogs[langkit]",
+    "detoxify"
+]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
+    "mypy"
+]
+
+[project.urls]
+Homepage = "https://github.com/rarenicks/semantic-sentinel"
+Documentation = "https://github.com/rarenicks/semantic-sentinel/tree/main/docs"
+Repository = "https://github.com/rarenicks/semantic-sentinel"
+Issues = "https://github.com/rarenicks/semantic-sentinel/issues"
+Changelog = "https://github.com/rarenicks/semantic-sentinel/blob/main/CHANGELOG.md"
+
+[project.scripts]
+sentinel = "sentinel.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["sentinel"]
+
+
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = []
+
+[tool.mypy]
+strict = false
+ignore_missing_imports = true
