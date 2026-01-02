@@ -1,0 +1,80 @@
+# VVUQ Client SDK
+
+The official Python client for the **VVUQ (Verification, Validation & Uncertainty Quantification)** API.
+
+## Installation
+
+```bash
+pip install vvuq-client
+```
+
+## Usage
+
+```python
+from vvuq import VVUQClient
+
+# Initialize with your API Key
+client = VVUQClient(api_key="your_api_key_here")
+
+# 1. Create a Contract
+receipt = client.create_contract(
+    title="Mathlib Verification",
+    description="Verify algebraic identity",
+    claims=[{
+        "theorem": "theorem test : 1 + 1 = 2",
+        "allowed_imports": ["Mathlib.Data.Nat.Basic"]
+    }],
+    issuer_id="my_agent"
+)
+
+print(f"Contract Created: {receipt.contract_id}")
+
+# 2. Submit a Proof
+result = client.submit_proof(
+    contract_id=receipt.contract_id,
+    proof_code="theorem test : 1 + 1 = 2 := by rfl",
+    prover_id="my_prover"
+)
+
+if result.verdict == "ACCEPTED":
+    print("✅ Proof Verified!")
+else:
+    print(f"❌ Failed: {result.errors}")
+```
+
+## 🔑 Getting Access
+
+VVUQ is currently in **Private Beta**.
+To obtain an API key, please contact: **englund@mit.edu**
+
+## Configuration
+
+To use the production API, set your environment variables:
+
+```bash
+export VVUQ_API_KEY="your_received_key"
+export VVUQ_API_URL="https://vvuq.dirkenglund.org"
+```
+
+## MCP Access (Thin Proxy)
+
+This SDK includes an MCP Server proxy (`vvuq-access`) that allows AI agents (like Claude) to verify proofs on a remote VVUQ node without needing the server source code.
+
+### Usage with Claude Desktop
+
+Add this to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "vvuq": {
+      "command": "uvx",
+      "args": ["vvuq-access"],
+      "env": {
+        "VVUQ_API_URL": "https://vvuq.dirkenglund.org",
+        "VVUQ_API_KEY": "<YOUR_API_KEY>"
+      }
+    }
+  }
+}
+```

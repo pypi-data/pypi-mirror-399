@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vvuq-client"
+version = "0.2.0"
+description = "Official Client SDK for the VVUQ Verification API"
+authors = [{ name = "Dirk Englund", email = "englund@mit.edu" }]
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["requests>=2.28.0", "fastmcp>=2.0.0", "pydantic>=2.0.0"]
+
+[project.scripts]
+vvuq-access = "vvuq.mcp_server:main"
+
+[project.urls]
+Homepage = "https://github.com/dirkenglund/vvuq-mcp"
+Documentation = "https://github.com/dirkenglund/vvuq-mcp#readme"
+
+[tool.setuptools.packages.find]
+where = ["src"]
