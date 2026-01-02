@@ -1,0 +1,112 @@
+Metadata-Version: 2.4
+Name: ai-pose-generator
+Version: 1766998.511.454
+Summary: High-quality integration for https://supermaker.ai/image/ai-pose-generator/
+Home-page: https://supermaker.ai/image/ai-pose-generator/
+Author: SuperMaker
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+Dynamic: summary
+
+# ai-pose-generator
+
+The `ai-pose-generator` package provides a streamlined interface for interacting with and demonstrating the capabilities of the AI pose generation service. It offers a simplified way to create various poses using the Supermaker AI platform.
+
+## Installation
+
+To install the `ai-pose-generator` package, use pip:
+bash
+pip install ai-pose-generator
+
+## Basic Usage
+
+Here are some examples demonstrating how to use the `ai-pose-generator` package:
+
+**1. Generating a Basic Standing Pose:**
+
+This example demonstrates how to generate a simple standing pose with default parameters.
+python
+from ai_pose_generator import PoseGenerator
+
+pose_gen = PoseGenerator()
+image_path = pose_gen.generate_pose(pose_type="standing")
+
+print(f"Generated image saved to: {image_path}")
+
+**2. Generating a Sitting Pose with Custom Parameters:**
+
+This example shows how to customize the generated pose, specifying a sitting position and adjusting other parameters.
+python
+from ai_pose_generator import PoseGenerator
+
+pose_gen = PoseGenerator()
+image_path = pose_gen.generate_pose(
+    pose_type="sitting",
+    style="realistic",
+    background_color="white"
+)
+
+print(f"Generated image saved to: {image_path}")
+
+**3. Generating a Yoga Pose:**
+
+This example demonstrates generating a more complex pose, such as a yoga pose, and saving the resulting image.
+python
+from ai_pose_generator import PoseGenerator
+
+pose_gen = PoseGenerator()
+image_path = pose_gen.generate_pose(pose_type="yoga", yoga_pose="tree_pose")
+
+print(f"Generated image saved to: {image_path}")
+
+**4. Generating a Running Pose with a Specific Background:**
+
+This example shows how to specify a particular background for the generated pose.
+python
+from ai_pose_generator import PoseGenerator
+
+pose_gen = PoseGenerator()
+image_path = pose_gen.generate_pose(
+    pose_type="running",
+    background_image="path/to/your/background.jpg"
+)
+
+print(f"Generated image saved to: {image_path}")
+
+**5. Generating a Custom Pose Description:**
+
+This example utilizes a textual description to generate a pose. This requires a more advanced integration with Supermaker AI's API, which is simplified by this package.
+python
+from ai_pose_generator import PoseGenerator
+
+pose_gen = PoseGenerator()
+image_path = pose_gen.generate_pose(
+    pose_description="A person meditating in a peaceful garden."
+)
+
+print(f"Generated image saved to: {image_path}")
+
+## Features
+
+*   **Simplified Pose Generation:** Easily generate various poses with a single function call.
+*   **Pose Type Selection:** Choose from a range of predefined pose types like standing, sitting, yoga, and running.
+*   **Customizable Parameters:** Adjust style, background color, and other parameters to fine-tune the generated pose.
+*   **Background Image Integration:** Incorporate custom background images into the generated poses.
+*   **Descriptive Pose Generation:** Generate poses based on textual descriptions.
+*   **Seamless Supermaker AI Integration:** Designed to work smoothly with the Supermaker AI platform.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+This project is a gateway to the ai-pose-generator ecosystem. For advanced features and full capabilities, please visit: https://supermaker.ai/image/ai-pose-generator/
