@@ -1,0 +1,156 @@
+[build-system]
+requires = ['setuptools >= 77.0.3']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'ase'
+description='Atomic Simulation Environment'
+dynamic = ['version']
+readme = 'README.rst'
+license = 'LGPL-2.1-or-later'
+license-files = ['LICENSE']
+maintainers = [{ name = 'ASE Community', email = 'ase-users@listserv.fysik.dtu.dk' }]
+classifiers = [
+    'Development Status :: 6 - Mature',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Intended Audience :: Science/Research',
+    'Topic :: Scientific/Engineering :: Physics'
+]
+
+# We should normally require the oldest Python that's not at end-of-life:
+requires-python = '>=3.10'
+
+# Dependencies should normally be oldest-ish possible versions which have
+# wheels for the required Python version:
+dependencies = [
+    'numpy>=1.21.6',  # April 2022
+    'scipy>=1.8.1',  # May 2022
+    'matplotlib>=3.5.2'  # May 2022
+]
+
+[project.urls]
+Homepage = 'https://ase-lib.org/'
+Repository = 'https://gitlab.com/ase/ase.git'
+Issues = 'https://gitlab.com/ase/ase/issues/'
+
+[project.scripts]
+ase = 'ase.cli.main:main'
+
+[project.optional-dependencies]
+docs = ['sphinx', 'sphinx_book_theme', 'sphinx-gallery', 'pillow']
+test = ['pytest>=7.4.0', 'pytest-xdist>=3.2.0']  # summer 2023
+spglib = ['spglib>=1.9']
+lint = ['mypy', 'ruff', 'types-docutils', 'types-PyMySQL']
+
+[tool.setuptools.package-data]
+ase = [
+    'spacegroup/spacegroup.dat',
+    'collections/*.json',
+    'db/templates/*',
+    'db/static/*',
+    'py.typed',
+    'test/pytest.ini',
+    'test/testdata/**',
+]
+
+[tool.setuptools.dynamic]
+version = {attr = 'ase.__version__'}
+
+[tool.pytest.ini_options]
+testpaths = ['ase/test']
+markers = [
+    'calculator: parametrizes calculator tests with calculator factories',
+    'calculator_lite: for calculator tests; include in calculators-lite job',
+    'optimize: tests of optimizers',
+    'slow: test takes longer than a few seconds',
+]
+
+filterwarnings = [
+    'error',
+    'once::ResourceWarning',
+    'ignore:.*size changed, may indicate binary incompatibility',
+    'ignore::ase.config.ASEEnvDeprecationWarning',
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+no_implicit_optional = false
+enable_error_code = 'ignore-without-code'
+
+[tool.coverage.run]
+source = ['ase']
+patch = ['subprocess']
+
+[tool.coverage.report]
+precision = 2
+omit = [
+    'ase/test/*',
+    'ase/utils/sphinx.py',
+    'ase/utils/build_web_page.py',
+    'ase/utils/newrelease.py',
+]
+exclude_also = [
+    'if TYPE_CHECKING:',
+    'if __name__ == .__main__.:'
+]
+
+[tool.coverage.html]
+directory = 'coverage-html'
+
+[tool.ruff]
+line-length = 80
+exclude = ['./build/', './dist', './doc/build']
+src = ['ase', 'doc']
+
+[tool.ruff.format]
+quote-style = 'single'
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+preview = true  # necessary to activate many pycodestyle rules
+select = [
+    'F',  # Pyflakes
+    'E',  # pycodestyle
+    'W',  # pycodestyle
+    'I',  # isort
+    'UP', # pyupgrade
+]
+ignore = [
+    'E741',  # ambiguous-variable-name
+    'W505',  # doc-line-too-long
+]
+
+[tool.ruff.lint.per-file-ignores]
+"!doc/tutorials/**.py" = ["UP"]  # Only pyupgrade tutorials (for now)
+"examples/tutorials/*.py" = ["E402"]
+"examples/gettingstarted/*.py" = ["E402"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 80
+max-doc-length = 80
+
+[tool.ruff.lint.pydocstyle]
+convention = 'numpy'
+
+[tool.ruff.lint.isort]
+known-first-party = ['ase']
+
+[tool.scriv]
+output_file = 'doc/changelog.rst'
+insert_marker = 'scriv-auto-changelog-start'
+end_marker = 'scriv-auto-changelog-end'
+categories = [
+    'I/O',
+    'Calculators',
+    'Optimizers',
+    'Molecular dynamics',
+    'GUI',
+    'Development',
+    'Documentation',
+    'Other changes',
+    'Bugfixes'
+]
