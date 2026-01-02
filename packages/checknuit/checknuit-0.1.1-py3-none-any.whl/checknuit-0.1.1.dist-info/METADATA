@@ -1,0 +1,106 @@
+Metadata-Version: 2.4
+Name: checknuit
+Version: 0.1.1
+Summary: Lib for checking nuit validity, and return nuit data
+Author: yannickRafael
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.31
+Requires-Dist: python-dotenv>=1.0
+Requires-Dist: beautifulsoup4
+
+# checknuit
+
+Python helper for validating a Mozambican NUIT
+(`Número Único de Identificação Tributária`) by mirroring the public POST
+request that the tax portal (`nuit.at.gov.mz`) performs. The HTML response is
+parsed with BeautifulSoup and summarized into a tiny Python dictionary that is
+easy to consume from scripts, CLIs, and backend jobs.
+
+> ⚠️ **Heads-up:** calls are forwarded to the official website. Be gentle, adopt
+> backoffs, and only resolve NUITs that you are authorized to query.
+
+## Features
+
+- Keeps an up-to-date copy of the Firefox POST payload the portal expects.
+- Returns a deterministic dictionary (`is_valid`, optionally `nuit` and `name`).
+- Raises a descriptive `RuntimeError` for transport issues.
+- Pure Python, works anywhere `requests` + `beautifulsoup4` can run.
+
+## Installation
+
+```bash
+pip install checknuit
+```
+
+Python 3.9 or newer is required.
+
+## Quick start
+
+```python
+from checknuit import check_nuit
+
+result = check_nuit("123456789")
+
+if result["is_valid"]:
+    print(f"NUIT {result['nuit']} belongs to {result['name']}")
+else:
+    print("Invalid NUIT or lookup failed")
+```
+
+### Response format
+
+`check_nuit()` always returns a dictionary with at least the `is_valid` key:
+
+```python
+{"is_valid": True, "nuit": "141277286", "name": "DOE, MARIA"}
+```
+
+If the remote site flags the number as invalid—or parsing fails—you get:
+
+```python
+{"is_valid": False}
+```
+
+The helper never raises for semantic errors: validation state always lives in the
+returned dictionary. Only networking issues or unexpected HTTP errors raise.
+
+## API reference
+
+- `checknuit.check_nuit(nuit: str) -> dict` – High-level helper that orchestrates
+  the POST request and HTML parsing; safe to call in applications.
+- `checknuit.web.send_post(nuit: str) -> str` – Mirrors the Firefox network call
+  (headers, cookies, payload). Raises `RuntimeError` when the POST fails.
+- `checknuit.utils.is_nuit_valid(html: str) -> dict` – Returns the final payload
+  (`{"is_valid": False}` or `{"is_valid": True, ...}`) based on the HTML string.
+- `checknuit.utils.extract_data(html: str) -> dict` – Internal helper that
+  extracts `nuit` and `name` from the `<a id="GridView1_lnkNome_0">` node.
+
+Reusing the lower-level helpers lets you plug your own HTTP client or cached
+responses when needed.
+
+## Troubleshooting & limitations
+
+- **Portal changes:** If the upstream page changes IDs, hidden fields, or
+  validation semantics, update `checknuit/web.py` or `checknuit/utils.py`.
+- **Blocking / rate limits:** The public form may throttle or block scripted
+  traffic. Introduce retries with exponential backoff in your application.
+- **Network environments:** Corporate proxies or offline environments will cause
+  `RuntimeError` from `send_post`; wrap calls in your own error handling.
+
+## Development
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python test.py  # smoke test against the live portal
+pytest          # when unit tests are added
+```
+
+Feel free to adapt the payload or headers in `checknuit/web.py` if the upstream
+site rotates any form fields or anti-bot measures.
+
+## License
+
+MIT — see `LICENSE` once it is added. Until then, treat the project as
+all-rights-reserved by the original author.
