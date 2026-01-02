@@ -1,0 +1,148 @@
+Metadata-Version: 2.4
+Name: drawcustom
+Version: 0.2.0
+Summary: Pure image rendering from drawing instructions for e-paper displays
+Project-URL: Homepage, https://github.com/g4bri3lDev/drawcustom
+Project-URL: Repository, https://github.com/g4bri3lDev/drawcustom
+Project-URL: Issues, https://github.com/g4bri3lDev/drawcustom/issues
+Author-email: g4bri3lDev <admin@g4bri3l.de>
+License: MIT
+License-File: LICENSE
+Keywords: drawcustom,e-paper,eink,image,rendering
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.11
+Requires-Dist: aiohttp>=3.8.0
+Requires-Dist: pillow>=10.0.0
+Requires-Dist: pytest>=9.0.2
+Requires-Dist: qrcode[pil]>=7.4.2
+Requires-Dist: resize-image>=0.4.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.19.1; extra == 'dev'
+Requires-Dist: ruff>=0.14.10; extra == 'dev'
+Provides-Extra: property
+Requires-Dist: hypothesis>=6.148.8; extra == 'property'
+Provides-Extra: test
+Requires-Dist: pytest-asyncio>=1.3.0; extra == 'test'
+Requires-Dist: pytest-cov>=7.0.0; extra == 'test'
+Requires-Dist: pytest-xdist>=3.8.0; extra == 'test'
+Requires-Dist: pytest>=9.0.2; extra == 'test'
+Provides-Extra: visual
+Requires-Dist: imagehash>=4.3.2; extra == 'visual'
+Requires-Dist: syrupy>=5.0.0; extra == 'visual'
+Description-Content-Type: text/markdown
+
+[![PyPI version](https://img.shields.io/pypi/v/drawcustom.svg)](https://pypi.org/project/drawcustom/)
+[![Python versions](https://img.shields.io/pypi/pyversions/drawcustom.svg)](https://pypi.org/project/drawcustom/)
+[![Lint](https://github.com/g4bri3lDev/drawcustom/actions/workflows/lint.yml/badge.svg)](https://github.com/g4bri3lDev/drawcustom/actions/workflows/lint.yml)
+[![Tests](https://github.com/g4bri3lDev/drawcustom/actions/workflows/test.yml/badge.svg)](https://github.com/g4bri3lDev/drawcustom/actions/workflows/test.yml)[![codecov](https://codecov.io/gh/g4bri3lDev/drawcustom/branch/main/graph/badge.svg)](https://codecov.io/gh/g4bri3lDev/drawcustom)
+
+# drawcustom
+
+Pure image rendering from drawing instructions.
+
+**drawcustom** is a standalone Python library for generating images from structured drawing instructions. Originally extracted from the OpenEPaperLink Home Assistant integration, it provides a clean, async API for rendering text, shapes, icons, QR codes, and more to PIL images.
+
+## Features
+
+- **Pure Rendering**: No dependencies on Home Assistant or other frameworks
+- **17 Element Types**: Text, shapes, icons, QR codes, images, progress bars, and more
+- **Async/Await**: Modern async API for efficient image generation
+- **Flexible Input**: Accepts fonts as PIL objects, file paths, or built-in names
+- **Full Color Output**: Returns PIL Image objects in full RGB/RGBA (caller handles dithering)
+- **Percentage-Based Coordinates**: Position elements using percentages or absolute pixels
+- **Template-Ready**: All values are plain data (templates expanded by caller)
+
+## Installation
+
+```bash
+pip install drawcustom
+```
+
+## Quickstart
+
+```python
+from drawcustom import generate_image
+
+  # Generate a simple image
+  image = await generate_image(
+      width=296,
+      height=128,
+      elements=[
+          {
+              "type": "text",
+              "value": "Hello World",
+              "x": "50%",
+              "y": 50,
+              "font": "ppb",
+              "size": 24,
+              "color": "black",
+              "anchor": "mm"
+          },
+          {
+              "type": "rectangle",
+              "x_start": 10,
+              "y_start": 10,
+              "x_end": 100,
+              "y_end": 50,
+              "fill": "red",
+              "outline": "black",
+              "width": 2
+          },
+      ],
+      background="white",
+      accent_color="red"
+  )
+
+  # Save the image
+  image.save("output.png")
+```
+
+## Element Types
+
+### Text Elements
+
+#### Text
+
+Single line or multi-line text with wrapping support.
+
+```python
+{
+    "type": "text",
+    "value": "Hello World",
+    "x": "50%",
+    "y": 50,
+    "font": "ppb",     # Built-in font name, path, or PIL Font object
+    "size": 24,
+    "color": "black",
+    "anchor": "mm",    # Anchor point (e.g., mm = middle-middle)
+    "max_width": 200,  # Optional text wrapping
+    "truncate": False, # Truncate with ellipsis instead of wrapping
+    "align": "center", # left, center, right
+}
+```
+
+#### multiline
+
+Multi-line text with delimiter-based line breaks.
+
+```python
+{
+    "type": "multiline",
+    "value": "Line 1|Line 2|Line 3",
+    "delimiter": "|",
+    "x": 10,
+    "y": 10,
+    "offset_y": 20, # Pixels between lines
+    "font": "ppb",
+    "size": 16,
+}
+```
+
+etc.
