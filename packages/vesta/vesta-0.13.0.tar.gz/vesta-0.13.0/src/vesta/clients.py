@@ -1,0 +1,405 @@
+# Copyright (c) Jon Parise <jon@indelible.org>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+from __future__ import annotations
+
+import json
+import warnings
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Mapping
+from typing import Optional
+from typing import Union
+from typing import cast
+
+from . import http
+from .chars import Rows
+from .chars import validate_rows
+from .vbml import Component
+from .vbml import Props
+
+__all__ = ["Client", "LocalClient", "ReadWriteClient", "VBMLClient"]
+
+
+class Client:
+    """Provides a Vestaboard API client interface.
+
+    Credentials must be provided as an ``api_key`` and ``api_secret``.
+
+    Optionally, an alternate ``base_url`` can be specified, as well as any
+    additional HTTP ``headers`` that should be sent with every request
+    (such as a custom `User-Agent` header).
+
+    .. deprecated:: 0.12
+    """
+
+    def __init__(
+        self,
+        api_key: str,
+        api_secret: str,
+        *,
+        base_url: str = "https://platform.vestaboard.com",
+        headers: Optional[Mapping[str, str]] = None,
+    ):
+        warnings.warn(
+            "Vestaboard has deprecated the Platform API (Client). "
+            "Consider using the Subscription API (SubscrptionClient) instead.",
+            DeprecationWarning,
+        )
+
+        all_headers = {
+            "X-Vestaboard-Api-Key": api_key,
+            "X-Vestaboard-Api-Secret": api_secret,
+        }
+        if headers:
+            all_headers.update(headers)
+
+        self.http = http.Client(base_url=base_url, headers=all_headers)
+
+    def __repr__(self):
+        return f'{type(self).__name__}(base_url="{self.http.base_url!s}")'
+
+    def get_subscriptions(self) -> List[Dict[str, Any]]:
+        """Lists all subscriptions to which the viewer has access."""
+        resp = self.http.request("GET", "/subscriptions")
+        return resp.json({}).get("subscriptions", [])
+
+    def get_viewer(self) -> Dict[str, Any]:
+        """Describes the currently authenticated viewer."""
+        resp = self.http.request("GET", "/viewer")
+        return resp.json()
+
+    def post_message(
+        self,
+        subscription_id: str,
+        message: Union[str, Rows],
+    ) -> Dict[str, Any]:
+        """Post a new message to a subscription.
+
+        The authenticated viewer must have access to the subscription.
+
+        `message` can be either a string of text or a two-dimensional (6, 22)
+        array of character codes representing the exact positions of characters
+        on the board.
+
+        If text is specified, the lines will be centered horizontally and
+        vertically. Character codes will be inferred for alphanumeric and
+        punctuation characters, or they can be explicitly specified using curly
+        braces containing the character code (such as ``{5}`` or ``{65}``).
+
+        :raises ValueError: if ``message`` is a list with unsupported dimensions
+        """
+        data: Dict[str, Union[str, Rows]]
+        if isinstance(message, str):
+            data = {"text": message}
+        elif isinstance(message, list):
+            validate_rows(message)
+            data = {"characters": message}
+        else:
+            raise TypeError(f"unsupported message type: {type(message)}")
+
+        resp = self.http.request(
+            "POST",
+            f"/subscriptions/{subscription_id}/message",
+            json=data,
+        )
+        return resp.json()
+
+
+class LocalClient:
+    """Provides a Vestaboard Local API client interface.
+
+    A Local API key is required to read or write messages. This key is obtained
+    by enabling the Vestaboard's Local API using a Local API Enablement Token.
+
+    If you've already enabled your Vestaboard's Local API, that key can be
+    provided immediately. Otherwise, it can be set after the client is
+    constructed by calling :py:meth:`~enable`, which also returns the Local API
+    key for future reuse.
+
+    An alternate ``base_url`` can also be specified.
+
+    .. versionadded:: 0.8.0
+    """
+
+    def __init__(
+        self,
+        local_api_key: Optional[str] = None,
+        *,
+        base_url: str = "http://vestaboard.local:7000",
+    ):
+        self.http = http.Client(base_url=base_url)
+        if local_api_key is not None:
+            self.http.headers["X-Vestaboard-Local-Api-Key"] = local_api_key
+
+    def __repr__(self):
+        return f'{type(self).__name__}(base_url="{self.http.base_url!s}")'
+
+    @property
+    def api_key(self) -> Optional[str]:
+        """The client's Local API key."""
+        return cast(
+            Optional[str],
+            self.http.headers.get("X-Vestaboard-Local-Api-Key"),
+        )
+
+    @api_key.setter
+    def api_key(self, value: str) -> None:
+        self.http.headers["X-Vestaboard-Local-Api-Key"] = value
+
+    @property
+    def enabled(self) -> bool:
+        """Check if :py:attr:`~api_key` has been set, indicating that Local API
+        support has been enabled."""
+        return self.api_key is not None
+
+    def enable(self, enablement_token) -> Optional[str]:
+        """Enable the Vestaboard's Local API using a Local API Enablement Token.
+
+        If successful, the Vestaboard's Local API key will be returned and the
+        client's :py:attr:`~api_key` property will be updated to the new value.
+        """
+        resp = self.http.request(
+            "POST",
+            "/local-api/enablement",
+            headers={"X-Vestaboard-Local-Api-Enablement-Token": enablement_token},
+        )
+
+        local_api_key = resp.json({}).get("apiKey")
+        if local_api_key:
+            self.http.headers["X-Vestaboard-Local-Api-Key"] = local_api_key
+
+        return local_api_key
+
+    def read_message(self) -> Optional[Rows]:
+        """Read the Vestaboard's current message."""
+        if not self.enabled:
+            raise RuntimeError("Local API has not been enabled")
+        resp = self.http.request("GET", "/local-api/message")
+        return resp.json({}).get("message")
+
+    def write_message(self, message: Rows) -> bool:
+        """Write a message to the Vestaboard.
+
+        `message` must be a two-dimensional (6, 22) array of character codes
+        representing the exact positions of characters on the board.
+
+        :raises ValueError: if ``message`` is a list with unsupported dimensions
+        """
+        if not self.enabled:
+            raise RuntimeError("Local API has not been enabled")
+        validate_rows(message)
+        resp = self.http.request("POST", "/local-api/message", json=message)
+        return resp.status == 201
+
+
+class ReadWriteClient:
+    """Provides a Vestaboard Read / Write API client interface.
+
+    A Read / Write API key is required to read or write messages. This key is
+    obtained by enabling the Vestaboard's Read / Write API via the Settings
+    section of the mobile app or from the Developer section of the web app.
+
+    Optionally, an alternate ``base_url`` can be specified, as well as any
+    additional HTTP ``headers`` that should be sent with every request
+    (such as a custom `User-Agent` header).
+
+    .. versionadded:: 0.8.0
+    """
+
+    def __init__(
+        self,
+        read_write_key: str,
+        *,
+        base_url: str = "https://rw.vestaboard.com/",
+        headers: Optional[Mapping[str, str]] = None,
+    ):
+        all_headers = {"X-Vestaboard-Read-Write-Key": read_write_key}
+        if headers:
+            all_headers.update(headers)
+
+        self.http = http.Client(base_url=base_url, headers=all_headers)
+
+    def __repr__(self):
+        return f'{type(self).__name__}(base_url="{self.http.base_url!s}")'
+
+    def read_message(self) -> Optional[Rows]:
+        """Read the Vestaboard's current message."""
+        resp = self.http.request("GET", "")
+        layout = resp.json({}).get("currentMessage", {}).get("layout")
+        if layout:
+            return json.loads(layout)
+        return None
+
+    def write_message(self, message: Union[str, Rows]) -> bool:
+        """Write a message to the Vestaboard.
+
+        `message` can be either a string of text or a two-dimensional (6, 22)
+        array of character codes representing the exact positions of characters
+        on the board.
+
+        If text is specified, the lines will be centered horizontally and
+        vertically. Character codes will be inferred for alphanumeric and
+        punctuation characters, or they can be explicitly specified using curly
+        braces containing the character code (such as ``{5}`` or ``{65}``).
+
+        :raises ValueError: if ``message`` is a list with unsupported dimensions
+        """
+        data: Union[Dict[str, str], Rows]
+        if isinstance(message, str):
+            data = {"text": message}
+        elif isinstance(message, list):
+            validate_rows(message)
+            data = message
+        else:
+            raise TypeError(f"unsupported message type: {type(message)}")
+
+        resp = self.http.request("POST", "", json=data)
+        return 200 <= resp.status < 300
+
+
+class SubscriptionClient:
+    """Provides a Vestaboard Subscription API client interface.
+
+    Credentials must be provided as an ``api_key`` and ``api_secret``.
+
+    Optionally, an alternate ``base_url`` can be specified, as well as any
+    additional HTTP ``headers`` that should be sent with every request
+    (such as a custom `User-Agent` header).
+
+    .. versionadded:: 0.12.0
+    """
+
+    def __init__(
+        self,
+        api_key: str,
+        api_secret: str,
+        *,
+        base_url: str = "https://subscriptions.vestaboard.com",
+        headers: Optional[Mapping[str, str]] = None,
+    ):
+        all_headers = {
+            "x-vestaboard-api-key": api_key,
+            "x-vestaboard-api-secret": api_secret,
+        }
+        if headers:
+            all_headers.update(headers)
+
+        self.http = http.Client(base_url=base_url, headers=all_headers)
+
+    def __repr__(self):
+        return f'{type(self).__name__}(base_url="{self.http.base_url!s}")'
+
+    def get_subscriptions(self) -> List[Dict[str, Any]]:
+        """Lists all subscriptions to which the viewer has access."""
+        resp = self.http.request("GET", "/subscriptions")
+        return resp.json()
+
+    def send_message(
+        self,
+        subscription_id: str,
+        message: Union[str, Rows],
+    ) -> Dict[str, Any]:
+        """Send a new message to a subscription.
+
+        The authenticated viewer must have access to the subscription.
+
+        `message` can be either a string of text or a two-dimensional (6, 22)
+        array of character codes representing the exact positions of characters
+        on the board.
+
+        If text is specified, the lines will be centered horizontally and
+        vertically. Character codes will be inferred for alphanumeric and
+        punctuation characters, or they can be explicitly specified using curly
+        braces containing the character code (such as ``{5}`` or ``{65}``).
+
+        :raises ValueError: if ``message`` is a list with unsupported dimensions
+        """
+        data: Dict[str, Union[str, Rows]]
+        if isinstance(message, str):
+            data = {"text": message}
+        elif isinstance(message, list):
+            validate_rows(message)
+            data = {"characters": message}
+        else:
+            raise TypeError(f"unsupported message type: {type(message)}")
+
+        resp = self.http.request(
+            "POST",
+            f"/subscriptions/{subscription_id}/message",
+            json=data,
+        )
+        return resp.json()
+
+
+class VBMLClient:
+    """Provides a VBML (Vestaboard Markup Language) API client interface.
+
+    .. versionadded:: 0.11.0
+    """
+
+    def __init__(
+        self,
+        *,
+        base_url: str = "https://vbml.vestaboard.com/",
+        headers: Optional[Mapping[str, str]] = None,
+    ):
+        self.http = http.Client(base_url=base_url, headers=headers)
+
+    def __repr__(self):
+        return f'{type(self).__name__}(base_url="{self.http.base_url!s}")'
+
+    def compose(
+        self,
+        components: List[Component],
+        props: Optional[Props] = None,
+    ) -> Rows:
+        """Composes one or more styled components into rows of character codes.
+
+        `props` can be a map of dynamic properties that will be injected into
+        the message templates using double bracket notation (``{{propName}}``).
+        A prop value *must* be provided if it is used in a template.
+
+        :returns: Rows of character codes representing the composed message
+        :raises ValueError: if no components are provided
+        """
+        if not components:
+            raise ValueError("expected at least one component")
+
+        data: Dict[str, Union[Props, List[Dict]]] = {
+            "components": [component.asdict() for component in components],
+        }
+        if props:
+            data["props"] = props
+
+        resp = self.http.request("POST", "/compose", json=data)
+        return resp.json()
+
+    def format(self, message: str) -> Rows:
+        """Formats a message string into rows of character codes.
+
+        .. versionadded:: 0.13.0
+
+        :returns: Rows of character codes representing the formatted message
+        """
+        data = {"message": message}
+        resp = self.http.request("POST", "/format", json=data)
+        return resp.json()

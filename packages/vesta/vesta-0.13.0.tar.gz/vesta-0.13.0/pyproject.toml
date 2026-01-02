@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vesta"
+dynamic = ["version"]
+description = "Vestaboard client library"
+authors = [
+    {name = "Jon Parise", email = "jon@indelible.org"},
+]
+readme = "README.md"
+license = "MIT"
+keywords = ["vestaboard"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+requires-python = ">= 3.10"
+
+[dependency-groups]
+dev = [
+    {include-group = "docs"},
+    {include-group = "lint"},
+    {include-group = "test"},
+]
+docs = [
+    "Sphinx==8.2.0",
+    "furo==2025.12.19",
+    "sphinx_mdinclude==0.6.0",
+]
+lint = [
+    "mypy==1.19.0",
+    "ruff==0.14.0",
+    {include-group = "test"},
+]
+test = [
+    "pytest==9.0.1",
+    "pytest-cov==7.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/jparise/vesta"
+Documentation = "https://vesta-py.readthedocs.io/"
+Repository = "https://github.com/jparise/vesta.git"
+Issues = "https://github.com/jparise/vesta/issues"
+Changelog = "https://github.com/jparise/vesta/blob/main/CHANGELOG.md"
+
+[tool.setuptools.dynamic]
+version = {attr = "vesta.__version__"}
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.mypy]
+packages = ["vesta", "tests"]
+python_version = "3.10"
+
+[tool.pytest.ini_options]
+addopts = "--cov=vesta --cov-report=term-missing --doctest-modules"
+
+[tool.ruff]
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "RUF", "W"]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/test_chars.py" = ["E501"]
