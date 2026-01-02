@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "l-pdf-extractor"
+version = "0.2.1"
+description = "extractor pdf to markdown and PIL image"
+readme = "README.md"
+license = { text = "LICENSE" }
+requires-python = ">=3.11.9"
+authors = [
+    { name = "LobyLiang", email = "lobyliang@qq.com" }
+]
+dependencies = [
+    "opencv-python>=4.12.0.88",
+    "pip>=25.3",
+    "pymupdf>=1.26.7",
+    #"paddlepaddle-gpu==3.2.0",
+    "paddleocr[all]==3.3.2",
+    "paddlex==3.3.12"
+]
