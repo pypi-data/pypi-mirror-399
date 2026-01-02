@@ -1,0 +1,62 @@
+# See https://nens-meta.readthedocs.io/en/latest/config-files.html
+[build-system]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rana-process-sdk"
+dynamic = ["version"]
+description = "The Software Development Kit for creating Rana processes."
+authors = [
+    {name = "Nelen & Schuurmans", email = "info@nelen-schuurmans.nl"},
+]
+readme = "README.md"
+license = "MIT"
+# Get classifier strings from http://www.python.org/pypi?%3Aaction=list_classifiers
+classifiers = ["Programming Language :: Python"]
+keywords = []
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic==2.9.*",
+    "pydantic-settings-yaml>=0.2",
+    "prefect==3.2.*",
+    "urllib3>=2",
+    "threedi-api-client>=4.1",
+    "sentry-sdk>=2.16",
+]
+
+[project.urls]
+homepage = "https://github.com/nens/rana-process-sdk"
+
+[tool.setuptools.dynamic]
+version = {attr = "rana_process_sdk.__version__"}
+
+[tool.zest-releaser]
+release = false
+python-file-with-version = "src/rana_process_sdk/__init__.py"
+
+[tool.ruff]
+# See https://docs.astral.sh/ruff/configuration/ for defaults.
+target-version = "py312"
+
+[tool.ruff.lint]
+# Default select: ["E4", "E7", "E9", "F"]
+select = ["E4", "E7", "E9", "F", "I", "UP", "C901"]
+ignore = ["UP046", "UP047", "E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["rana_process_sdk"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+
+[tool.pyright]
+# Pyright/pylance/vscode configuration.
+# Note: if you want a different setup, you can overwrite this with a
+# "pyrightconfig.json", which takes precedence.
+include = "src"
+venvPath = "."
+venv = ".venv"
+
+[dependency-groups]
+dev = ["pytest>=8.4.2", "pytest-cov>=6.3.0", "zest.releaser"]
