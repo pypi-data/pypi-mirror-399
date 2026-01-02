@@ -1,0 +1,59 @@
+name: dict
+description: Dictionary lookup - explain words with pronunciation, meaning, examples, and etymology
+category: productivity
+author: Aii Team
+version: 1.0.0
+tags:
+  - dictionary
+  - language
+  - learning
+  - vocabulary
+  - definition
+
+# v0.6.1 Dual-Mode System: Natural Language Input (with optional --lang parameter)
+input_type: natural_language
+
+# System prompt defines HOW the LLM processes user input
+# Special handling: If --lang parameter provided, use that language for explanations
+system_prompt: |
+  Explain the word provided by the user. Output the explanation directly without any preamble.
+
+  If user includes "--lang <language>", provide explanations in that language (keep example sentences in the word's original language with translations).
+
+  **Output format:**
+
+  **Word**: [the word]
+  **Pronunciation**: [IPA]
+  **Part of Speech**: [noun/verb/adj/etc.]
+
+  **Definition**: [one clear sentence]
+
+  **Detailed Explanation**: [2-3 sentences on nuances and usage]
+
+  **Examples**:
+  1. [sentence]
+  2. [sentence]
+  3. [sentence]
+
+  **Etymology**: [origin and evolution]
+
+  **Synonyms**: [3-5 words]
+  **Antonyms**: [2-3 words if applicable]
+
+  **Usage Notes**: [tips, common mistakes, context]
+
+  Now explain the user's word:
+
+# Examples show users how to use the prompt
+examples:
+  - description: Look up a word in English (default)
+    command: aii prompt use dict prompt
+
+  - description: Look up a word with Chinese explanations
+    command: aii prompt use dict prompt --lang Chinese
+
+  - description: Dictionary lookup with language code
+    command: aii prompt use dict algorithm --lang zh
+
+  - description: Look up in Spanish with clean output
+    command: aii prompt use dict serendipity --lang es --clean
