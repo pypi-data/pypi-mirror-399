@@ -1,0 +1,76 @@
+Metadata-Version: 2.4
+Name: muxy
+Version: 0.1.0.dev9
+Summary: Lightweight router for building HTTP services.
+Keywords: http,router,rsgi
+License-Expression: MIT
+License-File: LICENSE
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Environment :: Web Environment
+Classifier: Framework :: AsyncIO
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: Internet :: WWW/HTTP :: HTTP Servers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=3.14
+Project-URL: Changelog, https://github.com/oliverlambson/muxy/blob/main/CHANGELOG.md
+Project-URL: Issues, https://github.com/oliverlambson/muxy/issues
+Project-URL: Repository, https://github.com/oliverlambson/muxy
+Description-Content-Type: text/markdown
+
+# muxy
+
+`muxy` is a lightweight router for building HTTP services conforming to
+Granian's Rust Server Gateway Interface (RSGI). It intentionally avoids magic,
+prioritising explicit and composable code.
+
+```
+uv add muxy
+```
+
+## Features
+
+- **first-class router composition** - modularise your code by nesting routers with no overhead
+- **correct, efficient routing** - explicit route heirarchy so behaviour is always predictable
+- **lightweight** - the core router is little more than a simple datastructure and has no dependencies
+- **control** - control the full HTTP request/response cycle without digging through framework layers
+- **middleware** - apply common logic to path groups simply and clearly
+
+## Inspiration
+
+Go's `net/http` and `go-chi/chi` are inspirations for `muxy`. I wanted their simplicity
+without having to switch language. You can think of the `RSGI` interface as the muxy
+equivalent of the net/http `HandlerFunc` interface, and `muxy.Router` as an equivalent of
+chi's `Mux`.
+
+## Examples
+
+**Getting started**
+
+```python
+import asyncio
+
+from granian.server.embed import Server
+from muxy.router import Router
+from muxy.rsgi import HTTPProtocol, HTTPScope
+
+async def home(s: HTTPScope, p: HTTPProtocol) -> None:
+    p.response_str(200, [], "Hello world!")
+
+async def main() -> None:
+    router = Router()
+    router.get("/", home)
+
+    server = Server(router)
+    await server.serve()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
