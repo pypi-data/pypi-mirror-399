@@ -1,0 +1,354 @@
+# Pobo Python SDK
+
+Official Python SDK for [Pobo API V2](https://api.pobo.space) - product content management and webhooks.
+
+## Requirements
+
+- Python 3.9+
+
+## Installation
+
+```bash
+pip install pobo-sdk
+```
+
+## Quick Start
+
+### API Client
+
+```python
+from pobo import PoboClient
+
+client = PoboClient(
+    api_token="your-api-token",
+    base_url="https://api.pobo.space",  # optional
+    timeout=30,  # optional, in seconds
+)
+```
+
+## Import
+
+### Import Order
+
+```
+1. Parameters (no dependencies)
+2. Categories (no dependencies)
+3. Products (depends on categories and parameters)
+4. Blogs (no dependencies)
+```
+
+### Import Parameters
+
+```python
+from pobo import Parameter, ParameterValue
+
+parameters = [
+    Parameter(
+        id=1,
+        name="Color",
+        values=[
+            ParameterValue(id=1, value="Red"),
+            ParameterValue(id=2, value="Blue"),
+        ],
+    ),
+    Parameter(
+        id=2,
+        name="Size",
+        values=[
+            ParameterValue(id=3, value="S"),
+            ParameterValue(id=4, value="M"),
+        ],
+    ),
+]
+
+result = client.import_parameters(parameters)
+print(f"Imported: {result.imported}, Values: {result.values_imported}")
+```
+
+### Import Categories
+
+```python
+from pobo import Category, LocalizedString, Language
+
+categories = [
+    Category(
+        id="CAT-001",
+        is_visible=True,
+        name=LocalizedString.create("Electronics")
+            .with_translation(Language.CS, "Elektronika")
+            .with_translation(Language.SK, "Elektronika"),
+        url=LocalizedString.create("https://example.com/electronics")
+            .with_translation(Language.CS, "https://example.com/cs/elektronika")
+            .with_translation(Language.SK, "https://example.com/sk/elektronika"),
+        description=LocalizedString.create("<p>All electronics</p>")
+            .with_translation(Language.CS, "<p>Veškerá elektronika</p>"),
+        images=["https://example.com/images/electronics.jpg"],
+    ),
+]
+
+result = client.import_categories(categories)
+print(f"Imported: {result.imported}, Updated: {result.updated}")
+```
+
+### Import Products
+
+```python
+from pobo import Product, LocalizedString, Language
+
+products = [
+    Product(
+        id="PROD-001",
+        is_visible=True,
+        name=LocalizedString.create("iPhone 15")
+            .with_translation(Language.CS, "iPhone 15")
+            .with_translation(Language.SK, "iPhone 15"),
+        url=LocalizedString.create("https://example.com/iphone-15")
+            .with_translation(Language.CS, "https://example.com/cs/iphone-15")
+            .with_translation(Language.SK, "https://example.com/sk/iphone-15"),
+        short_description=LocalizedString.create("Latest iPhone model")
+            .with_translation(Language.CS, "Nejnovější model iPhone"),
+        images=["https://example.com/images/iphone-1.jpg"],
+        categories_ids=["CAT-001", "CAT-002"],
+        parameters_ids=[1, 2],
+    ),
+]
+
+result = client.import_products(products)
+
+if result.has_errors():
+    for error in result.errors:
+        print(f"Error: {', '.join(error['errors'])}")
+```
+
+### Import Blogs
+
+```python
+from pobo import Blog, LocalizedString, Language
+
+blogs = [
+    Blog(
+        id="BLOG-001",
+        is_visible=True,
+        name=LocalizedString.create("New Product Launch")
+            .with_translation(Language.CS, "Uvedení nového produktu")
+            .with_translation(Language.SK, "Uvedenie nového produktu"),
+        url=LocalizedString.create("https://example.com/blog/new-product")
+            .with_translation(Language.CS, "https://example.com/cs/blog/novy-produkt")
+            .with_translation(Language.SK, "https://example.com/sk/blog/novy-produkt"),
+        category="news",
+        description=LocalizedString.create("<p>We are excited to announce...</p>")
+            .with_translation(Language.CS, "<p>S radostí oznamujeme...</p>"),
+        images=["https://example.com/images/blog-1.jpg"],
+    ),
+]
+
+result = client.import_blogs(blogs)
+print(f"Imported: {result.imported}, Updated: {result.updated}")
+```
+
+## Export
+
+### Export Products
+
+```python
+response = client.get_products(page=1, per_page=50)
+
+for product in response.data:
+    print(f"{product.id}: {product.name.default}")
+
+print(f"Page {response.current_page} of {response.total_pages}")
+
+# Iterate through all products (handles pagination automatically)
+for product in client.iter_products():
+    print(f"{product.id}: {product.name.default}")
+
+# Filter by last update time
+from datetime import datetime
+since = datetime(2024, 1, 1)
+response = client.get_products(last_update_from=since)
+
+# Filter only edited products
+response = client.get_products(is_edited=True)
+```
+
+### Export Categories
+
+```python
+response = client.get_categories()
+
+for category in response.data:
+    print(f"{category.id}: {category.name.default}")
+
+# Iterate through all categories
+for category in client.iter_categories():
+    process_category(category)
+```
+
+### Export Blogs
+
+```python
+response = client.get_blogs()
+
+for blog in response.data:
+    print(f"{blog.id}: {blog.name.default}")
+
+# Iterate through all blogs
+for blog in client.iter_blogs():
+    process_blog(blog)
+```
+
+## Content (HTML/Marketplace)
+
+Products, categories, and blogs include a `content` field with generated HTML content:
+
+```python
+from pobo import Language
+
+for product in client.iter_products():
+    if product.content:
+        # Get HTML content for web
+        html_cs = product.content.get_html(Language.CS)
+        html_sk = product.content.get_html(Language.SK)
+
+        # Get content for marketplace
+        marketplace_cs = product.content.get_marketplace(Language.CS)
+
+        # Get default content
+        html_default = product.content.html_default
+        marketplace_default = product.content.marketplace_default
+```
+
+## Webhook Handler
+
+### Basic Usage (Django)
+
+```python
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+from pobo import WebhookHandler, WebhookEvent, WebhookError
+
+handler = WebhookHandler(webhook_secret="your-webhook-secret")
+
+@csrf_exempt
+@require_POST
+def pobo_webhook(request):
+    try:
+        payload = handler.handle_request(request)
+
+        if payload.event == WebhookEvent.PRODUCTS_UPDATE:
+            sync_products.delay()
+        elif payload.event == WebhookEvent.CATEGORIES_UPDATE:
+            sync_categories.delay()
+
+        return JsonResponse({"status": "ok"})
+
+    except WebhookError as e:
+        return JsonResponse({"error": str(e)}, status=401)
+```
+
+### Manual Handling
+
+```python
+payload = handler.handle(
+    payload=request.body,
+    signature=request.headers.get("X-Webhook-Signature"),
+)
+```
+
+### Webhook Payload
+
+```python
+payload.event      # str: "products.update" or "categories.update"
+payload.timestamp  # datetime
+payload.eshop_id   # int
+```
+
+## Error Handling
+
+```python
+from pobo import ApiError, ValidationError
+
+try:
+    result = client.import_products(products)
+except ValidationError as e:
+    print(f"Validation error: {e}")
+    print(e.errors)
+except ApiError as e:
+    print(f"API error ({e.http_code}): {e}")
+    print(e.response_body)
+```
+
+## Localized Strings
+
+```python
+from pobo import LocalizedString, Language
+
+# Create with default value
+name = LocalizedString.create("Default Name")
+
+# Add translations using fluent interface
+name = (
+    name
+    .with_translation(Language.CS, "Czech Name")
+    .with_translation(Language.SK, "Slovak Name")
+    .with_translation(Language.EN, "English Name")
+)
+
+# Get values
+name.default                   # => "Default Name"
+name.get(Language.CS)          # => "Czech Name"
+name.to_dict()                 # => {"default": "...", "cs": "...", ...}
+```
+
+### Supported Languages
+
+| Code      | Language           |
+|-----------|--------------------|
+| `default` | Default (required) |
+| `cs`      | Czech              |
+| `sk`      | Slovak             |
+| `en`      | English            |
+| `de`      | German             |
+| `pl`      | Polish             |
+| `hu`      | Hungarian          |
+
+## API Methods
+
+| Method                                                              | Description                      |
+|---------------------------------------------------------------------|----------------------------------|
+| `import_products(products)`                                         | Bulk import products (max 100)   |
+| `import_categories(categories)`                                     | Bulk import categories (max 100) |
+| `import_parameters(parameters)`                                     | Bulk import parameters (max 100) |
+| `import_blogs(blogs)`                                               | Bulk import blogs (max 100)      |
+| `get_products(page, per_page, last_update_from, is_edited)`         | Get products page                |
+| `get_categories(page, per_page, last_update_from, is_edited)`       | Get categories page              |
+| `get_blogs(page, per_page, last_update_from, is_edited)`            | Get blogs page                   |
+| `iter_products(last_update_from, is_edited)`                        | Iterate all products             |
+| `iter_categories(last_update_from, is_edited)`                      | Iterate all categories           |
+| `iter_blogs(last_update_from, is_edited)`                           | Iterate all blogs                |
+
+## Development
+
+```bash
+# Clone repository
+git clone https://github.com/pobo-builder/python-sdk.git
+cd python-sdk
+
+# Install with dev dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run type checking
+mypy src/pobo
+
+# Run linting
+ruff check src/pobo
+```
+
+## License
+
+MIT License
