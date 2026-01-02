@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "imapautofiler"
+authors = [{ name = "Doug Hellmann", email = "doug@doughellmann.com" }]
+description = "Automatically file IMAP messages"
+readme = "README.rst"
+dynamic = ["version"]
+
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Information Technology",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Communications :: Email",
+]
+
+requires-python = ">=3.13"
+
+dependencies = [
+  "PyYAML>=3.11",
+  "imapclient>=2.2.0",
+  "keyring>=10.0.0",
+  "jinja2>=2.11.2",
+  "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+  "coverage>=4.5.3",
+  "pytest>=4.4.1",
+  "pytest-cov>=2.6.1",
+  "fixtures",
+  "ruff",
+]
+docs = ["Sphinx"]
+
+[project.urls]
+homepage = "https://imapautofiler.readthedocs.io/en/latest/"
+repository = "https://github.com/imapautofiler/imapautofiler"
+
+[project.scripts]
+imapautofiler = "imapautofiler.app:main"
+
+[tool.hatch]
+
+# https://pypi.org/project/hatch-vcs/
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.sdist]
+exclude = [".github", "tools", "cover", ".mergify.yml", ".gitignore"]
+[tool.hatch.build.targets.wheel]
+packages = ["imapautofiler"]
+
+[tool.hatch.build.hooks.vcs]
+version-file = "imapautofiler/version.py"
+
+[tool.hatch.envs.test]
+features = ["test"]
+dependencies = ["check-python-versions", "mypy==1.19.1", "types-PyYAML", "pre-commit", "ruff==0.14.10"]
+[tool.hatch.envs.test.scripts]
+lint = [
+  "ruff check imapautofiler",
+  "ruff format --check imapautofiler",
+  "mypy -p imapautofiler",
+]
+fix = "ruff format imapautofiler"
+test = "pytest --log-level DEBUG --cov=imapautofiler --cov-report term-missing"
+pkglint = [
+  "check-python-versions --only pyproject.toml,.github/workflows/test.yml",
+]
+precommit = "pre-commit run --all-files"
+
+[tool.hatch.envs.docs]
+features = ["docs"]
+[tool.hatch.envs.docs.scripts]
+build = "python -m sphinx.cmd.build -E -W -v -T doc/source doc/build"
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]
+disallow_untyped_defs = true
+
+[tool.basedpyright]
+reportUnannotatedClassAttribute = false
+reportUnusedCallResult = false
+reportUntypedFunctionDecorator = false
+reportUnknownMemberType = false
+reportUnusedParameter = false
+reportAny = false
+reportImplicitOverride = false
