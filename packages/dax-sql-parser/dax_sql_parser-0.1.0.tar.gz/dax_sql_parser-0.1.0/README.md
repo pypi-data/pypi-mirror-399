@@ -1,0 +1,154 @@
+A powerful Python library for parsing DAX (Data Analysis Expressions) queries and translating them into various SQL dialects (optimized for Trino).
+
+## Key Features
+
+- **Unified API**: Simple `DaxParser` class for all your translation needs.
+- **Metadata-Aware**: Automatic column resolution and implicit JOIN injection based on your data model relationships.
+- **Multi-Dialect Support**: Deeply optimized for **Trino**, with an extensible architecture for other engines.
+- **Multi-Schema/Catalog Resolution**: Support for dotted table names and dynamic schema remapping.
+- **Detailed Error Reporting**: Precise `DaxParsingError` with character offsets, ideal for IDEs and gateways.
+- **Advanced DAX Support**:
+  - Complex filtering (`FILTER`, `CALCULATETABLE`)
+  - Aggregations (`SUMMARIZE`, `ADDCOLUMNS`, `SELECTCOLUMNS`)
+  - Table operators (`UNION`, `INTERSECT`, `EXCEPT`, `GENERATE`, `CROSSJOIN`)
+  - Variables (`VAR...RETURN`)
+  - Logical operators and expressions (`IN`, `&&`, `||`, etc.)
+
+## Installation
+
+```bash
+pip install dax-sql-parser
+```
+
+## Quick Start
+
+```python
+from dax_sql_parser import DaxParser
+
+# Initialize the parser
+parser = DaxParser(default_dialect="trino")
+
+# Translate a simple query
+dax = "EVALUATE 'Sales'"
+sql = parser.to_sql(dax)
+print(sql)
+# SELECT * FROM "Sales"
+
+# Use schema mapping
+parser = DaxParser(schema_mapping={"S": "raw.sales_data"})
+sql = parser.to_sql("EVALUATE S")
+print(sql)
+# SELECT * FROM "raw"."sales_data"
+```
+
+### Metadata and Implicit Joins
+
+To support unqualified column references and automatic joins (critical for simple BI queries), provide a `MetadataResolver`.
+
+```python
+from dax_sql_parser import DaxParser
+from dax_sql_parser.core.metadata import MetadataResolver, TableMetadata, Relationship
+
+# 1. Define your model
+product = TableMetadata(name="Product")
+product.add_column("ProductID", data_type="int")
+product.add_column("Color", data_type="string")
+
+sales = TableMetadata(name="Sales")
+sales.add_column("ProductID", data_type="int")
+sales.add_column("Amount", data_type="decimal")
+
+# 2. Define relationships
+rel = Relationship(from_table="Sales", from_column="ProductID", 
+                   to_table="Product", to_column="ProductID")
+
+metadata = MetadataResolver(tables=[product, sales], relationships=[rel])
+
+# 3. Initialize parser with metadata
+parser = DaxParser(metadata=metadata)
+
+# 4. Resolve unqualified [Color] and inject JOIN
+dax = "EVALUATE FILTER('Sales', [Color] = \"Red\")"
+sql = parser.to_sql(dax)
+# SELECT * FROM Sales INNER JOIN Product ON ... WHERE Product.Color = 'Red'
+```
+
+## Extending Dialects
+
+`dax-sql-parser` is designed to be easily extensible. To add a new SQL dialect:
+
+1.  **Create a Dialect Class**: Inherit from `BaseDialect` and implement `get_function_mappings`.
+2.  **Register the Dialect**: Use `DialectRegistry.register()`.
+
+```python
+from dax_sql_parser.core.dialects.base import BaseDialect
+from dax_sql_parser.core.dialects.registry import DialectRegistry
+import sqlglot.expressions as exp
+
+class MySnowflakeDialect(BaseDialect):
+    @property
+    def name(self) -> str:
+        return "snowflake"
+
+    def get_function_mappings(self):
+        return {
+            "MEDIAN": lambda args: exp.Anonymous(this="MEDIAN", expressions=args)
+        }
+
+DialectRegistry.register(MySnowflakeDialect())
+```
+
+## Development & Testing
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management and building.
+
+### Setup
+
+1.  **Install uv**: Follow the [official installation guide](https://docs.astral.sh/uv/getting-started/installation/).
+2.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/shohamyamin/dax-sql-parser.git
+    cd dax-sql-parser
+    ```
+3.  **Sync dependencies**:
+    ```bash
+    uv sync
+    ```
+
+### Working with Grammar
+
+The parser is based on ANTLR4. If you modify the grammar file `src/dax_sql_parser/grammar/Dax.g4`, you need to regenerate the Python files:
+
+```bash
+# Using antlr4-tools (installed via dev dependencies)
+antlr4 -Dlanguage=Python3 -visitor -o src/dax_sql_parser/grammar/ src/dax_sql_parser/grammar/Dax.g4
+```
+
+### Running Tests
+
+Run the comprehensive test suite with `pytest`:
+
+```bash
+uv run pytest
+```
+
+To run with coverage report:
+
+```bash
+uv run pytest --cov=dax_sql_parser --cov-report=term-missing
+```
+
+### Building the Package
+
+To build the source distribution and wheel:
+
+```bash
+uv build
+```
+
+The artifacts will be generated in the `dist/` directory.
+
+
+## License
+
+MIT
