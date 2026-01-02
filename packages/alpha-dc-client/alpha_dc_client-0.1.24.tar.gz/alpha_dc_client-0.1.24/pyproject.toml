@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "alpha-dc-client"
+version = "0.1.24"
+authors = [
+    {name = "Hang GuangLiang", email = "hanguangliang@alphaaidig.com"},
+]
+dependencies = [
+    "httpx",
+    "alpha-dc-common==0.1.24"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dc_client"]
+
+[tool.uv.sources]
+alpha-dc-common = { workspace = true }
