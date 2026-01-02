@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jamsuite-logger"
+version = "0.9.0"
+description = "JSON structured logger"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "Apache-2.0 License"}
+authors = [
+    {name = "JamSuite Developers", email = "opensource@jamsuite.com"},
+]
+maintainers = [
+    {name = "JamSuite Developers", email = "opensource@jamsuite.com"},
+]
+keywords = ["logging", "logger", "jamsuite", "json-logger", "structured-logger"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: System :: Logging"
+]
+
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "ruff>=0.1.0",
+    "pydantic>=2.10.6",
+    "pytest>=8.3.5",
+    "build>=1.2.2.post1",
+]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.1",
+    "mkdocstrings[python]>=0.26.1",
+]
+
+
+[project.urls]
+Homepage = "https://github.com/JamSuite/jamsuite-logger"
+Documentation = "https://github.com/JamSuite/jamsuite-logger#readme"
+Repository = "https://github.com/JamSuite/jamsuite-logger"
+Issues = "https://github.com/JamSuite/jamsuite-logger/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jamsuite"]
+
+[tool.ruff]
+line-length = 138
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = []

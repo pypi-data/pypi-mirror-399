@@ -1,0 +1,38 @@
+site_name: JamSuite Logger
+site_url: !ENV READTHEDOCS_CANONICAL_URL
+theme:
+  name: material
+  logo: assets/jamsuite-logo.png
+  favicon: assets/jamsuite-logo.png
+  custom_dir: docs/overrides  
+  font:
+    text: Inter
+    header: Poppins
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    scheme: jamsuite
+extra_css:
+  - stylesheets/extra.css
+watch:
+  - docs
+  - src
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_symbol_type_heading: true
+  - search
+repo_url: https://github.com/JamSuite/jamsuite-logger
+repo_name: jamsuite-logger
+copyright: Copyright &copy; 2025 - 2026 by JamSuite
+extra:
+  generator: false
+nav:
+  - 'index.md'
+  - 'configuration.md'
+  - 'customize.md'
+  - Architecture: 'architecture.md'
+  - 'api-documentation.md'

@@ -1,0 +1,33 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+    "name": "jamsuite-logger",
+    "image": "mcr.microsoft.com/devcontainers/python:3.13",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+    // Features to add to the dev container. More info: https://containers.dev/features.
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+
+    "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/postCreate.sh -w ${containerWorkspaceFolder}",
+
+    "containerEnv": {
+        "UV_LINK_MODE":"copy"
+    },
+
+    // Configure tool-specific properties.
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "ms-python.python",
+                "charliermarsh.ruff",
+                "ms-python.isort",
+                "ms-python.vscode-pylance",
+                "tamasfe.even-better-toml",
+            ]
+        }
+    }
+}

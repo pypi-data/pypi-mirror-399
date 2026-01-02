@@ -1,0 +1,40 @@
+{
+    // default to /bin/bash on osx instead of zsh
+    "terminal.integrated.defaultProfile.osx": "bash",
+    "terminal.integrated.profiles.osx": {
+        "bash": {
+            "path": "/bin/bash",
+            "args": ["-l"], // load .bashrc
+            "icon": "terminal-bash"
+        }
+    },
+    // select the virtual environment python interpreter
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    // configure prettier (these don't work with ${workspaceFolder})
+    "files.exclude": {
+        "**/__pycache__/": true,
+        ".pytest_cache": true,
+    },
+    "files.watcherExclude": {
+        "**/__pycache__/": true,
+        ".pytest_cache": true,
+        "**/target": true
+    },
+    "search.exclude": {
+        // Avoid polluting search results with lockfile content
+        "uv.lock": true
+    },
+    "extensions.ignoreRecommendations": true,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "python.REPL.enableREPLSmartSend": false,
+    // https://github.com/microsoft/vscode-python/issues/24097
+    "python.experiments.optOutFrom": ["pythonTerminalEnvVarActivation"],
+    // our scripts/setenv takes care of virtal env activation, so please VS Code stop doing this too
+    "python.terminal.activateEnvironment": false
+}
