@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fz-decrypt"
+version = "0.1.0"
+description = "A library to decrypt FileZilla-Client passwords protected by a master password."
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+  { name="David Block"},
+]
+keywords = ["filezilla", "decrypt", "password", "security", "recovery"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Security :: Cryptography",
+]
+dependencies = [
+    "cryptography>=3.0"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/deinusername/fz-decrypt-lib"
+"Bug Tracker" = "https://github.com/deinusername/fz-decrypt-lib/issues"
