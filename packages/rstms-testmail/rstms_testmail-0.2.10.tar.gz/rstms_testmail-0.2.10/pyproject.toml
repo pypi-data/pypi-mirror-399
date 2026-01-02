@@ -1,0 +1,69 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+requires_python = ">=3.10"
+
+
+
+[project]
+name = "rstms-testmail"
+version = "0.2.10"
+authors = [{name = "Matt Krueger", email = "mkrueger@rstms.net"}]
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+keywords = ["rstms_testmail"]
+classifiers = [
+  "Intended Audience :: Developers",
+
+  "Natural Language :: English", 
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10"
+]
+dynamic = ["description"] 
+
+dependencies = [
+  "click",
+  "google-api-python-client",
+  "google-auth-httplib2",
+  "google-auth-oauthlib",
+  "sendgrid-python"
+]
+
+[tool.flit.module]
+name = "rstms_testmail"
+
+[project.optional-dependencies]
+dev = [
+  "black",
+  "bump2version",
+  "coverage",
+  "devtools",
+  "isort",
+  "flake8",
+  "flake8-length",
+  "pdbpp",
+  "pytest",
+  "python-box",
+  "toml",
+  "tox"
+]
+docs = [
+  "m2r2",
+  "sphinx",
+  "sphinx-click",
+  "pallets-sphinx-themes"
+]
+
+[project.urls]
+Home = "https://github.com/rstms/rstms_testmail"
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+[tool.pytest]
+collect_ignore = ['setup.py']
+
+
+[project.scripts]
+testmail = "rstms_testmail:cli"
