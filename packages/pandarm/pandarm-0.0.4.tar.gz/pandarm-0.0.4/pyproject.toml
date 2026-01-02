@@ -1,0 +1,74 @@
+[build-system]
+# Requirements for building the compiled package
+build-backend = "setuptools.build_meta"
+requires = ["wheel", "setuptools >=40.8", "setuptools_scm[toml]>=6.2", "cython >=3", "numpy >=2.0"]
+
+[tool.setuptools_scm]
+
+[project]
+name = "pandarm"
+dynamic = ["version"]
+description = "The Pandas Routing Machine"
+readme = "README.md"
+keywords = ["routing, network analysis, accessibility, shortest paths, isochrone"]
+dependencies = [
+    "geopandas >=1.1",
+    "numpy >=1.26",
+    "pandas >=2.2",
+    "scikit-learn >=1.4",
+    "tables >=3.10",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Affero General Public License v3"
+]
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+
+[project.urls]
+Home = "https://github.com/oturns/pandarm/"
+Repository = "https://github.com/oturns/pandarm"
+
+
+[tool.setuptools.packages.find]
+include = ["pandarm", "pandarm.*", "src*"]
+exclude = ["*.tests", "*.tests.*", "tests.*", "tests"]
+
+[project.optional-dependencies]
+plus = [
+    "osmnx >=2.0",
+]
+dev = [
+    "codecov",
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+]
+docs = [
+    "myst-parser",
+    "nbsphinx",
+    "numpydoc",
+    "sphinx",
+    "sphinxcontrib-bibtex",
+    "sphinx_bootstrap_theme",
+]
+all = [
+    "pandarm[plus,dev,docs]"
+]
+
+
+[tool.ruff]
+ignore = ["E226","E402"]
+line-length = 100
+
+[tool.coverage.run]
+source = ["./pandarm"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "if self.debug:",
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "except ModuleNotFoundError:",
+    "except ImportError",
+]
