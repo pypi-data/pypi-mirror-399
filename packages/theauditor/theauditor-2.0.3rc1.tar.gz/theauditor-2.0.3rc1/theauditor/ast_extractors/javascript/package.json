@@ -1,0 +1,22 @@
+{
+  "name": "@theauditor/js-extractors",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=node --target=node18 --format=cjs --outfile=dist/extractor.cjs --packages=external",
+    "test": "tsx src/test_extractor.ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "pino": "9.5.0",
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.10",
+    "esbuild": "0.24.0",
+    "ts-node": "10.9.2",
+    "tsx": "4.19.2",
+    "typescript": "5.7.2"
+  }
+}
