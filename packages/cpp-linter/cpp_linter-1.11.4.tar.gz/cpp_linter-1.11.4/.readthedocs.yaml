@@ -1,0 +1,26 @@
+# Read the Docs configuration file for Sphinx projects
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Set the OS, Python version and other tools you might need
+build:
+  os: ubuntu-lts-latest
+  tools:
+    python: "latest"
+    # You can also specify other tool versions:
+    # nodejs: "latest"
+    # rust: "latest"
+    # golang: "latest"
+  jobs:
+    pre_create_environment:
+      - >-
+        UV_INSTALL_DIR="${HOME}/.local/bin" &&
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    build:
+      html:
+        - ${HOME}/.local/bin/uvx nox -s docs
+    post_build:
+      - mkdir -p $READTHEDOCS_OUTPUT/html/
+      - mv docs/_build/html/* $READTHEDOCS_OUTPUT/html

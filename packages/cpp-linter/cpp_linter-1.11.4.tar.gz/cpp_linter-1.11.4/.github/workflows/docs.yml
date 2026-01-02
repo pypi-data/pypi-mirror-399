@@ -1,0 +1,21 @@
+name: Build Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+env:
+  PATH_TO_DOCS: docs/_build/html
+
+jobs:
+  docs:
+    permissions:
+      # to deploy to Pages
+      pages: write
+      # to verify the deployment originates from an appropriate source
+      id-token: write
+    uses: cpp-linter/.github/.github/workflows/sphinx.yml@main
