@@ -1,0 +1,102 @@
+Metadata-Version: 2.4
+Name: codec-versioning
+Version: 0.1.0
+Summary: Manage multiple versions of general-purpose binary-based codecs.
+Author-email: Emendir <dev@emendir.tech>
+License-Expression: MIT-0 OR CC0-1.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: LICENSE-CC0
+Requires-Dist: brenthy_tools_beta
+Dynamic: license-file
+
+# Codec Versioning
+
+_A python module to manage alternative versions of general-purpose binary codecs._
+
+This python library makes it easy to manage multiple alternative versions of codecs (encoding and decoding functions).
+This is primarily intended for situations where codecs may be updated in the future and old codecs need to remain supported.
+
+## Use Cases
+
+- encoded format is binary (bytes/bytearray)
+- old codecs need to remain supported as new codecs are developed
+
+## Features
+
+- manage multiple versions of codecs (encoding and decoding functions)
+- define codec functions either in classes or modules as you prefer
+- each codec is identified by an integer version
+- when encoding, used codec's version is automatically encoded
+- when decoding, the correct codec version is automatically determined
+- built-in type-checking of encoded/decoded objects
+
+## Quickstart
+
+```sh
+pip install codec_versioning
+```
+
+See the example at [`./examples/example1/example_encoding.py`](./examples/example1/example_encoding.py), and its test at [`./tests/test_example.py`](./tests/test_example.py).
+
+## Documentation
+
+See the example at [`./examples/example1/example_encoding.py`](./examples/example1/example_encoding.py), and its test at [`./tests/test_example.py`](./tests/test_example.py).
+
+Also, this library's source code essentially comprises one small file, which should be fairly easy to undrstand:
+[`./src/codec_versioning/codec_versioning.py`](./src/codec_versioning/codec_versioning.py)
+
+## DevOps
+
+To get started using this repository's code, checkout the commands built into its Makefile by running:
+```sh
+make help
+```
+
+## Contributing
+
+### Get Involved
+
+- GitHub Discussions: if you want to share ideas
+- GitHub Issues: if you find bugs, other issues, or would like to submit feature requests
+- GitHub Merge Requests: if you think you know what you're doing, you're very welcome!
+
+### Donations
+
+To support me in my work on this and other projects, you can make donations with the following currencies:
+
+- **Bitcoin:** `BC1Q45QEE6YTNGRC5TSZ42ZL3MWV8798ZEF70H2DG0`
+- **Ethereum:** `0xA32C3bBC2106C986317f202B3aa8eBc3063323D4`
+- [**Fiat** (via Credit or Debit Card, Apple Pay, Google Pay, Revolut Pay)](https://checkout.revolut.com/pay/4e4d24de-26cf-4e7d-9e84-ede89ec67f32)
+
+Donations help me:
+- dedicate more time to developing and maintaining open-source projects
+- cover costs for IT infrastructure
+- finance projects requiring additional hardware & compute
+
+## About the Developer
+
+This project is developed by a human one-man team, publishing under the name _Emendir_.  
+I build open technologies trying to improve our world;
+learning, working and sharing under the principle:
+
+> _Freely I have received, freely I give._
+
+Feel welcome to join in with code contributions, discussions, ideas and more!
+
+## Open-Source in the Public Domain
+
+I dedicate this project to the public domain.
+It is open source and free to use, share, modify, and build upon without restrictions or conditions.
+
+I make no patent or trademark claims over this project.  
+
+Formally, you may use this project under either the: 
+- [MIT No Attribution (MIT-0)](https://choosealicense.com/licenses/mit-0/) or
+- [Creative Commons Zero (CC0)](https://choosealicense.com/licenses/cc0-1.0/)
+licence at your choice.  
+
+
