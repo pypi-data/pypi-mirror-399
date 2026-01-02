@@ -1,0 +1,54 @@
+project:
+  type: website
+  output-dir: docs
+  pre-render: scripts/sync_readme.py
+  post-render: scripts/post-render.py
+
+website:
+  title: "artpack"
+  description: "Create data that displays generative art when mapped into a plotnine plot"
+  repo-url: https://github.com/Meghansaha/artpack-py
+  repo-actions: [edit, issue]
+  
+  navbar:
+    background: primary
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Reference"
+        href: reference/index.qmd
+      - text: Changelog
+        href: CHANGELOG.qmd
+    
+    right:
+      - icon: github
+        href: https://github.com/Meghansaha/artpack-py
+
+format:
+  html:
+    theme: sketchy
+    css: assets/styles.css
+    toc: true
+    toc-location: left
+    code-copy: true
+    code-block-bg: "#dddcf5"
+    code-block-border-left: true
+    grid:
+      sidebar-width: 250px
+    responsive: true
+    
+quartodoc:
+  style: pkgdown
+  dir: reference
+  package: artpack
+  sidebar: reference/_sidebar.yml
+  sections:
+    - title: "Asset Creation Tools"
+      desc: "Functions that help with making data for generative art."
+      contents:
+        - name: "circle_data"
+    - title: "Color Palette Tools"
+      desc: "Functions that help with color-related tasks."
+      contents:
+        - name: "art_pals"
+
