@@ -1,0 +1,21 @@
+ARG PYTHON_VERSION=3.11
+ARG ALPINE_VERSION=alpine3.19
+
+FROM python:${PYTHON_VERSION}-${ALPINE_VERSION}
+
+RUN apk add --no-cache docker-cli bash curl
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
+
+WORKDIR /workspace
+
+COPY pyproject.toml ./
+COPY podkit/ ./podkit/
+COPY tests/ ./tests/
+
+RUN uv pip install --system -e ".[dev]"
+
+RUN mkdir -p /test_workspace
+
+CMD ["pytest"]

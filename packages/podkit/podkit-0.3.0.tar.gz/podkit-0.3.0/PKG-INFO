@@ -1,0 +1,242 @@
+Metadata-Version: 2.4
+Name: podkit
+Version: 0.3.0
+Summary: Container management library with backend abstraction for sandboxed execution
+Author: Navari Team
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: docker>=7.1.0
+Requires-Dist: pydantic>=2.12.5
+Provides-Extra: dev
+Requires-Dist: build>=1.2.2; extra == "dev"
+Requires-Dist: twine>=6.0.0; extra == "dev"
+Requires-Dist: pytest>=9.0.2; extra == "dev"
+Requires-Dist: pytest-timeout>=2.2.0; extra == "dev"
+Requires-Dist: pytest-xdist>=3.5.0; extra == "dev"
+Requires-Dist: ruff>=0.14.10; extra == "dev"
+Requires-Dist: pylint>=4.0.4; extra == "dev"
+Requires-Dist: setuptools-scm>=9.2.2; extra == "dev"
+
+# Podkit - Simple Container Management Library
+
+A Python library for sandboxed execution in Docker containers with backend abstraction (Kubernetes-ready)
+
+## Features
+
+Podkit implements a clean **three-layer architecture** for flexible container management:
+
+**Layer 1 (Backend)** provides runtime-agnostic infrastructure operations for Docker/Kubernetes with image management and workload execution;
+
+**Layer 2 (ContainerManager)** bridges infrastructure and application logic with container lifecycle management, project-specific mounting strategies, and host-to-container path translation;
+
+**Layer 3 (SessionManager)** delivers the user-facing API with session lifecycle tracking, automatic activity monitoring, and cleanup of expired sessions.
+
+This separation enables backend portability (swap Docker for Kubernetes without touching business logic), customizable project configurations (different mounting strategies per project), and independent testing of each layer.
+
+## Example 1 (the simplest one)
+
+```python
+# Auto-creates session OR reconnects to the existing running/exited container (auto-stopping after 1 min)
+
+from podkit import get_docker_session
+
+result = get_docker_session(user_id="bob", session_id="123").execute_command("pwd")
+print(result.stdout)
+
+# No auto-removing in this case, only auto-stopping!
+# You may not close the session if you expect running some commands in this session again.
+# Otherwise close the session manually, like in example 3.
+```
+
+## Example 2 (simple with auto-cleanup)
+
+```python
+# auto-cleanup with context manager (container will be removed, slower than example 1)
+
+from podkit import get_docker_session
+
+with get_docker_session(user_id="bob", session_id="123") as session:
+    result = session.execute_command("pwd")
+    print(result.stdout)
+
+# Perfect when you need one-time execution - run the command and clean up resources right away
+```
+
+## Example 3 (simple with mounts)
+
+```python
+# Persistent workspace (host dir mapping)
+
+from pathlib import Path
+from podkit import get_docker_session
+
+session = get_docker_session(
+    user_id="bob",
+    session_id="123",
+    workspace="/app/data/workspace",
+    workspace_host="./data/workspace" # files will be here on the host once container exits
+)
+session.write_file(Path("/workspace/data.txt"), "persistent data")
+session.close()
+```
+
+## Example 4 (full control - for advanced use cases)
+
+Note: This example shows the low-level API for maximum control. For most use cases, use `get_docker_session()` instead.
+
+```python
+from pathlib import Path
+
+from podkit.backends.docker import DockerBackend
+from podkit.core.manager import BaseContainerManager
+from podkit.core.models import ContainerConfig
+from podkit.core.session import BaseSessionManager
+from podkit.utils.paths import get_workspace_path, write_to_mounted_path
+
+# You must provide concrete ContainerManager implementation
+# BaseContainerManager requires implementing get_mounts() and write_file()
+class MyContainerManager(BaseContainerManager):
+    """Custom container manager with project-specific mount logic."""
+
+    def get_mounts(self, user_id: str, session_id: str, config: ContainerConfig):
+        """Define how exactly to mount volumes."""
+
+        workspace_path = get_workspace_path(self.workspace_base, user_id, session_id)
+        workspace_path.mkdir(parents=True, exist_ok=True)
+
+        return [{
+            "Type": "bind",
+            "Source": str(workspace_path),
+            "Target": "/workspace",
+        }]
+
+    def write_file(self, container_id, container_path, content, user_id, session_id):
+        """Write file to mounted filesystem (persists)."""
+
+        return write_to_mounted_path(
+            container_path,
+            content,
+            lambda path: self.to_host_path(path, user_id, session_id),
+        )
+
+backend = DockerBackend()
+backend.connect()
+
+container_manager = MyContainerManager(
+    backend=backend,
+    container_prefix="podkit",
+    workspace_base=Path("/tmp/podkit_workspace"),
+)
+
+session_manager = BaseSessionManager(
+    container_manager=container_manager,
+    default_image="python:3.15-rc-alpine3.23",
+)
+
+# Configuration with auto-shutdown (entrypoint=None, default behavior)
+# Container runs for 5 minutes then auto-exits (via sleep command)
+sandbox_config = ContainerConfig(
+    image="python:3.15-rc-alpine3.23",
+    container_lifetime_seconds=300,  # Container auto-exits after 5 minutes
+    cpu_limit=1.0,
+    memory_limit="512m",
+    environment={
+        "PYTHONUNBUFFERED": "1",
+        "LOG_LEVEL": "DEBUG",
+    },
+)
+
+session = session_manager.create_session(
+    user_id="user",
+    session_id="session",
+    config=sandbox_config,
+)
+
+# Execute commands - if container exited (timeout), it auto-restarts
+result = session_manager.execute_command(
+    user_id="user",
+    session_id="session",
+    command=["sh", "-c", "echo 'Hello'"],
+)
+print(result.stdout)
+
+session_manager.write_file(
+    user_id="user",
+    session_id="session",
+    container_path=Path("/workspace/file.txt"),
+    content="Hello from podkit",
+)
+
+# Configuration without auto-shutdown (explicit entrypoint disables it)
+# When entrypoint=[] is set, container uses "sleep infinity" and runs until manually closed
+# Note: container_lifetime_seconds is IGNORED when explicit entrypoint is set
+no_timeout_config = ContainerConfig(
+    image="python:3.15-rc-alpine3.23",
+    entrypoint=[],  # Explicit empty entrypoint = sleep infinity, no auto-shutdown
+)
+
+session2 = session_manager.create_session(
+    user_id="user2",
+    session_id="session2",
+    config=no_timeout_config,
+)
+# This container runs indefinitely until manually closed (below)
+# Session may still expire due to inactivity (controlled by session_inactivity_timeout_seconds)
+
+# Cleanup
+session_manager.close_session("user", "session")
+session_manager.close_session("user2", "session2")
+```
+
+## Development Setup
+
+### Prerequisites
+
+- Docker
+- uv
+
+### Installation
+
+```bash
+./scripts/install.sh
+```
+
+## Running Tests
+
+### Integration Tests (Recommended)
+
+Run tests in Docker container (most realistic):
+
+```bash
+./scripts/test.sh
+```
+
+This will:
+1. Build the test runner container with all dependencies
+2. Mount the Docker socket and test workspace
+3. Run pytest with the integration tests
+4. Clean up automatically
+
+### Local Testing (Development)
+
+For faster iteration during development:
+
+```bash
+# Start test container and keep it running
+docker-compose run --rm test-runner bash
+
+# Inside the container, run tests
+pytest tests/integration/test_integration_happy_path.py -v
+
+# Or run specific tests
+pytest tests/integration/test_integration_happy_path.py::TestPodkitIntegrationHappyPath::test_01_backend_initialized -v
+```
+
+### Linting
+
+```bash
+./scripts/lint.sh         # Check only
+./scripts/lint.sh --fix   # Auto-fix issues
+```
+
+This runs `ruff` and `pylint` for code checking and formatting.
