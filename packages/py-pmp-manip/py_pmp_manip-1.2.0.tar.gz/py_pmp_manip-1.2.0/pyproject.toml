@@ -1,0 +1,63 @@
+[project]
+name = "py-pmp-manip"
+version = "1.2.0"
+description = "Python tool for creating, editing and inspecting Penguinmod(.pmp) and Scratch(.sb3) files."
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.12"
+license = { text = "GPL-3.0-or-later" }
+authors = [{name = "GermanCodeEngineer", email = "germancodeengineer@proton.me"}]
+
+# sometimes auto generated
+dependencies = [
+    "Pillow~=12.0",
+    "Requests~=2.32",
+    "colorama~=0.4",
+    "lxml~=6.0",
+    "pydub_ng~=0.2",
+    "tree_sitter~=0.25",
+    "tree_sitter_javascript~=0.25",
+    "validators~=0.35",
+]
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/GermanCodeEngineer/py-pmp-manip/"
+Repository = "https://github.com/GermanCodeEngineer/py-pmp-manip/"
+Issues = "https://github.com/GermanCodeEngineer/py-pmp-manip/issues/"
+
+# sometimes auto generated
+[project.optional-dependencies]
+dev = [
+    "graphviz~=0.21",
+    "pytest~=9.0",
+    "tomlkit~=0.13",
+    "coverage~=7.13",
+    "pipreqs~=0.4",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pmp_manip*"]
+[tool.setuptools.package-data]
+"pmp_manip" = ["**/*.js", "builtin_extension_source/**/*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.poetry.extras]
+nodejs = ["Node.js >= 18"]  # informational only
