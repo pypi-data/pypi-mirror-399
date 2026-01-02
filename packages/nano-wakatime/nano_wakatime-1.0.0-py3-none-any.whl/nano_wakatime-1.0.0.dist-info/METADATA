@@ -1,0 +1,143 @@
+Metadata-Version: 2.4
+Name: nano-wakatime
+Version: 1.0.0
+Summary: A WakaTime plugin wrapper for GNU Nano
+Author-email: Alan Nato <alanwnato@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/iamnotnato/nano-wakatime
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: watchdog>=2.1.0
+
+# Nano WakaTime Plugin ⏱️
+
+> A lightweight, cross-platform Python wrapper that adds WakaTime tracking to the GNU Nano editor.
+
+![Nano WakaTime](https://img.shields.io/badge/Editor-Nano-blue?logo=gnu-bash)
+![Language](https://img.shields.io/badge/Written%20in-Python%203-yellow?logo=python)
+![Status](https://img.shields.io/badge/Status-Working-brightgreen)
+
+Unlike modern IDEs (VS Code, JetBrains), `nano` does not support native plugins. This tool solves that by using the **Wrapper Pattern**. It launches a background file watcher alongside the editor to detect "Save" events and sync them to the WakaTime API silently.
+
+---
+
+## 🏗️ Architecture
+
+How it works under the hood:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant NanoW as nanow (Wrapper)
+    participant Editor as GNU Nano
+    participant Watcher as Watchdog (Thread)
+    participant CLI as WakaTime CLI
+    
+    User->>NanoW: run "nano file.py"
+    NanoW->>Watcher: Start background monitoring on file.py
+    NanoW->>Editor: Launch Editor (Foreground)
+    
+    loop Editing Session
+        User->>Editor: Edit & Save (Ctrl+O)
+        Editor-->>Watcher: File System Event (MODIFY)
+        Watcher->>CLI: Trigger heartbeat
+        CLI-->>WakaTime API: HTTP POST (201 Created)
+    end
+    
+    User->>Editor: Exit (Ctrl+X)
+    Editor->>NanoW: Process Ends
+    NanoW->>Watcher: Stop & Cleanup
+```
+
+## ✨ Features
+
+- **Zero Latency:** The editor runs natively; the tracking happens in a non-blocking background thread.
+- **Atomic Save Detection:** Uses `watchdog` to handle complex file system events (more robust than polling).
+- **Smart Argument Parsing:** Distinguishes between Nano flags (e.g., `-w`, `-c`) and actual filenames.
+- **Cross-Platform:** Works on Linux and macOS.
+
+## 📦 Dependencies
+
+- Python 3.6+
+- WakaTime CLI (Standard Go binary)
+- Python Watchdog Library
+
+### 1. Install Python Watchdog
+
+```bash
+pip3 install -r requirements.txt
+```
+
+### 2. Install WakaTime CLI (if not already installed)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/wakatime/vim-wakatime/master/install_cli.py | python3
+```
+
+## 🚀 Installation
+
+### 1. Download the Wrapper
+
+Clone this repository or download the script directly.
+
+```bash
+git clone https://github.com/YOUR_USERNAME/nano-wakatime.git
+cd nano-wakatime
+```
+
+### 2. Install
+
+Move the script to your local binary folder and make it executable.
+
+```bash
+mkdir -p ~/.local/bin
+cp nanow.py ~/.local/bin/nanow
+chmod +x ~/.local/bin/nanow
+```
+
+### 3. Create the Alias
+
+To make this seamless, alias `nano` to use this wrapper. Add this to your `.bashrc` or `.zshrc`:
+
+```bash
+alias nano="nanow"
+```
+
+Reload your shell:
+
+```bash
+source ~/.bashrc
+```
+
+## ⚙️ Configuration
+
+Create your WakaTime config file if you haven't already.
+
+1. Get your API Key from [wakatime.com/api-key](https://wakatime.com/api-key).
+2. Create the config file:
+
+```bash
+# Note: Use \nano to bypass the alias for initial setup
+\nano ~/.wakatime.cfg
+```
+
+3. Paste the following:
+
+```ini
+[settings]
+api_key = your_secret_api_key_here
+```
+
+## 🕹️ Usage
+
+Just use `nano` as you normally would!
+
+```bash
+# The wrapper automatically starts
+nano my_script.py
+
+# Works with flags too
+nano -c -w my_script.py
+```
+
+> **Note:** Time is tracked when you Save (`Ctrl+O`).
