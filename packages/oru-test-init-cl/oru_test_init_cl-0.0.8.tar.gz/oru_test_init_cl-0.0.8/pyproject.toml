@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oru-test-init-cl"
+version = "0.0.8"
+description = "Test d'initialisation"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{ name = "Louis Clavel" }]
+
+[tool.setuptools]
+# Indique à setuptools de chercher le code dans le dossier 'src'
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
