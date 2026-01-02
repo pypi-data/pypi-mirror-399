@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "langchain-primordia"
+version = "0.1.1"
+description = "Primordia economic metering for LangChain - track AI costs with machine-readable receipts"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [
+    { name = "Primordia", email = "dev@primordia.dev" }
+]
+keywords = ["langchain", "ai", "metering", "costs", "agents", "settlement"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "langchain-core>=0.1.0",
+]
+
+[project.optional-dependencies]
+submit = ["requests>=2.28.0"]
+
+[project.urls]
+Homepage = "https://primordia.dev"
+Documentation = "https://primordia.dev/docs/langchain"
+Repository = "https://github.com/primordia-ai/langchain-primordia"
+Kernel = "https://clearing.kaledge.app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["langchain_primordia"]
