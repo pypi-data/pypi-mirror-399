@@ -1,0 +1,72 @@
+{
+  "id": "vlaams/basis",
+  "label": "Vlaams basis (NL-BE informeel)",
+  "inherits": [
+    "nl/standard"
+  ],
+  "notes": "Belgian informal baseline; conservative and readable.",
+  "protected_terms": [
+    "verplicht",
+    "verboden",
+    "mag",
+    "moet",
+    "kan",
+    "niet",
+    "geen",
+    "tenzij",
+    "enkel",
+    "alleen",
+    "behalve",
+    "uitzondering",
+    "boete",
+    "straf"
+  ],
+  "rules": [
+    {
+      "type": "replace_word",
+      "from": "jij",
+      "to": "{pronoun_subject}"
+    },
+    {
+      "type": "replace_word",
+      "from": "jou",
+      "to": "{pronoun_object}"
+    },
+    {
+      "type": "replace_word",
+      "from": "jouw",
+      "to": "{pronoun_possessive}"
+    },
+    {
+      "type": "replace_regex",
+      "pattern": "\\bdat is\\b",
+      "to": "da’s",
+      "flags": [
+        "IGNORECASE"
+      ],
+      "preserve_case": true
+    },
+    {
+      "type": "replace_word",
+      "from": "wat",
+      "to": "wa",
+      "only_in_questions": true
+    },
+    {
+      "type": "append_particle",
+      "particle": "zeg",
+      "probability": 0.06,
+      "positions": [
+        "end_of_sentence"
+      ]
+    },
+    {
+      "type": "append_particle",
+      "particle": "allee",
+      "probability": 0.04,
+      "positions": [
+        "end_of_sentence"
+      ]
+    }
+  ]
+}
