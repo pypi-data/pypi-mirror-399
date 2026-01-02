@@ -1,0 +1,91 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Ger\u00e4t ist bereits konfiguriert",
+            "reconfigure_successful": "Die Neukonfiguration war erfolgreich"
+        },
+        "error": {
+            "cannot_connect": "Verbindung fehlgeschlagen",
+            "unknown": "Unerwarteter Fehler"
+        },
+        "step": {
+            "reconfigure": {
+                "data": {
+                    "host": "IP-Adresse"
+                },
+                "data_description": {
+                    "host": "IP-Adresse deiner Saunum Leil Sauna-Steuereinheit"
+                },
+                "description": "Um die IP-Adresse zu finden, navigiere auf deinem Leil-Touchpanel zu Einstellungen \u2192 Modbus-Einstellungen."
+            },
+            "user": {
+                "data": {
+                    "host": "IP-Adresse"
+                },
+                "data_description": {
+                    "host": "IP-Adresse deiner Saunum Leil Sauna-Steuereinheit"
+                },
+                "description": "Um die IP-Adresse zu finden, navigiere auf deinem Leil-Touchpanel zu Einstellungen \u2192 Modbus-Einstellungen."
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "alarm_door_open": {
+                "name": "Alarm: T\u00fcr\u00f6ffnung bei Heizbetrieb"
+            },
+            "alarm_door_sensor": {
+                "name": "Alarm: Zu lange ge\u00f6ffnete T\u00fcr"
+            },
+            "alarm_internal_temp": {
+                "name": "Alarm: Interne Temperatur"
+            },
+            "alarm_temp_sensor_open": {
+                "name": "Alarm: Temperatursensor nicht angeschlossen"
+            },
+            "alarm_temp_sensor_short": {
+                "name": "Alarm: Kurzschluss des Temperatursensors"
+            },
+            "alarm_thermal_cutoff": {
+                "name": "Alarm: Thermische Abschaltung"
+            }
+        },
+        "light": {
+            "light": {
+                "name": "Leuchte"
+            }
+        },
+        "sensor": {
+            "heater_elements_active": {
+                "name": "Heizelemente aktiv",
+                "unit_of_measurement": "Heizelemente"
+            },
+            "on_time": {
+                "name": "Gesamte Einschaltdauer"
+            }
+        }
+    },
+    "exceptions": {
+        "communication_error": {
+            "message": "Kommunikationsfehler: {error}"
+        },
+        "door_open": {
+            "message": "Saunagang kann nicht gestartet werden, wenn die Saunat\u00fcr ge\u00f6ffnet ist."
+        },
+        "session_not_active": {
+            "message": "Der L\u00fcftermodus kann nicht ge\u00e4ndert werden, wenn der Saunagang nicht aktiv ist"
+        },
+        "set_hvac_mode_failed": {
+            "message": "Einstellen des HLK-Modus auf {hvac_mode} fehlgeschlagen"
+        },
+        "set_light_off_failed": {
+            "message": "Leuchte konnte nicht ausgeschaltet werden"
+        },
+        "set_light_on_failed": {
+            "message": "Leuchte konnte nicht eingeschaltet werden"
+        },
+        "set_temperature_failed": {
+            "message": "Einstellen der Temperatur auf {temperature} fehlgeschlagen"
+        }
+    }
+}
