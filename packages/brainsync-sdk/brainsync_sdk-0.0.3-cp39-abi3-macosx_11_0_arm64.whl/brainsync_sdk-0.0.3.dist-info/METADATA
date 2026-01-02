@@ -1,0 +1,292 @@
+Metadata-Version: 2.4
+Name: brainsync_sdk
+Version: 0.0.3
+Classifier: Programming Language :: Rust
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown; charset=UTF-8; variant=GFM
+
+# brainsync Rust SDK
+
+[![Rust](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
+
+brainsync 设备的 Rust SDK，提供简单、类型安全、高性能的 API。
+
+## 🚀 快速开始
+
+### 一行代码初始化
+
+```rust
+use brainsync_sdk::serial::open_brainsync_serial;
+
+let device_api = open_brainsync_serial().await?;
+```
+
+就这么简单！`device_api` 已经完全配置好，支持所有功能。
+
+### 完整示例
+
+```rust
+use brainsync_sdk::serial::open_brainsync_serial;
+use brainsync_sdk::api::{EegSampleRate, EegGain};
+use tokio::time::{sleep, Duration};
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    // 1. 初始化设备
+    let device_api = open_brainsync_serial().await?;
+    
+    // 2. 获取固件版本
+    let version = device_api.ota().get_version().await?;
+    println!("Version: {}", version);
+    
+    // 3. 配置 EEG
+    device_api.eeg()
+        .batch_configure()
+        .sample_rate(EegSampleRate::Hz500)
+        .gain(EegGain::Gain24)
+        .apply()
+        .await?;
+    
+    // 4. 订阅数据
+    device_api.subscribe_eeg_data(|packet| {
+        let uv = packet.to_microvolts(EegGain::Gain24);
+        println!("CH0: {:.2} µV", uv[0]);
+    }).await;
+    
+    // 5. 启用传输
+    device_api.eeg().set_transfer(true).await?;
+    
+    // 6. 运行
+    sleep(Duration::from_secs(10)).await;
+    
+    // 7. 停止
+    device_api.eeg().set_transfer(false).await?;
+    
+    Ok(())
+}
+```
+
+## 📚 文档
+
+### 核心文档
+
+- **[架构总览](docs/ARCHITECTURE_OVERVIEW.md)** - 完整架构设计
+- **[API 参考](docs/API_REFERENCE.md)** - 完整 API 文档
+- **[简化 API 指南](docs/SIMPLE_API_GUIDE.md)** - 快速上手
+
+### 专题文档
+
+- **[数据流指南](docs/DATA_STREAM_GUIDE.md)** - 数据流订阅
+- **[OTA 指南](docs/OTA_GUIDE.md)** - 固件升级
+- **[API 使用指南](docs/API_USAGE_GUIDE.md)** - 三种配置方式
+
+## 🎯 核心功能
+
+### 模块 API
+
+| 模块 | 功能 | 文档 |
+|------|------|------|
+| **EEG** | 脑电信号采集和配置 | [API 参考](docs/API_REFERENCE.md#eegapi) |
+| **IMU** | 惯性测量单元 | [API 参考](docs/API_REFERENCE.md#imuapi) |
+| **OTA** | 固件升级 | [OTA 指南](docs/OTA_GUIDE.md) |
+| **Magnetometer** | 磁力计 | [API 参考](docs/API_REFERENCE.md) |
+| **ADC** | 模数转换器 | [API 参考](docs/API_REFERENCE.md) |
+| **Stimulation** | 电刺激 | [API 参考](docs/API_REFERENCE.md) |
+
+### 数据流订阅
+
+```rust
+// EEG 数据流
+device_api.subscribe_eeg_data(|packet| {
+    println!("EEG: {:?}", packet.channel_data);
+}).await;
+
+// IMU 数据流
+device_api.subscribe_imu_data(|packets| {
+    for packet in packets {
+        println!("IMU: {:?}", packet);
+    }
+}).await;
+
+// 磁力计数据流
+device_api.subscribe_mag_data(|packets| {
+    println!("MAG: {} packets", packets.len());
+}).await;
+
+// ADC 数据流
+device_api.subscribe_adc_data(|packet| {
+    println!("Battery: {:.2}V", packet.bat_vol_det_voltage());
+}).await;
+```
+
+### 三种配置方式
+
+#### 1. 基础 API（简单直接）
+
+```rust
+device_api.eeg().set_sample_rate(EegSampleRate::Hz500).await?;
+device_api.eeg().set_gain(EegGain::Gain24).await?;
+```
+
+#### 2. Builder 模式（结构化）
+
+```rust
+let config = EegConfig::builder()
+    .sample_rate(EegSampleRate::Hz500)
+    .gain(EegGain::Gain24)
+    .build();
+device_api.eeg().configure(config).await?;
+```
+
+#### 3. 批量配置（推荐）
+
+```rust
+device_api.eeg()
+    .batch_configure()
+    .sample_rate(EegSampleRate::Hz500)
+    .gain(EegGain::Gain24)
+    .apply()
+    .await?;
+```
+
+## 📦 示例程序
+
+### 运行示例
+
+```bash
+# 串口通信示例
+cargo run --example serial_example --features "examples serial"
+
+# OTA 固件升级
+cargo run --example ota_example --features "examples serial"
+
+# 串口 DFU
+cargo run --example serial_dfu --features "examples serial"
+
+# 丢包检测
+cargo run --example packet_loss_example --features "examples serial"
+```
+
+### 示例列表
+
+| 示例 | 功能 | 文件 |
+|------|------|------|
+| **serial_example** | 完整功能演示 | [serial_example.rs](examples/serial_example.rs) |
+| **ota_example** | OTA 升级演示 | [ota_example.rs](examples/ota_example.rs) |
+| **serial_dfu** | 完整 DFU 流程 | [serial_dfu.rs](examples/serial_dfu.rs) |
+| **packet_loss_example** | 丢包检测 | [packet_loss_example.rs](examples/packet_loss_example.rs) |
+
+## 🏗️ 架构
+
+```
+用户代码 (1行)
+    ↓
+open_brainsync_serial()
+    ↓
+Arc<DeviceApi> ← 完整功能
+    ├── ota()     → OTA 升级
+    ├── eeg()     → EEG 配置
+    ├── imu()     → IMU 配置
+    └── subscribe_*() → 数据流
+    ↓
+协议层 (帧编解码)
+    ↓
+传输层 (串口/蓝牙)
+    ↓
+硬件设备
+```
+
+详细架构请查看 [架构总览](docs/ARCHITECTURE_OVERVIEW.md)。
+
+## 🎨 设计特点
+
+### 简单性
+
+```rust
+// 一行代码开始
+let device_api = open_brainsync_serial().await?;
+```
+
+### 类型安全
+
+```rust
+// 编译时检查，避免运行时错误
+device_api.eeg().set_sample_rate(EegSampleRate::Hz500).await?;
+```
+
+### 异步优先
+
+```rust
+// 所有 I/O 操作都是异步的
+let version = device_api.ota().get_version().await?;
+```
+
+### 零拷贝
+
+```rust
+// 直接从字节流解析，避免内存分配
+let packet = EegDataPacket::parse(data)?;
+```
+
+### 共享状态
+
+```rust
+// 所有模块 API 共享同一个 DeviceApi
+let eeg = device_api.eeg();
+let ota = device_api.ota();
+// 请求-响应正确匹配
+```
+
+## 🔧 Feature Flags
+
+```toml
+[dependencies]
+brainsync-sdk = { path = "sdk", features = ["serial"] }
+```
+
+可用 features：
+
+- `serial` - 串口通信（推荐）
+- `ble` - 蓝牙通信（开发中）
+- `examples` - 示例程序
+
+## 📊 性能
+
+- **零开销抽象** - 泛型 + 静态分发
+- **查表法 CRC8** - 预计算 CRC 表
+- **原子操作** - 无锁丢包检测
+- **异步 I/O** - 基于 Tokio
+
+## 🧪 测试
+
+```bash
+# 运行所有测试
+cargo test
+
+# 运行特定模块测试
+cargo test --lib protocol
+cargo test --lib model
+
+# 运行示例作为集成测试
+cargo run --example serial_example --features "examples serial"
+```
+
+## 🤝 贡献
+
+欢迎贡献！请查看 [贡献指南](../CONTRIBUTING.md)。
+
+## 📄 许可证
+
+MIT License
+
+---
+
+**快速链接**：
+- [架构总览](docs/ARCHITECTURE_OVERVIEW.md)
+- [API 参考](docs/API_REFERENCE.md)
+- [简化 API 指南](docs/SIMPLE_API_GUIDE.md)
+- [示例程序](examples/)
+
