@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools","wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "amfirst"
+version = "0.1.0"
+requires-python = ">=3.10"
+description = "My first package!"
+readme = "README.md"
+authors = [
+    { name = "Antonello Mangone", email = "antonello.mangone@gmail.com" }
+]
+maintainers = [
+    { name ="Antonello Mangone", email = "antonello.mangone@gmail.com" }
+]
+license = { file = "LICENSE.txt" }
+keywords = [
+    "Mangone"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "License :: OSI Approved :: BSD License",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: MacOS :: MacOS X",
+]
+
+# dependencies = [
+#     "colorama~=0.0"
+# ]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "twine",
+    "build"
+]
+
+[project.urls]
+Homepage = "https://github.com/antonellomangone/amfirst"
+Documentation = "https://github.com/antonellomangone/amfirst/READ.me"
+
+[project.scripts]
+amfirst = "amfirst.__main__:main"
