@@ -1,0 +1,38 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include requirements.txt
+
+include pyproject.toml
+include setup.py
+include setup.cfg
+
+recursive-include src *.py
+
+recursive-include docs *.rst *.md
+
+prune .git
+prune .github
+prune tests
+
+global-exclude *.pyc *.pyo
+recursive-exclude * __pycache__
+recursive-exclude * .DS_Store
+
+exclude debug.log
+exclude docs.sublime-project
+exclude docs.sublime-workspace
+exclude docs.py.0
+exclude docs.ini
+exclude docs1.py.0
+exclude docs2.ini
+exclude logo0.png
+exclude logo1.png
+exclude logo1_compress.png
+
+prune docs-rust
+# Added entries (1 items) - 2025-12-29 18:33:34
+exclude *sublime*
+
+# Added entries (1 items) - 2025-12-29 18:35:09
+exclude .env
