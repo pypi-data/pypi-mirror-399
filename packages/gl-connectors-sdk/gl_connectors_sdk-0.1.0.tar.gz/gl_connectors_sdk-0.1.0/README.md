@@ -1,0 +1,430 @@
+# Connector SDK (GL Connector SDK)
+
+A Python SDK for seamlessly connecting to APIs that implement Connector's Plugin Architecture under HTTP Interface. This connector acts as a proxy, simplifying the integration with Connector-compatible APIs.
+
+## Migration Notice (BOSA → GL Connectors)
+
+This SDK has been renamed from BOSA to GL Connectors. All classes and methods have been updated with backwards-compatible aliases:
+
+| Old Name | New Name |
+|----------|----------|
+| `BosaConnector` | `GLConnectors` |
+| `BosaAuthenticator` | `GLAuthenticator` |
+| `BosaConnectorModule` | `GLConnectorModule` |
+| `BosaConnectorError` | `GLConnectorError` |
+| `BOSAConnectorToolGenerator` | `GLConnectorToolGenerator` |
+| `BosaToken` | `GLToken` |
+| `BosaUser` | `GLUser` |
+| `create_bosa_user()` | `create_user()` |
+| `authenticate_bosa_user()` | `authenticate()` |
+
+**Default API URL**: Changed from `https://api.bosa.id` to `https://connector.gdplabs.id`
+
+The old names are still available but marked as deprecated. You will see deprecation warnings when using them. Please migrate to the new names to avoid issues in future versions.
+
+## Features
+
+- Simple and intuitive API for connecting to Connector-compatible services
+- Automatic endpoint discovery and schema validation
+- Built-in authentication support (Connector Key and User Token)
+- User management and OAuth2 integration flow support
+- Type-safe parameter validation
+- Flexible parameter passing (dictionary or keyword arguments)
+- Retry support for requests that fail (429 or 5xx)
+- Response fields filtering based on action and output
+
+## Prerequisites
+
+After the `gl-connectors` is ready, you can perform the following tasks:
+
+- Ensure Connector is running. If you want to test locally, or you can use Staging or Production environments.
+- Create Client
+  - You can send a `create-client` request to the `gl-connectors` using Postman with the following header and body:
+    - Header
+      - `x-api-key`: KEY1
+    - Body
+      - `name`: "`{client name}`"
+  - Response :
+    ```json
+    {
+      "data": {
+        "id": "{client_id}",
+        "name": "admin",
+        "api_key": "{client_api_key}",
+        "is_active": true
+      },
+      "meta": null
+    }
+    ```
+- Register the user, see the details [here](/python/gl-connectors-sdk/README.md#user-authentication).
+
+## Installation
+
+### Prerequisites
+
+- Python 3.11+ - [Install here](https://www.python.org/downloads/)
+- Pip (if using Pip) - [Install here](https://pip.pypa.io/en/stable/installation/)
+- Poetry 2.1.3+ (if using Poetry) - [Install here](https://python-poetry.org/docs/#installation)
+- Git (if using Git) - [Install here](https://git-scm.com/downloads)
+- For git installation:
+  - Access to the [GDP Labs SDK github repository](https://github.com/GDP-ADMIN/bosa-sdk)
+
+### 1. Installation from Pypi
+
+Choose one of the following methods to install the package:
+
+#### Using pip
+
+```bash
+pip install gl-connectors-sdk
+```
+
+#### Using Poetry
+
+```bash
+poetry add gl-connectors-sdk
+```
+
+#### Using uv (recommended)
+
+```bash
+uv add gl-connectors-sdk
+```
+
+### 2. Development Installation (Git)
+
+For development purposes, you can install directly from the Git repository:
+
+```bash
+poetry add "git+ssh://git@github.com/GDP-ADMIN/bosa-sdk.git#subdirectory=python/gl-connectors-sdk"
+```
+
+## Quick Start
+
+Here's a simple example of how to use the GL Connector SDK with API key authentication and user token.
+
+### Initialization
+
+Before using the connector, you need to initialize it with your Connector base URL and API key.
+
+```python
+from gl_connectors_sdk import GLConnectors
+
+# Initialize the connector
+connector = GLConnectors(api_base_url="https://connector.gdplabs.id", api_key="YOUR_API_KEY")
+```
+
+### Authentication
+
+After initializing the connector, you can authenticate with your Connector key.
+
+```python
+# User token from authentication
+user_token = "Enter your key (bearer token) here from authentication, or refer to User Authentication section below"
+
+# Check if a user has an integration for a connector
+has_integration = connector.user_has_integration("github", user_token)
+
+if not has_integration:
+    # Initiate the OAuth2 flow for a connector
+    auth_url = connector.initiate_connector_auth("github", user_token, "https://your-callback-uri.com")
+    # Redirect the user to auth_url to complete authentication, we exit here.
+    print("Integration with GitHub not found.")
+    print(f"Please visit {auth_url} to complete authentication.")
+    exit()
+```
+
+Alternatively, you can authenticate the user first and then use their token:
+
+```python
+user = connector.authenticate("username", "password")
+
+# Get user token
+user_token = user.token
+```
+
+### Basic Example (Direct Execution)
+
+It is the basic way to execute actions, where you need to provide the connector name, action name, and user token. The response will contain the data and status:
+
+```python
+# Prepare input parameters
+params = {
+    "repo": "my-local-repo", # try to use your local repo for testing
+    "owner": "rexywjy",
+}
+
+# Execute the action with user token
+data, status = connector.execute("github", "list_collaborators", token=user_token, max_attempts=1, input_=params)
+print(data)
+print(status)
+```
+
+More details about parameters and actions in gl-connector docs `{domain}/docs`
+
+### Alternative Approach (Fluent Interface)
+
+For more complex scenarios or more control over the execution, you can use the fluent interface. We're recommending this approach if you:
+
+- Need to execute multiple actions with different parameters
+- Expecting list response
+- Need to execute actions in a loop
+
+```python
+# Prepare input parameters
+params = {
+    "owner": "gdp-admin",
+    "author": "samuellusandi",
+    "per_page": 1,
+    "sort": "author_date",
+    "created_date_start": "2025-02-01",
+    "created_date_end": "2025-02-02"
+}
+
+# Create a connector instance to a service
+github = connector.connect('github')
+
+# Execute actions with fluent interface
+response = github.action('list_pull_requests')\
+    .params(params)\
+    .max_attempts(3)\
+    .token('user-token')\
+    .run()  # Execute and return ActionResponse for advanced data handling
+
+# Get initial data
+initial_data = response.get_data()
+
+# Iterate the following next pages
+while response.has_next():
+    response = response.next_page()
+    data = response.get_data()
+    # Process data here
+    ...
+
+# You can also navigate backwards
+while response.has_prev():
+    response = response.prev_page()
+    data = response.get_data()
+    # Process data here
+    ...
+
+# Execute multiple independent actions using the same connector instance
+commits_response = github.action('list_commits')\
+    .params({
+        'owner': 'GDP-ADMIN',
+        'repo': 'gl-connectors',
+        'page': 1,
+        'per_page': 10
+    })\
+    .token('user-token')\
+    .run()
+```
+
+`run` method also available for direct execution from connector instance, without using fluent interface.
+
+```python
+# Prepare input parameters
+params = {
+    "owner": "gdp-admin",
+    "author": "samuellusandi",
+    "per_page": 1,
+    "sort": "author_date",
+    "created_date_start": "2025-02-01",
+    "created_date_end": "2025-02-02"
+}
+
+# Execute actions with run method
+response = connector.run('github', 'list_pull_requests', input_=params)
+print(response.get_data())
+```
+
+### Working with Files using ConnectorFile
+
+When working with APIs that require file uploads or return file downloads, use the `ConnectorFile` model:
+
+```python
+from gl_connectors_sdk.models.file import ConnectorFile
+
+# For uploads: Create a ConnectorFile object
+with open("document.pdf", "rb") as f:
+    upload_file = ConnectorFile(
+        file=f.read(),
+        filename="document.pdf",
+        content_type="application/pdf"
+    )
+
+params = {
+  "file": upload_file,
+  "name": "My Document"
+}
+
+# Include in your parameters
+result, status = connector.execute("google_drive", "upload_file", input_=params)
+
+# For downloads: Check response type
+file_result, status = connector.execute("google_drive", "download_file", input_={"file_id": "123"})
+if isinstance(file_result, ConnectorFile):
+    # Save to disk
+    with open(file_result.filename or "downloaded_file", "wb") as f:
+        f.write(file_result.file)
+```
+
+## Available Methods
+
+### Connector Instance Methods
+
+The connector instance provides several methods for configuring and executing actions:
+
+- `connect(name)`: Create a connector instance to a service
+- `action(name)`: Specify the action to execute
+- `params(dict)`: Set request parameters (including pagination parameters like page and per_page). Note that params for each plugin and action could be different
+- `token(str)`: Set the user token
+- `headers(dict)`: Set custom request headers
+- `max_attempts(number)`: Set the maximum number of retry attempts (default: 1)
+  Execution Methods:
+
+- `run()`: Execute and return ActionResponse for advanced data handling
+- `execute()`: Execute and return data and status for basic data handling. The data part of the return value can be a ConnectorFile object when the API returns a non-JSON response (such as a file download).
+
+### Response Handling (ActionResponse)
+
+The ActionResponse class provides methods for handling the response and pagination:
+
+- `get_data()`: Get the current page data (returns the data field from the response). This can return a ConnectorFile object when the API returns a non-JSON response (such as a file download).
+- `get_meta()`: Get the metadata information from the response (e.g., pagination details, total count)
+- `get_status()`: Get the HTTP status code
+- `is_list()`: Check if response is a list
+- `has_next()`: Check if there is a next page
+- `has_prev()`: Check if there is a previous page
+- `next_page()`: Move to and execute next page
+- `prev_page()`: Move to and execute previous page
+- `get_all_items()`: Get all items from all pages (returns a list of objects containing data and meta for each page)
+
+## Data Models
+
+The SDK uses the following data models:
+
+- `ActionResponseData`: Contains the response data structure with `data` (list, object, or ConnectorFile instance) and `meta` (metadata) fields
+- `InitialExecutorRequest`: Stores the initial request parameters used for pagination and subsequent requests
+- `ConnectorFile`: Represents a file in requests and responses with these properties:
+  - `file`: Raw bytes content of the file
+  - `filename`: Optional name of the file
+  - `content_type`: Optional MIME type of the file
+  - `headers`: Optional HTTP headers for the file
+
+## Configuration Parameters
+
+- `api_base_url`: The base URL of your GL Connectors endpoint (default: "https://connector.gdplabs.id"). This parameter is extremely important as it determines the URL of the Connector you are connecting to, and it will be used to populate the available actions/endpoints and their parameters upon initialization.
+- `api_key`: Your Connector key for authentication. This is different from plugin-specific API keys, which are managed separately by the GL Connectors system.
+
+## Execution Parameters
+
+- `connector`: The name of the connector to use. This parameter is used to determine the connector's available actions and their parameters.
+- `action`: The name of the action to execute. This parameter is automatically populated by the connector based on the available actions and their parameters. The list of available actions per connector can be found in https://connector.gdplabs.id/docs and are populated through https://connector.gdplabs.id/connectors.
+- `max_attempts`: The maximum number of attempts to make the API request. If the request fails, the connector will retry the request up to this number of times. The default value is 1 if not provided.
+  - The retries are handled automatically by the connector, with exponential backoff.
+  - The retries are only done for errors that are considered retryable (429 or 5xx).
+- `input_`: The input parameters for the action. This parameter is a dictionary that contains the parameters for the action. The connector will validate the input parameters against the action's schema.
+  - To filter response fields, simply add the `response_fields` parameter to the input dictionary. This parameter is a list of field names that will be returned in the response. For nested fields, you can use dot notation, e.g. `user.login` will return the following:
+  ```json
+  {
+    "user": {
+      "login": "userlogin"
+    }
+  }
+  ```
+- `token`: Optional User Token for authenticating requests. When provided, the connector will include this token in the request headers. This is required for user-specific actions or when working with third-party integrations.
+
+## How It Works
+
+1. **Initialization**: When you create a `GLConnectors` instance, and trigger an `execute()`, the connector will first populate and cache the available actions and their parameters. This is done automatically.
+
+2. **Action Discovery**: The connector expects the Connector to expose an endpoint that lists all available actions and their parameters. This is handled automatically by GL Connectors' HTTP Handler.
+
+3. **Execution**: When you call `execute()`, the connector:
+   - Validates your input parameters against the action's schema
+   - Handles authentication
+   - Makes the API request
+   - Returns the formatted response
+
+## Compatibility
+
+While primarily tested with GL Connectors' HTTP Interface, this connector should theoretically work with any API that implements the Connector's Plugin Architecture, as long as it:
+
+1. Exposes an endpoint listing available actions and their parameters
+2. Follows GL Connectors' standard HTTP Interface specifications (through the Plugin Architecture)
+   - All actions must be exposed as `POST` endpoints.
+3. Implements the required authentication mechanisms
+
+## Error Handling
+
+The connector includes built-in error handling for:
+
+- Invalid parameters
+- Authentication failures
+- Connection issues
+- API response errors
+
+## User Authentication
+
+The GL Connector SDK supports user-based authentication which allows for user-specific actions and third-party integrations:
+
+```python
+# Step 1: Create a new user
+user_data = connector.create_user("username")
+# Save the secret for later use
+user_secret = user_data.secret
+
+# Step 2: Authenticate the user and obtain their token
+token = connector.authenticate("username", user_secret)
+
+# Step 3: Retrieve user information using the obtained token
+user_info = connector.get_user_info(token.token)
+```
+
+### ❗ Important Notes
+
+**_🛡️ Best Practice:_** Since bearer tokens can have a long lifespan, it is highly recommended to **reuse existing tokens** whenever possible. While creating new tokens is functionally acceptable, be aware that older tokens may become dangling and can pose a security risk if they are exposed or misused.
+
+**_⚠️ Security Reminder:_** When you register a new user, you will receive a token that starts with **"sk-user-..."**. It is essential to keep this token safe, as it **cannot be recovered if lost**, and currently, there is **no option to reset** it.
+
+## Integration Management
+
+The GL Connector SDK provides methods to manage third-party integrations for authenticated users:
+
+```python
+# Initiate the OAuth2 flow for a connector
+auth_url = connector.initiate_connector_auth("github", user_token, "https://your-callback-uri.com")
+# Redirect the user to auth_url to complete authentication
+
+# Check if a user has an integration for a connector
+has_integration = connector.user_has_integration("github", user_token)
+
+# Retrieve all user integrations information
+user_info = connector.get_user_info(user_token)
+integrations = user_info.integrations
+
+# Select an integration
+select_result = connector.select_integration("github", user_token, integrations[0].user_identifier)
+
+# Remove an integration
+remove_result = connector.remove_integration("github", user_token, integrations[0].user_identifier)
+```
+
+## References
+
+Product Requirements Documents(PRD):
+
+- [GL Connector SDK - Product Document](https://docs.google.com/document/d/1R6JIGWnKzNg2kRMRSiZ-wwPGe9pOR9rkkEI0Uz-Wtdw/edit?tab=t.y617gs6jfk15#heading=h.uss0d453lcbs)
+
+Architecture Documents:
+
+- [GL Connector SDK - Architecture Document](https://docs.google.com/document/d/1HHUBAkbFAM8sM_Dtx6tmoatR1HeuM6VBfsWEjpgVCtg/edit?tab=t.0#heading=h.bj79ljx9eqg8)
+
+Design Documents:
+
+- [GL Connector SDK - Design Document](https://docs.google.com/document/d/1PghW7uOJcEbT3WNSlZ0FI99o4y24ys0LCyAG8hg3T9o/edit?tab=t.0#heading=h.bj79ljx9eqg8)
+
+Implementation Documents:
+
+- [GL Connector SDK - Implementation Document](https://docs.google.com/document/d/1a8BvggPu5a6PBStgUu2ILse075FjAAgoehUuvxxAajM/edit?tab=t.0#heading=h.bj79ljx9eqg8)
