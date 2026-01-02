@@ -1,0 +1,22 @@
+[package]
+name = "jetsim"
+version = "0.0.1"
+edition = "2021"
+description = "Fast air traffic simulator"
+license = "MIT"
+repository = "https://github.com/open-aviation/jetsim"
+keywords = ["simulation", "aviation", "air-traffic", "atc"]
+categories = ["simulation", "science"]
+readme = "README.md"
+
+[lib]
+name = "jetsim"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module"], optional = true }
+
+[features]
+default = []
+python = ["pyo3"]
