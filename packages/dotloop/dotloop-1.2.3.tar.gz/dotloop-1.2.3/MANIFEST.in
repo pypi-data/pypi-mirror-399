@@ -1,0 +1,20 @@
+# Include the README and other documentation files
+include README.md
+include LICENSE
+include CHANGELOG.md
+include STYLE_GUIDE.md
+
+# Include configuration files
+include pyproject.toml
+include requirements.txt
+include requirements-dev.txt
+
+# Include type information
+include dotloop/py.typed
+
+# Include all Python files in the package
+recursive-include dotloop *.py
+
+# Note: We intentionally keep this manifest minimal and avoid prune/exclude rules
+# that generate warning output during builds. Only the explicitly included files
+# above and the `dotloop` package sources are shipped in the sdist.
