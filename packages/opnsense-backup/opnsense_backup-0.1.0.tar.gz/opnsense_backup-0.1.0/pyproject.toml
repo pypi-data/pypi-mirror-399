@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=62.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opnsense_backup"
+version = "0.1.0"
+authors = [
+  { name="Stanislav Meduna", email="stano@meduna.org" },
+]
+description = "A simple tool to fetch backups from the OPNsense firewall"
+readme = "README.rst"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "PyYAML",
+    "schema",
+    "prometheus-client",
+    "httpx",
+    "PyCryptodome"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/numo68/opnsense-backup"
+"Bug Tracker" = "https://github.com/numo68/opnsense-backup/issues"
+
+[project.scripts]
+opnsense-backup = "opnsense_backup.cli:main"
+
+[tool.setuptools]
+packages = ["opnsense_backup"]
+package-dir = {"" = "src"}
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "src",
+]
+testpaths = [
+    "tests",
+]
+
+[tool.bumpver]
+current_version = "0.1.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+tag_message = "{new_version}"
+tag_scope = "default"
+pre_commit_hook = ""
+post_commit_hook = ""
+commit = false
+tag = false
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+    'version = "{version}"',
+]
+"src/opnsense_backup/cli.py" = [
+    '__version__ = "{version}"',
+]
