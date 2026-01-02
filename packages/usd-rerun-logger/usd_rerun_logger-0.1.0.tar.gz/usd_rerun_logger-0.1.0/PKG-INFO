@@ -1,0 +1,41 @@
+Metadata-Version: 2.3
+Name: usd-rerun-logger
+Version: 0.1.0
+Summary: 
+Author: AGC, TN
+Author-email: AGC <andras@artefacts.com>, TN <tomo@artefacts.com>
+Requires-Dist: pillow>=11.2.1
+Requires-Dist: rerun-sdk>=0.23.1
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+
+## Rerun logger for USD and NVIDIA Omniverse apps
+
+# :construction: Development preview. Work in progress.
+
+Usage notes:
+
+With Isaac Sim:
+```py
+world = World()
+
+rr.init()
+logger = UsdRerunLogger(world.stage, path_filter=["!*BlackGrid*"])
+
+while app_running:
+    world.step()
+    rr.set_time(timeline="sim", duration=sim_time)
+    logger.log_stage()
+```
+
+With Isaac Lab:
+```py
+rr.init()
+logger = IsaacLabRerunLogger(env.scene)
+while looping:
+    env.step(action)
+    rr.set_time(
+        timeline="sim",
+        duration=env.common_step_counter * env.step_dt,
+    )
+    logger.log_scene()
