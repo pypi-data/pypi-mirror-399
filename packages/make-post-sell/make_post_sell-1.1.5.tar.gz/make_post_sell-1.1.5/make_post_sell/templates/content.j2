@@ -1,0 +1,91 @@
+{% extends "base.j2" -%}
+
+{%- block append_to_head_tag_section %}
+  <link rel="canonical" href="{{ product.absolute_url(request) }}" />
+  <title>{{ product.title }}</title>
+  <meta property="og:title" content="{{ product.title }}" />
+  <meta name="description" content="{{ product.description|truncate(500) }}">
+  <meta property="og:description" content="{{ product.description|truncate(500) }}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="{{ product.absolute_url(request) }}" />
+  <meta property="og:site_name" content="{{ request.shop.name }}" />
+  {%- if "thumbnail1" in product.extensions %}
+  <meta property="og:image" content="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ product.title }}" />
+  <meta name="twitter:description" content="{{ product.description|truncate(500) }}" />
+  <meta name="twitter:image" content="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" />
+  {%- endif %}
+
+  {# Removed auto-refresh timer - better UX to let download links expire than interrupt reading #}
+{%- endblock append_to_head_tag_section -%}
+
+
+{%- block call_to_action -%}
+{% if request.user.can_edit_shop(request.shop) %}
+<a href="{{ product.absolute_edit_url(request) }}" class="product-edit-button mps-button mps-button-small">&#9998; Edit</a>
+{% endif %}
+{%- endblock call_to_action -%}
+
+
+{% block content -%}
+
+<section class="two-column">
+
+  <div class="product-images">
+    {% if "thumbnail1" in product.extensions %}
+    {% set video_extensions = ["mp4", "avi", "mov", "wmv", "flv", "mkv", "webm", "m4v"] %}
+    {% if product.extensions.get("product") in video_extensions %}
+    <a target="_blank" href="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/product?ts={{ product.updated_timestamp }}" class="video-thumbnail-container">
+      <img src="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" class="product-main" />
+      <div class="video-play-overlay"></div>
+    </a>
+    <div class="video-click-to-play">click &#9654; to play</div>
+    {% else %}
+    <img src="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" class="product-main" />
+    {% endif %}
+    <br/>
+    {% endif %}   
+
+    <h1>{{ product.title }} <span class="subtitle-text">uploaded to <a href="{{ product.shop.absolute_about_url(request) }}" rel="nofollow" class="shop-theme-link-color">{{ product.shop.name }}</a></span></h1>
+  </div>
+
+  <section class="product-right">
+    {% if product.has_product_file %}
+    <div class="well">
+      {% if signed_get_object_url is not none %}
+        <a href="{{ signed_get_object_url }}" class="product-download-button mps-button" target="_blank" download>&#11123 Download</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+  <div class="product-description">
+    <br/>
+
+    <b>Description</b>
+    <section>{{ product.description_html | safe }}</section>
+
+    <br/>
+    <br/>
+
+    {% if product.has_product_file %}
+      <b>File Type</b>
+      <br/>
+      {{ product.get_content_type("product") }} {{ product_size }}
+      <br/>
+    {% endif %}
+  </div>
+
+  <div class="product-comments">
+    <br/>
+    <br/>
+    
+    <!-- Comments Section -->
+    {% include 'snippets/comments.j2' %}
+  </div>
+
+</section>
+
+
+{%- endblock -%}

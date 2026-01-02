@@ -1,0 +1,210 @@
+{% extends "base.j2" -%}
+
+{%- block call_to_action -%}
+{%- endblock call_to_action -%}
+
+{% block content -%}
+
+<section class="one-column">
+  <section class="shop-name-and-description well">
+    <h3>{{ "Edit" if location_id else "New" }} Shop Location</h3>
+    <form method="post" action="{{ action_url }}" onsubmit="submit.disabled = true; return true;">
+
+      A shop location in the shop named "{{ request.shop.name }}".
+      <br />
+      <br />
+
+  
+      <span class="asterisk">*</span> required
+
+      <br/ >
+      <br/ >
+
+      <label for="name_input">Location Name <span class="asterisk">*</span></label>
+      <input
+          name        = "name"
+          type        = "text"
+          id          = "name_input"
+          class       = "mps-location-name"
+          value       = "{{ name }}"
+          placeholder = "Location Name"
+          required />
+  
+      <br />
+      <br />
+  
+      <label for="address_input">Address <span class="asterisk">*</span></label>
+      <textarea
+          name        = "address"
+          id          = "address_input"
+          class       = "mps-address"
+          placeholder = "Address"
+          required />{{ address }}</textarea>
+  
+      <br />
+      <br />
+  
+      <label for="city_input">City <span class="asterisk">*</span></label>
+      <input
+          name        = "city"
+          type        = "text"
+          id          = "city_input"
+          class       = "mps-city"
+          value       = "{{ city }}"
+          placeholder = "City"
+          required />
+  
+      <br />
+      <br />
+  
+      <label for="state_input">State <span class="asterisk">*</span></label>
+      <input
+          name        = "state"
+          type        = "text"
+          id          = "state_input"
+          class       = "mps-state"
+          value       = "{{ state }}"
+          placeholder = "State"
+          required />
+  
+      <br />
+      <br />
+  
+      <label for="country_input">Country <span class="asterisk">*</span></label>
+      <input
+          name        = "country"
+          type        = "text"
+          id          = "country_input"
+          class       = "mps-country"
+          value       = "{{ country }}"
+          placeholder = "Country"
+          required />
+  
+      <br />
+      <br />
+  
+      <label for="postal_code_input">Postal Code <span class="asterisk">*</span></label>
+      <input
+          name        = "postal_code"
+          type        = "text"
+          id          = "postal_code_input"
+          class       = "mps-postal-code"
+          value       = "{{ postal_code }}"
+          placeholder = "Postal Code"
+          required />
+  
+      <br />
+      <br />
+  
+      <label for="days_open_input">Days Open <span class="asterisk">*</span></label>
+      <input
+          name        = "days_open"
+          type        = "text"
+          id          = "days_open_input"
+          class       = "mps-days-open"
+          value       = "{{ days_open }}"
+          placeholder = "Mon-Fri"
+          required />
+  
+      <br />
+      <br />
+  
+      <label for="hours_open_input">Hours Open <span class="asterisk">*</span></label>
+      <input
+          name        = "hours_open"
+          type        = "text"
+          id          = "hours_open_input"
+          class       = "mps-hours-open"
+          value       = "{{ hours_open }}"
+          placeholder = "9am-5pm"
+          required />
+  
+      <br />
+      <br />
+  
+      <input
+          name        = "local_pickup"
+          type        = "checkbox"
+          id          = "local_pickup_input"
+          class       = "mps-local-pickup"
+          {% if local_pickup %}checked{% endif %} />
+      <label for="local_pickup_input" class="inline-label">Local Pickup</label>
+  
+      <br />
+      <br />
+  
+      <input
+          name        = "local_delivery"
+          type        = "checkbox"
+          id          = "local_delivery_input"
+          class       = "mps-local-delivery"
+          {% if local_delivery %}checked{% endif %} />
+      <label for="local_delivery_input" class="inline-label">Local Delivery</label>
+  
+      <br />
+      <br />
+  
+      <label for="local_delivery_rate_input">Local Delivery Rate</label>
+      <input
+          name        = "local_delivery_rate"
+          type        = "number"
+          id          = "local_delivery_rate_input"
+          class       = "mps-local-delivery-rate"
+          value       = "{{ local_delivery_rate }}"
+          placeholder = "0.00" />
+  
+      <br />
+      <br />
+  
+      <input
+          name        = "local_shipping"
+          type        = "checkbox"
+          id          = "local_shipping_input"
+          class       = "mps-local-shipping"
+          {% if local_shipping %}checked{% endif %} />
+      <label for="local_shipping_input" class="inline-label">Shipping</label>
+  
+      <br />
+      <br />
+  
+      <label for="local_shipping_rate_input">Flat Shipping Rate</label>
+      <input
+          name        = "local_shipping_rate"
+          type        = "number"
+          id          = "local_shipping_rate_input"
+          class       = "mps-local-shipping-rate"
+          value       = "{{ local_shipping_rate }}"
+          placeholder = "0.00" />
+  
+      <br />
+      <br />
+  
+      <input
+          name        = "international_shipping"
+          type        = "checkbox"
+          id          = "international_shipping_input"
+          class       = "mps-international-shipping"
+          {% if international_shipping %}checked{% endif %} />
+      <label for="international_shipping_input" class="inline-label">International Shipping</label>
+  
+      <br />
+      <br />
+  
+      <label for="international_shipping_rate_input">Flat International Shipping Rate</label>
+      <input
+          name        = "international_shipping_rate"
+          type        = "number"
+          id          = "international_shipping_rate_input"
+          class       = "mps-international-shipping-rate"
+          value       = "{{ international_shipping_rate }}"
+          placeholder = "0.00" />
+  
+      <br />
+      <br />
+  
+      <input type="submit" name="submit" class="mps-submit" value="Save Location" />
+    </form>
+  </section>
+</section>
+
+{%- endblock -%}

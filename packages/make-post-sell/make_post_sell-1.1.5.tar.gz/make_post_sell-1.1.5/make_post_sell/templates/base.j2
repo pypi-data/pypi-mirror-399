@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+{% if request.shop -%}
+<!--shop_id={{ request.shop.id }}-->
+{%- endif %}
+{% if request.product -%}
+<!--product_id={{ request.product.id }}-->
+<!--product_created={{ request.product.human_created_timestamp }}-->
+<!--product_updated={{ request.product.human_updated_timestamp }}-->
+{%- endif %}
+{% set user_theme_id = request.user.theme_id if request.user and request.user.authenticated else none %}
+{% set shop_default_theme = request.shop.default_theme if request.shop else 1 %}
+{% if user_theme_id is not none %}
+  {% set theme_preference = 'light' if (user_theme_id == 1) else 'dark' %}
+{% else %}
+  {% set theme_preference = 'light' if (shop_default_theme == 1) else 'dark' %}
+{% endif %}
+<html lang="en" data-theme="{{ theme_preference }}" data-user-theme="{{ user_theme_id or 'null' }}" data-shop-default="{{ shop_default_theme }}">
+<head>
+
+  <!-- stylesheet to-end-all stylesheets, pico.fluid.classless.css ! woot -->
+  <link rel="stylesheet" href="/static/css/common.css">
+  
+  <!-- Dark mode theme switching -->
+  <script>
+    (function() {
+      // Theme priority: localStorage > user preference > shop default > system default (light)
+      const userThemeId = {{ user_theme_id or 'null' }};
+      const shopDefaultTheme = {{ shop_default_theme }};
+      
+      // Get theme from localStorage
+      const savedTheme = localStorage.getItem('theme-preference');
+      
+      let finalTheme;
+      if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+        // User has explicitly chosen a theme via toggle
+        finalTheme = savedTheme;
+      } else if (userThemeId !== null) {
+        // Use user's profile setting (0=dark, 1=light)
+        finalTheme = userThemeId === 0 ? 'dark' : 'light';
+      } else {
+        // Use shop default (0=dark, 1=light)
+        finalTheme = shopDefaultTheme === 0 ? 'dark' : 'light';
+      }
+      
+      // Apply theme immediately to prevent flash
+      document.documentElement.setAttribute('data-theme', finalTheme);
+      
+      // Theme switching function (for programmatic use)
+      window.setTheme = function(theme) {
+        if (theme === 'dark' || theme === 'light') {
+          document.documentElement.setAttribute('data-theme', theme);
+          localStorage.setItem('theme-preference', theme);
+        }
+      };
+    })();
+  </script>
+
+  {% include 'snippets/analytics.j2' %}
+
+  {% set theme_color = request.shop.ribbon_color_1 or request.app.saas_theme_color or "#5871ad" %}
+  <!-- this makes mobile pretty...  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="{{ theme_color }}">
+  <meta charset="utf-8">
+
+  {% if request.is_saas_domain == false and request.shop and request.shop.favicon %}
+  <link rel="icon" href="{{ request.app['bucket.secure_uploads.get_endpoint'] }}/{{ request.shop.uuid_str }}/meta/shop-favicon?ts={{ request.shop.updated_timestamp }}" />
+  {% endif %}
+
+  {%- block append_to_head_tag_section %}
+  <title>{{ request.domain }}</title>
+  {% endblock %}
+</head>
+
+<body>
+{% include 'snippets/ribbon.j2' %}
+<section class="main">
+
+  <section class="nav-grid">
+
+    <section class="nav">
+
+      <section class="logo">
+      {% if request.is_saas_domain %}
+        {% if request.app.saas_logo %}
+        <a href="/"><img class="logo" src="{{ request.app.saas_logo }}" /></a>
+        {% else %}
+        <a href="/"><img class="logo" src="/static/mps.png" /></a>
+        {% endif %}
+
+      {% elif request.shop and request.shop.logo_banner %}
+      <a href="/"><img class="logo" src="{{ request.app['bucket.secure_uploads.get_endpoint'] }}/{{ request.shop.uuid_str }}/meta/shop-logo-banner?ts={{ request.shop.updated_timestamp }}" /></a>
+      {% else%}
+      Upload a logo in shop settings.
+      {% endif %}
+      </section>
+
+      <section class="search">
+      {% include 'snippets/search.j2' %}
+      </section>
+      
+      <section class="log-in">
+
+      {% if request.shop and request.shop.shop_locations.all()|length > 1 %}
+        <a class="cart-and-count" href="{{ request.route_url('shop_locations', shop_id=request.shop.id, _query={'next': request.url}) }}">Shop Locations</a>
+      {% endif %}
+
+      {% if request.user and request.user.authenticated %}
+      
+      {% if request.user.full_name %}
+      <a href="/u/settings" class="user-display-name">{{ request.user.name }}</a>
+      {% else %}
+      <a href="/u/settings" class="user-display-name">My Account</a>
+      {% endif %}
+      
+      
+      {% else %}
+      <a href="{{ request.route_url('join-or-log-in', _query={'next': request.url}) }}">My Account</a>
+      {% endif %}
+
+      <a href="/cart" class="cart-and-count">&#128722; Cart ${{ "{:,.2f}".format(request.active_cart.total) }} ({{ "{:,}".format(request.active_cart.count) }})</a>
+
+      </section>
+  
+    <!-- nav -->
+    </section>
+
+  <!-- nav-grid -->
+  </section>
+
+{% include 'snippets/flash-alerts.j2' %}
+
+  {% if request.user and request.user.authenticated %}
+
+  <section class="windows-95-task-bar">
+
+      <section class="windows-95-start-button">
+      {% if request.is_saas_domain or request.user.can_edit_shop(request.shop) %}
+      <a href="/actions/view" class="windows-95-start-button mps-button mps-button-blue"><span class="start-button-icon">&#9776; &nbsp </span> {{ request.shop.name }}</a>
+      {% endif %}
+      </section>
+
+      <section class="call-to-action">
+      {% block call_to_action %}
+      {% if request.is_saas_domain or request.user.can_edit_shop(request.shop) %}
+      {% if request.user.shops %}
+      <a href="/actions/new" class="mps-button mps-button-small mps-button-green">&#65291; New</a>
+      {% else %}
+      <a href="/s/new" class="mps-button mps-button-small mps-button-green">&#65291; New Shop</a>
+      {% endif %}
+      {% endif %}
+
+      {% endblock call_to_action %}
+      </section>
+      {% endif %}
+
+  </section >
+  
+  <section class="content">
+  {% block content %}
+  {% endblock %}
+  </section>
+
+<!-- main -->
+</section>
+
+</body>
+</html>

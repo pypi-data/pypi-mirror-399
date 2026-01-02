@@ -1,0 +1,53 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+<section class="action-columns well">
+
+  <div class="actions-left">
+    {% if request.shop %}
+
+    <a href="/s/{{ request.shop.id }}/{{ request.shop.slug }}" class="mps-button product-edit-button">&nbsp View Shop</a>
+
+    <br/>
+    <br/>
+    <a href="/s/{{ request.shop.id }}/products" class="mps-button product-edit-button">&nbsp View Products</a>
+
+    {% if request.user in request.shop.owners %}
+    <br/>
+    <br/>
+    <a href="/s/{{ request.shop.id }}/coupons" class="mps-button product-edit-button">&nbsp View Coupons</a>
+    {% endif %}
+
+    {% if request.is_saas_domain %}
+    <br/>
+    <br/>
+    <a href="/u/shops" class="mps-button product-edit-button">&#9974; &nbsp; Switch Shop</a>
+    {% endif %}
+
+    {% endif %}
+  </div>
+  
+  <div class="actions-right">
+    {% if request.shop and request.user in request.shop.owners %}
+    <a href="/s/{{ request.shop.id }}/users" class="mps-button product-edit-button">👤 &nbsp Shop Users</a>
+
+    <br/>
+    <br/>
+    <a href="/s/{{ request.shop.id }}/sales" class="mps-button product-edit-button">💰 &nbsp Shop Sales</a>
+
+    <br/>
+    <br/>
+    <a href="/s/{{ request.shop.id }}/settings" class="mps-button product-edit-button">⚙ &nbsp Shop Settings</a>
+
+    <br/>
+    <br/>
+    {% endif %}
+    {% if request.shop %}
+    <a href="/s/locations" class="mps-button product-edit-button">🏠 &nbsp Shop Locations</a>
+    {% endif %}
+  </div>
+
+</section>
+
+{%- endblock -%}

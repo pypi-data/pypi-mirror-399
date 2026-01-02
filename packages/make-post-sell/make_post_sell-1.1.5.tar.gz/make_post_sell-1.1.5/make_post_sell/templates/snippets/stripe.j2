@@ -1,0 +1,92 @@
+{% macro display_card(card, actions=True) %}
+  {%
+  set brand_logos = {
+    "visa" : "https://js.stripe.com/v3/fingerprinted/img/visa-d6c6e0a636f7373e06d5fb896ad49475.svg",
+    "mastercard" : "https://js.stripe.com/v3/fingerprinted/img/mastercard-a96ee3841a5e1e28d05ed3f0f4da62b8.svg",
+    "american express" : "https://js.stripe.com/v3/fingerprinted/img/amex-edf6011de255d8a4c22904795c9d8770.svg",
+    "discover" : "https://js.stripe.com/v3/fingerprinted/img/discover-8f3d8fc6ef836da1fcac12c095ee6fb8.svg",
+    "diners club" : "https://js.stripe.com/v3/fingerprinted/img/diners-fced9e136fd8c25f40a3e7b37a51dc1d.svg",
+    "jcb" : "https://js.stripe.com/v3/fingerprinted/img/jcb-1b12d588a1e9465d4d9fb84a610f9136.svg",
+    "unionpay" : "https://js.stripe.com/v3/fingerprinted/img/unionpay-en-099cb6671310a54f640ac16d5f2a825c.svg",
+  }
+  %}
+
+  <section class="payment-card">
+
+    <div class="card-details">
+    <img src="{{ brand_logos[card.card.brand] }}" class="stripe-card-logo">
+    <br/>
+    <b>{{ card.card.brand }}</b>
+    <br/>
+    ending in <b>{{ card.card.last4 }}</b>
+    <br/>
+    <span class="opacity-60">
+    expiring {{ card.card.exp_month }}/{{ card.card.exp_year }}
+    </span>
+    </div>
+
+    <br/>
+    <div class="stripe-negative-margin">
+    {% if actions %}
+      <center>
+      <a href="/billing/confirm-update-card/delete-card/{{ card.id }}"><button type="button">delete</button></a>
+      <a href="/billing/confirm-update-card/make-card-active/{{ card.id }}" class="button button-small button-white"><button type="button">make active</button></a>
+      </center>
+    {% endif %}
+    </div>
+  <br/>
+  </section>
+
+
+{% endmacro %}
+
+
+{% macro new_card() %}
+<script src="https://js.stripe.com/v3/"></script>
+<form action="/billing/add-card?shop_id={{ request.shop.id }}" method="post" data-secret="{{ client_secret }}" id="payment-form">
+  {% include 'snippets/csrf.j2' %}
+  <div class="form-row">
+
+    <div id="payment-element">
+      <!-- Elements will create form elements here -->
+    </div>
+
+    <a href="https://stripe.com/docs/security/stripe" target="_blank"><img class="stripe-initial-width" src="https://stripe.com/img/about/logos/badge/outline-dark.svg"></a>
+
+    <button class="green-button button-max-width stripe-save-button">&#128274; Save Card</button>
+
+    <!-- Used to display Element errors. -->
+    <div id="error-message" role="alert" class="bold-text"></div>
+
+  </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var stripe = Stripe("{{ request.shop.stripe_public_api_key }}");
+  var elements = stripe.elements({clientSecret: '{{ client_secret }}'});
+
+  // Create and mount the Payment Element
+  var paymentElement = elements.create('payment');
+  paymentElement.mount('#payment-element');
+
+  // Handle form submission
+  var form = document.getElementById('payment-form');
+  form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    var result = await stripe.confirmSetup({
+      elements: elements,
+      confirmParams: {
+        return_url: '{{ request.route_url("add-card", shop_id=request.shop.id) }}',
+      }
+    });
+
+    if (result.error) {
+      document.getElementById('error-message').textContent = result.error.message;
+    }
+    // On success, customer is redirected to return_url
+  });
+});
+</script>
+{% endmacro %}

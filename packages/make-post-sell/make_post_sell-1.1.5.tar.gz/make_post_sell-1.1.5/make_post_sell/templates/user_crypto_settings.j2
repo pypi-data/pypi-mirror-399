@@ -1,0 +1,53 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+<section class="one-column">
+  <section class="well">
+    
+    <h3>Crypto Payment Preferences</h3>
+    
+    <p>Configure your cryptocurrency refund addresses. These addresses will be used automatically by our system in rare cases where refunds are necessary (e.g., system errors). <strong>Note: This is handled entirely by our automated system with no human support.</strong></p>
+    
+    <br/>
+    
+    {% if enabled_coins %}
+      {% for coin in enabled_coins %}
+      <form method="post" action="/u/settings/crypto/{{ coin }}" onsubmit="submit.disabled = true; return true;">
+        {% include "snippets/csrf.j2" %}
+        
+        <h4>{{ coin }} Refund Address</h4>
+        
+        <label for="{{ coin.lower() }}_address_input">{{ coin }} Address</label>
+        <input
+            name        = "address"
+            type        = "text"
+            id          = "{{ coin.lower() }}_address_input"
+            class       = "mps-crypto-address full-width-input"
+            value       = "{% if addresses.get(coin) %}{{ addresses[coin].address }}{% endif %}"
+            placeholder = "Your {{ coin }} address for automatic refunds"
+            />
+        
+        <br />
+        <br />
+        
+        <input type="submit" name="submit" class="mps-submit" value="Save {{ coin }} Refund Address" />
+        
+        <br />
+        <br />
+        
+      </form>
+      {% if not loop.last %}<hr />{% endif %}
+      {% endfor %}
+    {% else %}
+      <p>No cryptocurrencies are currently enabled on this platform.</p>
+    {% endif %}
+    
+    <br />
+    
+    <a href="/u/settings" class="mps-button">Back to Settings</a>
+    
+  </section>
+</section>
+
+{%- endblock -%}

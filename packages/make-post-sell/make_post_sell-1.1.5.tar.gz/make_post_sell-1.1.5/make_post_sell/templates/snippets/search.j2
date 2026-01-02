@@ -1,0 +1,24 @@
+{% if request.shop and not search_disabled %}
+<form action="/search" id="search" name="search" class="no-bottom-margin">
+
+  {% include 'csrf.j2' %}
+  {%- if request.shop -%}
+  <input type="hidden" name="shop_id" value="{{ request.shop.id }}">
+  {%- endif %}
+
+  <input type="text"
+    name="keywords"
+    id="keywords"
+    class="mps-keywords no-bottom-margin"
+    placeholder="Keyword search on {{ request.shop.name }}"
+    {% if keywords %}value="{{ keywords }}"{% endif %}
+  required/>
+
+</form>
+
+{% if keywords and not products %}
+<br />
+<b>No matches.</b>
+{% endif %}
+
+{% endif %}

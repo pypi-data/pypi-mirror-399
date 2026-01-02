@@ -1,0 +1,86 @@
+{% extends "base.j2" %}
+
+{% block content %}
+<section class="one-column">
+  <h1>Invoice</h1>
+  <p><strong>ID:</strong> {{ invoice.id }}</p>
+  <p><strong>Customer Name:</strong> {{ invoice.user.name }}</p>
+  <p><strong>Date:</strong> {{ invoice.human_created_timestamp }}</p>
+  
+  
+  <p><strong>Shipping/Pickup:</strong> {{ invoice.handling_option }}</p>
+  {% if invoice.delivery_address %}
+    <p><strong>Delivery Address:</strong> {{ invoice.delivery_address }}</p>
+  {% endif %}
+
+  <h2>Line Items</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in invoice.line_items %}
+        <tr>
+          <td><a href="/p/{{ item.product.id }}" class="shop-theme-link-color">{{ item.product.title }}</a></td>
+          <td>{{ item.quantity }}</td>
+          <td>${{ '%0.2f' % (item.price.price_in_cents / 100) }}</td>
+          <td>${{ '%0.2f' % ((item.price.price_in_cents * item.quantity) / 100) }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if invoice.coupon_redemptions and invoice.discount_amount_in_cents > 0 %}
+    <div class="invoice-right-section">
+      {% for redemption in invoice.coupon_redemptions %}
+        <p class="status-success invoice-margin-small">
+          <strong>{{ redemption.coupon.code }}:</strong> {{ redemption.coupon.description }}
+        </p>
+      {% endfor %}
+      <p class="status-success invoice-margin-small">
+        <strong>Total Discounts: -${{ '%.2f' % (invoice.discount_amount_in_cents / 100) }}</strong>
+      </p>
+    </div>
+  {% endif %}
+
+  <div class="invoice-total-section">
+    <strong>Invoice Total: ${{ '%.2f' % invoice.total }}</strong>
+  </div>
+
+  {% if invoice.crypto_payment and invoice.crypto_payment|length > 0 %}
+    {% set crypto_pay = invoice.crypto_payment[0] %}
+    <!-- Crypto Payment Details -->
+    <div class="invoice-payment-box">
+      <h3>Crypto Payment Information</h3>
+      <p><strong>Currency:</strong> {{ crypto_pay.coin_type }}</p>
+      <p><strong>Expected Amount:</strong> {{ '%.12f'|format(crypto_pay.expected_amount / (10**12 if crypto_pay.coin_type == 'XMR' else 10**8)) }} {{ crypto_pay.coin_type }}</p>
+      <p><strong>Received Amount:</strong> {{ '%.12f'|format(crypto_pay.received_amount / (10**12 if crypto_pay.coin_type == 'XMR' else 10**8)) }} {{ crypto_pay.coin_type }}</p>
+      
+      {% if crypto_pay.status in ['confirmed', 'confirmed_overpaid'] %}
+        <p class="status-success"><strong>✓ Payment Confirmed</strong></p>
+      {% elif crypto_pay.status == 'received' %}
+        <p class="status-warning"><strong>⏳ Awaiting Confirmations ({{ crypto_pay.current_confirmations }}/{{ crypto_pay.confirmations_required }})</strong></p>
+      {% elif crypto_pay.status == 'pending' %}
+        <p class="status-info"><strong>⏳ Waiting for Payment</strong></p>
+      {% elif crypto_pay.status == 'expired' %}
+        <p class="status-error"><strong>❌ Payment Expired</strong></p>
+      {% elif crypto_pay.status == 'underpaid_refunded' %}
+        <p class="status-error"><strong>❌ Underpaid - Refunded</strong></p>
+      {% endif %}
+      
+      {% if crypto_pay.tx_hashes and crypto_pay.tx_hashes != '[]' %}
+        <p><strong>Transaction(s):</strong> <code class="code-monospace">{{ crypto_pay.tx_hashes }}</code></p>
+      {% endif %}
+      
+      <p class="invoice-margin-section">
+        <strong>Payment ID:</strong> <a href="{{ request.route_url('crypto_quote', payment_id=crypto_pay.id) }}">{{ crypto_pay.id }}</a>
+      </p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

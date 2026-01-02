@@ -1,0 +1,106 @@
+{% macro render_comment(comment, shop, request, max_depth=5) %}
+    {% if comment.depth <= max_depth and (comment.approved or (request.user.authenticated and (shop.is_owner(request.user) or shop.is_editor(request.user)))) %}
+    <div id="comment-{{ comment.id }}" class="comment{% if comment.parent_id %} reply comment-reply{% endif %}" style="margin-left: {{ comment.depth * 20 }}px; margin-bottom: 20px;">
+        <div class="comment-header">
+            <strong>{{ comment.user.name if comment.user else "Anonymous" }}</strong>
+            <span class="comment-date">{{ comment.ago_string }}</span>
+            {% if comment.title %}
+                <span class="comment-title">{{ comment.title }}</span>
+            {% endif %}
+            {% if not comment.approved %}
+                <span class="comment-status comment-pending">[Pending Approval]</span>
+            {% endif %}
+        </div>
+        
+        <div class="comment-content">
+            {{ comment.data_html | safe }}
+        </div>
+        
+        {% if request.user.authenticated %}
+        <div class="comment-actions">
+            {% if request.user.id == comment.user_id or comment.can_user_moderate(request.user, shop) %}
+                <input type="submit" value="Delete" class="delete-link" onclick="return confirm('Are you sure you want to delete this comment?')" form="delete-{{ comment.id }}" />
+                <form id="delete-{{ comment.id }}" method="post" action="/comments/{{ comment.id }}/delete" class="hidden-form"></form>
+            {% endif %}
+            
+            {% if comment.can_user_moderate(request.user, shop) %}
+                {% if comment.approved %}
+                    <input type="submit" value="Unapprove" class="moderate-link" form="unapprove-{{ comment.id }}" />
+                    <form id="unapprove-{{ comment.id }}" method="post" action="/comments/{{ comment.id }}/unapprove" class="hidden-form"></form>
+                {% else %}
+                    <input type="submit" value="Approve" class="moderate-link" form="approve-{{ comment.id }}" />
+                    <form id="approve-{{ comment.id }}" method="post" action="/comments/{{ comment.id }}/approve" class="hidden-form"></form>
+                {% endif %}
+            {% endif %}
+            
+            {% if request.user.id == comment.user_id or comment.can_user_moderate(request.user, shop) %}
+                <a href="/comments/{{ comment.id }}/edit" class="edit-link">Edit</a>
+            {% endif %}
+            
+            {% if not comment.is_locked %}
+                {% set can_comment, error_msg = comment.can_user_comment(request.user, shop) %}
+                {% if can_comment %}
+                    <a href="/comments/{{ comment.id }}/reply" class="reply-link">Reply</a>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% if comment.enabled_children %}
+            {% for child in comment.enabled_children %}
+                {{ render_comment(child, shop, request, max_depth) }}
+            {% endfor %}
+        {% endif %}
+    </div>
+    {% endif %}
+{% endmacro %}
+
+{% if shop.comments_enabled %}
+<div class="comments-section">
+    {% if comments %}
+        <h3>Comments & Reviews ({{ product.public_comment_count }})</h3>
+    {% endif %}
+    
+    <!-- Authentication prompt for non-authenticated users -->
+    {% if not request.user.authenticated %}
+        <p><a href="/join-or-log-in">Sign in</a> to leave a comment.</p>
+    {% endif %}
+    
+    {% if comments %}
+        {% for comment in comments %}
+            {{ render_comment(comment, shop, request) }}
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Comment Form -->
+    {% if request.user.authenticated %}
+        {% set can_comment, error_msg = (True, None) %}
+        {% if product %}
+            {% set can_comment, error_msg = product.can_user_comment(request.user, shop) %}
+        {% endif %}
+        
+        {% if can_comment %}
+            <div class="comment-form">
+                <h4>Leave a Comment</h4>
+                <form method="post" action="/comments/new">
+                    <input type="hidden" name="product_id" value="{{ product.id if product else '' }}" />
+                    <input type="hidden" name="parent_id" value="" />
+                    
+                    <div>
+                        <label for="comment-data">Comment:</label>
+                        <textarea name="data" id="comment-data" rows="4" style="width: 100%;" required></textarea>
+                    </div>
+                    
+                    <br/>
+                    
+                    <div>
+                        <input type="submit" value="Send Comment" class="mps-comment-form-button" />
+                    </div>
+                </form>
+            </div>
+        {% else %}
+            <p class="comment-error">{{ error_msg }}</p>
+        {% endif %}
+    {% endif %}
+</div>
+{% endif %}

@@ -1,0 +1,34 @@
+<style>
+{% set ribbon_text_color = request.shop.ribbon_text_color or "#FFFFFF" %}
+{% set ribbon_color_1 = request.shop.ribbon_color_1 or request.app.saas_theme_color or "#5871AD" %}
+{% set ribbon_color_2 = request.shop.ribbon_color_2 or request.app.saas_theme_color or "#82A8FF" %}
+{% set link_color = request.shop.theme_link_color or "#425481" %}
+div.message-ribbon {
+    color: {{ ribbon_text_color }};
+    background: linear-gradient(to right, {{ ribbon_color_1 }}, {{ ribbon_color_2 }});
+}
+a.shop-theme-link-color {
+    color: {{ link_color }};
+    font-weight: bold;
+}
+
+</style>
+
+{% if request.is_saas_domain %}
+
+{% if request.app.saas_ribbon_text %}
+<div class="message-ribbon">
+{{ request.app.saas_ribbon_text }}
+</div>
+{% endif %}
+
+{% else %}
+
+
+{% if request.shop.ribbon_text %}
+<div class="message-ribbon">
+{{ request.shop.ribbon_text }}
+</div>
+{% endif %}
+
+{% endif %}

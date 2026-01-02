@@ -1,0 +1,33 @@
+{% extends "base.j2" -%}
+
+{% block title %}Edit Comment{% endblock %}
+
+{% block content %}
+<section class="one-column">
+    <h2>Edit Comment</h2>
+    
+    <div class="original-comment original-comment-box">
+        <div class="comment-header">
+            <strong>{{ comment.user.name if comment.user else "Anonymous" }}</strong>
+            <span class="comment-date">{{ comment.ago_string }}</span>
+        </div>
+        <div class="comment-content">
+            {{ comment.data_html | safe }}
+        </div>
+    </div>
+    
+    <form method="post" action="/comments/{{ comment.id }}/edit">
+        <div class="form-group">
+            <label for="comment-data">Edit Your Comment:</label>
+            <textarea name="data" id="comment-data" rows="6" style="width: 100%;" required placeholder="Edit your comment... (You can use Markdown formatting)">{{ comment.data }}</textarea>
+        </div>
+        
+        <br/>
+        
+        <div class="form-actions">
+            <a href="{{ product.absolute_url(request) }}" class="mps-cancel-button mps-cancel-button-red">Cancel</a>
+            <input type="submit" value="Update Comment" class="mps-comment-form-button" />
+        </div>
+    </form>
+</section>
+{% endblock %}

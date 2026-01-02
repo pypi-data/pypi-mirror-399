@@ -1,0 +1,30 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+<section class="serp{% if request.shop.grid_lanes_enabled %} grid-lanes-enabled{% endif %}">
+{% if products %}
+{% for product in products %}
+
+  {% if product.is_ready %}
+  <div class="serp-item">
+    {% if "thumbnail1" in product.extensions %}
+    <a href="{{ product.absolute_url(request) }}" rel="nofollow">
+    <img src="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" class="serp-thumbnail" />
+    </a>
+    {% endif %}
+    <b><a href="{{ product.absolute_url(request) }}" class="shop-theme-link-color">{{ product.title }}</a></b>
+    {% if product.is_sellable %}
+    <br />
+    <a href="{{ product.absolute_url(request) }}" rel="nofollow">${{ '{:,.2f}'.format(product.price) }}</a>
+    {% endif %}
+    <br>
+    <a href="{{ product.absolute_url(request) }}" rel="nofollow" class="shop-theme-link-color">{{ product.shop.name }}</a>
+  </div>
+  {% endif %}
+
+{% endfor %}
+{% endif %}
+</section>
+
+{%- endblock -%}

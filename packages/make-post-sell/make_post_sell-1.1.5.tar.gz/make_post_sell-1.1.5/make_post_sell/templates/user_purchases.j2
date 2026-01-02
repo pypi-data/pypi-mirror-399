@@ -1,0 +1,57 @@
+{% extends "base.j2" %}
+
+{% block content %}
+  <section class="two-column">
+    <div class="products-left">
+      <h2>My Purchases</h2>
+      <section class="serp{% if request.shop and request.shop.grid_lanes_enabled %} grid-lanes-enabled{% endif %}">
+        {% if products %}
+          {% for product in products %}
+            <div class="serp-item">
+              {% if "thumbnail1" in product.extensions %}
+                <a href="{{ product.absolute_url(request) }}" rel="nofollow">
+                  <img src="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" class="serp-thumbnail" />
+                </a>
+              {% endif %}
+              <b><a href="{{ product.absolute_url(request) }}" class="shop-theme-link-color">{{ product.title }}</a></b>
+              {% if product.is_sellable %}
+                <br />
+                <a href="{{ product.absolute_url(request) }}" rel="nofollow">${{ '{:,.2f}'.format(product.price) }}</a>
+              {% endif %}
+              <br>
+              <a href="{{ product.absolute_url(request) }}" rel="nofollow" class="shop-theme-link-color">{{ product.shop.name }}</a>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p>You have no products yet.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <div class="invoices-right">
+      <h2>My Invoices</h2>
+      {% if invoices %}
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Invoice</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for invoice in invoices %}
+              <tr>
+                <td>{{ invoice.human_created_timestamp }}</td>
+                <td>${{ '%0.2f' % invoice.total }}</td>
+                <td><a href="/i/{{ invoice.id }}">Invoice</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>You have no purchases yet.</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

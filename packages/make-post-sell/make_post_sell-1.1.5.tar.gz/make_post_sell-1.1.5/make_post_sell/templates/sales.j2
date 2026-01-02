@@ -1,0 +1,26 @@
+{% extends "base.j2" %}
+
+{% block content %}
+  <h1>Sales for {{ shop.name }}</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Customer Name</th>
+        <th>Date</th>
+        <th>Total</th>
+        <th>Invoice</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for invoice in invoices %}
+        <tr>
+          <td>{{ invoice.user.name }}</td>
+          <td>{{ invoice.human_created_timestamp }}</td>
+          <td>${{ '%0.2f' % invoice.total }}</td>
+          <td><a href="/i/{{ invoice.id }}">Invoice</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

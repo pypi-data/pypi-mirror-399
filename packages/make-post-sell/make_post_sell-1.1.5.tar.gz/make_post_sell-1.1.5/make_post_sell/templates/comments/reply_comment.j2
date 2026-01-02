@@ -1,0 +1,33 @@
+{% extends "base.j2" -%}
+
+{% block title %}Reply to Comment{% endblock %}
+
+{% block content %}
+<section class="one-column">
+    <h2>Reply to Comment</h2>
+    
+    <div class="original-comment original-comment-box">
+        <div class="comment-header">
+            <strong>{{ parent_comment.user.name if parent_comment.user else "Anonymous" }}</strong>
+            <span class="comment-date">{{ parent_comment.ago_string }}</span>
+        </div>
+        <div class="comment-content">
+            {{ parent_comment.data_html | safe }}
+        </div>
+    </div>
+    
+    <form method="post" action="{{ request.route_url('comment_reply', comment_id=parent_comment.id) }}">
+        <div class="form-group">
+            <label for="comment-data">Your Reply:</label>
+            <textarea name="data" id="comment-data" rows="6" style="width: 100%;" required placeholder="Write your reply... (You can use Markdown formatting)"></textarea>
+        </div>
+        
+        <br/>
+        
+        <div class="form-actions">
+            <a href="{{ product.absolute_url(request) }}" class="mps-cancel-button mps-cancel-button-red">Cancel</a>
+            <input type="submit" value="Post Reply" class="mps-comment-form-button" />
+        </div>
+    </form>
+</section>
+{% endblock %}

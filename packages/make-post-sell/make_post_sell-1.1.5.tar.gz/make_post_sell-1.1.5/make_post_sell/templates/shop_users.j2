@@ -1,0 +1,105 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+<section class="one-column">
+  <section class="shop-settings well">
+
+    <h3>Invite</h3>
+
+    <form method="post" action="/s/{{ request.shop.id }}/users">
+
+      <label for="add_user">Invite a new user to this shop.</label>
+      <input
+          name        = "email-to-invite"
+          type        = "text"
+          id          = "email-to-invite"
+          class       = "mps-shop-name"
+          value       = "{{ email }}"
+          placeholder = "Email address"
+          required
+          />
+
+    <style>
+      label.role_id_radio {
+        display: inline;
+      }
+    </style>
+
+    <fieldset>
+
+    <legend>role</legend>
+
+    <input type="radio" name="role-id" id="role_id_0" value="0" %} />
+    <label class="role_id_radio" for="role_id_0">owner</label>
+
+    <input type="radio" name="role-id" id="role_id_1" value="1" />
+    <label class="role_id_radio" for="role_id_1">editor</label>
+
+    <input type="radio" name="role-id" id="role_id_2" value="2" />
+    <label class="role_id_radio" for="role_id_2">member</label>
+
+    </fieldset>
+
+    <br />
+
+    <input type="submit" name="submit" class="mps-submit" value="Send Invite" />
+ 
+    </form>
+
+    <br />
+
+    <h3>owners</h3>
+
+    {% for user in owners %}
+    <ul>
+    <li>{{ user.name }} - {{ user.email }}</li>
+        <form method="post" action="/s/{{ request.shop.id }}/remove-user">
+        <input
+            name        = "user_id"
+            type        = "hidden"
+            id          = "user_id"
+            value       = "{{ user.id }}"
+            required />
+        <input type="submit" name="submit" value="remove" />
+        </form>
+    </ul>
+    {% endfor %}
+
+    <h3>editors</h3>
+
+    {% for user in editors %}
+    <ul>
+    <li>{{ user.name }} - {{ user.email }}</li>
+        <form method="post" action="/s/{{ request.shop.id }}/remove-user">
+        <input
+            name        = "user_id"
+            type        = "hidden"
+            id          = "user_id"
+            value       = "{{ user.id }}"
+            required />
+        <input type="submit" name="submit" value="remove" />
+        </form>
+    </ul>
+    {% endfor %}
+
+    <h3>members</h3>
+
+    {% for user in members %}
+    <ul>
+    <li>{{ user.name }} - {{ user.email }}</li>
+        <form method="post" action="/s/{{ request.shop.id }}/remove-user">
+        <input
+            name        = "user_id"
+            type        = "hidden"
+            id          = "user_id"
+            value       = "{{ user.id }}"
+            required />
+        <input type="submit" name="submit" value="remove" />
+        </form>
+    </ul>
+    {% endfor %}
+    
+  </section>
+</section>
+{%- endblock -%}

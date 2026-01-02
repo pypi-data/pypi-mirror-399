@@ -1,0 +1,287 @@
+{% extends "base.j2" -%}
+
+{%- block call_to_action -%}
+<a href="/actions/new" class="mps-button mps-button-small mps-button-green">+ New</a>
+{%- endblock call_to_action -%}
+
+
+{% block content -%}
+
+{% if cart.is_empty %}
+<section class="one-column">
+  <section class="well">
+{% else %}
+<section class="cart-grid">
+
+  <section class="cart-left">
+{% endif %}
+
+  {% for coupon in cart.coupons %}
+  <section class="coupon">
+    <b>{{ coupon.code }}</b><br/>
+    {{ coupon.description }} <br/>
+
+    <span class="avoid-wrap">
+    {{ coupon.human_discount }}
+    {{ coupon.human_minimum_cart }}
+    </span>
+
+    <span class="avoid-wrap">
+    {{ coupon.human_valid_thru }}
+    </span>
+
+    <span class="avoid-wrap">
+    {{ coupon.human_limit_per_customer }}
+    </span>
+
+    <div class="cart-float-right">
+    <form method="post" action="/coupon/remove" onsubmit="submit.disabled = true; return true;">
+
+      <input
+          name        = "cart_id"
+          type        = "hidden"
+          id          = "cart_id_input"
+          value       = "{{ cart.uuid_str }}"
+          required />
+
+      <input
+          name        = "coupon_id"
+          type        = "hidden"
+          id          = "coupon_id_input"
+          value       = "{{ coupon.uuid_str }}"
+          required />
+
+      <input type="submit" name="submit" class="mps-submit" value="remove coupon" />
+
+    </form>
+    </div>
+
+  <!-- close coupon -->
+  </section>
+  <br/>
+  <br/>
+  {% endfor %}
+
+  {% if cart.is_empty %}
+
+  <center>
+  <h2>This cart is empty.</h2>
+  Nothing to see here.
+  
+  {% if request.user and request.user.authenticated and request.user.carts.count() > 1 %}
+  <br/>
+  <br/>
+  <a href="/u/carts" class="product-edit-button mps-button mps-button-small">View Saved Carts</a>
+  <br/>
+  <br/> or
+  <br/>
+  <br/>
+  {% endif %}
+
+  <a href="/" class="cart-checkout-button mps-button mps-button-small mps-button-green">Let's go shopping!</a>
+  </center>
+
+  {% else %}
+
+
+  {% for shop_id, product_quantity_tuples in shop_product_dict.items() %}
+
+  {% set shop = shops[shop_id] %}
+
+  <section class="cart-left-grid well">
+
+  <div class="cart-shop-grid-span">
+  <b class="cart-shop-name">{{ shop.name }}</b>
+  </div>
+
+  {% for product, quantity in product_quantity_tuples %}
+  
+    {% set product_quantity = quantity %}
+    {% set line_total = cart.line_totals[product.uuid_str] %}
+
+    <div class="cart-item">
+      {% if "thumbnail1" in product.extensions %}
+      <a href="/p/{{ product.uuid_str }}" rel="nofollow">
+      <img src="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" class="product-cart-thumbnail" />
+      </a>
+      {% endif %}
+    </div>
+  
+    <div class="cart-left-forms">
+      <span class="cart-left-item-title">
+      <a href="/p/{{ product.uuid_str }}" class="shop-theme-link-color">{{ product.title }}</a> sold by
+      <a href="{{ shop.absolute_about_url(request) }}" rel="nofollow" class="shop-theme-link-color">{{ shop.name }}</a>
+      </span>
+      <br/>
+
+      <form action="/cart/{{ cart.uuid_str }}/quantity" method="POST" onsubmit="submit.disabled = true; return true;" class="cart-inline-form">
+      {% include "snippets/csrf.j2" %}
+      <input type="hidden" name="product_id" value="{{ product.uuid_str }}">
+      quantity: <input type="text" name="quantity" class="mps-quantity" value="{{ "{:,}".format(product_quantity) }}">
+      <input type="submit" id="submit" value="update" role="button" class="cart-update-button"/>
+      </form>
+      <br/>
+
+      <form method="POST" action="{{ request.route_url('cart_remove_product', cart_id=cart.uuid_str) }}" class="cart-inline-form">
+      {% include "snippets/csrf.j2" %}
+      <input type="hidden" name="product_id" value="{{ product.uuid_str }}">
+      <button type="submit" class="cart-remove-link">remove</button>
+</form>
+    </div>
+
+    <div class="cart-total-section">
+      <span class="opacity-60">{{ "{:,}".format(product_quantity) }} x ${{ "{:,.2f}".format(product.price) }}</span>
+      <br/>
+      <b>${{ "{:,.2f}".format(line_total) }}</b>
+      <br/>
+    </div>
+
+  {% endfor %}
+
+    <!-- Handling Options -->
+    {% if cart.physical_products %}
+    <h3>Physical Handling Options</h3>
+    <form action="{{ request.route_url('cart_handling_option', cart_id=cart.uuid_str) }}" method="POST">
+      {% include "snippets/csrf.j2" %}
+      {% if request.shop_location.local_pickup %}
+      <input type="radio" id="local_pickup" name="handling_option" value="local_pickup" {% if cart.handling_option == "local_pickup" %}checked{% endif %} required>
+      <label for="local_pickup" class="inline-label">Local Pickup (Free)</label><br>
+      {% endif %}
+      {% if request.shop_location.local_delivery %}
+      <input type="radio" id="local_delivery" name="handling_option" value="local_delivery" {% if cart.handling_option == "local_delivery" %}checked{% endif %} required>
+      <label for="local_delivery" class="inline-label">
+        Local Delivery (${{ '{:,.2f}'.format(request.shop_location.local_delivery_rate or 0) }})
+      </label><br>
+      {% endif %}
+      {% if request.shop_location.local_shipping %}
+      <input type="radio" id="local_shipping" name="handling_option" value="local_shipping" {% if cart.handling_option == "local_shipping" %}checked{% endif %} required>
+      <label for="local_shipping" class="inline-label">
+        Local Shipping (${{ '{:,.2f}'.format(request.shop_location.local_shipping_rate or 0) }})
+      </label><br>
+      {% endif %}
+      {% if request.shop_location.international_shipping %}
+      <input type="radio" id="international_shipping" name="handling_option" value="international_shipping" {% if cart.handling_option == "international_shipping" %}checked{% endif %} required>
+      <label for="international_shipping" class="inline-label">
+        International Shipping (${{ '{:,.2f}'.format(request.shop_location.international_shipping_rate or 0) }})
+      </label><br>
+      {% endif %}
+      <input type="submit" value="Set Handling Option">
+    </form>
+    {% endif %}
+
+  <div class="cart-total-grid-span">
+
+  {% if cart.is_discounted %}
+  <b class="cart-total-amount"><s>${{ '{:,.2f}'.format(cart.shop_totals[shop.uuid_str]) }}</s></b>
+  <br/>
+  <b class="discounted cart-total-amount">${{ '{:,.2f}'.format(discounted_shop_totals[shop.uuid_str]) }}</b>
+  {% else %}
+  <b class="cart-total-amount">${{ '{:,.2f}'.format(cart.shop_totals[shop.uuid_str]) }}</b>
+  {% endif %}
+  </div>
+
+  </section>
+  
+  <br>
+
+  {% endfor %}
+
+  {% endif %}
+  
+  </section>
+  
+  {% if not cart.is_empty %}
+  <section class="cart-right well">
+
+  {% if cart.is_discounted %}
+    <h2>Total: <s>${{ '{:,.2f}'.format(cart.total_price) }}</s>
+    <span class="discounted">${{ '{:,.2f}'.format(total_discounted_price) }}
+    </h2></span>
+  {% else %}
+    <h2>Total: ${{ '{:,.2f}'.format(cart.total) }}</h2>
+  {% endif %}
+    
+    {% if not cart.is_empty and request.user == cart.user %}
+
+    <form method="POST" action="{{ request.route_url('user_cart_checkout', cart_id=cart.uuid_str) }}">
+  {% include "snippets/csrf.j2" %}
+  <button type="submit" class="cart-checkout-button mps-button">Checkout</button>
+</form>
+
+    <br/>
+
+    {% endif %}
+    
+    {% if request.active_cart == cart and cart.count > 0 %}
+    
+    <form method="POST" action="{{ request.route_url('user_cart_save', cart_id=cart.uuid_str) }}">
+  {% include "snippets/csrf.j2" %}
+  <button type="submit" class="cart-save-button mps-button">Save Cart</button>
+</form>
+    <br/>
+    
+    {% if request.user and request.user.authenticated and request.user.carts.count() > 1 %}
+    <a href="/u/carts" class="product-edit-button mps-button">View Saved Carts</a>
+    <br/>
+    <br/>
+    {% endif %}
+    
+    {% elif request.active_cart != cart %}
+    
+      {% if request.user and request.user == cart.user %}
+    <form method="POST" action="{{ request.route_url('user_cart_activate', cart_id=cart.uuid_str) }}">
+  {% include "snippets/csrf.j2" %}
+  <button type="submit" class="cart-activate-button mps-button">Make Cart Active</button>
+</form>
+    <br/>
+      {% else %}
+    <form method="POST" action="{{ request.route_url('user_cart_activate', cart_id=cart.uuid_str) }}">
+  {% include "snippets/csrf.j2" %}
+  <button type="submit" class="cart-activate-button mps-button">Copy & Make Cart Active</button>
+</form>
+    <br/>
+      {% endif %}
+    
+    {% endif %}
+    
+    {% if request.user and request.user.owns_cart(cart) %}
+    
+      {% if cart.is_not_public and cart.count > 0 %}
+    <form method="POST" action="{{ request.route_url('user_cart_public', cart_id=cart.uuid_str) }}">
+  {% include "snippets/csrf.j2" %}
+  <button type="submit" class="cart-public-button mps-button"><span class="lock">&#128275;</span> Make Cart Public</button>
+</form>
+    <br/>
+      {% elif cart.public %}
+    <form method="POST" action="{{ request.route_url('user_cart_unpublic', cart_id=cart.uuid_str) }}">
+  {% include "snippets/csrf.j2" %}
+  <button type="submit" class="cart-public-button mps-button"><span class="lock">&#128274;</span> Make Cart Private</button>
+</form>
+
+    <br/>
+    <br/>
+    <span class="cart-public-link"><a href="{{ request.current_route_url() }}" target="_blank" ref="nofollow">Link to public cart</a></span>
+    <br/>
+    <br/>
+      {% endif %}
+    
+      {% if request.active_cart != cart %}
+    <form method="POST" action="{{ request.route_url('user_cart_delete', cart_id=cart.uuid_str) }}">
+  {% include "snippets/csrf.j2" %}
+  <button type="submit" class="cart-delete-button mps-button">Delete Cart</button>
+</form>
+    <br/>
+      {% endif %}
+    
+    {% endif %}
+
+  <center>
+    <a href="/" class="mps-button cart-continue-shopping-button">Continue shopping</a>
+  </center>
+
+  </section>
+  {% endif %}
+</section>
+
+
+{%- endblock -%}

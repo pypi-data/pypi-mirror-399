@@ -1,0 +1,81 @@
+{% extends "base.j2" -%}
+
+{%- block call_to_action -%}
+{%- endblock call_to_action -%}
+
+
+{% block content -%}
+
+<section class="one-column well2">
+
+<section class="coupon two-column">
+
+
+<h3 class="vertical-text shown-on-desktop vertical-coupon-text"><br><br>Coupon:<br><br>{{ request.shop.name }}</h3>
+<b class="not-shown-on-desktop vertical-coupon-text">Coupon: {{ request.shop.name }}</b>
+
+<div>
+
+<h1>
+{{ coupon.description }}
+</h1>
+
+
+Enter coupon code &#8212;
+
+<center>
+<h2>
+<span class="highlight">{{ coupon.code }}</span>
+</h2>
+</center>
+
+<h3>
+<span class="avoid-wrap">
+For {{ coupon.human_discount }}
+{{ coupon.human_minimum_cart }}
+</span>
+</h3>
+
+<span class="avoid-wrap">
+{{ coupon.human_valid_thru }}
+</span>
+
+<span class="avoid-wrap">
+{{ coupon.human_limit_per_customer }}
+</span>
+
+</span>
+
+<br />
+<br />
+
+{% if coupon.is_expired %}
+
+<b>This coupon has expired.</b>
+
+{% else %}
+
+<form method="post" action="/coupon/apply" onsubmit="submit.disabled = true; return true;">
+
+      <input
+          name        = "coupon_id"
+          type        = "hidden"
+          id          = "coupon_id_input"
+          value       = "{{ coupon.id }}"
+          required />
+
+      <input type="submit" name="submit" class="mps-button coupon-apply-button" value="&#65291 Apply coupon to active cart" />
+
+</form>
+
+{% endif %}
+
+</div>
+
+</section>
+</section>
+
+<br />
+<br />
+
+{%- endblock -%}

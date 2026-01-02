@@ -1,0 +1,81 @@
+{% extends "base.j2" -%}
+{%- import 'snippets/stripe.j2' as stripe with context -%}
+
+{% block content -%}
+
+<section class="two-column">
+
+  <section class="existing-cards well">
+
+  <h3>Active Card</h3>
+
+  The active card will be charged during checkout.
+
+  <br/>
+  
+  {% if active_card %}
+    {{ stripe.display_card(active_card, actions=False) }}
+  {% endif %}
+
+  {% if cards |length >= 1 %}
+
+    <hr>
+    <br>
+
+    <h3>Saved Cards</h3>
+    {% for card in cards %}
+        {{ stripe.display_card(card) }}
+        <br/>
+    {% endfor %}
+    <br/>
+  {% endif %}
+
+  </section>
+
+  <section class="new-card well">
+    {{ stripe.new_card() }}
+  </section>
+
+</section>
+
+{# PayPal Saved Payment Method Section #}
+{% if paypal_enabled and paypal_user_shop %}
+<section class="well" style="margin-top: 20px;">
+  <h3>PayPal Payment Method</h3>
+
+  {% if paypal_user_shop.has_saved_payment_method %}
+    <div style="padding: 15px; background-color: #f0f7ff; border-left: 4px solid #0070ba; border-radius: 4px; margin-top: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#0070ba">
+          <path d="M20.067 8.478c.492.88.556 2.014.3 3.327-.74 3.806-3.276 5.12-6.514 5.12h-.5a.805.805 0 00-.794.68l-.04.22-.63 3.993-.032.17a.804.804 0 01-.794.679H7.72a.483.483 0 01-.477-.558L9.01 8.975a.964.964 0 01.951-.814h2.053c3.893 0 6.535 1.62 7.055 6.317z"/>
+          <path d="M10.964 8.975a.964.964 0 00-.95.814L8.247 21.891a.483.483 0 00.476.558h3.344c.336 0 .622-.243.678-.574l.028-.15.63-3.994.04-.218a.805.805 0 01.795-.68h.5c3.238 0 5.774-1.314 6.514-5.12.256-1.313.192-2.447-.3-3.327a3.918 3.918 0 00-1.172-1.241c-.67-.437-1.53-.695-2.527-.827-.27-.036-.549-.063-.837-.083h-.18z" opacity=".7"/>
+        </svg>
+        <span style="font-weight: 500; font-size: 16px;">PayPal Account Connected</span>
+      </div>
+      <p style="margin: 0 0 12px 0; color: #666; font-size: 14px;">
+        Your PayPal account is saved for quick checkout. Click the PayPal button at checkout to complete your purchase.
+      </p>
+      <form method="POST" action="/billing/disconnect-paypal" style="margin: 0;">
+        <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
+        <button type="submit" style="padding: 8px 16px; background-color: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; color: #333;">
+          Disconnect PayPal
+        </button>
+      </form>
+    </div>
+  {% else %}
+    <p style="color: #666; margin-top: 10px;">
+      No PayPal account connected. Check the "Save PayPal" box during checkout to save your PayPal account for faster future purchases.
+    </p>
+  {% endif %}
+</section>
+{% endif %}
+
+<center>
+<a href="/cart" class="product-new-button mps-button">Review Order</a>
+&nbsp;
+&nbsp;
+&nbsp;
+<a href="/cart/checkout" class="cart-checkout-button mps-button">Checkout</a>
+</center>
+
+{%- endblock -%}

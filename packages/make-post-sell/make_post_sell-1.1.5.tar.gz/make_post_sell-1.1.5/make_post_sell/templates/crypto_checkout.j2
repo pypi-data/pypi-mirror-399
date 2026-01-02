@@ -1,0 +1,568 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+{% include "snippets/csrf.j2" %}
+<section class="one-column">
+  <h2>
+    {% if coin_symbol == 'XMR' %}
+      <img src="{{ request.static_url('make_post_sell:static/monero-symbol-480.png') }}" class="crypto-logo">
+    {% elif coin_symbol == 'DOGE' %}
+      <img src="{{ request.static_url('make_post_sell:static/dogecoin-logo.png') }}" class="crypto-logo">
+    {% endif %}
+    {{ coin_name }} ({{ coin_symbol }})
+  </h2>
+
+  {% if address and amount_crypto %}
+    {% if coin_symbol == 'XMR' %}
+      {% set amount_fmt = '%.12f' % amount_crypto %}
+    {% else %}
+      {% set amount_fmt = '%.8f' % amount_crypto %}
+    {% endif %}
+    
+    {% if status == 'pending' %}
+    <div class="payment-grid">
+      <div>
+        <div id="payment-qr"></div>
+      </div>
+      <div>
+        <p>Send exactly <b id="crypto-amount">{{ amount_fmt }}</b> {{ coin_symbol }} to this address:</p>
+        <pre id="crypto-address" class="crypto-address">{{ address }}</pre>
+        <p>
+          {% if expires_at %}
+            Expires in: <span id="countdown" data-expires="{{ expires_at }}">--:--</span>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="payment-buttons">
+      <button class="mps-button mps-button-green payment-button-row-1" id="copy-amt">Copy Amount</button>
+      <button class="mps-button mps-button-green payment-button-row-1" id="copy-addr">Copy Address</button>
+      <a class="mps-button mps-button-green payment-button-row-1" href="{{ wallet_uri_scheme }}:{{ address }}?{% if coin_symbol == 'XMR' %}tx_amount{% else %}amount{% endif %}={{ amount_fmt }}" target="_blank" rel="noopener">Open in Wallet</a>
+      <button id="cancel-btn" onclick="cancelQuote('{{ payment_id }}')" class="mps-button mps-button-red payment-button-cancel">Cancel Quote</button>
+    </div>
+    {% else %}
+    {% endif %}
+    
+    
+    <div class="status-box">
+      <p><strong>Cart Total:</strong> ${{ '%.2f' % usd_total }}</p>
+      <p><strong>Status:</strong> <span id="status">{{ status }}</span></p>
+      <p id="confirmations"{% if status == 'pending' or status == 'expired' %} class="confirmations-hidden"{% endif %}>
+        <strong>Confirmations:</strong> <span id="current-confirmations">{{ current_confirmations or 0 }}</span> / <span id="required-confirmations">{{ confirmations_required or 0 }}</span>
+      </p>
+      <p><strong>Conversion Rate:</strong> ${{ '%.2f' % usd_per_crypto }} USD per {{ coin_symbol }}</p>
+      {% if coin_symbol == 'XMR' %}
+        <p><strong>Base Amount:</strong> {{ '%.12f' % amount_crypto_base }} {{ coin_symbol }}</p>
+        <p><strong>Processing Fee (inbound + outbound):</strong> +{{ '%.12f' % fee_buffer_crypto }} {{ coin_symbol }}</p>
+        <p><strong>Total Amount:</strong> {{ '%.12f' % amount_crypto }} {{ coin_symbol }}</p>
+        <p><strong>Expected {{ smallest_unit_name }}:</strong> {{ '{:,}'.format(expected_smallest_units) }}</p>
+        <p><strong>Payment ID:</strong> <code id="payment-id">{{ payment_id }}</code></p>
+        {% if status in ['confirmed', 'confirmed-complete', 'confirmed-overpay', 'confirmed-overpay-refunded', 'confirmed-overpay-refunded-complete'] and has_invoice and invoice_id %}
+          <p><strong>Invoice ID:</strong> <a href="{{ request.route_url('view_invoice', invoice_id=invoice_id) }}">{{ invoice_id }}</a></p>
+        {% endif %}
+      {% else %}
+        <p><strong>Base Amount:</strong> {{ '%.8f' % amount_crypto_base }} {{ coin_symbol }}</p>
+        <p><strong>Processing Fee (inbound + outbound):</strong> +{{ '%.8f' % fee_buffer_crypto }} {{ coin_symbol }}</p>
+        <p><strong>Total Amount:</strong> {{ '%.8f' % amount_crypto }} {{ coin_symbol }}</p>
+        <p><strong>Expected {{ smallest_unit_name }}:</strong> {{ '{:,}'.format(expected_smallest_units) }}</p>
+        <p><strong>Payment ID:</strong> <code id="payment-id">{{ payment_id }}</code></p>
+        {% if status in ['confirmed', 'confirmed-complete', 'confirmed-overpay', 'confirmed-overpay-refunded', 'confirmed-overpay-refunded-complete'] and has_invoice and invoice_id %}
+          <p><strong>Invoice ID:</strong> <a href="{{ request.route_url('view_invoice', invoice_id=invoice_id) }}">{{ invoice_id }}</a></p>
+        {% endif %}
+      {% endif %}
+    </div>
+    <!-- QR Code Library -->
+    <script src="{{ request.static_url('make_post_sell:static/js/qrcode.min.js') }}"></script>
+    
+    <script>
+      (function(){
+        // Generate QR code for payment (only if container exists)
+        const qrContainer = document.getElementById('payment-qr');
+        if (qrContainer && window.QRious) {
+          {% if address and amount_crypto %}
+          const paymentUri = "{{ wallet_uri_scheme }}:{{ address }}?{% if coin_symbol == 'XMR' %}tx_amount{% else %}amount{% endif %}={{ amount_fmt }}";
+          
+          try {
+            // Clear any existing content
+            qrContainer.innerHTML = '';
+            
+            // Create canvas element for QR code
+            const canvas = document.createElement('canvas');
+            qrContainer.appendChild(canvas);
+            
+            // Create QR code using QRious library
+            const qr = new QRious({
+              element: canvas,
+              value: paymentUri,
+              size: 150,
+              background: '#ffffff',
+              foreground: '#000000'
+            });
+          } catch (error) {
+            console.error('QR Code generation failed:', error);
+            qrContainer.innerHTML = '<div class="qr-fallback">QR unavailable</div>';
+          }
+          {% endif %}
+        }
+        const paymentId = document.getElementById('payment-id')?.textContent;
+        const statusEl = document.getElementById('status');
+        const expiresEl = document.getElementById('countdown');
+        const confirmationsEl = document.getElementById('confirmations');
+        const currentConfirmationsEl = document.getElementById('current-confirmations');
+        const requiredConfirmationsEl = document.getElementById('required-confirmations');
+
+        function fmtPico(n){ try { return Number(n).toLocaleString(); } catch(e){ return n; } }
+
+        // Countdown timer
+        let countdownInterval;
+        let expiredWarningShown = false;
+        function disableQuoteButtons() {
+          // Disable payment buttons when quote expires
+          const copyAddrBtn = document.getElementById('copy-addr');
+          const copyAmtBtn = document.getElementById('copy-amt');
+          const walletLink = document.querySelector('a[href^="monero:"], a[href^="bitcoin:"], a[href^="litecoin:"], a[href^="dogecoin:"]');
+          const qrContainer = document.getElementById('payment-qr');
+          
+          [copyAddrBtn, copyAmtBtn].forEach(btn => {
+            if (btn) {
+              btn.disabled = true;
+              btn.style.opacity = '0.5';
+              btn.style.cursor = 'not-allowed';
+              btn.style.background = '#ccc';
+            }
+          });
+          
+          if (walletLink) {
+            walletLink.style.opacity = '0.5';
+            walletLink.style.pointerEvents = 'none';
+            walletLink.style.background = '#ccc';
+          }
+          
+          // Disable QR code
+          if (qrContainer) {
+            qrContainer.style.opacity = '0.5';
+            qrContainer.style.filter = 'grayscale(100%)';
+          }
+        }
+        
+        // Remove payment elements to prevent double-sending (for received status)
+        function removePaymentElements() {
+          // Remove the entire payment grid (QR code and instructions)
+          const paymentGrid = document.querySelector('.payment-grid');
+          if (paymentGrid) {
+            paymentGrid.style.display = 'none';
+          }
+
+          // Remove all payment buttons completely
+          const paymentButtons = document.querySelector('.payment-buttons');
+          if (paymentButtons) {
+            paymentButtons.style.display = 'none';
+          }
+        }
+        
+        // Replace action buttons with smart redirect link for terminal statuses
+        function replaceButtonsWithInvoiceLink(redirectUrl) {
+          const paymentGrid = document.querySelector('.payment-grid');
+          const paymentButtons = document.querySelector('.payment-buttons');
+
+          if (!paymentButtons) return;
+
+          // Remove the entire payment grid (QR code and instructions)
+          if (paymentGrid) {
+            paymentGrid.style.display = 'none';
+          }
+
+          // Clear all buttons
+          paymentButtons.innerHTML = '';
+          paymentButtons.style.gridTemplateColumns = '1fr';
+
+          // Add smart redirect link
+          const invoiceLink = document.createElement('a');
+          const statusEl = document.getElementById('status');
+          const currentStatus = statusEl ? statusEl.textContent.trim() : '';
+
+          // Use smart redirect URL for confirmed states, crypto-quotes for terminal states
+          if (currentStatus === 'confirmed' || currentStatus === 'confirmed-complete' || currentStatus === 'confirmed-overpay') {
+            invoiceLink.href = redirectUrl || '/u/purchases';
+            // Determine button text based on redirect URL
+            if (redirectUrl && redirectUrl.includes('/p/')) {
+              invoiceLink.textContent = 'Download Product';
+            } else if (redirectUrl && redirectUrl.includes('/invoice/')) {
+              invoiceLink.textContent = 'View Invoice';
+            } else {
+              invoiceLink.textContent = 'View Purchases';
+            }
+          } else {
+            invoiceLink.href = '/u/crypto-quotes';
+            invoiceLink.textContent = 'View Crypto History';
+          }
+
+          invoiceLink.className = 'mps-button';
+          invoiceLink.classList.add('mps-button-blue');
+          invoiceLink.style.textAlign = 'center';
+          invoiceLink.style.display = 'block';
+          paymentButtons.appendChild(invoiceLink);
+        }
+        
+        // Add warning message for expired payments (only once)
+        function addExpiredWarning() {
+          if (!expiredWarningShown) {
+            const expiredWarning = document.createElement('p');
+            expiredWarning.style.color = '#dc3545';
+            expiredWarning.style.fontWeight = 'bold';
+            expiredWarning.style.marginTop = '10px';
+            expiredWarning.innerHTML = '⚠️ This quote has expired. Please return to cart to generate a new quote.';
+            (statusEl || expiresEl).parentNode.appendChild(expiredWarning);
+            expiredWarningShown = true;
+          }
+        }
+
+        // Terminal statuses from the model
+        const terminalStatuses = {{ terminal_statuses|tojson }};
+        
+        // Refund redirect statuses from the model
+        const refundRedirectStatuses = {{ refund_redirect_statuses|tojson }};
+        
+        // Track initial status to detect changes
+        let lastKnownStatus = statusEl ? statusEl.textContent.trim() : '';
+        
+        // Check payment status on page load
+        if (lastKnownStatus && lastKnownStatus === 'received') {
+          // Payment received - remove payment elements to prevent double-sending
+          removePaymentElements();
+          
+          // Hide cancel button - can't cancel after receiving funds
+          const cancelBtn = document.getElementById('cancel-btn');
+          if (cancelBtn) {
+            cancelBtn.style.display = 'none';
+          }
+          
+          // Hide countdown since payment is received
+          if (expiresEl) {
+            expiresEl.parentNode.style.display = 'none';
+          }
+        } else if (lastKnownStatus && (lastKnownStatus === 'confirmed' || lastKnownStatus === 'confirmed-complete' || lastKnownStatus === 'confirmed-overpay')) {
+          // Payment confirmed - replace with invoice link
+          replaceButtonsWithInvoiceLink();
+          
+          // Hide countdown
+          if (expiresEl) {
+            expiresEl.parentNode.style.display = 'none';
+          }
+        } else if (lastKnownStatus && terminalStatuses.includes(lastKnownStatus)) {
+          // Terminal status - replace buttons with invoice link
+          replaceButtonsWithInvoiceLink();
+          
+          // Add specific warnings for expired status
+          if (lastKnownStatus === 'expired') {
+            addExpiredWarning();
+          }
+          
+          // Hide countdown for terminal statuses
+          if (expiresEl) {
+            expiresEl.parentNode.style.display = 'none';
+          }
+        }
+        
+        if (expiresEl) {
+          const expiresAt = parseInt(expiresEl.getAttribute('data-expires'), 10);
+          
+          // Check if already expired on page load
+          const now = Date.now();
+          if ((now >= expiresAt && statusEl && statusEl.textContent.trim() === 'pending') || 
+              (statusEl && statusEl.textContent.trim() === 'expired')) {
+            disableQuoteButtons();
+            expiresEl.style.color = '#dc3545';
+            expiresEl.textContent = 'EXPIRED';
+            
+            addExpiredWarning();
+            
+            return; // Don't start countdown if already expired
+          }
+          
+          const tick = () => {
+            // Stop countdown if payment status is no longer pending
+            if (statusEl && statusEl.textContent.trim() !== 'pending') {
+              expiresEl.textContent = '--:--';
+              if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+              }
+              return;
+            }
+            const now = Date.now();
+            const ms = Math.max(0, expiresAt - now);
+            
+            // Check if expired first
+            if (ms === 0 && statusEl && statusEl.textContent.trim() === 'pending' && !expiredWarningShown) {
+              replaceButtonsWithInvoiceLink();
+              expiresEl.style.color = '#dc3545'; // Red color to indicate expiry
+              expiresEl.textContent = 'EXPIRED';
+              
+              addExpiredWarning();
+              
+              // Stop the countdown timer since quote is expired
+              if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+              }
+              
+              // Redirect to cart after 3 seconds when quote expires
+              setTimeout(() => {
+                window.location.href = '/cart';
+              }, 3000);
+            } else if (!expiredWarningShown) {
+              // Only update countdown if not expired
+              const s = Math.floor(ms / 1000);
+              const m = Math.floor(s / 60);
+              const sec = s % 60;
+              expiresEl.textContent = `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+            }
+          };
+          tick();
+          countdownInterval = setInterval(tick, 1000);
+        }
+
+        // Copy buttons
+        const addrBtn = document.getElementById('copy-addr');
+        const amtBtn = document.getElementById('copy-amt');
+        
+        function handleCopy(btn, textToCopy) {
+          navigator.clipboard.writeText(textToCopy);
+          const originalText = btn.textContent;
+          btn.textContent = 'Copied';
+          setTimeout(() => {
+            btn.textContent = originalText;
+          }, 3000);
+        }
+        
+        addrBtn?.addEventListener('click', () => {
+          const addrEl = document.getElementById('crypto-address');
+          if (addrEl) {
+            handleCopy(addrBtn, addrEl.textContent);
+          }
+        });
+        amtBtn?.addEventListener('click', () => {
+          const amtEl = document.getElementById('crypto-amount');
+          if (amtEl) {
+            handleCopy(amtBtn, amtEl.textContent);
+          }
+        });
+
+        // Poll status endpoint
+        async function poll(){
+          if (!paymentId) return;
+          try {
+            const res = await fetch(`/crypto/{{ coin_symbol.lower() }}/status/${paymentId}`, { cache: 'no-store' });
+            if (!res.ok) return;
+            const data = await res.json();
+            const currentStatus = data.status || '';
+            
+            // Update status display
+            if (currentStatus && statusEl) {
+              statusEl.textContent = currentStatus;
+            }
+            
+            // If status changed from what we last knew, update UI
+            if (lastKnownStatus !== currentStatus) {
+              console.log(`Status changed from ${lastKnownStatus} to ${currentStatus}`);
+              
+              // Show confirmations section when payment is received or later
+              if (currentStatus === 'received' || currentStatus === 'confirmed' || currentStatus === 'confirmed-complete' || currentStatus === 'confirmed-overpay') {
+                if (confirmationsEl) {
+                  confirmationsEl.style.display = 'block';
+                }
+              }
+              
+              // Handle different status transitions
+              if (currentStatus === 'received') {
+                // Payment received - remove payment elements to prevent double-sending
+                // and hide cancel button since funds were received
+                removePaymentElements();
+                
+                // Hide cancel button - can't cancel after receiving funds
+                const cancelBtn = document.getElementById('cancel-btn');
+                if (cancelBtn) {
+                  cancelBtn.style.display = 'none';
+                }
+                
+                // Hide countdown since payment is received
+                if (expiresEl && expiresEl.parentNode) {
+                  expiresEl.parentNode.style.display = 'none';
+                }
+              } else if (currentStatus === 'confirmed' || currentStatus === 'confirmed-complete' || currentStatus === 'confirmed-overpay') {
+                // Payment confirmed - replace with smart redirect link
+                replaceButtonsWithInvoiceLink(data.redirect_url);
+                
+                // Hide countdown
+                if (expiresEl && expiresEl.parentNode) {
+                  expiresEl.parentNode.style.display = 'none';
+                }
+                
+                // Redirect only if status changed from non-confirmed to confirmed (via polling)
+                // Don't redirect if user browsed directly to already-confirmed quote
+                if (lastKnownStatus && lastKnownStatus !== 'confirmed' && lastKnownStatus !== 'confirmed-complete' && lastKnownStatus !== 'confirmed-overpay') {
+                  setTimeout(() => {
+                    // Use smart redirect URL if available, otherwise fallback to purchases page
+                    window.location.href = data.redirect_url || '/u/purchases';
+                  }, 2000); // 2 second delay to show confirmation message
+                }
+              } else if (terminalStatuses.includes(currentStatus)) {
+                // Terminal status - replace with smart redirect link  
+                replaceButtonsWithInvoiceLink(data.redirect_url);
+                
+                // Hide countdown
+                if (expiresEl && expiresEl.parentNode) {
+                  expiresEl.parentNode.style.display = 'none';
+                }
+                
+                // Add expired warning if needed
+                if (currentStatus === 'expired') {
+                  addExpiredWarning();
+                }
+                
+                // Redirect to crypto quotes history for refund/no-refund statuses
+                if (refundRedirectStatuses.includes(currentStatus)) {
+                  setTimeout(() => {
+                    window.location.href = '/u/crypto-quotes';
+                  }, 3000); // 3 second delay to show status message
+                }
+              }
+              
+              // Update our tracking variable
+              lastKnownStatus = currentStatus;
+            }
+            
+            // Show confirmations if payment has been received
+            if (typeof data.current_confirmations === 'number' && typeof data.confirmations_required === 'number') {
+              currentConfirmationsEl.textContent = data.current_confirmations;
+              requiredConfirmationsEl.textContent = data.confirmations_required;
+              // Show confirmations section if payment is being processed
+              if (data.status !== 'pending' && data.status !== 'expired') {
+                confirmationsEl.style.display = 'block';
+              }
+            }
+            
+            const receivedKey = 'received_{{ smallest_unit_name.lower() }}';
+            // Atomic unit display removed - users see human-readable amounts only
+            // Don't auto-redirect - just show the invoice/product link
+            // User can click the link if they want to navigate away
+          } catch(e) {
+            // ignore transient errors
+          }
+        }
+        
+        // Store polling interval so we can stop it for terminal statuses
+        let pollInterval = null;
+        
+        // Wrapper function to check if we should stop polling
+        async function pollWithTerminalCheck() {
+          await poll();
+          
+          // Stop polling if we've reached a terminal status or confirmed status
+          const currentStatus = statusEl ? statusEl.textContent.trim() : '';
+          if (terminalStatuses.includes(currentStatus) || currentStatus === 'confirmed' || currentStatus === 'confirmed-complete') {
+            if (pollInterval) {
+              clearInterval(pollInterval);
+              pollInterval = null;
+              console.log('Stopped polling - terminal/confirmed status reached:', currentStatus);
+            }
+          }
+        }
+        
+        // Initial poll
+        pollWithTerminalCheck();
+        
+        // Set up interval polling
+        pollInterval = setInterval(pollWithTerminalCheck, 5000);
+      })();
+
+      // Cancel quote function
+      function cancelQuote(paymentId) {
+        if (!confirm('Are you sure you want to cancel this crypto payment quote?')) {
+          return;
+        }
+        
+        fetch(`/crypto/cancel/${paymentId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('input[name="csrf_token"]') ? document.querySelector('input[name="csrf_token"]').value : ''
+          }
+        })
+        .then(response => {
+          console.log('Response status:', response.status);
+          console.log('Response headers:', response.headers);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            // Redirect to cart if cart_url is provided
+            if (data.cart_url) {
+              window.location.href = data.cart_url;
+            } else {
+              // Fallback: Update status on page and hide cancel button
+              const statusEl = document.getElementById('status');
+              const cancelBtn = document.getElementById('cancel-btn');
+              if (statusEl) statusEl.textContent = 'cancelled';
+              if (cancelBtn) cancelBtn.style.display = 'none';
+            }
+          } else {
+            alert('Failed to cancel quote: ' + (data.message || 'Unknown error'));
+          }
+        })
+        .catch(error => {
+          alert('Error cancelling quote: ' + error.message);
+        });
+      }
+    </script>
+  {% endif %}
+  
+  {% if not address or not amount_crypto %}
+    <p>Crypto checkout is initializing. If this message persists, the RPC may not be configured.</p>
+  {% endif %}
+
+  
+  {% if has_refund_address %}
+  <div class="success-notice">
+    <p><strong>✓ Refund address configured</strong></p>
+    <p class="monospace-address">{{ refund_address }}</p>
+    {% if status == 'out-of-stock-refunded' %}
+    <p><strong>📦 Out of Stock - Full Refund Issued</strong></p>
+    <p>This item became unavailable after your payment. You received a full refund with no restocking fee since this was not your fault.</p>
+    {% else %}
+    <p>If you make a payment error, you'll receive an automatic refund minus a 9% restocking fee that covers network costs and prevents abuse.</p>
+    <ul class="notice-list">
+      <li><strong>Overpayment:</strong> Fulfilled & excess refunded minus fee</li>
+      <li><strong>Underpayment:</strong> Refunded minus fee</li>
+      <li><strong>Late payment:</strong> Refunded minus fee if sent after the minute expiry</li>
+      <li><strong>Out of stock:</strong> Full refund (no fee - not your fault)</li>
+      <li><strong>Wrong address:</strong> Cannot be recovered</li>
+    </ul>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="warning-notice">
+    <p><strong>⚠️ No refund address configured</strong></p>
+    {% if status == 'no-refund' %}
+    <p><strong>📦 Out of Stock - No Refund Possible</strong></p>
+    <p>This item became unavailable after your payment, but without a refund address configured, the funds were transferred to the shop's cold storage.</p>
+    {% else %}
+    <p>Without a refund address, all payment errors result in lost funds:</p>
+    <ul class="notice-list">
+      <li><strong>Underpayments:</strong> Cannot be recovered</li>
+      <li><strong>Overpayments:</strong> Cannot be recovered</li>
+      <li><strong>Late payments:</strong> Cannot be recovered</li>
+      <li><strong>Out of stock:</strong> Cannot be recovered</li>
+      <li><strong>Wrong address:</strong> Cannot be recovered</li>
+    </ul>
+    {% endif %}
+    <p class="notice-footer">Consider cancelling and <a href="/u/settings/crypto" class="shop-theme-link-color">configuring a refund address</a> for future purchases.</p>
+  </div>
+  {% endif %}
+</section>
+{%- endblock %}

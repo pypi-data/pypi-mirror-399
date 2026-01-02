@@ -1,0 +1,255 @@
+{% extends "base.j2" -%}
+
+{%- block call_to_action -%}
+<br/>
+<br/>
+permanent link: <a href="{{ product.absolute_url(request) }}">{{ product.absolute_url(request) }}</a>
+{%- endblock call_to_action -%}
+
+{% block content -%}
+
+<div class="edit-page">
+
+<section class="upload-product-and-preview well2">
+
+  {% if product.is_bundle %}
+
+  <h3>Product IDs or URLs to include in this bundle</h3>
+
+  <form method="post" action="/p/{{ product.id }}/bundle/edit" onsubmit="submit.disabled = true; return true;">
+    <textarea
+        name        = "bundle-data"
+        class       = "mps-bundle-data"
+        placeholder = "Product IDs or URLs to include in this bundle."
+        required /></textarea>
+    <input type="submit" name="submit" class="mps-submit" value="Add to bundle" />
+  </form>
+
+  <br>
+
+    {% if product.products_in_this_bundle %}
+    <ul>
+    {% for p in product.products_in_this_bundle %}
+    <li>
+      <form method="post" action="/p/{{ product.id }}/bundle/remove/{{ p.id }}" onsubmit="submit.disabled = true; return true;">
+      {{p.title}}
+      <input type="submit" name="submit" class="mps-submit remove-button-small" value="remove"/>
+      </form>
+    </li>
+    <br>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+  {% elif product.is_physical %}
+
+  <h3>Inventory Management</h3>
+
+  <form method="post" action="/p/{{ product.id }}/inventory/edit" onsubmit="submit.disabled = true; return true;">
+    <table>
+      <thead>
+        <tr>
+          <th>Location</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for location in locations %}
+        <tr>
+          <td>{{ location.name }}</td>
+          <td>
+            <input
+              type="number"
+              name="inventory_{{ location.id }}"
+              value="{{ inventories[location.id] if location.id in inventories else 0 }}"
+              min="0"
+              required
+            />
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <input type="submit" name="submit" class="mps-submit" value="Update Inventory" />
+  </form>
+
+  {% else %}
+
+  <h3>Upload or Replace {% if product.is_sellable %}Product{% else %}Content{% endif %} File</h3>
+
+  People may download this file{% if product.is_sellable %} after making a purchase{% endif %}.
+
+  <br>
+  <br>
+
+  {% if "product" in product.originals %}
+  <p class="bold-text">Current File: {{ product.originals["product"] }}</p>
+  <p>File Type: {{ product.extensions.get("product", "unknown") }}</p>
+  <p>File Size: {{ product.human_file_bytes("product") }}</p>
+  {% endif %}
+
+  {% set signed_post = signed_posts["product"] %}
+  <form method="post" action="{{ signed_post["url"] }}" enctype="multipart/form-data" onsubmit="submit.disabled = true; return true;">
+      {% for field_name, field_value in signed_post["fields"].items() %}
+      <input type="hidden" name="{{ field_name }}" value="{{ field_value }}" />
+      {% endfor %}
+      <input type="file" name="file" class="file-input" /> <br />
+      <input type="submit" name="submit" class="mps-upload" value="Upload Product" />
+  </form>
+
+
+  {% if product.is_sellable %} 
+
+  <hr/>
+
+  <h3>Upload or Replace Preview File</h3>
+
+  People may download this file before making a purchase.
+
+  <br />
+  <br />
+
+  {% if "preview" in product.originals %}
+  <p class="bold-text">Current File: {{ product.originals["preview"] }}</p>
+  <p>File Type: {{ product.extensions.get("preview", "unknown") }}</p>
+  <p>File Size: {{ product.human_file_bytes("preview") }}</p>
+  {% endif %}
+
+  {% set signed_post = signed_posts["preview"] %}
+  <form method="post" action="{{ signed_post["url"] }}" enctype="multipart/form-data" onsubmit="submit.disabled = true; return true;">
+      {% for field_name, field_value in signed_post["fields"].items() %}
+      <input type="hidden" name="{{ field_name }}" value="{{ field_value }}" />
+      {% endfor %}
+      <br/>
+      <input type="file" name="file" class="file-input" /> <br />
+      <input type="submit" name="submit" class="mps-upload" value="Upload Preview" />
+  </form>
+
+  {% endif %}
+  {% endif %}
+
+</section>
+
+<section class="upload-thumbnails well2">
+<h3>Upload or Replace Thumbnail Files</h3>
+
+<section>
+Your cover (<code>thumbnail1</code>) will show up on search pages.
+<br />
+<br />
+</section>
+
+{% set s3_key_thumbnails = product.s3_key_thumbnails %}
+
+{% for thumbnail_key in product.file_thumbnail_keys %}
+
+  <div class="upload-thumbnail-item">
+
+  {% if thumbnail_key in  s3_key_thumbnails %}
+  {% set get_endpoint = request.app["bucket.secure_uploads.get_endpoint"] + "/" + s3_key_thumbnails[thumbnail_key] %}
+  <a href="{{ get_endpoint }}?ts={{ product.updated_timestamp }}"><img src="{{ get_endpoint }}?ts={{ product.updated_timestamp }}" width="120px" /></a>
+  {% endif %}
+
+  {% if thumbnail_key in product.originals %}
+  <p class="bold-text">Current File: {{ product.originals[thumbnail_key] }}</p>
+  <p>File Type: {{ product.extensions.get(thumbnail_key, "unknown") }}</p>
+  <p>File Size: {{ product.human_file_bytes(thumbnail_key) }}</p>
+  {% endif %}
+
+  {% set signed_post = signed_posts[thumbnail_key] %}
+  <form method="post" action="{{ signed_post["url"] }}" enctype="multipart/form-data" onsubmit="submit.disabled = true; return true;">
+      {% for field_name, field_value in signed_post["fields"].items() %}
+      <input type="hidden" name="{{ field_name }}" value="{{ field_value }}" />
+      {% endfor %}
+      <input type="file" name="file" class="file-input" /> <br />
+      <input type="submit" name="submit" class="mps-upload" value="Upload {{ thumbnail_key }}" />
+  </form>
+
+  <hr/>
+
+  <br />
+
+  </div>
+
+{% endfor %}
+</section>
+
+<section class="file-statistics well2">
+  <h3>File Statistics</h3>
+  <p><b>Total Capacity:</b> {{ product.human_total_file_bytes }}</p>
+</section>
+
+<section class="product-title-and-description well2">
+  <form method="post" action="{{ product.absolute_edit_url(request) }}" onsubmit="submit.disabled = true; return true;">
+  <h3>Edit Title, Description, or Visibility</h3>
+
+    <label for="title_input">Title</label>
+    <input
+        name        = "title"
+        type        = "text"
+        id          = "title_input"
+        class       = "mps-product-title"
+        value       = "{{ title }}"
+        placeholder = "Product Title"
+        required />
+
+    <br />
+    <br />
+
+    <label for="description_input">Description <a href="{{ product.absolute_edit_url(request, subject='description') }}">(advanced editor)</a></label> Supports Markdown and some HTML
+    <textarea
+        name        = "description"
+        id          = "description_input"
+        class       = "mps-product-description"
+        placeholder = "Product Description"
+        required />{{ description }}</textarea>
+
+    <br />
+    <br />
+
+  {% if product.is_sellable %}
+    <label for="price_input">Price</label>
+    <input
+        name        = "price"
+        type        = "text"
+        id          = "price_input"
+        class       = "mps-product-price"
+        value       = "{{ '%0.2f' % price }}"
+        placeholder = "Product Price"
+        required />
+
+    <br />
+    <br />
+  {% endif %}
+
+    <style>
+      label.visibility_radio {
+        display: inline;
+      }
+    </style>
+
+    <fieldset>
+
+    <legend>Visibility</legend>
+
+    <input type="radio" name="visibility" id="visibility_public" value="1" {% if visibility == 1 %}checked{% endif %} />
+    <label class="visibility_radio" for="visibility_public">Public</label>
+
+    <input type="radio" name="visibility" id="visibility_unlisted" value="2" {% if visibility == 2 %}checked{% endif %} />
+    <label class="visibility_radio" for="visibility_unlisted">Unlisted</label>
+
+    <input type="radio" name="visibility" id="visibility_private" value="0" {% if visibility == 0 %}checked{% endif %} />
+    <label class="visibility_radio" for="visibility_private">Private</label>
+
+    </fieldset>
+
+    <br />
+    <br />
+
+    <input type="submit" name="submit" class="mps-submit" value="Save Settings" />
+  </form>
+</section>
+
+</div>
+
+{%- endblock -%}

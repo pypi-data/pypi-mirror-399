@@ -1,0 +1,15 @@
+{% if request.shop and request.shop.domain_name and request.shop.plausible_domain_name %}
+  <script defer data-domain="{{ request.shop.domain_name }}" src="https://{{ request.shop.plausible_domain_name }}/js/plausible.js"></script>
+{% endif %}
+
+{% if request.shop and request.shop.google_analytics_id %}
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ request.shop.google_analytics_id }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '{{ request.shop.google_analytics_id }}');
+</script>
+{% endif %}
