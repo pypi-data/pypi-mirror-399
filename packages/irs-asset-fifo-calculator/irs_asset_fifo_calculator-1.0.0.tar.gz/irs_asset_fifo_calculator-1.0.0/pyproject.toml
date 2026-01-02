@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=75.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "irs-asset-fifo-calculator"
+version = "1.0.0"
+description = "FIFO-based IRS Form 8949 capital gains calculator for assets."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Elliott Bache", email = "elliottbache@gmail.com" }
+]
+keywords = ["taxes", "IRS", "capital-gains", "FIFO"]
+
+# Runtime deps
+dependencies = [
+  "pandas>=2.0",
+  "pyarrow"
+]
+
+# Optional extras for dev tools
+[project.optional-dependencies]
+dev = [
+  "pytest>=9.0",
+  "sphinx>=8.0",
+  "sphinx-autodoc-typehints",
+  "sphinx_rtd_theme",
+  "myst-parser>=3.0",
+  "pre-commit",
+  "ruff",
+  "black==25.12.0",  # same as pre-commit
+  "isort",
+  "mypy",
+  "codespell",
+  "pytest-cov",
+  "pandas-stubs",
+]
+
+[project.scripts]
+irs-fifo-taxes = "irs_asset_fifo_calculator.calculate_taxes:main"
+
+[tool.setuptools]
+# Tell setuptools that packages live under `src/`
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+irs_asset_fifo_calculator = ["py.typed"]
+
+[project.urls]
+Homepage = "https://github.com/elliottbache/irs_asset_fifo_calculator"
+Source = "https://github.com/elliottbache/irs_asset_fifo_calculator"
+Issues = "https://github.com/elliottbache/irs_asset_fifo_calculator/issues"
+Documentation = "https://elliottbache.github.io/irs_asset_fifo_calculator/"
+
+# pyproject.toml
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E","F","I","UP","B","SIM","S","PERF","RUF"]
+ignore = ["E203", "E501"]  # let the formatter handle wrapping
+fixable = ["I", "E","UP","SIM","PERF","RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+extend-exclude = "^(migrations|build|dist|.venv|_deps)/"
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+files = ["src"]
+explicit_package_bases = true
+namespace_packages = true
+mypy_path = ["src"]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[tool.codespell]
+skip = "./docs/_build,./build,./dist,./.venv,./docs/html,./src/include,./docs/_static,pyproject.toml,./build*,./htmlcov"
+ignore-words-list = "teh,nd,seh,atleast,atmost,deques"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = [
+  "-q",
+  "--cov=src",
+  "--cov-report=term-missing",
+  "--cov-report=xml:coverage.xml",
+  "--cov-report=html:htmlcov",
+  "--cov-fail-under=85"
+]
