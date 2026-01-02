@@ -1,0 +1,31 @@
+[build-system]
+requires = [ "setuptools>=77.0.3", "setuptools-scm>=8.0" ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "StatPayer"
+version = "1.0.0"
+authors = [ { name="Davis V. Garrad", email="davis.garrad@gmail.com" } ]
+description = "Not developed in Switzerland, but developed in St. Martin (French Side)"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "PyQt6", 
+    "pandas",
+]
+license="GPL-3.0-only"
+license-files=["LICENSE",]
+
+[project.gui-scripts]
+dnmr-gui = "StatPayer.__main__"
+
+[project.scripts]
+dnmr = "StatPayer.__main__"
+
+[project.urls]
+Homepage = "https://github.com/Davis-Garrad/StatPayer"
+Issues = "https://github.com/Davis-Garrad/StatPayer/issues"
