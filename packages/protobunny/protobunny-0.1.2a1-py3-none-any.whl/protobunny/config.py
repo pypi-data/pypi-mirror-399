@@ -1,0 +1,195 @@
+import configparser
+import dataclasses
+import functools
+import inspect
+import logging
+import os
+import typing as tp
+from collections import namedtuple
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib  # type: ignore
+
+from pathlib import Path
+
+PROJECT_NAME = "protobunny"
+PACKAGE_NAME = "protobunny"
+GENERATED_PACKAGE_NAME = "core"
+ROOT_GENERATED_PACKAGE_NAME = f"{PACKAGE_NAME}.{GENERATED_PACKAGE_NAME}"
+PREFIX_MESSAGES = "pb"
+MESSAGES_DIRECTORY = "protobuf/protobunny"
+
+ENV_PREFIX = "PROTOBUNNY_"
+INI_FILE = "protobunny.ini"
+
+AvailableBackends = tp.Literal["rabbitmq", "python", "redis", "mosquitto"]
+
+log = logging.getLogger(__name__)
+
+
+BackEndConfig = namedtuple(
+    "BackedConfig", "topic_delimiter multi_wildcard_delimiter namespace", defaults=(None,) * 3
+)
+
+rabbitmq_backend_config = BackEndConfig(
+    topic_delimiter=".", multi_wildcard_delimiter="#", namespace=""
+)
+python_backend_config = BackEndConfig(
+    topic_delimiter=".", multi_wildcard_delimiter="#", namespace=""
+)
+redis_backend_config = BackEndConfig(
+    topic_delimiter=":", multi_wildcard_delimiter="*", namespace="protobunny"
+)
+mosquitto_backend_config = BackEndConfig(
+    topic_delimiter="/", multi_wildcard_delimiter="#", namespace="protobunny"
+)
+
+backend_configs = {
+    "rabbitmq": rabbitmq_backend_config,
+    "python": python_backend_config,
+    "redis": redis_backend_config,
+    "mosquitto": mosquitto_backend_config,
+}
+
+
+@dataclasses.dataclass
+class Config:
+    messages_directory: str = "messages"
+    messages_prefix: str = PREFIX_MESSAGES
+    project_name: str = PROJECT_NAME
+    project_root: str = "./"
+    force_required_fields: bool = False
+    generated_package_name: str = "codegen"
+    generated_package_root: str = "./"
+    mode: tp.Literal["sync", "async"] = "async"
+    backend: "AvailableBackends" = "rabbitmq"
+    backend_config: BackEndConfig = rabbitmq_backend_config
+    log_task_in_redis: bool = False
+    available_backends = ("rabbitmq", "python", "redis", "mosquitto")
+
+    def __post_init__(self) -> None:
+        if self.mode not in ("sync", "async"):
+            raise ValueError(f"Invalid mode: {self.mode}. Must be one of: sync, async")
+        if not self.backend:
+            raise ValueError("Backend not configured.")
+        self.backend_config = backend_configs.get(self.backend)
+
+    @property
+    def use_async(self) -> bool:
+        return self.mode == "async"
+
+    @functools.cached_property
+    def logger_prefix(self) -> str:
+        return f"{self.messages_prefix}{self.backend_config.topic_delimiter}{self.backend_config.multi_wildcard_delimiter}"
+
+
+@functools.cache
+def load_config() -> Config:
+    """Load user config
+    1. `[tool.protobunny]` from the nearest pyproject.toml.
+    2. `protobunny.ini` in the current directory.
+    3. Environment variables prefixed with PROTOBUNNY_.
+    """
+    config_dict = get_config_from_pyproject()
+
+    ini_config = get_config_from_ini()
+    config_dict.update(ini_config)
+
+    env_config = get_config_from_env()
+    config_dict.update(env_config)
+
+    if "generated-package-name" not in config_dict:
+        config_dict["generated-package-name"] = (
+            f"{config_dict['project-name']}.codegen" if "project-name" in config_dict else "codegen"
+        )
+    available_params = inspect.signature(Config).parameters.keys()
+    passed_params = {k.replace("-", "_") for k in config_dict.keys()}
+    unknown_params = passed_params - set(available_params)
+    if unknown_params:
+        log.warning(
+            f"Config params: [{', '.join(unknown_params)}] are not handled in protobunny version {VERSION}. "
+            f"Ignoring. Available params: {', '.join(available_params)}"
+        )
+    return Config(
+        **{
+            k.replace("-", "_"): v
+            for k, v in config_dict.items()
+            if k.replace("-", "_") in available_params
+        }
+    )
+
+
+def get_config_from_env() -> dict[str, tp.Any]:
+    """Read config from environment variables prefixed with PROTOBUNNY_."""
+    config = {}
+    # Map of config keys to their expected types for casting
+    type_hints = {
+        "force_required_fields": bool,
+    }
+    for key, value in os.environ.items():
+        if not key.startswith(ENV_PREFIX):
+            continue
+        config_key = key[len(ENV_PREFIX) :].lower().replace("_", "-")
+        # Basic type casting for booleans
+        if type_hints.get(config_key.replace("-", "_")) is bool:
+            config[config_key] = value.lower() in ("true", "1", "yes", "on")
+        else:
+            config[config_key] = value
+    return config
+
+
+def _get_pyproject_path() -> Path | None:
+    start_path = Path.cwd()
+    for folder in [start_path, *start_path.parents]:
+        pyproject = folder / "pyproject.toml"
+        if pyproject.exists():
+            return pyproject
+
+
+def get_config_from_pyproject() -> dict[str, tp.Any]:
+    config = dict()
+    pyproject = _get_pyproject_path()
+    if not pyproject:
+        return config
+    data = tomllib.loads(pyproject.read_text())
+    config = data.get("tool", {}).get("protobunny", {})
+    config["project-root"] = pyproject.parent.name
+    config["project-name"] = data["project"].get("name", PROJECT_NAME).replace("-", "_")
+    return config
+
+
+def get_config_from_ini() -> dict[str, tp.Any]:
+    """Read config from protobunny.ini in the current directory."""
+    path = Path.cwd() / INI_FILE
+    if not path.exists():
+        return {}
+
+    parser = configparser.ConfigParser()
+    parser.read(path)
+    if "protobunny" not in parser:
+        return {}
+
+    config = {}
+    for key, value in parser["protobunny"].items():
+        # Handle boolean casting for specific keys
+        if key == "force-required-fields":
+            config[key] = parser["protobunny"].getboolean(key)
+        else:
+            config[key] = value
+    return config
+
+
+# Get project version from pyproject.toml for releasing
+def get_project_version() -> str:
+    """Read version from pyproject.toml in the project root."""
+    pyproject = _get_pyproject_path()
+    if not pyproject:
+        return "0.0.0-dev"
+    data = tomllib.loads(pyproject.read_text())
+    return data.get("project", {}).get("version", "0.0.0-dev")
+
+
+VERSION = get_project_version()
+default_configuration = load_config()
