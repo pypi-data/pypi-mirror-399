@@ -1,0 +1,109 @@
+---
+job: "extension"
+config:
+  name: "ostris_sfya_default"
+  process:
+    - type: "diffusion_trainer"
+      # Will be overwritten by the library with `absolute_path_output`
+      training_folder: "{{ABSOLUTE_PATH_OUTPUT}}"
+      sqlite_db_path: "./aitk_db.db"
+      device: "cuda"
+      trigger_word: "ohwx woman"
+      performance_log_every: 10
+      network:
+        type: "lora"
+        linear: 16
+        linear_alpha: 16
+        conv: 16
+        conv_alpha: 16
+        lokr_full_rank: true
+        lokr_factor: -1
+        network_kwargs:
+          ignore_if_contains: []
+      save:
+        dtype: "bf16"
+        save_every: 250
+        max_step_saves_to_keep: 4
+        save_format: "diffusers"
+        push_to_hub: false
+      datasets:
+        - folder_path: "/app/ai-toolkit/datasets/sfya"
+          mask_path: null
+          mask_min_value: 0.1
+          default_caption: ""
+          caption_ext: "txt"
+          caption_dropout_rate: 0.05
+          cache_latents_to_disk: false
+          is_reg: false
+          network_weight: 1
+          resolution:
+            - 1024
+            - 768
+            - 512
+          controls: []
+          shrink_video_to_frames: true
+          num_frames: 1
+          do_i2v: true
+          flip_x: false
+          flip_y: false
+      train:
+        batch_size: 1
+        bypass_guidance_embedding: false
+        steps: 2000
+        gradient_accumulation: 1
+        train_unet: true
+        train_text_encoder: false
+        gradient_checkpointing: true
+        noise_scheduler: "flowmatch"
+        optimizer: "adamw8bit"
+        timestep_type: "sigmoid"
+        content_or_style: "balanced"
+        optimizer_params:
+          weight_decay: 0.0001
+        unload_text_encoder: false
+        cache_text_embeddings: true
+        lr: 0.0002
+        ema_config:
+          use_ema: false
+          ema_decay: 0.99
+        skip_first_sample: false
+        force_first_sample: false
+        disable_sampling: true
+        dtype: "bf16"
+        diff_output_preservation: false
+        diff_output_preservation_multiplier: 1
+        diff_output_preservation_class: "person"
+        switch_boundary_every: 1
+        loss_type: "mse"
+      logging:
+        log_every: 1
+        use_ui_logger: true
+      model:
+        name_or_path: "Tongyi-MAI/Z-Image-Turbo"
+        quantize: true
+        qtype: "uint6"
+        quantize_te: true
+        qtype_te: "qfloat8"
+        arch: "zimage:turbo"
+        low_vram: true
+        model_kwargs: {}
+        layer_offloading: false
+        layer_offloading_text_encoder_percent: 1
+        layer_offloading_transformer_percent: 1
+        assistant_lora_path: "ostris/zimage_turbo_training_adapter/zimage_turbo_training_adapter_v2.safetensors"
+      sample:
+        sampler: "flowmatch"
+        sample_every: 250
+        width: 1600
+        height: 1600
+        samples: []
+        neg: ""
+        seed: 42
+        walk_seed: true
+        guidance_scale: 1
+        sample_steps: 8
+        num_frames: 1
+        fps: 1
+meta:
+  name: "[name]"
+  version: "1.0"
