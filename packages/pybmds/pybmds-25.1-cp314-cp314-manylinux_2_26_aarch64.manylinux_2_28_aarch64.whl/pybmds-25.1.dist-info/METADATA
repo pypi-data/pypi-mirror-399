@@ -1,0 +1,91 @@
+Metadata-Version: 2.1
+Name: pybmds
+Version: 25.1
+Summary: U.S. EPA Dose Response Modeling Software
+Author: BMDS Development Team
+Author-email: Andy Shapiro <shapiro.andy@epa.gov>, Cody Simmons <simmons.cody@epa.gov>
+License: MIT License
+Project-URL: Source, https://github.com/USEPA/BMDS
+Project-URL: Changes, https://github.com/USEPA/BMDS/blob/main/docs/source/history.md
+Project-URL: Issue Tracker, https://github.com/USEPA/BMDS/issues
+Project-URL: Documentation, https://usepa.github.io/BMDS/
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Scientific/Engineering
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: matplotlib >=3.7
+Requires-Dist: numpy
+Requires-Dist: openpyxl
+Requires-Dist: pandas >=2
+Requires-Dist: pydantic >=2
+Requires-Dist: python-docx
+Requires-Dist: scipy
+Requires-Dist: tabulate
+Requires-Dist: tqdm
+Provides-Extra: dev
+Requires-Dist: poethepoet ~=0.32.2 ; extra == 'dev'
+Requires-Dist: coverage ~=7.6.4 ; extra == 'dev'
+Requires-Dist: mypy ~=1.13.0 ; extra == 'dev'
+Requires-Dist: pybind11 ==2.13.6 ; extra == 'dev'
+Requires-Dist: pytest-mpl ~=0.17.0 ; extra == 'dev'
+Requires-Dist: pytest ~=8.3.3 ; extra == 'dev'
+Requires-Dist: ruff ~=0.7.1 ; extra == 'dev'
+Requires-Dist: setuptools ~=75.3.0 ; extra == 'dev'
+Requires-Dist: wheel ~=0.44.0 ; extra == 'dev'
+Requires-Dist: clang-format ==19.1.3 ; extra == 'dev'
+Provides-Extra: docs
+Requires-Dist: Sphinx ~=8.1.3 ; extra == 'docs'
+Requires-Dist: myst-nb ~=1.1.2 ; extra == 'docs'
+Requires-Dist: myst-parser ~=4.0.0 ; extra == 'docs'
+Requires-Dist: furo ==2024.8.6 ; extra == 'docs'
+Requires-Dist: sphinx-design ~=0.6.1 ; extra == 'docs'
+Requires-Dist: sphinx-autobuild ~=2024.10.3 ; extra == 'docs'
+
+# BMDS
+
+<table>
+<tbody>
+<tr>
+    <td>Package</td><td>
+
+[![version](https://img.shields.io/pypi/v/pybmds.svg?label=pybmds%20version&maxAge=3600)](https://pypi.org/project/pybmds/)
+[![version](https://img.shields.io/pypi/v/bmds-ui.svg?label=bmds-ui%20version&maxAge=3600)](https://pypi.org/project/bmds-ui/)
+    </td>
+</tr>
+<tr>
+    <td>Documentation</td><td>
+
+[![Docs Badge](https://img.shields.io/badge/Latest-online-brightgreen)](https://usepa.github.io/BMDS) [![Read The Docs](https://img.shields.io/badge/Versioned-online-brightgreen)](https://pybmds.readthedocs.io/)
+    </td>
+</tr>
+<tr>
+    <td>Website</td><td>
+
+[![Site Badge](https://img.shields.io/badge/BMDS-online-purple)](https://epa.gov/bmds) [![Site Badge](https://img.shields.io/badge/BMDS&nbsp;Online-online-purple)](https://bmdsonline.epa.gov)
+    </td>
+</tr>
+
+</tbody>
+</table>
+
+
+EPA's Benchmark Dose Software (BMDS) collects and provides easy access to numerous mathematical models that help risk assessors estimate the quantitative relationship between a chemical dose and the test subject’s response.  A specific focus of BMDS is estimating a statistical benchmark dose (BMD). The BMD is a chemical dose or concentration that produces a predetermined change in the response rate of an adverse effect, such as weight loss or tumor incidence. The BMD is a range, rather than a fixed number. For example, the benchmark dose (lower confidence limit) (BMDL) can be regarded as a dose where the observable physical effect is less than the predetermined benchmark response (BMR).
+
+![An example dose response plot an and curve fit](https://github.com/USEPA/BMDS/raw/e89f79388dc3021604e1230ac75e721c12c6bf61/tests/test_pybmds/data/mpl/test_dichotomous_plot.png)
+
+Additional information, documentation, and technical guidance for BMDS is available at [https://www.epa.gov/bmds](https://www.epa.gov/bmds).
+
+This repository contains a low-level C++ library, `bmdscore`, and the `pybmds` Python package for interfacing with `bmdscore` with higher level utilities such as plotting and reporting.
+
+## Credits
+
+The authors would like to thank Dr. Matt Wheeler of NIH/NIEHS for his contributions to many of the `bmdscore` algorithms, and his continued collaboration with the [ToxicR](https://github.com/NIEHS/ToxicR) software.
+
+## Disclaimer
+
+The United States Environmental Protection Agency (EPA) GitHub project code is provided on an "as is" basis and the user assumes responsibility for its use.  EPA has relinquished control of the information and no longer has responsibility to protect the integrity, confidentiality, or availability of the information.  Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by EPA.  The EPA seal and logo shall not be used in any manner to imply endorsement of any commercial product or activity by EPA or the United States Government.
