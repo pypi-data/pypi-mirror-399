@@ -1,0 +1,35 @@
+Metadata-Version: 2.4
+Name: regional-observer-workbook
+Version: 0.2.0
+Summary: Library for working with scans of SPC/FFA regional observer workbooks
+Author: Corey Cole
+Author-email: Corey Cole <3700879+corey-cole@users.noreply.github.com>
+License-Expression: MIT
+License-File: LICENSE
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Requires-Dist: opencv-python-headless>=4.12.0.88
+Requires-Dist: pillow>=12.0.0
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+
+# Regional Observer Workbook
+
+## Background
+This Python library encapsulates the logic for extracting content from SPC/FFA regional observer workbooks.
+It maintains original images and bounding boxes for forms.  It also includes logic to align scans to an original using
+OpenCV's homography capabilities.  **NOTE:**  The current version of the library only works for scanned documents.  Lens distortion from camera images prevents successful feature matching.
+
+In addition to the library, there is a simple CLI utility that can perform two tasks.  The first task is to extract each unique bounding box to an image.
+The second task is to draw the bounding boxes on an aligned scan.  The capabilities are useful as examples of how to use the library as well being visual debugging aids.
+
+
+## Work-in-Progress
+
+The following items are still work in progress:
+
+* Additional form types and bounding boxes for recent purse seine observer workbooks
+* Enabling camera images
+* Evaluating the `SIFT` and `AKAZE` feature matching algorithms

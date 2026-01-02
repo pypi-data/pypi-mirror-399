@@ -1,0 +1,43 @@
+[project]
+name = "regional-observer-workbook"
+version = "0.2.0"
+description = "Library for working with scans of SPC/FFA regional observer workbooks"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Corey Cole", email = "3700879+corey-cole@users.noreply.github.com" }
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.12"
+dependencies = [
+    "opencv-python-headless>=4.12.0.88",
+    "pillow>=12.0.0",
+]
+
+[project.scripts]
+form-extract-cli = "regional_observer_workbook.cli.utility:main"
+
+[tool.mypy]
+plugins = ["numpy.typing.mypy_plugin"]
+
+[build-system]
+requires = ["uv_build>=0.9.13,<0.10.0"]
+build-backend = "uv_build"
+
+# opencv-stubs silence annoying errors like 'cv2.ORB_create' not being valid
+[dependency-groups]
+dev = [
+    "opencv-stubs[opencv-headless]>=0.1.1",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.7",
+]
+
+# Commented out until we determine it's required
+#[tool.uv.build-backend]
+#source-include = ["src/regional_observer_workbook/assets/**/*.npy]
