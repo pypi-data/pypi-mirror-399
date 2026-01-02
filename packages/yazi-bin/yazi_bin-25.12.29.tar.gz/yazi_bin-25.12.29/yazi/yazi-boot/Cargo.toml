@@ -1,0 +1,36 @@
+[package]
+name        = "yazi-boot"
+version     = "25.12.29"
+edition     = "2024"
+license     = "MIT"
+authors     = [ "sxyazi <sxyazi@gmail.com>" ]
+description = "Yazi bootstrapper"
+homepage    = "https://yazi-rs.github.io"
+repository  = "https://github.com/sxyazi/yazi"
+
+[lints]
+workspace = true
+
+[dependencies]
+yazi-adapter = { path = "../yazi-adapter", version = "25.12.29" }
+yazi-config  = { path = "../yazi-config", version = "25.12.29" }
+yazi-fs      = { path = "../yazi-fs", version = "25.12.29" }
+yazi-macro   = { path = "../yazi-macro", version = "25.12.29" }
+yazi-shared  = { path = "../yazi-shared", version = "25.12.29" }
+yazi-vfs     = { path = "../yazi-vfs", version = "25.12.29" }
+
+# External dependencies
+clap      = { workspace = true }
+futures   = { workspace = true }
+hashbrown = { workspace = true }
+regex     = { workspace = true }
+
+[build-dependencies]
+yazi-shared = { path = "../yazi-shared", version = "25.12.29" }
+
+# External dependencies
+clap                  = { workspace = true }
+clap_complete         = "4.5.62"
+clap_complete_fig     = "4.5.2"
+clap_complete_nushell = "4.5.10"
+vergen-gitcl          = { version = "1.0.8", features = [ "build", "rustc" ] }
