@@ -1,0 +1,67 @@
+Metadata-Version: 2.4
+Name: imapautofiler
+Version: 2.0.0
+Summary: Automatically file IMAP messages
+Project-URL: homepage, https://imapautofiler.readthedocs.io/en/latest/
+Project-URL: repository, https://github.com/imapautofiler/imapautofiler
+Author-email: Doug Hellmann <doug@doughellmann.com>
+License-File: LICENSE
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Information Technology
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Communications :: Email
+Requires-Python: >=3.13
+Requires-Dist: imapclient>=2.2.0
+Requires-Dist: jinja2>=2.11.2
+Requires-Dist: keyring>=10.0.0
+Requires-Dist: pyyaml>=3.11
+Requires-Dist: rich>=13.0.0
+Provides-Extra: docs
+Requires-Dist: sphinx; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: coverage>=4.5.3; extra == 'test'
+Requires-Dist: fixtures; extra == 'test'
+Requires-Dist: pytest-cov>=2.6.1; extra == 'test'
+Requires-Dist: pytest>=4.4.1; extra == 'test'
+Requires-Dist: ruff; extra == 'test'
+Description-Content-Type: text/x-rst
+
+===============
+ imapautofiler
+===============
+
+imapautofiler is a tool for managing messages on an IMAP server based
+on rules for matching properties such as the recipient or header
+content.
+
+Features
+========
+
+* **Interactive Terminal Interface** - Rich progress bars with real-time statistics
+* **Graceful Interrupt Handling** - Safe Ctrl+C with progress summaries
+* **Comprehensive Metrics** - Track messages seen, processed, moved, deleted, and errors
+* **Smart Rule Processing** - Apply complex filters based on headers, sender, recipient, etc.
+* **Multiple Backend Support** - Works with both IMAP servers and Maildir storage
+
+Quick Start
+===========
+
+Install and run with interactive progress display:
+
+.. code-block:: shell
+
+   $ pip install imapautofiler
+   $ imapautofiler --interactive
+
+The tool will automatically detect your terminal capabilities and show a rich
+interface with progress bars, live statistics, and current message information.
+
+Links
+=====
+
+* Github: https://github.com/imapautofiler/imapautofiler
+* Documentation: http://imapautofiler.readthedocs.io/
