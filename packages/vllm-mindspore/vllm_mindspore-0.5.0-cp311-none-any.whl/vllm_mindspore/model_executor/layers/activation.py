@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Adapted from
+# https://github.com/vllm-project/vllm/blob/v0.8.3/vllm/model_executor/layers/activation.py
+#
+# Copyright 2025 Huawei Technologies Co., Ltd.
+# Copyright 2024-2025 The vLLM team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from mindspore import mint, nn, ops
+
+from vllm_mindspore.utils import LazyDict
+
+
+class FatreluAndMul(nn.Cell):
+    """An activation function for FATReLU.
+
+    The function computes x -> FATReLU(x[:d]) * x[d:] where
+    d = x.shape[-1] // 2.
+    This is used in MiniCPM and MiniCPM4.
+
+    Shapes:
+        x: (num_tokens, 2 * d) or (batch_size, seq_len, 2 * d)
+        return: (num_tokens, d) or (batch_size, seq_len, d)
+    """
+
+    def __init__(self, threshold: float = 0.0):
+        super().__init__()
+        self.threshold = threshold
+
+    def construct(self, x):
+        d = x.shape[-1] // 2
+        x1 = x[..., :d]
+        x2 = x[..., d:]
+        x1 = mint.nn.functional.threshold(x1, self.threshold, 0.0)
+        return x1 * x2
+
+
+class SiluAndMul(nn.Cell):
+    """An activation function for SwiGLU.
+
+    The function computes x -> silu(x[:d]) * x[d:] where d = x.shape[-1] // 2.
+
+    Shapes:
+        x: (num_tokens, 2 * d) or (batch_size, seq_len, 2 * d)
+        return: (num_tokens, d) or (batch_size, seq_len, d)
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.split = ops.auto_generate.SplitWithSize()
+
+    def construct(self, x):
+        d = x.shape[-1] // 2
+        gate, hidden = self.split(x, [d, d], dim=-1)
+        return mint.mul(hidden, mint.nn.functional.silu(gate))
+
+
+_ACTIVATION_REGISTRY = LazyDict({
+    "gelu_pytorch_tanh":
+    lambda: mint.nn.GELU(approximate="tanh"),
+})
