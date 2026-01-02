@@ -1,0 +1,83 @@
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ Project:     j2gpp - Jinja2-based General Purpose Preprocessor            ║
+# ║ Author:      Louis Duret-Robert - louisduret@gmail.com                    ║
+# ║ Website:     louis-dr.github.io                                           ║
+# ║ License:     MIT License                                                  ║
+# ║ File:        tests.py                                                     ║
+# ╟───────────────────────────────────────────────────────────────────────────╢
+# ║ Description: Additional useful tests.                                     ║
+# ║                                                                           ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+
+
+
+from jinja2.tests import test_defined
+
+
+
+extra_tests = {}
+
+
+
+# ┌──────┐
+# │ Text │
+# └──────┘
+
+extra_tests['decimal']    = lambda s : str(s).isdecimal()
+extra_tests['digit']      = lambda s : str(s).isdigit()
+extra_tests['numeric']    = lambda s : str(s).isnumeric()
+
+extra_tests['alpha']      = lambda s : str(s).isalpha()
+extra_tests['alnum']      = lambda s : str(s).isalnum()
+extra_tests['identifier'] = lambda s : str(s).isidentifier()
+
+extra_tests['space']      = lambda s : str(s).isspace()
+extra_tests['lower']      = lambda s : str(s).islower()
+extra_tests['upper']      = lambda s : str(s).isupper()
+extra_tests['title']      = lambda s : str(s).istitle()
+extra_tests['printable']  = lambda s : str(s).isprintable()
+
+
+
+# ┌──────┐
+# │ List │
+# └──────┘
+
+extra_tests['empty']     = lambda l : len(l) == 0
+extra_tests['singleton'] = lambda l : len(l) == 1
+extra_tests['single']    = lambda l : len(l) == 1
+extra_tests['pair']      = lambda l : len(l) == 2
+extra_tests['triplet']   = lambda l : len(l) == 3
+extra_tests['solo']      = lambda l : len(l) == 1
+extra_tests['duo']       = lambda l : len(l) == 2
+extra_tests['trio']      = lambda l : len(l) == 3
+extra_tests['quartet']   = lambda l : len(l) == 4
+extra_tests['quintet']   = lambda l : len(l) == 5
+
+
+
+# ┌──────┐
+# │ Type │
+# └──────┘
+
+extra_tests['list'] = lambda x : isinstance(x,list)
+extra_tests['dict'] = lambda x : isinstance(x,dict)
+
+
+
+# ┌───────────┐
+# │ Attribute │
+# └───────────┘
+
+extra_tests['defined_and_true']                = lambda x   : test_defined(x) and x
+extra_tests['defined_and_false']               = lambda x   : test_defined(x) and not x
+extra_tests['defined_and_none']                = lambda x   : test_defined(x) and x is None
+extra_tests['defined_and_not_none']            = lambda x   : test_defined(x) and x is not None
+extra_tests['defined_and_equal_to']            = lambda x,y : test_defined(x) and x == y
+extra_tests['defined_and_different_than']      = lambda x,y : test_defined(x) and x != y
+extra_tests['defined_and_less_than']           = lambda x,y : test_defined(x) and x <  y
+extra_tests['defined_and_less_or_equal_to']    = lambda x,y : test_defined(x) and x <= y
+extra_tests['defined_and_greater_than']        = lambda x,y : test_defined(x) and x >  y
+extra_tests['defined_and_greater_or_equal_to'] = lambda x,y : test_defined(x) and x >= y
+extra_tests['defined_and_in']                  = lambda x,y : test_defined(x) and x in y
+extra_tests['defined_and_not_in']              = lambda x,y : test_defined(x) and x not in y
