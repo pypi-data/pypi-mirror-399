@@ -1,0 +1,233 @@
+from http import HTTPStatus
+from typing import Any, Type, TypeVar, Union
+
+from grafo import Node
+from grafo._internal import AwaitableCallback
+from pydantic import BaseModel
+
+from py_ai_toolkit.core.domain.errors import BaseError
+from py_ai_toolkit.core.domain.models import BaseValidation, ValidationTest
+from py_ai_toolkit.core.ports import WorkflowPort
+from py_ai_toolkit.core.tools import PyAIToolkit
+from py_ai_toolkit.core.utils import logger
+
+S = TypeVar("S", bound=BaseModel)
+V = TypeVar("V", bound=BaseValidation)
+T = TypeVar("T", bound=BaseModel)
+
+MAX_RETRIES = 3
+
+
+class BaseWorkflow(WorkflowPort):
+    """
+    Base class for agentic workflows.
+    """
+
+    def __init__(
+        self,
+        ai_toolkit: PyAIToolkit,
+        error_class: Type[BaseError],
+        max_retries: int = MAX_RETRIES,
+        echo: bool = False,
+    ):
+        self.ai_toolkit = ai_toolkit
+        self.ErrorClass = error_class
+        self.echo = echo
+
+        # Stateful context
+        self.current_retries = 0
+        self.max_retries = max_retries
+
+    # * Methods
+    async def task(
+        self,
+        path: str | None = None,
+        prompt: str | None = None,
+        response_model: Type[S] | None = None,
+        **kwargs: Any,
+    ) -> Union[str, bool, S]:
+        """
+        Execute a task.
+
+        Args:
+            path (str | None): The path to the prompt template file
+            prompt (str | None): The prompt to use for the task
+            response_model (Type[S] | None): The response model to return the response as
+            **kwargs: Additional arguments to pass to the prompt formatter
+
+        Returns:
+            Union[str, bool, S]: The response from the LLM with text content or a boolean indicating if the output is valid
+        """
+        if not path and not prompt:
+            raise ValueError("Either path or prompt must be provided")
+        if path and prompt:
+            raise ValueError("Only one of path or prompt can be provided")
+
+        base_kwargs = dict[str, str | None](
+            path=path,
+            prompt=prompt,
+        )
+
+        if not response_model:
+            response = await self.ai_toolkit.chat(**base_kwargs, **kwargs)
+            return response.content
+
+        response = await self.ai_toolkit.asend(
+            response_model=response_model,
+            **base_kwargs,
+            **kwargs,
+        )
+        if isinstance(response.content, BaseValidation):
+            return response.content.valid
+        return response.content
+
+    def _ensure_source_node_output(self, node: Node[T], detail: str) -> T:
+        """
+        Ensures the output of a node is not None.
+        """
+        if not node.output:
+            raise self.ErrorClass(
+                status_code=HTTPStatus.BAD_REQUEST.value,
+                message=detail,
+            )
+        return node.output
+
+    def _ensure_validation_node_output(self, node: Node[V], detail: str) -> V:
+        """
+        Ensures the output of a node is a BaseValidation model.
+        """
+        if not isinstance(node.output, BaseValidation):
+            raise self.ErrorClass(
+                status_code=HTTPStatus.BAD_REQUEST.value,
+                message=detail,
+            )
+        return node.output
+
+    async def _disconnect_children(self, node: Node[V]):
+        """
+        Disconnects all children of a node.
+        """
+        for child in node.children:
+            await node.disconnect(child)
+
+    async def redirect(
+        self,
+        source_node: Node[S],
+        validation_node: Node[V],
+        target_nodes: list[Node[T]] | None = None,
+    ):
+        """
+        Redirects the flow of the workflow based on the validation node output.
+
+        Args:
+            source_node (Node[S]): The source node.
+            validation_node (Node[V]): The validation node.
+            target_nodes (list[Node[T]], optional): The target nodes. Defaults to None.
+        """
+        source_output = self._ensure_source_node_output(
+            source_node, "Source node output is None"
+        )
+        validation_output = self._ensure_validation_node_output(
+            validation_node, "Validation node output is None"
+        )
+        self.current_retries += 1
+        if self.current_retries > self.max_retries and not validation_output.valid:
+            await self._disconnect_children(validation_node)
+            raise self.ErrorClass(
+                status_code=HTTPStatus.BAD_REQUEST.value,
+                message=f"Max retries reached. Validation node output: {validation_output.model_dump_json(indent=4)}",
+            )
+
+        if self.echo:
+            logger.debug(f"Source Output: {source_output.model_dump_json(indent=2)}")
+            logger.debug(
+                f"Validation Output: {validation_output.model_dump_json(indent=2)}"
+            )
+        await self._disconnect_children(validation_node)
+
+        if validation_output.valid:
+            if target_nodes:
+                for target_node in target_nodes:
+                    await validation_node.connect(target_node)
+            return
+        source_node.kwargs["eval"] = lambda: str(
+            source_output.model_dump_json(indent=2)
+        ) + str(getattr(validation_output, "reasoning", None))
+        await validation_node.connect(source_node)
+
+    def _create_validation_model(self, issues: list[str]) -> Type[BaseValidation]:
+        """
+        Creates a validation model for a list of issues.
+
+        Args:
+            issues (list[str]): The issues to validate against
+
+        Returns:
+            Type[ValidationModel]: The validation model
+        """
+        issue_models = [
+            self.ai_toolkit.inject_types(ValidationTest, [], issue) for issue in issues
+        ]
+        return self.ai_toolkit.inject_types(
+            BaseValidation, [("validations", list[Union[*issue_models]])]
+        )
+
+    def create_validation_node(
+        self,
+        input: Any,
+        output: Any,
+        issues: list[str],
+        source_node: Node[Any],
+        target_nodes: list[Node[T]] | None = None,
+        coroutine: AwaitableCallback | None = None,
+    ) -> Node[BaseValidation]:
+        """
+        Creates a validation node for a list of issues and setups it's redirection callback.
+        NOTE: if you need extra functionality, you can override the `on_after_run` callback.
+
+        Args:
+            input (Any): The input to validate against
+            output (Any): The output to validate against
+            issues (list[str]): The issues to validate against
+            source_node (Node[Any]): The source node
+            target_nodes (list[Node[T]] | None): The target nodes
+            coroutine (AwaitableCallback | None): The coroutine to use for the validation node. Defaults to the `self.task(...)` method.
+        Returns:
+            Node: The validation node
+        """
+        validation_model = self._create_validation_model(issues)
+        validation_node = Node[BaseValidation](
+            uuid="validation_node",
+            coroutine=coroutine or self.task,
+            kwargs=dict(
+                prompt="""
+                # Task
+                Evaluate the output against each test.
+                
+                # Context
+                ## Input
+                {{ input }}
+
+                ## Output
+                {{ output }}
+                """,
+                response_model=validation_model,
+                input=input,
+                output=output,
+            ),
+        )
+        validation_node.on_after_run = (
+            self.redirect,
+            dict(
+                source_node=source_node,
+                validation_node=validation_node,
+                target_nodes=target_nodes,
+            ),
+        )
+        return validation_node
+
+    async def run(self, *_: Any, **__: Any) -> Any:
+        """
+        Run the workflow.
+        """
+        raise NotImplementedError("Run method not implemented")
