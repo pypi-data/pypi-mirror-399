@@ -1,0 +1,15 @@
+# Include README and license files
+include README.md
+include LICENSE
+include CHANGELOG.md
+include pyproject.toml
+
+# Include type stubs
+include peakfinder/py.typed
+recursive-include peakfinder *.pyi
+
+# Exclude unnecessary files
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude .git*
+

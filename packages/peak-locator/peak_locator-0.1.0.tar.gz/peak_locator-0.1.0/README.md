@@ -1,0 +1,310 @@
+# Peak Locator
+
+A robust Python toolkit for deterministic peak detection in one-dimensional, two-dimensional, and higher-dimensional numerical data.
+
+[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Type Checking](https://img.shields.io/badge/type%20checking-mypy-blue.svg)](http://mypy-lang.org/)
+[![Linting](https://img.shields.io/badge/linting-ruff-red.svg)](https://github.com/astral-sh/ruff)
+[![Testing](https://img.shields.io/badge/testing-pytest-blue.svg)](https://pytest.org/)
+[![Semantic Versioning](https://img.shields.io/badge/semver-2.0.0-blue.svg)](https://semver.org/)
+[![Keep a Changelog](https://img.shields.io/badge/changelog-keep%20a%20changelog-blue.svg)](https://keepachangelog.com/)
+[![Release to PyPI](https://github.com/chiraag-kakar/peakfinder/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/chiraag-kakar/peakfinder/actions/workflows/release.yml)
+
+
+## Overview
+
+PeakFinder provides a collection of peak detection algorithms for numerical data represented as arrays or matrices.
+It supports multiple algorithmic approaches for one-dimensional and two-dimensional inputs, with a unified interface for higher-dimensional data.
+The library offers automatic algorithm selection based on input characteristics, while allowing explicit configuration when a specific method or performance profile is required.
+
+<div align="center">
+
+![Peak Detection Visualization](docs/assets/peak_detection_diagram.png)
+
+*Visualization showing 1D and 2D peak detection in action*
+
+</div>
+
+### Key Features
+
+- **1D Peak Detection**: Multiple algorithms (brute force, binary search, hybrid)
+- **2D Peak Detection**: Divide-and-conquer approach for matrices
+- **N-Dimensional Support**: Conceptual implementation for higher dimensions
+- **Peak Counting**: Linear and segment tree-based approaches
+- **Automatic Algorithm Selection**: Chooses optimal algorithm based on data properties
+- **Duplicate Handling**: Robust handling of arrays with duplicate values
+- **Visualization Tools**: Built-in plotting utilities for 1D and 2D data
+- **Production Ready**: Full type annotations, comprehensive tests, and documentation
+
+## Installation
+
+### From PyPI (when published)
+
+```bash
+pip install peak-locator
+```
+
+For visualization support:
+
+```bash
+pip install peak-locator[viz]
+```
+
+### From Source / Local Development
+
+```bash
+git clone https://github.com/yourusername/peak-locator.git
+cd peak-locator
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install in editable mode with development tools
+pip install -e ".[dev]"
+```
+
+## Quick Start
+
+### Basic Usage
+
+```python
+from peakfinder import PeakDetector
+import numpy as np
+
+# 1D peak detection
+arr = np.array([1, 3, 2, 5, 4])
+detector = PeakDetector(arr)
+peak_idx = detector.find_any_peak()
+print(f"Peak found at index: {peak_idx}")
+
+# 2D peak detection
+matrix = np.array([[1, 2, 3], [4, 9, 5], [6, 7, 8]])
+detector = PeakDetector(matrix)
+row, col = detector.find_peak_2d()
+print(f"Peak found at ({row}, {col})")
+```
+
+### Finding All Peaks
+
+```python
+arr = np.array([1, 5, 2, 6, 3])
+detector = PeakDetector(arr)
+all_peaks = detector.find_all_peaks()
+print(f"Found {len(all_peaks)} peaks at indices: {all_peaks}")
+```
+
+### Counting Peaks
+
+```python
+arr = np.array([1, 5, 2, 6, 3, 4, 2])
+detector = PeakDetector(arr)
+count = detector.count_peaks()
+print(f"Total peaks: {count}")
+```
+
+## Supported Algorithms
+
+### 1D Peak Detection
+
+- **Brute Force** (`mode="brute"`): Linear scan, O(n) time complexity
+- **Binary Search** (`mode="binary"`): O(log n) time complexity, best for arrays without duplicates
+- **Hybrid** (`mode="hybrid"`): Compresses duplicates then uses binary search, handles duplicates robustly
+- **Auto** (`mode="auto"`): Automatically selects the best algorithm based on data properties
+
+### 2D Peak Detection
+
+- **Divide-and-Conquer**: O(n log m) time complexity for n×m matrices
+
+### Peak Counting
+
+- **Linear Scan**: O(n) time, suitable for single queries
+- **Segment Tree**: O(n) preprocessing, O(log n) per query, optimal for repeated range queries
+
+## Design Philosophy
+
+PeakFinder is designed with the following principles:
+
+1. **Simplicity**: Clean, intuitive API that hides algorithmic complexity
+2. **Robustness**: Handles edge cases, duplicates, and invalid inputs gracefully
+3. **Performance**: Automatic algorithm selection optimizes for your use case
+4. **Extensibility**: Well-structured codebase allows easy addition of new algorithms
+5. **Documentation**: Comprehensive docs and examples for all features
+6. **API Stability**: Public APIs follow semantic versioning.
+
+## Error Handling
+
+PeakFinder performs strict input validation and raises explicit exceptions for:
+
+* Unsupported data types or shapes
+* Invalid dimensionality for a selected algorithm
+* Ambiguous peak definitions when strict criteria are required
+
+---
+
+## Determinism and Thread Safety
+
+* Algorithms are deterministic
+* No global mutable state is used
+* `PeakDetector` instances are safe for concurrent read-only use
+
+## Performance Characteristics
+
+### 1D Peak Detection
+
+| Algorithm | Time Complexity | Space Complexity | Best For |
+|-----------|----------------|------------------|----------|
+| Brute Force | O(n) | O(1) | Small arrays, simple cases |
+| Binary Search | O(log n) | O(1) | Large arrays without duplicates |
+| Hybrid | O(n) worst, O(log n) best | O(n) worst, O(1) best | Arrays with duplicates |
+
+### 2D Peak Detection
+
+- **Time**: O(n log m) for n×m matrix
+- **Space**: O(log m) for recursion stack
+
+### Peak Counting
+
+- **Linear**: O(n) per query
+- **Segment Tree**: O(n) preprocessing, O(log n) per query
+
+## API Reference
+
+### PeakDetector
+
+Main interface for peak detection.
+
+```python
+detector = PeakDetector(
+    data,                    # array-like: Input data
+    allow_duplicates=True,     # bool: Handle duplicate values
+    mode="auto"              # str: Algorithm mode
+)
+```
+
+#### Methods
+
+- `find_any_peak()`: Find any peak in the data
+- `find_all_peaks()`: Find all peaks (1D only)
+- `count_peaks(use_segment_tree=False)`: Count peaks (1D only)
+- `find_peak_2d()`: Find peak in 2D data
+- `find_peak_nd()`: Find peak in N-dimensional data
+
+#### Properties
+
+- `data`: Underlying numpy array
+- `shape`: Shape of the data
+- `ndim`: Number of dimensions
+
+## Examples
+
+### Example 1: Signal Processing
+
+```python
+import numpy as np
+from peakfinder import PeakDetector
+
+# Simulate a signal with noise
+signal = np.sin(np.linspace(0, 4*np.pi, 100)) + np.random.normal(0, 0.1, 100)
+detector = PeakDetector(signal)
+peaks = detector.find_all_peaks()
+print(f"Found {len(peaks)} peaks in signal")
+```
+
+### Example 2: Image Analysis
+
+```python
+import numpy as np
+from peakfinder import PeakDetector
+
+# Find peak intensity in an image
+image = np.random.rand(100, 100) * 255
+detector = PeakDetector(image)
+row, col = detector.find_peak_2d()
+print(f"Peak intensity at pixel ({row}, {col})")
+```
+
+### Example 3: Visualization
+
+```python
+import numpy as np
+from peakfinder import PeakDetector
+from peakfinder.visualization import plot_1d_peaks
+
+arr = np.array([1, 5, 2, 6, 3, 4, 2])
+detector = PeakDetector(arr)
+peaks = detector.find_all_peaks()
+plot_1d_peaks(arr, peaks=peaks, show_all=True)
+```
+
+## Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+
+- [Quick Start Guide](docs/quickstart.md) - Get started in 5 minutes
+- [1D Peak Detection Examples](docs/peak_1d_examples.md) - Detailed 1D examples
+- [2D Peak Detection Examples](docs/peak_2d_examples.md) - Matrix peak detection
+- [Peak Counting](docs/peak_counting.md) - Counting peaks efficiently
+- [Segment Tree Usage](docs/segment_tree_usage.md) - Advanced range queries
+- [N-Dimensional Concepts](docs/nd_peak_concepts.md) - Higher-dimensional peak detection
+
+## Testing
+
+Run the test suite:
+
+```bash
+pytest
+```
+
+With coverage:
+
+```bash
+pytest --cov=peakfinder --cov-report=html
+```
+
+## Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes with tests
+4. Ensure all tests pass and code is formatted
+5. Submit a pull request
+
+### Development Setup
+
+```bash
+git clone https://github.com/yourusername/peakfinder.git
+cd peakfinder
+pip install -r requirements.txt
+pip install -e ".[dev]"
+```
+
+### Code Quality
+
+This project uses:
+- `black` for code formatting
+- `ruff` for linting
+- `mypy` for type checking
+- `pytest` for testing
+
+### CI
+
+The project uses automated GitHub Actions workflows for:
+- **CI**: Runs tests, linting, and type checking on every push/PR
+- **Releases**: Automatically publishes to PyPI when a GitHub release is created
+
+## License
+
+MIT License - see LICENSE file for details.
+
+---
+
+## Changelog
+
+All notable changes are documented in `CHANGELOG.md`.
+
+This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
