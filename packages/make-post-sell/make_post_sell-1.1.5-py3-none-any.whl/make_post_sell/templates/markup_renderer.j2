@@ -1,0 +1,19 @@
+{% extends "base.j2" -%}
+
+{%- block call_to_action -%}
+{% if request.user.can_edit_shop(request.shop) %}
+<a href="/s/{{ request.shop.id }}/{{ markup_path }}/edit" class="product-edit-button mps-button mps-button-small">&#9998; Edit</a>
+{% endif %}
+{%- endblock call_to_action -%}
+
+{% block content -%}
+
+<div class="markup-rendered">
+
+<section class="markup-rendered">
+{{ markup_rendered | safe }}
+</section>
+
+</div>
+
+{%- endblock -%}

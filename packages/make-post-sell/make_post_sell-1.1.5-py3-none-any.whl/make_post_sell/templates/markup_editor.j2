@@ -1,0 +1,38 @@
+{% extends "base.j2" -%}
+
+{%- block call_to_action -%}
+{%- endblock call_to_action -%}
+
+{%- block append_to_head_tag_section -%}
+{%- include 'snippets/optional-javascript.j2' -%}
+{%- endblock append_to_head_tag_section -%}
+
+{% block content -%}
+
+<div class="markup-editor">
+
+<section class="markup-settings">
+  <form method="post" action="{{ markup_form_path }}" onsubmit="submit.disabled = true; return true;">
+
+  <b>{{ markup_subject }}</b>
+  <input type="submit" name="submit" class="markup-editor-submit" value="Save" />
+  <br/>
+  <textarea
+      name        = "markup-editor-textarea"
+      id          = "markup-editor-textarea"
+      class       = "markup-editor-textarea"
+      onkeyup     = "previewAjax( 'markup-editor-textarea', 'markup-preview-div', show_raw=true)"
+      required>{{ markup_raw }}</textarea>
+  </form>
+</section>
+
+<section class="markup-rendered">
+  <b>{{ markup_subject }}</b>
+  <br/>
+  <br/>
+  <div id='markup-preview-div' name='preview' class='preview js-only'>{{ markup_rendered | safe }}</div>
+</section>
+
+</div>
+
+{%- endblock -%}

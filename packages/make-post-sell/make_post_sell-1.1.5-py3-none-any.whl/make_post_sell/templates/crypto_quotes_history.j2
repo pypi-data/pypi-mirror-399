@@ -1,0 +1,159 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+<section class="one-column">
+  <h2>💰 Crypto Payment History</h2>
+  
+  <p>Your complete crypto payment history including all attempts, successful payments, and failed transactions.</p>
+  
+  {% if payments %}
+    <div class="crypto-history-container">
+      {% for payment in payments %}
+        <div class="crypto-payment-card">
+          <div class="crypto-header-grid">
+            <div>
+              <h4 class="crypto-header-title">
+                {{ payment.coin_name }} ({{ payment.coin_type }}) Payment
+              </h4>
+              <p class="crypto-header-subtitle">
+                {{ payment.shop_name }} • {{ payment.created_formatted }}
+              </p>
+            </div>
+            <div class="crypto-right-align">
+              <span style="background: {{ payment.status_color }}; color: white; padding: 4px 8px; border-radius: 3px; font-size: 0.85em; {% if payment.status != 'no-refund' %}font-weight: bold;{% endif %}">
+                {{ payment.status_label }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="crypto-details-grid">
+            <div>
+              <strong>Expected Amount:</strong><br>
+              {% if payment.coin_type == 'XMR' %}
+                {{ '%.12f' % payment.amount_crypto }} {{ payment.coin_type }}
+              {% else %}
+                {{ '%.8f' % payment.amount_crypto }} {{ payment.coin_type }}
+              {% endif %}
+              <br>
+              <small class="crypto-small-text">${{ '%.2f' % payment.usd_total }} USD</small>
+            </div>
+            
+            {% if payment.received_crypto > 0 %}
+            <div>
+              <strong>Received Amount:</strong><br>
+              {% if payment.coin_type == 'XMR' %}
+                {{ '%.12f' % payment.received_crypto }} {{ payment.coin_type }}
+              {% else %}
+                {{ '%.8f' % payment.received_crypto }} {{ payment.coin_type }}
+              {% endif %}
+              <br>
+              <small class="crypto-small-text">${{ '%.2f' % (payment.received_crypto * (payment.rate_usd_per_coin|float)) }} USD</small>
+              {% if payment.confirmations > 0 %}
+                <br>
+                <small class="crypto-small-text">{{ payment.confirmations }}/{{ payment.confirmations_required }} confirmations</small>
+              {% endif %}
+            </div>
+            {% else %}
+            <div></div>
+            {% endif %}
+            
+            <div class="crypto-right-align-justify">
+              {% if payment.status == 'confirmed' or payment.status == 'confirmed-complete' or payment.status == 'confirmed-overpay' or payment.status == 'confirmed-overpay-refunded' or payment.status == 'confirmed-overpay-refunded-complete' %}
+                {% if payment.has_invoice %}
+                  <a href="{{ request.route_url('view_invoice', invoice_id=payment.invoice_id) }}" class="mps-button mps-button-small mps-button-green">
+                    View Invoice
+                  </a>
+                {% endif %}
+              {% elif payment.status == 'pending' or payment.status == 'received' %}
+                <a href="{{ request.route_url('crypto_quote', payment_id=payment.id) }}" class="mps-button mps-button-small mps-button-blue">
+                  View Quote
+                </a>
+              {% elif payment.status.endswith('-refunded') or payment.status.endswith('-refunded-complete') %}
+                <a href="{{ request.route_url('crypto_quote', payment_id=payment.id) }}" class="mps-button mps-button-small mps-button-blue">
+                  View Quote
+                </a>
+              {% else %}
+                <!-- Terminal failed states -->
+                <small class="crypto-small-text">
+                  Payment ID: {{ payment.id[:8] }}...
+                </small>
+              {% endif %}
+            </div>
+          </div>
+          
+          {% if payment.status == 'expired' or payment.status == 'cancelled' %}
+            <div class="status-warning-notice">
+              <small>
+                {% if payment.status == 'expired' %}
+                  ⏰ This quote expired before payment was received.
+                {% elif payment.status == 'cancelled' %}
+                  ❌ This quote was manually cancelled before any payment was sent.
+                {% endif %}
+              </small>
+            </div>
+          {% elif payment.status.endswith('-not-refunded') %}
+            <div class="status-error-notice">
+              <small>
+                ❌ No refund possible: 
+                {% if payment.refund_reason %}
+                  {{ payment.refund_reason }}
+                {% else %}
+                  No refund address was configured, so funds were transferred to shop's cold storage.
+                {% endif %}
+              </small>
+            </div>
+          {% elif payment.status.endswith('-refunded') %}
+            <div class="status-info-notice">
+              <small>
+                {% if payment.refund_tx_hash %}
+                  💸 This payment was automatically refunded. 
+                  {% if payment.status == 'out-of-stock-refunded' or payment.status == 'out-of-stock-refunded-complete' %}
+                    The item became unavailable after your payment - full refund issued.
+                  {% else %}
+                    A 9% restocking fee was deducted to cover network costs.
+                  {% endif %}
+                {% else %}
+                  ⏳ Refund pending - waiting for your payment to reach 10 confirmations before processing the refund.
+                  {% if payment.status == 'out-of-stock-refunded' or payment.status == 'out-of-stock-refunded-complete' %}
+                    The item became unavailable after your payment - full refund will be issued.
+                  {% else %}
+                    A 9% restocking fee will be deducted to cover network costs.
+                  {% endif %}
+                {% endif %}
+              </small>
+            </div>
+          {% elif payment.status == 'no-refund' %}
+            <div class="status-error-notice">
+              <small>
+                ❌ No refund possible: 
+                {% if payment.refund_reason %}
+                  {{ payment.refund_reason }}
+                {% else %}
+                  No refund address was configured, so funds were transferred to shop's cold storage.
+                {% endif %}
+              </small>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="crypto-help-section">
+      <h4>💡 About Crypto Payment History</h4>
+      <ul class="notice-list">
+        <li><strong>Successful payments</strong> create invoices and unlock your purchased products</li>
+        <li><strong>Failed payments</strong> are automatically refunded when possible (9% restocking fee applies)</li>  
+        <li><strong>Out-of-stock refunds</strong> are issued in full since it wasn't your fault</li>
+        <li><strong>Expired/cancelled quotes</strong> show attempts that never received payment</li>
+        <li>Configure a refund address in <a href="/u/settings/crypto" class="shop-theme-link-color">crypto settings</a> to enable automatic refunds</li>
+      </ul>
+    </div>
+  {% else %}
+    <div class="crypto-empty-state">
+      <h3>No crypto payment history yet</h3>
+      <p>When you attempt crypto payments, they'll show up here.</p>
+      <a href="/" class="mps-button mps-button-blue">Start Shopping</a>
+    </div>
+  {% endif %}
+</section>
+{%- endblock %}

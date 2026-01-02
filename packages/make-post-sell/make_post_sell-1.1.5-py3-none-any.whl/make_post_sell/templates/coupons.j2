@@ -1,0 +1,66 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+<section class="one-column well">
+
+<h3>Coupons</h3>
+
+Coupons in the shop named "{{ request.shop.name }}".
+
+<br />
+<br />
+
+{% if coupons %}
+
+{% for coupon in coupons %}
+
+<a href="coupon/{{ coupon.id }}/{{ coupon.code }}"
+</span{% if coupon.is_not_valid %} class="coupon-disabled"{% endif %}>
+<b>
+{{ coupon.code }}
+&#8212;
+{{ coupon.description }}
+&#8212;
+<code>{{ coupon.redemptions.count() }}/{{ coupon.human_max_redemptions | safe }}</code>
+</b>
+
+<br />
+
+<span class="avoid-wrap">
+{{ coupon.human_discount }}
+{{ coupon.human_minimum_cart }}
+</span>
+
+<span class="avoid-wrap">
+{{ coupon.human_valid_thru }}
+</span>
+
+<span class="avoid-wrap">
+{{ coupon.human_limit_per_customer }}
+</span>
+
+</span> 
+
+<br />
+<br />
+
+{% endfor %}
+
+<br />
+<br />
+
+{% else %}
+
+<b>This shop has no coupons. You may create one.</b>
+
+<br />
+<br />
+
+{% endif %}
+
+<a href="coupon/new" class="product-edit-button mps-button">&#65291 New Coupon</a>
+
+</section>
+
+{%- endblock -%}

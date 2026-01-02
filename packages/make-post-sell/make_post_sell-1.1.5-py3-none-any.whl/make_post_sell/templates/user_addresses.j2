@@ -1,0 +1,70 @@
+{% extends "base.j2" -%}
+
+{% block call_to_action %}
+{% endblock call_to_action %}
+
+{% block content -%}
+
+<section class="two-column">
+  <section class="well">
+    
+    <h3>Active Shipping Address</h3>
+
+    <pre>{{- request.user.active_address.data -}}</pre>
+
+    {% if request.user.addresses.count() >= 2 %}
+
+    <h3>Saved Addresses</h3>
+
+    {% for address in request.user.addresses %}
+        {% if address.id != request.user.active_address_id %}
+        <pre>{{- address.data -}}</pre>
+        <a href="/u/addresses/{{ address.id }}/delete">Delete</a>
+        <a href="/u/addresses/{{ address.id }}/activate">Activate</a>
+        <br/>
+        <br/>
+        {% endif %}
+    {% endfor %}
+
+    {% endif %}
+
+  </section>
+
+  <section class="well">
+
+    <form method="post" action="/u/addresses/save">
+
+      <label for="new_address_input">Full Shipping Address</label>
+
+      <textarea
+          name        = "new_address"
+          id          = "new_address_input"
+          class       = "mps-billing-address"
+          placeholder = "Full name
+Street address
+City
+State/Province
+ZIP/Postal code
+Country"
+          required /></textarea>
+
+    <input type="submit" name="submit" class="mps-submit" value="Save Address" />
+
+    <br/>
+
+  </section>
+</section>
+
+<br/>
+<br/>
+
+<center>
+<a href="/cart" class="product-new-button mps-button">Review Order</a>
+&nbsp;
+&nbsp;
+&nbsp;
+<a href="/cart/checkout" class="cart-checkout-button mps-button">Checkout</a>
+</center>
+
+ 
+{%- endblock -%}

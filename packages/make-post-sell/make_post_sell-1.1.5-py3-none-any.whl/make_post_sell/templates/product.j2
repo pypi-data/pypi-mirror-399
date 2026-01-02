@@ -1,0 +1,165 @@
+{% extends "base.j2" -%}
+
+{%- block append_to_head_tag_section %}
+  <link rel="canonical" href="{{ product.absolute_url(request) }}" />
+  <title>{{ product.title }}</title>
+  <meta property="og:title" content="{{ product.title }}" />
+  <meta name="description" content="{{ product.description|truncate(500) }}">
+  <meta property="og:description" content="{{ product.description|truncate(500) }}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="{{ product.absolute_url(request) }}" />
+  <meta property="og:site_name" content="{{ request.shop.name }}" />
+  {%- if "thumbnail1" in product.extensions %}
+  <meta property="og:image" content="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ product.title }}" />
+  <meta name="twitter:description" content="{{ product.description|truncate(500) }}" />
+  <meta name="twitter:image" content="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" />
+  {%- endif %}
+
+  {# Removed auto-refresh timer - better UX to let download links expire than interrupt reading #}
+{%- endblock append_to_head_tag_section -%}
+
+{%- block call_to_action -%}
+{% if request.user.can_edit_shop(request.shop) %}
+<a href="/p/{{ product.id }}/edit" class="product-edit-button mps-button mps-button-small">&#9998; Edit</a>
+{% endif %}
+{%- endblock call_to_action -%}
+
+{% block content -%}
+
+<section class="two-column">
+
+  <div class="product-images">
+    <h1>{{ product.title }} <span class="subtitle-text">sold by <a href="{{ product.shop.absolute_about_url(request) }}" rel="nofollow" class="shop-theme-link-color">{{ product.shop.name }}</a></span></h1>
+
+    {% if "thumbnail1" in product.extensions %}
+    {% set video_extensions = ["mp4", "avi", "mov", "wmv", "flv", "mkv", "webm", "m4v"] %}
+    {% if signed_get_object_url and product.extensions.get("product") in video_extensions %}
+    <a href="{{ signed_get_object_url }}" target="_blank" class="video-thumbnail-container">
+      <img src="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" class="product-main" />
+      <div class="video-play-overlay"></div>
+    </a>
+    <div class="video-click-to-play">click &#9654; to play</div>
+    {% else %}
+    <img src="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" class="product-main" />
+    {% endif %}
+    <br/>
+    {% endif %}
+    
+    {% for file_key in product.file_thumbnail_keys %}
+    {% if file_key in product.s3_key_thumbnails %}
+    {% set get_endpoint = request.app["bucket.secure_uploads.get_endpoint"] + "/" + product.s3_key_thumbnails[file_key] %}
+    <a href="{{ get_endpoint }}" target="_blank"><img src="{{ get_endpoint }}?ts={{ product.updated_timestamp }}" class="product-thumbnail" /></a>
+    {% endif %}
+    {% endfor %}
+  </div>
+  
+  <section class="product-right">
+  <br/>
+  <div class="well">
+  <h1>${{ '{:,.2f}'.format(product.price) }}</h1>
+
+  {% if product.is_ready %}
+ 
+    {% if not product.is_physical %}
+ 
+      {% if signed_get_object_url is not none %}
+        <a href="{{ signed_get_object_url }}" class="product-download-button mps-button" download>&#11123 Download</a>
+        <br/>
+        <br/>
+      {% endif %}
+    {% endif %}
+
+    {% if product.is_physical %}
+      {% set inventory = product.inventories | selectattr('shop_location_id', 'equalto', request.shop_location.id) | first %}
+      {% if inventory and inventory.quantity > 0 %}
+<form method="POST" action="{{ request.route_url('cart_add_product') }}">
+  {% include "snippets/csrf.j2" %}
+  <input type="hidden" name="product_id" value="{{ product.id }}">
+  <button type="submit" class="product-download-button mps-button">Add To Cart</button>
+</form>
+      {% else %}
+        <button class="product-download-button mps-button sold-out-button" disabled>Sold Out</button>
+        {% if request.shop.shop_locations.all()|length > 1 %}
+          <p>This item is sold out at this location.
+          <br> You can <a href="{{ request.route_url('shop_locations', shop_id=request.shop.id, _query={'next': request.url}) }}">switch shop locations</a> to check availability.</p>
+        {% endif %}
+      {% endif %}
+    {% else %}
+<form method="POST" action="{{ request.route_url('cart_add_product') }}">
+  {% include "snippets/csrf.j2" %}
+  <input type="hidden" name="product_id" value="{{ product.id }}">
+  <button type="submit" class="product-download-button mps-button">Add To Cart</button>
+</form>
+    {% endif %}
+    
+    <br/>
+    {% if (not request.user or not request.user.authenticated) and signed_get_object_url is none %}
+    <br/>
+    Already purchased? <a href="/join-or-log-in">log in</a>
+    <br/>
+    <br/>
+    <br/>
+    {% endif %}
+
+    {% if "preview" in product.extensions %}
+      <a href="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/preview?ts={{ product.updated_timestamp }}" class="product-preview-button mps-button" download>View Preview</a>
+      <br/>
+    {% endif %}
+  
+  {% else %}
+  
+  <br>
+  This product is not ready for sale yet.
+  
+  {% endif %}
+  <div>
+
+  </section>
+
+  <div class="product-description">
+    <br/>
+    <br/>
+
+    <b>Description</b>
+    <section>{{ product.description_html | safe }}</section>
+
+    <br/>
+    <br/>
+    
+    {% if product.is_bundle %}
+      {% if product.products_in_this_bundle %}
+      <b>Bundle Contents</b>
+      <ul>
+      {% for p in product.products_in_this_bundle %}
+      <li>
+        {{p.title}}
+      </li>
+      {% endfor %}
+      </ul>
+      {% endif %}
+    {% elif product.has_product_file %}
+      <b>File Type</b>
+      <br/>
+      {{ product.get_content_type("product") }} {{ product_size }}
+      <br/>
+      Please make sure you have an application to open this file type.
+    {% endif %}
+  </div>
+
+  <div class="product-comments">
+    <br/>
+    <br/>
+    
+    <!-- Comments Section -->
+    {% include 'snippets/comments.j2' %}
+
+    <br/>
+    <a href="/" class="product-edit-button mps-button">Back to shop</a>
+  </div>
+
+</section>
+
+
+{%- endblock -%}

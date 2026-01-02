@@ -1,0 +1,66 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+{% if not request.shop %}
+
+  <section class="one-column well">
+
+  {% if request.user and request.user.authenticated %}
+
+    {% if request.user.active_shop %}
+
+    <b>{{ request.user.active_shop.name }}</b>
+
+    <!-- TODO: build the home page dashboard for the currently active shop. -->
+
+    {% else %}
+    You don't have any shops, yet. You should create one.
+
+    <br />
+    <br />
+  
+    <a href="/s/new" class="shop-new-button mps-button mps-button-small">&#65291; New Shop</a>
+    {% endif %}
+
+  {% else %}
+
+    <center>
+    You should <a href="/join-or-log-in">join</a> or <a href="/join-or-log-in">log in</a> to see this dashboard.
+    </center>
+
+  {% endif %}
+
+  </section>
+
+{% else %}
+
+  {% if products %}
+  <section class="serp{% if request.shop.grid_lanes_enabled %} grid-lanes-enabled{% endif %}">
+  {% for product in products %}
+
+    {% if product.is_ready %}
+    <div class="serp-item">
+      {% if "thumbnail1" in product.extensions %}
+      <a href="{{ product.absolute_url(request) }}" rel="nofollow">
+      <img src="{{ request.app["bucket.secure_uploads.get_endpoint"] }}/{{ product.s3_path }}/thumbnail1?ts={{ product.updated_timestamp }}" class="serp-thumbnail" />
+      </a>
+      {% endif %}
+      <b><a href="{{ product.absolute_url(request) }}" class="shop-theme-link-color">{{ product.title }}</a></b>
+      {% if product.is_sellable %}
+      <br>
+      <a href="{{ product.absolute_url(request) }}" rel="nofollow">${{ '{:,.2f}'.format(product.price) }}</a>
+      {% endif %}
+      <br />
+      <a href="{{ product.shop.absolute_url(request) }}" rel="nofollow" class="shop-theme-link-color">{{ product.shop.name }}</a>
+    </div>
+    {% endif %}
+
+  {% endfor %}
+
+  </section>
+  {% endif %}
+
+{% endif %}
+
+{%- endblock -%}

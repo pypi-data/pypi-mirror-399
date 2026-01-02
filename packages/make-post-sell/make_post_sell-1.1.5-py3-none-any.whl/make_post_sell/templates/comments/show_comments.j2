@@ -1,0 +1,24 @@
+{% if shop.comments_enabled and comments %}
+<div class="comments-section">
+    <h3>Comments & Reviews</h3>
+    
+    {% for comment in comments %}
+        {% include 'comments/comment.j2' %}
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if shop.comments_enabled %}
+<div class="comment-form-section">
+    {% if request.user.authenticated %}
+        {% set can_comment, error_msg = comment.can_user_comment(request.user, shop) if comment else (True, None) %}
+        {% if can_comment %}
+            {% include 'comments/comment_form.j2' %}
+        {% else %}
+            <p class="comment-error">{{ error_msg }}</p>
+        {% endif %}
+    {% else %}
+        <p><a href="/join-or-log-in">Sign in</a> to leave a comment.</p>
+    {% endif %}
+</div>
+{% endif %}

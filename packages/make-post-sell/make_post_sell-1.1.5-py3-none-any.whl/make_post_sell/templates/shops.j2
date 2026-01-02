@@ -1,0 +1,28 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+<section class="one-column well">
+
+{% if request.user.shops %}
+Choose and switch shop
+<br />
+<br />
+
+{% for shop in request.user.shops %}
+
+<a href="/u/shop/{{ shop.id }}/activate" class="mps-button shop-switch-button">{{ shop.name }}</a>
+<br/>
+{% endfor %}
+{% else %}
+You don't have any shops, yet. You should create one.
+{% endif %}
+
+<br />
+<br />
+
+<a href="/s/new" class="shop-new-button mps-button">&#65291; New Shop</a>
+
+</section>
+
+{%- endblock -%}

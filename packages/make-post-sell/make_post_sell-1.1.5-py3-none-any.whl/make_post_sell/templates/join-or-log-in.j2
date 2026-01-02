@@ -1,0 +1,40 @@
+{% extends "base.j2" -%}
+{% block content -%}
+<section class="one-column">
+  <section class="log-in-form well">
+  <h2>Log in</h2>
+   <b>New and Existing Users</b>
+   <br>
+   <br>
+   <form method="post" action="/join-or-log-in" onsubmit="submit.disabled = true; return true;">
+
+      <input
+          name        = "email2"
+          type        = "email"
+          id          = "email2_input"
+          class       = "common-text-input"
+          value       = ""
+          placeholder = "Your Email Address" />
+
+      <input
+          name        = "email"
+          type        = "email"
+          id          = "email_input"
+          class       = "common-text-input"
+          tabindex    = "1"
+          value       = ""
+          placeholder = "Your Email Address"
+          required
+          autofocus />
+
+    <br/>
+    <br/>
+
+    <input type="submit" name="submit" id="submit" value="send verification code to email" />
+  
+   </form>
+    <br/>
+    <p class="whats-next"><b>What's next?</b> check your email to log in!</p>
+  </section>
+</section>
+{%- endblock -%}

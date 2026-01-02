@@ -1,0 +1,3 @@
+{# Always include the session’s CSRF token #}
+<input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}" />
+

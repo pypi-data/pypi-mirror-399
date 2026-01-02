@@ -1,0 +1,51 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+<section class="action-columns well well-green">
+
+  <div class="actions-left">
+    {% if request.shop %}
+
+    <a href="/c/new" class="mps-button shop-new-button">&#65291; New Content</a>
+
+    {% if request.user in request.shop.owners %}
+    <br/>
+    <br/>
+    <a href="/coupon/new" class="mps-button shop-new-button">&#65291; New Coupon</a>
+    {% endif %}
+
+    {% if request.is_saas_domain %}
+    <br />
+    <br />
+    <a href="/s/new" class="mps-button shop-new-button">&#65291; New Shop</a>
+    {% endif %}
+
+    {% else %}
+
+    {% if request.is_saas_domain %}
+    <p>Create your first shop to get started!</p>
+    <br/>
+    <a href="/s/new" class="mps-button shop-new-button">&#65291; Create Your First Shop</a>
+    {% else %}
+    <p>No shop configured for this domain.</p>
+    {% endif %}
+
+    {% endif %}
+  </div>
+  
+  <div class="actions-right">
+    {% if request.shop %}
+    <a href="/p/new" class="mps-button shop-new-button">&#65291; New Product</a>
+
+    {% if request.user in request.shop.owners %}
+    <br/>
+    <br/>
+    <a href="/s/locations/new" class="mps-button shop-new-button">&#65291; New Shop Location</a>
+    {% endif %}
+    {% endif %}
+  </div>
+
+</section>
+
+{%- endblock -%}

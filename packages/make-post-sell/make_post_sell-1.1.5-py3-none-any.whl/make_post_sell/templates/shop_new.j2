@@ -1,0 +1,68 @@
+{% extends "base.j2" -%}
+
+{%- block call_to_action -%}
+{%- endblock call_to_action -%}
+
+{% block content -%}
+
+<section class="one-column">
+  <section class="shop-name-and-description well">
+    <h3>New Shop</h3>
+    <form method="post" action="/s/new" onsubmit="submit.disabled = true; return true;">
+  
+      <label for="name_input">Shop Name</label>
+      <input
+          name        = "name"
+          type        = "text"
+          id          = "name_input"
+          class       = "mps-shop-name"
+          value       = "{{ name }}"
+          placeholder = "Shop Name"
+          required />
+  
+      <br />
+      <br />
+  
+  
+      <label for="phone_number_input">Phone Number</label>
+      <input
+          name        = "phone_number"
+          type        = "tel"
+          id          = "phone_number_input"
+          class       = "mps-phone-number"
+          value       = "{{ phone_number }}"
+          placeholder = "Phone Number"
+          required />
+  
+  
+      <br />
+      <br />
+  
+      <label for="billing_address_input">Billing Address</label>
+      <textarea
+          name        = "billing_address"
+          id          = "billing_address_input"
+          class       = "mps-billing-address"
+          placeholder = "Billing Address"
+          required />{{ billing_address }}</textarea>
+  
+      <br />
+      <br />
+  
+      <label for="description_input">Shop Description</label>
+      <textarea
+          name        = "description"
+          id          = "description_input"
+          class       = "mps-shop-description"
+          placeholder = "Shop Description"
+          required />{{ description }}</textarea>
+  
+      <br />
+      <br />
+  
+      <input type="submit" name="submit" class="mps-submit" value="Create Shop" />
+    </form>
+  </section>
+</section>
+
+{%- endblock -%}

@@ -1,0 +1,159 @@
+{% extends "base.j2" -%}
+
+{%- block call_to_action -%}
+{%- endblock call_to_action -%}
+
+
+{% block content -%}
+<section class="one-column">
+
+  <section class="new-coupon well">
+    <h3>New Coupon</h3>
+
+    A new coupon in the shop named "{{ request.shop.name }}".
+    <br />
+    <br />
+
+    <span class="asterisk">*</span> required 
+
+    <br />
+    <br />
+
+    <form method="post" action="/s/{{ request.shop.id }}/coupon/new" onsubmit="submit.disabled = true; return true;">
+  
+      <label for="coupon_code_input">Code <span class="asterisk">*</span></label>
+      The coupon code customers type during cart checkout.
+      <br />
+      <input
+          name        = "code"
+          type        = "text"
+          id          = "coupon_code_input"
+          class       = "mps-coupon-code"
+          value       = "{{ code }}"
+          placeholder = "ex: summer1337"
+          required />
+ 
+      <br />
+      <br />
+      <br />
+
+      <label for="coupon_name_input">Description <span class="asterisk">*</span></label>
+      This will appear on customer receipts and invoices.
+      <br />
+      <input
+          name        = "description"
+          type        = "text"
+          id          = "coupon_description_input"
+          class       = "mps-coupon-description"
+          value       = "{{ description }}"
+          placeholder = "ex: First purchase discount"
+          required />
+
+      <br />
+      <br />
+      <br />
+
+      <label for="action_type">Discount action <span class="asterisk">*</span></label>
+      <input
+          type="radio"
+          id="dollar"
+          name="action_type"
+          value="dollar-off"
+          {% if action_type == "dollar-off" %}checked="checked"{% endif %} required /> Dollar Off
+      <br />
+      <input
+          type="radio"
+          id="percent"
+          name="action_type"
+          value="percent-off"
+          {% if action_type == "percent-off" %}checked="checked"{% endif %} /> Percent Off
+
+      <br />
+      <br />
+      <br />
+
+      <label for="action_value">Discount value <span class="asterisk">*</span></label>
+      <input
+          name        = "action_value"
+          type        = "number"
+          step        = "0.01"
+          id          = "action_value_input"
+          class       = "mps-coupon-action-value"
+          value       = "{{ action_value }}"
+          placeholder = "ex: 3.50"
+          required />
+
+      <br />
+      <br />
+      <br />
+
+      <label for="max_redemptions">Redemption limits</label>
+      Optional. The amount of times this code may be used.
+      <br />
+      <input
+          name        = "max_redemptions"
+          type        = "number"
+          id          = "max_redemptions_input"
+          class       = "mps-coupon-max-redemptions"
+          value       = "{{ max_redemptions }}"
+          placeholder = "ex: 100" />
+      <br />
+      <br />
+      Per customer.
+      <br />
+      <input
+          name        = "max_redemptions_per_user"
+          type        = "number"
+          id          = "max_redemptions_input"
+          class       = "mps-coupon-max-redemptions-per-user"
+          value       = "{{ max_redemptions_per_user }}"
+          placeholder = "ex: 1" />
+
+      <br />
+      <br />
+      <br />
+
+      <label for="expiration_date">Expiration date</label>
+      Optional. Coupon valid thru date.
+      <br />
+      <input
+          name        = "expiration_date"
+          type        = "date"
+          id          = "expiration_date_input"
+          class       = "mps-coupon-expiration-date"
+          value       = "{{ expiration_date }}"
+      />
+ 
+      <br />
+      <br />
+      <br />
+ 
+      <label for="cart_qualifier">Cart Qualifier</label>
+      Optional. The minimum cart total needed for this coupon to apply.  
+      <br />
+      <input
+          name        = "cart_qualifier"
+          type        = "number"
+          step        = "1"
+          id          = "coupon_cart_qualifier"
+          class       = "mps-coupon-cart-qualifier"
+          value       = "{{ cart_qualifier }}"
+          placeholder = "ex: 20"
+          />
+ 
+      <br />
+      <br />
+      <br />
+
+      <input type="submit" name="submit" class="mps-submit" value="Create Coupon" />
+
+      <br />
+      <br />
+
+  </section>
+
+</section>
+
+<br />
+
+{%- endblock -%}

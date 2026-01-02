@@ -1,0 +1,20 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+<section class="one-column-thin well">
+
+<h2>Your saved carts:</h2>
+
+{% for cart in request.shop.get_carts_for_user(request.user) %}
+
+<section class="cart">
+    <a class=""cart-and-count"" href="/cart/{{ cart.id }}">&#128722; Cart ${{ '%0.2f' % cart.total }} ({{ cart.count }} items)</a> {{ cart.human_updated_timestamp }} {% if cart == request.active_cart %}(active){% endif %}
+</section>
+<br>
+
+{% endfor %}
+
+</section>
+
+{%- endblock -%}

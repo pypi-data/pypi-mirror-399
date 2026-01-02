@@ -1,0 +1,142 @@
+{% extends "base.j2" -%}
+
+{% block call_to_action %}
+<a href="/actions/new" class="mps-button mps-button-small mps-button-green">+ New</a>
+{% endblock call_to_action %}
+
+{% block content -%}
+
+<section class="action-columns well">
+
+  <div class="settings-left">
+    <h3>User Settings</h3>
+    
+    <label>Theme Preference</label>
+    <input type="radio" name="theme_id" id="light_mode" value="1" {% if theme_id == 1 %}checked{% endif %} />
+    <label for="light_mode" class="inline-label">Light Mode</label>
+    <br />
+    
+    <input type="radio" name="theme_id" id="dark_mode" value="0" {% if theme_id == 0 %}checked{% endif %} />
+    <label for="dark_mode" class="inline-label">Dark Mode</label>
+    
+    <br />
+    <br />
+    
+    <form method="post" action="/u/settings" onsubmit="submit.disabled = true; return true;">
+
+      <label for="name_input">Display Name (public)</label>
+      <input
+          name        = "name"
+          type        = "text"
+          id          = "name_input"
+          class       = "mps-user-name"
+          value       = "{{ name }}"
+          placeholder = "Display Name"
+          required />
+
+      <br />
+      <br />
+
+      <label for="name_input">Full Name (private, used for billing)</label>
+      <input
+          name        = "full_name"
+          type        = "text"
+          id          = "full_name_input"
+          class       = "mps-full-name"
+          value       = "{% if full_name %}{{ full_name }}{% endif %}"
+          placeholder = "Full Name"
+          required />
+
+      <br />
+      <br />
+
+    <input type="submit" name="submit" class="mps-submit" value="Save Settings" />
+
+    <br />
+
+    </form>
+
+    <script>
+      // Handle theme preference form specifically
+      document.addEventListener('DOMContentLoaded', function() {
+        const themeRadios = document.querySelectorAll('input[name="theme_id"]');
+        
+        if (themeRadios.length > 0) {
+          // Set radio button based on localStorage on page load
+          const storedTheme = localStorage.getItem('theme-preference');
+          if (storedTheme) {
+            const targetValue = storedTheme === 'dark' ? '0' : '1';
+            const targetRadio = document.querySelector(`input[name="theme_id"][value="${targetValue}"]`);
+            if (targetRadio) {
+              // Uncheck all first
+              themeRadios.forEach(radio => radio.checked = false);
+              // Check the one that matches localStorage
+              targetRadio.checked = true;
+            }
+          }
+          
+          // Find the form containing theme radios (more compatible than :has())
+          const themeForm = themeRadios[0].closest('form');
+          
+          if (themeForm) {
+            themeForm.addEventListener('submit', function() {
+              // Set localStorage to match the selected theme preference
+              const selectedRadio = document.querySelector('input[name="theme_id"]:checked');
+              if (selectedRadio) {
+                const newTheme = selectedRadio.value === '0' ? 'dark' : 'light';
+                localStorage.setItem('theme-preference', newTheme);
+              }
+            });
+          }
+          
+          // Also update localStorage immediately when radio button changes
+          themeRadios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+              // Apply new theme immediately
+              const newTheme = this.value === '0' ? 'dark' : 'light';
+              document.documentElement.setAttribute('data-theme', newTheme);
+              // Set localStorage to match user preference so it persists across pages
+              localStorage.setItem('theme-preference', newTheme);
+            });
+          });
+        }
+      });
+    </script>
+  </div>
+
+  <div class="settings-right">
+    {% if request.is_saas_domain %}
+    <a href="/u/shops" class="product-edit-button mps-button">My Shops</a>
+    <br/>
+    <br/>
+    {% endif %}
+ 
+    {% if request.shop and request.shop.is_ready_for_payment(request) %}
+    <a href="/u/purchases" class="product-download-button mps-button">My Purchases</a>
+    <br/>
+    <br/>
+    <a href="/u/crypto-quotes" class="product-download-button mps-button">Crypto Payment History</a>
+    <br/>
+    <br/>
+    <a href="/billing" class="product-edit-button mps-button">Credit Card Payment Preferences</a>
+    <br/>
+    <br/>
+    <a href="/u/settings/crypto" class="product-edit-button mps-button">Crypto Payment Preferences</a>
+    <br/>
+    <br/>
+    <a href="/u/addresses" class="product-edit-button mps-button">Shipping Addresses</a>
+    <br/>
+    <br/>
+    {% endif %}
+    
+    <a href="/" class="mps-button mps-button-blue">Back to Shop</a>
+    
+    <br/>
+    <br/>
+    <a href="/log-out" class="log-out-button mps-button">Log Out</a>
+    
+  </div>
+
+</section>
+
+{%- endblock -%}

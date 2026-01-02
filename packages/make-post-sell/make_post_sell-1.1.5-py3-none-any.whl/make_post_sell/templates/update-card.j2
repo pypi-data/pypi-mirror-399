@@ -1,0 +1,32 @@
+{% extends "base.j2" -%}
+{%- import 'snippets/stripe.j2' as stripe with context -%}
+
+{% block content -%}
+
+<section class="one-column">
+
+  <section class="well">
+  
+  <h3>Are you sure?</h3>
+  
+  {{ stripe.display_card(card, actions=False) }}
+  
+  <br/>
+  
+  <div class="card-are-you-sure-buttons">
+  <form action="/billing/update-card" method="post">
+    {% include 'snippets/csrf.j2' %}
+    <input type="hidden" name="action" value="{{ action }}">
+    <input type="hidden" name="card_id" value="{{ card_id }}">
+    <center>
+    <a href="/billing"><button type="button">Cancel</button></a>
+    <button type="submit" class="bold-text">Yes, {{ action_human }}</button>
+    </center>
+  </form>
+  </div>
+
+  </section>
+
+</section>
+
+{%- endblock -%}

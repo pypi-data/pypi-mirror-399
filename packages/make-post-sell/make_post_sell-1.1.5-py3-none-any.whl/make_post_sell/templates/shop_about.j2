@@ -1,0 +1,44 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+  <section class="one-column well">
+
+  <img class="logo" src="{{ request.app['bucket.secure_uploads.get_endpoint'] }}/{{ request.shop.uuid_str }}/meta/shop-logo-banner" />
+
+  <br/>
+  <br/>
+
+  <h1>{{ request.shop.name }}</h1>
+
+  <p>
+  {{ request.shop.description }}
+  </p>
+
+  <!--
+
+  {{ request.shop.phone_number }}
+
+  <pre>{{ request.shop.billing_address }}</pre>
+
+
+  <p>
+  <h2>Contact Us!</h2>
+  <ul>
+  {% for user in request.shop.users %}
+  <li>{{ user.email }}</li>
+  {% endfor %}
+  </ul>
+  </p>
+
+  -->
+
+  <p>
+  <center>
+  <a href="/s/{{ request.shop.id }}" class="product-download-button mps-button">View Products</a>
+  </center>
+  </p>
+
+  </section>
+
+{%- endblock -%}

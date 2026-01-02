@@ -1,0 +1,329 @@
+{% extends "base.j2" -%}
+{%- import 'snippets/stripe.j2' as stripe with context -%}
+
+{% block content -%}
+
+<section class="checkout-page">
+
+  {% if (stripe_enabled and request.shop and request.shop.is_stripe_ready) or request.user.active_address %}
+  <section class="checkout-left well">
+
+  {% if stripe_enabled and request.shop and request.shop.is_stripe_ready %}
+    {% if active_card %}
+    <h2><b>Active Card</b></h2>
+
+    {{ stripe.display_card(active_card, actions=False) }}
+
+    <br>
+
+    {% if request.shop and request.shop.is_ready_for_payment(request) %}
+    <a href="/billing" class="product-edit-button mps-button">Use a different card</a>
+    {% endif %}
+    {% else %}
+    <h2><b>Payment</b></h2>
+    <p>No active credit card payment method configured.</p>
+    <p><a href="/billing" class="add-payment-method-button mps-button">Add a credit card payment method</a></p>
+    <br>
+    {% endif %}
+  {% endif %}
+
+ {% if request.user.active_address and cart.physical_products %}
+  <h2>Active Shipping Address</h2>
+  <pre>{{- request.user.active_address.data -}}</pre>
+ <a href="/u/addresses" class="product-edit-button mps-button">Use a different address</a>
+ {% endif %}
+
+  </section>
+  {% endif %}
+
+  <section class="checkout-right well">
+
+  <h2>Cart Total: ${{ '{:,.2f}'.format(cart.total) }}</h2>
+  
+  <br/>
+  {% if cart.requires_payment %}
+    Are you sure you want to confirm checkout & pay <b>${{ '{:,.2f}'.format(cart.total) }}</b>?
+  {% else %}
+    Are you sure you want to confirm checkout?
+  {% endif %}
+  
+  <br/>
+   
+  {% if stripe_enabled and active_card %}
+    <form method="POST" action="{{ request.route_url('user_cart_complete_checkout', cart_id=cart.id) }}">
+    {% include "snippets/csrf.j2" %}
+    <button type="submit" class="cart-checkout-button mps-button">Yes, Confirm Checkout with Active Credit Card</button>
+  </form>
+  {% endif %}
+
+  {# PayPal checkout button #}
+  {% if paypal_enabled and request.shop and request.shop.is_paypal_ready and cart.requires_payment %}
+  <br/>
+
+  {# Saved PayPal status or save checkbox #}
+  {% if paypal_user_shop and paypal_user_shop.has_saved_payment_method %}
+    {# User has PayPal saved #}
+    <div style="margin-bottom: 15px; padding: 12px; background-color: #f0f7ff; border-left: 4px solid: #0070ba; border-radius: 4px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 20px;">✓</span>
+        <span style="font-weight: 500; color: #0070ba;">PayPal saved for quick checkout</span>
+      </div>
+      <small style="display: block; margin-top: 4px; color: #666;">
+        Click the PayPal button below to complete your purchase
+      </small>
+    </div>
+  {% else %}
+    {# User does not have PayPal saved - show checkbox #}
+    <div style="margin-bottom: 15px;">
+      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="save-paypal-checkbox" name="save_paypal" value="true" style="cursor: pointer;">
+        <span>💾 Save PayPal for faster checkout next time</span>
+      </label>
+      <small style="display: block; margin-left: 24px; color: #666; margin-top: 4px;">
+        You can manage saved payment methods in your account settings
+      </small>
+    </div>
+  {% endif %}
+
+  <div id="paypal-button-container"></div>
+  <script src="https://www.paypal.com/sdk/js?client-id={{ request.shop.paypal_client_id }}&currency=USD"></script>
+  <script>
+    // Store all order IDs for multi-shop support
+    var allPayPalOrderIds = [];
+
+    // Double-click protection flags
+    var isCreatingOrder = false;
+    var isProcessingApproval = false;
+
+    paypal.Buttons({
+      style: {
+        layout: 'vertical',
+        color: 'gold',
+        shape: 'rect',
+        label: 'paypal'
+      },
+      createOrder: function(data, actions) {
+        // Prevent duplicate order creation
+        if (isCreatingOrder) {
+          console.warn('PayPal order creation already in progress');
+          return Promise.reject(new Error('Order creation already in progress'));
+        }
+
+        isCreatingOrder = true;
+
+        // Check if user wants to save PayPal for future use
+        var savePayPalCheckbox = document.getElementById('save-paypal-checkbox');
+        var savePayPal = savePayPalCheckbox ? savePayPalCheckbox.checked : false;
+
+        return fetch("{{ request.route_url('paypal_create_order', cart_id=cart.id) }}?save_paypal=" + (savePayPal ? 'true' : 'false'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': '{{ request.session.get_csrf_token() }}'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            alert('Error creating PayPal order: ' + data.error);
+            isCreatingOrder = false;
+            throw new Error(data.error);
+          }
+
+          // Handle both single order_id (old format) and order_ids array (new format)
+          if (data.order_ids) {
+            allPayPalOrderIds = data.order_ids;
+            isCreatingOrder = false;
+            // Return first order ID for PayPal SDK to process
+            return data.order_ids[0];
+          } else if (data.order_id) {
+            allPayPalOrderIds = [data.order_id];
+            isCreatingOrder = false;
+            return data.order_id;
+          }
+        })
+        .catch(error => {
+          isCreatingOrder = false;
+          throw error;
+        });
+      },
+      onApprove: function(data, actions) {
+        // Prevent duplicate submission after approval
+        if (isProcessingApproval) {
+          console.warn('PayPal approval already being processed');
+          return Promise.reject(new Error('Approval already being processed'));
+        }
+
+        isProcessingApproval = true;
+
+        // For multi-shop carts, we have multiple order IDs
+        // PayPal SDK only handles the first one, so we pass all IDs to backend
+        var orderIdsToSubmit = allPayPalOrderIds.join(',');
+
+        // Create form to submit PayPal order ID(s)
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ request.route_url('paypal_complete_checkout', cart_id=cart.id) }}';
+
+        var csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = '{{ request.session.get_csrf_token() }}';
+        form.appendChild(csrfInput);
+
+        var orderIdInput = document.createElement('input');
+        orderIdInput.type = 'hidden';
+        orderIdInput.name = 'paypal_order_id';
+        orderIdInput.value = orderIdsToSubmit;
+        form.appendChild(orderIdInput);
+
+        document.body.appendChild(form);
+        form.submit();
+
+        // Note: We don't reset isProcessingApproval because the page will redirect
+        // If form.submit() fails, the page stays and user can't retry anyway
+      },
+      onError: function(err) {
+        console.error('PayPal error:', err);
+        alert('PayPal payment failed. Please try again or use another payment method.');
+        // Reset flags on error so user can retry
+        isCreatingOrder = false;
+        isProcessingApproval = false;
+      },
+      onCancel: function(data) {
+        // Reset flags if user cancels PayPal flow
+        console.log('PayPal payment cancelled by user');
+        isCreatingOrder = false;
+        isProcessingApproval = false;
+      }
+    }).render('#paypal-button-container');
+  </script>
+  {% endif %}{# End PayPal enabled check #}
+
+  {# For free checkouts (e.g., with coupons), provide a simple confirmation button #}
+  {% if not cart.requires_payment %}
+    <form method="POST" action="{{ request.route_url('user_cart_complete_checkout', cart_id=cart.id) }}">
+    {% include "snippets/csrf.j2" %}
+    <button type="submit" class="cart-checkout-button mps-button">Yes, Confirm Free Checkout</button>
+  </form>
+  {% endif %}
+
+  {# Offer Monero if globally enabled, shop has enabled processor, cart requires payment and is single-shop #}
+  {% if monero_enabled and xmr_processor_enabled and cart.requires_payment and cart.shop_product_dict|length == 1 %}
+  <br/>
+  {% if pending_crypto_quotes %}
+    <button type="button" class="mps-button disabled-crypto-button" disabled title="Complete or cancel your pending crypto payments first"><img src="{{ request.static_url('make_post_sell:static/monero-symbol-480.png') }}" class="crypto-button-icon">Monero (XMR) - Complete or Cancel Pending Payment</button>
+  {% else %}
+  <form method="POST" action="{{ request.route_url('crypto_xmr_start') }}">
+    {% include "snippets/csrf.j2" %}
+    <input type="hidden" name="cart_id" value="{{ cart.id }}" />
+    <button type="submit" class="mps-button mps-button-green"><img src="{{ request.static_url('make_post_sell:static/monero-symbol-480.png') }}" class="crypto-button-icon">Yes, Confirm Checkout with Monero (XMR)</button>
+  </form>
+  {% endif %}
+  {% if not request.has_xmr_refund_address %}
+  <a href="/u/settings/crypto" class="crypto-settings-link">
+    ⚠️ Configure an XMR refund address to enable automatic refunds during payment errors.
+  </a>
+  {% endif %}
+  {% endif %}
+
+  {# Offer Dogecoin if globally enabled, shop has enabled processor, cart requires payment and is single-shop #}
+  {% if dogecoin_enabled and doge_processor_enabled and cart.requires_payment and cart.shop_product_dict|length == 1 %}
+  <br/>
+  {% if pending_crypto_quotes %}
+    <button type="button" class="mps-button disabled-crypto-button" disabled title="Complete or cancel your pending crypto payments first"><img src="{{ request.static_url('make_post_sell:static/dogecoin-logo.png') }}" class="crypto-button-icon">Dogecoin (DOGE) - Complete or Cancel Pending Payment</button>
+  {% else %}
+  <form method="POST" action="{{ request.route_url('crypto_doge_start') }}">
+    {% include "snippets/csrf.j2" %}
+    <input type="hidden" name="cart_id" value="{{ cart.id }}" />
+    <button type="submit" class="mps-button mps-button-green"><img src="{{ request.static_url('make_post_sell:static/dogecoin-logo.png') }}" class="crypto-button-icon">Yes, Confirm Checkout with Dogecoin (DOGE)</button>
+  </form>
+  {% endif %}
+  {% if not request.has_doge_refund_address %}
+  <a href="/u/settings/crypto" class="crypto-settings-link">
+    ⚠️ Configure a DOGE refund address to enable automatic refunds during payment errors.
+  </a>
+  {% endif %}
+  {% endif %}
+
+  {# Show sync status messages for enabled but not synced crypto methods #}
+  {% if monero_enabled and not monero_synced and cart.requires_payment and cart.shop_product_dict|length == 1 %}
+  <br/>
+  <div class="warning-banner">
+    <p>
+      ⏳ <strong>Monero (XMR) payments temporarily unavailable</strong><br/>
+      The Monero wallet is still synchronizing with the blockchain. Please try again later.
+    </p>
+  </div>
+  {% endif %}
+
+  {% if dogecoin_enabled and not dogecoin_synced and cart.requires_payment and cart.shop_product_dict|length == 1 %}
+  <br/>
+  <div class="warning-banner">
+    <p>
+      ⏳ <strong>Dogecoin (DOGE) payments temporarily unavailable</strong><br/>
+      The Dogecoin node is still synchronizing with the blockchain. Please try again later.
+    </p>
+  </div>
+  {% endif %}
+
+  {% if not stripe_enabled and not (monero_enabled and xmr_processor_enabled) and not (dogecoin_enabled and doge_processor_enabled) %}
+    <br/>
+    <p>No payment methods are enabled. Please contact the shop owner.</p>
+  {% endif %}
+
+  {# Show pending crypto quotes if user has any #}
+  {% if pending_crypto_quotes %}
+  <div class="warning-banner-alt">
+    <h3>📋 Pending {{ pending_crypto_quotes[0].coin_type }} Payment</h3>
+    {% for quote in pending_crypto_quotes %}
+    <div class="pending-quote-item">
+      <div class="pending-quote-details">
+        Amount: {{ '%.8f' % (quote.expected_amount / (1000000000000 if quote.coin_type == 'XMR' else 100000000)) }} {{ quote.coin_type }}
+      </div>
+      <div class="pending-quote-single">
+        <a href="{{ request.route_url('crypto_quote', payment_id=quote.id) }}" class="mps-button mps-button-blue full-width-button">View Quote</a>
+      </div>
+      <div class="pending-quote-cancel">
+        <button onclick="cancelQuote('{{ quote.id }}')" class="mps-button mps-button-red payment-button-cancel full-width-button">Cancel</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  </section>
+</section>
+
+<script>
+function cancelQuote(paymentId) {
+  if (!confirm('Are you sure you want to cancel this crypto payment quote?')) {
+    return;
+  }
+  
+  fetch(`/crypto/cancel/${paymentId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      if (data.cart_url) {
+        window.location.href = data.cart_url;
+      } else {
+        window.location.reload();
+      }
+    } else {
+      alert('Failed to cancel quote: ' + (data.message || 'Unknown error'));
+    }
+  })
+  .catch(error => {
+    alert('Error cancelling quote: ' + error.message);
+  });
+}
+</script>
+
+{%- endblock -%}

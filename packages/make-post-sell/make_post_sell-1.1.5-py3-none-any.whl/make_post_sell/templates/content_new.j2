@@ -1,0 +1,66 @@
+{% extends "base.j2" -%}
+
+{%- block call_to_action -%}
+{%- endblock call_to_action -%}
+
+{% block content -%}
+
+<section class="one-column">
+  <section class="content-title-and-description well">
+    <h3>New Content</h3>
+    <br/>
+  
+    Creating a new content in the shop named "{{ request.shop.name }}".
+  
+    <br/>
+    <br/>
+  
+    <form method="post" action="/c/new" onsubmit="this.querySelector('input[type=submit]').style.display = 'none'; return true;">
+  
+      <input type="hidden" name="shop_id" value="{{ request.shop.id }}" />
+
+      <br/>
+
+      <span class="asterisk">*</span> required
+  
+      <br/>
+      <br/>
+
+      <label for="title_input">Content Title <span class="asterisk">*</span></label>
+      <input
+          name        = "title"
+          type        = "text"
+          id          = "title_input"
+          class       = "mps-content-title"
+          value       = "{{ title }}"
+          placeholder = "Content Title"
+          required />
+  
+      <br />
+      <br />
+  
+      <label for="description_input">Content Description <span class="asterisk">*</span></label>
+      <textarea
+          name        = "description"
+          id          = "description_input"
+          class       = "mps-content-description"
+          placeholder = "Content Description"
+          required />{{ description }}</textarea>
+  
+      <br />
+      <br />
+  
+      <label for="is_bundle_input">Content Bundle?</label>
+      <input type="checkbox" name="is_bundle" id="is_bundle_input"> If checked, this content will bundle other existing content.<br>(playlist, gallery, album, collection, series, etc.)
+
+      <br />
+      <br />
+
+      <input type="hidden" name="is_sellable" id="is_sellable_input" value="off" required />
+      <input type="submit" name="submit" class="mps-submit" value="Continue" />
+
+    </form>
+  </section>
+</section>
+
+{%- endblock -%}

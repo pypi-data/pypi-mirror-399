@@ -1,0 +1,57 @@
+{% extends "base.j2" -%}
+
+{% block content -%}
+
+<style>
+tr { text-align: left;}
+</style>
+
+{% if products %}
+
+<table class="table-full-width table-fixed-layout">
+ <thead>
+  <tr> <th> Sellable <th> Price <th> Visibility <th> Bundle <th> Physical <th> Ready <th> Title <th class="col-status"> Status <th> Size
+ <tbody class="table-full-width">
+
+{% for product in products %}
+
+  <tr>
+    <td>{{ product.is_sellable }}</td>
+    <td><a href="{{ product.absolute_url(request) }}" rel="nofollow">$<span class="price-value">{{ '{:,.2f}'.format(product.price)|replace('.', '<span class="decimal-dot">.</span>')|safe }}</span></a></td>
+    <td>{{ product.human_visibility }}</td>
+    <td>{{ product.is_bundle }}</td>
+    <td>{{ product.is_physical }}</td>
+    <td>{{ product.is_ready }}</td>
+    <td><b><a href="{{ product.absolute_url(request) }}" class="shop-theme-link-color">{{ product.title }}</a></b></td>
+    <td class="col-status">
+      <div class="status-line">
+        <span class="status-label">{{ product.human_visibility }}</span>
+        <span class="status-dot">•</span>
+        <span class="status-value">{{ '🌍' if product.is_public else '🔒' if product.is_private else '👁️‍🗨️' }}</span>
+      </div>
+      <div class="status-line">
+        <span class="status-label">Bundle</span>
+        <span class="status-dot">•</span>
+        <span class="status-value" style="color: {{ '#22c55e' if product.is_bundle else '#ef4444' }};">{{ '&#10003;'|safe if product.is_bundle else '&#10007;'|safe }}</span>
+      </div>
+      <div class="status-line">
+        <span class="status-label">Physical</span>
+        <span class="status-dot">•</span>
+        <span class="status-value" style="color: {{ '#22c55e' if product.is_physical else '#ef4444' }};">{{ '&#10003;'|safe if product.is_physical else '&#10007;'|safe }}</span>
+      </div>
+      <div class="status-line">
+        <span class="status-label">Ready</span>
+        <span class="status-dot">•</span>
+        <span class="status-value" style="color: {{ '#22c55e' if product.is_ready else '#ef4444' }};">{{ '&#10003;'|safe if product.is_ready else '&#10007;'|safe }}</span>
+      </div>
+    </td>
+    <td>{{ product.human_total_file_bytes|replace('.', '<span class="decimal-dot">.</span>')|safe }}</td>
+  </tr>
+  
+{% endfor %}
+</table>
+
+{% endif %}
+</section>
+
+{%- endblock -%}
