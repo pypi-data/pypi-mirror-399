@@ -1,0 +1,100 @@
+[project]
+name = "teamflow-console"
+version = "0.1.5"
+description = "TeamFlow Console App - Phase 1: In-Memory Task Distribution"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [
+    { name = "Owais Abdullah", email = "contact@owaisabdullah.dev" }
+]
+maintainers = [
+    { name = "Owais Abdullah", email = "contact@owaisabdullah.dev" }
+]
+keywords = ["cli", "task-management", "team", "productivity", "terminal"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Scheduling",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+    "pydantic>=2.5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/MrOwaisAbdullah/Teamflow"
+Documentation = "https://github.com/MrOwaisAbdullah/Teamflow#readme"
+Repository = "https://github.com/MrOwaisAbdullah/Teamflow"
+"Bug Tracker" = "https://github.com/MrOwaisAbdullah/Teamflow/issues"
+
+[project.scripts]
+teamflow = "main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "black>=23.12.0",
+    "isort>=5.13.0",
+    "pylint>=3.0.0",
+    "mypy>=1.7.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = [
+    "main.py",
+    "cli/**/*.py",
+    "lib/**/*.py",
+    "models/**/*.py",
+    "services/**/*.py",
+    "__init__.py",
+]
+
+[tool.hatch.build.targets.wheel]
+# Don't restrict packages - let include handle what gets bundled
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "main.py",
+    "cli/",
+    "lib/",
+    "models/",
+    "services/",
+    "__init__.py",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py313']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+
+[tool.pylint.messages_control]
+disable = ["too-few-public-methods"]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
