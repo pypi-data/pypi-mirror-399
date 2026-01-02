@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "render-template"
+version = "0.1.0"
+requires-python = ">=3.8"
+dependencies = [
+    "pyyaml",
+    "jinja2",
+    "mako",
+]
+
+[project.scripts]
+render = "render_template.render:main"
