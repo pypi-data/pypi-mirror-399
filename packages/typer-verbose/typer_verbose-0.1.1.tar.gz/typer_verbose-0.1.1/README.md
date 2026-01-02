@@ -1,0 +1,1 @@
+A utility class to add a `--verbose/-v` flag to Typer CLI commands and manage verbose logging.
