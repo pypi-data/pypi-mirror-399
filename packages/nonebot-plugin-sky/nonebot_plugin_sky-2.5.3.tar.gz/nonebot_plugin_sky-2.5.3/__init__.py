@@ -1,0 +1,1 @@
+from .src import nonebot_plugin_sky as nonebot_plugin_sky
