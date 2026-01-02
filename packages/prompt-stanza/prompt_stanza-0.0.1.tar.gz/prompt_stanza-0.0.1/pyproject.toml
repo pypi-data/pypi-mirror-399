@@ -1,0 +1,135 @@
+[project]
+name = "prompt-stanza"
+version = "0.0.1"
+description = "A comprehensive framework for composing, versioning, and securing LLM prompts with support for multiple input/output adapters, defense strategies, delimiters, and A/B testing capabilities"
+readme = "README.md"
+authors = [
+    { name = "Rahul Bairathi", email = "bairathirahul@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "jinja2>=3.1.6",
+    "langchain>=1.1.3",
+    "pydantic>=2.12.5",
+    "pyyaml>=6.0.3",
+    "tiktoken>=0.12.0",
+]
+
+[project.scripts]
+prompt-stanza = "prompt_stanza.cli:main"
+
+[project.optional-dependencies]
+# SQL Database support (PostgreSQL, MySQL, SQLite)
+# Install with: pip install prompt-stanza[sql]
+sql = [
+    "sqlalchemy>=2.0.44",
+    "psycopg2-binary>=2.9.11",
+]
+
+# AWS/S3 storage support
+# Install with: pip install prompt-stanza[aws]
+aws = [
+    "boto3>=1.42.4",
+]
+
+# MongoDB/DynamoDB support
+# Install with: pip install prompt-stanza[mongo]
+mongo = [
+    "pymongo>=4.15.5",
+]
+
+# All storage adapters
+# Install with: pip install prompt-stanza[all]
+all = [
+    "sqlalchemy>=2.0.44",
+    "psycopg2-binary>=2.9.11",
+    "boto3>=1.42.4",
+    "pymongo>=4.15.5",
+]
+
+# Examples with LangChain support
+# Install with: pip install prompt-stanza[examples]
+examples = [
+    "langchain-openai>=0.2.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.15,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.0",
+    "pytest>=9.0.1",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.14.8",
+    "types-pyyaml>=6.0.12.20250915",
+]
+
+# Tool configurations
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--strict-config",
+]
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+line-length = 100
+indent-width = 4
+target-version = "py311"
+
+[tool.ruff.lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) codes by default
+select = ["E", "F", "I", "UP", "B", "SIM", "C90"]
+ignore = []
+# Allow fix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.mccabe]
+max-complexity = 40
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = ["prompt_stanza.adapters.langchain_output"]
+ignore_errors = true
