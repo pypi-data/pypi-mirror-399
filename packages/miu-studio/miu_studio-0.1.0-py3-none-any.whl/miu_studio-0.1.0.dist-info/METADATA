@@ -1,0 +1,66 @@
+Metadata-Version: 2.4
+Name: miu-studio
+Version: 0.1.0
+Summary: Web server for miu AI agent
+Project-URL: Homepage, https://github.com/vanducng/miumono
+Project-URL: Repository, https://github.com/vanducng/miumono
+License: MIT
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Web Environment
+Classifier: Framework :: FastAPI
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Requires-Python: >=3.11
+Requires-Dist: aiofiles>=23.0
+Requires-Dist: fastapi>=0.115
+Requires-Dist: miu-core[anthropic]
+Requires-Dist: pydantic-settings>=2.6
+Requires-Dist: uvicorn[standard]>=0.32
+Requires-Dist: websockets>=13.0
+Description-Content-Type: text/markdown
+
+# miu-studio
+
+Web server for miu AI agent framework.
+
+## Installation
+
+```bash
+uv add miu-studio
+```
+
+## Usage
+
+```bash
+# Run the server
+miu-studio
+
+# Or with Python module
+python -m miu_studio
+
+# Custom port
+miu-studio --port 3000
+```
+
+## Features
+
+- REST API for agent interactions
+- WebSocket for real-time chat
+- Session management
+- Static web chat interface
+
+## API Endpoints
+
+- `GET /api/v1/health` - Health check
+- `GET /api/v1/sessions` - List sessions
+- `POST /api/v1/sessions` - Create session
+- `POST /api/v1/chat/invoke` - Synchronous chat
+- `POST /api/v1/chat/stream` - Streaming chat (SSE)
+- `WS /api/v1/chat/ws/{session_id}` - WebSocket chat
+
+## License
+
+MIT
