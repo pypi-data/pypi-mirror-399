@@ -1,0 +1,120 @@
+# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: CMake on multiple platforms
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.runs-on }}
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+
+      # Matrix strategy for multiple platforms (x64 only for free GitHub accounts):
+      # - Linux: x64 with GCC and Clang
+      # - Windows: x64 with MSVC and MinGW
+      # - macOS: x64 (Intel) and ARM64 (Apple Silicon - free on macOS)
+      # - Python versions: 3.10 through 3.14
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        build_type: [Release]
+
+        # Define platform configurations (x64 only, except macOS ARM64 which is free)
+        include:
+          # Ubuntu x64 with GCC
+          - os: ubuntu-latest
+            arch: x64
+            runs-on: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+
+          # Ubuntu x64 with Clang
+          - os: ubuntu-latest
+            arch: x64
+            runs-on: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+
+          # Windows x64 with MSVC
+          - os: windows-latest
+            arch: x64
+            runs-on: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+
+          # Windows x64 with GCC (MinGW)
+          - os: windows-latest
+            arch: x64
+            runs-on: windows-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+
+          # macOS x64 (Intel)
+          - os: macos-13
+            arch: x64
+            runs-on: macos-13
+            c_compiler: clang
+            cpp_compiler: clang++
+
+          # macOS ARM64 (Apple Silicon M1/M2 - free on GitHub)
+          - os: macos-latest
+            arch: arm64
+            runs-on: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        submodules: recursive
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+
+    - name: Display build configuration
+      shell: bash
+      run: |
+        echo "Building for:"
+        echo "  OS: ${{ matrix.os }}"
+        echo "  Architecture: ${{ matrix.arch }}"
+        echo "  C Compiler: ${{ matrix.c_compiler }}"
+        echo "  C++ Compiler: ${{ matrix.cpp_compiler }}"
+        echo "  Python: ${{ matrix.python-version }}"
+        uname -m || echo "uname not available"
+
+    - name: Set up MSVC environment
+      if: matrix.os == 'windows-latest'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
+
+    - name: setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.arch }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy
+
+    - name: Install apriltag-opencv
+      run: |
+        pip install .
+    
+        
+    - name: Test Python Module Import
+      run: |
+        python -c "import apriltag; print('Successfully imported apriltag'); detector = apriltag.apriltag(family='tag36h11'); print(f'Created detector: {detector}')"
