@@ -1,0 +1,36 @@
+{% extends request.base_funnel_template -%}
+{% block title %}verify code | {{ request.domain }}{% endblock -%}
+{% block content %}
+<section class="join-or-log-in">
+   <b>Verification Code</b>
+   <br/>
+   Please enter code to log in.
+   <br/>
+   <form method="post" action="{{ request.link_prefix }}/verification-challenge">
+      <input
+          name        = "email"
+          type        = "hidden"
+          id          = "email_input"
+          class       = "common-text-input"
+          value       = "{{ email }}"
+          placeholder = "Your Email Address" />
+
+      <input
+          name        = "raw-otp"
+          type        = "number"
+          id          = "raw-otp"
+          class       = "common-text-input"
+          tabindex    = "1"
+          value       = "{% if raw_otp  %}{{ raw_otp }}{% endif %}"
+          placeholder = "6 digit challenge verification code"
+          required
+          autofocus />
+
+    <p>
+    <input type="submit" name="submit" id="submit" class="rb-submit red-button button-max-width send-log-in-email" value="verify code" required />
+    <p/>
+  
+   </form>
+
+</section>
+{%- endblock -%}
