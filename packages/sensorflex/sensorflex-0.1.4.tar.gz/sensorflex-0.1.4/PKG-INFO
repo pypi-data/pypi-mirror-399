@@ -1,0 +1,43 @@
+Metadata-Version: 2.4
+Name: sensorflex
+Version: 0.1.4
+Summary: Modern real-time sensor compute and data management.
+License-Expression: Apache-2.0
+License-File: LICENSE
+Author: Yiqin Zhao
+Author-email: yzigm@rit.edu
+Requires-Python: >=3.9
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Provides-Extra: all
+Provides-Extra: libar
+Provides-Extra: libcv
+Provides-Extra: libnet
+Provides-Extra: libvis
+Provides-Extra: libwebrtc
+Requires-Dist: aiortc (>=1.10.0,<2.0.0) ; extra == "all"
+Requires-Dist: aiortc (>=1.10.0,<2.0.0) ; extra == "libwebrtc"
+Requires-Dist: av (>=13.0.0,<17.0.0) ; extra == "all"
+Requires-Dist: av (>=13.0.0,<17.0.0) ; extra == "libwebrtc"
+Requires-Dist: mediapipe (>=0.10.14,<0.11.0) ; extra == "libar"
+Requires-Dist: msgspec (>=0.20.0,<0.21.0) ; extra == "all"
+Requires-Dist: msgspec (>=0.20.0,<0.21.0) ; extra == "libnet"
+Requires-Dist: opencv-python (>=4.12.0.88,<5.0.0.0) ; extra == "all"
+Requires-Dist: opencv-python (>=4.12.0.88,<5.0.0.0) ; extra == "libcv"
+Requires-Dist: pillow (>=11.0.0,<13.0.0) ; extra == "libcv"
+Requires-Dist: pillow (>=9.0.0,<13.0.0) ; extra == "all"
+Requires-Dist: rerun-sdk ; extra == "all"
+Requires-Dist: rerun-sdk ; extra == "libvis"
+Requires-Dist: websockets (>=15.0.1,<16.0.0) ; extra == "all"
+Requires-Dist: websockets (>=15.0.1,<16.0.0) ; extra == "libnet"
+Description-Content-Type: text/markdown
+
+# SensorFlex
+
+Python client for SensorFlex.
+
