@@ -1,0 +1,46 @@
+Metadata-Version: 2.3
+Name: varanus
+Version: 0.1.0
+Summary: Django application monitoring.
+Author: Dan Watson
+Author-email: Dan Watson <watsond@imsweb.com>
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: msgspec>=0.19.0
+Requires-Dist: cconf>=1.0.0 ; extra == 'server'
+Requires-Dist: django>=6.0 ; python_full_version >= '3.12' and extra == 'server'
+Requires-Dist: django-dbtasks[serve]>=0.3.2 ; python_full_version >= '3.12' and extra == 'server'
+Requires-Dist: django-passkey-auth>=0.2.0 ; extra == 'server'
+Requires-Dist: psycopg[binary]>=3.2.1 ; extra == 'server'
+Requires-Dist: whitenoise>=6.7.0 ; extra == 'server'
+Requires-Python: >=3.11
+Provides-Extra: server
+Description-Content-Type: text/markdown
+
+# Varanus
+
+## Installation
+
+```
+pip install varanus
+```
+
+## Quickstart for Django
+
+In your `settings.py`:
+
+```python
+try:
+    import varanus.client
+    varanus.client.setup(
+        "https://APIKEY@varanus.example.com",
+        environment=os.getenv("VARANUS_ENV", "local"),
+        install=MIDDLEWARE,
+    )
+except ImportError:
+    pass
+```
+
+For more information about how to configure the Varanus client, see [the configuration docs](docs/configuration.md). If nothing else, note that when using uWSGI, you'll need to enable threads with the [enable-threads](https://uwsgi-docs.readthedocs.io/en/latest/Options.html#enable-threads) option.
