@@ -1,0 +1,83 @@
+Metadata-Version: 2.4
+Name: shieldcommit
+Version: 1.0.0
+Summary: Lightweight pre-commit secret scanner CLI with EKS/RDS version warnings
+Author: TechiKrish
+License: MIT
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: click>=8.0
+
+🛡️ ShieldCommit v1.0.0
+
+Lightweight pre-commit secret scanner CLI with comprehensive infrastructure version warnings across AWS, Azure, and Google Cloud.
+
+## Features
+
+✅ **Secret Detection** (v0.1)
+- 40+ regex patterns for cloud/API keys, tokens, private keys
+- Real-time scanning of staged files
+- Support for multiple secret types (AWS, GCP, Azure, GitHub, etc.)
+
+✨ **Infrastructure Version Warnings** (v0.2-v0.3)
+
+### Kubernetes/Container Orchestration
+- **AWS EKS** - Kubernetes version detection (deprecated/extended support)
+- **Azure AKS** - Kubernetes version detection with EOL tracking
+- **Google Cloud GKE** - Kubernetes versions + release channel recommendations (RAPID/REGULAR/STABLE)
+
+### Database Engines
+- **AWS RDS** - PostgreSQL, MySQL, MariaDB version detection
+- **Azure Database** - SQL Server, MySQL, PostgreSQL version detection
+- **Google Cloud SQL** - MySQL, PostgreSQL, SQL Server version detection
+
+### Additional Features
+- Non-blocking warnings (safe for beta)
+- Zero cloud API calls required
+- End-of-life (EOL) date tracking
+- Extended support period detection
+- Actionable upgrade guidance
+- Consistent warning format across all platforms
+- Works with Terraform, CloudFormation, and IaC files
+
+SHIELDCOMMIT 1.0.0 TRANSFORMATION COMPLETE
+                    Pattern-Based → Intelligent Detection System
+════════════════════════════════════════════════════════════════════════════════
+
+✅ INTELLIGENT DETECTION SYSTEM FEATURES:
+
+1. ENTROPY ANALYSIS
+   - Shannon entropy calculation for high-entropy secret detection
+   - Dynamically adjusts confidence based on entropy levels (0-5.7 bits)
+   - Minimum 12+ character length with character variety requirement
+   - Detects unknown secret formats without predefined patterns
+
+2. SEMANTIC ANALYSIS
+   - Recognizes 60+ secret-related keywords in variable names
+   - Keywords: password, secret, token, api_key, credential, etc.
+   - Analyzes variable naming conventions (snake_case, camelCase, etc.)
+   - Works with ANY naming convention, not predefined ones
+
+3. FORMAT DETECTION
+   - 15+ known secret format patterns (AWS, Stripe, GitHub, etc.)
+   - AWS Access Keys (AKIA, ASIA prefixes)
+   - API keys: Google, OpenAI, Stripe, SendGrid, Mailgun
+   - Tokens: GitHub, GitLab, Slack, Telegram, Discord
+   - OAuth, JWT, Bearer tokens, Private keys (RSA, DSA, EC, OpenSSH)
+   - Database URIs: MongoDB, PostgreSQL, MySQL
+
+4. CONTEXT ANALYSIS
+   - 20+ context keywords for secret detection
+   - Analyzes surrounding code for secret indicators
+   - Understands assignment patterns and declarations
+   - Recognizes authentication, authorization patterns
+
+
+
+
+## Installation
+
+```bash
+pip install shieldcommit==1.0.0
