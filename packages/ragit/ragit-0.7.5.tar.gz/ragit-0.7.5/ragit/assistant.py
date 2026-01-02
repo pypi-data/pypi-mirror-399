@@ -1,0 +1,359 @@
+#
+# Copyright RODMENA LIMITED 2025
+# SPDX-License-Identifier: Apache-2.0
+#
+"""
+High-level RAG Assistant for document Q&A and code generation.
+
+Provides a simple interface for RAG-based tasks.
+
+Note: This class is NOT thread-safe. Do not share instances across threads.
+"""
+
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import numpy as np
+from numpy.typing import NDArray
+
+from ragit.config import config
+from ragit.core.experiment.experiment import Chunk, Document
+from ragit.loaders import chunk_document, chunk_rst_sections, load_directory, load_text
+from ragit.providers import OllamaProvider
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
+
+class RAGAssistant:
+    """
+    High-level RAG assistant for document Q&A and generation.
+
+    Handles document indexing, retrieval, and LLM generation in one simple API.
+
+    Parameters
+    ----------
+    documents : list[Document] or str or Path
+        Documents to index. Can be:
+        - List of Document objects
+        - Path to a single file
+        - Path to a directory (will load all .txt, .md, .rst files)
+    provider : OllamaProvider, optional
+        LLM/embedding provider. Defaults to OllamaProvider().
+    embedding_model : str, optional
+        Embedding model name. Defaults to config.DEFAULT_EMBEDDING_MODEL.
+    llm_model : str, optional
+        LLM model name. Defaults to config.DEFAULT_LLM_MODEL.
+    chunk_size : int, optional
+        Chunk size for splitting documents (default: 512).
+    chunk_overlap : int, optional
+        Overlap between chunks (default: 50).
+
+    Note
+    ----
+    This class is NOT thread-safe. Each thread should have its own instance.
+
+    Examples
+    --------
+    >>> # From documents
+    >>> assistant = RAGAssistant([Document(id="doc1", content="...")])
+    >>> answer = assistant.ask("What is X?")
+
+    >>> # From file
+    >>> assistant = RAGAssistant("docs/tutorial.rst")
+    >>> answer = assistant.ask("How do I do Y?")
+
+    >>> # From directory
+    >>> assistant = RAGAssistant("docs/")
+    >>> answer = assistant.ask("Explain Z")
+    """
+
+    def __init__(
+        self,
+        documents: list[Document] | str | Path,
+        provider: OllamaProvider | None = None,
+        embedding_model: str | None = None,
+        llm_model: str | None = None,
+        chunk_size: int = 512,
+        chunk_overlap: int = 50,
+    ):
+        self.provider = provider or OllamaProvider()
+        self.embedding_model = embedding_model or config.DEFAULT_EMBEDDING_MODEL
+        self.llm_model = llm_model or config.DEFAULT_LLM_MODEL
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+
+        # Load documents if path provided
+        self.documents = self._load_documents(documents)
+
+        # Index chunks - embeddings stored as pre-normalized numpy matrix for fast search
+        self._chunks: tuple[Chunk, ...] = ()
+        self._embedding_matrix: NDArray[np.float64] | None = None  # Pre-normalized
+        self._build_index()
+
+    def _load_documents(self, documents: list[Document] | str | Path) -> list[Document]:
+        """Load documents from various sources."""
+        if isinstance(documents, list):
+            return documents
+
+        path = Path(documents)
+
+        if path.is_file():
+            return [load_text(path)]
+
+        if path.is_dir():
+            docs: list[Document] = []
+            for pattern in ("*.txt", "*.md", "*.rst"):
+                docs.extend(load_directory(path, pattern))
+            return docs
+
+        raise ValueError(f"Invalid documents source: {documents}")
+
+    def _build_index(self) -> None:
+        """Build vector index from documents using batch embedding."""
+        all_chunks: list[Chunk] = []
+
+        for doc in self.documents:
+            # Use RST section chunking for .rst files, otherwise regular chunking
+            if doc.metadata.get("filename", "").endswith(".rst"):
+                chunks = chunk_rst_sections(doc.content, doc.id)
+            else:
+                chunks = chunk_document(doc, self.chunk_size, self.chunk_overlap)
+            all_chunks.extend(chunks)
+
+        if not all_chunks:
+            self._chunks = ()
+            self._embedding_matrix = None
+            return
+
+        # Batch embed all chunks at once (single API call)
+        texts = [chunk.content for chunk in all_chunks]
+        responses = self.provider.embed_batch(texts, self.embedding_model)
+
+        # Build embedding matrix directly (skip storing in chunks to avoid duplication)
+        embedding_matrix = np.array([response.embedding for response in responses], dtype=np.float64)
+
+        # Pre-normalize for fast cosine similarity (normalize once, use many times)
+        norms = np.linalg.norm(embedding_matrix, axis=1, keepdims=True)
+        norms[norms == 0] = 1  # Avoid division by zero
+
+        # Store as immutable tuple and pre-normalized numpy matrix
+        self._chunks = tuple(all_chunks)
+        self._embedding_matrix = embedding_matrix / norms
+
+    def retrieve(self, query: str, top_k: int = 3) -> list[tuple[Chunk, float]]:
+        """
+        Retrieve relevant chunks for a query.
+
+        Uses vectorized cosine similarity for fast search over all chunks.
+
+        Parameters
+        ----------
+        query : str
+            Search query.
+        top_k : int
+            Number of chunks to return (default: 3).
+
+        Returns
+        -------
+        list[tuple[Chunk, float]]
+            List of (chunk, similarity_score) tuples, sorted by relevance.
+
+        Examples
+        --------
+        >>> results = assistant.retrieve("how to create a route")
+        >>> for chunk, score in results:
+        ...     print(f"{score:.2f}: {chunk.content[:100]}...")
+        """
+        if not self._chunks or self._embedding_matrix is None:
+            return []
+
+        # Get query embedding and normalize
+        query_response = self.provider.embed(query, self.embedding_model)
+        query_vec = np.array(query_response.embedding, dtype=np.float64)
+        query_norm = np.linalg.norm(query_vec)
+        if query_norm == 0:
+            return []
+        query_normalized = query_vec / query_norm
+
+        # Fast cosine similarity: matrix is pre-normalized, just dot product
+        similarities = self._embedding_matrix @ query_normalized
+
+        # Get top_k indices using argpartition (faster than full sort for large arrays)
+        if len(similarities) <= top_k:
+            top_indices = np.argsort(similarities)[::-1]
+        else:
+            # Partial sort - only find top_k elements
+            top_indices = np.argpartition(similarities, -top_k)[-top_k:]
+            # Sort the top_k by score
+            top_indices = top_indices[np.argsort(similarities[top_indices])[::-1]]
+
+        return [(self._chunks[i], float(similarities[i])) for i in top_indices]
+
+    def get_context(self, query: str, top_k: int = 3) -> str:
+        """
+        Get formatted context string from retrieved chunks.
+
+        Parameters
+        ----------
+        query : str
+            Search query.
+        top_k : int
+            Number of chunks to include.
+
+        Returns
+        -------
+        str
+            Formatted context string.
+        """
+        results = self.retrieve(query, top_k)
+        return "\n\n---\n\n".join(chunk.content for chunk, _ in results)
+
+    def generate(
+        self,
+        prompt: str,
+        system_prompt: str | None = None,
+        temperature: float = 0.7,
+    ) -> str:
+        """
+        Generate text using the LLM (without retrieval).
+
+        Parameters
+        ----------
+        prompt : str
+            User prompt.
+        system_prompt : str, optional
+            System prompt for context.
+        temperature : float
+            Sampling temperature (default: 0.7).
+
+        Returns
+        -------
+        str
+            Generated text.
+        """
+        response = self.provider.generate(
+            prompt=prompt,
+            model=self.llm_model,
+            system_prompt=system_prompt,
+            temperature=temperature,
+        )
+        return response.text
+
+    def ask(
+        self,
+        question: str,
+        system_prompt: str | None = None,
+        top_k: int = 3,
+        temperature: float = 0.7,
+    ) -> str:
+        """
+        Ask a question using RAG (retrieve + generate).
+
+        Parameters
+        ----------
+        question : str
+            Question to answer.
+        system_prompt : str, optional
+            System prompt. Defaults to a helpful assistant prompt.
+        top_k : int
+            Number of context chunks to retrieve (default: 3).
+        temperature : float
+            Sampling temperature (default: 0.7).
+
+        Returns
+        -------
+        str
+            Generated answer.
+
+        Examples
+        --------
+        >>> answer = assistant.ask("How do I create a REST API?")
+        >>> print(answer)
+        """
+        # Retrieve context
+        context = self.get_context(question, top_k)
+
+        # Default system prompt
+        if system_prompt is None:
+            system_prompt = """You are a helpful assistant. Answer questions based on the provided context.
+If the context doesn't contain enough information, say so. Be concise and accurate."""
+
+        # Build prompt with context
+        prompt = f"""Context:
+{context}
+
+Question: {question}
+
+Answer:"""
+
+        return self.generate(prompt, system_prompt, temperature)
+
+    def generate_code(
+        self,
+        request: str,
+        language: str = "python",
+        top_k: int = 3,
+        temperature: float = 0.7,
+    ) -> str:
+        """
+        Generate code based on documentation context.
+
+        Parameters
+        ----------
+        request : str
+            Description of what code to generate.
+        language : str
+            Programming language (default: "python").
+        top_k : int
+            Number of context chunks to retrieve.
+        temperature : float
+            Sampling temperature.
+
+        Returns
+        -------
+        str
+            Generated code (cleaned, without markdown).
+
+        Examples
+        --------
+        >>> code = assistant.generate_code("create a REST API with user endpoints")
+        >>> print(code)
+        """
+        context = self.get_context(request, top_k)
+
+        system_prompt = f"""You are an expert {language} developer. Generate ONLY valid {language} code.
+
+RULES:
+1. Output PURE CODE ONLY - no explanations, no markdown code blocks
+2. Include necessary imports
+3. Write clean, production-ready code
+4. Add brief comments for clarity"""
+
+        prompt = f"""Documentation:
+{context}
+
+Request: {request}
+
+Generate the {language} code:"""
+
+        response = self.generate(prompt, system_prompt, temperature)
+
+        # Clean up response - remove markdown if present
+        code = response
+        if f"```{language}" in code:
+            code = code.split(f"```{language}")[1].split("```")[0]
+        elif "```" in code:
+            code = code.split("```")[1].split("```")[0]
+
+        return code.strip()
+
+    @property
+    def num_chunks(self) -> int:
+        """Return number of indexed chunks."""
+        return len(self._chunks)
+
+    @property
+    def num_documents(self) -> int:
+        """Return number of loaded documents."""
+        return len(self.documents)

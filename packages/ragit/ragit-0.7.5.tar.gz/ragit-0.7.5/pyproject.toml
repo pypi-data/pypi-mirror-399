@@ -1,0 +1,122 @@
+[build-system]
+requires = ["setuptools", "wheel", "build"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ragit"
+description = "Automatic RAG Pattern Optimization Engine"
+authors = [{ name = "RODMENA LIMITED"}]
+maintainers = [
+    { name = "RODMENA LIMITED", email = "info@rodmena.co.uk" },
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+]
+keywords = [
+    "AI",
+    "RAG",
+    "LLM",
+    "GenAI",
+    "Optimization",
+    "Ollama"
+]
+license = "Apache-2.0"
+dynamic = ["version"]
+dependencies = [
+    "requests>=2.31.0",
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "scikit-learn>=1.5.0",
+    "tqdm>=4.66.0",
+    "trio>=0.24.0",
+    "httpx>=0.27.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/rodmena-limited/ragit"
+Repository = "https://github.com/rodmena-limited/ragit"
+Issues = "https://github.com/rodmena-limited/ragit/issues"
+
+[project.optional-dependencies]
+dev = [
+    "ragit[test]",
+    "pytest",
+    "pytest-cov",
+    "issuedb[web]",
+    "ruff",
+    "mypy",
+]
+
+test = ["pytest", "pytest-cov", "pytest-mock"]
+
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+    "sphinx-copybutton>=0.5",
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "ragit.version.__version__" }
+
+[tool.setuptools.packages.find]
+exclude = ["tests*", "dev_utils*"]
+namespaces = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+log_cli = false
+log_level = "INFO"
+addopts = "-v --tb=short"
+markers = [
+    "integration: marks tests as integration tests (may require external services)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["ragit"]
+branch = true
+omit = [
+    "ragit/version.py",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
+fail_under = 90
+show_missing = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
