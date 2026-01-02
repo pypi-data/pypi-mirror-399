@@ -1,0 +1,411 @@
+Metadata-Version: 2.4
+Name: licence-sdk-python
+Version: 1.0.2
+Summary: 授权验证 SDK - 用于验证应用授权状态
+Project-URL: Homepage, https://github.com/channing/licence
+Project-URL: Repository, https://github.com/channing/licence
+Project-URL: Documentation, https://github.com/channing/licence/tree/master/licence-sdk-python
+Project-URL: Issues, https://github.com/channing/licence/issues
+Author-email: channingxiao <channingxiao@gmail.com>
+License: Proprietary
+Keywords: authorization,licence,license,rsa,signature
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: Other/Proprietary License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Requires-Dist: cryptography>=41.0.0
+Requires-Dist: httpx>=0.25.0
+Provides-Extra: dev
+Requires-Dist: pyarmor>=8.0.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# Licence SDK Python
+
+授权验证 SDK，用于验证 Python 应用授权状态。
+
+## 安全设计
+
+此 SDK 使用 RSA-SHA256 非对称加密进行签名验证：
+- **私钥**：仅存在于授权服务中，用于签名
+- **公钥**：硬编码在此 SDK 中，用于验证签名
+
+即使公钥被公开，也无法伪造有效的授权签名。
+
+## 安装
+
+### 使用 uv 安装（推荐）
+
+```bash
+uv add licence-sdk-python
+```
+
+### 使用 pip 安装
+
+```bash
+pip install licence-sdk-python
+```
+
+### 从本地构建安装
+
+```bash
+cd licence-sdk-python
+
+# 1. 安装依赖
+uv sync --all-extras
+
+# 2. 构建混淆包
+./scripts/build.sh
+
+# 3. 安装
+pip install dist/licence_sdk_python-*.whl
+```
+
+## 初始化
+
+### 1. 配置公钥
+
+将授权服务的 RSA 公钥配置到 `src/licence_sdk_python/public_key.py`：
+
+```python
+LICENCE_PUBLIC_KEY = "你的Base64编码的RSA公钥"
+```
+
+### 2. 配置授权服务
+
+确保 C++ 授权服务已启动并配置了对应的私钥。
+
+## 使用方法
+
+### 基础授权检查
+
+```python
+import os
+import asyncio
+from licence_sdk_python import check_licence, is_licenced
+
+async def main():
+    # 异步检查授权
+    result = await check_licence(
+        os.environ.get("LICENCE_KEY", ""),
+        "http://localhost:18080"
+    )
+    
+    print("授权有效" if result.valid else "授权无效")
+    
+    # 同步获取状态（需要先调用 check_licence）
+    if is_licenced():
+        # 执行需要授权的操作
+        pass
+
+asyncio.run(main())
+```
+
+### 同步版本
+
+```python
+import os
+from licence_sdk_python import check_licence_sync, is_licenced
+
+# 同步检查授权
+result = check_licence_sync(
+    os.environ.get("LICENCE_KEY", ""),
+    "http://localhost:18080"
+)
+
+if result.valid:
+    print("授权有效")
+```
+
+### 获取机器码
+
+```python
+from licence_sdk_python import get_fingerprint_sync, check_service_health_sync
+
+# 检查授权服务是否可用
+if not check_service_health_sync("http://localhost:18080"):
+    print("授权服务不可用")
+else:
+    # 获取机器码
+    result = get_fingerprint_sync("http://localhost:18080")
+    if result.success:
+        print(f"机器码: {result.fingerprint}")
+    else:
+        print(f"获取失败: {result.error}")
+```
+
+### 保护函数
+
+```python
+from licence_sdk_python import licence_required, licence_required_async
+
+# 同步函数保护
+@licence_required
+def protected_function():
+    # 未授权时抛出 PermissionError
+    print("执行受保护的操作")
+
+# 异步函数保护
+@licence_required_async
+async def protected_async_function():
+    # 未授权时抛出 PermissionError
+    print("执行受保护的异步操作")
+```
+
+### 数据过滤
+
+```python
+from licence_sdk_python import filter_data, is_feature_enabled
+
+# 未授权时限制数据量
+all_devices = [...]  # 假设有 100 条数据
+devices = filter_data(all_devices, limit=3)
+# 未授权时只返回前 3 条
+
+# 检查功能是否可用
+if not is_feature_enabled("smart-records"):
+    print("此功能需要授权")
+```
+
+## API 参考
+
+### 核心函数
+
+| 函数 | 说明 |
+|-----|------|
+| `check_licence(key, url)` | 异步检查授权状态 |
+| `check_licence_sync(key, url)` | 同步检查授权状态 |
+| `is_licenced()` | 同步获取缓存的授权状态 |
+| `get_licence_state()` | 获取授权状态详情 |
+| `clear_licence_cache()` | 清除授权缓存 |
+| `set_licence_state(state)` | 设置授权状态 |
+
+### 机器码/设备指纹
+
+| 函数 | 说明 |
+|-----|------|
+| `get_fingerprint(url)` | 异步获取设备指纹码 |
+| `get_fingerprint_sync(url)` | 同步获取设备指纹码 |
+| `check_service_health(url)` | 异步检查授权服务是否可用 |
+| `check_service_health_sync(url)` | 同步检查授权服务是否可用 |
+| `get_service_version(url)` | 异步获取授权服务版本 |
+| `get_service_version_sync(url)` | 同步获取授权服务版本 |
+
+### 数据过滤
+
+| 函数 | 说明 |
+|-----|------|
+| `filter_data(data, limit)` | 未授权时限制数据量 |
+| `is_feature_enabled(feature)` | 检查功能是否可用 |
+| `get_data_limit_info(total)` | 获取数据限制信息 |
+| `set_free_features(features)` | 设置免费功能列表 |
+| `set_default_data_limit(limit)` | 设置默认数据限制 |
+
+### API 保护装饰器
+
+| 装饰器 | 说明 |
+|-----|------|
+| `licence_required` | 同步函数装饰器，未授权抛出 PermissionError |
+| `licence_required_async` | 异步函数装饰器，未授权抛出 PermissionError |
+
+### 类型定义
+
+| 类型 | 说明 |
+|-----|------|
+| `LicenceResult` | 授权检查结果 |
+| `LicenceState` | 授权状态缓存 |
+| `FingerprintResult` | 机器码获取结果 |
+| `DataLimitInfo` | 数据限制信息 |
+
+## 授权服务 API 格式
+
+授权服务需要返回以下格式的响应：
+
+```json
+{
+  "code": 200,
+  "message": "Licence is valid",
+  "data": {
+    "status": "valid",
+    "valid": true,
+    "timestamp": 1735344000,
+    "signature": "base64_rsa_sha256_signature..."
+  }
+}
+```
+
+签名内容格式：`{licence}|{status}|{timestamp}`
+
+## 开发与构建
+
+### 1. 安装开发依赖
+
+```bash
+cd licence-sdk-python
+uv sync --all-extras
+```
+
+这会安装：
+- 核心依赖：`cryptography`, `httpx`
+- 开发工具：`pytest`, `pytest-asyncio`, `pyarmor`
+
+### 2. 运行测试
+
+```bash
+uv run pytest
+```
+
+### 3. 构建与打包
+
+#### 方式一：混淆构建（默认推荐）
+
+使用 PyArmor 混淆代码后构建，保护源代码：
+
+```bash
+# 使用构建脚本（推荐）
+./scripts/build.sh
+
+# 或使用 Python 脚本
+uv run python scripts/build_package.py
+```
+
+**关于 PyArmor：**
+- ✅ 使用基础混淆模式，免费版可用
+- 🔒 提供基本的代码保护
+- 💡 保护核心授权验证逻辑
+
+#### 方式二：标准构建（不混淆）
+
+适合开发测试：
+
+```bash
+# 跳过混淆
+./scripts/build.sh --no-obfuscate
+
+# 或直接使用 uv
+uv build
+```
+
+**打包流程说明：**
+
+```
+[1/5] 创建临时构建目录
+      ↓ 创建 build_temp/ 目录
+
+[2/5] 复制项目文件
+      ↓ 复制 src/, pyproject.toml, README.md 到临时目录
+
+[3/5] 代码处理
+      ↓ 标准模式：保持原样
+      ↓ 混淆模式：使用 PyArmor 混淆（需许可证）
+
+[4/5] 构建 wheel 包
+      ↓ 生成 .whl 和 .tar.gz 文件到 dist/ 目录
+
+[5/5] 清理临时文件
+      ↓ 删除 build_temp/ 目录
+      ✓ 完成！原始源代码保持不变
+```
+
+**生成的文件：**
+- `dist/licence_sdk_python-1.0.0-py3-none-any.whl` - Wheel 包（混淆后）
+- `dist/licence_sdk_python-1.0.0.tar.gz` - 源码包（混淆后）
+
+### 4. 本地测试安装
+
+```bash
+# 使用 pip 安装
+pip install dist/licence_sdk_python-*.whl
+
+# 或使用 uv
+uv add dist/licence_sdk_python-*.whl
+
+# 测试导入
+python -c "from licence_sdk_python import check_licence; print('安装成功!')"
+```
+
+### 5. 发布到 PyPI
+
+#### 前置准备（首次发布）
+
+1. **注册 PyPI 账号**：https://pypi.org/account/register/
+
+2. **启用双因素认证**：https://pypi.org/manage/account/
+
+3. **创建 API Token**：
+   - 访问：https://pypi.org/manage/account/token/
+   - Token name: `licence-sdk-python`
+   - Scope: `Entire account`
+   - 复制生成的 token（格式：`pypi-AgEI...`）
+
+4. **配置 Token**：
+   ```bash
+   # 方式一：环境变量（推荐）
+   export UV_PUBLISH_TOKEN="pypi-你的token"
+   
+   # 方式二：配置文件
+   cat > ~/.pypirc << 'EOF'
+   [pypi]
+   username = __token__
+   password = pypi-你的token
+   EOF
+   chmod 600 ~/.pypirc
+   ```
+
+#### 发布流程
+
+```bash
+# 1. 更新版本号（每次发布前）
+# 编辑 pyproject.toml: version = "1.0.1"
+
+# 2. 清理旧构建
+rm -rf dist/ build_temp/
+
+# 3. 构建包
+./scripts/build.sh
+
+# 4. 发布到 PyPI
+uv publish
+
+# 5. 验证发布
+# 访问: https://pypi.org/project/licence-sdk-python/
+pip install licence-sdk-python
+```
+
+#### 版本号规则
+
+遵循语义化版本（Semantic Versioning）：
+- `1.0.1` - 补丁版本（bug 修复）
+- `1.1.0` - 次版本（新功能，向后兼容）
+- `2.0.0` - 主版本（重大更新，可能不兼容）
+
+> 📝 详细发布指南请参考：[PUBLISH.md](./PUBLISH.md)
+
+## 环境变量
+
+| 变量 | 说明 |
+|-----|------|
+| `LICENCE_KEY` | 授权码 |
+| `LICENCE_SERVICE_URL` | 授权服务地址 |
+| `PYTHON_ENV` | 设为 `development` 启用开发模式 |
+| `LICENCE_DEV_MODE` | 设为 `true` 跳过授权检查 |
+
+## 日志
+
+SDK 使用 Python 标准 logging 模块，logger 名称为 `licence_sdk`：
+
+```python
+import logging
+
+# 启用调试日志
+logging.getLogger("licence_sdk").setLevel(logging.DEBUG)
+```
+
+## 许可证
+
+UNLICENSED - 私有软件
