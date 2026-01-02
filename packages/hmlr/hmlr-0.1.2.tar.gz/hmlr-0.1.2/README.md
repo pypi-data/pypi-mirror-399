@@ -1,0 +1,303 @@
+**HMLR — Hierarchical Memory Lookup & Routing**
+
+A state-aware, long-term memory architecture for AI agents with verified multi-hop, temporal, and cross-topic reasoning guarantees.
+
+HMLR replaces brute-force context windows and fragile vector-only RAG with a structured, state-aware memory system capable of:
+
+resolving conflicting facts across time,
+
+enforcing persistent user and policy constraints across topics, and
+
+performing true multi-hop reasoning over long-forgotten information —
+while operating entirely on mini-class LLMs.
+
+*HMLR is the first publicly benchmarked, open-source memory architecture to achieve perfect (1.00) Faithfulness and perfect (1.00) Context Recall across adversarial multi-hop, temporal-conflict, and cross-topic invariance benchmarks using only a mini-tier model (gpt-4.1-mini).
+
+
+**Benchmark Achievements**
+
+HMLR has been validated on the hardest known memory tests:
+
+- **Hydra of Nine Heads: Hard Mode** 
+  9 aliases · 8 revoked policies · critical rule buried in 2,300-token wall · facts spread over "30 days"  
+  → **NON-COMPLIANT** (correct)  
+  → 1.00 faithfulness / 1.00 recall  
+  Full reproducible test harness in repo - run at your own convenience
+
+- **Vegetarian Constraint Trap** (immutable user preference vs override)  
+  User says "strict vegetarian" → later "actually not" → system must preserve original constraint  
+  → Correctly refuses meat forever  
+  Full test harness in repo - run at your own convenience
+
+Previous individual tests (API key rotation, 30-day deprecation, 50-turn vague recall, etc.) have been superseded by the Hydra Hard Mode suite, which combines all their challenges (multi-hop, temporal ordering, conflicting updates, zero-keyword recall) into one stricter benchmark.
+
+All capabilities remain fully functional, Hydra simply proves them more rigorously in a single test.
+
+**Hydra9 Hard Mode and Why It's Brutal**
+
+This isn't a conversation, it's 21 isolated messages sent over "30 days."
+
+Each turn is processed in a fresh session:
+- You type one message
+- Close the chat
+- Open a new one days later
+- Type the next
+
+No prior turns are ever visible again.
+
+On the final query, the system sees **nothing** from the previous 20 turns in active context.
+
+It must answer **entirely from long-term memory**:
+- Reconstruct a 9-alias encryption algorithm
+- Track all policy revisions and revocations across timestamps
+- Identify the one surviving rule
+- Correctly apply it to Project Cerberus (4.85M records/day vs 400k limit)
+
+**Passing means:**
+- Exact answer: NON-COMPLIANT
+- Full reasoning: list all aliases, policy versions, sources, and why the final rule wins
+
+No public system has ever passed this in true cold-start mode.
+
+HMLR does. Every time.
+
+The full test harness is available to run yourself.
+
+**New Memory test coming soon:**
+-Million token haystack
+    As part of the haystack it will include:
+    Hydra Hard Mode, Simple recall Hard Mode, Poison Pill Hallucination testing, User constraint enforcement testing, Real World Document testing (A huge document with global rules, local constraints, updates, and temporal conflicts scattered throughout - The document will be 75 - 100k tokens) and finally a new hard mode test that makes the original Hydra9 Hard Mode test look trivial by comparison.
+    The Battery Test:
+        Goal:
+        Stress all failure modes at once:
+        multi-hop linking
+        temporal reasoning (ordering + intervals)
+        policy revocation and “current rule”
+        entity alias drift
+        hot-memory updates that shouldn’t hijack unrelated questions
+        recency bias defense
+        zero ambiguity scoring (explicit ground truth)
+
+        Core design:
+        You run a sequence of independent questions back-to-back against the same 1M-token memory, where:
+        Each question targets a different deep thread buried in memory.
+        Each has a single correct answer that is explicitly stated somewhere in memory.
+        The sequence is constructed so that:
+        some recent turns contain highly tempting distractors,
+        but the correct answers come from older, correct, explicit statements.
+        Fail condition
+        Any single wrong answer = fail for that run.
+        This makes it “mean” in the right way: not ambiguous, just unforgiving.
+
+
+```mermaid
+flowchart TD
+    Start([User Query]) --> Entry[process_user_message]
+    
+    %% Ingestion
+    Entry --> ChunkEngine[ChunkEngine: Chunk & Embed]
+    
+    %% Parallel Fan-Out
+    ChunkEngine --> ParallelStart{Launch Parallel Tasks}
+    
+    %% Task 1: Scribe (User Profile)
+    ParallelStart -->|Task 1: Fire-and-Forget| Scribe[Scribe Agent]
+    Scribe -->|Update Profile| UserProfile[(User Profile JSON)]
+    
+    %% Task 2: Fact Extraction
+    ParallelStart -->|Task 2: Async| FactScrubber[FactScrubber]
+    FactScrubber -->|Extract Key-Value| FactStore[(Fact Store SQL)]
+    
+    %% Task 3: Retrieval (Key 1)
+    ParallelStart -->|Task 3: Retrieval| Crawler[LatticeCrawler]
+    Crawler -->|Key 1: Vector Search| Candidates[Raw Candidates]
+    
+    %% Task 4: Governor (The Brain)
+    %% Governor waits for Candidates to be ready
+    Candidates --> Governor[Governor: Router & Filter]
+    ParallelStart -->|Task 4: Main Logic| Governor
+    
+    %% Governor Internal Logic
+    Governor -->|Key 2: Context Filter| ValidatedMems[Truly Relevant Memories]
+    Governor -->|Routing Logic| Decision{Routing Decision}
+    
+    Decision -->|Active Topic| ResumeBlock[Resume Bridge Block]
+    Decision -->|New Topic| CreateBlock[Create Bridge Block]
+    
+    %% Hydration (Assembly)
+    ResumeBlock --> Hydrator[ContextHydrator]
+    CreateBlock --> Hydrator
+    
+    %% All Context Sources Converge
+    ValidatedMems --> Hydrator
+    FactStore --> Hydrator
+    UserProfile --> Hydrator
+    
+    %% Generation
+    Hydrator --> FinalPrompt[Final LLM Prompt]
+    FinalPrompt --> MainLLM[Response Generation]
+    MainLLM --> End([End])
+```
+
+
+
+**Why HMLR Is Unusual (Even Among Research Systems)**
+
+Most memory or RAG systems optimize for one or two of the following:
+
+retrieval recall,
+
+latency,
+
+or token compression.
+
+Very few demonstrate all of the following simultaneously:
+
+✔ Perfect faithfulness
+
+✔ Perfect recall
+
+✔ Temporal conflict resolution
+
+✔ Cross-topic identity & rule persistence
+
+✔ Multi-hop policy reasoning
+
+✔ Binary constrained answers under adversarial prompting
+
+✔ Zero-keyword semantic recall
+
+HMLR v1 demonstrates all seven.
+
+ **Scope of the Claim (Important)**
+
+This project does not claim that no proprietary system on Earth can achieve similar results. Large foundation model providers may possess internal memory systems with comparable capabilities.
+
+However:
+
+To the author’s knowledge, no other publicly documented, open-source memory architecture has demonstrated these guarantees under formal RAGAS evaluation on adversarial temporal and policy-governed scenarios, especially using a mini-class model.
+
+All experiments in this repository are:
+
+reproducible,
+
+auditable,
+
+and fully inspectable.
+
+ **What HMLR Enables**
+
+Persistent “forever chat” memory without token bloat
+
+Governance-grade policy enforcement for agent systems
+
+Secure long-term secret storage and retrieval
+
+Cross-episode agent reasoning
+
+State-aware simulation and world modeling
+
+Cost-efficient mini-model orchestration with pro-level behavior
+
+
+## **Quick Start** ##
+
+### Installation
+
+**Install from PyPI:**
+```bash
+pip install hmlr
+```
+
+**Or install from source:**
+```bash
+git clone https://github.com/Sean-V-Dev/HMLR-Agentic-AI-Memory-System.git
+cd HMLR-Agentic-AI-Memory-System
+pip install -e .
+```
+
+### Basic Usage
+
+First, set your OpenAI API key:
+```bash
+export OPENAI_API_KEY="your-openai-api-key"
+```
+
+Then run a simple conversation:
+```python
+from hmlr import HMLRClient
+import asyncio
+
+async def main():
+    # Initialize client
+    client = HMLRClient(
+        api_key="your-openai-api-key",
+        db_path="memory.db",
+        model="gpt-4.1-mini"  # ONLY tested model!
+    )
+    
+    # Chat with persistent memory
+    response = await client.chat("My name is Alice and I love pizza")
+    print(response)
+    
+    # HMLR remembers across messages
+    response = await client.chat("What's my favorite food?")
+    print(response)  # Will recall "pizza"
+
+asyncio.run(main())
+```
+
+**CRITICAL**: HMLR is ONLY tested with `gpt-4.1-mini`. Other models are NOT guaranteed.
+
+### Development Setup (Recommended)
+
+For contributors and advanced users:
+
+```bash
+# Clone repository
+git clone https://github.com/Sean-V-Dev/HMLR-Agentic-AI-Memory-System.git
+cd HMLR-Agentic-AI-Memory-System
+
+# Install in development mode with all dependencies
+pip install -e .[dev]
+
+# Verify installation
+python -c "import hmlr; print('✅ HMLR ready for development!')"
+
+# Run the full test suite (recommended before making changes)
+pytest tests/ -v --tb=short
+```
+
+### Documentation
+
+- **[Installation Guide](docs/installation.md)** - Detailed setup instructions
+- **[Quick Start](docs/quickstart.md)** - Usage examples and best practices  
+- **[Model Compatibility](docs/model_compatibility.md)** - ⚠️ CRITICAL model warnings
+- **[Examples](examples/)** - Working code samples
+-**[Contributing Guide](docs/configuration.md.md)** - How to adjust individual settings
+### Prerequisites (for development)
+- Python 3.10+
+- OpenAI API key (for GPT-4.1-mini)
+
+### Running Tests (from source)
+```bash
+# Clone and install
+git clone https://github.com/Sean-V-Dev/HMLR-Agentic-AI-Memory-System.git
+cd HMLR-Agentic-AI-Memory-System
+pip install -e .[dev]
+
+# Quick verification (runs in < 30 seconds)
+python test_local_install.py
+
+# Try the interactive example (requires OPENAI_API_KEY)
+python examples/simple_usage.py
+
+# Run all RAGAS benchmarks (comprehensive, ~15-20 minutes total)
+pytest tests/ -v --tb=short
+
+# Or run individual tests:
+pytest tests/ragas_test_7b_vegetarian.py -v -s  # User constraints test
+pytest tests/test_12_hydra_e2e.py -v -s        # Industry benchmark
+```
+
+**Note**: Tests take 1-3 minutes each. The `-v -s` flags show live execution. Ignore RAGAS logging errors at the end if assertions pass. 
