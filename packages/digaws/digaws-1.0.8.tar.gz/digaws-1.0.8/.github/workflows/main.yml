@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Lint and format
+        run: |
+          uv run --group lint ruff check digaws/ tests/
+          uv run --group lint ruff format --check digaws/ tests/
+          uv run --group typing mypy digaws/ tests/
+
+      - name: Tests
+        run: |
+          uv run --group test pytest tests/ -v
+          uv run --group test coverage report
+
+  build_publish:
+    runs-on: ubuntu-latest
+    needs: tests
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    environment:
+      name: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          python-version: 3.14
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Build
+        run: uv build
+
+      - name: Publish
+        run: uv publish
