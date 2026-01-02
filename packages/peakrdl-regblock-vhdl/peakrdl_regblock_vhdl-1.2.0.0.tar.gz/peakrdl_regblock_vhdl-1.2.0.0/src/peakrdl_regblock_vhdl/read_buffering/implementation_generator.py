@@ -1,0 +1,72 @@
+from typing import TYPE_CHECKING
+
+from systemrdl.component import Reg
+from systemrdl.node import RegNode
+
+from ..forloop_generator import RDLForLoopGenerator
+from ..utils import do_bitswap, get_vhdl_type
+from ..vhdl_int import VhdlInt
+
+if TYPE_CHECKING:
+    from . import ReadBuffering
+
+class RBufLogicGenerator(RDLForLoopGenerator):
+    loop_type = "generate"
+    def __init__(self, rbuf: 'ReadBuffering') -> None:
+        super().__init__("gen_rbuf_logic_")
+        self.rbuf = rbuf
+        self.exp = rbuf.exp
+        self.template = self.exp.jj_env.get_template(
+            "read_buffering/template.vhd"
+        )
+
+    def enter_Reg(self, node: RegNode) -> None:
+        super().enter_Reg(node)
+        assert isinstance(node.inst, Reg)
+
+        if not node.get_property('buffer_reads') or node.external:
+            return
+
+        context = {
+            'node': node,
+            'rbuf': self.rbuf,
+            'get_assignments': self.get_assignments,
+        }
+        self.add_content(self.template.render(context))
+
+    def get_assignments(self, node: RegNode) -> str:
+        data = self.rbuf.get_rbuf_data(node)
+        bidx = 0
+        s = []
+        for field in node.fields():
+            if bidx < field.low:
+                # zero padding before field
+                s.append(f"{data}({field.low-1} downto {bidx}) <= (others => '0');")
+
+            value = self.exp.dereferencer.get_value(field)
+            if self.exp.hwif.has_value_input(field) and not field.implements_storage:
+                # the value is a hwif input, which may not be a std_logic_vector, convert it
+                if get_vhdl_type(field) != "std_logic_vector":
+                    value = f"to_std_logic_vector({value})"
+            elif field.implements_storage:
+                # the value is in field storage, which may be a std_logic
+                if field.width == 1:
+                    value = f"to_std_logic_vector({value})"
+            elif isinstance(value, VhdlInt):
+                # the value is a constant, ensure it's not reduced to a std_logic
+                value.allow_std_logic = False
+
+            if field.msb < field.lsb:
+                # Field gets bitswapped since it is in [low:high] orientation
+                value = do_bitswap(value)
+
+            s.append(f"{data}({field.high} downto {field.low}) <= {value};")
+
+            bidx = field.high + 1
+
+        regwidth = node.get_property('regwidth')
+        if bidx < regwidth:
+            # zero padding after last field
+            s.append(f"{data}({regwidth-1} downto {bidx}) <= (others => '0');")
+
+        return "\n".join(s)
