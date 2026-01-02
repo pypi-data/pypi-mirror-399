@@ -1,0 +1,367 @@
+# DOCV: Documentation Viewer with Vim Navigation
+
+A powerful documentation viewer for html files generate by Sphinx, MkDocs, Docusaurus, or any static HTML files, with Vimium-C style keyboard navigation and fully customizable shortcuts.
+
+[![PyPI version](https://badge.fury.io/py/docv.svg)](https://badge.fury.io/py/docv)
+[![Downloads](https://pepy.tech/badge/docv)](https://pepy.tech/project/docv)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Features
+
+- 🎯 **Vim-style Navigation** - Browse docs like a pro with keyboard shortcuts
+- ⚙️ **Fully Customizable** - Configure all shortcuts via `.env` file
+- 🔗 **Link Hints** - Vimium-C style link selection
+- 📝 **Text Selection** - Mouse drag and Ctrl+A/C always work
+- 🌓 **Dark Mode** - Toggle with Alt+Shift+D
+- 🔄 **Two-key Commands** - Support for `gg`, `gi`, `yy`, etc.
+- ⚡ **Smart Hints** - Intelligent hint matching with timeout
+
+## Installation
+
+```bash
+pip install docv
+```
+### Requirements
+
+```bash
+pip install pywebview envdot
+# or
+pip install -r requirements.txt
+```
+
+### Optional
+
+```bash
+pip install licface  # For better color helper in terminal (optional)
+```
+
+## Quick Start
+
+1. **Create `.env` file** with your documentation directory or copy/rename .env.examples file:
+
+```bash
+DOCS_DIR=/path/to/your/docs
+```
+
+2. **Run the viewer**:
+
+```bash
+docs mydocs
+```
+
+This will open `DOCS_DIR/mydocs/index.html`
+
+## Usage
+
+### Basic Commands
+
+```bash
+# View documentation
+docs <path>
+
+# View with custom window size
+docs <path> --width 1200 --height 800
+
+# Disable Vim mode
+docs <path> --no-vim
+
+# Show current shortcuts configuration
+docs --show-config
+
+# Debug mode
+docs <path> --debug
+```
+
+### Examples
+
+```bash
+# Open mydocs docs
+docs mydocs
+
+# Open specific HTML file
+docs path/to/file.html
+
+# Multiple documentation directories (in .env)
+DOCS_DIR=/path/to/docs1,/path/to/docs2,/path/to/docs3
+```
+
+## Default Keyboard Shortcuts
+
+### Scrolling
+- `j` - Scroll down
+- `k` - Scroll up
+- `h` - Scroll left
+- `l` - Scroll right
+- `d` - Page down
+- `u` - Page up
+- `gg` - Go to top (two-key command)
+- `G` - Go to bottom
+
+### Navigation
+- `Shift+H` - Go back in history
+- `Shift+L` - Go forward in history
+- `r` - Reload page
+- `q` - Quit application
+
+### Links
+- `f` - Show link hints (click in current tab)
+- `F` - Show link hints (open in new tab)
+- Type hint letters to activate link
+- `ESC` - Cancel hint mode
+
+### Actions
+- `yy` - Copy current URL to clipboard (two-key command)
+- `gi` - Focus first input field (two-key command)
+
+### Other
+- `Alt+Shift+D` - Toggle dark mode
+- `ESC` - Cancel current action/clear buffer
+
+### Text Selection (Always Available)
+- **Mouse drag** - Select text
+- **Ctrl+A** / **Cmd+A** - Select all
+- **Ctrl+C** / **Cmd+C** - Copy
+- **Shift+Arrow** - Extend selection
+- **Double-click** - Select word
+- **Triple-click** - Select paragraph
+- **Right-click** - Context menu (always enabled)
+
+## Customizing Shortcuts
+
+You can customize ALL shortcuts by adding `VIM_*` variables to your `.env` file.
+
+### Configuration Variables
+
+#### Scrolling Shortcuts
+```bash
+VIM_SCROLL_DOWN=j          # Default: j
+VIM_SCROLL_UP=k            # Default: k
+VIM_SCROLL_LEFT=h          # Default: h
+VIM_SCROLL_RIGHT=l         # Default: l
+VIM_PAGE_DOWN=d            # Default: d
+VIM_PAGE_UP=u              # Default: u
+VIM_TOP=gg                 # Default: gg (two-key)
+VIM_BOTTOM=G               # Default: G
+```
+
+#### Navigation Shortcuts
+```bash
+VIM_BACK=H                 # Default: H (use with Shift)
+VIM_FORWARD=L              # Default: L (use with Shift)
+VIM_RELOAD=r               # Default: r
+VIM_QUIT=q                 # Default: q
+```
+
+#### Link Shortcuts
+```bash
+VIM_HINTS=f                # Default: f
+VIM_HINTS_NEW_TAB=F        # Default: F
+```
+
+#### Action Shortcuts
+```bash
+VIM_COPY_URL=yy            # Default: yy (two-key)
+VIM_FOCUS_INPUT=gi         # Default: gi (two-key)
+```
+
+#### Settings
+```bash
+VIM_SCROLL_STEP=60         # Pixels to scroll per j/k press
+VIM_HINT_CHARS=asdfghjkl   # Characters used for hints
+VIM_BUFFER_TIMEOUT=1000    # Milliseconds to wait for second key
+VIM_HINT_TIMEOUT=500       # Milliseconds to wait in hint mode
+VIM_DARK_MODE_TOGGLE=D     # Key for dark mode (with Alt+Shift)
+```
+
+### Example: Custom Configuration
+
+Create a `.env` file with your preferences:
+
+```bash
+# Documentation directories
+DOCS_DIR=/home/user/docs,/opt/docs
+
+# Custom Vim shortcuts - Use arrow keys instead of hjkl
+VIM_SCROLL_DOWN=s
+VIM_SCROLL_UP=w
+VIM_PAGE_DOWN=x
+VIM_PAGE_UP=e
+
+# Custom two-key commands
+VIM_TOP=gt              # Type 'gt' to go to top
+VIM_COPY_URL=cy         # Type 'cy' to copy URL
+VIM_FOCUS_INPUT=fi      # Type 'fi' to focus input
+
+# Different hint characters (home row only)
+VIM_HINT_CHARS=asdfjkl
+
+# Slower scrolling
+VIM_SCROLL_STEP=40
+
+# Faster buffer timeout
+VIM_BUFFER_TIMEOUT=800
+```
+
+## How It Works
+
+### Two-Key Commands
+
+Commands like `gg`, `gi`, and `yy` work as follows:
+
+1. Press first key (`g`, `y`)
+2. Status bar shows "Buffer: g"
+3. Press second key within timeout (default 1000ms)
+4. Command executes if valid, or buffer clears on timeout
+
+**Important**: The system checks two-key commands BEFORE single-key commands, so `gi` will always trigger "focus input" rather than pressing `g` then `i` separately.
+
+### Hint Mode
+
+Inspired by Vimium-C:
+
+1. Press `f` to enter hint mode
+2. Yellow hints appear on all clickable elements
+3. Type hint letters to filter
+4. When only one match remains, it activates automatically
+5. If there's an exact match but also longer possibilities:
+   - Exact match turns red
+   - Wait 500ms for auto-activation, or
+   - Type more letters for longer hints
+6. Example: Hints `d`, `df`, `dk` exist
+   - Type `d` → Wait or type `f`/`k`
+   - Type `d` + wait 500ms → Activates `d`
+   - Type `df` → Activates `df` immediately
+
+## Troubleshooting
+
+### Text Selection Not Working
+
+The app automatically enables text selection on every page. If it doesn't work:
+
+1. Check if the page has custom JavaScript blocking selection
+2. Try opening in `--debug` mode to see console messages
+3. Use `Ctrl+A` as fallback - this always works
+
+### Shortcuts Not Working
+
+1. Make sure you're not in an input field (Vim mode is disabled in inputs)
+2. Check if modifier keys are pressed (Ctrl/Alt/Cmd disable Vim mode)
+3. Verify your `.env` configuration with `--show-config`
+4. Check console (F12) for error messages in debug mode
+
+### Hints Not Appearing
+
+1. The page may have no visible links
+2. Try pressing `f` again
+3. Check `VIM_HINT_CHARS` in your `.env` is valid
+
+### Right-Click Disabled
+
+The app automatically enables right-click. If it's still disabled:
+
+1. The page may be re-disabling it with JavaScript
+2. Try in debug mode to see console messages
+
+## Advanced Usage
+
+### Multiple Documentation Sets
+
+```bash
+# .env file
+DOCS_DIR=/docs/python,/docs/javascript,/docs/rust
+```
+
+Then you can open docs from any of these directories:
+
+```bash
+docs requests      # Looks in all three directories
+docs axios
+docs tokio
+```
+
+### Window Positioning
+
+```bash
+# Open at specific position and size
+docs flask --width 1200 --height 900 --x 100
+```
+
+### Disable Vim Mode
+
+```bash
+# Use as regular browser without Vim shortcuts
+docs django --no-vim
+```
+
+## Technical Details
+
+### Architecture
+
+- **Python Backend**: Uses `pywebview` to create native window
+- **JavaScript Frontend**: Vim navigation injected into each page
+- **Configuration**: Loaded via `envdot` from `.env` file
+- **Event Handling**: Uses event bubbling (not capture) to avoid conflicts
+
+### Text Selection Strategy
+
+The app ensures text selection works by:
+
+1. NOT intercepting Ctrl/Cmd/Alt key combinations
+2. NOT intercepting Shift combos (except Shift+H/L for navigation)
+3. Using `stopPropagation()` on selection events to prevent page blocking
+4. Injecting CSS to force `user-select: text` on all elements
+
+### Browser Compatibility
+
+- Uses standard Web APIs (no browser-specific code)
+- Should work on any `pywebview` backend (Qt, GTK, Edge, etc.)
+- Tested on Windows, Linux, macOS
+
+## FAQ
+
+**Q: Why can't I select text after navigating to a new page?**
+
+A: The app reinjects the selection enabler on every page load. If it still doesn't work, the page might be using aggressive anti-selection JavaScript.
+
+**Q: Can I use Vim mode on any website?**
+
+A: Yes! While designed for local documentation, it works on any HTML file or website.
+
+**Q: Does it support Visual mode like Vim?**
+
+A: No, text selection is handled by the browser natively. Use mouse or Shift+arrows.
+
+**Q: Can I have more than two-key commands?**
+
+A: Currently limited to one and two-key commands. Three+ key commands would require significant changes.
+
+**Q: How do I reset to default shortcuts?**
+
+A: Remove all `VIM_*` variables from your `.env` file, or delete the `.env` file.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Hadi Cahyadi** - [cumulus13@gmail.com](mailto:cumulus13@gmail.com)
+
+[![Buy Me a Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/cumulus13)
+
+[![Donate via Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/cumulus13)
+
+[Support me on Patreon](https://www.patreon.com/cumulus13)
+
+## Contributing
+
+Found a bug or want a feature? Feel free to:
+1. Check existing issues
+2. Create detailed bug report
+3. Suggest improvements
+
+## Acknowledgments
+
+- Inspired by [Vimium-C](https://github.com/gdh1995/vimium-c)
+- Uses [pywebview](https://pywebview.flowrl.com/)
+- Configuration via [envdot](https://github.com/cumulus13/envdot)
