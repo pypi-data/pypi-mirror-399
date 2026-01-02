@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "pplx-cli"
+version = "0.2.4"
+description = "A command-line notes and RAG interface for Perplexity AI API"
+authors = ["xerexcoded <arnavbanerjee61@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/xerexcoded/pplx-cli"
+repository = "https://github.com/xerexcoded/pplx-cli"
+documentation = "https://github.com/xerexcoded/pplx-cli#readme"
+keywords = ["perplexity", "ai", "cli", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^1.26.0"
+pandas = "^2.1.0"
+python-dotenv = "^1.0.1"
+requests = "^2.31.0"
+sentence-transformers = "^3.0.0"
+sqlite-utils = "^3.35"
+typer = "^0.12.0"
+openpyxl = "^3.1.5"
+transformers = "^4.40.0"
+torch = "^2.0.0"
+toml = "^0.10.2"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.0"
+requests-mock = "^1.11.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+perplexity = "pplx_cli.cli:app"
