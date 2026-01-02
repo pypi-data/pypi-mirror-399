@@ -1,0 +1,266 @@
+Metadata-Version: 2.4
+Name: spMariaDbConnectorPy
+Version: 1.0.0
+Summary: A Python package for simplifying coding and handling data with the MariaDB module.
+Project-URL: Homepage, https://github.com/krokoreit/spMariaDbConnectorPy
+Project-URL: Source Code, https://github.com/krokoreit/spMariaDbConnectorPy
+Author-email: krokoreit <krokoreit@gmail.com>
+License-Expression: MIT
+License-File: LICENSE
+Keywords: MariaDB,MySQL,auto-commit,database,query
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.10
+Requires-Dist: mariadb
+Description-Content-Type: text/markdown
+
+# spMariaDbConnectorPy
+
+[![PyPI - Version](https://img.shields.io/pypi/v/spMariaDbConnectorPy.svg)](https://pypi.org/project/spMariaDbConnectorPy)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/spMariaDbConnectorPy.svg)](https://pypi.org/project/spMariaDbConnectorPy)
+
+
+This Python package and its MariaDbConnector module use and thus builds on the functionality of the MariaDB module, which pip will automatically install with it.
+
+While the MariaDB module provides great flexibility, it conceptually requires to first open a database connection, which is then used to open a cursor, which is then used to execute SQL statements. 
+
+Contrary to this, a MariaDbConnector object is created with the required information to manipulate data (host, port, user, password, database name). You can then directly use its execute() or executemany() methods for SQL statements. This automatically takes care of the opening and closing of connection and cursor objects.
+
+Additionally MariaDbConnector provides a query() method specifically for SELECT statements, which allows access to the result set via fetch methods - same as with the MariaDB cursor object. 
+
+The MariaDbConnector therefore greatly simplifies coding for most applications. However, if needed you can also use its cursor() method to get a MariaDB cursor object and then write code with the same versatility of the MariaDB module.
+
+MySQL database compatibility: As stated in the documentation for the underlying MariaDB module, it supports MySQL databases. However, it may develop away from the common MySQL database functionality in future. Therefore, this code may work with MySQL databases today, but is not guaranteed to work in the future. Therefore if you must use a MySQL database, we recommend to carefully monitor the development of this and the MariaDB module and regularly check for compatibility of your application code.
+
+
+Enjoy
+
+&emsp;krokoreit  
+&emsp;&emsp;&emsp;<img src="https://github.com/krokoreit/spMariaDbConnectorPy/blob/main/assets/krokoreit-01.svg?raw=true" width="140"/>
+
+
+## Installation
+
+```console
+pip install spMariaDbConnectorPy
+```
+
+
+## Usage & API
+
+### MariaDbConnector Class
+Import the module and create a connector object:
+```py
+  from spMariaDbConnectorPy import MariaDbConnector
+
+  connector = MariaDbConnector('path/to/config_file', 'MariaDB')
+```
+
+To ensure a separation of settings and your code, the MariaDbConnector is initialized with a configuration file path and the section name, where database settings and credentials are stored. These data can therefore be located inside a general configuration file for your application, as long as they are provided within the given section name, e.g.:
+```ini
+[MariaDB]
+# ip or localhost
+host = localhost
+port = 3306
+db_name = data_mdb_test
+username = test_user
+password = test_user
+```
+
+
+
+</br>
+
+### API
+
+#### Methods
+* [execute()](#execute-method)  
+* [executemany()](#executemany-method)  
+* [query()](#query-method)  
+* [fetchone()](#fetchone-method)  
+* [fetchmany()](#fetchmany-method)  
+* [fetchall()](#fetchall-method)  
+* [begin()](#begin-method)  
+* [commit()](#commit-method)  
+* [rollback()](#rollback-method)  
+* [connect()](#connect-method)  
+* [disconnect()](#disconnect-method)  
+* [cursor()](#cursor-method)  
+* [get_rowcount()](#get_rowcount-method)  
+* [last_error()](#last_error-method)  
+
+#### execute() Method
+```py
+  execute(sql, data: Sequence = (), prevent_auto_commit = False, buffered=None)
+```
+Calls cursor.execute(sql, data) and returns True for succesful execution. In case of failure, check [last_error()](#last_error-method) for details about the error.  
+The execute() method automatically commits() a transaction unless using 'prevent_auto_commit = True' for the transaction to remain uncommitted for subsequent execute() methods like in the following example:  
+```py
+connector.begin()
+try:
+    sql = "DROP TABLE IF EXISTS `table_A`;"
+    if not connector.execute(sql, prevent_auto_commit=True):
+        raise Exception("Failed to drop table table_A")
+    sql = "RENAME TABLE `table_B` TO `table_A`;"
+    if not connector.execute(sql):
+        raise Exception("Could not rename table table_B to table_A")
+except Exception as e:
+    connector.rollback()
+    raise Exception('Error when handling tables: ' + + str(e))
+```
+  
+The underlying cursor.execute() method always generates a buffered result unless the optional parameter 'buffered=False' is set.
+
+
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### executemany() Method
+```py
+  executemany(sql, data, prevent_auto_commit = False)
+```
+Calls cursor.executemany(sql, data) and returns True for succesful execution. In case of failure, check [last_error()](#last_error-method) for details about the error. Use 'prevent_auto_commit = True' for transactions to remain uncommitted.
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### query() Method
+```py
+  query(sql, data: Sequence = (), buffered=None)
+```
+Creates a connection and cursor object before executing the sql query for results to be fetched by the fetch functions of this class - [fetchone()](#fetchone-method), [fetchmany()](#fetchmany-method) and [fetchall()](#fetchall-method).   
+Returns True for succesful execution. In case of failure, check [last_error()](#last_error-method) for details about the error.  
+Must call disconnect() to close connection and cursor when no longer used.
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### fetchone() Method
+```py
+  fetchone()
+```
+Calls cursor.fetchone() to fetch the next row of a query result set, returning a single sequence or None if no more data is available. None is also returned, when an error occurs, e.g. when the previous call to query() / execute() didn't produce a result set or query() / execute() wasn't called before. Therefore, when None is returned, check for 'last_error() is None' to confirm that there are really no more data available.
+
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### fetchmany() Method
+```py
+  fetchmany(size: int = 0)
+```
+Calls cursor.fetchmany() to fetch the next set of rows of a query result, returning a sequence of sequences (e.g. a list of tuples). An empty sequence is returned when no more rows are available.
+
+The number of rows to fetch per call is specified by the size parameter. If it is not given, the cursor's arraysize determines the number of rows to be fetched. The method should try to fetch as many rows as indicated by the size parameter. If this is not possible due to the specified number of rows not being available, fewer rows may be returned.
+
+When an error occurs, e.g. the previous call to query() / execute() didn't produce a result set or query() / execute() wasn't called before, None is returned.
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### fetchall() Method
+```py
+  fetchall()
+```
+Calls cursor.fetchall() to fetch all remaining rows of a query result, returning them as a sequence of sequences (e.g. a list of tuples).
+
+When an error occurs, e.g. the previous call to query() / execute() didn't produce a result set or query() / execute() wasn't called before, None is returned.
+
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### begin() Method
+```py
+  begin()
+```
+Starts a new transaction which can be committed by commit() or cancelled by rollback().  
+Note that a transaction will be automatically committed by the [execute()](#execute-method) and [executemany()](#executemany-method) methods, unless 'prevent_auto_commit = True' is set.
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### commit() Method
+```py
+  commit()
+```
+Commits a pending transaction to the database.
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### rollback() Method
+```py
+  rollback()
+```
+Rolls back a transaction started with begin().
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### connect() Method
+```py
+  connect()
+```
+Optional method to keep a connection 'open' when executing SQL statements. The [execute()](#execute-method) and [executemany()](#executemany-method) methods will automatically open and close a connection. However, when running many consecutive execute statements, a performance benefit can be achieved by calling connect() before and disconnect() afterwards. 
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### disconnect() Method
+```py
+  disconnect()
+```
+For closing a connection after query() and fetching the data or when having called connect() before execute() / executemany().
+
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### cursor() Method
+```py
+  cursor(cursorclass=mariadb.cursors.Cursor, **kwargs)
+```
+Creates a connection and returns a cursor to be used directly with the MariaDB cursor functions (i.e. not using functions of this class). The application must call disconnect() to close connection and the cursor when no longer used.
+
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### get_rowcount() Method
+```py
+  get_rowcount()
+```
+Returns the number of rows held by the cursor after running execute statements.
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+#### last_error() Method
+```py
+  last_error()
+```
+Returns the last error from a previous operation.
+
+<div style="text-align: right"><a href="#methods">&#8679; back up to list of methods</a></div>
+
+</br>
+
+
+## License
+MIT license  
+Copyright &copy; 2025 by krokoreit
