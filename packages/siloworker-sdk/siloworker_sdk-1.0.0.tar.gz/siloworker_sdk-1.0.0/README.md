@@ -1,0 +1,424 @@
+# SiloWorker Python SDK
+
+Official Python SDK for the SiloWorker workflow automation platform.
+
+[![PyPI version](https://badge.fury.io/py/siloworker-sdk.svg)](https://badge.fury.io/py/siloworker-sdk)
+[![Python Support](https://img.shields.io/pypi/pyversions/siloworker-sdk.svg)](https://pypi.org/project/siloworker-sdk/)
+
+## Installation
+
+```bash
+pip install siloworker-sdk
+```
+
+## Quick Start
+
+```python
+from siloworker import SiloWorker, WorkflowNode
+
+client = SiloWorker("your-api-key")
+
+# Create a simple workflow
+email_node = WorkflowNode(
+    id="email",
+    type="sendgrid",
+    config={
+        "to": "{{input.email}}",
+        "subject": "Welcome!",
+        "text": "Thanks for signing up!"
+    }
+)
+
+result = client.create_agent(
+    project_id="your-project-id",
+    name="Welcome Email",
+    nodes=[email_node],
+    connections=[]
+)
+
+# Execute the workflow
+run_result = client.execute_workflow(
+    agent_id=result["agent_id"],
+    input_data={"email": "user@example.com"}
+)
+
+print(f"Workflow started: {run_result['run_id']}")
+```
+
+## Features
+
+- ✅ **Full type hints** with dataclasses
+- ✅ **Automatic retries** with exponential backoff  
+- ✅ **Webhook handling** with signature verification
+- ✅ **Progress tracking** and streaming
+- ✅ **Batch operations** for bulk management
+- ✅ **Error handling** with detailed error types
+- ✅ **Framework integrations** (Flask, Django, FastAPI)
+
+## Configuration
+
+```python
+from siloworker import SiloWorker
+
+# String API key
+client = SiloWorker("your-api-key")
+
+# Configuration dictionary
+client = SiloWorker({
+    "api_key": "your-api-key",
+    "base_url": "https://api.siloworker.dev",
+    "timeout": 30,
+    "retries": 3,
+    "debug": False
+})
+```
+
+## Core Operations
+
+### Agents (Workflows)
+
+```python
+from siloworker import WorkflowNode, WorkflowConnection
+
+# Create workflow
+nodes = [
+    WorkflowNode(id="fetch", type="http", config={"url": "https://api.example.com"}),
+    WorkflowNode(id="email", type="sendgrid", config={"to": "{{fetch.email}}"})
+]
+
+connections = [
+    WorkflowConnection(from_node="fetch", to="email")
+]
+
+result = client.create_agent(
+    project_id="prj_xxx",
+    name="My Workflow",
+    nodes=nodes,
+    connections=connections
+)
+
+# List workflows
+agents = client.list_agents()
+
+# Get workflow details
+agent = client.get_agent(result["agent_id"])
+
+# Update workflow
+client.update_agent(result["agent_id"], name="Updated Name")
+
+# Delete workflow
+client.delete_agent(result["agent_id"])
+```
+
+### Runs (Executions)
+
+```python
+# Start a run
+result = client.start_run(
+    agent_id="agent_xxx",
+    input_data={"email": "user@example.com", "name": "John Doe"}
+)
+
+# Get run status
+run = client.get_run(result["run_id"])
+
+# Wait for completion
+completed_run = client.wait_for_completion(
+    result["run_id"],
+    timeout=300,
+    on_progress=lambda run: print(f"Status: {run['status']}")
+)
+
+# Resume failed run
+client.resume_run(result["run_id"])
+
+# Resume from specific step
+client.resume_run(result["run_id"], from_step="step_id")
+
+# Stream progress
+for run in client.stream_progress(result["run_id"]):
+    print(f"Progress: {run['status']}")
+```
+
+### Projects
+
+```python
+# Create project
+project = client.create_project(
+    name="My Project",
+    description="Project description"
+)
+
+# List projects
+projects = client.list_projects()
+```
+
+### Schedules
+
+```python
+# Create cron schedule
+schedule = client.create_schedule(
+    agent_id="agent_xxx",
+    cron="0 9 * * *",  # Daily at 9 AM
+    input_data={"type": "daily_report"}
+)
+
+# Create interval schedule
+schedule = client.create_schedule(
+    agent_id="agent_xxx",
+    interval_seconds=3600,  # Every hour
+    input_data={"type": "hourly_check"}
+)
+
+# List schedules
+schedules = client.list_schedules()
+
+# Enable/disable schedule
+client.enable_schedule(schedule["schedule_id"])
+client.disable_schedule(schedule["schedule_id"])
+```
+
+### Workspace Management
+
+```python
+# Get workspace info
+workspace = client.get_workspace()
+
+# Update API keys for external services
+client.update_workspace_settings({
+    "sendgrid": "your-sendgrid-key",
+    "twilio": {
+        "account_sid": "your-account-sid",
+        "auth_token": "your-auth-token"
+    }
+})
+
+# Regenerate API key
+new_key = client.regenerate_api_key()
+```
+
+## Advanced Features
+
+### Batch Operations
+
+```python
+# Resume all failed runs
+result = client.bulk_resume_failed()
+print(f"Resumed {result['resumed_count']} runs")
+
+# Resume failed runs for specific agent
+client.bulk_resume_failed(agent_id="agent_xxx")
+```
+
+### Webhook Handling
+
+#### Flask
+
+```python
+from flask import Flask
+from siloworker import WebhookUtils
+
+app = Flask(__name__)
+
+def handle_event(event):
+    print(f"Webhook: {event.type}", event.data)
+    
+    if event.type == "run.completed":
+        # Handle completion
+        pass
+
+webhook_handler = WebhookUtils.create_flask_handler(
+    secret="your-webhook-secret",
+    on_event=handle_event
+)
+
+app.route("/webhooks/siloworker", methods=["POST"])(webhook_handler)
+```
+
+#### Django
+
+```python
+from siloworker import WebhookUtils
+
+def handle_event(event):
+    print(f"Webhook: {event.type}")
+
+webhook_handler = WebhookUtils.create_django_handler(
+    secret="your-webhook-secret",
+    on_event=handle_event
+)
+
+# In urls.py
+urlpatterns = [
+    path('webhooks/siloworker/', webhook_handler, name='siloworker_webhook'),
+]
+```
+
+#### FastAPI
+
+```python
+from fastapi import FastAPI, Request
+from siloworker import WebhookUtils
+
+app = FastAPI()
+
+async def handle_event(event):
+    print(f"Webhook: {event.type}")
+
+webhook_handler = WebhookUtils.create_fastapi_handler(
+    secret="your-webhook-secret",
+    on_event=handle_event
+)
+
+app.post("/webhooks/siloworker")(webhook_handler)
+```
+
+#### Manual Verification
+
+```python
+from siloworker import WebhookUtils
+
+# Verify signature
+is_valid = WebhookUtils.verify_signature(
+    payload=request_body,
+    signature=request_headers["X-SiloWorker-Signature"],
+    secret="your-webhook-secret"
+)
+
+# Parse webhook
+event = WebhookUtils.parse_webhook(request_body.decode())
+
+# Verify and parse in one step
+event = WebhookUtils.verify_and_parse(
+    payload=request_body,
+    signature=request_headers["X-SiloWorker-Signature"],
+    secret="your-webhook-secret"
+)
+```
+
+### Error Handling
+
+```python
+from siloworker import (
+    SiloWorkerError,
+    AuthenticationError,
+    ValidationError,
+    RateLimitError
+)
+
+try:
+    client.start_run("invalid-agent-id", {})
+except AuthenticationError:
+    print("Invalid API key")
+except ValidationError as e:
+    print(f"Validation error: {e.details}")
+except RateLimitError:
+    print("Rate limit exceeded")
+except SiloWorkerError as e:
+    print(f"API error: {e.status_code} - {e}")
+```
+
+### Templates
+
+```python
+# List available templates
+templates = client.list_templates()
+
+# Get template details
+template = client.get_template("lead-notification")
+
+# Create agent from template (using create_agent with template data)
+result = client.create_agent(
+    project_id="prj_xxx",
+    name="My Lead Notifications",
+    nodes=template["nodes"],
+    connections=template["connections"]
+)
+```
+
+## Type Safety
+
+The SDK uses dataclasses for type safety:
+
+```python
+from siloworker import WorkflowNode, WorkflowConnection, Trigger, RetryPolicy
+
+# Fully typed workflow creation
+node = WorkflowNode(
+    id="email",
+    type="sendgrid",
+    config={"to": "user@example.com"}
+)
+
+connection = WorkflowConnection(
+    from_node="node1",
+    to="node2",
+    condition="success"
+)
+
+trigger = Trigger(
+    type="schedule",
+    schedule="0 9 * * *",
+    input={"type": "daily"}
+)
+
+retry_policy = RetryPolicy(
+    max_attempts=3,
+    backoff_strategy="exponential",
+    initial_delay_ms=1000
+)
+```
+
+## Environment Variables
+
+```bash
+# Optional environment variables
+SILOWORKER_API_KEY=your-api-key
+SILOWORKER_BASE_URL=https://api.siloworker.dev
+SILOWORKER_TIMEOUT=30
+SILOWORKER_DEBUG=false
+```
+
+## Examples
+
+See the [examples](./examples) directory for complete working examples:
+
+- [Basic Usage](./examples/basic.py)
+- [Flask Integration](./examples/flask_server.py)
+- [Django Integration](./examples/django_views.py)
+- [FastAPI Integration](./examples/fastapi_server.py)
+
+## Development
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Format code
+black siloworker/
+isort siloworker/
+
+# Type checking
+mypy siloworker/
+
+# Linting
+flake8 siloworker/
+```
+
+## API Reference
+
+For complete API documentation, visit: https://docs.siloworker.dev
+
+## Support
+
+- 📖 [Documentation](https://docs.siloworker.dev)
+- 💬 [Discord Community](https://discord.gg/siloworker)
+- 🐛 [GitHub Issues](https://github.com/siloworker/siloworker-python-sdk/issues)
+- 📧 [Email Support](mailto:support@siloworker.dev)
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
