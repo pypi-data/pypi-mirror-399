@@ -1,0 +1,31 @@
+[project]
+name = "teval"
+version = "0.1.1"
+description = "Trivial LLM eval - as simple as possible"
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "pydantic>=2.9.0,<3.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.8.0",
+    "tox>=4.32.0",
+    "tox-uv>=1.29.0",
+]
+integration-tests = [
+    "google-genai>=0.2.0",
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
