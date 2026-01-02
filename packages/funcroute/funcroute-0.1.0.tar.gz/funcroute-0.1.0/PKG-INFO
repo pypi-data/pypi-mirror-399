@@ -1,0 +1,360 @@
+Metadata-Version: 2.4
+Name: funcroute
+Version: 0.1.0
+Summary: Intelligent function/tool routing using FunctionGemma
+Home-page: https://github.com/yourusername/funcroute
+Author: FuncRoute Contributors
+Author-email: 
+License: MIT
+Project-URL: Homepage, https://github.com/yourusername/funcroute
+Project-URL: Documentation, https://github.com/yourusername/funcroute/blob/main/README.md
+Project-URL: Repository, https://github.com/yourusername/funcroute
+Project-URL: Bug Tracker, https://github.com/yourusername/funcroute/issues
+Keywords: function-calling,tool-routing,functiongemma,agentic-ai,langchain,langgraph,autogen,crewai
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: torch>=2.0.0
+Requires-Dist: transformers>=4.36.0
+Requires-Dist: peft>=0.7.0
+Requires-Dist: trl>=0.7.0
+Requires-Dist: accelerate>=0.25.0
+Requires-Dist: bitsandbytes>=0.41.0
+Requires-Dist: datasets>=2.14.0
+Requires-Dist: sentencepiece>=0.1.99
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: scikit-learn>=1.3.0
+Requires-Dist: tqdm>=4.65.0
+Requires-Dist: numpy>=1.24.0
+Provides-Extra: server
+Requires-Dist: fastapi>=0.100.0; extra == "server"
+Requires-Dist: uvicorn>=0.23.0; extra == "server"
+Provides-Extra: viz
+Requires-Dist: matplotlib>=3.7.0; extra == "viz"
+Requires-Dist: seaborn>=0.12.0; extra == "viz"
+Requires-Dist: wordcloud>=1.9.0; extra == "viz"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.1.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: mypy>=1.5.0; extra == "dev"
+Requires-Dist: pre-commit>=3.3.0; extra == "dev"
+Provides-Extra: all
+Requires-Dist: funcroute[dev,server,viz]; extra == "all"
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
+# FuncRoute
+
+**Intelligent Function/Tool Routing using FunctionGemma**
+
+FuncRoute is a Python package that enables smart task routing for agentic AI systems. Fine-tune Google's FunctionGemma model to intelligently route user queries to the appropriate function or tool.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+
+## 🚀 Features
+
+### Core Capabilities
+- **Easy Training**: Fine-tune FunctionGemma with your own data or use synthetic data generation
+- **Pre-trained Models**: Start with `scionoftech/functiongemma-e-commerce-tool-calling` for e-commerce
+- **Flexible Data**: Support for JSONL, CSV, pandas DataFrame, and Hugging Face Datasets
+- **Efficient Training**: LoRA + 4-bit quantization for memory-efficient fine-tuning
+- **Fast Inference**: Single and batch query routing with confidence scores
+- **Production Ready**: REST API server, caching, and CLI interface
+
+### Data Generation
+- **Rule-based**: Generate synthetic training data using pattern expansion (like the train.py example)
+- **LLM-based**: Use any Hugging Face LLM to generate diverse training examples
+
+### Evaluation & Monitoring
+- Comprehensive metrics (accuracy, precision, recall, F1)
+- Confusion matrices and visualizations
+- Performance dashboards
+- Latency tracking
+
+### Framework Integrations
+- **LangGraph**: Seamless integration with LangGraph workflows
+- **AutoGen**: Compatible with Microsoft AutoGen agents
+- **CrewAI**: Tool selection for CrewAI agents
+- **Google ADK**: Agent Development Kit integration
+
+## 📦 Installation
+
+```bash
+pip install funcroute
+```
+
+### From Source
+```bash
+git clone https://github.com/yourusername/funcroute.git
+cd funcroute
+pip install -e .
+```
+
+## 🎯 Quick Start
+
+### Using Pre-trained Model
+
+```python
+from funcroute import FuncRoute
+
+# Load pre-trained e-commerce model
+router = FuncRoute.from_pretrained("scionoftech/functiongemma-e-commerce-tool-calling")
+
+# Route a query
+result = router.route("Where is my order?")
+print(f"Tool: {result.tool}")
+print(f"Confidence: {result.confidence:.2%}")
+```
+
+### Training Your Own Model
+
+```python
+from funcroute import FuncRoute, TrainingConfig
+
+# Initialize router
+router = FuncRoute()
+
+# Configure training
+config = TrainingConfig(
+    output_dir="./my_router",
+    num_epochs=3,
+    batch_size=4,
+    learning_rate=2e-4
+)
+
+# Train on your data
+router.train(
+    train_data="train.jsonl",
+    val_data="val.jsonl",
+    config=config
+)
+
+# Use the trained model
+result = router.route("Show me red dresses")
+```
+
+### Generating Synthetic Data
+
+```python
+from funcroute import SyntheticDataGenerator, ToolDefinition
+
+# Define your tools
+tools = [
+    ToolDefinition(
+        name="search_products",
+        signature="search_products(query: str, category: str) -> list",
+        description="Search for products",
+        examples=["Show me red dresses", "Find laptops under $1000"],
+        keywords=["show", "find", "search"]
+    ),
+    # ... more tools
+]
+
+# Generate synthetic data
+generator = SyntheticDataGenerator(method="rule_based")
+data = generator.generate(
+    tools=tools,
+    num_variations=50,
+    domain_context="e-commerce"
+)
+
+# Train with synthetic data
+router.train(train_data=data, config=config)
+```
+
+## 🛠️ CLI Usage
+
+```bash
+# Train a model
+funcroute train --train-data train.jsonl --output-dir ./model
+
+# Generate synthetic data
+funcroute generate --tools tools.json --output synthetic.jsonl
+
+# Evaluate model
+funcroute evaluate --model ./model --test-data test.jsonl
+
+# Serve model as REST API
+funcroute serve --model ./model --port 8000
+
+# Use pre-trained model
+funcroute serve --model scionoftech/functiongemma-e-commerce-tool-calling --port 8000
+
+# Interactive testing
+funcroute interactive --model ./model
+```
+
+## 🔌 Framework Integrations
+
+### LangGraph
+
+```python
+from funcroute.integrations import LangGraphRouter
+from langgraph.graph import StateGraph
+
+router = FuncRoute.load("./my_model")
+langgraph_router = LangGraphRouter(router)
+
+workflow = StateGraph(...)
+workflow.add_node("router", langgraph_router.route_node)
+```
+
+### AutoGen
+
+```python
+from funcroute.integrations import AutoGenRouter
+
+router = FuncRoute.load("./my_model")
+autogen_router = AutoGenRouter(router)
+
+assistant = autogen.AssistantAgent(
+    name="assistant",
+    function_map=autogen_router.get_function_map()
+)
+```
+
+### CrewAI
+
+```python
+from funcroute.integrations import CrewAIRouter
+
+router = FuncRoute.load("./my_model")
+crewai_router = CrewAIRouter(router)
+
+agent = Agent(
+    role="Support Agent",
+    tools=crewai_router.get_tools(),
+    tool_selector=crewai_router.select_tool
+)
+```
+
+## 📊 Example: E-commerce Support Routing
+
+See [examples/ecommerce](examples/ecommerce/) for a complete working example based on the original train.py.
+
+```python
+from funcroute import FuncRoute, TrainingConfig, ToolDefinition
+from funcroute.data import SyntheticDataGenerator
+
+# Define 7 e-commerce support tools
+tools = [
+    ToolDefinition(
+        name="manage_order",
+        signature="manage_order(order_id: str, action: str) -> dict",
+        description="Track, update, or cancel customer orders",
+        examples=["Where's my order?", "Track package #12345"],
+        keywords=["order", "track", "delivery", "shipping"]
+    ),
+    # ... 6 more tools
+]
+
+# Generate training data
+generator = SyntheticDataGenerator(method="rule_based")
+train_data = generator.generate(tools=tools, num_variations=50)
+
+# Train model
+router = FuncRoute()
+router.train(
+    train_data=train_data,
+    config=TrainingConfig(output_dir="./ecommerce_router")
+)
+
+# Test
+result = router.route("I want to return my shoes")
+# Output: tool="process_return", confidence=0.97
+```
+
+## 📖 Documentation
+
+- [PACKAGE_PLAN.md](PACKAGE_PLAN.md) - Complete implementation plan
+- [CLAUDE.md](CLAUDE.md) - Development environment setup
+- Full API documentation (coming soon)
+
+## 🏗️ Project Structure
+
+```
+funcroute/
+├── funcroute/
+│   ├── core/           # Main FuncRoute class and configs
+│   ├── data/           # Data loading, formatting, generation
+│   ├── training/       # Training orchestration
+│   ├── inference/      # Inference and serving
+│   ├── evaluation/     # Metrics and visualization
+│   ├── integrations/   # Framework adapters
+│   └── utils/          # Utilities
+├── examples/           # Example implementations
+├── tests/              # Test suite
+└── docs/               # Documentation
+```
+
+## 🎯 Supported Models
+
+- **Routing Model**: `google/functiongemma-270m-it` (only)
+- **Synthetic Data Generation**: Any Hugging Face text generation model
+- **Pre-trained**: `scionoftech/functiongemma-e-commerce-tool-calling`
+
+## 🔧 Requirements
+
+- Python 3.9+
+- PyTorch 2.0+
+- transformers >= 4.36.0
+- CUDA GPU recommended (CPU supported but slow)
+
+## 📝 Data Format
+
+### Training Data (JSONL)
+```json
+{"query": "Where is my order?", "tool": "manage_order"}
+{"query": "Show me red dresses", "tool": "search_products"}
+```
+
+### Tool Definitions (JSON)
+```json
+{
+  "tools": [
+    {
+      "name": "search_products",
+      "signature": "search_products(query: str) -> list",
+      "description": "Search for products",
+      "examples": ["Show me laptops", "Find red shoes"],
+      "keywords": ["show", "find", "search"]
+    }
+  ]
+}
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## 🙏 Acknowledgments
+
+- Built on Google's [FunctionGemma](https://huggingface.co/google/functiongemma-270m-it)
+- Pre-trained model by [scionoftech](https://huggingface.co/scionoftech/functiongemma-e-commerce-tool-calling)
+- Inspired by the original train.py e-commerce example
+
+## 📧 Contact
+
+For questions or feedback, please open an issue on GitHub.
+
+---
+
+**Note**: FuncRoute is currently in active development (v0.1.0). APIs may change before the 1.0 release.
