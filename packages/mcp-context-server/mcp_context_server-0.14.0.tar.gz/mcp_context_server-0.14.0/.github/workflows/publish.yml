@@ -1,0 +1,205 @@
+name: Build and Publish Application
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    env:
+      SERVER_NAME: io.github.alex-feel/mcp-context-server
+      PACKAGE_NAME: mcp-context-server
+    outputs:
+      dist-path: ${{ steps.build.outputs.dist-path }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: pyproject.toml
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: 'pyproject.toml'
+
+      - name: Refresh uv.lock for this release
+        run: |
+          set -euo pipefail
+          # Recreate lock so it captures the project version from the tagged commit
+          uv lock
+          test -f uv.lock || { echo 'uv.lock was not created' >&2; exit 1; }
+
+      - name: Assert uv.lock contains the release version
+        run: |
+          set -euo pipefail
+          tag='${{ github.event.release.tag_name }}'
+          version="${tag#v}"   # strip leading 'v' if present
+          # Check that the version string exists in uv.lock
+          if grep -Eq "version\\s*=\\s*\"${version}\"" uv.lock; then
+            echo "OK: uv.lock references version ${version}"
+          else
+            echo "uv.lock does not reference version ${version}" >&2
+            echo 'Dumping first 80 lines for debugging:'
+            head -n 80 uv.lock || true
+            exit 1
+          fi
+
+      - name: Build component
+        id: build
+        run: |
+          uv build
+          echo "dist-path=dist" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-dists
+          path: ${{ steps.build.outputs.dist-path }}/
+
+  publish-to-pypi:
+    name: Publish Application to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment:
+      name: pypi
+      url: https://pypi.org/project/mcp-context-server/${{ github.event.release.tag_name }}
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-dists
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true
+
+  publish-to-mcp-registry:
+    name: Publish Application to MCP Registry
+    needs: publish-to-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    env:
+      SERVER_NAME: io.github.alex-feel/mcp-context-server
+      PACKAGE_NAME: mcp-context-server
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build mcp-publisher from source
+        run: |
+          set -eux
+          git clone https://github.com/modelcontextprotocol/registry mcp-registry
+          cd mcp-registry
+          go build -o ../mcp-publisher ./cmd/publisher
+          cd ..
+          ./mcp-publisher --help
+
+      - name: Wait for PyPI to serve this release
+        run: |
+          set -euo pipefail
+          tag='${{ github.event.release.tag_name }}'
+          version="${tag#v}"  # strip leading 'v' if present
+          for i in {1..30}; do
+            if curl -sf https://pypi.org/pypi/${PACKAGE_NAME}/json | jq -e --arg v "$version" '.releases[$v]'; then
+              echo "PyPI has version $version"
+              exit 0
+            fi
+            echo "Waiting for PyPI to serve $version, attempt $i"
+            sleep 10
+          done
+          echo "Version $version not visible on PyPI yet"
+          exit 1
+
+      - name: Login to MCP Registry using GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish to MCP Registry
+        run: ./mcp-publisher publish --file server.json
+
+      - name: Verify in MCP Registry
+        run: |
+          set -euo pipefail
+
+          # Extract expected version from server.json (the file we just published)
+          expected_version=$(jq -r '.version' server.json)
+          echo "Expected version: $expected_version"
+
+          # Retry parameters (matching PyPI wait logic)
+          max_attempts=30
+          delay=10
+
+          for i in $(seq 1 $max_attempts); do
+            echo "Attempt $i/$max_attempts: Checking MCP Registry for version $expected_version..."
+
+            # Query the registry
+            response=$(curl -sf "https://registry.modelcontextprotocol.io/v0/servers?search=${SERVER_NAME}" || echo '{"servers":[]}')
+
+            # Check if version exists with isLatest=true
+            # Using jq to find an entry where:
+            # 1. server.version matches expected version
+            # 2. _meta."io.modelcontextprotocol.registry/official".isLatest is true
+            found=$(echo "$response" | jq -e --arg v "$expected_version" '
+              .servers[] |
+              select(.server.version == $v) |
+              select(._meta."io.modelcontextprotocol.registry/official".isLatest == true)
+            ' 2>/dev/null || echo "")
+
+            if [ -n "$found" ]; then
+              echo "SUCCESS: Version $expected_version found in MCP Registry with isLatest=true"
+              echo "Published entry:"
+              echo "$found" | jq .
+              exit 0
+            fi
+
+            # Check if version exists but isLatest is false (for diagnostics)
+            version_exists=$(echo "$response" | jq -e --arg v "$expected_version" '
+              .servers[] | select(.server.version == $v)
+            ' 2>/dev/null || echo "")
+
+            if [ -n "$version_exists" ]; then
+              echo "INFO: Version $expected_version exists but isLatest is NOT yet true"
+              latest=$(echo "$response" | jq -r '
+                .servers[] |
+                select(._meta."io.modelcontextprotocol.registry/official".isLatest == true) |
+                .server.version
+              ' 2>/dev/null || echo "unknown")
+              echo "Current latest version in registry: $latest"
+            fi
+
+            echo "Version $expected_version not yet visible with isLatest=true, waiting ${delay}s..."
+            sleep $delay
+          done
+
+          echo "ERROR: Version $expected_version not found in MCP Registry with isLatest=true after $max_attempts attempts"
+          echo "Final registry response:"
+          curl -sf "https://registry.modelcontextprotocol.io/v0/servers?search=${SERVER_NAME}" | jq . || true
+          exit 1
