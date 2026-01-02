@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meyi-automation-utils"
+version = "0.1.0"
+description = "Reusable Playwright automation utilities"
+requires-python = ">=3.8"
+
+dependencies = [
+  "playwright",
+  "pytest"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
