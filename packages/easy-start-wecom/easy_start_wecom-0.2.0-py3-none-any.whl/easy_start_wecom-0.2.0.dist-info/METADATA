@@ -1,0 +1,389 @@
+Metadata-Version: 2.4
+Name: easy-start-wecom
+Version: 0.2.0
+Summary: 一个用于企业微信(WeCom)集成的Python包，提供简洁易用的API接口，支持同步和异步操作，帮助开发者快速实现企业微信相关功能。
+Home-page: https://gitee.com/guolei19850528/easy_start_wecom
+Author: guolei
+Author-email: 174000902@qq.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: httpx
+Requires-Dist: diskcache
+Requires-Dist: redis
+Requires-Dist: jsonschema
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# easy_start_wecom
+
+一个用于企业微信(WeCom)集成的Python包，提供简洁易用的API接口，支持同步和异步操作，帮助开发者快速实现企业微信相关功能。
+
+## 功能特性
+
+- **Webhook模块**：
+  - 支持同步和异步发送消息
+  - 支持上传媒体文件
+  - 自动处理请求参数构建和响应验证
+  - 支持提及指定用户或部门
+
+- **Server模块**：
+  - 支持获取企业微信访问令牌
+  - 支持获取API域名IP地址
+  - 集成访问令牌缓存机制（支持diskcache和redis）
+  - 支持同步和异步请求方式
+  - 自动处理请求参数构建和响应验证
+
+- **通用特性**：
+  - 简洁易用的API接口
+  - 支持自定义HTTP客户端配置
+  - 内置JSON Schema响应验证
+  - 灵活的参数配置选项
+
+## 安装方法
+
+### 使用pip安装
+
+```bash
+pip install easy-start-wecom
+```
+
+### 从源码安装
+
+```bash
+git clone https://gitee.com/guolei19850528/easy_start_wecom.git
+cd easy_start_wecom
+pip install -e .
+```
+
+## 快速开始
+
+### Webhook模块
+
+#### 同步发送文本消息
+
+```python
+from easy_start_wecom.webhook import Api
+
+# 初始化Webhook客户端
+webhook_client = Api(
+    key="your_webhook_key"  # 企业微信机器人Webhook密钥
+)
+
+# 发送文本消息
+success, response_json, response = webhook_client.send(
+    json={
+        "msgtype": "text",
+        "text": {
+            "content": "这是一条测试消息",
+            "mentioned_list": ["user1", "user2"],  # 提及的用户列表
+            "mentioned_mobile_list": ["13800138000"]  # 提及的手机号码列表
+        }
+    }
+)
+
+# 处理响应
+if success:
+    print("消息发送成功！")
+else:
+    print(f"消息发送失败，错误码：{response_json.get('errcode')}，错误信息：{response_json.get('errmsg')}")
+```
+
+#### 异步发送文本消息
+
+```python
+import asyncio
+from easy_start_wecom.webhook import Api
+
+async def send_async_message():
+    # 初始化Webhook客户端
+    webhook_client = Api(
+        key="your_webhook_key"  # 企业微信机器人Webhook密钥
+    )
+
+    # 异步发送文本消息
+    success, response_json, response = await webhook_client.async_send(
+        json={
+            "msgtype": "text",
+            "text": {
+                "content": "这是一条异步测试消息"
+            }
+        }
+    )
+
+    # 处理响应
+    if success:
+        print("异步消息发送成功！")
+    else:
+        print(f"异步消息发送失败，错误码：{response_json.get('errcode')}，错误信息：{response_json.get('errmsg')}")
+
+# 运行异步函数
+asyncio.run(send_async_message())
+```
+
+#### 上传文件
+
+```python
+from easy_start_wecom.webhook import Api
+
+# 初始化Webhook客户端
+webhook_client = Api(
+    key="your_webhook_key"  # 企业微信机器人Webhook密钥
+)
+
+# 上传文件
+with open("file.txt", "rb") as f:
+    success, media_id, response = webhook_client.upload_media(
+        files={"media": f}
+    )
+
+# 处理响应
+if success and media_id:
+    print(f"文件上传成功，media_id：{media_id}")
+    
+    # 使用media_id发送文件
+    success, response_json, response = webhook_client.send(
+        json={
+            "msgtype": "file",
+            "file": {
+                "media_id": media_id
+            }
+        }
+    )
+    
+    if success:
+        print("文件消息发送成功！")
+```
+
+### Server模块
+
+#### 获取访问令牌
+
+```python
+from easy_start_wecom.server import Api
+
+# 初始化Server客户端
+server_client = Api(
+    corpid="your_corpid",  # 企业ID
+    corpsecret="your_corpsecret"  # 应用密钥
+)
+
+# 获取访问令牌
+success, access_token, response = server_client.gettoken()
+
+# 处理响应
+if success and access_token:
+    print(f"获取访问令牌成功：{access_token}")
+else:
+    print(f"获取访问令牌失败，错误码：{response.json().get('errcode')}，错误信息：{response.json().get('errmsg')}")
+```
+
+#### 使用Redis缓存访问令牌
+
+```python
+import redis
+from easy_start_wecom.server import Api
+
+# 创建Redis实例
+redis_client = redis.Redis(host="localhost", port=6379, db=0)
+
+# 初始化Server客户端并配置Redis缓存
+server_client = Api(
+    corpid="your_corpid",
+    corpsecret="your_corpsecret",
+    cache_config={
+        "instance": redis_client,
+        "key": "wecom_access_token",
+        "expire": 7100  # 缓存过期时间（秒）
+    }
+)
+
+# 获取访问令牌（自动从缓存获取或刷新）
+success, access_token, response = server_client.gettoken()
+
+# 处理响应
+if success and access_token:
+    print(f"获取访问令牌成功：{access_token}")
+```
+
+## API文档
+
+### Webhook模块 - Api类
+
+#### 初始化参数
+
+```python
+Api(
+    base_url: str = "https://qyapi.weixin.qq.com",
+    key: str = "",
+    mentioned_list: list = [],
+    mentioned_mobile_list: list = []
+)
+```
+
+- `base_url`: API基础URL，默认使用微信企业号API地址
+- `key`: Webhook密钥，用于API认证
+- `mentioned_list`: 默认提及的用户列表（企业微信用户ID）
+- `mentioned_mobile_list`: 默认提及的手机号码列表
+
+#### 主要方法
+
+##### send() - 同步发送消息
+
+```python
+send(
+    client: httpx.Client = None,
+    validate_json_schema: dict = {...},
+    **kwargs
+)
+```
+
+- `client`: 可选的同步HTTP客户端实例，如果不提供则自动创建
+- `validate_json_schema`: JSON Schema校验规则，用于验证API响应的有效性
+- `**kwargs`: 传递给request方法的额外参数，主要用于指定消息内容
+
+返回值: `tuple` - (发送结果, 响应JSON, 响应对象)
+- 发送结果: `bool`，True表示发送成功，False表示失败
+- 响应JSON: `dict`，API返回的JSON数据
+- 响应对象: `httpx.Response`，原始响应对象
+
+##### async_send() - 异步发送消息
+
+```python
+async_send(
+    client: httpx.AsyncClient = None,
+    validate_json_schema: dict = {...},
+    **kwargs
+)
+```
+
+参数与`send()`方法相同，但需要使用`await`关键字调用。
+
+返回值: 与`send()`方法相同
+
+##### upload_media() - 同步上传媒体文件
+
+```python
+upload_media(
+    client: httpx.Client = None,
+    validate_json_schema: dict = {...},
+    file_type: str = "file",
+    **kwargs
+)
+```
+
+- `client`: 可选的同步HTTP客户端实例，如果不提供则自动创建
+- `validate_json_schema`: JSON Schema校验规则，用于验证API响应的有效性
+- `file_type`: 文件类型，只允许"file"或"voice"
+- `**kwargs`: 传递给request方法的额外参数，用于指定上传的文件
+
+返回值: `tuple` - (上传结果, media_id, 响应对象)
+- 上传结果: `bool`，True表示上传成功，False表示失败
+- media_id: `str`，上传成功后返回的媒体文件ID，用于后续发送文件消息
+- 响应对象: `httpx.Response`，原始响应对象
+
+##### async_upload_media() - 异步上传媒体文件
+
+```python
+async_upload_media(
+    client: httpx.AsyncClient = None,
+    validate_json_schema: dict = {...},
+    file_type: str = "file",
+    **kwargs
+)
+```
+
+参数与`upload_media()`方法相同，但需要使用`await`关键字调用。
+
+返回值: 与`upload_media()`方法相同
+
+### Server模块 - Api类
+
+#### 初始化参数
+
+```python
+Api(
+    base_url: str = "https://qyapi.weixin.qq.com",
+    corpid: str = "",
+    corpsecret: str = "",
+    cache_config: dict = dict()
+)
+```
+
+- `base_url`: API基础URL，默认值为企业微信官方API地址
+- `corpid`: 企业ID，用于标识企业微信账号
+- `corpsecret`: 应用密钥，用于验证应用身份
+- `cache_config`: 缓存配置，用于存储访问令牌，支持diskcache和redis
+
+#### 主要方法
+
+##### gettoken() - 获取访问令牌
+
+```python
+gettoken(
+    client: httpx.Client = None,
+    validate_json_schema: dict = {...},
+    **kwargs
+)
+```
+
+- `client`: HTTP客户端实例，若为None则自动创建
+- `validate_json_schema`: JSON响应验证模式，用于验证API返回结果
+- `**kwargs`: 传递给client.request的额外参数
+
+返回值: `tuple` - (验证结果, 访问令牌, 响应对象)
+- 验证结果: `bool`，表示响应是否符合验证模式
+- 访问令牌: `str`，企业微信API访问令牌，若获取失败则为None
+- 响应对象: `httpx.Response`，原始响应对象
+
+##### async_gettoken() - 异步获取访问令牌
+
+```python
+async_gettoken(
+    client: httpx.AsyncClient = None,
+    validate_json_schema: dict = {...},
+    **kwargs
+)
+```
+
+参数与`gettoken()`方法相同，但需要使用`await`关键字调用。
+
+返回值: 与`gettoken()`方法相同
+
+## 依赖项
+
+- [httpx](https://www.python-httpx.org/) - 用于发送HTTP请求
+- [diskcache](https://grantjenks.com/docs/diskcache/) - 用于本地缓存访问令牌
+- [redis](https://redis-py.readthedocs.io/en/stable/) - 用于Redis缓存访问令牌
+- [jsonschema](https://python-jsonschema.readthedocs.io/en/stable/) - 用于验证API响应的JSON格式
+
+## 项目结构
+```
+easy_start_wecom/
+├── easy_start_wecom/
+│   ├── __init__.py
+│   ├── webhook.py
+│   ├── server.py
+├── requirements.txt
+```
+
+## 许可证
+
+本项目采用MIT许可证。详见LICENSE文件。
+
+## 作者信息
+
+- 作者: guolei
+- 邮箱: 174000902@qq.com
+- 项目地址: https://gitee.com/guolei19850528/easy_start_wecom
