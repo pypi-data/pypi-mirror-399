@@ -1,0 +1,45 @@
+[project]
+name = "ob-sync"
+version = "0.1.2"
+description = "Sync Obsidian vault to GitHub with wiki-link transformation"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Sounak Gupta", email = "sounakume@gmail.com"}
+]
+keywords = ["obsidian", "github", "sync", "markdown", "wiki-links"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "click>=8.0",
+    "gitpython>=3.1",
+    "pyyaml>=6.0",
+    "pathspec>=0.11",
+]
+
+[project.urls]
+Homepage = "https://github.com/sounak07/obsidian-transformer"
+Repository = "https://github.com/sounak07/obsidian-transformer"
+Issues = "https://github.com/sounak07/obsidian-transformer/issues"
+
+[project.scripts]
+ob-sync = "obsidian_sync.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["obsidian_sync*"]
