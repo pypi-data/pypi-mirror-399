@@ -1,0 +1,88 @@
+# Globy APM
+
+A minimal, typed, asynchronous APM (Application Performance Monitoring) package for Python 3.13+, designed to produce metrics with minimal performance impact. currently supports [OpenPanel](https://openpanel.dev).
+
+## Installation
+
+### From PyPI (Coming Soon)
+```bash
+pip install globy-apm
+```
+
+### From Source
+```bash
+pip install .
+```
+
+## Usage
+
+### Initialization
+
+Initialize the APM client once at the start of your application (e.g., in your `main.py` or startup logic).
+
+```python
+from globy_apm import GlobyAPM, OpenPanelBackend
+
+# Configure the backend (currently OpenPanel)
+backend = OpenPanelBackend(
+    client_id="YOUR_OPENPANEL_CLIENT_ID",
+    client_secret="YOUR_OPENPANEL_CLIENT_SECRET"
+)
+
+# Initialize the global APM instance
+apm = GlobyAPM.init(backend)
+```
+
+### Tracking Events
+
+The `track` method is asynchronous and non-blocking. By default, it runs in "fire-and-forget" mode using background tasks to minimize impact on your application's response time.
+
+```python
+# Track an event (Fire-and-forget, recommended for most metrics)
+await apm.track("user_signup", {"email": "user@example.com"})
+
+# Track with await (if you need to ensure it's sent before proceeding)
+await apm.track("critical_event", {"status": "failed"}, fire_and_forget=False)
+```
+
+### Accessing the Instance
+
+After initialization, you can retrieve the global instance anywhere in your code:
+
+```python
+from globy_apm import GlobyAPM
+
+async def perform_action():
+    apm = GlobyAPM.get()
+    await apm.track("action_performed")
+```
+
+## Configuration
+
+### OpenPanel Backend
+The `OpenPanelBackend` uses the official `openpanel` Python SDK.
+- **client_id**: Your OpenPanel Project Client ID.
+- **client_secret**: Your OpenPanel Project Client Secret.
+
+## Development & Publishing
+
+### Building the Package
+
+1.  **Install Build Tools**:
+    ```bash
+    pip install build twine
+    ```
+
+2.  **Build**:
+    Run the following command from the root of the project to generate distribution archives (`.tar.gz` and `.whl` in the `dist/` directory):
+    ```bash
+    python -m build
+    ```
+
+### Publishing to PyPI
+
+1.  **Upload**:
+    Use `twine` to upload the built archives to PyPI. You will need a PyPI account and an API token.
+    ```bash
+    twine upload dist/*
+    ```

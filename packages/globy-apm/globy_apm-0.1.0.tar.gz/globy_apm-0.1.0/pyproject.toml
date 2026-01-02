@@ -1,0 +1,33 @@
+[project]
+name = "globy-apm"
+version = "0.1.0"
+description = "A minimal, async, typed APM package for Python 3.13+"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [
+    {name = "Globy Team", email = "team@globy.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+dependencies = [
+    "openpanel",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pylint",
+    "pytest",
+    "mypy",
+    "types-requests", # In case we need it
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
