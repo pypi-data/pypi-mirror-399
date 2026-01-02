@@ -1,0 +1,56 @@
+[project]
+name = "wordsmith-engine"
+version = "0.1.0"
+description = "Composable, deterministic-friendly text-generation components for Python."
+requires-python = ">=3.12"
+authors = [
+    { name = "B.T. Franklin", email = "brandon.franklin@gmail.com" },
+]
+dependencies = []
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.license]
+text = "MIT"
+
+[build-system]
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.build]
+excludes = [
+    "tests/**",
+]
+includes = [
+    "src/wordsmith/assets/*.json",
+]
+
+[tool.pdm.scripts]
+test = "pytest"
+lint = "flake8 src tests examples"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "flake8>=7.3.0",
+]
