@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jax_progress"
+version = "0.1.0"
+description = "Progress meters for JAX loops and scans"
+authors = [
+    { name="Wassim Kabalan" }
+]
+dependencies = [
+    "jax",
+    "tqdm",
+    "jaxtyping",
+    "equinox>=0.13.2",
+    "numpy",
+]
+
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["jax", "progress", "tqdm"]
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+]
+
+[project.optional-dependencies]
+test = [
+    'pytest',
+    'pytest-cov',
+    'chex',
+]
+
+[tool.pytest.ini_options]
+addopts = '-rfEX --cov=jax_progress --doctest-modules'
+testpaths = [
+    'tests',
+]
+
+[tool.ruff]
+line-length = 120
+fix = true
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    'E',      # pycodestyle-errors
+    'F',      # pyflakes
+    'I',      # isort
+    'UP',     # pyupgrade
+]
+ignore = [
+    'E402',
+    'E203',
+    'E731',
+    'E741',
+    'F722',
+]
