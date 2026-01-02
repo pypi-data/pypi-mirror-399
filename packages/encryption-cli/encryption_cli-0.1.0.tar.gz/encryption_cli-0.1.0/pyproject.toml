@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+
+name = "encryption_cli"
+version = "0.1.0"
+description = "A cli tool for file encryption"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    {name = "Franek Kurzawa", email = "me@franektoube.pl"},
+]
+keywords = ["file-encryption", "encryption", "files"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8"
+]
+
+dependencies = [
+    "cryptography==46.0.3",
+    "InquirerPy==0.3.4",
+    "rich==14.2.0"
+]
+
+[project.scripts]
+encryption_cli = "encryption_cli.main:main"

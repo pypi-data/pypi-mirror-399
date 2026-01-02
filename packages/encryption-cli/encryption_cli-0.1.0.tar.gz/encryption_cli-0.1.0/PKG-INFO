@@ -1,0 +1,55 @@
+Metadata-Version: 2.4
+Name: encryption_cli
+Version: 0.1.0
+Summary: A cli tool for file encryption
+Author-email: Franek Kurzawa <me@franektoube.pl>
+License-Expression: MIT
+Keywords: file-encryption,encryption,files
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.8
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: cryptography==46.0.3
+Requires-Dist: InquirerPy==0.3.4
+Requires-Dist: rich==14.2.0
+Dynamic: license-file
+
+# Encryption CLI
+
+Encryption CLI is a command-line tool for encrypting and decrypting files in a directory.
+
+## ⚠️ WARNING
+
+This tool modifies files **in place**.
+
+If used incorrectly, it **may permanently destroy your files**.  
+If you lose the encryption key, **data recovery is impossible**.
+
+Use with caution.
+
+The author is **not responsible** for any data loss or damage caused by using this tool.
+
+
+## Installation
+
+```bash
+pip install encryption_cli
+```
+
+## Usage
+
+To run this tool, execute:
+
+```bash
+encryption_cli
+```
+
+You need a Fernet key (your encryption key).
+
+Don’t worry — this tool can generate one for you.
