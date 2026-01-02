@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "teeth-gnashing"
+version = "1.0.0"
+description = "Production-ready Python library for dynamic snapshot-based encryption using server-client architecture"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "GPL-2.0"}
+authors = [
+    {name = "Kirill Nikitenko", email = "Cyan11777@gmail.com"}
+]
+keywords = [
+    "encryption",
+    "cryptography",
+    "snapshot-based",
+    "server-client",
+    "security",
+    "hmac",
+    "key-derivation"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "fastapi>=0.68.0",
+    "uvicorn[standard]>=0.15.0",
+    "aiohttp>=3.8.0",
+    "pydantic>=1.8.0",
+    "python-multipart>=0.0.5",
+    "python-jose[cryptography]>=3.3.0",
+    "cryptography>=41.0.0",
+    "blake3>=0.3.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.2.5",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.23.0",
+    "black>=23.9.1",
+    "isort>=5.12.0",
+    "mypy>=1.5.1",
+    "pylint>=3.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/username/teeth-gnashing"
+Documentation = "https://github.com/username/teeth-gnashing#readme"
+Repository = "https://github.com/username/teeth-gnashing.git"
+Issues = "https://github.com/username/teeth-gnashing/issues"
+
+[tool.setuptools]
+packages = ["teeth_gnashing"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312', 'py313']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--cov=teeth_gnashing --cov-report=html --cov-report=term-missing"
