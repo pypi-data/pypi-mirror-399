@@ -1,0 +1,71 @@
+Metadata-Version: 2.4
+Name: miu-core
+Version: 0.1.0
+Summary: Core framework library for miu AI agent
+Project-URL: Homepage, https://github.com/vanducng/miumono
+Project-URL: Documentation, https://docs.miu.dev
+Project-URL: Repository, https://github.com/vanducng/miumono
+License: MIT
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.11
+Requires-Dist: aiofiles>=23.0
+Requires-Dist: httpx>=0.27
+Requires-Dist: packaging>=24.0
+Requires-Dist: pydantic>=2.0
+Provides-Extra: all
+Requires-Dist: anthropic>=0.40; extra == 'all'
+Requires-Dist: google-genai>=0.8; extra == 'all'
+Requires-Dist: mcp>=1.0; extra == 'all'
+Requires-Dist: openai>=1.50; extra == 'all'
+Requires-Dist: opentelemetry-api>=1.28; extra == 'all'
+Requires-Dist: opentelemetry-exporter-otlp>=1.28; extra == 'all'
+Requires-Dist: opentelemetry-sdk>=1.28; extra == 'all'
+Provides-Extra: anthropic
+Requires-Dist: anthropic>=0.40; extra == 'anthropic'
+Provides-Extra: google
+Requires-Dist: google-genai>=0.8; extra == 'google'
+Provides-Extra: mcp
+Requires-Dist: mcp>=1.0; extra == 'mcp'
+Provides-Extra: openai
+Requires-Dist: openai>=1.50; extra == 'openai'
+Provides-Extra: tracing
+Requires-Dist: opentelemetry-api>=1.28; extra == 'tracing'
+Requires-Dist: opentelemetry-exporter-otlp>=1.28; extra == 'tracing'
+Requires-Dist: opentelemetry-sdk>=1.28; extra == 'tracing'
+Description-Content-Type: text/markdown
+
+# miu-core
+
+Core framework library for miu AI agent.
+
+## Installation
+
+```bash
+uv add miu-core
+```
+
+With LLM providers:
+
+```bash
+uv add miu-core[anthropic]  # Anthropic Claude
+uv add miu-core[openai]     # OpenAI
+uv add miu-core[google]     # Google Gemini
+uv add miu-core[all]        # All providers
+```
+
+## Usage
+
+```python
+from miu_core.providers import AnthropicProvider
+from miu_core.agents import ReActAgent
+
+provider = AnthropicProvider()
+agent = ReActAgent(provider=provider)
+response = await agent.run("Hello!")
+```
