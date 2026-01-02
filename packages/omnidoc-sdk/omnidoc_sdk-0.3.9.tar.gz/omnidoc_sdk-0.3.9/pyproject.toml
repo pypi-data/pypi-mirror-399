@@ -1,0 +1,213 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# ============================================================
+# PROJECT METADATA
+# ============================================================
+[project]
+name = "omnidoc-sdk"
+version = "0.3.9"
+description = "Enterprise-grade SDK for document ingestion, OCR, semantic chunking, and RAG-ready processing"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+
+authors = [
+  { name = "Ganesh Kinkar Giri", email = "k.ganeshgiri@example.com" }
+]
+
+keywords = [
+  "document-intelligence",
+  "pdf",
+  "ocr",
+  "rag",
+  "semantic-chunking",
+  "agentic-ai",
+  "enterprise-ai"
+]
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Text Processing",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+
+# ============================================================
+# CORE DEPENDENCIES (ALWAYS SAFE TO INSTALL)
+# ============================================================
+dependencies = [
+  # PDF core
+  "pypdf>=4.0.0",
+  "pdfplumber>=0.11.0",
+  "pdf2image>=1.17.0",
+  "Pillow>=10.0.0",
+
+  # OCR (local, no cloud)
+  "pytesseract>=0.3.10",
+
+  # Vision / tables
+  "opencv-python>=4.9.0",
+  "numpy>=1.24",
+
+  # Text utilities
+  "chardet>=5.2.0",
+  "regex>=2023.12.25",
+]
+
+# ============================================================
+# OPTIONAL DEPENDENCIES (LAZY, NEVER FORCED)
+# ============================================================
+[project.optional-dependencies]
+
+# ----------------------------
+# Office documents
+# ----------------------------
+office = [
+  "python-docx>=1.1.0",
+  "openpyxl>=3.1.2",
+  "python-pptx>=0.6.23"
+]
+
+# ----------------------------
+# Spreadsheets & columnar data
+# ----------------------------
+data = [
+  "pandas>=2.1.0",
+  "pyarrow>=15.0.0"
+]
+
+# ----------------------------
+# Docs / Knowledge / HTML
+# ----------------------------
+docs = [
+  "markdown>=3.6",
+  "beautifulsoup4>=4.12.0",
+  "lxml>=5.1.0"
+]
+
+# ----------------------------
+# Archives
+# ----------------------------
+archive = [
+  "py7zr>=0.21.0",
+  "rarfile>=4.2"
+]
+
+# ----------------------------
+# Code & notebooks
+# ----------------------------
+code = [
+  "nbformat>=5.10.0",
+  "pygments>=2.17.0"
+]
+
+# ----------------------------
+# Cloud OCR (optional)
+# ----------------------------
+cloud-ocr = [
+  "boto3>=1.34.0",
+  "azure-ai-formrecognizer>=3.3.0"
+]
+
+# ----------------------------
+# Layout parsing (no detectron2 forced)
+# ----------------------------
+layout = [
+  "layoutparser>=0.3.4"
+]
+
+# ----------------------------
+# Vision-language models
+# ----------------------------
+vlm = [
+  "torch>=2.0",
+  "transformers>=4.41.0"
+]
+
+# ----------------------------
+# Privacy / PII
+# ----------------------------
+privacy = [
+  "presidio-analyzer>=2.2.0",
+  "presidio-anonymizer>=2.2.0"
+]
+
+# ----------------------------
+# Audio / Video (transcription)
+# ----------------------------
+media = [
+  "ffmpeg-python>=0.2.0",
+  "openai-whisper>=20231117"
+]
+
+# ----------------------------
+# EVERYTHING (ENTERPRISE INSTALL)
+# ----------------------------
+all = [
+  "python-docx>=1.1.0",
+  "openpyxl>=3.1.2",
+  "python-pptx>=0.6.23",
+  "pandas>=2.1.0",
+  "pyarrow>=15.0.0",
+  "markdown>=3.6",
+  "beautifulsoup4>=4.12.0",
+  "lxml>=5.1.0",
+  "py7zr>=0.21.0",
+  "rarfile>=4.2",
+  "nbformat>=5.10.0",
+  "pygments>=2.17.0",
+  "boto3>=1.34.0",
+  "azure-ai-formrecognizer>=3.3.0",
+  "layoutparser>=0.3.4",
+  "torch>=2.0",
+  "transformers>=4.41.0",
+  "presidio-analyzer>=2.2.0",
+  "presidio-anonymizer>=2.2.0",
+  "ffmpeg-python>=0.2.0",
+  "openai-whisper>=20231117"
+]
+
+# ============================================================
+# PACKAGING
+# ============================================================
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["omnidoc", "omnidoc.*"]
+
+# ============================================================
+# CLI
+# ============================================================
+[project.scripts]
+omnidoc = "omnidoc.cli.main:main"
+
+# ============================================================
+# TESTING & QUALITY
+# ============================================================
+[tool.pytest.ini_options]
+addopts = "-ra -q"
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+strict = false
