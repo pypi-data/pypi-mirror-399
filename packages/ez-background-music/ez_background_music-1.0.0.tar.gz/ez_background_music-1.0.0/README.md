@@ -1,0 +1,112 @@
+# ez_background_music 🎵
+
+A lightweight, cross-platform Python library designed for playing background music in CLI (Command Line Interface) tools and Terminal applications without blocking your code execution.
+
+## Why ez_background_music?
+
+Many Python audio libraries (like the original `playsound`) block the execution of your script until the song is finished. While some support asynchronous play, they often "choke" or fail to start when the terminal is busy with heavy ASCII animations, keyboard listeners, or screen clears.
+
+**ez_background_music** is built to be "bulletproof" for terminal apps:
+
+* **Truly Non-blocking:** Launches audio as a separate system process.
+* **Terminal-Optimized:** Won't cut out when you clear the screen or run intensive `print` loops.
+* **Cross-Platform:** Uses native macOS `afplay`, Linux `paplay`, and Windows `multiprocessing` for maximum stability.
+
+---
+
+## Installation
+
+```bash
+pip install ez_background_music
+```
+
+---
+
+## Usage Examples
+
+### 1. Basic "Fire and Forget" 
+
+Perfect for adding a theme song to your script's intro.
+
+```python
+from ez_background_music import start_music, stop_music
+import time
+
+# Start the music (returns True if successful)
+start_music("intro_theme.mp3")
+
+print("The music is playing in the background!")
+# Your code continues immediately
+time.sleep(5) 
+
+# Stop the music
+stop_music()
+```
+
+### 2. Integration with a CLI Loop
+
+If you are building an interactive tool (like a GPR Reader or a Game), use this pattern to ensure the music stops when the user exits.
+
+```python
+import sys
+from ez_background_music import start_music, stop_music
+
+def main():
+    # Start background music at the beginning
+    start_music("ambient_track.wav")
+    
+    print("Welcome to My App!")
+    while True:
+        user_input = input("\n> ").strip().lower()
+        
+        if user_input == "exit":
+            print("Cleaning up...")
+            stop_music()  # Essential to stop the process
+            sys.exit()
+        else:
+            print(f"You entered: {user_input}")
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+## How it Works
+
+The library detects your operating system and chooses the most "isolated" way to play sound so your main Python script stays fast:
+
+| OS      | Method                               | Benefit                                            |
+| ---     | ---                                  | ---                                                |
+| **macOS** | Native `afplay`                      | Zero CPU impact; works even if Python hangs.       |
+| **Windows** | `multiprocessing` (with `playsound3`) | Bypasses the GIL to prevent audio stutter.         |
+| **Linux** | `paplay` (fallback to `multiprocessing`) | Uses native sound servers, with a robust fallback. |
+
+---
+
+## Troubleshooting
+
+### Absolute vs. Relative Paths
+
+If the music doesn't play, ensure you are providing the correct path. It is always safer to use absolute paths:
+
+```python
+import os
+from ez_background_music import start_music
+
+# Get the directory where your script is located
+base_path = os.path.dirname(__file__)
+audio_path = os.path.join(base_path, "music.mp3")
+
+start_music(audio_path)
+```
+
+### macOS Permissions
+
+If running in a highly restricted terminal environment, ensure the Terminal has "Accessibility" permissions if you are also using libraries like `keyboard`.
+
+---
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
