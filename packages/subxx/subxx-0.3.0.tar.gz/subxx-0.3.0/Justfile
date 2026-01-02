@@ -1,0 +1,118 @@
+# Justfile - Convenient commands for subxx package development
+# Usage: just <command>
+# Install: cargo install just  OR  brew install just
+
+# Default recipe (shows help)
+default:
+    @just --list
+
+# Install all dependencies (dev + extract + api)
+install:
+    uv sync --extra dev --extra extract --extra api
+
+# Install only dev dependencies
+install-dev:
+    uv sync --extra dev
+
+# Run all tests
+test:
+    uv run pytest
+
+# Run tests excluding e2e
+test-fast:
+    uv run pytest -m "not e2e"
+
+# Run only e2e tests (requires internet)
+test-e2e:
+    uv run pytest -m e2e
+
+# Run tests with coverage
+test-cov:
+    uv run pytest --cov=. --cov-report=html --cov-report=term
+
+# Build package (without uploading)
+build:
+    pwsh ./build-package.ps1
+
+# Build package (clean first)
+build-clean:
+    pwsh ./build-package.ps1 -Clean
+
+# Build and upload to TestPyPI
+publish-test:
+    pwsh ./build-package.ps1 -Upload -Test -Clean
+
+# Build and upload to PyPI
+publish:
+    pwsh ./build-package.ps1 -Upload -Clean
+
+# Clean build artifacts
+clean:
+    rm -rf dist/ build/ *.egg-info
+    rm -f README.md
+    find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+    find . -type f -name "*.pyc" -delete 2>/dev/null || true
+
+# Clean everything including .venv
+clean-all: clean
+    rm -rf .venv
+
+# Check package without building
+check:
+    uv run python -m build --help > /dev/null && echo "✅ Build tools OK"
+    uv run python -m twine --version && echo "✅ Twine OK"
+
+# List installed packages
+list-deps:
+    uv pip list
+
+# Show project version
+version:
+    @grep "^version" pyproject.toml | cut -d'"' -f2
+
+# Bump version (usage: just bump-version 0.4.0)
+bump-version VERSION:
+    sed -i 's/version = "[^"]*"/version = "{{VERSION}}"/' pyproject.toml
+    @echo "✅ Version bumped to {{VERSION}}"
+    @echo "Remember to commit: git commit -am 'chore: bump version to {{VERSION}}'"
+
+# Create git tag for current version
+tag:
+    #!/usr/bin/env bash
+    VERSION=$(grep "^version" pyproject.toml | cut -d'"' -f2)
+    git tag -a "v$VERSION" -m "Release v$VERSION"
+    echo "✅ Created tag v$VERSION"
+    echo "Push with: git push origin v$VERSION"
+
+# Run the app (CLI)
+run *ARGS:
+    uv run python __main__.py {{ARGS}}
+
+# Run the app with a quick test
+demo:
+    uv run python __main__.py version
+
+# Format code with black
+fmt:
+    uv run black *.py
+
+# Lint code with ruff
+lint:
+    uv run ruff check *.py
+
+# Fix linting issues automatically
+lint-fix:
+    uv run ruff check --fix *.py
+
+# Format and lint
+check-code: fmt lint
+
+# Development workflow: clean, install, test
+dev: clean install test-fast
+
+# Release workflow: clean, test, build, check
+release-check: clean-all install test build
+    @echo ""
+    @echo "✅ Release check complete!"
+    @echo "To publish to TestPyPI: just publish-test"
+    @echo "To publish to PyPI: just publish"
