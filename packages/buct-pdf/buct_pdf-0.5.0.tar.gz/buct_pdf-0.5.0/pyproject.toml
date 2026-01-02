@@ -1,0 +1,38 @@
+[project]
+name = "buct-pdf"
+version = "0.5.0"
+description = "北京化工大学课程平台PDF下载工具，支持登录、下载PPT和PDF文件"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "pillow>=12.0.0",
+    "requests>=2.32.5",
+]
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = ["buct", "pdf", "download", "education"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-username/buct-pdf"
+Repository = "https://github.com/your-username/buct-pdf"
+"Bug Tracker" = "https://github.com/your-username/buct-pdf/issues"
+
+[project.scripts]
+buct-pdf = "buct_pdf.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["buct_pdf*"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
