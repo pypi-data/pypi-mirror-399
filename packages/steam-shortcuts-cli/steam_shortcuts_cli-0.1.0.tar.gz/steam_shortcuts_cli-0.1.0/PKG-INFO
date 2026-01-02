@@ -1,0 +1,78 @@
+Metadata-Version: 2.4
+Name: steam-shortcuts-cli
+Version: 0.1.0
+Summary: A simple cli to manage steam external shortcuts
+Project-URL: Homepage, https://github.com/lava/steam-shortcuts-cli
+Project-URL: Repository, https://github.com/lava/steam-shortcuts-cli
+Project-URL: Issues, https://github.com/lava/steam-shortcuts-cli/issues
+Author: Benno Evers
+License-Expression: MIT
+License-File: LICENSE
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Games/Entertainment
+Requires-Python: >=3.14
+Requires-Dist: docopt
+Requires-Dist: pydantic>=2.0
+Description-Content-Type: text/markdown
+
+# steam-shortcuts-cli
+
+A simple CLI tool to manage Steam external shortcuts (non-Steam games).
+
+## Installation
+
+```bash
+uv tool install steam-shortcuts-cli
+```
+
+Or run directly without installing:
+
+```bash
+uvx steam-shortcuts-cli --help
+```
+
+## Usage
+
+### List all shortcuts
+
+```bash
+uvx steam-shortcuts-cli list
+uvx steam-shortcuts-cli list --verbose
+```
+
+### Add a shortcut
+
+```bash
+uvx steam-shortcuts-cli add "My Game" /path/to/game
+uvx steam-shortcuts-cli add "My Game" /path/to/game --icon=/path/to/icon.png --tags="Action,Indie"
+uvx steam-shortcuts-cli add "My Game" /path/to/game --launch-options="--fullscreen"
+```
+
+### Remove a shortcut
+
+```bash
+uvx steam-shortcuts-cli remove "My Game"
+```
+
+### Get shortcut info
+
+```bash
+uvx steam-shortcuts-cli info "My Game"
+```
+
+### Specify a custom shortcuts.vdf path
+
+```bash
+uvx steam-shortcuts-cli --file=/path/to/shortcuts.vdf list
+```
+
+## Acknowledgements
+
+This project is inspired by:
+
+- [CorporalQuesadilla/Steam-Shortcut-Manager](https://github.com/CorporalQuesadilla/Steam-Shortcut-Manager)
+- [chyyran/SteamShortcutManager](https://github.com/chyyran/SteamShortcutManager)
