@@ -1,0 +1,74 @@
+# Tibetan Sanskrit Transliteration Data
+
+Shared replacement map data for transliterating Tibetan-encoded Sanskrit mantras to IAST and phonetics.
+
+Available as both an **npm** and **Python** package.
+
+## Installation
+
+### JavaScript/Node.js
+
+```bash
+npm install tibetan-sanskrit-transliteration-data
+```
+
+### Python
+
+```bash
+pip install tibetan-sanskrit-transliteration-data
+```
+
+## Data Format
+
+The `replacements.csv` file contains three columns:
+
+| Column            | Description                                                        |
+| ----------------- | ------------------------------------------------------------------ |
+| `tibetan`         | Tibetan Unicode pattern (may include regex)                        |
+| `transliteration` | IAST transliteration output                                        |
+| `phonetics`       | Phonetic output (optional, defaults to normalized transliteration) |
+
+## Usage
+
+### JavaScript/Node.js
+
+```javascript
+import {
+  loadReplacements,
+  getReplacementsPath,
+} from "tibetan-sanskrit-transliteration-data";
+
+// Get parsed data
+const replacements = loadReplacements();
+
+// Or get the path to the CSV file
+const csvPath = getReplacementsPath();
+```
+
+### Python
+
+```python
+from tibetan_sanskrit_transliteration_data import load_replacements, get_replacements_path
+
+# Get parsed data
+replacements = load_replacements()
+
+# Or get the path to the CSV file
+csv_path = get_replacements_path()
+```
+
+## Contributing
+
+To add or modify transliteration rules:
+
+1. Edit `replacements.csv`
+2. Test changes in both JS and Python implementations
+3. Submit a pull request
+
+## Order Matters
+
+Entries are processed in order from top to bottom. More specific patterns should come before more general ones.
+
+## License
+
+MIT License - Copyright Padmakara, 2025-present.
