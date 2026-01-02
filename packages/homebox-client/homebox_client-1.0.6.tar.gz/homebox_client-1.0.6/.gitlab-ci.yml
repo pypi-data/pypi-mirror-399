@@ -1,0 +1,28 @@
+stages:
+  - test
+
+.python-checks:
+  stage: test
+  script:
+   - pip install -r requirements.txt
+   - pip install -r test-requirements.txt
+   - python -m flake8
+   - python -m mypy
+   - python -m pyright
+   - python -m pytest
+
+pytest-3.9:
+  extends: .python-checks
+  image: python:3.9-alpine
+pytest-3.10:
+  extends: .python-checks
+  image: python:3.10-alpine
+pytest-3.11:
+  extends: .python-checks
+  image: python:3.11-alpine
+pytest-3.12:
+  extends: .python-checks
+  image: python:3.12-alpine
+pytest-3.13:
+  extends: .python-checks
+  image: python:3.13-alpine
