@@ -1,0 +1,35 @@
+# MANIFEST.in for llcuda-cu128 (CUDA 12.8 integrated package)
+
+# Documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+
+# Binaries (CRITICAL - include ALL binaries)
+recursive-include llcuda/binaries *
+graft llcuda/binaries/cuda12
+
+# Shared libraries (CRITICAL - include ALL .so files)
+recursive-include llcuda/lib *.so*
+graft llcuda/lib
+
+# Model cache directory
+include llcuda/models/.gitkeep
+
+# Internal modules
+recursive-include llcuda/_internal *.py
+
+# Python package files
+include pyproject.toml
+include setup.py
+include setup_cuda12.py
+
+# Exclude unwanted files
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude *.pyo
+global-exclude .DS_Store
+global-exclude .git*
+global-exclude *.swp
+global-exclude *.bak
+recursive-exclude llcuda/__pycache__ *
