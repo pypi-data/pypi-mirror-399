@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools", "numpy", "wheel", "Cython"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "homcloud"
+description = "HomCloud, persistent homology based data analysis package"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [
+  {name = "Ippei Obayashi", email = "i.obayashi@okayama-u.ac.jp"},
+]
+keywords = ["persistent homology"]
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Intended Audience :: Science/Research"
+]
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "scikit-learn",
+    "msgpack",
+    "Pillow",
+    "pulp",
+    "imageio",
+    "Cython",
+    "ripser",
+    "cached-property",
+    "plotly",
+    "pyvista",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+unittest = [
+    "pytest>=3.0",
+    "pytest-mock",
+    "pytest-qt",
+    "pytest-xdist",
+]
+
+recommended = [
+    "pyqt6",
+    "pyvista[all]",
+    "jupyter",
+    "pyvistaqt",
+]
+
+recommended-torch = [
+    "torch", "torchvision", "torchaudio",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "homcloud.version.__version__"}
+
+
+[project.urls]
+homepage = "http://homcloud.dev"
+
+
+[project.scripts]
+homcloud-pc-alpha = "homcloud.cli.pc_alpha:main"
+homcloud-pict-binarize-nd = "homcloud.cli.pict.binarize_nd:main"
+homcloud-pict-pixel-levelset-nd = "homcloud.cli.pict.pixel_levelset_nd:main"
+homcloud-pict-tree = "homcloud.pict.cli.tree:main"
+homcloud-dump-diagram = "homcloud.cli.dump_diagram:main"
+homcloud-plot-PD = "homcloud.cli.plot_PD:main"
+homcloud-vectorize-PD = "homcloud.cli.vectorize_PD:main"
+homcloud-view-index-pict = "homcloud.cli.view_index_pict:main"
+homcloud-view-vectorized-PD = "homcloud.cli.view_vectorized_PD:main"
+homcloud-plot-PD-slice = "homcloud.cli.plot_PD_slice:main"
+homcloud-pict-show-volume-2d = "homcloud.cli.pict.show_volume_2d:main"
+homcloud-pict-slice3d = "homcloud.cli.pict.slice3d:main"
+homcloud-pict-to-npy = "homcloud.cli.pict.to_npy:main"
+homcloud-rips = "homcloud.cli.rips:main"
+homcloud-abstract-filtration = "homcloud.cli.abstract_filtration:main"
+homcloud-build-phtrees = "homcloud.cli.build_phtrees:main"
+homcloud-phtrees = "homcloud.cli.phtrees:main"
+homcloud-optvol = "homcloud.cli.optvol:main"
+
+[tool.black]
+target-version = ['py310', 'py311', 'py312', 'py313']
+line-length = 119
+
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+addopts = "--ignore=tests/data"
+mock_traceback_monkeypatch = false
+markers = [
+    "integration",
+    "plotting",
+    "gui",
+    "dipha",
+    "periodic_alpha",
+    "torch",
+    "use_fork",
+]
+junit_family = "legacy"
