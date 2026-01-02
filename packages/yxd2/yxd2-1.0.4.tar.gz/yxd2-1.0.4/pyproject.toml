@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yxd2"
+version = "1.0.4"
+description = "A Python tool for downloading YouTube XML data and transcripts"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{ name = "vb", email = "i@s.biz" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "Brotli",
+    "cachetools",
+    "defusedxml",
+    "emoji",
+    "Flask",
+    "gevent",
+    "PySocks",
+    "requests",
+    "stem",
+    "urllib3",
+    "youtube-transcript-api",
+]
+
+[project.urls]
+Homepage = "http://example.com"
+
+[project.scripts]
+yxd2 = "yxd:main"
+
+[tool.setuptools]
+packages = [
+    "yxd",
+    "yxd.youtube",
+    "yxd.youtube.yt_data_extract",
+]
