@@ -1,0 +1,51 @@
+Metadata-Version: 2.4
+Name: lookprime
+Version: 0.1.2
+Summary: Ultra-fast prime lookup using memory-mapped odd-only sieve
+Author: Your Name
+License: MIT
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# lookprime
+
+Ultra-fast odd-only prime lookup using a byte mask, with memory-mapped cache.
+
+## Install
+```bash
+pip install lookprime
+```
+## CLI
+
+### Build (writes to cache by default):
+
+```bash
+lookprime build --limit 100000000
+```
+
+### Benchmark (uses cached mask if present; otherwise builds & caches):
+
+```bash
+lookprime benchmark --limit 100000000 --duration 1.0 --iterations 25
+```
+
+### Benchmark using a specific mask file:
+
+```bash
+lookprime benchmark --mask /path/to/lookprime_mask_100000000.lpm
+```
+### Python Usage
+
+```bash
+from lookprime import open_mask, sieve_to_cache, count_primes_for_duration
+
+path = sieve_to_cache(100_000_000)         # build or reuse cache
+mask = open_mask(path)                     # mmap open
+
+hits, max_n = count_primes_for_duration(mask, duration=1.0, start_n=1, chunk=32768)
+print(hits, max_n)
+
+mask.close()
+```
