@@ -1,0 +1,31 @@
+setuptools
+zc.buildout
+zc.recipe.egg
+
+[sprites]
+glue>=0.13
+
+[sprites:python_version < "3"]
+MarkupSafe==1.1.1
+Pillow==6.2.2
+
+[sprites:python_version >= "3"]
+MarkupSafe==2.1.5
+Pillow>=12.0.0
+
+[test]
+argparse
+cssmin
+jsmin
+lpjsmin
+p01.checker
+slimit
+zope.testing
+
+[test:python_version < "3"]
+MarkupSafe==1.1.1
+Pillow==6.2.2
+
+[test:python_version >= "3"]
+MarkupSafe==2.1.5
+Pillow>=12.0.0
