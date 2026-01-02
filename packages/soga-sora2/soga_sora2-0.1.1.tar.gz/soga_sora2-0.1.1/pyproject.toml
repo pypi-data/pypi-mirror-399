@@ -1,0 +1,36 @@
+[project]
+name = "soga-sora2"
+version = "0.1.1"
+description = ""
+readme = ""
+requires-python = ">=3.12"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pandas>=2.3.3",
+    "requests>=2.32.5",
+]
+
+[project.optional-dependencies]
+test = [
+]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+soga_sora2 = "soga_sora2.cli:main"
+
+[[tool.uv.index]]
+url = "https://mirrors.aliyun.com/pypi/simple"
+default = true
+
+[dependency-groups]
+dev = [
+]
