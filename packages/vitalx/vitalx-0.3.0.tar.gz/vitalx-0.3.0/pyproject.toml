@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "vitalx"
+version = "0.3.0"
+description = "Vital Horizon AI SDK"
+authors = ["Vital <developers@tryvital.io>"]
+license = "AGPL-3.0-only"
+homepage = "https://www.tryvital.com/"
+documentation = "https://docs.tryvital.io/"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Topic :: Software Development",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research"
+]
+readme = "README.md"
+
+packages = [
+  { include = "vitalx" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+vitalx-types = "<1.0"
+vitalx-aggregation = "^0.1"
+vitalx-cli = "^0.1"
+vitalx-cli-auth = "^0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
