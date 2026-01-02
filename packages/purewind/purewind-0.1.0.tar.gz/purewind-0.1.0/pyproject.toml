@@ -1,0 +1,33 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "purewind"
+version = "0.1.0"
+description = "A tiny windowing wrapper built on WIN-32 api"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{name = "winddowned", email = "none@gmail.com"}]
+keywords = ["window", "win32", "graphics", "purewind"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: Microsoft :: Windows",
+    "License :: OSI Approved :: MIT License",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "pytest>=7.0",
+]
+
+# ----------------------------------------------------------------------
+# Entry‑point (future CLI could be added here)
+# ----------------------------------------------------------------------
+[project.scripts]
+purewind = "purewind:createWindow"
