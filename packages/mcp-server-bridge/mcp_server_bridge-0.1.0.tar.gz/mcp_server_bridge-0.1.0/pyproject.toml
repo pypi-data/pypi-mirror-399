@@ -1,0 +1,36 @@
+[project]
+name = "mcp-server-bridge"
+version = "0.1.0"
+description = "MCP Bridge: A unified interface for CLI, HTTP, and LLM integration."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "zzczsczsvzsbsn", email = "key99887@163.com" }
+]
+
+dependencies = [
+    "mcp[cli]>=1.24.0",
+    "pyyaml>=6.0.3",
+    "requests>=2.32.5",
+    "platformdirs==4.5.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_server_bridge"]
+exclude = [
+  "tests",          
+  "*.log",        
+  "docs/*",    
+]
+
+[project.scripts]
+mcp-server-bridge = "mcp_server_bridge.server:main"

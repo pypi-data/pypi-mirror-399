@@ -1,0 +1,96 @@
+# MCP Server Bridge
+[中文](./README.md) | [English](./README.en.md)
+
+一个模型上下文协议 (MCP) 服务器桥接器，允许动态注册`简易的` CLI 工具及 HTTP 请求为 MCP 工具。
+
+## 特性
+
+- **动态工具注册**：
+  - **CLI 工具**：可将注册环境中可用的 CLI 工具为 MCP 工具。
+  - **HTTP 工具**：将简易的 HTTP 端点注册为 MCP 工具。
+- **配置持久化**：
+  - CLI 工具作为 YAML 配置持久化。
+  - HTTP 工具作为 JSON 配置持久化。
+
+## 项目结构
+
+- `src/mcp_server_bridge/`：主要包源码。
+  - `server.py`：核心服务器逻辑和工具定义。
+  - `config/`：存储已注册工具配置 (YAML/JSON) 的目录。
+  - `__init__.py`：包导出。
+  - `__main__.py`：入口点。
+- `tests/`：测试套件。
+
+## 用法
+
+### 连接到服务器
+
+服务器运行 stdio 或 SSE 模式: 
+
+ - `-t sse` 启动 SSE 模式
+ - `-t stdio` 或不指定参数则为 stdio 模式
+
+### 使用示例
+
+#### 注册 CLI 工具
+
+注册一个 CLI 工具 `fscan` 为 `MCP` 工具：
+
+![alt text](docs/cli_tool_register.png)
+
+CLI 工具使用:
+![alt text](docs/cli_tool_call.png)
+
+#### 注册 HTTP 工具
+
+注册一个 HTTP 接口为 `MCP` 工具：
+![alt text](docs/http_tool_register.png)
+
+HTTP 工具使用:
+![alt text](docs/http_tool_call.png)
+
+#### 其他工具
+
+还可以通过 LLM 对话注册以下 API 和 CLI 工具等等：
+  - **CLI**：`fscan`, `httpx`, `naabu`, `nmap`, `nuclei`, `subfinder`
+  - **HTTP**：`http://cip.cc`
+
+### 内置管理工具
+
+1. `get_cli_tool_help(command, help_flag)`:
+   - 获取 CLI 命令的帮助文本。
+   - 用于确定注册时的参数。
+2. `register_cli_tool(command, tool_description, tool_usage, tool_args)`:
+   - 注册一个新的 CLI 工具以通过 MCP 暴露。
+   - 在 `src/mcp_server_bridge/config/` 中生成 YAML 配置。
+3. `register_http_tool(name, description, method, url, params, data, headers)`:
+   - 注册一个新的 HTTP 工具。
+   - 在 `src/mcp_server_bridge/config/` 中生成 JSON 配置。
+
+## 开发
+
+1. 安装 `uv`（如果尚未安装）：
+```bash
+pip install uv
+```
+
+2. 安装依赖项和包：
+```bash
+uv sync
+```
+
+3. 运行服务器：
+```bash
+python src/mcp_server_bridge/server.py
+```
+
+4. 安装
+```bash
+uv tool install . --force
+```
+
+## 测试
+
+```bash
+uv run pytest
+```
