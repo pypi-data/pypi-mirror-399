@@ -1,0 +1,27 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "nautilus-sampler"
+authors = [{name = "Johannes U. Lange", email = "jlange@american.edu"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+dynamic = ["version", "description"]
+requires-python = ">= 3.9"
+dependencies = ["numpy>=1.18.0", "scipy>=1.4.0", "scikit-learn>=0.22.0",
+                "threadpoolctl>=3.0.0"]
+
+[project.optional-dependencies]
+checkpointing = ["h5py>=3.0.0"]
+tests = ["h5py>=3.0.0", "dask[distributed]>=2022.2.0"]
+
+[project.urls]
+Home = "https://nautilus-sampler.readthedocs.io"
+
+[tool.flit.sdist]
+exclude = ["docs", ".gitignore", ".github", ".readthedocs.yaml"]
+
+[tool.flit.module]
+name = "nautilus"
