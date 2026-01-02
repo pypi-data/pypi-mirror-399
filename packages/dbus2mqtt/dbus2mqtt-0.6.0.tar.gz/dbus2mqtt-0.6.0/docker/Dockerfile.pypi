@@ -1,0 +1,12 @@
+FROM python:3.14-slim-bookworm@sha256:404ca55875fc24a64f0a09e9ec7d405d725109aec04c9bf0991798fd45c7b898
+
+WORKDIR /app
+
+ARG DBUS2MQTT_VERSION=latest
+
+RUN pip install --no-cache-dir dbus2mqtt=="$DBUS2MQTT_VERSION"
+
+ENTRYPOINT ["python", "-m", "dbus2mqtt"]
+
+# show help message by default
+CMD ["--help"]
