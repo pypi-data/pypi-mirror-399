@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=65", "wheel", "cython>=0.29.0", "numpy>=1.24"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proleTRact"
+version = "0.2.0"
+description = "A user-friendly platform for interactive exploration, visualization, and analysis of tandem repeat findings from TandemTwister outputs"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "BSD 3-Clause Non-Commercial License"}
+authors = [
+  { name = "Lion Ward Al Raei", email = "lionward.alraei@gmail.com" }
+]
+dependencies = [
+  "streamlit>=1.30",
+  "pandas>=2.0",
+  "numpy>=1.24",
+  "altair>=5.0",
+  "plotly>=5.0",
+  "pysam>=0.22",
+  "scikit-learn>=1.2",
+  "cython>=0.29.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/Lionward/ProleTRact"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+proletract = [
+  "data/pathogenic_TRs.bed",
+  "ProleTRact_logo.svg",
+  "assets/*"
+]
+
+[project.scripts]
+proleTRact = "proletract.cli:main"
