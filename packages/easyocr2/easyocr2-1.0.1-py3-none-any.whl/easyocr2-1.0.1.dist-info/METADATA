@@ -1,0 +1,132 @@
+Metadata-Version: 2.4
+Name: easyocr2
+Version: 1.0.1
+Summary: Next-generation OCR with 80+ languages - Ready-to-use OCR powered by deep learning
+Home-page: https://github.com/cyberiums/EasyOCR
+Download-URL: https://github.com/cyberiums/EasyOCR.git
+Author: Cyberiums
+Author-email: 
+License: Apache License 2.0
+Keywords: ocr,optical character recognition,deep learning,neural network,easyocr2
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: torch
+Requires-Dist: torchvision>=0.5
+Requires-Dist: opencv-python-headless
+Requires-Dist: scipy
+Requires-Dist: numpy
+Requires-Dist: Pillow
+Requires-Dist: scikit-image
+Requires-Dist: python-bidi
+Requires-Dist: PyYAML
+Requires-Dist: Shapely
+Requires-Dist: pyclipper
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: download-url
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# EasyOCR2
+
+**Fastly Built by [FastBuilder.AI](https://fastbuilder.ai)** 🚀
+
+Next-generation ready-to-use OCR with 80+ supported languages and all popular writing scripts.
+
+## Installation
+
+```bash
+pip install easyocr2
+```
+
+## Quick Start
+
+```python
+import easyocr2
+
+# Create reader
+reader = easyocr2.Reader(['en'])
+
+# Perform OCR
+result = reader.readtext('image.jpg')
+print(result)
+```
+
+## Features
+
+- 🌍 **80+ Languages** Support
+- 🚀 **GPU Acceleration** (CUDA/MPS)
+- 📦 **Easy Installation** via pip
+- 🎯 **High Accuracy** with deep learning
+- 🔧 **Simple API** - just 3 lines of code
+
+## Supported Languages
+
+Latin, Chinese (Simplified & Traditional), Japanese, Korean, Thai, Arabic, Cyrillic, Devanagari, and many more!
+
+See full list at: https://github.com/cyberiums/EasyOCR
+
+## Advanced Usage
+
+```python
+import easyocr2
+
+# GPU mode (default)
+reader = easyocr2.Reader(['en'], gpu=True)
+
+# CPU mode
+reader = easyocr2.Reader(['en'], gpu=False)
+
+# Multiple languages
+reader = easyocr2.Reader(['en', 'ch_sim', 'ja'])
+
+# Perform OCR with details
+result = reader.readtext('image.jpg', detail=1)
+for bbox, text, confidence in result:
+    print(f"Text: {text}, Confidence: {confidence:.2f}")
+```
+
+## Integration with RustOCR
+
+EasyOCR2 works seamlessly with RustOCR CLI for high-performance batch processing:
+
+```bash
+# Install easyocr2
+pip install easyocr2
+
+# Use with RustOCR server mode
+rustocr --server
+rustocr -i image.jpg --use-server  # 5-10x faster!
+```
+
+## Requirements
+
+- Python >= 3.7
+- PyTorch >= 1.6
+
+## License
+
+Apache-2.0
+
+## Credits
+
+- Fork/continuation of the original EasyOCR by JaidedAI
+- Maintained by Cyberiums
+- See: https://github.com/cyberiums/EasyOCR
