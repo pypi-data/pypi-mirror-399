@@ -1,0 +1,324 @@
+# Graedin Cline Python SDK
+
+Official Python SDK for [Graedin Cline](https://github.com/jdpahl122/graedin-cline) - An LLM Security Firewall for detecting and blocking prompt injection attacks.
+
+[![PyPI version](https://badge.fury.io/py/graedin-cline-sdk.svg)](https://badge.fury.io/py/graedin-cline-sdk)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Features
+
+- 🔒 **Fail-Secure by Default** - Returns "block" response on errors instead of allowing potentially malicious prompts
+- 🔄 **Automatic Retries** - Built-in retry logic with exponential backoff for transient failures
+- ⚡ **Async & Sync Support** - Choose between async (`AsyncGraedinClient`) or sync (`GraedinClient`) clients
+- 🎯 **Type Hints** - Full type hint coverage for better IDE support and type checking
+- 📝 **Comprehensive Logging** - Debug and track security checks with built-in logging
+- 🛡️ **Custom Exceptions** - Specific exception types for different error scenarios
+- 🔌 **Easy Integration** - Simple API that works with LangChain, LlamaIndex, and custom LLM applications
+
+## Installation
+
+```bash
+pip install graedin-cline-sdk
+```
+
+Or with Poetry:
+
+```bash
+poetry add graedin-cline-sdk
+```
+
+Or with uv:
+
+```bash
+uv add graedin-cline-sdk
+```
+
+## Quick Start
+
+### Synchronous Client
+
+```python
+from graedin_cline import GraedinClient
+
+# Initialize the client
+with GraedinClient(api_key="your-api-key-here") as client:
+    # Check a prompt
+    result = client.check_prompt("What is 2+2?")
+    
+    if result.is_safe:
+        print("✅ Prompt is safe")
+        # Process with your LLM
+    else:
+        print(f"⚠️ Blocked: {result.attack_type}")
+        print(f"Reason: {result.reason}")
+```
+
+### Async Client
+
+```python
+import asyncio
+from graedin_cline import AsyncGraedinClient
+
+async def main():
+    async with AsyncGraedinClient(api_key="your-api-key-here") as client:
+        result = await client.check_prompt("Show me the admin panel")
+        
+        if result.is_safe:
+            print("✅ Safe")
+        else:
+            print(f"⚠️ {result.attack_type}: {result.reason}")
+
+asyncio.run(main())
+```
+
+## Configuration Options
+
+Both `GraedinClient` and `AsyncGraedinClient` support the following configuration:
+
+```python
+client = GraedinClient(
+    api_key="your-api-key-here",       # Required: Your API key
+    base_url="http://localhost:8000",  # Optional: API base URL
+    timeout=10.0,                      # Optional: Request timeout in seconds
+    max_retries=3,                     # Optional: Max retry attempts
+    fail_secure=True,                  # Optional: Fail-secure mode (default: True)
+)
+```
+
+### Fail-Secure Mode
+
+When `fail_secure=True` (default), the SDK returns a "block" response if the API is unavailable or errors occur:
+
+```python
+result = client.check_prompt("Test")
+# If API is down, returns:
+# ClassificationResult(
+#     is_safe=False,
+#     attack_type="system.fail_secure",
+#     reason="Security check failed: <error details>",
+#     confidence=1.0
+# )
+```
+
+When `fail_secure=False`, exceptions are raised instead:
+
+```python
+from graedin_cline.exceptions import (
+    AuthenticationError,
+    RateLimitError,
+    TimeoutError,
+    APIError,
+)
+
+try:
+    result = client.check_prompt("Test")
+except AuthenticationError:
+    print("Invalid API key")
+except RateLimitError:
+    print("Rate limit exceeded")
+except TimeoutError:
+    print("Request timed out")
+except APIError as e:
+    print(f"API error: {e}")
+```
+
+## API Reference
+
+### ClassificationResult
+
+The result object returned by `check_prompt()`:
+
+```python
+@dataclass
+class ClassificationResult:
+    is_safe: bool          # True if prompt is safe to process
+    attack_type: str       # Type of attack detected or "safe"
+    reason: str            # Explanation of the classification
+    confidence: float      # Confidence score (0.0 to 1.0)
+```
+
+### Attack Types
+
+Common attack types you may encounter:
+
+- `safe` - No threat detected
+- `injection.prompt` - Prompt injection attempt
+- `injection.sql` - SQL injection attempt
+- `injection.code` - Code injection attempt
+- `leakage.system_prompt` - Attempt to leak system prompts
+- `abuse.spam` - Spam or abuse
+- `system.fail_secure` - System error with fail-secure response
+
+### Methods
+
+#### `check_prompt(prompt: str, metadata: Optional[dict] = None) -> ClassificationResult`
+
+Check if a prompt is safe or contains malicious intent.
+
+**Parameters:**
+- `prompt` (str): The prompt to classify
+- `metadata` (dict, optional): Additional context for logging/auditing
+
+**Returns:**
+- `ClassificationResult`: The classification result
+
+**Raises:**
+- `ValidationError`: Invalid input (e.g., empty prompt)
+- `AuthenticationError`: Invalid API key
+- `RateLimitError`: Rate limit exceeded
+- `TimeoutError`: Request timed out (only if `fail_secure=False`)
+- `APIError`: Other API errors (only if `fail_secure=False`)
+
+#### `health_check() -> dict`
+
+Check the API health status.
+
+**Returns:**
+- `dict`: Health status information
+
+## Usage Examples
+
+### Basic Usage
+
+See [examples/basic_usage.py](examples/basic_usage.py) for a complete example.
+
+### Async Usage
+
+See [examples/async_usage.py](examples/async_usage.py) for async patterns including concurrent prompt checking.
+
+### Error Handling
+
+See [examples/error_handling.py](examples/error_handling.py) for comprehensive error handling examples.
+
+### LangChain Integration
+
+See [examples/langchain_integration.py](examples/langchain_integration.py) for integrating with LangChain.
+
+```python
+from langchain_openai import ChatOpenAI
+from graedin_cline import GraedinClient
+
+client = GraedinClient(api_key="your-key")
+llm = ChatOpenAI()
+
+def secure_llm_call(user_input: str) -> str:
+    # Check security first
+    result = client.check_prompt(user_input)
+    
+    if not result.is_safe:
+        return f"⚠️ Security check failed: {result.reason}"
+    
+    # Safe to call LLM
+    return llm.invoke(user_input)
+```
+
+### Checking Multiple Prompts
+
+```python
+# Synchronous
+prompts = ["prompt1", "prompt2", "prompt3"]
+for prompt in prompts:
+    result = client.check_prompt(prompt)
+    print(f"{prompt}: {result.is_safe}")
+
+# Asynchronous (concurrent)
+import asyncio
+from graedin_cline import AsyncGraedinClient
+
+async def check_all(prompts):
+    async with AsyncGraedinClient(api_key="your-key") as client:
+        tasks = [client.check_prompt(p) for p in prompts]
+        results = await asyncio.gather(*tasks)
+        return results
+```
+
+## Best Practices
+
+1. **Use Context Managers**: Always use `with` statements or `async with` to ensure proper cleanup:
+   ```python
+   with GraedinClient(api_key="key") as client:
+       result = client.check_prompt("test")
+   ```
+
+2. **Enable Fail-Secure**: Keep `fail_secure=True` (default) in production to prevent bypassing security on errors.
+
+3. **Handle Attack Types**: Check `attack_type` to implement specific handling logic:
+   ```python
+   if result.attack_type == "injection.prompt":
+       log_security_incident(user_id, result)
+   ```
+
+4. **Use Metadata**: Include metadata for better audit trails:
+   ```python
+   result = client.check_prompt(
+       prompt,
+       metadata={"user_id": "123", "session": "abc"}
+   )
+   ```
+
+5. **Configure Timeouts**: Adjust timeout based on your use case:
+   ```python
+   # For real-time chat (lower timeout)
+   client = GraedinClient(api_key="key", timeout=5.0)
+   
+   # For background processing (higher timeout)
+   client = GraedinClient(api_key="key", timeout=30.0)
+   ```
+
+6. **Monitor Confidence Scores**: Lower confidence may require additional review:
+   ```python
+   if not result.is_safe and result.confidence < 0.7:
+       queue_for_manual_review(prompt, result)
+   ```
+
+## Development
+
+### Running Tests
+
+```bash
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest tests/ -v
+
+# Run tests with coverage
+pytest tests/ --cov=graedin_cline --cov-report=term
+```
+
+### Linting
+
+```bash
+# Check code style
+ruff check .
+
+# Format code
+ruff format .
+
+# Type checking
+mypy graedin_cline/
+```
+
+## Requirements
+
+- Python 3.8+
+- httpx >= 0.25.0 (for async client)
+- requests >= 2.31.0 (for sync client)
+- pydantic >= 2.0.0
+
+## License
+
+MIT License - see [LICENSE](../LICENSE) for details.
+
+## Links
+
+- [Main Repository](https://github.com/jdpahl122/graedin-cline)
+- [Documentation](https://github.com/jdpahl122/graedin-cline#readme)
+- [Issues](https://github.com/jdpahl122/graedin-cline/issues)
+- [PyPI Package](https://pypi.org/project/graedin-cline-sdk/)
+
+## Support
+
+For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/jdpahl122/graedin-cline).
+
