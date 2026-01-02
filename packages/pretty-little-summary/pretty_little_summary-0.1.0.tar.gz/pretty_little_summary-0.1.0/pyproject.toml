@@ -1,0 +1,140 @@
+[project]
+name = "pretty-little-summary"
+version = "0.1.0"
+description = "Automatic structured summaries of Python objects - DataFrames, arrays, models, and more"
+readme = "README.md"
+authors = [
+    { name = "Dylan", email = "wootton.dylan@gmail.com" }
+]
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["introspection", "jupyter", "data-science", "metadata", "summarization"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering",
+]
+
+# Core dependencies (always installed)
+dependencies = []
+
+[project.optional-dependencies]
+# Development dependencies
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "mypy>=1.8.0",
+    "ruff>=0.1.0",
+]
+
+# Individual adapter dependencies
+pandas = ["pandas>=2.0.0"]
+polars = ["polars>=0.20.0"]
+matplotlib = ["matplotlib>=3.8.0"]
+altair = ["altair>=5.0.0"]
+sklearn = ["scikit-learn>=1.4.0"]
+pytorch = ["torch>=2.0.0"]
+xarray = ["xarray>=2024.0.0"]
+pydantic = ["pydantic>=2.0.0"]
+networkx = ["networkx>=3.0.0"]
+requests = ["requests>=2.31.0"]
+ipython = ["ipython>=8.0.0"]
+
+# Convenience groups
+data = [
+    "pandas>=2.0.0",
+    "polars>=0.20.0",
+]
+viz = [
+    "matplotlib>=3.8.0",
+    "altair>=5.0.0",
+]
+ml = [
+    "scikit-learn>=1.4.0",
+    "torch>=2.0.0",
+]
+web = [
+    "requests>=2.31.0",
+]
+science = [
+    "xarray>=2024.0.0",
+    "networkx>=3.0.0",
+]
+
+# All adapters (for testing)
+all = [
+    "pandas>=2.0.0",
+    "polars>=0.20.0",
+    "matplotlib>=3.8.0",
+    "altair>=5.0.0",
+    "scikit-learn>=1.4.0",
+    "torch>=2.0.0",
+    "xarray>=2024.0.0",
+    "pydantic>=2.0.0",
+    "networkx>=3.0.0",
+    "requests>=2.31.0",
+    "ipython>=8.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=pretty_little_summary",
+    "--cov-report=term-missing",
+]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pandas.*",
+    "polars.*",
+    "matplotlib.*",
+    "altair.*",
+    "sklearn.*",
+    "torch.*",
+    "xarray.*",
+    "pydantic.*",
+    "networkx.*",
+    "requests.*",
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "RUF", # ruff-specific
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pretty_little_summary"]
