@@ -1,0 +1,43 @@
+[project]
+name = "thefuckllm"
+version = "0.2.0"
+description = "CLI helper powered by LLMs - fix commands and ask CLI questions"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+authors = [
+    {name = "alperiox"}
+]
+keywords = ["cli", "llm", "terminal", "shell", "assistant", "thefuck"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "fastembed>=0.7.4",
+    "huggingface-hub>=1.2.3",
+    "litellm>=1.55.0",
+    "llama-cpp-python>=0.3.16",
+    "numpy>=2.3.5",
+    "platformdirs>=4.5.1",
+    "tomli-w>=1.0.0",
+    "typer[all]>=0.20.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/alperiox/thefuckllm"
+Repository = "https://github.com/alperiox/thefuckllm"
+
+[project.scripts]
+tfllm = "thefuckllm.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true

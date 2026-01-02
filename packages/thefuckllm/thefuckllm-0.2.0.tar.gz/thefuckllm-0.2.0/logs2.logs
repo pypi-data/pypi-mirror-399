@@ -1,0 +1,1194 @@
+
+ ◤ ◢  …/thefuckllm   main !?   v3.12.11   03:56  
+❯ uv run tfllm ask "how do I split a huggingface dataset into train/test splits?"
+
+Give Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new
+LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+
+╭─────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────╮
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/llms/anthropic/chat │
+│ /handler.py:445 in completion                                                                            │
+│                                                                                                          │
+│    442 │   │   │   │   │   client = client                                                               │
+│    443 │   │   │   │                                                                                     │
+│    444 │   │   │   │   try:                                                                              │
+│ ❱  445 │   │   │   │   │   response = client.post(                                                       │
+│    446 │   │   │   │   │   │   api_base,                                                                 │
+│    447 │   │   │   │   │   │   headers=headers,                                                          │
+│    448 │   │   │   │   │   │   data=json.dumps(data),                                                    │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │   _is_function_call = False                                                                          │ │
+│ │         acompletion = False                                                                          │ │
+│ │            api_base = 'https://api.anthropic.com/v1/messages'                                        │ │
+│ │             api_key = 'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZoa0OujqgiT… │ │
+│ │              client = <litellm.llms.custom_httpx.http_handler.HTTPHandler object at 0x10f849a30>     │ │
+│ │              config = <litellm.llms.anthropic.chat.transformation.AnthropicConfig object at          │ │
+│ │                       0x10f81edb0>                                                                   │ │
+│ │ custom_llm_provider = 'anthropic'                                                                    │ │
+│ │  custom_prompt_dict = {}                                                                             │ │
+│ │                data = {                                                                              │ │
+│ │                       │   'model': 'claude-3-5-sonnet-latest',                                       │ │
+│ │                       │   'messages': [                                                              │ │
+│ │                       │   │   {                                                                      │ │
+│ │                       │   │   │   'role': 'user',                                                    │ │
+│ │                       │   │   │   'content': [                                                       │ │
+│ │                       │   │   │   │   {                                                              │ │
+│ │                       │   │   │   │   │   'type': 'text',                                            │ │
+│ │                       │   │   │   │   │   'text': 'Extract the CLI tool name from: how do I split a  │ │
+│ │                       huggingface dataset into train/'+12                                            │ │
+│ │                       │   │   │   │   }                                                              │ │
+│ │                       │   │   │   ]                                                                  │ │
+│ │                       │   │   }                                                                      │ │
+│ │                       │   ],                                                                         │ │
+│ │                       │   'temperature': 0.7,                                                        │ │
+│ │                       │   'max_tokens': 10,                                                          │ │
+│ │                       │   'system': [                                                                │ │
+│ │                       │   │   {                                                                      │ │
+│ │                       │   │   │   'type': 'text',                                                    │ │
+│ │                       │   │   │   'text': "You're a simple tool name extractor. Given the user       │ │
+│ │                       query, extract the required "+132                                              │ │
+│ │                       │   │   }                                                                      │ │
+│ │                       │   ]                                                                          │ │
+│ │                       }                                                                              │ │
+│ │            encoding = <Encoding 'cl100k_base'>                                                       │ │
+│ │       error_headers = Headers({'date': 'Mon, 29 Dec 2025 00:57:15 GMT', 'content-type':              │ │
+│ │                       'application/json', 'transfer-encoding': 'chunked', 'connection':              │ │
+│ │                       'keep-alive', 'x-should-retry': 'false', 'request-id':                         │ │
+│ │                       'req_011CWa4zebtkpsh36fesmV7E', 'strict-transport-security':                   │ │
+│ │                       'max-age=31536000; includeSubDomains; preload', 'anthropic-organization-id':   │ │
+│ │                       '25c4dd88-f4df-451b-a459-9bb9b85028c6', 'server': 'cloudflare',                │ │
+│ │                       'x-envoy-upstream-service-time': '40', 'cf-cache-status': 'DYNAMIC',           │ │
+│ │                       'x-robots-tag': 'none', 'content-encoding': 'gzip', 'cf-ray':                  │ │
+│ │                       '9b55579fca2f206b-IST'})                                                       │ │
+│ │      error_response = <Response [404 Not Found]>                                                     │ │
+│ │          error_text = '{"type":"error","error":{"type":"not_found_error","message":"model:           │ │
+│ │                       claude-3-5-s'+59                                                               │ │
+│ │             headers = {                                                                              │ │
+│ │                       │   'anthropic-version': '2023-06-01',                                         │ │
+│ │                       │   'x-api-key':                                                               │ │
+│ │                       'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZoa0OujqgiT… │ │
+│ │                       │   'accept': 'application/json',                                              │ │
+│ │                       │   'content-type': 'application/json'                                         │ │
+│ │                       }                                                                              │ │
+│ │   is_vertex_request = False                                                                          │ │
+│ │           json_mode = False                                                                          │ │
+│ │      litellm_params = {                                                                              │ │
+│ │                       │   'acompletion': False,                                                      │ │
+│ │                       │   'api_key':                                                                 │ │
+│ │                       'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZoa0OujqgiT… │ │
+│ │                       │   'force_timeout': 600,                                                      │ │
+│ │                       │   'logger_fn': None,                                                         │ │
+│ │                       │   'verbose': False,                                                          │ │
+│ │                       │   'custom_llm_provider': 'anthropic',                                        │ │
+│ │                       │   'api_base': None,                                                          │ │
+│ │                       │   'litellm_call_id': 'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',                 │ │
+│ │                       │   'model_alias_map': {},                                                     │ │
+│ │                       │   'completion_call_id': None,                                                │ │
+│ │                       │   ... +59                                                                    │ │
+│ │                       }                                                                              │ │
+│ │           logger_fn = None                                                                           │ │
+│ │         logging_obj = <litellm.litellm_core_utils.litellm_logging.Logging object at 0x105e0d3d0>     │ │
+│ │            messages = [                                                                              │ │
+│ │                       │   {                                                                          │ │
+│ │                       │   │   'role': 'user',                                                        │ │
+│ │                       │   │   'content': 'Extract the CLI tool name from: how do I split a           │ │
+│ │                       huggingface dataset into train/'+12                                            │ │
+│ │                       │   }                                                                          │ │
+│ │                       ]                                                                              │ │
+│ │               model = 'claude-3-5-sonnet-latest'                                                     │ │
+│ │      model_response = ModelResponse(                                                                 │ │
+│ │                       │   id='chatcmpl-841fd9ff-a549-4ba6-8a15-15cf1ad494b8',                        │ │
+│ │                       │   created=1766969835,                                                        │ │
+│ │                       │   model=None,                                                                │ │
+│ │                       │   object='chat.completion',                                                  │ │
+│ │                       │   system_fingerprint=None,                                                   │ │
+│ │                       │   choices=[                                                                  │ │
+│ │                       │   │   Choices(                                                               │ │
+│ │                       │   │   │   finish_reason='stop',                                              │ │
+│ │                       │   │   │   index=0,                                                           │ │
+│ │                       │   │   │   message=Message(                                                   │ │
+│ │                       │   │   │   │   content=None,                                                  │ │
+│ │                       │   │   │   │   role='assistant',                                              │ │
+│ │                       │   │   │   │   tool_calls=None,                                               │ │
+│ │                       │   │   │   │   function_call=None,                                            │ │
+│ │                       │   │   │   │   provider_specific_fields=None                                  │ │
+│ │                       │   │   │   )                                                                  │ │
+│ │                       │   │   )                                                                      │ │
+│ │                       │   ],                                                                         │ │
+│ │                       │   usage=Usage(                                                               │ │
+│ │                       │   │   completion_tokens=0,                                                   │ │
+│ │                       │   │   prompt_tokens=0,                                                       │ │
+│ │                       │   │   total_tokens=0,                                                        │ │
+│ │                       │   │   completion_tokens_details=None,                                        │ │
+│ │                       │   │   prompt_tokens_details=None                                             │ │
+│ │                       │   )                                                                          │ │
+│ │                       )                                                                              │ │
+│ │     optional_params = {'temperature': 0.7, 'max_tokens': 10}                                         │ │
+│ │                self = <litellm.llms.anthropic.chat.handler.AnthropicChatCompletion object at         │ │
+│ │                       0x10f3d7ec0>                                                                   │ │
+│ │         status_code = 404                                                                            │ │
+│ │              stream = None                                                                           │ │
+│ │             timeout = 600.0                                                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/llms/custom_httpx/h │
+│ ttp_handler.py:979 in post                                                                               │
+│                                                                                                          │
+│    976 │   │   │   │   setattr(e, "text", error_text)                                                    │
+│    977 │   │   │                                                                                         │
+│    978 │   │   │   setattr(e, "status_code", e.response.status_code)                                     │
+│ ❱  979 │   │   │   raise e                                                                               │
+│    980 │   │   except Exception as e:                                                                    │
+│    981 │   │   │   raise e                                                                               │
+│    982                                                                                                   │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │         content = None                                                                               │ │
+│ │            data = '{"model": "claude-3-5-sonnet-latest", "messages": [{"role": "user", "content":    │ │
+│ │                   ['+416                                                                             │ │
+│ │      error_text = '{"type":"error","error":{"type":"not_found_error","message":"model:               │ │
+│ │                   claude-3-5-s'+59                                                                   │ │
+│ │           files = None                                                                               │ │
+│ │         headers = {                                                                                  │ │
+│ │                   │   'anthropic-version': '2023-06-01',                                             │ │
+│ │                   │   'x-api-key':                                                                   │ │
+│ │                   'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZoa0OujqgiTq3JE… │ │
+│ │                   │   'accept': 'application/json',                                                  │ │
+│ │                   │   'content-type': 'application/json'                                             │ │
+│ │                   }                                                                                  │ │
+│ │            json = None                                                                               │ │
+│ │     logging_obj = None                                                                               │ │
+│ │          params = None                                                                               │ │
+│ │             req = <Request('POST', 'https://api.anthropic.com/v1/messages')>                         │ │
+│ │ request_content = '{"model": "claude-3-5-sonnet-latest", "messages": [{"role": "user", "content":    │ │
+│ │                   ['+416                                                                             │ │
+│ │    request_data = None                                                                               │ │
+│ │        response = <Response [404 Not Found]>                                                         │ │
+│ │            self = <litellm.llms.custom_httpx.http_handler.HTTPHandler object at 0x10f849a30>         │ │
+│ │          stream = False                                                                              │ │
+│ │         timeout = 600.0                                                                              │ │
+│ │             url = 'https://api.anthropic.com/v1/messages'                                            │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/llms/custom_httpx/h │
+│ ttp_handler.py:961 in post                                                                               │
+│                                                                                                          │
+│    958 │   │   │   │   │   "POST", url, data=request_data, json=json, params=params, headers=he          │
+│    959 │   │   │   │   )                                                                                 │
+│    960 │   │   │   response = self.client.send(req, stream=stream)                                       │
+│ ❱  961 │   │   │   response.raise_for_status()                                                           │
+│    962 │   │   │   return response                                                                       │
+│    963 │   │   except httpx.TimeoutException:                                                            │
+│    964 │   │   │   raise litellm.Timeout(                                                                │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │         content = None                                                                               │ │
+│ │            data = '{"model": "claude-3-5-sonnet-latest", "messages": [{"role": "user", "content":    │ │
+│ │                   ['+416                                                                             │ │
+│ │      error_text = '{"type":"error","error":{"type":"not_found_error","message":"model:               │ │
+│ │                   claude-3-5-s'+59                                                                   │ │
+│ │           files = None                                                                               │ │
+│ │         headers = {                                                                                  │ │
+│ │                   │   'anthropic-version': '2023-06-01',                                             │ │
+│ │                   │   'x-api-key':                                                                   │ │
+│ │                   'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZoa0OujqgiTq3JE… │ │
+│ │                   │   'accept': 'application/json',                                                  │ │
+│ │                   │   'content-type': 'application/json'                                             │ │
+│ │                   }                                                                                  │ │
+│ │            json = None                                                                               │ │
+│ │     logging_obj = None                                                                               │ │
+│ │          params = None                                                                               │ │
+│ │             req = <Request('POST', 'https://api.anthropic.com/v1/messages')>                         │ │
+│ │ request_content = '{"model": "claude-3-5-sonnet-latest", "messages": [{"role": "user", "content":    │ │
+│ │                   ['+416                                                                             │ │
+│ │    request_data = None                                                                               │ │
+│ │        response = <Response [404 Not Found]>                                                         │ │
+│ │            self = <litellm.llms.custom_httpx.http_handler.HTTPHandler object at 0x10f849a30>         │ │
+│ │          stream = False                                                                              │ │
+│ │         timeout = 600.0                                                                              │ │
+│ │             url = 'https://api.anthropic.com/v1/messages'                                            │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/httpx/_models.py:829 in     │
+│ raise_for_status                                                                                         │
+│                                                                                                          │
+│    826 │   │   }                                                                                         │
+│    827 │   │   error_type = error_types.get(status_class, "Invalid status code")                         │
+│    828 │   │   message = message.format(self, error_type=error_type)                                     │
+│ ❱  829 │   │   raise HTTPStatusError(message, request=request, response=self)                            │
+│    830 │                                                                                                 │
+│    831 │   def json(self, **kwargs: typing.Any) -> typing.Any:                                           │
+│    832 │   │   return jsonlib.loads(self.content, **kwargs)                                              │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │   error_type = 'Client error'                                                                        │ │
+│ │  error_types = {                                                                                     │ │
+│ │                │   1: 'Informational response',                                                      │ │
+│ │                │   3: 'Redirect response',                                                           │ │
+│ │                │   4: 'Client error',                                                                │ │
+│ │                │   5: 'Server error'                                                                 │ │
+│ │                }                                                                                     │ │
+│ │      message = "Client error '404 Not Found' for url                                                 │ │
+│ │                'https://api.anthropic.com/v1/messages'\nFor"+85                                      │ │
+│ │      request = <Request('POST', 'https://api.anthropic.com/v1/messages')>                            │ │
+│ │         self = <Response [404 Not Found]>                                                            │ │
+│ │ status_class = 4                                                                                     │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+HTTPStatusError: Client error '404 Not Found' for url 'https://api.anthropic.com/v1/messages'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+
+During handling of the above exception, another exception occurred:
+
+╭─────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────╮
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/main.py:2540 in     │
+│ completion                                                                                               │
+│                                                                                                          │
+│   2537 │   │   │   │   │   "LITELLM_ANTHROPIC_DISABLE_URL_SUFFIX is set, skipping /v1/messages           │
+│   2538 │   │   │   │   )                                                                                 │
+│   2539 │   │   │                                                                                         │
+│ ❱ 2540 │   │   │   response = anthropic_chat_completions.completion(                                     │
+│   2541 │   │   │   │   model=model,                                                                      │
+│   2542 │   │   │   │   messages=messages,                                                                │
+│   2543 │   │   │   │   api_base=api_base,                                                                │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │                              acompletion = False                                                     │ │
+│ │                                 api_base = 'https://api.anthropic.com/v1/messages'                   │ │
+│ │                                  api_key = 'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9Z… │ │
+│ │                              api_version = None                                                      │ │
+│ │                                     args = {                                                         │ │
+│ │                                            │   'model': 'claude-3-5-sonnet-latest',                  │ │
+│ │                                            │   'messages': [                                         │ │
+│ │                                            │   │   {                                                 │ │
+│ │                                            │   │   │   'role': 'system',                             │ │
+│ │                                            │   │   │   'content': "You're a simple tool name         │ │
+│ │                                            extractor. Given the user query, extract the required     │ │
+│ │                                            "+132                                                     │ │
+│ │                                            │   │   },                                                │ │
+│ │                                            │   │   {                                                 │ │
+│ │                                            │   │   │   'role': 'user',                               │ │
+│ │                                            │   │   │   'content': 'Extract the CLI tool name from:   │ │
+│ │                                            how do I split a huggingface dataset into train/'+12      │ │
+│ │                                            │   │   }                                                 │ │
+│ │                                            │   ],                                                    │ │
+│ │                                            │   'timeout': 600.0,                                     │ │
+│ │                                            │   'temperature': 0.7,                                   │ │
+│ │                                            │   'top_p': None,                                        │ │
+│ │                                            │   'n': None,                                            │ │
+│ │                                            │   'stream': None,                                       │ │
+│ │                                            │   'stream_options': None,                               │ │
+│ │                                            │   'stop': None,                                         │ │
+│ │                                            │   'max_completion_tokens': None,                        │ │
+│ │                                            │   ... +90                                               │ │
+│ │                                            }                                                         │ │
+│ │               assistant_continue_message = None                                                      │ │
+│ │                         atext_completion = False                                                     │ │
+│ │                                    audio = None                                                      │ │
+│ │                               base_model = None                                                      │ │
+│ │                                 base_url = None                                                      │ │
+│ │                                bos_token = None                                                      │ │
+│ │                                   client = None                                                      │ │
+│ │             context_window_fallback_dict = None                                                      │ │
+│ │                            cooldown_time = None                                                      │ │
+│ │                      custom_llm_provider = 'anthropic'                                               │ │
+│ │                       custom_prompt_dict = {}                                                        │ │
+│ │                            deployment_id = None                                                      │ │
+│ │ disable_add_transform_inline_image_block = None                                                      │ │
+│ │                       disable_url_suffix = None                                                      │ │
+│ │                          dynamic_api_key = None                                                      │ │
+│ │                 ensure_alternating_roles = None                                                      │ │
+│ │                                eos_token = None                                                      │ │
+│ │                            extra_headers = None                                                      │ │
+│ │                                fallbacks = None                                                      │ │
+│ │                       final_prompt_value = None                                                      │ │
+│ │                            force_timeout = 600                                                       │ │
+│ │                        frequency_penalty = None                                                      │ │
+│ │                            function_call = None                                                      │ │
+│ │                                functions = None                                                      │ │
+│ │                                  headers = {}                                                        │ │
+│ │                            hf_model_name = None                                                      │ │
+│ │                                       id = None                                                      │ │
+│ │                     initial_prompt_value = None                                                      │ │
+│ │                    input_cost_per_second = None                                                      │ │
+│ │                     input_cost_per_token = None                                                      │ │
+│ │                                   kwargs = {                                                         │ │
+│ │                                            │   'litellm_call_id':                                    │ │
+│ │                                            'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',                   │ │
+│ │                                            │   'litellm_logging_obj':                                │ │
+│ │                                            <litellm.litellm_core_utils.litellm_logging.Logging       │ │
+│ │                                            object at 0x105e0d3d0>                                    │ │
+│ │                                            }                                                         │ │
+│ │                      litellm_logging_obj = <litellm.litellm_core_utils.litellm_logging.Logging       │ │
+│ │                                            object at 0x105e0d3d0>                                    │ │
+│ │                           litellm_params = {                                                         │ │
+│ │                                            │   'acompletion': False,                                 │ │
+│ │                                            │   'api_key':                                            │ │
+│ │                                            'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9Z… │ │
+│ │                                            │   'force_timeout': 600,                                 │ │
+│ │                                            │   'logger_fn': None,                                    │ │
+│ │                                            │   'verbose': False,                                     │ │
+│ │                                            │   'custom_llm_provider': 'anthropic',                   │ │
+│ │                                            │   'api_base': None,                                     │ │
+│ │                                            │   'litellm_call_id':                                    │ │
+│ │                                            'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',                   │ │
+│ │                                            │   'model_alias_map': {},                                │ │
+│ │                                            │   'completion_call_id': None,                           │ │
+│ │                                            │   ... +59                                               │ │
+│ │                                            }                                                         │ │
+│ │                                logger_fn = None                                                      │ │
+│ │                                  logging = <litellm.litellm_core_utils.litellm_logging.Logging       │ │
+│ │                                            object at 0x105e0d3d0>                                    │ │
+│ │                               logit_bias = None                                                      │ │
+│ │                                 logprobs = None                                                      │ │
+│ │                    max_completion_tokens = None                                                      │ │
+│ │                              max_retries = None                                                      │ │
+│ │                               max_tokens = 10                                                        │ │
+│ │                                 messages = [                                                         │ │
+│ │                                            │   {                                                     │ │
+│ │                                            │   │   'role': 'system',                                 │ │
+│ │                                            │   │   'content': "You're a simple tool name extractor.  │ │
+│ │                                            Given the user query, extract the required "+132          │ │
+│ │                                            │   },                                                    │ │
+│ │                                            │   {                                                     │ │
+│ │                                            │   │   'role': 'user',                                   │ │
+│ │                                            │   │   'content': 'Extract the CLI tool name from: how   │ │
+│ │                                            do I split a huggingface dataset into train/'+12          │ │
+│ │                                            │   }                                                     │ │
+│ │                                            ]                                                         │ │
+│ │                                 metadata = None                                                      │ │
+│ │                            mock_response = None                                                      │ │
+│ │                             mock_timeout = None                                                      │ │
+│ │                          mock_tool_calls = None                                                      │ │
+│ │                               modalities = None                                                      │ │
+│ │                                    model = 'claude-3-5-sonnet-latest'                                │ │
+│ │                               model_info = {                                                         │ │
+│ │                                            │   'key': 'claude-3-5-sonnet-latest',                    │ │
+│ │                                            │   'max_tokens': 8192,                                   │ │
+│ │                                            │   'max_input_tokens': 200000,                           │ │
+│ │                                            │   'max_output_tokens': 8192,                            │ │
+│ │                                            │   'input_cost_per_token': 3e-06,                        │ │
+│ │                                            │   'input_cost_per_token_flex': None,                    │ │
+│ │                                            │   'input_cost_per_token_priority': None,                │ │
+│ │                                            │   'cache_creation_input_token_cost': 3.75e-06,          │ │
+│ │                                            │   'cache_creation_input_token_cost_above_200k_tokens':  │ │
+│ │                                            None,                                                     │ │
+│ │                                            │   'cache_read_input_token_cost': 3e-07,                 │ │
+│ │                                            │   ... +51                                               │ │
+│ │                                            }                                                         │ │
+│ │                               model_list = None                                                      │ │
+│ │                           model_response = ModelResponse(                                            │ │
+│ │                                            │   id='chatcmpl-841fd9ff-a549-4ba6-8a15-15cf1ad494b8',   │ │
+│ │                                            │   created=1766969835,                                   │ │
+│ │                                            │   model=None,                                           │ │
+│ │                                            │   object='chat.completion',                             │ │
+│ │                                            │   system_fingerprint=None,                              │ │
+│ │                                            │   choices=[                                             │ │
+│ │                                            │   │   Choices(                                          │ │
+│ │                                            │   │   │   finish_reason='stop',                         │ │
+│ │                                            │   │   │   index=0,                                      │ │
+│ │                                            │   │   │   message=Message(                              │ │
+│ │                                            │   │   │   │   content=None,                             │ │
+│ │                                            │   │   │   │   role='assistant',                         │ │
+│ │                                            │   │   │   │   tool_calls=None,                          │ │
+│ │                                            │   │   │   │   function_call=None,                       │ │
+│ │                                            │   │   │   │   provider_specific_fields=None             │ │
+│ │                                            │   │   │   )                                             │ │
+│ │                                            │   │   )                                                 │ │
+│ │                                            │   ],                                                    │ │
+│ │                                            │   usage=Usage(                                          │ │
+│ │                                            │   │   completion_tokens=0,                              │ │
+│ │                                            │   │   prompt_tokens=0,                                  │ │
+│ │                                            │   │   total_tokens=0,                                   │ │
+│ │                                            │   │   completion_tokens_details=None,                   │ │
+│ │                                            │   │   prompt_tokens_details=None                        │ │
+│ │                                            │   )                                                     │ │
+│ │                                            )                                                         │ │
+│ │                                        n = None                                                      │ │
+│ │                                   no_log = False                                                     │ │
+│ │                       non_default_params = {}                                                        │ │
+│ │                              num_retries = None                                                      │ │
+│ │                      optional_param_args = {                                                         │ │
+│ │                                            │   'functions': None,                                    │ │
+│ │                                            │   'function_call': None,                                │ │
+│ │                                            │   'temperature': 0.7,                                   │ │
+│ │                                            │   'top_p': None,                                        │ │
+│ │                                            │   'n': None,                                            │ │
+│ │                                            │   'stream': None,                                       │ │
+│ │                                            │   'stream_options': None,                               │ │
+│ │                                            │   'stop': None,                                         │ │
+│ │                                            │   'max_tokens': 10,                                     │ │
+│ │                                            │   'max_completion_tokens': None,                        │ │
+│ │                                            │   ... +25                                               │ │
+│ │                                            }                                                         │ │
+│ │                          optional_params = {'temperature': 0.7, 'max_tokens': 10}                    │ │
+│ │                             organization = None                                                      │ │
+│ │                   output_cost_per_second = None                                                      │ │
+│ │                    output_cost_per_token = None                                                      │ │
+│ │                      parallel_tool_calls = None                                                      │ │
+│ │                               prediction = None                                                      │ │
+│ │                         presence_penalty = None                                                      │ │
+│ │                         preset_cache_key = None                                                      │ │
+│ │             processed_non_default_params = {'temperature': 0.7, 'max_tokens': 10}                    │ │
+│ │                                prompt_id = None                                                      │ │
+│ │                         prompt_variables = None                                                      │ │
+│ │                          provider_config = <litellm.llms.anthropic.chat.transformation.AnthropicCon… │ │
+│ │                                            object at 0x109e45490>                                    │ │
+│ │                 provider_specific_header = None                                                      │ │
+│ │                     proxy_server_request = None                                                      │ │
+│ │                         reasoning_effort = None                                                      │ │
+│ │                          response_format = None                                                      │ │
+│ │                                    roles = None                                                      │ │
+│ │                        safety_identifier = None                                                      │ │
+│ │                                     seed = None                                                      │ │
+│ │                             service_tier = None                                                      │ │
+│ │                           shared_session = None                                                      │ │
+│ │                         skip_mcp_handler = False                                                     │ │
+│ │                               ssl_verify = None                                                      │ │
+│ │                                     stop = None                                                      │ │
+│ │                                   stream = None                                                      │ │
+│ │                           stream_options = None                                                      │ │
+│ │                  supports_system_message = None                                                      │ │
+│ │                              temperature = 0.7                                                       │ │
+│ │                          text_completion = False                                                     │ │
+│ │                                 thinking = None                                                      │ │
+│ │                                  timeout = 600.0                                                     │ │
+│ │                              tool_choice = None                                                      │ │
+│ │                                    tools = None                                                      │ │
+│ │                             top_logprobs = None                                                      │ │
+│ │                                    top_p = None                                                      │ │
+│ │                                     user = None                                                      │ │
+│ │                    user_continue_message = None                                                      │ │
+│ │                                  verbose = False                                                     │ │
+│ │                                verbosity = None                                                      │ │
+│ │                       web_search_options = None                                                      │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/llms/anthropic/chat │
+│ /handler.py:460 in completion                                                                            │
+│                                                                                                          │
+│    457 │   │   │   │   │   │   error_headers = getattr(error_response, "headers", None)                  │
+│    458 │   │   │   │   │   if error_response and hasattr(error_response, "text"):                        │
+│    459 │   │   │   │   │   │   error_text = getattr(error_response, "text", error_text)                  │
+│ ❱  460 │   │   │   │   │   raise AnthropicError(                                                         │
+│    461 │   │   │   │   │   │   message=error_text,                                                       │
+│    462 │   │   │   │   │   │   status_code=status_code,                                                  │
+│    463 │   │   │   │   │   │   headers=error_headers,                                                    │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │   _is_function_call = False                                                                          │ │
+│ │         acompletion = False                                                                          │ │
+│ │            api_base = 'https://api.anthropic.com/v1/messages'                                        │ │
+│ │             api_key = 'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZoa0OujqgiT… │ │
+│ │              client = <litellm.llms.custom_httpx.http_handler.HTTPHandler object at 0x10f849a30>     │ │
+│ │              config = <litellm.llms.anthropic.chat.transformation.AnthropicConfig object at          │ │
+│ │                       0x10f81edb0>                                                                   │ │
+│ │ custom_llm_provider = 'anthropic'                                                                    │ │
+│ │  custom_prompt_dict = {}                                                                             │ │
+│ │                data = {                                                                              │ │
+│ │                       │   'model': 'claude-3-5-sonnet-latest',                                       │ │
+│ │                       │   'messages': [                                                              │ │
+│ │                       │   │   {                                                                      │ │
+│ │                       │   │   │   'role': 'user',                                                    │ │
+│ │                       │   │   │   'content': [                                                       │ │
+│ │                       │   │   │   │   {                                                              │ │
+│ │                       │   │   │   │   │   'type': 'text',                                            │ │
+│ │                       │   │   │   │   │   'text': 'Extract the CLI tool name from: how do I split a  │ │
+│ │                       huggingface dataset into train/'+12                                            │ │
+│ │                       │   │   │   │   }                                                              │ │
+│ │                       │   │   │   ]                                                                  │ │
+│ │                       │   │   }                                                                      │ │
+│ │                       │   ],                                                                         │ │
+│ │                       │   'temperature': 0.7,                                                        │ │
+│ │                       │   'max_tokens': 10,                                                          │ │
+│ │                       │   'system': [                                                                │ │
+│ │                       │   │   {                                                                      │ │
+│ │                       │   │   │   'type': 'text',                                                    │ │
+│ │                       │   │   │   'text': "You're a simple tool name extractor. Given the user       │ │
+│ │                       query, extract the required "+132                                              │ │
+│ │                       │   │   }                                                                      │ │
+│ │                       │   ]                                                                          │ │
+│ │                       }                                                                              │ │
+│ │            encoding = <Encoding 'cl100k_base'>                                                       │ │
+│ │       error_headers = Headers({'date': 'Mon, 29 Dec 2025 00:57:15 GMT', 'content-type':              │ │
+│ │                       'application/json', 'transfer-encoding': 'chunked', 'connection':              │ │
+│ │                       'keep-alive', 'x-should-retry': 'false', 'request-id':                         │ │
+│ │                       'req_011CWa4zebtkpsh36fesmV7E', 'strict-transport-security':                   │ │
+│ │                       'max-age=31536000; includeSubDomains; preload', 'anthropic-organization-id':   │ │
+│ │                       '25c4dd88-f4df-451b-a459-9bb9b85028c6', 'server': 'cloudflare',                │ │
+│ │                       'x-envoy-upstream-service-time': '40', 'cf-cache-status': 'DYNAMIC',           │ │
+│ │                       'x-robots-tag': 'none', 'content-encoding': 'gzip', 'cf-ray':                  │ │
+│ │                       '9b55579fca2f206b-IST'})                                                       │ │
+│ │      error_response = <Response [404 Not Found]>                                                     │ │
+│ │          error_text = '{"type":"error","error":{"type":"not_found_error","message":"model:           │ │
+│ │                       claude-3-5-s'+59                                                               │ │
+│ │             headers = {                                                                              │ │
+│ │                       │   'anthropic-version': '2023-06-01',                                         │ │
+│ │                       │   'x-api-key':                                                               │ │
+│ │                       'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZoa0OujqgiT… │ │
+│ │                       │   'accept': 'application/json',                                              │ │
+│ │                       │   'content-type': 'application/json'                                         │ │
+│ │                       }                                                                              │ │
+│ │   is_vertex_request = False                                                                          │ │
+│ │           json_mode = False                                                                          │ │
+│ │      litellm_params = {                                                                              │ │
+│ │                       │   'acompletion': False,                                                      │ │
+│ │                       │   'api_key':                                                                 │ │
+│ │                       'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZoa0OujqgiT… │ │
+│ │                       │   'force_timeout': 600,                                                      │ │
+│ │                       │   'logger_fn': None,                                                         │ │
+│ │                       │   'verbose': False,                                                          │ │
+│ │                       │   'custom_llm_provider': 'anthropic',                                        │ │
+│ │                       │   'api_base': None,                                                          │ │
+│ │                       │   'litellm_call_id': 'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',                 │ │
+│ │                       │   'model_alias_map': {},                                                     │ │
+│ │                       │   'completion_call_id': None,                                                │ │
+│ │                       │   ... +59                                                                    │ │
+│ │                       }                                                                              │ │
+│ │           logger_fn = None                                                                           │ │
+│ │         logging_obj = <litellm.litellm_core_utils.litellm_logging.Logging object at 0x105e0d3d0>     │ │
+│ │            messages = [                                                                              │ │
+│ │                       │   {                                                                          │ │
+│ │                       │   │   'role': 'user',                                                        │ │
+│ │                       │   │   'content': 'Extract the CLI tool name from: how do I split a           │ │
+│ │                       huggingface dataset into train/'+12                                            │ │
+│ │                       │   }                                                                          │ │
+│ │                       ]                                                                              │ │
+│ │               model = 'claude-3-5-sonnet-latest'                                                     │ │
+│ │      model_response = ModelResponse(                                                                 │ │
+│ │                       │   id='chatcmpl-841fd9ff-a549-4ba6-8a15-15cf1ad494b8',                        │ │
+│ │                       │   created=1766969835,                                                        │ │
+│ │                       │   model=None,                                                                │ │
+│ │                       │   object='chat.completion',                                                  │ │
+│ │                       │   system_fingerprint=None,                                                   │ │
+│ │                       │   choices=[                                                                  │ │
+│ │                       │   │   Choices(                                                               │ │
+│ │                       │   │   │   finish_reason='stop',                                              │ │
+│ │                       │   │   │   index=0,                                                           │ │
+│ │                       │   │   │   message=Message(                                                   │ │
+│ │                       │   │   │   │   content=None,                                                  │ │
+│ │                       │   │   │   │   role='assistant',                                              │ │
+│ │                       │   │   │   │   tool_calls=None,                                               │ │
+│ │                       │   │   │   │   function_call=None,                                            │ │
+│ │                       │   │   │   │   provider_specific_fields=None                                  │ │
+│ │                       │   │   │   )                                                                  │ │
+│ │                       │   │   )                                                                      │ │
+│ │                       │   ],                                                                         │ │
+│ │                       │   usage=Usage(                                                               │ │
+│ │                       │   │   completion_tokens=0,                                                   │ │
+│ │                       │   │   prompt_tokens=0,                                                       │ │
+│ │                       │   │   total_tokens=0,                                                        │ │
+│ │                       │   │   completion_tokens_details=None,                                        │ │
+│ │                       │   │   prompt_tokens_details=None                                             │ │
+│ │                       │   )                                                                          │ │
+│ │                       )                                                                              │ │
+│ │     optional_params = {'temperature': 0.7, 'max_tokens': 10}                                         │ │
+│ │                self = <litellm.llms.anthropic.chat.handler.AnthropicChatCompletion object at         │ │
+│ │                       0x10f3d7ec0>                                                                   │ │
+│ │         status_code = 404                                                                            │ │
+│ │              stream = None                                                                           │ │
+│ │             timeout = 600.0                                                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+AnthropicError: {"type":"error","error":{"type":"not_found_error","message":"model: 
+claude-3-5-sonnet-latest"},"request_id":"req_011CWa4zebtkpsh36fesmV7E"}
+
+During handling of the above exception, another exception occurred:
+
+╭─────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────╮
+│ /Users/alperiox/Desktop/coding/thefuckllm/thefuckllm/cli.py:77 in ask                                    │
+│                                                                                                          │
+│    74 │   engine = get_engine()                                                                          │
+│    75 │                                                                                                  │
+│    76 │   with console.status("[bold green]Thinking..."):                                                │
+│ ❱  77 │   │   answer = engine.ask(question, verbose=verbose)                                             │
+│    78 │                                                                                                  │
+│    79 │   console.print(Panel(answer, title="Answer", border_style="green"))                             │
+│    80                                                                                                    │
+│                                                                                                          │
+│ ╭───────────────────────────────── locals ──────────────────────────────────╮                            │
+│ │   engine = <thefuckllm.engine.InferenceEngine object at 0x105e0c7d0>      │                            │
+│ │ question = 'how do I split a huggingface dataset into train/test splits?' │                            │
+│ │  verbose = False                                                          │                            │
+│ ╰───────────────────────────────────────────────────────────────────────────╯                            │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/thefuckllm/engine.py:38 in ask                                 │
+│                                                                                                          │
+│    35 │   def ask(self, query: str, verbose: bool = False) -> str:                                       │
+│    36 │   │   """Answer a CLI question."""                                                               │
+│    37 │   │   # Extract command name                                                                     │
+│ ❱  38 │   │   command = self.extract_command(query)                                                      │
+│    39 │   │   if verbose:                                                                                │
+│    40 │   │   │   print(f"Detected command: {command}")                                                  │
+│    41                                                                                                    │
+│                                                                                                          │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮                             │
+│ │   query = 'how do I split a huggingface dataset into train/test splits?' │                             │
+│ │    self = <thefuckllm.engine.InferenceEngine object at 0x105e0c7d0>      │                             │
+│ │ verbose = False                                                          │                             │
+│ ╰──────────────────────────────────────────────────────────────────────────╯                             │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/thefuckllm/engine.py:32 in extract_command                     │
+│                                                                                                          │
+│    29 │   │   │   Message(role="system", content=COMMAND_EXTRACTOR_SYSTEM),                              │
+│    30 │   │   │   Message(role="user", content=f"Extract the CLI tool name from: {query}"),              │
+│    31 │   │   ]                                                                                          │
+│ ❱  32 │   │   response = provider.complete(messages, max_tokens=10)                                      │
+│    33 │   │   return response.content.strip()                                                            │
+│    34 │                                                                                                  │
+│    35 │   def ask(self, query: str, verbose: bool = False) -> str:                                       │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │ messages = [                                                                                         │ │
+│ │            │   Message(                                                                              │ │
+│ │            │   │   role='system',                                                                    │ │
+│ │            │   │   content="You're a simple tool name extractor. Given the user query, extract the   │ │
+│ │            required "+132                                                                            │ │
+│ │            │   ),                                                                                    │ │
+│ │            │   Message(                                                                              │ │
+│ │            │   │   role='user',                                                                      │ │
+│ │            │   │   content='Extract the CLI tool name from: how do I split a huggingface dataset     │ │
+│ │            into train/'+12                                                                           │ │
+│ │            │   )                                                                                     │ │
+│ │            ]                                                                                         │ │
+│ │ provider = <thefuckllm.providers.litellm_provider.LiteLLMProvider object at 0x105de9e20>             │ │
+│ │    query = 'how do I split a huggingface dataset into train/test splits?'                            │ │
+│ │     self = <thefuckllm.engine.InferenceEngine object at 0x105e0c7d0>                                 │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/thefuckllm/providers/litellm_provider.py:70 in complete        │
+│                                                                                                          │
+│    67 │   │   if self._api_key:                                                                          │
+│    68 │   │   │   kwargs["api_key"] = self._api_key                                                      │
+│    69 │   │                                                                                              │
+│ ❱  70 │   │   response = litellm.completion(**kwargs)                                                    │
+│    71 │   │                                                                                              │
+│    72 │   │   usage = None                                                                               │
+│    73 │   │   if response.usage:                                                                         │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │      kwargs = {                                                                                      │ │
+│ │               │   'model': 'claude-3-5-sonnet-latest',                                               │ │
+│ │               │   'messages': [                                                                      │ │
+│ │               │   │   {                                                                              │ │
+│ │               │   │   │   'role': 'system',                                                          │ │
+│ │               │   │   │   'content': "You're a simple tool name extractor. Given the user query,     │ │
+│ │               extract the required "+132                                                             │ │
+│ │               │   │   },                                                                             │ │
+│ │               │   │   {                                                                              │ │
+│ │               │   │   │   'role': 'user',                                                            │ │
+│ │               │   │   │   'content': 'Extract the CLI tool name from: how do I split a huggingface   │ │
+│ │               dataset into train/'+12                                                                │ │
+│ │               │   │   }                                                                              │ │
+│ │               │   ],                                                                                 │ │
+│ │               │   'max_tokens': 10,                                                                  │ │
+│ │               │   'temperature': 0.7,                                                                │ │
+│ │               │   'api_key':                                                                         │ │
+│ │               'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZoa0OujqgiTq3JE'+28  │ │
+│ │               }                                                                                      │ │
+│ │     litellm = <module 'litellm' from                                                                 │ │
+│ │               '/Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm… │ │
+│ │  max_tokens = 10                                                                                     │ │
+│ │    messages = [                                                                                      │ │
+│ │               │   Message(                                                                           │ │
+│ │               │   │   role='system',                                                                 │ │
+│ │               │   │   content="You're a simple tool name extractor. Given the user query, extract    │ │
+│ │               the required "+132                                                                     │ │
+│ │               │   ),                                                                                 │ │
+│ │               │   Message(                                                                           │ │
+│ │               │   │   role='user',                                                                   │ │
+│ │               │   │   content='Extract the CLI tool name from: how do I split a huggingface dataset  │ │
+│ │               into train/'+12                                                                        │ │
+│ │               │   )                                                                                  │ │
+│ │               ]                                                                                      │ │
+│ │        self = <thefuckllm.providers.litellm_provider.LiteLLMProvider object at 0x105de9e20>          │ │
+│ │        stop = None                                                                                   │ │
+│ │ temperature = 0.7                                                                                    │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/utils.py:1405 in    │
+│ wrapper                                                                                                  │
+│                                                                                                          │
+│   1402 │   │   │   │   logging_obj.failure_handler(                                                      │
+│   1403 │   │   │   │   │   e, traceback_exception, start_time, end_time                                  │
+│   1404 │   │   │   │   )  # DO NOT MAKE THREADED - router retry fallback relies on this!                 │
+│ ❱ 1405 │   │   │   raise e                                                                               │
+│   1406 │                                                                                                 │
+│   1407 │   @wraps(original_function)                                                                     │
+│   1408 │   async def wrapper_async(*args, **kwargs):  # noqa: PLR0915                                    │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │      _is_litellm_router_call = False                                                                 │ │
+│ │         _llm_caching_handler = <litellm.caching.caching_handler.LLMCachingHandler object at          │ │
+│ │                                0x105e0cc50>                                                          │ │
+│ │                         args = ()                                                                    │ │
+│ │                    call_type = 'completion'                                                          │ │
+│ │ context_window_fallback_dict = {}                                                                    │ │
+│ │                     end_time = datetime.datetime(2025, 12, 29, 3, 57, 15, 566038)                    │ │
+│ │                            k = 'litellm_logging_obj'                                                 │ │
+│ │                       kwargs = {                                                                     │ │
+│ │                                │   'model': 'claude-3-5-sonnet-latest',                              │ │
+│ │                                │   'messages': [                                                     │ │
+│ │                                │   │   {                                                             │ │
+│ │                                │   │   │   'role': 'system',                                         │ │
+│ │                                │   │   │   'content': "You're a simple tool name extractor. Given    │ │
+│ │                                the user query, extract the required "+132                            │ │
+│ │                                │   │   },                                                            │ │
+│ │                                │   │   {                                                             │ │
+│ │                                │   │   │   'role': 'user',                                           │ │
+│ │                                │   │   │   'content': 'Extract the CLI tool name from: how do I      │ │
+│ │                                split a huggingface dataset into train/'+12                           │ │
+│ │                                │   │   }                                                             │ │
+│ │                                │   ],                                                                │ │
+│ │                                │   'max_tokens': 10,                                                 │ │
+│ │                                │   'temperature': 0.7,                                               │ │
+│ │                                │   'api_key':                                                        │ │
+│ │                                'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZo… │ │
+│ │                                │   'litellm_call_id': 'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',        │ │
+│ │                                │   'litellm_logging_obj':                                            │ │
+│ │                                <litellm.litellm_core_utils.litellm_logging.Logging object at         │ │
+│ │                                0x105e0d3d0>                                                          │ │
+│ │                                }                                                                     │ │
+│ │                  logging_obj = <litellm.litellm_core_utils.litellm_logging.Logging object at         │ │
+│ │                                0x105e0d3d0>                                                          │ │
+│ │                        model = 'claude-3-5-sonnet-latest'                                            │ │
+│ │                  num_retries = None                                                                  │ │
+│ │                       result = None                                                                  │ │
+│ │                    rules_obj = <litellm.litellm_core_utils.rules.Rules object at 0x10f418f20>        │ │
+│ │                   start_time = datetime.datetime(2025, 12, 29, 3, 57, 15, 243557)                    │ │
+│ │          traceback_exception = 'Traceback (most recent call last):\n  File                           │ │
+│ │                                "/Users/alperiox/Desktop/coding/thefuc'+2699                          │ │
+│ │                            v = <litellm.litellm_core_utils.litellm_logging.Logging object at         │ │
+│ │                                0x105e0d3d0>                                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/utils.py:1274 in    │
+│ wrapper                                                                                                  │
+│                                                                                                          │
+│   1271 │   │   │   │   except Exception as e:                                                            │
+│   1272 │   │   │   │   │   print_verbose(f"Error while checking max token limit: {str(e)}")              │
+│   1273 │   │   │   # MODEL CALL                                                                          │
+│ ❱ 1274 │   │   │   result = original_function(*args, **kwargs)                                           │
+│   1275 │   │   │   end_time = datetime.datetime.now()                                                    │
+│   1276 │   │   │   if _is_streaming_request(                                                             │
+│   1277 │   │   │   │   kwargs=kwargs,                                                                    │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │      _is_litellm_router_call = False                                                                 │ │
+│ │         _llm_caching_handler = <litellm.caching.caching_handler.LLMCachingHandler object at          │ │
+│ │                                0x105e0cc50>                                                          │ │
+│ │                         args = ()                                                                    │ │
+│ │                    call_type = 'completion'                                                          │ │
+│ │ context_window_fallback_dict = {}                                                                    │ │
+│ │                     end_time = datetime.datetime(2025, 12, 29, 3, 57, 15, 566038)                    │ │
+│ │                            k = 'litellm_logging_obj'                                                 │ │
+│ │                       kwargs = {                                                                     │ │
+│ │                                │   'model': 'claude-3-5-sonnet-latest',                              │ │
+│ │                                │   'messages': [                                                     │ │
+│ │                                │   │   {                                                             │ │
+│ │                                │   │   │   'role': 'system',                                         │ │
+│ │                                │   │   │   'content': "You're a simple tool name extractor. Given    │ │
+│ │                                the user query, extract the required "+132                            │ │
+│ │                                │   │   },                                                            │ │
+│ │                                │   │   {                                                             │ │
+│ │                                │   │   │   'role': 'user',                                           │ │
+│ │                                │   │   │   'content': 'Extract the CLI tool name from: how do I      │ │
+│ │                                split a huggingface dataset into train/'+12                           │ │
+│ │                                │   │   }                                                             │ │
+│ │                                │   ],                                                                │ │
+│ │                                │   'max_tokens': 10,                                                 │ │
+│ │                                │   'temperature': 0.7,                                               │ │
+│ │                                │   'api_key':                                                        │ │
+│ │                                'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9ZTjMNPxPUrWZo… │ │
+│ │                                │   'litellm_call_id': 'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',        │ │
+│ │                                │   'litellm_logging_obj':                                            │ │
+│ │                                <litellm.litellm_core_utils.litellm_logging.Logging object at         │ │
+│ │                                0x105e0d3d0>                                                          │ │
+│ │                                }                                                                     │ │
+│ │                  logging_obj = <litellm.litellm_core_utils.litellm_logging.Logging object at         │ │
+│ │                                0x105e0d3d0>                                                          │ │
+│ │                        model = 'claude-3-5-sonnet-latest'                                            │ │
+│ │                  num_retries = None                                                                  │ │
+│ │                       result = None                                                                  │ │
+│ │                    rules_obj = <litellm.litellm_core_utils.rules.Rules object at 0x10f418f20>        │ │
+│ │                   start_time = datetime.datetime(2025, 12, 29, 3, 57, 15, 243557)                    │ │
+│ │          traceback_exception = 'Traceback (most recent call last):\n  File                           │ │
+│ │                                "/Users/alperiox/Desktop/coding/thefuc'+2699                          │ │
+│ │                            v = <litellm.litellm_core_utils.litellm_logging.Logging object at         │ │
+│ │                                0x105e0d3d0>                                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/main.py:4080 in     │
+│ completion                                                                                               │
+│                                                                                                          │
+│   4077 │   │   return response                                                                           │
+│   4078 │   except Exception as e:                                                                        │
+│   4079 │   │   ## Map to OpenAI Exception                                                                │
+│ ❱ 4080 │   │   raise exception_type(                                                                     │
+│   4081 │   │   │   model=model,                                                                          │
+│   4082 │   │   │   custom_llm_provider=custom_llm_provider,                                              │
+│   4083 │   │   │   original_exception=e,                                                                 │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │                              acompletion = False                                                     │ │
+│ │                                 api_base = 'https://api.anthropic.com/v1/messages'                   │ │
+│ │                                  api_key = 'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9Z… │ │
+│ │                              api_version = None                                                      │ │
+│ │                                     args = {                                                         │ │
+│ │                                            │   'model': 'claude-3-5-sonnet-latest',                  │ │
+│ │                                            │   'messages': [                                         │ │
+│ │                                            │   │   {                                                 │ │
+│ │                                            │   │   │   'role': 'system',                             │ │
+│ │                                            │   │   │   'content': "You're a simple tool name         │ │
+│ │                                            extractor. Given the user query, extract the required     │ │
+│ │                                            "+132                                                     │ │
+│ │                                            │   │   },                                                │ │
+│ │                                            │   │   {                                                 │ │
+│ │                                            │   │   │   'role': 'user',                               │ │
+│ │                                            │   │   │   'content': 'Extract the CLI tool name from:   │ │
+│ │                                            how do I split a huggingface dataset into train/'+12      │ │
+│ │                                            │   │   }                                                 │ │
+│ │                                            │   ],                                                    │ │
+│ │                                            │   'timeout': 600.0,                                     │ │
+│ │                                            │   'temperature': 0.7,                                   │ │
+│ │                                            │   'top_p': None,                                        │ │
+│ │                                            │   'n': None,                                            │ │
+│ │                                            │   'stream': None,                                       │ │
+│ │                                            │   'stream_options': None,                               │ │
+│ │                                            │   'stop': None,                                         │ │
+│ │                                            │   'max_completion_tokens': None,                        │ │
+│ │                                            │   ... +90                                               │ │
+│ │                                            }                                                         │ │
+│ │               assistant_continue_message = None                                                      │ │
+│ │                         atext_completion = False                                                     │ │
+│ │                                    audio = None                                                      │ │
+│ │                               base_model = None                                                      │ │
+│ │                                 base_url = None                                                      │ │
+│ │                                bos_token = None                                                      │ │
+│ │                                   client = None                                                      │ │
+│ │             context_window_fallback_dict = None                                                      │ │
+│ │                            cooldown_time = None                                                      │ │
+│ │                      custom_llm_provider = 'anthropic'                                               │ │
+│ │                       custom_prompt_dict = {}                                                        │ │
+│ │                            deployment_id = None                                                      │ │
+│ │ disable_add_transform_inline_image_block = None                                                      │ │
+│ │                       disable_url_suffix = None                                                      │ │
+│ │                          dynamic_api_key = None                                                      │ │
+│ │                 ensure_alternating_roles = None                                                      │ │
+│ │                                eos_token = None                                                      │ │
+│ │                            extra_headers = None                                                      │ │
+│ │                                fallbacks = None                                                      │ │
+│ │                       final_prompt_value = None                                                      │ │
+│ │                            force_timeout = 600                                                       │ │
+│ │                        frequency_penalty = None                                                      │ │
+│ │                            function_call = None                                                      │ │
+│ │                                functions = None                                                      │ │
+│ │                                  headers = {}                                                        │ │
+│ │                            hf_model_name = None                                                      │ │
+│ │                                       id = None                                                      │ │
+│ │                     initial_prompt_value = None                                                      │ │
+│ │                    input_cost_per_second = None                                                      │ │
+│ │                     input_cost_per_token = None                                                      │ │
+│ │                                   kwargs = {                                                         │ │
+│ │                                            │   'litellm_call_id':                                    │ │
+│ │                                            'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',                   │ │
+│ │                                            │   'litellm_logging_obj':                                │ │
+│ │                                            <litellm.litellm_core_utils.litellm_logging.Logging       │ │
+│ │                                            object at 0x105e0d3d0>                                    │ │
+│ │                                            }                                                         │ │
+│ │                      litellm_logging_obj = <litellm.litellm_core_utils.litellm_logging.Logging       │ │
+│ │                                            object at 0x105e0d3d0>                                    │ │
+│ │                           litellm_params = {                                                         │ │
+│ │                                            │   'acompletion': False,                                 │ │
+│ │                                            │   'api_key':                                            │ │
+│ │                                            'sk-ant-api03-Ld4bJpksSJlDyXjmsMdZOlQ15DCHrDgqMkZSeqFr9Z… │ │
+│ │                                            │   'force_timeout': 600,                                 │ │
+│ │                                            │   'logger_fn': None,                                    │ │
+│ │                                            │   'verbose': False,                                     │ │
+│ │                                            │   'custom_llm_provider': 'anthropic',                   │ │
+│ │                                            │   'api_base': None,                                     │ │
+│ │                                            │   'litellm_call_id':                                    │ │
+│ │                                            'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',                   │ │
+│ │                                            │   'model_alias_map': {},                                │ │
+│ │                                            │   'completion_call_id': None,                           │ │
+│ │                                            │   ... +59                                               │ │
+│ │                                            }                                                         │ │
+│ │                                logger_fn = None                                                      │ │
+│ │                                  logging = <litellm.litellm_core_utils.litellm_logging.Logging       │ │
+│ │                                            object at 0x105e0d3d0>                                    │ │
+│ │                               logit_bias = None                                                      │ │
+│ │                                 logprobs = None                                                      │ │
+│ │                    max_completion_tokens = None                                                      │ │
+│ │                              max_retries = None                                                      │ │
+│ │                               max_tokens = 10                                                        │ │
+│ │                                 messages = [                                                         │ │
+│ │                                            │   {                                                     │ │
+│ │                                            │   │   'role': 'system',                                 │ │
+│ │                                            │   │   'content': "You're a simple tool name extractor.  │ │
+│ │                                            Given the user query, extract the required "+132          │ │
+│ │                                            │   },                                                    │ │
+│ │                                            │   {                                                     │ │
+│ │                                            │   │   'role': 'user',                                   │ │
+│ │                                            │   │   'content': 'Extract the CLI tool name from: how   │ │
+│ │                                            do I split a huggingface dataset into train/'+12          │ │
+│ │                                            │   }                                                     │ │
+│ │                                            ]                                                         │ │
+│ │                                 metadata = None                                                      │ │
+│ │                            mock_response = None                                                      │ │
+│ │                             mock_timeout = None                                                      │ │
+│ │                          mock_tool_calls = None                                                      │ │
+│ │                               modalities = None                                                      │ │
+│ │                                    model = 'claude-3-5-sonnet-latest'                                │ │
+│ │                               model_info = {                                                         │ │
+│ │                                            │   'key': 'claude-3-5-sonnet-latest',                    │ │
+│ │                                            │   'max_tokens': 8192,                                   │ │
+│ │                                            │   'max_input_tokens': 200000,                           │ │
+│ │                                            │   'max_output_tokens': 8192,                            │ │
+│ │                                            │   'input_cost_per_token': 3e-06,                        │ │
+│ │                                            │   'input_cost_per_token_flex': None,                    │ │
+│ │                                            │   'input_cost_per_token_priority': None,                │ │
+│ │                                            │   'cache_creation_input_token_cost': 3.75e-06,          │ │
+│ │                                            │   'cache_creation_input_token_cost_above_200k_tokens':  │ │
+│ │                                            None,                                                     │ │
+│ │                                            │   'cache_read_input_token_cost': 3e-07,                 │ │
+│ │                                            │   ... +51                                               │ │
+│ │                                            }                                                         │ │
+│ │                               model_list = None                                                      │ │
+│ │                           model_response = ModelResponse(                                            │ │
+│ │                                            │   id='chatcmpl-841fd9ff-a549-4ba6-8a15-15cf1ad494b8',   │ │
+│ │                                            │   created=1766969835,                                   │ │
+│ │                                            │   model=None,                                           │ │
+│ │                                            │   object='chat.completion',                             │ │
+│ │                                            │   system_fingerprint=None,                              │ │
+│ │                                            │   choices=[                                             │ │
+│ │                                            │   │   Choices(                                          │ │
+│ │                                            │   │   │   finish_reason='stop',                         │ │
+│ │                                            │   │   │   index=0,                                      │ │
+│ │                                            │   │   │   message=Message(                              │ │
+│ │                                            │   │   │   │   content=None,                             │ │
+│ │                                            │   │   │   │   role='assistant',                         │ │
+│ │                                            │   │   │   │   tool_calls=None,                          │ │
+│ │                                            │   │   │   │   function_call=None,                       │ │
+│ │                                            │   │   │   │   provider_specific_fields=None             │ │
+│ │                                            │   │   │   )                                             │ │
+│ │                                            │   │   )                                                 │ │
+│ │                                            │   ],                                                    │ │
+│ │                                            │   usage=Usage(                                          │ │
+│ │                                            │   │   completion_tokens=0,                              │ │
+│ │                                            │   │   prompt_tokens=0,                                  │ │
+│ │                                            │   │   total_tokens=0,                                   │ │
+│ │                                            │   │   completion_tokens_details=None,                   │ │
+│ │                                            │   │   prompt_tokens_details=None                        │ │
+│ │                                            │   )                                                     │ │
+│ │                                            )                                                         │ │
+│ │                                        n = None                                                      │ │
+│ │                                   no_log = False                                                     │ │
+│ │                       non_default_params = {}                                                        │ │
+│ │                              num_retries = None                                                      │ │
+│ │                      optional_param_args = {                                                         │ │
+│ │                                            │   'functions': None,                                    │ │
+│ │                                            │   'function_call': None,                                │ │
+│ │                                            │   'temperature': 0.7,                                   │ │
+│ │                                            │   'top_p': None,                                        │ │
+│ │                                            │   'n': None,                                            │ │
+│ │                                            │   'stream': None,                                       │ │
+│ │                                            │   'stream_options': None,                               │ │
+│ │                                            │   'stop': None,                                         │ │
+│ │                                            │   'max_tokens': 10,                                     │ │
+│ │                                            │   'max_completion_tokens': None,                        │ │
+│ │                                            │   ... +25                                               │ │
+│ │                                            }                                                         │ │
+│ │                          optional_params = {'temperature': 0.7, 'max_tokens': 10}                    │ │
+│ │                             organization = None                                                      │ │
+│ │                   output_cost_per_second = None                                                      │ │
+│ │                    output_cost_per_token = None                                                      │ │
+│ │                      parallel_tool_calls = None                                                      │ │
+│ │                               prediction = None                                                      │ │
+│ │                         presence_penalty = None                                                      │ │
+│ │                         preset_cache_key = None                                                      │ │
+│ │             processed_non_default_params = {'temperature': 0.7, 'max_tokens': 10}                    │ │
+│ │                                prompt_id = None                                                      │ │
+│ │                         prompt_variables = None                                                      │ │
+│ │                          provider_config = <litellm.llms.anthropic.chat.transformation.AnthropicCon… │ │
+│ │                                            object at 0x109e45490>                                    │ │
+│ │                 provider_specific_header = None                                                      │ │
+│ │                     proxy_server_request = None                                                      │ │
+│ │                         reasoning_effort = None                                                      │ │
+│ │                          response_format = None                                                      │ │
+│ │                                    roles = None                                                      │ │
+│ │                        safety_identifier = None                                                      │ │
+│ │                                     seed = None                                                      │ │
+│ │                             service_tier = None                                                      │ │
+│ │                           shared_session = None                                                      │ │
+│ │                         skip_mcp_handler = False                                                     │ │
+│ │                               ssl_verify = None                                                      │ │
+│ │                                     stop = None                                                      │ │
+│ │                                   stream = None                                                      │ │
+│ │                           stream_options = None                                                      │ │
+│ │                  supports_system_message = None                                                      │ │
+│ │                              temperature = 0.7                                                       │ │
+│ │                          text_completion = False                                                     │ │
+│ │                                 thinking = None                                                      │ │
+│ │                                  timeout = 600.0                                                     │ │
+│ │                              tool_choice = None                                                      │ │
+│ │                                    tools = None                                                      │ │
+│ │                             top_logprobs = None                                                      │ │
+│ │                                    top_p = None                                                      │ │
+│ │                                     user = None                                                      │ │
+│ │                    user_continue_message = None                                                      │ │
+│ │                                  verbose = False                                                     │ │
+│ │                                verbosity = None                                                      │ │
+│ │                       web_search_options = None                                                      │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/litellm_core_utils/ │
+│ exception_mapping_utils.py:2340 in exception_type                                                        │
+│                                                                                                          │
+│   2337 │   │   # don't let an error with mapping interrupt the user from receiving an error fro          │
+│   2338 │   │   if exception_mapping_worked:                                                              │
+│   2339 │   │   │   setattr(e, "litellm_response_headers", litellm_response_headers)                      │
+│ ❱ 2340 │   │   │   raise e                                                                               │
+│   2341 │   │   else:                                                                                     │
+│   2342 │   │   │   for error_type in litellm.LITELLM_EXCEPTION_TYPES:                                    │
+│   2343 │   │   │   │   if isinstance(e, error_type):                                                     │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │                _api_base = None                                                                      │ │
+│ │              _deployment = None                                                                      │ │
+│ │                _metadata = {}                                                                        │ │
+│ │             _model_group = None                                                                      │ │
+│ │         _vertex_location = None                                                                      │ │
+│ │          _vertex_project = None                                                                      │ │
+│ │        completion_kwargs = {                                                                         │ │
+│ │                            │   'model': 'claude-3-5-sonnet-latest',                                  │ │
+│ │                            │   'messages': [                                                         │ │
+│ │                            │   │   {                                                                 │ │
+│ │                            │   │   │   'role': 'system',                                             │ │
+│ │                            │   │   │   'content': "You're a simple tool name extractor. Given the    │ │
+│ │                            user query, extract the required "+132                                    │ │
+│ │                            │   │   },                                                                │ │
+│ │                            │   │   {                                                                 │ │
+│ │                            │   │   │   'role': 'user',                                               │ │
+│ │                            │   │   │   'content': 'Extract the CLI tool name from: how do I split a  │ │
+│ │                            huggingface dataset into train/'+12                                       │ │
+│ │                            │   │   }                                                                 │ │
+│ │                            │   ],                                                                    │ │
+│ │                            │   'timeout': 600.0,                                                     │ │
+│ │                            │   'temperature': 0.7,                                                   │ │
+│ │                            │   'top_p': None,                                                        │ │
+│ │                            │   'n': None,                                                            │ │
+│ │                            │   'stream': None,                                                       │ │
+│ │                            │   'stream_options': None,                                               │ │
+│ │                            │   'stop': None,                                                         │ │
+│ │                            │   'max_completion_tokens': None,                                        │ │
+│ │                            │   ... +90                                                               │ │
+│ │                            }                                                                         │ │
+│ │      custom_llm_provider = 'anthropic'                                                               │ │
+│ │                error_str = '{"type":"error","error":{"type":"not_found_error","message":"model:      │ │
+│ │                            claude-3-5-s'+59                                                          │ │
+│ │ exception_mapping_worked = True                                                                      │ │
+│ │       exception_provider = 'AnthropicException'                                                      │ │
+│ │           exception_type = 'AnthropicError'                                                          │ │
+│ │        extra_information = '\nModel: claude-3-5-sonnet-latest\nMessages: `[{\'role\': \'system\',    │ │
+│ │                            \'content\': "You\''+65                                                   │ │
+│ │             extra_kwargs = {                                                                         │ │
+│ │                            │   'litellm_call_id': 'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',            │ │
+│ │                            │   'litellm_logging_obj':                                                │ │
+│ │                            <litellm.litellm_core_utils.litellm_logging.Logging object at             │ │
+│ │                            0x105e0d3d0>                                                              │ │
+│ │                            }                                                                         │ │
+│ │ litellm_response_headers = Headers({'date': 'Mon, 29 Dec 2025 00:57:15 GMT', 'content-type':         │ │
+│ │                            'application/json', 'transfer-encoding': 'chunked', 'connection':         │ │
+│ │                            'keep-alive', 'x-should-retry': 'false', 'request-id':                    │ │
+│ │                            'req_011CWa4zebtkpsh36fesmV7E', 'strict-transport-security':              │ │
+│ │                            'max-age=31536000; includeSubDomains; preload',                           │ │
+│ │                            'anthropic-organization-id': '25c4dd88-f4df-451b-a459-9bb9b85028c6',      │ │
+│ │                            'server': 'cloudflare', 'x-envoy-upstream-service-time': '40',            │ │
+│ │                            'cf-cache-status': 'DYNAMIC', 'x-robots-tag': 'none', 'content-encoding': │ │
+│ │                            'gzip', 'cf-ray': '9b55579fca2f206b-IST'})                                │ │
+│ │                 messages = '[{\'role\': \'system\', \'content\': "You\'re a simple tool name         │ │
+│ │                            extractor. Given the u'+20                                                │ │
+│ │                    model = 'claude-3-5-sonnet-latest'                                                │ │
+│ │       original_exception = AnthropicError('{"type":"error","error":{"type":"not_found_error","messa… │ │
+│ │                            claude-3-5-sonnet-latest"},"request_id":"req_011CWa4zebtkpsh36fesmV7E"}') │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+│                                                                                                          │
+│ /Users/alperiox/Desktop/coding/thefuckllm/.venv/lib/python3.12/site-packages/litellm/litellm_core_utils/ │
+│ exception_mapping_utils.py:657 in exception_type                                                         │
+│                                                                                                          │
+│    654 │   │   │   │   │   │   )                                                                         │
+│    655 │   │   │   │   │   elif original_exception.status_code == 404:                                   │
+│    656 │   │   │   │   │   │   exception_mapping_worked = True                                           │
+│ ❱  657 │   │   │   │   │   │   raise NotFoundError(                                                      │
+│    658 │   │   │   │   │   │   │   message=f"AnthropicException - {error_str}",                          │
+│    659 │   │   │   │   │   │   │   model=model,                                                          │
+│    660 │   │   │   │   │   │   │   llm_provider="anthropic",                                             │
+│                                                                                                          │
+│ ╭─────────────────────────────────────────────── locals ───────────────────────────────────────────────╮ │
+│ │                _api_base = None                                                                      │ │
+│ │              _deployment = None                                                                      │ │
+│ │                _metadata = {}                                                                        │ │
+│ │             _model_group = None                                                                      │ │
+│ │         _vertex_location = None                                                                      │ │
+│ │          _vertex_project = None                                                                      │ │
+│ │        completion_kwargs = {                                                                         │ │
+│ │                            │   'model': 'claude-3-5-sonnet-latest',                                  │ │
+│ │                            │   'messages': [                                                         │ │
+│ │                            │   │   {                                                                 │ │
+│ │                            │   │   │   'role': 'system',                                             │ │
+│ │                            │   │   │   'content': "You're a simple tool name extractor. Given the    │ │
+│ │                            user query, extract the required "+132                                    │ │
+│ │                            │   │   },                                                                │ │
+│ │                            │   │   {                                                                 │ │
+│ │                            │   │   │   'role': 'user',                                               │ │
+│ │                            │   │   │   'content': 'Extract the CLI tool name from: how do I split a  │ │
+│ │                            huggingface dataset into train/'+12                                       │ │
+│ │                            │   │   }                                                                 │ │
+│ │                            │   ],                                                                    │ │
+│ │                            │   'timeout': 600.0,                                                     │ │
+│ │                            │   'temperature': 0.7,                                                   │ │
+│ │                            │   'top_p': None,                                                        │ │
+│ │                            │   'n': None,                                                            │ │
+│ │                            │   'stream': None,                                                       │ │
+│ │                            │   'stream_options': None,                                               │ │
+│ │                            │   'stop': None,                                                         │ │
+│ │                            │   'max_completion_tokens': None,                                        │ │
+│ │                            │   ... +90                                                               │ │
+│ │                            }                                                                         │ │
+│ │      custom_llm_provider = 'anthropic'                                                               │ │
+│ │                error_str = '{"type":"error","error":{"type":"not_found_error","message":"model:      │ │
+│ │                            claude-3-5-s'+59                                                          │ │
+│ │ exception_mapping_worked = True                                                                      │ │
+│ │       exception_provider = 'AnthropicException'                                                      │ │
+│ │           exception_type = 'AnthropicError'                                                          │ │
+│ │        extra_information = '\nModel: claude-3-5-sonnet-latest\nMessages: `[{\'role\': \'system\',    │ │
+│ │                            \'content\': "You\''+65                                                   │ │
+│ │             extra_kwargs = {                                                                         │ │
+│ │                            │   'litellm_call_id': 'd32e24ce-99fb-4de1-bd12-98bf1d48d5ca',            │ │
+│ │                            │   'litellm_logging_obj':                                                │ │
+│ │                            <litellm.litellm_core_utils.litellm_logging.Logging object at             │ │
+│ │                            0x105e0d3d0>                                                              │ │
+│ │                            }                                                                         │ │
+│ │ litellm_response_headers = Headers({'date': 'Mon, 29 Dec 2025 00:57:15 GMT', 'content-type':         │ │
+│ │                            'application/json', 'transfer-encoding': 'chunked', 'connection':         │ │
+│ │                            'keep-alive', 'x-should-retry': 'false', 'request-id':                    │ │
+│ │                            'req_011CWa4zebtkpsh36fesmV7E', 'strict-transport-security':              │ │
+│ │                            'max-age=31536000; includeSubDomains; preload',                           │ │
+│ │                            'anthropic-organization-id': '25c4dd88-f4df-451b-a459-9bb9b85028c6',      │ │
+│ │                            'server': 'cloudflare', 'x-envoy-upstream-service-time': '40',            │ │
+│ │                            'cf-cache-status': 'DYNAMIC', 'x-robots-tag': 'none', 'content-encoding': │ │
+│ │                            'gzip', 'cf-ray': '9b55579fca2f206b-IST'})                                │ │
+│ │                 messages = '[{\'role\': \'system\', \'content\': "You\'re a simple tool name         │ │
+│ │                            extractor. Given the u'+20                                                │ │
+│ │                    model = 'claude-3-5-sonnet-latest'                                                │ │
+│ │       original_exception = AnthropicError('{"type":"error","error":{"type":"not_found_error","messa… │ │
+│ │                            claude-3-5-sonnet-latest"},"request_id":"req_011CWa4zebtkpsh36fesmV7E"}') │ │
+│ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+NotFoundError: litellm.NotFoundError: AnthropicException - 
+{"type":"error","error":{"type":"not_found_error","message":"model: 
+claude-3-5-sonnet-latest"},"request_id":"req_011CWa4zebtkpsh36fesmV7E"}
+
+ ◤ ◢  …/thefuckllm   main !?   v3.12.11   03:57  
+❯ 
