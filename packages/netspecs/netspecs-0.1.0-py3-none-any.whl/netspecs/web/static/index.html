@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netspecs Dashboard</title>
+    <link rel="icon" type="image/png" href="/static/netspecs-icon.png">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="/static/netspecs-icon.png" alt="NetSpecs" class="logo-icon" width="32" height="32">
+                <h1>NetSpecs: Internet Tests</h1>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" id="settingsToggle" aria-label="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+                <button class="header-btn" id="themeToggle" aria-label="Toggle theme">
+                    <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close" id="settingsClose" aria-label="Close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="config-field">
+                    <label for="globalApiKey">API Key</label>
+                    <input type="password" id="globalApiKey" placeholder="sk-...">
+                    <small class="field-hint" id="apiKeyStatus">Checking...</small>
+                </div>
+                <div class="config-field">
+                    <label for="resultsStoragePath">Results storage path</label>
+                    <input type="text" id="resultsStoragePath" placeholder="./netspecs_results">
+                </div>
+                <div class="config-field">
+                    <label>
+                        <input type="checkbox" id="autoSaveResults" checked>
+                        Auto-save results to storage
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="settingsCancel">Cancel</button>
+                <button class="btn-primary" id="settingsSave">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="main">
+        <!-- Live Status Section -->
+        <section class="live-section">
+            <div class="status-indicator" id="statusIndicator">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+            <div class="live-metrics">
+                <div class="metric-card live">
+                    <span class="metric-label">Live Latency</span>
+                    <span class="metric-value" id="liveLatency">--</span>
+                    <span class="metric-unit">ms</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Packet Loss</span>
+                    <span class="metric-value" id="packetLoss">--</span>
+                    <span class="metric-unit">%</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Test Controls -->
+        <section class="controls-section">
+            <h2>Run Tests</h2>
+            <div class="controls-grid">
+                <!-- Latency Test -->
+                <div class="test-card" id="cardLatency">
+                    <div class="test-card-header">
+                        <button class="test-button" id="btnLatency" data-test="latency">
+                            <span class="btn-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                            </span>
+                            <span class="btn-text">Latency Test</span>
+                            <span class="btn-desc">Ping multiple endpoints</span>
+                        </button>
+                        <button class="config-toggle" data-target="configLatency" aria-label="Configure">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="config-panel" id="configLatency">
+                        <div class="config-field">
+                            <label for="latencyEndpoints">Endpoints (comma-separated)</label>
+                            <input type="text" id="latencyEndpoints" placeholder="1.1.1.1, 8.8.8.8, google.com">
+                        </div>
+                        <div class="config-field">
+                            <label for="latencyCount">Ping count</label>
+                            <input type="number" id="latencyCount" value="10" min="1" max="100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Speed Test -->
+                <div class="test-card" id="cardSpeed">
+                    <div class="test-card-header">
+                        <button class="test-button" id="btnSpeed" data-test="speed">
+                            <span class="btn-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                                </svg>
+                            </span>
+                            <span class="btn-text">Speed Test</span>
+                            <span class="btn-desc">Download & upload</span>
+                        </button>
+                        <button class="config-toggle" data-target="configSpeed" aria-label="Configure">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="config-panel" id="configSpeed">
+                        <div class="config-field">
+                            <label>
+                                <input type="checkbox" id="speedIncludeOokla" checked>
+                                Include Ookla speedtest
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jitter Test -->
+                <div class="test-card" id="cardJitter">
+                    <div class="test-card-header">
+                        <button class="test-button" id="btnJitter" data-test="jitter">
+                            <span class="btn-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                </svg>
+                            </span>
+                            <span class="btn-text">Jitter Test</span>
+                            <span class="btn-desc">Latency stability</span>
+                        </button>
+                        <button class="config-toggle" data-target="configJitter" aria-label="Configure">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="config-panel" id="configJitter">
+                        <div class="config-field">
+                            <label for="jitterEndpoint">Endpoint</label>
+                            <input type="text" id="jitterEndpoint" placeholder="1.1.1.1">
+                        </div>
+                        <div class="config-field">
+                            <label for="jitterDuration">Duration (seconds)</label>
+                            <input type="number" id="jitterDuration" value="10" min="5" max="120">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network Info -->
+                <div class="test-card" id="cardNetInfo">
+                    <div class="test-card-header">
+                        <button class="test-button" id="btnNetInfo" data-test="network-info">
+                            <span class="btn-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                    <path d="M8 21h8M12 17v4"/>
+                                </svg>
+                            </span>
+                            <span class="btn-text">Network Info</span>
+                            <span class="btn-desc">IP, DNS, gateway</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AI Diagnostics -->
+                <div class="test-card full-width" id="cardAIDiagnostics">
+                    <div class="test-card-header">
+                        <button class="test-button" id="btnAIDiagnostics" data-test="ai-diagnostics">
+                            <span class="btn-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
+                                    <circle cx="7.5" cy="14.5" r="1.5"/>
+                                    <circle cx="16.5" cy="14.5" r="1.5"/>
+                                </svg>
+                            </span>
+                            <span class="btn-text">AI Diagnostics Report</span>
+                            <span class="btn-desc">Generate an AI-powered analysis of your network</span>
+                        </button>
+                        <button class="config-toggle" data-target="configAIDiagnostics" aria-label="Configure">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="config-panel" id="configAIDiagnostics">
+                        <div class="config-field">
+                            <label for="aiApiKey">API Key</label>
+                            <input type="password" id="aiApiKey" placeholder="Use global key or enter one here">
+                            <small class="field-hint" id="aiApiKeyHint">Uses global API key if empty</small>
+                        </div>
+                        <div class="config-field">
+                            <label for="aiModel">Model</label>
+                            <input type="text" id="aiModel" placeholder="gpt-4o-mini" value="gpt-4o-mini">
+                        </div>
+                        <div class="config-field">
+                            <label>Tests to run before analysis</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" id="aiRunLatency" checked> Latency</label>
+                                <label><input type="checkbox" id="aiRunJitter" checked> Jitter</label>
+                                <label><input type="checkbox" id="aiRunNetInfo" checked> Network Info</label>
+                            </div>
+                        </div>
+                        <div class="config-field">
+                            <label>
+                                <input type="checkbox" id="aiUseExisting">
+                                Use existing results (if available)
+                            </label>
+                        </div>
+                        <div class="config-field">
+                            <label for="aiPrompt">Custom prompt (optional)</label>
+                            <textarea id="aiPrompt" rows="3" placeholder="Analyze the network diagnostics and provide recommendations..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>Results</h2>
+                <div class="results-actions">
+                    <button class="icon-btn" id="loadResults" aria-label="Load results">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </button>
+                    <button class="clear-button" id="clearResults">Clear</button>
+                </div>
+            </div>
+            <div class="results-container" id="resultsContainer">
+                <p class="results-placeholder">Run a test to see results here.</p>
+            </div>
+            <div class="results-history" id="resultsHistory">
+                <!-- Previous results shown as collapsible entries -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>netspecs v0.1.0</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
+
