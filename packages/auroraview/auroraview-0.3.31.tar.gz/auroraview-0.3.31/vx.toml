@@ -1,0 +1,91 @@
+# VX Project Configuration
+# This file defines the tools and versions required for this project.
+# Run 'vx setup' to install all required tools.
+# Run 'vx dev' to enter the development environment.
+# Project: auroraview
+
+[tools]
+just = "latest"
+python = "3.11"
+rust = "1.90.0"
+uv = "latest"
+node = "20"
+
+[settings]
+# Automatically install missing tools when entering dev environment
+auto_install = true
+# Cache duration for version checks
+cache_duration = "7d"
+
+[scripts]
+# All scripts delegate to just commands for consistency
+# Usage: vx <script-name> or vx just <command>
+
+# Core development
+build = "just build"
+build-release = "just build-release"
+build-all = "just build-all"
+build-cli = "just build-cli"
+build-wheel = "just build-wheel"
+rebuild-pylib = "just rebuild-pylib"
+install = "just install"
+dev = "just dev"
+clean = "just clean"
+
+# Testing
+test = "just test"
+test-unit = "just test-unit"
+test-integration = "just test-integration"
+test-fast = "just test-fast"
+test-cov = "just test-cov"
+test-pack = "just test-pack"
+
+# Linting & Formatting
+lint = "just lint"
+format = "just format"
+fix = "just fix"
+check = "just check"
+check-all = "just check-all"
+
+# Coverage
+coverage-python = "just coverage-python"
+coverage-rust = "just coverage-rust"
+coverage-all = "just coverage-all"
+
+# CI commands
+ci-install = "just ci-install"
+ci-build = "just ci-build"
+ci-lint = "just ci-lint"
+ci-test-rust = "just ci-test-rust"
+ci-test-python = "just ci-test-python"
+ci-test-basic = "just ci-test-basic"
+
+# SDK commands
+sdk-install = "just sdk-install"
+sdk-build = "just sdk-build"
+sdk-build-all = "just sdk-build-all"
+sdk-test = "just sdk-test"
+sdk-ci = "just sdk-ci"
+
+# Gallery commands
+gallery = "just gallery"
+gallery-build = "just gallery-build"
+gallery-dev = "just gallery-dev"
+gallery-pack = "just gallery-pack"
+gallery-test = "just gallery-test"
+
+# Documentation
+docs-install = "just docs-install"
+docs-dev = "just docs-dev"
+docs-build = "just docs-build"
+docs-preview = "just docs-preview"
+
+# Pack commands
+pack-build = "just pack-build"
+pack-all = "just pack-all"
+
+# Utility
+info = "just info"
+audit = "just audit"
+bench = "just bench"
+release = "just release"
