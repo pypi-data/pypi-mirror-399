@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "antporter"
+version = "1.0.2"
+description = "A simple tool for splitting and merging files to bypass HPC cluster file upload size limits"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{name = "AntPorter Team"}]
+keywords = ["file-split", "file-merge", "hpc", "chunk", "transfer"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Archiving",
+    "Topic :: Utilities",
+]
+
+dependencies = ["tqdm>=4.65.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0.0", "black>=23.0.0", "flake8>=6.0.0"]
+
+[project.scripts]
+antporter = "antporter.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/givemeone1astkiss/antporter"
+Repository = "https://github.com/givemeone1astkiss/antporter"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["antporter*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
