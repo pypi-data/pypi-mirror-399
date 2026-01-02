@@ -1,0 +1,126 @@
+version: "2.8"
+project:
+  name: "{{ cookiecutter.project_slug }}"
+  description: "{{ cookiecutter.project_name }}"
+  primary_goal: "{{ cookiecutter.primary_goal }}"
+  coverage_target: {{ cookiecutter.coverage_target | replace('%', '') }}
+workflow:
+  default_branch_type: "feature"
+  main_branch: "main"
+  context_dir: ".paircoder/context"
+  flows_dir: ".paircoder/flows"
+  plans_dir: ".paircoder/plans"
+  tasks_dir: ".paircoder/tasks"
+pack:
+  default_name: "agent_pack.tgz"
+  excludes:
+    - ".git"
+    - ".venv"
+    - "__pycache__"
+    - "node_modules"
+    - "dist"
+    - "build"
+    - "*.log"
+    - "*.bak"
+    - "*.egg-info"
+models:
+  # Role-based model assignment
+  navigator: claude-sonnet-4-5
+  driver: claude-sonnet-4-5
+  reviewer: claude-sonnet-4-5
+routing:
+  by_complexity:
+    trivial:   { max_score: 20,  model: claude-haiku-4-5 }
+    simple:    { max_score: 40,  model: claude-haiku-4-5 }
+    moderate:  { max_score: 60,  model: claude-sonnet-4-5 }
+    complex:   { max_score: 80,  model: claude-opus-4-5 }
+    epic:      { max_score: 100, model: claude-opus-4-5 }
+  overrides:
+    security: claude-opus-4-5
+    architecture: claude-opus-4-5
+flows:
+  enabled:
+    - design-plan-implement
+    - tdd-implement
+    - review
+    - finish-branch
+    - trello-aware-planning
+  triggers:
+    feature_request:
+      - design-plan-implement
+    bugfix:
+      - tdd-implement
+    pre_merge:
+      - review
+      - finish-branch
+    sprint_planning:
+      - trello-aware-planning
+
+# Trello integration (Sprint 14)
+trello:
+  board_id: ""  # Set via: bpsai-pair trello use-board <id>
+  board_name: ""
+  sync:
+    default_list: "Planned/Ready"
+    use_butler_workflow: true
+    preserve_manual_edits: true
+  list_mappings:
+    pending: "Planned/Ready"
+    in_progress: "In Progress"
+    blocked: "Blocked"
+    review: "In Review"
+    done: "Deployed/Done"
+
+# Estimation settings (Sprint 17)
+estimation:
+  complexity_to_hours:
+    XS: [0.5, 1, 2]    # [min, expected, max] hours
+    S: [1, 2, 4]
+    M: [2, 4, 8]
+    L: [4, 8, 16]
+    XL: [8, 16, 32]
+  
+  token_estimates:
+    base_context: 15000
+    per_complexity_point: 500
+    per_file_touched: 2000
+    by_task_type:
+      feature: 1.2
+      bugfix: 0.8
+      docs: 0.6
+      refactor: 1.5
+
+metrics:
+  enabled: true
+  store_path: .paircoder/history/metrics.jsonl
+
+token_budget:
+  warning_threshold: 75  # Warn when task estimated above this %
+  critical_threshold: 90  # Critical when above this %
+
+hooks:
+  enabled: true
+  on_task_start:
+    - check_token_budget
+    - start_timer
+    - sync_trello
+    - update_state
+  on_task_complete:
+    - stop_timer
+    - record_metrics
+    - record_velocity
+    - record_token_usage
+    - sync_trello
+    - update_state
+    - check_unblocked
+  on_task_block:
+    - sync_trello
+    - update_state
+
+# Security settings (Sprint 15)
+security:
+  allowlist_path: .paircoder/security/allowlist.yaml
+  secrets_allowlist_path: .paircoder/security/secret-allowlist.yaml
+  sandbox:
+    enabled: false
+    config_path: .paircoder/security/sandbox.yaml
