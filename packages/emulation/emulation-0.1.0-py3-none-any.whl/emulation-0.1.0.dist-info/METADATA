@@ -1,0 +1,65 @@
+Metadata-Version: 2.4
+Name: emulation
+Version: 0.1.0
+Summary: A Python package for creating synthetic cryoEM micrographs
+Author-email: Your Name <your.email@example.com>
+Maintainer-email: Your Name <your.email@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/yourusername/emulation
+Project-URL: Documentation, https://github.com/yourusername/emulation#readme
+Project-URL: Repository, https://github.com/yourusername/emulation
+Project-URL: Issues, https://github.com/yourusername/emulation/issues
+Keywords: cryoem,electron-microscopy,micrographs,synthetic,simulation
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Classifier: Topic :: Scientific/Engineering :: Physics
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: scipy>=1.7.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: build>=0.10.0; extra == "dev"
+Requires-Dist: twine>=4.0.0; extra == "dev"
+Dynamic: license-file
+
+# EMulation
+
+A Python package for creating synthetic cryoEM (cryo-electron microscopy) micrographs.
+
+## Description
+
+EMulation provides tools for generating synthetic cryoEM micrographs, enabling researchers to create realistic simulated electron microscopy images for testing, validation, and algorithm development.
+
+The code heavily borrows from CryoGEM (https://github.com/Cellverse/CryoGEM) and builds on CryoGEM's structure, implementing a new generator and discriminator approaches as well as paired, to some extent, training strategy. 
+
+## Installation
+
+Install EMulation from PyPI:
+
+```bash
+pip install emulation
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/yourusername/emulation.git
+cd emulation
+pip install -e .
+```
