@@ -1,0 +1,88 @@
+# subxx Configuration File
+# Copy to .subxx.toml (project) or ~/.subxx.toml (global)
+#
+# Priority: CLI flags > ./.subxx.toml > ~/.subxx.toml > hardcoded defaults
+# All settings are optional - omitted values use hardcoded defaults
+
+[defaults]
+# Language codes to download (comma-separated or "all")
+# Examples: "en", "en,de,fr", "all"
+# Default: "en"
+langs = "en"
+
+# Output format for subtitles
+# Options: "srt", "vtt", "txt", "md", "pdf"
+# - srt/vtt: Download subtitle file (kept on disk)
+# - txt/md/pdf: Download SRT → Extract text → Delete SRT automatically
+# Default: "srt"
+fmt = "srt"
+
+# Include auto-generated subtitles when manual ones are unavailable
+# Default: true
+auto = true
+
+# Output directory for downloaded files
+# Use "." for current directory, or specify path (supports ~ for home)
+# Default: "."
+output_dir = "."
+
+# Filename sanitization mode
+# Options:
+#   "safe"     - Remove unsafe characters but keep spaces
+#   "nospaces" - Replace spaces with underscores
+#   "slugify"  - Create URL-safe slugs (lowercase, hyphens)
+# Default: "safe"
+sanitize = "safe"
+
+# Timestamp interval for text extraction (seconds)
+# Adds time markers (e.g., [0:00], [5:00]) every N seconds in txt/md/pdf output
+# Only applies when using --txt, --md, or --pdf formats
+# Omit or set to null to disable timestamp markers
+# Example: 300 = markers every 5 minutes
+# Default: null (no timestamps)
+# timestamps = 300
+
+[logging]
+# Log level for console output
+# Options: "DEBUG", "INFO", "WARNING", "ERROR"
+# Note: --verbose and --quiet CLI flags override this setting
+# Default: "INFO"
+# level = "INFO"
+
+# Log file path (optional)
+# All log messages are written to this file regardless of console verbosity
+# Supports ~ for home directory
+# Omit to disable file logging
+# Default: null (no log file)
+# log_file = "~/.subxx/subxx.log"
+
+# Example configurations for different use cases:
+
+# Configuration 1: Download English SRT files to dedicated directory
+# [defaults]
+# langs = "en"
+# fmt = "srt"
+# output_dir = "~/Downloads/subtitles"
+
+# Configuration 2: Auto-extract to Markdown with 5-minute timestamps
+# [defaults]
+# langs = "en"
+# fmt = "md"
+# timestamps = 300
+# output_dir = "~/Documents/transcripts"
+
+# Configuration 3: Multiple languages, plain text, aggressive sanitization
+# [defaults]
+# langs = "en,de,fr"
+# fmt = "txt"
+# sanitize = "slugify"
+# output_dir = "./subtitles"
+
+# Configuration 4: Debug logging to file
+# [defaults]
+# langs = "en"
+# fmt = "srt"
+#
+# [logging]
+# level = "DEBUG"
+# log_file = "~/.subxx/debug.log"
