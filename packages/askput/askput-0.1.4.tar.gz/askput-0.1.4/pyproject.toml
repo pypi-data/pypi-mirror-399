@@ -1,0 +1,123 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║                         PROJECT METADATA                          ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+[project]
+name = "askput"
+version = "0.1.4"
+description = "🎯 Simple and safe console input validation for Python"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+
+# ─────────────────────────────────────────────────────────────────────
+# Author Information
+# ─────────────────────────────────────────────────────────────────────
+authors = [
+    { name = "Basil S", email = "bbbbasil1739@gmail.com" }
+]
+maintainers = [
+    { name = "Basil S", email = "bbbbasil1739@gmail.com" }
+]
+
+# ─────────────────────────────────────────────────────────────────────
+# Keywords for PyPI Search
+# ─────────────────────────────────────────────────────────────────────
+keywords = [
+    "input",
+    "validation",
+    "console",
+    "cli",
+    "user-input",
+    "type-checking",
+    "input-validation",
+    "beginner-friendly",
+    "safe-input",
+    "askput"
+]
+
+# ─────────────────────────────────────────────────────────────────────
+# Classifiers - Helps users find your project
+# ─────────────────────────────────────────────────────────────────────
+classifiers = [
+    # Development Status
+    "Development Status :: 4 - Beta",
+    
+    # Intended Audience
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    
+    # Topic
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+    
+    # License
+    "License :: OSI Approved :: MIT License",
+    
+    # Operating System
+    "Operating System :: OS Independent",
+    
+    # Python Versions Supported
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    
+    # Typing
+    "Typing :: Typed",
+    
+    # Environment
+    "Environment :: Console",
+]
+
+# ─────────────────────────────────────────────────────────────────────
+# Dependencies (if any)
+# ─────────────────────────────────────────────────────────────────────
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=23.0",
+    "mypy>=1.0",
+]
+
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║                           PROJECT URLS                            ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+[project.urls]
+"🏠 Homepage" = "https://github.com/1-basil/askput"
+"📦 Repository" = "https://github.com/1-basil/askput"
+"🐛 Bug Tracker" = "https://github.com/1-basil/askput/issues"
+"📖 Documentation" = "https://github.com/1-basil/askput#readme"
+"💬 Discussions" = "https://github.com/1-basil/askput/discussions"
+
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║                         TOOL CONFIGURATIONS                       ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+[tool.setuptools]
+packages = ["askput"]
+
+[tool.setuptools.package-data]
+askput = ["py.typed"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
