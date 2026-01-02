@@ -1,0 +1,381 @@
+
+[project]
+name = "masster"
+version = "0.8.18"
+description = "Mass spectrometry data analysis package"
+authors = [
+    { name = "Zamboni Lab, ETH Zurich" }
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["mass spectrometry", "metabolomics", "lc-ms", "chromatography"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Chemistry"
+]
+urls.homepage = "https://github.com/zamboni-lab/masster"
+urls.repository = "https://github.com/zamboni-lab/masster"
+urls.documentation = "https://github.com/zamboni-lab/masster#readme"
+urls."Third-Party Licenses" = "https://github.com/zamboni-lab/masster/blob/main/THIRD_PARTY_NOTICES.md"
+dependencies = [
+    "alpharaw>=0.4.8",
+    "bokeh>=3.7.3",
+    "datashader>=0.18.1",
+    "holoviews>=1.21.0",
+    "h5py>=3.14.0",
+    "hvplot>=0.11.3",
+    "loguru>=0.7.3",
+    "numpy>=2.0.0",
+    "matplotlib>=3.8.0",
+    "pandas>=2.2.0",
+    "panel>=1.7.0",
+    "polars<=1.34",
+    "pyopenms>=3.3.0",
+    "pythonnet>=3.0.0",
+    "scipy>=1.12.0",
+    "tqdm>=4.65.0",
+    "openpyxl>=3.1.5",
+    "cmap>=0.6.2",
+    "scikit-learn>=1.7.1",
+    "umap-learn>=0.5.9.post2",
+    "hdbscan>=0.8.40",
+    "webdriver-manager>=4.0.2",
+    "uuid6>=2025.0.1",
+    "numba>=0.63",
+]
+
+[project.optional-dependencies]
+# Documentation building tools
+docs = [
+    "sphinx>=8.2.3",                      # Documentation generator
+    "sphinx-rtd-theme>=1.2.0",            # Read the Docs theme
+    "sphinxcontrib-napoleon>=0.7.0",      # Google/NumPy docstring support
+    "myst-parser>=1.0.0",                 # Markdown support in Sphinx
+    "sphinx-autobuild>=2021.3.14",        # Auto-rebuild docs on changes
+    "sphinx-markdown-builder>=0.6.9",     # Export docs to Markdown
+]
+# Development and testing tools
+dev = [
+    "deptry>=0.24.0",      # Dependency checker
+    "pytest>=7.0.0",       # Testing framework
+    "ruff>=0.8.0",         # Fast Python linter (replaces flake8, isort, etc.)
+    "mypy>=1.0.0",         # Static type checker
+    "twine>=5.0.0",        # PyPI package uploader and validator
+    "pytest-cov>=4.0.0",   # Coverage reporting for pytest
+]
+
+[project.scripts]
+masster-version = "masster._version:main"
+
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
+# Hatchling configuration - include additional files in distribution
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/LICENSE",
+    "/README.md",
+    "/THIRD_PARTY_NOTICES.md",
+    "/pyproject.toml",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/masster"]
+include = [
+    "/THIRD_PARTY_NOTICES.md",
+]
+exclude = [
+    "/tests",
+]
+
+# Testing configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "-s",  # Disable output capture to avoid pythonnet I/O cleanup issues
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::ImportWarning:umap.*",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["masster"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "masster/_version.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# Ruff configuration
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+output-format = "concise"
+show-fixes = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "A",    # flake8-builtins
+    "C4",   # flake8-comprehensions
+    "DTZ",  # flake8-datetimez
+    "T10",  # flake8-debugger
+    "EM",   # flake8-errmsg
+    "ISC",  # flake8-implicit-str-concat
+    "ICN",  # flake8-import-conventions
+    "G",    # flake8-logging-format
+    "PIE",  # flake8-pie
+    "PT",   # flake8-pytest-style
+    "Q",    # flake8-quotes
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+    "SIM",  # flake8-simplify
+    "TID",  # flake8-tidy-imports
+    "ARG",  # flake8-unused-arguments
+    "PTH",  # flake8-use-pathlib
+    "PD",   # pandas-vet
+    "PGH",  # pygrep-hooks
+    "PL",   # pylint
+    "TRY",  # tryceratops
+    "NPY",  # numpy-specific rules
+    "RUF",  # ruff-specific rules
+    "S",    # flake8-bandit (security)
+    "FBT",  # flake8-boolean-trap
+    "C90",  # mccabe complexity
+]
+ignore = [
+    "E501",    # line too long (handled by formatter)
+    "E712",    # comparison to True/False (explicit comparisons sometimes needed)
+    # E722 re-enabled: bare except clauses have been fixed
+    "PLR0913", # too many arguments
+    "PLR0915", # too many statements
+    "PLR2004", # magic value used in comparison (many are contextual: array indices, MS levels)
+    "PLR0124", # name compared with itself (intentional for NaN checks)
+    "PLW0127", # self-assignment (intentional in some cases)
+    "TRY003",  # long messages outside exception class
+    "S101",    # use of assert (needed for tests)
+    "FBT001",  # boolean positional arg
+    "FBT002",  # boolean default value
+    "FBT003",  # boolean positional value in function call
+    "G004",    # logging statement uses f-string (prefer readability)
+    "PLC0415", # import should be at top-level (often intentional for lazy loading)
+    "EM101",   # exception must not use string literal (prefer inline messages)
+    "EM102",   # exception must not use f-string literal (prefer inline messages)
+    "TRY400",  # use logging.exception instead of logging.error (context dependent)
+    "TRY401",  # redundant exception object in logging.exception
+    "DTZ005",  # datetime.now() without timezone (not always needed)
+    "DTZ006",  # datetime.fromtimestamp() without timezone (not always needed)
+    "PTH",     # pathlib suggestions (gradual migration preferred)
+    "ARG001",  # unused function argument (may be required by interface)
+    "ARG002",  # unused method argument (may be required by interface)
+    "N806",    # variable name should be lowercase (legacy code)
+    "PD011",   # use .to_numpy() instead of .values (pandas compatibility)
+    "S110",    # try-except-pass without logging (intentional for robustness in many cases)
+    "S112",    # try-except-continue detected (intentional for robustness in many cases)
+    "S301",    # pickle usage (needed for certain operations)
+    "S307",    # eval() usage (needed for certain operations)
+    "S603",    # subprocess call without shell=False check
+    "TRY301",  # abstract raise to inner function
+    "TRY300",  # consider moving statement to else block (readability preference)
+    "B904",    # raise without from inside except
+    "B023",    # function definition doesn't bind loop variable
+    "B006",    # mutable default arguments (intentional in some cases)
+    "C901",    # function is too complex (gradual refactoring)
+    "PLR0912", # too many branches (gradual refactoring)
+    "PLR0911", # too many return statements
+    "PLR1704", # redefining argument with local name (sometimes intentional)
+    "PLR1714", # consider merging multiple comparisons (readability preference)
+    "PLW2901", # loop variable overwritten by assignment (sometimes intentional)
+    "SIM102",  # use single if statement (readability preference)
+    "SIM103",  # return condition directly (readability preference)
+    "SIM108",  # use ternary operator (readability preference)
+    "SIM105",  # use contextlib.suppress
+    "SIM113",  # use enumerate for index variable (sometimes index arithmetic needed)
+    "SIM115",  # use context manager for opening files (not always needed)
+    "SIM117",  # use single with statement (readability preference)
+    "SIM118",  # use key in dict instead of key in dict.keys() (explicit is better)
+    "B007",    # loop variable not used (sometimes intentional)
+    "RET503",  # missing explicit return (implicit return is fine)
+    "RET504",  # unnecessary assignment before return
+    "PD901",   # avoid df as variable name
+    "PD002",   # inplace=True should be avoided (sometimes needed)
+    "PD003",   # .isna preferred to .isnull (legacy compatibility)
+    "PD004",   # .notna preferred to .notnull (legacy compatibility)
+    "PD008",   # .loc instead of .at (performance in loops)
+    "PD010",   # .pivot_table preferred (context dependent)
+    "N801",    # class name should use CapWords
+    "N803",    # argument name should be lowercase
+    "N815",    # variable should not be mixedCase
+    "N802",    # function name should be lowercase
+    "N812",    # imported as non-lowercase
+    "ICN001",  # import conventions
+    "A001",    # variable shadowing builtin (sometimes intentional)
+    "A002",    # argument shadowing builtin (sometimes intentional)
+    "E402",    # module level import not at top (conditional imports)
+    "F401",    # imported but unused (conditional availability checks)
+    "F601",    # dictionary key repeated (sometimes intentional for overriding)
+    "F821",    # undefined name (may be defined in conditional imports or eval)
+    "UP038",   # isinstance with | syntax (Python 3.10+ only, may need 3.9 compat)
+    "RUF001",  # ambiguous unicode character (intentional in some cases)
+    "RUF002",  # ambiguous unicode in docstring (intentional in some cases)
+    "RUF003",  # ambiguous unicode in comment (intentional in some cases)
+    "RUF005",  # consider unpacking instead of concatenation (readability)
+    "RUF012",  # mutable class attributes should use ClassVar
+    "RUF013",  # PEP 484 prohibits implicit Optional
+    "RUF015",  # prefer next(iter()) over single element slice
+    "PGH003",  # use specific rule codes in type ignore
+    "NPY002",  # replace legacy np.random calls
+    "TRY004",  # prefer TypeError for invalid type
+    "TRY201",  # use raise without exception name
+    "TRY203",  # remove exception handler that re-raises
+    "C408",    # unnecessary tuple() call
+    "C414",    # unnecessary list() within sorted()
+    "C416",    # unnecessary list/dict comprehension
+    "PIE810",  # call startswith once with tuple
+    "PLC0206", # extracting value from dict without .items()
+]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403", "E402"]  # Unused imports, import order
+"tests/*" = ["S101", "PLR2004", "ARG", "PLR0913"]  # Asserts, magic values, unused args
+"docs/*" = ["ALL"]  # Ignore docs scripts
+
+[tool.ruff.lint.isort]
+known-first-party = ["masster"]
+force-sort-within-sections = true
+split-on-trailing-comma = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.pylint]
+max-args = 8
+max-branches = 15
+max-returns = 6
+max-statements = 60
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+# Start with lenient settings, tighten as type coverage improves
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+ignore_missing_imports = true
+show_error_codes = true
+pretty = true
+exclude = [
+    '^\.venv/',
+    '^tests/',
+    '.*/plot\.py$',       # Plotting code with bokeh/panel stub issues
+    '.*/h5\.py$',         # HDF5 serialization with complex polars types
+    '.*/h5_v3\.py$',      # Legacy HDF5 format
+    '.*/analysis\.py$',   # Analysis code with extensive plotting
+    '^.*rdkit.*$',        # Exclude rdkit-stubs (transitive dep with broken stubs)
+]
+
+# Gradually enable stricter checking as type coverage improves
+# Modules with complete type annotations - only core modules for now
+[[tool.mypy.overrides]]
+module = "masster._version"
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "masster.chromatogram"
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "masster.spectrum"
+disallow_untyped_defs = true
+
+# Skip type checking for files with external library stub issues
+[[tool.mypy.overrides]]
+module = [
+    "masster.*.plot",
+    "masster.study.analysis",
+    "masster.*.h5",
+    "masster.*.h5_v3",
+]
+ignore_errors = true
+
+# Bandit configuration
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101", "B601"]
+format = "json"
