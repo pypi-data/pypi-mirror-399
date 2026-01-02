@@ -1,0 +1,50 @@
+[package]
+name = "rangebar-py"
+version = "2.0.2"
+edition = "2021"
+authors = ["Terry Li"]
+license = "MIT"
+description = "Python bindings for rangebar: Non-lookahead range bar construction"
+repository = "https://github.com/terrylica/rangebar-py"
+readme = "README.md"
+
+[lib]
+name = "rangebar_py"  # Renamed to avoid conflict with upstream rangebar-core
+crate-type = ["cdylib"]  # Python extension module only
+
+[dependencies]
+# Import rangebar-core from crates.io (ZERO changes to upstream)
+# Note: The dependency name uses hyphens, resolved as rangebar_core in Rust code
+rangebar-core = "5.0"
+
+# PyO3 for Python bindings
+pyo3 = { version = "0.22", features = ["extension-module", "abi3-py39"] }
+
+# Utilities
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[build-dependencies]
+pyo3-build-config = "0.22"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "core"
+harness = false
+
+[lints.clippy]
+# Lint group priority: lower number = lower priority (applied first)
+# Individual lints can override groups with default priority (0)
+all = { level = "deny", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+
+# Allow certain lints that conflict with project style or PyO3 patterns
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+needless_pass_by_value = "allow"  # PyO3 requires owned values for Python bindings
+useless_conversion = "allow"  # PyO3 error handling patterns
