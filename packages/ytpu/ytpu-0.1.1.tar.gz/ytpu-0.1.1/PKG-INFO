@@ -1,0 +1,41 @@
+Metadata-Version: 2.4
+Name: ytpu
+Version: 0.1.1
+Summary: YT-DLP Playlist Audio Downloaded
+Keywords: downloader,video,media
+Author: ritonun
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Dist: pathvalidate==3.3.1
+Requires-Dist: tqdm==4.67.1
+
+# YT-PU
+
+Wrapper around yt-dlp to download audio from a public YouTube playlist
+
+## Install
+### Dependencies
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+
+### Install yt-pu
+```bash
+pip install ytpu
+```
+It is recommended to use a dedicated virtual environment:
+```bash
+pipx install ytpu
+```
+
+## Usage
+```bash
+ytpu URL
+```
+
+Specify an output path (recommended):
+```bash
+ytpu -o OUTPUT_FOLDER URL
+```
+
