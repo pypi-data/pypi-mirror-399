@@ -1,0 +1,220 @@
+# FireSynth-S2
+
+**FireSynth-S2** is a physically-informed **synthetic Sentinel-2 wildfire-risk spectral dataset generator** designed for research and machine-learning applications.
+It produces realistic **Sentinel-2 band reflectance values** together with **vegetation & burn indices** under both **fire** and **non-fire** scenarios — enabling reproducible wildfire risk modeling without requiring raw satellite downloads.
+
+---
+
+## 🌍 Motivation
+
+Obtaining labeled wildfire training data from satellite imagery is:
+
+* ⚠ time-consuming
+* ⚠ storage-heavy
+* ⚠ often incomplete
+* ⚠ difficult to balance (fire vs non-fire)
+
+FireSynth-S2 solves this by generating **statistically realistic, label-balanced synthetic samples** that reflect published spectral wildfire behavior — ideal for:
+
+✔ model prototyping
+✔ academic experiments
+✔ teaching
+✔ dataset augmentation
+
+---
+
+## 🚀 Features
+
+* Sentinel-2-like spectral bands:
+
+  * `B02_blue`
+  * `B03_green`
+  * `B04_red`
+  * `B08_nir`
+  * `B11_swir1`
+  * `B12_swir2`
+* Derived indices:
+
+  * `NDVI`
+  * `NDWI`
+  * `NBR`
+* Binary wildfire label (`1 = fire`, `0 = non-fire`)
+* California-tuned priors (expandable)
+* Deterministic & reproducible generation
+* Export to Pandas DataFrame
+* Lightweight (no remote downloads)
+
+---
+
+## 📦 Installation
+
+### TestPyPI (current release)
+
+```bash
+pip install -i https://test.pypi.org/simple firesynth-s2
+```
+
+---
+
+## 🧠 Quick Start
+
+```python
+from firesynth import FireSynthS2
+
+gen = FireSynthS2(region="California")
+
+df = gen.generate(10000)
+
+print(df.head())
+```
+
+Example output:
+
+| B04_red | B08_nir | NDVI |
+| ------: | ------: | ---: |
+|    0.12 |    0.55 | 0.64 |
+|    0.18 |    0.72 | 0.60 |
+|    0.30 |    0.40 | 0.14 |
+
+---
+
+## 🔬 Scientific Basis
+
+FireSynth-S2 reflects documented wildfire-driven spectral behavior:
+
+| Condition               | NIR (B08) | SWIR (B11/B12)     | NDVI    | NBR      |
+| ----------------------- | --------- | ------------------ | ------- | -------- |
+| **Healthy vegetation**  | High      | Low                | High    | High     |
+| **Stressed vegetation** | Medium    | Rising             | Falling | Falling  |
+| **Active / burned**     | Decreased | Strongly increased | Low     | Very low |
+
+Values are sampled from distributions calibrated to:
+
+* vegetation physiology
+* soil reflectance
+* moisture loss
+* combustion impacts
+
+*(citations available on request / planned for docs)*
+
+---
+
+## 📁 Output Schema
+
+| Column             | Description                |
+| ------------------ | -------------------------- |
+| `S2_tile`          | Sentinel-2 grid tile ID    |
+| `acquisition_date` | Synthetic date             |
+| `B02_blue`         | Band 2 reflectance         |
+| `B03_green`        | Band 3 reflectance         |
+| `B04_red`          | Band 4 reflectance         |
+| `B08_nir`          | Band 8 reflectance         |
+| `B11_swir1`        | Band 11 reflectance        |
+| `B12_swir2`        | Band 12 reflectance        |
+| `NDVI`             | `(NIR-RED)/(NIR+RED)`      |
+| `NDWI`             | `(NIR-SWIR)/(NIR+SWIR)`    |
+| `NBR`              | `(NIR-SWIR2)/(NIR+SWIR2)`  |
+| `label`            | `1 = fire`, `0 = non-fire` |
+
+---
+
+## ⚖ Class Balance
+
+By default:
+
+```
+50% fire
+50% non-fire
+```
+
+---
+
+## 🧪 Reproducibility
+
+```python
+gen = FireSynthS2(seed=42)
+```
+
+---
+
+## 📍 Regions
+
+Currently implemented:
+
+✔ California (empirical priors)
+
+More regions coming soon.
+
+---
+
+## 📊 Use Cases
+
+* wildfire risk prediction ML
+* anomaly detection
+* academic coursework
+* preprocessing pipeline testing
+* benchmarking
+* augmentation for real datasets
+
+---
+
+## ⚠ Disclaimer
+
+FireSynth-S2 generates **synthetic** data.
+
+It is intended for:
+
+✔ research
+✔ experimentation
+✔ prototyping
+
+It is **not a substitute for operational wildfire intelligence**.
+
+---
+
+## 🏗 Roadmap
+
+* 🔜 region library expansion
+* 🔜 PyTorch dataset wrapper
+* 🔜 paper / citation
+* 🔜 GUI generator
+* 🔜 configurable physics params
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome!
+
+* open issues
+* submit PRs
+* propose regions
+* share research links
+
+---
+
+## 📜 License
+
+MIT License
+
+---
+
+## 🙏 Acknowledgements
+
+Inspired by wildfire remote sensing research involving:
+
+🌲 Sentinel-2 MSI
+🔥 Fire radiative effects
+🌿 Vegetation indices
+
+---
+
+## ✨ Citation (coming soon)
+
+A citable paper / Zenodo DOI is planned.
+
+---
+
+## 👤 Maintainer
+
+**Chaitanya Kamble (firesynth-s2 developer)**
