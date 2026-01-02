@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "whatthemullvad"
+version = "0.0.1"
+authors = [
+  { name="Duinzand" },
+]
+description = "Test if Mullvad SOCKS5 proxies can access a given URL."
+readme = "README.md"
+requires-python = ">=3.9"
+
+dependencies = [
+    "requests"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://gitlab.com/duinzand/whatthemullvad"
+Issues = "https://gitlab.com/duinzand/whatthemullvad/-/issues"
+
+[project.scripts]
+whatthemullvad = "whatthemullvad.main:main"
