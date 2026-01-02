@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package feed.v1;
+
+enum Platform {
+  PLATFORM_UNSPECIFIED = 0;
+  PLATFORM_IOS = 1;
+  PLATFORM_ANDROID = 2;
+  PLATFORM_WEB = 3;
+}
+
+enum ViewportPosition {
+  VIEWPORT_POSITION_UNSPECIFIED = 0;
+  VIEWPORT_POSITION_TOP = 1;
+  VIEWPORT_POSITION_MIDDLE = 2;
+  VIEWPORT_POSITION_BOTTOM = 3;
+  VIEWPORT_POSITION_BELOW_FOLD = 4;
+}
+
+enum ClickTarget {
+  CLICK_TARGET_UNSPECIFIED = 0;
+  CLICK_TARGET_CARD = 1;
+  CLICK_TARGET_TITLE = 2;
+  CLICK_TARGET_IMAGE = 3;
+}
+
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+  ACTION_TYPE_BOOK_EXPERIENCE = 1;
+}
+
+enum NegativeActionType {
+  NEGATIVE_ACTION_TYPE_UNSPECIFIED = 0;
+  NEGATIVE_ACTION_TYPE_NOT_INTERESTED = 2;
+}
+
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED = 0;
+  EVENT_TYPE_IMPRESSION = 1;
+  EVENT_TYPE_CLICK = 2;
+  EVENT_TYPE_VIEW = 3;
+  EVENT_TYPE_ACTION = 4;
+  EVENT_TYPE_NEGATIVE = 5;
+}
+
+message DeviceContext {
+  Platform platform = 1;
+  string app_version = 2;
+  int32 screen_width = 3;
+  int32 screen_height = 4;
+}
+
+message ImpressionData {
+  float visibility_threshold = 1;
+  ViewportPosition viewport_position = 2;
+}
+
+message ClickData { ClickTarget click_target = 1; }
+
+message ViewData {
+  int32 dwell_time_ms = 1;
+  int32 view_number = 2;
+  bool is_revisit = 3;
+  int32 scroll_depth_percent = 4;
+}
+
+message ActionData {
+  ActionType action_type = 1;
+  int32 time_since_impression_ms = 2;
+}
+
+message NegativeData { NegativeActionType action_type = 1; }
+
+message RecommendationFeedback {
+  string session_id = 1;
+  string user_id = 2;
+  int64 client_timestamp = 3;
+  DeviceContext device_context = 4;
+
+  EventType event_type = 5;
+  string event_id = 6;
+  string request_id = 7;
+  string model_version = 8;
+  int64 timestamp = 9;
+  int32 position = 10;
+  int32 absolute_position = 11;
+
+  oneof data {
+    ImpressionData impression_data = 12;
+    ClickData click_data = 13;
+    ViewData view_data = 14;
+    ActionData action_data = 15;
+    NegativeData negative_data = 16;
+  }
+}

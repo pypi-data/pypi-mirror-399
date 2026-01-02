@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package feed.v1;
+
+message RecommendationServedEvent {
+  string request_id = 1;
+  int64 served_at = 2;
+  string user_id = 3;
+  optional string session_id = 4;
+  string retrieval_model = 5; // Retrieval model version
+  string ranking_model = 6; // Ranking model version
+  RequestTrigger trigger = 7;
+  repeated RecommendedItem recommendations = 8;
+}
+
+message RecommendedItem {
+  string event_id = 1;
+  float ranking_score = 2;
+}
+
+// What triggered the recommendation request
+enum RequestTrigger {
+  REQUEST_TRIGGER_UNSPECIFIED = 0;
+  REQUEST_TRIGGER_EXPLORE = 1;// User opens Explore tab (initial load)
+  REQUEST_TRIGGER_SCROLL = 2; // User scrolls to load more items
+  REQUEST_TRIGGER_REFRESH = 3; // User pulls to refresh
+  REQUEST_TRIGGER_LOCATION_CHANGE = 4; // Location change invalidates cached recommendations.
+}
