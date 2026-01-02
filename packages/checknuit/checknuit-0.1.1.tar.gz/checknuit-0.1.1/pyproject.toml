@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "checknuit"
+version = "0.1.1"
+description = "Lib for checking nuit validity, and return nuit data"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "yannickRafael"}
+]
+dependencies = [
+    "requests>=2.31",
+    "python-dotenv>=1.0",
+    "beautifulsoup4"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["checknuit", "checknuit.*"]
