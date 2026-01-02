@@ -1,0 +1,25 @@
+[project]
+name = "iflow-mcp_flothjl_edgar-sec-mcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Josh Floth", email = "flothjldev@proton.me" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.13.3",
+    "httpx>=0.28.1",
+    "ixbrlparse>=0.10.0",
+    "mcp[cli]>=1.3.0",
+]
+
+[project.scripts]
+edgar-sec-mcp = "edgar_sec_mcp:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/edgar_sec_mcp"]

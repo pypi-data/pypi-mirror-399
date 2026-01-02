@@ -1,0 +1,45 @@
+Metadata-Version: 2.4
+Name: iflow-mcp_flothjl_edgar-sec-mcp
+Version: 0.1.0
+Summary: Add your description here
+Author-email: Josh Floth <flothjldev@proton.me>
+Requires-Python: >=3.13
+Requires-Dist: beautifulsoup4>=4.13.3
+Requires-Dist: httpx>=0.28.1
+Requires-Dist: ixbrlparse>=0.10.0
+Requires-Dist: mcp[cli]>=1.3.0
+Description-Content-Type: text/markdown
+
+# edgar-sec-mcp
+
+**edgar-sec-mcp** is an MCP (Modular Computing Platform) server designed
+to facilitate AI agents in accessing and interacting with EDGAR Data
+from the SEC. This project provides tools, endpoints, and data
+processing utilities to streamline the retrieval and analysis of SEC filings,
+such as proxy statements which hold information about executive compensation,
+or form 4 to understand inside selling.
+
+## Tools
+
+- **GetProxyStatementTablesByTicker**
+- **GetForm4ByTicker**
+
+## Configuration
+
+### [Goose](https://github.com/block/goose)
+
+```yaml
+extensions:
+  edgar-sec-mcp:
+    args:
+    - --from
+    - git+https://github.com/flothjl/edgar-sec-mcp@main
+    - edgar-sec-mcp
+    cmd: uvx
+    enabled: true
+    envs: {}
+    name: edgar-sec 
+    type: stdio
+GOOSE_MODEL: gpt-4o-mini
+GOOSE_PROVIDER: openai
+```
