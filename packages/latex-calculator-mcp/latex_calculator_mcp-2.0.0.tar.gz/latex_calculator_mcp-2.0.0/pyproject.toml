@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "latex-calculator-mcp"
+version = "2.0.0"
+description = "LaTeX公式计算MCP服务，支持基础运算、三角函数、反三角函数、度分秒(DMS)格式"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [{ name = "pypypywy", email = "1992541488@qq.com" }]
+keywords = [
+    "mcp",
+    "latex",
+    "calculator",
+    "math",
+    "dms",
+    "trigonometry",
+    "degree-minute-second",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = ["mcp", "fastmcp", "latex2sympy2", "sympy"]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/latex-calculator-mcp"
+Repository = "https://github.com/yourusername/latex-calculator-mcp"
+Documentation = "https://github.com/yourusername/latex-calculator-mcp#readme"
+Issues = "https://github.com/yourusername/latex-calculator-mcp/issues"
+
+[project.scripts]
+latex-calculator-mcp = "latex_calculator_mcp:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/latex_calculator_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/README.md", "/LICENSE"]
