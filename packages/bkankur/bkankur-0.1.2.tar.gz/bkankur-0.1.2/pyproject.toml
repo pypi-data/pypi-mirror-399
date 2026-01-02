@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bkankur"                   # if taken, change to "bkankur-rai"
+version = "0.1.2"
+description = "Protocol-based RAI evaluator with pluggable LLM judges (OpenAI-compatible, etc.)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [{name = "Ankur Chaturvedi"}]
+keywords = ["llm", "evaluation", "rai", "safety", "governance", "judge"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+]
+
+dependencies = [
+  "pydantic>=2.0",
+  "httpx>=0.24",
+]
+
+[project.urls]
+Homepage = "https://github.com/<your_org>/<your_repo>"
+Issues = "https://github.com/<your_org>/<your_repo>/issues"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bkankur*"]
