@@ -1,0 +1,59 @@
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[project]
+name = "free-threading"
+version = "1.1.0"
+description = "Thread-first true parallelism"
+license = "MIT"
+readme = "README.md"
+authors = [{ name = "Iskander Gaba", email = "iskander@hey.com" }]
+requires-python = ">=3.10"
+keywords = [
+    "gil",
+    "nogil",
+    "thread",
+    "process",
+    "worker",
+    "threading",
+    "free-threading",
+    "multithreading",
+    "multiprocessing",
+    "concurrency",
+    "parallelism",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+Documentation = "https://freethreading.readthedocs.io"
+Repository = "https://github.com/iskandergaba/free-threading"
+
+[dependency-groups]
+dev = [
+    "ruff~=0.14.0",
+    "pytest~=9.0.0",
+    "pytest-cov~=7.0.0",
+    "pytest-rerunfailures~=16.1.0",
+]
+docs = [
+    "sphinx-autoapi~=3.6.0",
+    "sphinx-autobuild~=2025.8.0",
+    "python-docs-theme~=2025.12",
+]
+
+[tool.uv.build-backend]
+module-name = "freethreading"
+
+[tool.uv.dependency-groups]
+docs = { requires-python = ">=3.12" }
+
+[tool.ruff.lint]
+extend-select = ["E501"]
