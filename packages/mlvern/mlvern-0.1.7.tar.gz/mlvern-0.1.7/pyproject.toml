@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlvern"
+version = "0.1.7"
+description = "Automated data inspection, validation checks, and extensive EDA module with structured reports and organized visualizations for reliable data quality assessment and exploratory analysis."
+authors = [{name="Tanmai Raghava"}]
+readme = "README.md"
+requires-python = ">=3.9"
+
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "matplotlib",
+    "joblib"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=22.0",
+    "isort>=5.0",
+    "flake8>=4.0",
+    "mypy>=0.900",
+    "bandit>=1.7"
+]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.black]
+line-length = 88
+
+[tool.setuptools.packages.find]
+where = ["."]
