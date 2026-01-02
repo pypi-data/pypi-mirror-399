@@ -1,0 +1,12 @@
+# Test MCP Server Configuration
+# Minimal configuration for integration testing
+
+mcp_servers:
+  # Simple Math Server for testing
+  simple_math:
+    command: "python"
+    args: ["-m", "mcp_servers.simple_math.server"]
+    env:
+      PYTHONUNBUFFERED: "1"
+    enabled: true
+    priority: 1

@@ -1,0 +1,122 @@
+# Framework Configuration
+# Configuration for LLM, Agent components
+# All parameters defined here can be overridden in profile configurations
+
+framework:
+  # Logging settings
+  log_level: "INFO"
+  log_format: "json"  # json or console
+
+  # Observability
+  enable_tracing: false
+  tracing_backend: "langsmith"  # langsmith, jaeger, etc.
+
+  # Health monitoring
+  health_check_interval: 60  # seconds
+  health_check_timeout: 10  # seconds
+
+  # Retry settings
+  max_retries: 3
+  retry_backoff: 2.0  # exponential backoff multiplier
+
+# LLM Base Configuration
+# These settings apply to all LLM instances unless overridden
+llm:
+  # Framework selection
+  framework: "langchain"  # Options: "langchain", "litellm"
+  # - "langchain": Best for LangGraph integration (OpenAI, Anthropic)
+  # - "litellm": Unified access to 100+ providers (OpenAI, Anthropic, Cohere, etc.)
+
+  # Model settings
+  model: "gpt-4o"  # Examples: "gpt-4o", "claude-3-5-sonnet-20241022", "ollama/llama2"
+  temperature: 0.7
+  max_tokens: 4096
+  top_p: null  # null means use model default
+  frequency_penalty: null
+  presence_penalty: null
+
+  # API settings (optional, can use environment variables)
+  api_key: null  # Set via OPENAI_API_KEY, ANTHROPIC_API_KEY env vars
+  api_base: null  # Custom API endpoint if needed
+
+  # Request settings
+  timeout: 60  # seconds
+  max_retries: 3
+  streaming: false
+
+  # Additional model-specific parameters
+  additional_params: {}
+
+# Agent Base Configuration
+# Default settings for all Agent instances
+agent:
+  # Agent identity
+  name: "base_agent"
+
+  # LLM configuration (inherits from llm section above, can be overridden)
+  llm:
+    framework: "langchain"  # Can override the global framework setting
+    model: "gpt-4o"
+    temperature: 0.7
+    max_tokens: 4096
+
+  # System prompt
+  system_prompt: |
+    You are a helpful AI assistant with access to specialized tools via MCP servers.
+    Analyze the user's request and select appropriate tools to accomplish the task.
+    Provide clear, accurate, and helpful responses.
+
+  # MCP server configuration
+  mcp_servers: []  # List of MCP server names this agent can use (empty = all available)
+  max_mcp_calls: 5  # Maximum tool calls per execution
+  mcp_selection_strategy: "auto"  # "all", "auto", "none"
+  enable_parallel_mcp: false  # Execute multiple MCP calls in parallel
+  mcp_timeout: 30  # Timeout for individual MCP tool calls (seconds)
+
+  # Context management
+  context_window: null  # Maximum context length (null = use model default)
+  enable_memory: true  # Maintain conversation history
+
+  # Additional agent metadata
+  metadata: {}
+
+# Orchestrator Configuration
+# Settings for OrchestratorAgent (advanced multi-step execution)
+orchestrator:
+  # Agent identity (inherits from agent section)
+  name: "orchestrator_agent"
+
+  # LLM configuration (inherits from llm section, can override)
+  llm:
+    framework: "langchain"
+    model: "gpt-4o"
+    temperature: 0.7
+    max_tokens: 4096
+
+  # System prompt
+  system_prompt: |
+    You are an advanced orchestrator AI with access to specialized tools via MCP servers.
+    You can plan multi-step tasks, select appropriate tools, and synthesize results.
+    Analyze complex requests, break them down into steps, and execute them efficiently.
+
+  # MCP server configuration (inherits from agent section)
+  mcp_servers: []
+  max_mcp_calls: 10  # More calls for complex orchestration
+  mcp_selection_strategy: "auto"
+  enable_parallel_mcp: true  # Enable parallel execution
+  mcp_timeout: 30
+
+  # Context management
+  context_window: null
+  enable_memory: true
+
+  # Orchestration-specific settings
+  max_iterations: 5  # Maximum planning/execution iterations
+  plan_refinement_enabled: true  # Enable iterative plan refinement
+  result_synthesis_strategy: "llm_synthesis"  # "llm_synthesis", "concatenate", "structured"
+  enable_parallel_execution: true  # Execute independent steps in parallel
+  plan_validation_enabled: true  # Validate plan feasibility
+  error_recovery_strategy: "retry_with_fallback"  # "retry_with_fallback", "skip", "abort"
+
+  # Additional metadata
+  metadata: {}

@@ -1,0 +1,276 @@
+# Orchestrator Agent Prompt Templates
+# These prompts are used by the OrchestratorAgent for various tasks
+
+# MCP Tool Selection Prompt
+mcp_selection:
+  template: |
+    Analyze this task and select the most relevant MCP tools:
+
+    Task: {user_prompt}
+    Available MCP Servers: {available_mcps}
+
+    Additional Context:
+    {context}
+
+    For each relevant MCP server, provide:
+    1. Server name
+    2. Relevance score (0-1)
+    3. Intended use in this task
+    4. Dependencies on other MCPs
+
+    Consider the context information when determining relevance and intended use.
+
+    Return ONLY a valid JSON array with this structure:
+    [
+      {{"name": "server_name", "priority": 1, "relevance": 0.9, "use_case": "description", "dependencies": ["dep1"]}},
+      ...
+    ]
+
+    Return ONLY the JSON array, no other text.
+
+# Task Analysis Prompt
+task_analysis:
+  template: |
+    Analyze the following task and break it down:
+
+    Task: {user_prompt}
+
+    Previous Conversation:
+    {conversation_history}
+
+    CRITICAL CONTEXT RULES:
+    1. If there is previous conversation context showing data retrieval (e.g., Airbnb listings, weather data),
+       the user's follow-up questions MUST be answered using that existing data
+    2. DO NOT perform new searches when previous results can answer the question
+    3. For example, if previous results show 3 Airbnb listings in Tokyo, a question like "Which offers
+       best value?" should analyze those 3 listings, NOT search for listings in a different city
+    4. Only perform new searches if the user explicitly asks for different data (different location, dates, etc.)
+
+    Provide a detailed analysis including:
+    1. Main objectives (what needs to be accomplished)
+    2. Required capabilities/tools
+    3. Task complexity (low/medium/high)
+    4. Suggested execution strategy
+    5. Dependencies between different parts of the task
+
+    Context: {context}
+
+    Return your analysis in a structured JSON format with these keys:
+    - objectives: list of strings
+    - required_capabilities: list of strings
+    - complexity: string (low/medium/high)
+    - suggested_strategy: string
+    - dependencies: object mapping step names to their dependencies
+
+# Plan Generation Prompt
+plan_generation:
+  template: |
+    Generate a detailed execution plan for this task:
+
+    Task: {user_prompt}
+
+    Previous Conversation:
+    {conversation_history}
+
+    Available Tools and Their Parameters:
+    {available_tools}
+
+    Task Analysis: {task_analysis}
+
+    CRITICAL CONTEXT RULES FOR FOLLOW-UP QUESTIONS:
+    1. If conversation history shows previous data retrieval (e.g., Airbnb search results with 3 Tokyo listings),
+       and the user asks a follow-up question about that data (e.g., "Which offers best value?"),
+       DO NOT call any tools - the answer is already in the conversation history
+    2. ONLY perform new searches if the user explicitly requests different data (different city, different dates, etc.)
+    3. When the answer can be derived from conversation history, return an empty plan: []
+
+    CRITICAL INSTRUCTIONS FOR PARAMETER EXTRACTION:
+    1. Extract ALL information from the user's task that can be used as tool parameters
+    2. If a location is mentioned (e.g., "Paris", "New York", "San Francisco"), you MUST include a step to search for that location first using the search_location tool with the location name as the "query" parameter
+    3. After getting location coordinates, use them for weather queries (latitude, longitude are REQUIRED for weather tools)
+    4. For each tool, carefully provide ALL REQUIRED parameters as shown in the schema above
+    5. Use results from previous steps (dependencies) to populate parameters when needed
+    6. Never leave required parameters empty or null
+
+    SPECIAL RULE FOR AIRBNB SEARCHES:
+    - If using airbnb_search tool, that is ALL you need - do NOT add airbnb_listing_details steps
+    - The search results contain complete information (prices, ratings, amenities, etc.)
+    - ONLY use airbnb_listing_details if the user specifically asks for details about ONE listing
+
+    EXAMPLE WORKFLOW FOR WEATHER QUERIES:
+    Step 1: Use search_location with {{"query": "Paris, France"}} to get coordinates
+    Step 2: Use get_current_conditions with {{"latitude": <from_step_1>, "longitude": <from_step_1>}}
+    Step 3: Use get_forecast with {{"latitude": <from_step_1>, "longitude": <from_step_1>, "days": 7}}
+
+    EXAMPLE WORKFLOW FOR AIRBNB SEARCHES:
+    Step 1: Use airbnb_search with {{"location": "Tokyo, Japan", "checkin": "2025-02-20", "checkout": "2025-02-27", "adults": 4}}
+    (That's it - search returns everything needed!)
+
+    Create a step-by-step plan where each step includes:
+    1. Step ID (unique number)
+    2. Description of what this step does
+    3. Which tool to use (if any) - MUST match exact tool name from available tools
+    4. Tool arguments (if applicable) - MUST include ALL REQUIRED parameters from the schema
+    5. Dependencies on previous steps (list of step IDs that must complete first)
+    6. Whether it can run in parallel with other steps (parallel_group number)
+
+    Return ONLY a valid JSON array with this structure:
+    [
+      {{
+        "step_id": 1,
+        "description": "Search for location coordinates",
+        "tool": "search_location",
+        "tool_args": {{"query": "Paris, France"}},
+        "dependencies": [],
+        "parallel_group": 0
+      }},
+      {{
+        "step_id": 2,
+        "description": "Get current weather conditions",
+        "tool": "get_current_conditions",
+        "tool_args": {{"latitude": "<result_from_step_1>", "longitude": "<result_from_step_1>"}},
+        "dependencies": [1],
+        "parallel_group": 0
+      }}
+    ]
+
+    IMPORTANT: Return ONLY the JSON array, no other text or explanation.
+
+# Step Execution Prompt (for non-tool steps)
+step_execution:
+  template: |
+    Execute this step:
+
+    Description: {description}
+
+    Previous Results: {step_results}
+    Context: {context}
+
+    Provide the result of this step.
+
+# Plan Refinement Prompt
+plan_refinement:
+  template: |
+    The following plan was executed but encountered issues:
+
+    Current Plan: {current_plan}
+
+    Execution Results: {execution_results}
+
+    Errors: {errors}
+
+    Analyze what went wrong and generate a refined plan to address the issues.
+    Consider:
+    1. Which steps failed and why?
+    2. What alternative approaches could work?
+    3. Should any steps be modified, added, or removed?
+    4. What dependencies need to be adjusted?
+
+    Return a refined execution plan as a JSON array using the same structure as plan_generation.
+    If the task is complete or cannot be refined, return an empty array [].
+
+# Result Synthesis Prompt
+result_synthesis:
+  template: |
+    Synthesize the execution results to fulfill the user's original request.
+
+    ORIGINAL USER REQUEST:
+    {user_prompt}
+
+    EXECUTION RESULTS:
+    {step_results}
+
+    ERRORS (if any):
+    {errors}
+
+    CRITICAL INSTRUCTIONS:
+    - Re-read the ORIGINAL USER REQUEST carefully to understand ALL requirements
+    - Use ALL successful results from the execution steps
+    - Follow EXACTLY the format, style, language, and structure specified in the original request
+    - If the original request specifies Vietnamese, write 100% in Vietnamese
+    - If the original request includes a template or example to follow, match it exactly
+    - If the original request asks for detailed content (30-40 lines), provide that level of detail
+    - If the original request asks for specific sections or structure, include all of them
+    - Do NOT summarize or shorten if the request asks for complete/detailed output
+    - Do NOT list the execution steps or technical details
+    - Only mention errors if NO useful data was retrieved at all
+
+    Generate your response now, ensuring it matches ALL requirements from the original user request.
+
+# Error Fallback Prompt
+error_fallback:
+  template: |
+    An error occurred during execution:
+
+    Error: {error}
+    Error Type: {error_type}
+
+    Context: {context}
+
+    Generate a fallback plan to work around this error. Consider:
+    1. What caused the error?
+    2. Are there alternative approaches?
+    3. Can we achieve the same goal differently?
+    4. Should we modify the plan or skip this step?
+
+    Return a modified execution plan as a JSON array, or return {{"action": "skip"}} or {{"action": "abort"}}.
+
+# Orchestration Instructions (added to system prompt)
+orchestration_instructions: |
+  ## Orchestration Instructions
+
+  You are an orchestrator agent capable of complex task planning and execution.
+
+  Your workflow:
+  1. Analyze the user's task to identify objectives and requirements
+  2. Generate a detailed execution plan with specific steps
+  3. Execute plan steps, using MCP tools as needed
+  4. Evaluate results and determine if task is complete
+  5. If refinement needed, update plan and iterate
+
+  When generating plans:
+  - Break complex tasks into clear, executable steps
+  - Identify dependencies between steps
+  - Assign appropriate MCP tools to each step
+  - Consider parallel execution opportunities
+  - Include validation and verification steps
+
+  When executing:
+  - Follow the plan systematically
+  - Handle errors gracefully using the configured error recovery strategy
+  - Track progress and intermediate results
+  - Synthesize results into a coherent final response
+
+# Configuration Parameters
+parameters:
+  # Default complexity levels
+  complexity_levels:
+    - low
+    - medium
+    - high
+
+  # Default execution strategies
+  execution_strategies:
+    - sequential_execution
+    - parallel_execution
+    - adaptive_execution
+
+  # Default synthesis strategies
+  synthesis_strategies:
+    - llm_synthesis
+    - concatenate
+    - structured
+
+  # Default error recovery strategies
+  error_recovery_strategies:
+    - retry_with_fallback
+    - retry
+    - skip
+    - abort
+    - fallback
+
+  # Default retry settings
+  max_retries: 3
+
+  # Default timeout for MCP tools (seconds)
+  default_mcp_timeout: 30

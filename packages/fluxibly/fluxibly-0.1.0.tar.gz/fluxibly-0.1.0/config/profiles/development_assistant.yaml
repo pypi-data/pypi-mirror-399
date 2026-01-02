@@ -1,0 +1,32 @@
+# Development Assistant Profile
+# Optimized for code-related tasks, research, and development assistance
+
+profile:
+  name: "development_assistant"
+  description: "Optimized for software development and coding tasks"
+
+# Workflow Configuration
+workflow:
+  agent_type: "orchestrator"  # Use orchestrator for complex coding tasks
+  execution_mode: "single"    # Single task execution
+  stateful: true              # Maintain conversation history for follow-up questions
+
+# Enabled MCP servers for this profile
+enabled_servers:
+  - code
+  - research
+
+# Orchestrator overrides
+orchestrator:
+  model: "gpt-4-turbo"
+  temperature: 0.5
+  system_prompt: |
+    You are a development assistant specialized in code generation, review, debugging,
+    and research. Use code execution capabilities for testing and validation, and research
+    tools for finding relevant documentation and examples. Provide clear, well-documented
+    solutions with best practices in mind.
+
+# Framework overrides
+framework:
+  log_level: "INFO"
+  enable_tracing: true  # Enable for debugging code execution

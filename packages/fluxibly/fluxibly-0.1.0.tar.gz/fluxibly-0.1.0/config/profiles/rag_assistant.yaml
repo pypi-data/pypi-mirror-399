@@ -1,0 +1,65 @@
+# RAG Assistant Profile
+# Optimized for Retrieval-Augmented Generation using Qdrant vector database
+# This profile demonstrates semantic search and knowledge retrieval workflows
+
+profile:
+  name: "rag_assistant"
+  description: "Retrieval-Augmented Generation with Qdrant vector search"
+
+# Workflow Configuration
+workflow:
+  agent_type: "orchestrator"  # Use orchestrator for RAG workflows
+  execution_mode: "single"    # Single query execution with retrieval
+  stateful: true              # Maintain conversation context for follow-ups
+
+# Enabled MCP servers for this profile
+enabled_servers:
+  - custom_rag  # Use custom RAG server for existing API
+
+# Orchestrator overrides for RAG workflows
+orchestrator:
+  model: "gpt-4.1"
+  temperature: 0.1  # Lower temperature for more focused synthesis
+  max_tokens: 16000  # Increased for full lecture generation (not summaries)
+  system_prompt: |
+    Bạn là một trợ lý giảng dạy chuyên về Truyền thông nội bộ trong các tổ chức. Nhiệm vụ của bạn là tạo ra các bài giảng chi tiết, đầy đủ theo cấu trúc mẫu đã cho, sử dụng thông tin từ các tài liệu nguồn được cung cấp.
+    QUAN TRỌNG: Output của bạn phải giống CHÍNH XÁC với example_oneshot.md về:
+    - Độ dài (30-40 dòng)
+    - Phong cách viết (chia theo bullet points)
+    - Cấu trúc (các phần như trong template)
+    - Ngôn ngữ (100% tiếng Việt)
+
+    Yêu cầu:
+    1. Đọc và phân tích template structure từ template structure
+    2. QUAN TRỌNG: Tham khảo one-shot example để hiểu:
+       - Mức độ chi tiết (nhiều đoạn văn cho mỗi phần, mỗi đoạn đều là 1 bullet points)
+       - Phong cách viết (học thuật, giải thích, có ví dụ)
+       - Độ dài output (khoảng 30-40 dòng nội dung thực chất)
+    3. Tìm kiếm thông tin từ các source documents đã cho
+    4. Fill vào template với nội dung ĐẦY ĐỦ, CHI TIẾT theo 4 phần:
+       - Định nghĩa & vai trò: Nhiều định nghĩa từ các học giả khác nhau (có tên, năm)
+       - Khung lý thuyết/mô hình & xu hướng nghiên cứu: Mô tả chi tiết, phân tích điểm mạnh/yếu
+       - Phương pháp ứng dụng cụ thể: Hướng dẫn từng bước, có ví dụ
+       - Case study: Phân tích đầy đủ với bối cảnh, phương pháp, kết quả
+    5. Bao gồm pedagogical objectives (=> Mục đích: ...) sau mỗi phần chính
+
+    OUTPUT MONG MUỐN: Bài giảng HOÀN CHỈNH giống như one-shot example, KHÔNG phải tóm tắt ngắn gọn.
+
+    CHÚ Ý: Toàn bộ output phải bằng tiếng Việt, bắt đầu bằng "Bài giảng: [tên chủ đề]"
+
+  # MCP configuration
+  mcp_servers:
+    - custom_rag
+  max_mcp_calls: 15  # Allow multiple retrieval rounds
+  mcp_timeout: 30
+
+  # Orchestration settings
+  max_iterations: 5
+  plan_refinement_enabled: true
+  result_synthesis_strategy: "llm_synthesis"
+  enable_parallel_execution: false  # Sequential for context building
+
+# Framework overrides
+framework:
+  log_level: "INFO"
+  enable_tracing: true

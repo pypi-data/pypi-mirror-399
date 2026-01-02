@@ -1,0 +1,84 @@
+# Document Processing Profile
+# Optimized for document analysis, OCR, and content extraction tasks
+# This profile demonstrates how to override default framework settings for specific use cases
+
+profile:
+  name: "document_processing"
+  description: "Optimized for document analysis and content extraction"
+
+# Workflow Configuration
+workflow:
+  agent_type: "orchestrator"  # Use orchestrator for multi-step document processing
+  execution_mode: "batch"     # Support batch document processing
+  stateful: false             # Stateless for batch processing of multiple documents
+
+# Enabled MCP servers for this profile
+enabled_servers:
+  - ocr
+  - vision
+
+# LLM overrides for document processing
+llm:
+  model: "gpt-4-turbo"
+  temperature: 0.3  # Lower temperature for more deterministic output
+  max_tokens: 8192  # Larger context for long documents
+
+# Agent overrides (if using base Agent instead of Orchestrator)
+agent:
+  name: "document_agent"
+  llm:
+    model: "gpt-4-turbo"
+    temperature: 0.3
+    max_tokens: 8192
+  system_prompt: |
+    You are a document analysis assistant with access to OCR and vision tools.
+    Extract and analyze information from documents accurately and efficiently.
+  mcp_servers:
+    - ocr
+    - vision
+  max_mcp_calls: 10
+  mcp_timeout: 60  # Longer timeout for document processing
+
+# Orchestrator overrides for complex document workflows
+orchestrator:
+  name: "document_orchestrator"
+  llm:
+    model: "gpt-4-turbo"
+    temperature: 0.3
+    max_tokens: 8192
+  system_prompt: |
+    You are a document analysis orchestrator specialized in extracting, analyzing, and processing
+    information from various document formats.
+
+    Available capabilities:
+    - OCR: Extract text from images and PDFs
+    - Vision: Analyze document structure, detect tables, charts, and visual elements
+
+    Your workflow:
+    1. Analyze the document type and structure
+    2. Plan extraction strategy (OCR for text, vision for layout/tables)
+    3. Execute extraction with appropriate tools
+    4. Validate and structure the extracted data
+    5. Provide comprehensive analysis and summary
+
+    Prioritize accuracy and completeness. For complex documents, use both OCR and vision
+    to cross-validate results and capture all information.
+
+  # MCP configuration
+  mcp_servers:
+    - ocr
+    - vision
+  max_mcp_calls: 20
+  mcp_timeout: 90
+
+  # Orchestration settings
+  max_iterations: 7  # More iterations for complex documents
+  plan_refinement_enabled: true
+  result_synthesis_strategy: "llm_synthesis"
+  enable_parallel_execution: true
+
+# Framework overrides
+framework:
+  log_level: "DEBUG"
+  max_retries: 5  # More retries for document processing
+  health_check_interval: 30

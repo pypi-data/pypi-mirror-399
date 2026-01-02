@@ -1,0 +1,30 @@
+# Public MCP Server Configuration
+# These are publicly available MCP servers for testing
+
+mcp_servers:
+  # Official MCP Filesystem Server
+  # https://github.com/modelcontextprotocol/servers
+  # Note: The path must exist before starting the server
+  filesystem:
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+    env:
+      NODE_ENV: "production"
+    enabled: true
+    priority: 1
+
+  # Official MCP GitHub Server (requires GitHub token)
+  # github:
+  #   command: "npx"
+  #   args: ["-y", "@modelcontextprotocol/server-github"]
+  #   env:
+  #     GITHUB_TOKEN: "${GITHUB_TOKEN}"
+  #   enabled: false
+  #   priority: 1
+
+  # Official MCP PostgreSQL Server (requires DB connection)
+  # postgres:
+  #   command: "npx"
+  #   args: ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/testdb"]
+  #   enabled: false
+  #   priority: 1

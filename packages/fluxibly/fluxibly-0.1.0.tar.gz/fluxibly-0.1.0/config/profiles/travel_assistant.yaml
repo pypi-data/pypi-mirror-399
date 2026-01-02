@@ -1,0 +1,41 @@
+# Travel Assistant Profile
+# Optimized for travel planning, accommodation search, and booking assistance
+
+profile:
+  name: "travel_assistant"
+  description: "Specialized in travel planning and accommodation searches via Airbnb"
+
+# Workflow Configuration
+workflow:
+  agent_type: "orchestrator"  # Use orchestrator for multi-step travel planning
+  execution_mode: "single"    # Single task execution
+  stateful: true              # Maintain conversation history for itinerary refinement
+
+# Enabled MCP servers for this profile
+enabled_servers:
+  - airbnb
+
+# Orchestrator overrides
+orchestrator:
+  model: "gpt-4o"
+  temperature: 0.7
+  max_mcp_calls: 15  # More calls for complex searches
+  # system_prompt: |
+  #   You are a travel assistant specialized in finding accommodations via Airbnb.
+
+  #   CRITICAL RULES FOR PLAN GENERATION:
+  #   1. ONLY use airbnb_search tool - it returns ALL the information needed
+  #   2. NEVER use airbnb_listing_details in your plans - you don't have listing IDs yet
+  #   3. The airbnb_search results contain everything: name, price, beds, rating, location, amenities
+  #   4. Your plan should be: Step 1: airbnb_search with location/dates/guests. Done.
+  #   5. No need for additional steps - search results are complete
+
+  #   RESULT PRESENTATION:
+  #   - Present top 5-10 results from the search
+  #   - Extract: name, price/night, total price, bedrooms/beds, rating, key amenities
+  #   - Be concise and focus on what travelers need to decide
+
+# Framework overrides
+framework:
+  log_level: "INFO"
+  enable_tracing: false

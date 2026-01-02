@@ -1,0 +1,109 @@
+# MCP Server Configuration
+# Define all available MCP servers with their connection parameters
+
+mcp_servers:
+  # OCR Capability
+  ocr:
+    command: "python"
+    args: ["-m", "mcp_servers.ocr.server"]
+    env:
+      OCR_BACKEND: "tesseract"
+      LANGUAGES: "en,zh,ja"
+    enabled: false  # Disabled - not yet implemented
+    priority: 1
+
+  # Vision Capability
+  vision:
+    command: "python"
+    args: ["-m", "mcp_servers.vision.server"]
+    env:
+      MODEL: "gpt-4-vision-preview"
+      MAX_IMAGE_SIZE: "2048"
+    enabled: false  # Disabled - not yet implemented
+    priority: 1
+
+  # Code Capability
+  code:
+    command: "python"
+    args: ["-m", "mcp_servers.code.server"]
+    env:
+      SANDBOX: "true"
+      ALLOWED_LANGUAGES: "python,javascript,bash"
+    enabled: false  # Disabled - not yet implemented
+    priority: 1
+
+  # Research Capability
+  research:
+    command: "python"
+    args: ["-m", "mcp_servers.research.server"]
+    env:
+      SEARCH_API_KEY: "${SEARCH_API_KEY}"
+      MAX_RESULTS: "10"
+    enabled: false  # Disabled - not yet implemented
+    priority: 1
+
+  # Weather MCP Server (Public)
+  # Uses @dangahagan/weather-mcp - no API key required
+  # Provides global weather data via NOAA (US) and Open-Meteo (international)
+  # weather:
+  #   command: "npx"
+  #   args: ["-y", "@dangahagan/weather-mcp"]
+  #   env: {}
+  #   enabled: true
+  #   priority: 1
+  #   description: "Global weather forecasts via NOAA and Open-Meteo APIs"
+
+  # Example: External MCP Server (Filesystem)
+  # filesystem:
+  #   command: "npx"
+  #   args: ["@modelcontextprotocol/server-filesystem", "/data"]
+  #   enabled: false
+  #   priority: 1
+
+  # Example: External MCP Server (GitHub)
+  # github:
+  #   command: "npx"
+  #   args: ["@modelcontextprotocol/server-github"]
+  #   env:
+  #     GITHUB_TOKEN: "${GITHUB_TOKEN}"
+  #   enabled: false
+  #   priority: 1
+
+  # Airbnb MCP Server (Public)
+  # Uses @openbnb/mcp-server-airbnb
+  # Provides Airbnb search and listing information
+  airbnb:
+    command: "npx"
+    args: ["-y", "@openbnb/mcp-server-airbnb", "--ignore-robots-txt"]
+    env: {}
+    enabled: false
+    priority: 1
+    description: "Airbnb accommodation search and listing details"
+
+  # Qdrant Vector Database Server (Public MCP - NOT COMPATIBLE)
+  # NOTE: This public MCP server creates its own database and cannot use existing Qdrant
+  # Requires Qdrant running on localhost:6333
+  # This is a Python package, run with uvx (not npx)
+  # See: https://mcpservers.org/servers/qdrant/mcp-server-qdrant
+  qdrant:
+    command: "uvx"
+    args: ["mcp-server-qdrant"]
+    env:
+      QDRANT_URL: "http://localhost:6333"
+      COLLECTION_NAME: "documents"
+      EMBEDDING_MODEL: "sentence-transformers/all-MiniLM-L6-v2"
+    enabled: false  # Disabled - use custom_rag instead
+    priority: 1
+    description: "Qdrant vector database for semantic search and retrieval"
+
+  # Custom RAG Server (for existing API)
+  # Integrates with your existing RAG API endpoints
+  # Supports search and GCS indexing
+  custom_rag:
+    command: "python"
+    args: ["-m", "mcp_servers.custom_rag.server"]
+    env:
+      RAG_API_URL: "http://localhost:8000"
+    enabled: true  # Use this for RAG workflows with existing API
+    priority: 1
+    description: "Custom RAG server for existing search/index API"

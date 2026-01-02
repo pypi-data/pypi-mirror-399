@@ -1,0 +1,32 @@
+# Default Configuration Profile
+# This profile provides default settings for all workflow components
+
+profile:
+  name: "default"
+  description: "Default configuration profile with balanced settings"
+
+# Workflow Configuration
+workflow:
+  agent_type: "agent"        # Use basic Agent (not Orchestrator)
+  execution_mode: "single"   # Single task execution
+  stateful: true             # Maintain conversation history
+
+# Framework settings (inherits from framework.yaml but can override)
+# framework:
+#   log_level: "INFO"
+#   enable_tracing: false
+
+# LLM settings (inherits from framework.yaml but can override)
+# llm:
+#   framework: "langchain"
+#   model: "gpt-4o"
+#   temperature: 0.7
+
+# Agent settings (inherits from framework.yaml but can override)
+# agent:
+#   mcp_servers: []
+#   max_mcp_calls: 5
+#   enable_memory: true
+
+# Note: All sections are optional. If not specified, values from
+# framework.yaml will be used as defaults.

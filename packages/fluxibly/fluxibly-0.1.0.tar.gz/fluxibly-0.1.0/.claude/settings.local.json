@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(uv run:*)",
+      "Bash(uv sync:*)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/test_orchestrator_prompts.py -v)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/test_orchestrator_*.py -v --tb=short)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/test_orchestrator_agent.py::TestOrchestratorAgentInitialization::test_init_basic -v --tb=long)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/test_orchestrator_selector.py::TestSelectMCPTools::test_select_mcp_tools_invalid_mcp_name -v --tb=short)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/test_orchestrator_selector.py::TestSelectMCPTools::test_select_mcp_tools_invalid_mcp_name -v)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/test_orchestrator_*.py -q --tb=no)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/test_mcp_client_manager.py -v)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/test_mcp_client_manager.py -v --tb=short)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/ -q --tb=no)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest tests/unit/test_mcp_client_manager.py -v --cov=fluxibly.mcp_client --cov-report=term)",
+      "Bash(python -c \"from fluxibly.mcp_client.manager import MCPClientManager; print(''Import successful'')\")",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" python -m pytest tests/unit/test_mcp_client_manager.py::TestMCPClientManagerInitialization::test_init_basic -v)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" python -m pytest tests/unit/test_mcp_client_manager.py --tb=no -q)",
+      "Bash(timeout 30 uv run python examples/test_real_mcp_server.py)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run --frozen pytest:*)",
+      "Bash(ls:*)",
+      "Bash(python /Users/tungns41.te/Documents/Data\\\\ Network/fluxibly/examples/test_rag_template_filling.py:*)",
+      "Bash(/usr/bin/python3 examples/test_rag_template_filling.py)",
+      "Bash(cd:*)",
+      "Bash(.venv/bin/python examples/test_rag_template_filling.py)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(PYTEST_DISABLE_PLUGIN_AUTOLOAD=\"\" uv run:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(/usr/bin/python3 -m pytest:*)",
+      "Bash(uv build)",
+      "Bash(cd /Users/tungns41.te/Documents/Data\\\\ Network/fluxibly && python3 -m pip install --user build:*)",
+      "Bash(test:*)"
+    ]
+  }
+}
