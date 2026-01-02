@@ -1,0 +1,175 @@
+if (!haveCorrectLCL)
+
+s.set_newevent(protocol::neLOST_SYNC);
+
+else
+
+s.set_newevent(ne);
+
+s.set_ledgerseq(ledger.seq());
+
+s.set_networktime(app_.timeKeeper().now().time_since_epoch().count());
+
+s.set_ledgerhashprevious(
+
+ledger.parentID().begin(),
+
+std::decay_t<decltype(ledger.parentID())>::bytes);
+
+s.set_ledgerhash(
+
+ledger.id().begin(), std::decay_t<decltype(ledger.id())>::bytes);
+
+std::uint32_t uMin, uMax;
+
+if (!ledgerMaster_.getFullValidatedRange(uMin, uMax))
+
+{
+
+uMin = 0;
+
+uMax = 0;
+
+}
+
+else
+
+{
+
+uMin = std::max(uMin, ledgerMaster_.getEarliestFetch()); } s.set_firstseq(uMin); s.set_lastseq(uMax); app_.overlay().foreach( send_always(std::make_shared<Message>(s, protocol::mtSTATUS_CHANGE))); JLOG(j_.trace()) << "send status change to peer"; }
+
+RCLCxLedger RCLConsensus::Adaptor::buildLCL( RCLCxLedger const& previousLedger, CanonicalTXSet& retriableTxs, NetClock::time_point closeTime, bool closeTimeCorrect, NetClock::duration closeResolution, std::chrono::milliseconds roundTime, std::set<TxID>& failedTxs) { std::shared_ptr<Ledger> built = [&]() { if (auto const replayData = ledgerMaster_.releaseReplay()) { XRPL_ASSERT( replayData->parent()->info().hash == previousLedger.id(), "ripple::RCLConsensus::Adaptor::buildLCL : parent hash match"); return buildLedger(*replayData, tapNONE, app_, j_); } return buildLedger( previousLedger.ledger_, closeTime, closeTimeCorrect, closeResolution, app_, retriableTxs, failedTxs, j_); }();
+
+using namespace std::chrono_literals;
+
+app_.getTxQ().processClosedLedger(app_,
+
+
+
+built, roundTime > 5s);
+
+if (ledgerMaster_.storeLedger(built)) JLOG(j_.debug()) << "Consensus built ledger we already had"; else if (app_.getInboundLedgers().find(built->info().hash)) JLOG(j_.debug()) << "Consensus built ledger we were acquiring"; else JLOG(j_.debug()) << "Consensus built new ledger"; return RCLCxLedger{std::move(built)}; }
+
+void
+
+RCLConsensus::Adaptor::validate(
+
+RCLCxLedger const& ledger,
+
+RCLTxSet const& txns,
+
+bool proposing)
+
+{
+
+using namespace std::chrono_literals;
+
+auto validationTime = app_.timeKeeper().closeTime(); if (validationTime <= lastValidationTime_) validationTime = lastValidationTime_ + 1s; lastValidationTime_ = validationTime;
+
+if (!validatorKeys_.keys) { JLOG(j_.warn()) << "RCLConsensus::Adaptor::validate: ValidatorKeys " "not set\n"; return; }
+
+auto const& keys =
+
+
+
+validatorKeys_.keys;
+
+auto v = std::make_shared<STValidation>(
+
+lastValidationTime_,
+
+keys.publicKey,
+
+keys.secretKey,
+
+validatorKeys_.nodeID,
+
+[&](STValidation& v) {
+
+v.setFieldH256(sfLedgerHash, ledger.id());
+
+v.setFieldH256(sfConsensusHash, txns.id());
+
+v.setFieldU32(sfLedgerSequence, ledger.seq());
+
+if (proposing)
+
+v.setFlag(vfFullValidation);
+
+if (ledger.ledger_
+
+
+
+>rules().enabled(featureHardenedValidations))
+
+{
+
+if (auto const vl = ledgerMaster_.getValidatedLedger()) v.setFieldH256(sfValidatedHash, vl->info().hash);
+
+v.setFieldU64(sfCookie, valCookie_);
+
+if (ledger.ledger_
+
+
+
+>isVotingLedger())
+
+v.setFieldU64(
+
+sfServerVersion, BuildInfo::getEncodedVersion());
+
+}
+
+{ auto const& ft = app_.getFeeTrack(); auto const fee = std::max(ft.getLocalFee(), ft.getClusterFee()); if (fee > ft.getLoadBase()) v.setFieldU32(sfLoadFee, fee); }
+
+if (ledger.ledger_
+
+
+
+>isVotingLedger())
+
+{
+
+feeVote_
+
+
+
+>doValidation(
+
+ledger.ledger_
+
+
+
+>fees(), ledger.ledger_
+
+
+
+>rules(), v);
+
+auto const amendments = app_.getAmendmentTable().doValidation( getEnabledAmendments(*ledger.ledger_));
+
+if (!amendments.empty())
+
+v.setFieldV256(
+
+sfAmendments, STVector256(sfAmendments, amendments));
+
+}
+
+});
+
+auto const serialized = v->getSerialized();
+
+app_.getHashRouter().addSuppression(sha512Half(makeSlice(serialized)));
+
+handleNewValidation(app_, v, "local");
+
+protocol::TMValidation val;
+
+val.set_validation(serialized.data(), serialized.size());
+
+app_.overlay().broadcast(val);
+
+app_.getOPs().pubValidation(v);
+
+}
