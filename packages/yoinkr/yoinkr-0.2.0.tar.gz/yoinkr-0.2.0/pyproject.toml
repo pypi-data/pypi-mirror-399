@@ -1,0 +1,103 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yoinkr"
+version = "0.2.0"
+description = "Yoink data from any website - a powerful web scraping library for Python and Django"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Yoinkr Contributors" }
+]
+keywords = [
+    "yoinkr",
+    "scraper",
+    "web-scraping",
+    "playwright",
+    "beautifulsoup",
+    "django",
+    "async",
+    "data-extraction",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "playwright>=1.40.0",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=5.0.0",
+    "httpx>=0.25.0",
+]
+
+[project.optional-dependencies]
+django = [
+    "Django>=4.2",
+]
+celery = [
+    "celery>=5.3.0",
+]
+all = [
+    "Django>=4.2",
+    "celery>=5.3.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yoinkr/yoinkr"
+Documentation = "https://github.com/yoinkr/yoinkr#readme"
+Repository = "https://github.com/yoinkr/yoinkr"
+Issues = "https://github.com/yoinkr/yoinkr/issues"
+
+[project.entry-points."django.apps"]
+yoinkr = "yoinkr.django:YoinkrConfig"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/yoinkr"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_ignores = true
+strict = true
