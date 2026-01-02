@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fpstreams"
+version = "1.0.0"
+description = "A functional programming library for Python mimicking Java Streams and JS Arrays."
+readme = "README.md"
+authors = [
+  { name = "Steven Yang", email = "stevenyang0316@gmail.com" },
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
+
+# --- Optional Dependencies ---
+# Users can install these with: pip install fpstreams[test] or fpstreams[async]
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+    "aiofiles"
+]
+async = [
+    "aiofiles"
+]
+data = [
+    "numpy",
+    "pandas"
+]
+all = [
+    "pytest",
+    "pytest-asyncio",
+    "aiofiles",
+    "numpy",
+    "pandas"
+]
+
+keywords = ["functional", "streams", "java-streams", "monad", "pipeline", "data-science"]
+
+[project.urls]
+"Homepage" = "https://github.com/steventimes/fpstreams"
+"Bug Tracker" = "https://github.com/steventimes/fpstreams/issues"
+"Documentation" = "https://github.com/steventimes/fpstreams/README.md"
+
+[tool.mypy]
+strict = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
