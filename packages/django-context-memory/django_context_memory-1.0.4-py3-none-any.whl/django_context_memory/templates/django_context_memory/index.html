@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Context Memory - {{ project_name }}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Light Theme Color Palette */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f6f8fa;
+            --bg-tertiary: #ffffff;
+            --border-color: #d0d7de;
+            --border-light: #e5e9ec;
+
+            /* Text Colors */
+            --text-primary: #24292f;
+            --text-secondary: #57606a;
+            --text-muted: #6e7781;
+
+            /* Accent Colors */
+            --accent-primary: #0969da;
+            --accent-success: #1a7f37;
+            --accent-warning: #bf8700;
+            --accent-danger: #cf222e;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            padding: 2rem 1rem;
+        }
+
+        /* Header */
+        .page-header {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-title i {
+            color: var(--accent-primary);
+        }
+
+        .project-name {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-weight: 500;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Action Buttons - Top Bar */
+        .action-bar {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-bar-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-icon-success {
+            background: var(--accent-success);
+            color: white;
+        }
+
+        .btn-icon-success:hover {
+            background: #177030;
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-icon-primary {
+            background: var(--bg-primary);
+            color: var(--accent-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-icon-primary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent-primary);
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Cards */
+        .card-light {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .card-light:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Apps Table */
+        .apps-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .apps-table thead th {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .apps-table thead th:first-child {
+            border-top-left-radius: 8px;
+        }
+
+        .apps-table thead th:last-child {
+            border-top-right-radius: 8px;
+        }
+
+        .apps-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .apps-table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .apps-table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .apps-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .app-name {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .app-name i {
+            color: var(--accent-primary);
+            font-size: 1.125rem;
+        }
+
+        .app-path {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Progress Section */
+        .progress-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress {
+            height: 8px;
+            background: var(--border-light);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            background: var(--accent-primary);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar.progress-bar-animated {
+            background: linear-gradient(
+                90deg,
+                var(--accent-primary) 0%,
+                var(--accent-success) 50%,
+                var(--accent-primary) 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.active {
+            background: var(--accent-success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Messages */
+        #message-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .alert-custom {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Statistics Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-label {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-value.success {
+            color: var(--accent-success);
+        }
+
+        .stat-value.primary {
+            color: var(--accent-primary);
+        }
+
+        /* Footer */
+        .page-footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .page-footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .page-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .apps-table {
+                font-size: 0.875rem;
+            }
+
+            .apps-table thead th,
+            .apps-table tbody td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="header-top">
+                <h1 class="page-title">
+                    <i class="bi bi-hdd-network-fill"></i>
+                    Django Context Memory
+                </h1>
+                <div class="project-name">
+                    <i class="bi bi-folder-fill"></i>
+                    {{ project_name }}
+                </div>
+            </div>
+            <p class="header-subtitle">Deep code intelligence for AI-assisted development</p>
+        </div>
+
+        <!-- Action Bar (Moved to Top) -->
+        <div class="action-bar">
+            <div class="action-bar-title">
+                <i class="bi bi-lightning-charge-fill"></i>
+                Quick Actions
+            </div>
+            <div class="action-buttons">
+                <button
+                    class="btn-icon btn-icon-success"
+                    onclick="handleBuildAll()"
+                    id="btn-build-all"
+                    title="Build All Apps"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+                <button
+                    class="btn-icon btn-icon-primary"
+                    onclick="refreshPage()"
+                    id="btn-refresh"
+                    title="Refresh Status"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Discovered Apps (Table Format) -->
+        <div class="card-light">
+            <div class="card-title">
+                <i class="bi bi-boxes"></i>
+                Discovered Apps ({{ apps|length }})
+            </div>
+            <div class="table-responsive">
+                <table class="apps-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>App Name</th>
+                            <th>Path</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in apps %}
+                            <tr>
+                                <td style="text-align: center;">{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="app-name">
+                                        <i class="bi bi-folder2-open"></i>
+                                        <strong>{{ app.name }}</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <code class="app-path">{{ app.path }}</code>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                    No Django apps discovered
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-container">
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+            <div class="status-row">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">Ready</span>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="message-container"></div>
+
+        <!-- Statistics -->
+        <div class="card-light">
+            <div class="card-title">
+                <i class="bi bi-graph-up"></i>
+                Aggregated Context Statistics
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Apps</div>
+                    <div class="stat-value" id="stat-apps">
+                        {% if aggregated and aggregated.payload %}
+                            {{ aggregated.payload.total_apps }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Files</div>
+                    <div class="stat-value" id="stat-files">
+                        {% if aggregated and aggregated.payload %}
+                            {{ aggregated.payload.total_files }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Models</div>
+                    <div class="stat-value success" id="stat-models">
+                        {% if aggregated and aggregated.payload.global_summary %}
+                            {{ aggregated.payload.global_summary.statistics.total_models|default:"-" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Views</div>
+                    <div class="stat-value success" id="stat-views">
+                        {% if aggregated and aggregated.payload.global_summary %}
+                            {{ aggregated.payload.global_summary.statistics.total_views|default:"-" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Functions</div>
+                    <div class="stat-value primary" id="stat-functions">
+                        {% if aggregated and aggregated.payload.global_summary %}
+                            {{ aggregated.payload.global_summary.statistics.total_functions|default:"-" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">URL Patterns</div>
+                    <div class="stat-value primary" id="stat-urls">
+                        {% if aggregated and aggregated.payload.global_summary %}
+                            {{ aggregated.payload.global_summary.statistics.total_url_patterns|default:"-" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="page-footer">
+            <p>
+                Powered by
+                <a href="https://github.com/GavinHolder/django-context-memory" target="_blank">
+                    Django Context Memory
+                </a>
+                | Deep code intelligence for AI assistants
+            </p>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Initialize Bootstrap tooltips
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+        // Show message helper
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('message-container');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            const icon = type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill';
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert-custom ${alertClass}`;
+            alertDiv.innerHTML = `
+                <i class="bi bi-${icon}"></i>
+                <div>${message}</div>
+            `;
+
+            container.appendChild(alertDiv);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 5000);
+        }
+
+        // Update progress
+        function updateProgress(percent, text) {
+            const progressBar = document.getElementById('progress-bar');
+            const statusText = document.getElementById('status-text');
+            const statusDot = document.getElementById('status-dot');
+
+            progressBar.style.width = percent + '%';
+            statusText.textContent = text;
+
+            if (percent > 0 && percent < 100) {
+                progressBar.classList.add('progress-bar-animated');
+                statusDot.classList.add('active');
+            } else {
+                progressBar.classList.remove('progress-bar-animated');
+                statusDot.classList.remove('active');
+            }
+        }
+
+        // Build All Apps
+        async function handleBuildAll() {
+            const button = document.getElementById('btn-build-all');
+            button.disabled = true;
+
+            updateProgress(10, 'Starting build for all apps...');
+
+            try {
+                const response = await fetch('{% url "django_context_memory:action_build_all" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    updateProgress(100, 'Build complete!');
+                    showMessage(data.message, 'success');
+
+                    // Update stats
+                    if (data.total_apps) document.getElementById('stat-apps').textContent = data.total_apps;
+                    if (data.total_files) document.getElementById('stat-files').textContent = data.total_files;
+                    if (data.global_summary && data.global_summary.statistics) {
+                        const stats = data.global_summary.statistics;
+                        if (stats.total_models) document.getElementById('stat-models').textContent = stats.total_models;
+                        if (stats.total_views) document.getElementById('stat-views').textContent = stats.total_views;
+                        if (stats.total_functions) document.getElementById('stat-functions').textContent = stats.total_functions;
+                        if (stats.total_url_patterns) document.getElementById('stat-urls').textContent = stats.total_url_patterns;
+                    }
+
+                    setTimeout(() => updateProgress(0, 'Ready'), 2000);
+                } else {
+                    updateProgress(0, 'Error occurred');
+                    showMessage(data.message || 'Build failed', 'error');
+                }
+            } catch (error) {
+                updateProgress(0, 'Error occurred');
+                showMessage('Network error: ' + error.message, 'error');
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        // Refresh page
+        function refreshPage() {
+            location.reload();
+        }
+
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
