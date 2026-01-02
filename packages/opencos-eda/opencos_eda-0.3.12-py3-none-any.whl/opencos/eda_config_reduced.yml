@@ -1,0 +1,45 @@
+
+
+defines: { }
+
+dep_command_enables:
+  # Values overriden to false:
+  shell:            false
+  var_subst_args:   false
+  var_subst_os_env: false
+
+# Values overriden to false:
+deps_subprocess_shell: false
+
+
+tools:
+  verilator:
+    exe: verilator
+    handlers:
+      lint: opencos.tools.verilator.VerilatorLint
+      elab: opencos.tools.verilator.VerilatorElab
+      sim: opencos.tools.verilator.VerilatorSim
+    compile-waivers:
+      - CASEINCOMPLETE
+      - REALCVT  # Implicit conversion of real to integer
+      - SELRANGE
+      - TIMESCALEMOD # If one file has `timescale, then they all must
+      - UNSIGNED
+      - WIDTH
+      - fatal
+
+  # leave slang, modelsim_ase, iverilog, slang_yosys at defaults
+
+auto_tools_order:
+  lint:
+    - slang
+    - verilator
+  elab:
+    - slang
+    - verilator
+  sim:
+    - verilator
+    - modelsim_ase
+    - iverilog
+  synth:
+    - slang_yosys
