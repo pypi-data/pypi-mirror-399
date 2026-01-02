@@ -1,0 +1,123 @@
+{
+    "config": {
+        "abort": {
+            "reauth_successful": "Ponovna autentifikacija uspe\u0161no izvr\u0161ena"
+        },
+        "flow_title": "{name} ({ip_address})",
+        "step": {
+            "discovery_confirm": {
+                "data": {
+                    "api_key": "API klju\u010d",
+                    "password": "Lozinka",
+                    "username": "Korisni\u010dko ime"
+                }
+            },
+            "reauth_confirm": {
+                "data": {
+                    "api_key": "API klju\u010d",
+                    "password": "Lozinka",
+                    "port": "Port",
+                    "username": "Korisni\u010dko ime"
+                }
+            },
+            "user": {
+                "data": {
+                    "api_key": "API klju\u010d",
+                    "password": "Lozinka",
+                    "port": "Port",
+                    "username": "Korisni\u010dko ime",
+                    "verify_ssl": "Verifikuj SSL sertifikat"
+                }
+            }
+        }
+    },
+    "entity": {
+        "event": {
+            "fingerprint": {
+                "state_attributes": {
+                    "event_type": {
+                        "state": {
+                            "not_identified": "Nije uklju\u010deno"
+                        }
+                    }
+                }
+            }
+        },
+        "media_player": {
+            "speaker": {
+                "name": "Zvu\u010dnik"
+            }
+        },
+        "number": {
+            "infrared_custom_lux_trigger": {
+                "name": "Infracrveni prilago\u0111eni okida\u010d za osvetljenost"
+            },
+            "volume": {
+                "name": "Zapremina"
+            }
+        },
+        "select": {
+            "light_mode": {
+                "name": "Re\u017eim svetla"
+            }
+        },
+        "sensor": {
+            "cpu_temperature": {
+                "name": "CPU temperatura"
+            },
+            "cpu_utilization": {
+                "name": "Iskori\u0161\u0107enost CPU"
+            },
+            "disk_write_rate": {
+                "name": "Brzina upisa na disk"
+            },
+            "license_plate_detected": {
+                "state": {
+                    "none": "Nije otkriven"
+                }
+            },
+            "light_mode": {
+                "name": "Re\u017eim svetla"
+            },
+            "storage_used": {
+                "name": "Iskori\u0161\u0107ena memorija"
+            },
+            "temperature": {
+                "name": "Temperatura"
+            },
+            "volume": {
+                "name": "Zapremina"
+            }
+        },
+        "switch": {
+            "detections_person": {
+                "name": "Detekcije: osoba"
+            }
+        },
+        "text": {
+            "doorbell": {
+                "name": "Zvono"
+            }
+        }
+    },
+    "issues": {
+        "cloud_user": {
+            "fix_flow": {
+                "step": {
+                    "confirm": {
+                        "description": "Od 22. jula 2024. Ubiquiti zahteva da svi cloud korisnici koriste vi\u0161efaktorsku autentifikaciju (MFA), koja nije podr\u017eana u Home Assistant-u.\n\nPreporu\u010duje se prelazak na [lokalnog korisnika]({learn_more}) \u0161to je pre mogu\u0107e, kako bi integracija nastavila da radi.\n\nPotvrdom ove popravke pokre\u0107e se ponovna autentifikacija radi unosa potrebnih podataka za prijavu."
+                    }
+                }
+            }
+        }
+    },
+    "services": {
+        "remove_privacy_zone": {
+            "fields": {
+                "device_id": {
+                    "name": "Kamera"
+                }
+            }
+        }
+    }
+}
