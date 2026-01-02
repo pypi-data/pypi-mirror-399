@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cuRDF"
+version = "0.2.0"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "torch>=2.8.0",
+  "nvalchemi-toolkit-ops>=0.2.0",
+  "MDAnalysis",
+  "ase",
+  "matplotlib",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+docs = ["sphinx", "sphinx-rtd-theme", "myst-parser"]
+
+[project.scripts]
+curdf = "curdf.cli:main"
