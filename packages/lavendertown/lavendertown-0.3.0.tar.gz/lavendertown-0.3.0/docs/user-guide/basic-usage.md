@@ -1,0 +1,115 @@
+# Basic Usage
+
+This guide covers the fundamental usage patterns for LavenderTown.
+
+## Creating an Inspector
+
+The `Inspector` class is the main entry point for LavenderTown. It accepts a DataFrame (Pandas or Polars) and orchestrates data quality detection.
+
+```python
+from lavendertown import Inspector
+import pandas as pd
+
+# Load your data
+df = pd.read_csv("data.csv")
+
+# Create inspector
+inspector = Inspector(df)
+```
+
+## Rendering the UI
+
+To display the interactive Streamlit UI, call `render()`:
+
+```python
+import streamlit as st
+
+inspector = Inspector(df)
+inspector.render()  # Must be called within Streamlit app context
+```
+
+The UI provides:
+- Overview metrics (total findings, severity breakdown)
+- Interactive charts and visualizations
+- Detailed findings table with filtering
+- Export options (JSON, CSV)
+- Custom rule management
+
+## Getting Findings Programmatically
+
+You can also get findings without the UI:
+
+```python
+inspector = Inspector(df)
+findings = inspector.detect()
+
+# Process findings
+for finding in findings:
+    print(f"{finding.column}: {finding.description}")
+```
+
+## Working with Findings
+
+Each finding is a `GhostFinding` object with the following attributes:
+
+- `ghost_type`: Category of issue (e.g., "null", "type", "outlier")
+- `column`: Affected column name
+- `severity`: Severity level ("info", "warning", or "error")
+- `description`: Human-readable description
+- `row_indices`: List of affected row indices (when available)
+- `metadata`: Additional diagnostic information
+
+### Filtering Findings
+
+```python
+findings = inspector.detect()
+
+# Filter by severity
+errors = [f for f in findings if f.severity == "error"]
+warnings = [f for f in findings if f.severity == "warning"]
+
+# Filter by type
+null_findings = [f for f in findings if f.ghost_type == "null"]
+outlier_findings = [f for f in findings if f.ghost_type == "outlier"]
+
+# Filter by column
+price_findings = [f for f in findings if f.column == "price"]
+```
+
+## Custom Detectors
+
+You can provide custom detectors when creating an Inspector:
+
+```python
+from lavendertown.detectors.null import NullGhostDetector
+
+# Create custom detector with specific threshold
+null_detector = NullGhostDetector(null_threshold=0.2)  # 20% threshold
+
+# Use with Inspector
+inspector = Inspector(df, detectors=[null_detector])
+```
+
+## Backend Detection
+
+LavenderTown automatically detects whether you're using Pandas or Polars:
+
+```python
+import pandas as pd
+import polars as pl
+
+# Pandas DataFrame
+df_pandas = pd.DataFrame({"value": [1, 2, 3]})
+inspector = Inspector(df_pandas)  # Automatically uses Pandas backend
+
+# Polars DataFrame
+df_polars = pl.DataFrame({"value": [1, 2, 3]})
+inspector = Inspector(df_polars)  # Automatically uses Polars backend
+```
+
+## Next Steps
+
+- Learn about [Detectors](detectors.md) for different detection methods
+- Explore [Custom Rules](custom-rules.md) for domain-specific validation
+- Check out [Drift Detection](drift-detection.md) for dataset comparison
+
