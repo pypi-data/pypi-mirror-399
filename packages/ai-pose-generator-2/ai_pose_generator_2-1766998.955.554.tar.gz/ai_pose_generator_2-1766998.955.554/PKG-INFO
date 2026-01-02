@@ -1,0 +1,109 @@
+Metadata-Version: 2.4
+Name: ai-pose-generator-2
+Version: 1766998.955.554
+Summary: High-quality integration for https://supermaker.ai/image/ai-pose-generator/
+Home-page: https://supermaker.ai/image/ai-pose-generator/
+Author: SuperMaker
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+Dynamic: summary
+
+# ai-pose-generator-2
+
+An automated library designed to demonstrate the capabilities of the ai-pose-generator-2 model and facilitate integration with the SuperMaker AI pose generation platform. This package provides a streamlined interface for generating and manipulating AI-powered poses directly within your Python environment.
+
+## Installation
+
+You can install the `ai-pose-generator-2` package using pip:
+bash
+pip install ai-pose-generator-2
+
+## Basic Usage
+
+Here are a few examples showcasing how to use the `ai-pose-generator-2` library:
+
+**1. Generating a Basic Pose:**
+python
+from ai_pose_generator_2 import PoseGenerator
+
+generator = PoseGenerator()
+pose = generator.generate_pose()  # Generates a default pose
+print(pose) # Returns a dictionary representing the pose
+
+This example demonstrates the simplest way to generate a pose using the default settings. The `generate_pose()` method returns a dictionary containing the coordinates of key body joints.
+
+**2. Customizing the Pose with Parameters:**
+python
+from ai_pose_generator_2 import PoseGenerator
+
+generator = PoseGenerator()
+pose = generator.generate_pose(style="athletic", gender="female")
+print(pose) # Returns a pose based on the specified style and gender
+
+This example shows how to influence the generated pose using parameters like `style` and `gender`. Different styles and gender options will affect the generated pose's characteristics.
+
+**3. Integrating with an Image Processing Pipeline:**
+python
+from ai_pose_generator_2 import PoseGenerator
+from PIL import Image, ImageDraw
+
+generator = PoseGenerator()
+pose = generator.generate_pose()
+
+# Example: Create a simple image and draw the pose keypoints
+image = Image.new("RGB", (512, 512), "white")
+draw = ImageDraw.Draw(image)
+
+for keypoint, coordinates in pose.items():
+    x, y = coordinates
+    draw.ellipse((x - 5, y - 5, x + 5, y + 5), fill="red")
+
+image.save("pose_image.png") # Saves the image with the pose
+
+This example demonstrates how to integrate the generated pose data into an image processing workflow. It creates a basic image and draws red circles at the keypoint coordinates returned by the generator.
+
+**4. Generating Multiple Poses:**
+python
+from ai_pose_generator_2 import PoseGenerator
+
+generator = PoseGenerator()
+poses = generator.generate_multiple_poses(num_poses=3)
+
+for i, pose in enumerate(poses):
+    print(f"Pose {i+1}: {pose}")
+
+This example showcases the ability to generate multiple poses in a single call, which can be useful for creating animation sequences or analyzing variations in pose generation.
+
+**5. Specifying Body Type Parameters**
+python
+from ai_pose_generator_2 import PoseGenerator
+
+generator = PoseGenerator()
+pose = generator.generate_pose(body_type="muscular", age_range="adult")
+print(pose)
+
+This example shows how to generate poses with specific body types and age ranges.
+
+## Features
+
+*   **Effortless Pose Generation:** Generate realistic human poses with a single function call.
+*   **Customizable Parameters:** Control pose style, gender, body type, and age range for tailored results.
+*   **Integration Ready:** Easily integrate generated pose data into image processing, animation, and other creative applications.
+*   **Multiple Pose Generation:** Generate batches of poses efficiently.
+*   **Simple API:** Easy-to-use API for both beginners and experienced developers.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+This project is a gateway to the ai-pose-generator-2 ecosystem. For advanced features and full capabilities, please visit: https://supermaker.ai/image/ai-pose-generator/
