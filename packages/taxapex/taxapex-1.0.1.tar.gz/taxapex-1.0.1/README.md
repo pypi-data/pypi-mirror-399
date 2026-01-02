@@ -1,0 +1,253 @@
+# TaxApex Python SDK
+
+Official Python client library for the TaxApex Tax Notice Management API.
+
+## Installation
+
+```bash
+pip install taxapex
+```
+
+## Quick Start
+
+```python
+from taxapex import TaxApexClient
+
+# Initialize the client
+client = TaxApexClient(api_key="your-api-key")
+
+# Extract data from a tax notice
+result = client.extract.from_file("notice.pdf")
+print(f"Notice Type: {result.notice_type}")
+print(f"Amount Due: ${result.amount_due}")
+print(f"Due Date: {result.due_date}")
+```
+
+## Features
+
+### Document Extraction
+
+Extract structured data from IRS and state tax notices:
+
+```python
+# From a local file
+result = client.extract.from_file("cp2000_notice.pdf")
+
+# From raw bytes
+with open("notice.pdf", "rb") as f:
+    result = client.extract.from_bytes(f.read(), filename="notice.pdf")
+
+# From a URL
+result = client.extract.from_url("https://example.com/notice.pdf")
+
+# Access extracted data
+print(f"Notice Type: {result.notice_type}")
+print(f"Issuing Agency: {result.issuing_agency}")
+print(f"Amount Due: ${result.amount_due}")
+print(f"Due Date: {result.due_date}")
+print(f"Taxpayer: {result.taxpayer_name}")
+print(f"Tax Year: {result.tax_year}")
+print(f"Confidence: {result.confidence_score:.2%}")
+```
+
+### Audit Risk Analysis
+
+Analyze audit risk for clients:
+
+```python
+# Analyze audit risk
+risk = client.audit_risk.analyze(
+    client_id="client-12345",
+    tax_year=2023,
+    income_data={
+        "wages": 150000,
+        "self_employment": 50000,
+        "investments": 25000,
+        "rental": 12000,
+    },
+    deduction_data={
+        "mortgage_interest": 18000,
+        "state_taxes": 10000,
+        "charitable": 15000,
+        "home_office": 5000,
+    },
+    industry="technology"
+)
+
+# Review results
+print(f"Overall Risk Score: {risk.overall_score}/100")
+print(f"Risk Level: {risk.risk_level}")
+print(f"\nCategory Scores:")
+print(f"  Income: {risk.income_score}/100")
+print(f"  Deductions: {risk.deductions_score}/100")
+print(f"  Credits: {risk.credits_score}/100")
+print(f"  Compliance: {risk.compliance_score}/100")
+
+print(f"\nRisk Factors:")
+for factor in risk.risk_factors:
+    print(f"  - {factor.description} ({factor.severity})")
+
+print(f"\nRecommendations:")
+for rec in risk.recommendations:
+    print(f"  - {rec}")
+```
+
+### Semantic Search
+
+Search across your document repository:
+
+```python
+# Search documents
+results = client.search.query(
+    "IRS penalty abatement procedures",
+    document_type="IRS_NOTICE",
+    limit=5,
+    min_similarity=0.7
+)
+
+print(f"Found {results.total_results} results:")
+for item in results.results:
+    print(f"\n{item.title}")
+    print(f"  Similarity: {item.similarity_score:.2%}")
+    print(f"  Snippet: {item.content_snippet[:100]}...")
+
+# Index a new document
+client.search.index_document(
+    document_id="doc-123",
+    content="Full text content of the document...",
+    title="CP2000 Response Letter",
+    document_type="RESPONSE_LETTER",
+    tax_year=2023
+)
+```
+
+### Tax Research
+
+Get AI-powered answers to tax questions:
+
+```python
+# Research a tax question
+result = client.research.query(
+    "What are the requirements for claiming the home office deduction?",
+    include_citations=True,
+    max_sources=5
+)
+
+print(f"Answer:\n{result.answer}")
+print(f"\nConfidence: {result.confidence:.2%}")
+print(f"\nSources:")
+for source in result.sources:
+    print(f"  - {source.title}")
+    print(f"    {source.url}")
+```
+
+### Usage Statistics
+
+Monitor your API usage:
+
+```python
+usage = client.get_usage()
+
+print(f"Billing Period: {usage.period_start} to {usage.period_end}")
+print(f"Document Extractions: {usage.document_extractions}")
+print(f"AI Analysis Calls: {usage.ai_analysis_calls}")
+print(f"Search Queries: {usage.search_queries}")
+print(f"Audit Risk Assessments: {usage.audit_risk_assessments}")
+print(f"Total API Calls: {usage.total_api_calls}")
+```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+export TAXAPEX_API_KEY="your-api-key"
+export TAXAPEX_BASE_URL="https://api.taxapex.com/v1"  # Optional
+```
+
+### Client Options
+
+```python
+client = TaxApexClient(
+    api_key="your-api-key",
+    base_url="https://api.taxapex.com/v1",  # Custom API URL
+    timeout=120,  # Request timeout in seconds
+    max_retries=5,  # Retry attempts for failed requests
+    retry_delay=2.0,  # Base delay between retries
+)
+```
+
+### Context Manager
+
+```python
+with TaxApexClient(api_key="your-api-key") as client:
+    result = client.extract.from_file("notice.pdf")
+    # Session is automatically closed
+```
+
+## Error Handling
+
+```python
+from taxapex import (
+    TaxApexClient,
+    APIError,
+    AuthenticationError,
+    RateLimitError,
+    ValidationError,
+)
+
+try:
+    result = client.extract.from_file("notice.pdf")
+except AuthenticationError:
+    print("Invalid API key")
+except RateLimitError as e:
+    print(f"Rate limited. Retry after {e.retry_after} seconds")
+except ValidationError as e:
+    print(f"Invalid request: {e.message}")
+except APIError as e:
+    print(f"API error: {e.message} (status: {e.status_code})")
+```
+
+## Data Models
+
+### ExtractionResult
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | str | Unique extraction ID |
+| `notice_type` | NoticeType | Type of notice (CP2000, CP501, etc.) |
+| `issuing_agency` | str | IRS or state agency |
+| `notice_date` | datetime | Date on the notice |
+| `due_date` | datetime | Response due date |
+| `amount_due` | float | Amount owed |
+| `taxpayer_name` | str | Taxpayer name |
+| `taxpayer_id` | str | SSN/EIN (masked) |
+| `tax_year` | int | Tax year |
+| `fields` | List[ExtractedField] | All extracted fields |
+| `confidence_score` | float | Extraction confidence (0-1) |
+
+### AuditRiskAssessment
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | str | Assessment ID |
+| `client_id` | str | Client identifier |
+| `tax_year` | int | Tax year analyzed |
+| `overall_score` | float | Overall risk score (0-100) |
+| `risk_level` | RiskLevel | low, medium, high, critical |
+| `income_score` | float | Income risk score |
+| `deductions_score` | float | Deductions risk score |
+| `credits_score` | float | Credits risk score |
+| `compliance_score` | float | Compliance risk score |
+| `risk_factors` | List[RiskFactor] | Identified risk factors |
+| `recommendations` | List[str] | Mitigation recommendations |
+
+## Support
+
+- Documentation: https://docs.taxapex.com
+- Email: support@innorve.ai
+- GitHub Issues: https://github.com/innorve/taxapex-python/issues
+
+## License
+
+MIT License - see LICENSE file for details.
