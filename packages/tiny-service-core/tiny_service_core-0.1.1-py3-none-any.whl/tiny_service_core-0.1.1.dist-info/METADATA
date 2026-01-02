@@ -1,0 +1,117 @@
+Metadata-Version: 2.3
+Name: tiny-service-core
+Version: 0.1.1
+Summary: 🪐 Shared functionality for tiny microservices
+Keywords: async,fastapi,microservice,core
+Author: Aliaksei Urbanski
+Author-email: Aliaksei Urbanski <aliaksei.urbanski@gmail.com>
+License: MIT
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: AsyncIO
+Classifier: Framework :: FastAPI
+Classifier: Framework :: Pydantic
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Internet
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: HTTP Servers
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Requires-Dist: fastapi
+Requires-Dist: pydantic-settings
+Requires-Dist: sentry-sdk[fastapi]
+Requires-Dist: redis ; extra == 'cache'
+Requires-Dist: alembic ; extra == 'db'
+Requires-Dist: asyncpg ; extra == 'db'
+Requires-Dist: sentry-sdk[asyncpg,sqlalchemy] ; extra == 'db'
+Requires-Dist: sqlmodel ; extra == 'db'
+Requires-Dist: fastapi[standard] ; extra == 'dev'
+Requires-Dist: httpx ; extra == 'http-client'
+Requires-Dist: sentry-sdk[httpx] ; extra == 'http-client'
+Requires-Dist: python-multipart ; extra == 'multipart'
+Maintainer: Aliaksei Urbanski
+Maintainer-email: Aliaksei Urbanski <aliaksei.urbanski@gmail.com>
+Requires-Python: >=3.12
+Project-URL: Issues, https://github.com/Jamim/tiny-service-core/issues
+Project-URL: Repository, https://github.com/Jamim/tiny-service-core
+Provides-Extra: cache
+Provides-Extra: db
+Provides-Extra: dev
+Provides-Extra: http-client
+Provides-Extra: multipart
+Description-Content-Type: text/markdown
+
+# 🪐 Tiny Service Core
+
+[![CI][ci-badge]][ci]
+[![Coverage][cov-badge]][cov]
+[![License][license-badge]][license]
+[![Version][ver-badge]][pypi]
+[![Python][py-badge]][pypi]
+
+This library implements common functions that allows
+you to build tiny microservices with less boilerplate.
+
+[ci-badge]: https://img.shields.io/github/actions/workflow/status/Jamim/tiny-service-core/ci.yml.svg
+[ci]: https://github.com/Jamim/tiny-service-core/actions/workflows/ci.yml
+[cov-badge]: https://codecov.io/github/Jamim/tiny-service-core/graph/badge.svg
+[cov]: https://app.codecov.io/github/Jamim/tiny-service-core
+[license-badge]: https://img.shields.io/github/license/Jamim/tiny-service-core
+[ver-badge]: https://img.shields.io/pypi/v/tiny-service-core
+[pypi]: https://pypi.org/project/tiny-service-core/
+[py-badge]: https://img.shields.io/pypi/pyversions/tiny-service-core
+[license]: https://github.com/Jamim/tiny-service-core/blob/main/LICENSE
+
+## Installation
+
+Install with `pip`, including optional dependencies:
+
+```shell
+pip install tiny-service-core[cache,db,http-client]
+```
+
+Clearly, you can use any other Python package manager instead.  
+I personally prefer using [uv][uv] nowadays.
+
+```shell
+uv add tiny-service-core --extra cache --extra db --extra http-client
+```
+
+[uv]: https://docs.astral.sh/uv/
+
+## Dependencies
+
+Tiny Service Core is highly opinionated.  
+Current version glues together these components:
+  - [FastAPI][fastapi]
+  - [pydantic-settings][pydantic-settings]
+  - [Sentry][sentry]
+  - with `cache` [extra][installing-extras]
+    * [Redis][redis]
+  - `db`
+    * [SQLModel][sqlmodel]
+    * [asyncpg][asyncpg]
+    * [Alembic][alembic]
+  - `http-client`
+    * [HTTPX][httpx]
+
+[fastapi]: https://fastapi.tiangolo.com
+[pydantic-settings]: https://docs.pydantic.dev/latest/concepts/pydantic_settings/
+[sentry]: https://docs.sentry.io/platforms/python/
+[redis]: https://github.com/redis/redis-py
+[sqlmodel]: https://sqlmodel.tiangolo.com
+[asyncpg]: https://github.com/MagicStack/asyncpg
+[alembic]: https://alembic.sqlalchemy.org
+[httpx]: https://www.python-httpx.org
+
+[installing-extras]: https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-extras
