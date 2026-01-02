@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "vitalx-aggregation"
+version = "0.3.0"
+description = "Vital Horizon AI Aggregation API"
+authors = ["Vital <developers@tryvital.io>"]
+license = "AGPL-3.0-only"
+homepage = "https://www.tryvital.com/"
+documentation = "https://docs.tryvital.io/"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Topic :: Software Development",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research"
+]
+readme = "README.md"
+
+packages = [
+  { include = "vitalx" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+vitalx-types = "<1.0"
+pydantic = "^2.0"
+polars = "^1.5"
+requests = "^2.32"
+vitalx-cli-auth = { version = "<1.0", optional = true }
+
+[tool.poetry.extras]
+cli-auth = ["vitalx-cli-auth"]
+
+[tool.poetry.group.dev.dependencies]
+vitalx-cli-auth = { path = "../cli-auth", develop = true }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
