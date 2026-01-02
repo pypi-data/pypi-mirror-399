@@ -1,0 +1,142 @@
+# Combined Auto Tag, Release, and Publish Workflow
+# Automatically creates tags, GitHub releases, and publishes to PyPI when version changes
+
+name: Auto Tag and Publish on Version Change
+
+on:
+  push:
+    branches: [main]
+    paths: [data_quality_sdk/__init__.py]
+
+permissions:
+  contents: write  # For creating tags and releases
+  id-token: write  # For PyPI trusted publishing
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      version-changed: ${{ steps.check-version.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get current version
+        id: get-version
+        run: |
+          VERSION=$(grep -o "__version__ = ['\"][^'\"]*['\"]" data_quality_sdk/__init__.py | cut -d '"' -f 2 | cut -d "'" -f 2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Get previous version
+        id: get-prev-version
+        run: |
+          git checkout HEAD~1 -- data_quality_sdk/__init__.py || echo "No previous version found"
+          if [ -f data_quality_sdk/__init__.py ]; then
+            PREV_VERSION=$(grep -o "__version__ = ['\"][^'\"]*['\"]" data_quality_sdk/__init__.py | cut -d '"' -f 2 | cut -d "'" -f 2 || echo "0.0.0")
+          else
+            PREV_VERSION="0.0.0"
+          fi
+          echo "prev-version=$PREV_VERSION" >> $GITHUB_OUTPUT
+          echo "Previous version: $PREV_VERSION"
+          git checkout HEAD -- data_quality_sdk/__init__.py
+
+      - name: Check if version changed
+        id: check-version
+        run: |
+          CURRENT="${{ steps.get-version.outputs.version }}"
+          PREVIOUS="${{ steps.get-prev-version.outputs.prev-version }}"
+
+          if [ "$CURRENT" != "$PREVIOUS" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "✅ Version changed from $PREVIOUS to $CURRENT"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Version unchanged: $CURRENT"
+          fi
+
+  tag-build-and-publish:
+    needs: check-version
+    if: needs.check-version.outputs.version-changed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/alation-data-quality-sdk
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if tag exists
+        id: check-tag
+        run: |
+          TAG="${{ needs.check-version.outputs.version }}"
+          if git tag -l | grep -q "^$TAG$"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Tag $TAG already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "✅ Tag $TAG does not exist, will create"
+          fi
+
+      - name: Create and push tag
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          TAG="${{ needs.check-version.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$TAG" -m "Release $TAG
+
+          🚀 Auto-generated release for version ${{ needs.check-version.outputs.version }}"
+
+          git push origin "$TAG"
+          echo "🎉 Created and pushed tag: $TAG"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.10
+
+      - name: Build package
+        run: uv build
+
+      - name: Create GitHub Release
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          TAG="${{ needs.check-version.outputs.version }}"
+
+          gh release create "$TAG" \
+            --title "Release $TAG" \
+            --notes "## 🚀 Release $TAG
+
+          **Auto-generated release from version bump in __init__.py**
+
+          ### What's Changed
+          - Version updated to ${{ needs.check-version.outputs.version }}
+
+          ### Installation
+          \`\`\`bash
+          pip install alation-data-quality-sdk==${{ needs.check-version.outputs.version }}
+          \`\`\`" \
+            --latest \
+            dist/*
+
+          echo "🎉 Created GitHub release: $TAG"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to PyPI
+        run: uv publish --publish-url https://upload.pypi.org/legacy/ --trusted-publishing always
+
+      - name: Summary
+        run: |
+          echo "✅ Complete release process finished for version ${{ needs.check-version.outputs.version }}"
+          echo "🏷️ Tag created: ${{ needs.check-version.outputs.version }}"
+          echo "📦 Package built and published to PyPI"
+          echo "🎯 GitHub release created with artifacts"
+          echo "🔗 Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ needs.check-version.outputs.version }}"
