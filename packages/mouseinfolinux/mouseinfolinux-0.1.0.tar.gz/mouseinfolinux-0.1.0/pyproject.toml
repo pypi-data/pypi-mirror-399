@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mouseinfolinux"
+version = "0.1.0"
+description = "Ferramenta GTK para inspeção de coordenadas e cores do mouse no Linux."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pygobject",
+    "python-xlib"
+]
+
+[project.scripts]
+mouseinfolinux = "mouseinfolinux.main:run"
