@@ -1,0 +1,192 @@
+# ob-sync
+
+[![PyPI version](https://badge.fury.io/py/ob-sync.svg)](https://badge.fury.io/py/ob-sync)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A CLI tool to sync your Obsidian vault to a GitHub repository with automatic wiki-link transformation.
+
+## Features
+
+- 🔄 **Sync Obsidian notes** to a GitHub repository
+- 🖼️ **Transform wiki-style image links** (`![[image.png]]`) to raw GitHub URLs
+- ⚡ **Incremental sync** - only processes changed files (using MD5 hashes)
+- 📤 **Auto-push** to GitHub after sync using local ssh keys (super simple)
+
+## Installation
+
+### From PyPI
+```bash
+pip install ob-sync
+```
+
+### From source
+```bash
+git clone https://github.com/sounak07/obsidian-transformer.git
+cd obsidian-transformer
+pip install .
+```
+
+### Development install
+```bash
+pip install -e .
+```
+
+## Configuration
+
+ob-sync requires a configuration file at `~/.config/ob-sync/config.yaml`.
+
+### Setup
+
+1. **Create the config directory:**
+   ```bash
+   mkdir -p ~/.config/ob-sync
+   ```
+
+2. **Create the config file:**
+   ```bash
+   touch ~/.config/ob-sync/config.yaml
+   ```
+
+3. **Add your configuration** (see example below)
+
+### Configuration File
+
+```yaml
+# Path to your Obsidian vault folder
+vault_path: "~/Documents/Obsidian/MyVault"
+
+# GitHub repository configuration
+github:
+  username: "your-github-username"
+  repo: "your-repo-name"
+  branch: "main"  # optional, defaults to "main"
+
+# Path to your attachments folder (images, PDFs, etc.)
+attachments_folder: "~/Documents/Obsidian/MyVault/assets"
+
+# Output directory (your cloned GitHub repo)
+output_path: "~/Documents/Projects/your-repo-name"
+
+# Subdirectory for assets in the output repo
+output_path_resources: "assets"
+
+# Files to include (glob patterns)
+include:
+  - "**/*.md"
+
+# Files to exclude (glob patterns)
+exclude:
+  - "**/Templates/**"
+  - "**/Daily/**"
+  - "**/.obsidian/**"
+  - "**/Excalidraw/**"
+```
+
+### Configuration Options
+
+| Option | Required | Description |
+|--------|----------|-------------|
+| `vault_path` | ✅ | Absolute path to your Obsidian vault |
+| `github.username` | ✅ | Your GitHub username |
+| `github.repo` | ✅ | Target repository name |
+| `github.branch` | ❌ | Branch name (default: `main`) |
+| `attachments_folder` | ✅ | Path to folder containing images/attachments |
+| `output_path` | ✅ | Path to your local clone of the GitHub repo |
+| `output_path_resources` | ✅ | Subdirectory for assets in output |
+| `include` | ❌ | Glob patterns for files to include (default: `**/*.md`) |
+| `exclude` | ❌ | Glob patterns for files to exclude |
+
+## Usage
+
+### Sync your vault
+
+```bash
+ob-sync sync
+```
+
+This will:
+1. Find all markdown files matching your include/exclude patterns
+2. Transform wiki-style image links to GitHub raw URLs
+3. Copy transformed files to your output directory
+4. Copy referenced images to the assets folder
+5. Commit and push changes to GitHub
+
+### Sync without pushing
+
+```bash
+ob-sync sync --no-push
+```
+
+### Sync with custom commit message
+
+```bash
+ob-sync sync -m "Updated notes on Docker"
+```
+
+### Check sync status
+
+```bash
+ob-sync status
+```
+
+Shows:
+- Vault path and existence
+- Output path and existence  
+- Git branch and status
+- GitHub repository info
+
+### Show version
+
+```bash
+ob-sync --version
+```
+
+### Show help
+
+```bash
+ob-sync --help
+ob-sync sync --help
+```
+
+## How It Works
+
+### Wiki-Link Transformation
+
+ob-sync automatically transforms Obsidian wiki-style image links:
+
+**Before (Obsidian):**
+```markdown
+![[my-diagram.png]]
+```
+
+**After (GitHub-compatible):**
+```markdown
+![my-diagram](https://raw.githubusercontent.com/username/repo/main/assets/my-diagram.png)
+```
+
+### Incremental Sync
+
+ob-sync tracks file hashes in `.sync-hashes.json` to avoid re-processing unchanged files. Only modified files are transformed and copied.
+
+## Prerequisites
+
+- Python 3.9+
+- Git installed and configured
+- GitHub repository cloned locally (at `output_path`)
+- SSH keys or credentials configured for Git push
+
+## Dependencies
+
+- [click](https://click.palletsprojects.com/) - CLI framework
+- [GitPython](https://gitpython.readthedocs.io/) - Git operations
+- [PyYAML](https://pyyaml.org/) - YAML config parsing
+- [pathspec](https://python-path-specification.readthedocs.io/) - Glob pattern matching
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
