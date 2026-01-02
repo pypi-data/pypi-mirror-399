@@ -1,0 +1,176 @@
+Metadata-Version: 2.3
+Name: prompt-stanza
+Version: 0.0.1
+Summary: A comprehensive framework for composing, versioning, and securing LLM prompts with support for multiple input/output adapters, defense strategies, delimiters, and A/B testing capabilities
+Author: Rahul Bairathi
+Author-email: Rahul Bairathi <bairathirahul@gmail.com>
+Requires-Dist: jinja2>=3.1.6
+Requires-Dist: langchain>=1.1.3
+Requires-Dist: pydantic>=2.12.5
+Requires-Dist: pyyaml>=6.0.3
+Requires-Dist: tiktoken>=0.12.0
+Requires-Dist: sqlalchemy>=2.0.44 ; extra == 'all'
+Requires-Dist: psycopg2-binary>=2.9.11 ; extra == 'all'
+Requires-Dist: boto3>=1.42.4 ; extra == 'all'
+Requires-Dist: pymongo>=4.15.5 ; extra == 'all'
+Requires-Dist: boto3>=1.42.4 ; extra == 'aws'
+Requires-Dist: langchain-openai>=0.2.0 ; extra == 'examples'
+Requires-Dist: pymongo>=4.15.5 ; extra == 'mongo'
+Requires-Dist: sqlalchemy>=2.0.44 ; extra == 'sql'
+Requires-Dist: psycopg2-binary>=2.9.11 ; extra == 'sql'
+Requires-Python: >=3.11
+Provides-Extra: all
+Provides-Extra: aws
+Provides-Extra: examples
+Provides-Extra: mongo
+Provides-Extra: sql
+Description-Content-Type: text/markdown
+
+# prompt-stanza
+
+**PromptOps Library for Modular Prompt Composition**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+
+> "Prompts as Code" - Treat prompts as modular, versioned functions with strict typing and unit tests.
+
+## 🎯 Overview
+
+Prompt Stanza is an open-source library that acts as middleware between your application code and LLMs. Instead of hardcoding prompts as strings scattered throughout your codebase, Prompt Stanza lets you:
+
+- 📦 **Compose prompts** from reusable, modular blocks ("Stanzas")
+- 🔒 **Validate inputs** with strict typing using Pydantic schemas
+- 📝 **Version control** your prompts with semantic versioning
+- 💾 **Store prompts** in files, databases, or cloud storage
+- 🧪 **Test prompts** like you test code - with unit tests and A/B testing
+- 🔐 **Secure by design** with built-in defenses against prompt injection
+
+## ✨ Key Features
+
+- ✅ **Multiple Input Adapters**: InlineAdapter, LocalFileAdapter, SQLAdapter, DynamoDBAdapter, MongoDBAdapter
+- ✅ **Structured Templates**: System/Task/Context/Output organization with delimiter strategies
+- ✅ **Defense Strategies**: Built-in protection against prompt injection (classify_intent, rewrite, perplexity_check)
+- ✅ **A/B Testing**: Built-in support for testing multiple prompt versions
+- ✅ **Output Adapters**: String output (default) and LangChain integration
+- ✅ **Smart Caching**: Memory-efficient caching with TTL support
+- ✅ **Type Safety**: Full Pydantic validation and mypy type checking
+
+## 📖 Documentation
+
+- **[Introduction](docs/INTRODUCTION.md)** - Project overview, why use Prompt Stanza, and who should use it
+- **[Quick Start Guide](docs/QUICKSTART.md)** - Installation and basic examples to get started quickly
+- **[Core Concepts](docs/CONCEPTS.md)** - Deep dive into input adapters, templates, defense strategies, output adapters, and A/B testing
+- **[Development Guide](docs/DEVELOPMENT.md)** - Contributing guidelines, development setup, testing, and code standards
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Basic installation
+pip install prompt-stanza
+
+# With optional dependencies
+pip install prompt-stanza[langchain]  # LangChain integration
+pip install prompt-stanza[sql]        # SQL database support
+pip install prompt-stanza[aws]        # AWS S3/DynamoDB support
+pip install prompt-stanza[mongo]      # MongoDB support
+pip install prompt-stanza[all]        # All optional dependencies
+```
+
+### Simple Example
+
+```python
+import asyncio
+from prompt_stanza import PromptStanza
+from prompt_stanza.input_adapters import InlineAdapter
+from langchain_openai import ChatOpenAI
+
+async def main():
+    # Define prompt inline
+    adapter = InlineAdapter(
+        name="greeting",
+        version="1.0.0",
+        template="Hello {{ name }}! Welcome to {{ product }}."
+    )
+    
+    llm = ChatOpenAI(model="gpt-4")
+    stanza = PromptStanza(input_adapter=adapter, llm=llm)
+    
+    # Compose prompt
+    prompt = await stanza.acompose(
+        identifier="greeting",
+        name="Alice",
+        product="Prompt Stanza"
+    )
+    
+    print(prompt)
+
+asyncio.run(main())
+```
+
+For more examples, see the [Quick Start Guide](docs/QUICKSTART.md) and [examples/](examples/) directory.
+
+## 🎯 Use Cases
+
+- **Production LLM Applications**: Externalize and version prompts separately from code
+- **Prompt Engineering Teams**: Collaborate on prompts using version control
+- **A/B Testing**: Systematically test and compare prompt variations
+- **Multi-Model Applications**: Adapt prompts for different LLM providers
+- **Security-Critical Applications**: Built-in defenses against prompt injection
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Here's how you can help:
+
+### Ways to Contribute
+
+- 🐛 **Report bugs** - Open an issue on [GitHub Issues](https://github.com/prompt-stanza/prompt-stanza-py/issues)
+- 💡 **Suggest features** - Share your ideas for improvements
+- 📝 **Improve documentation** - Help make our docs better
+- 🔧 **Submit pull requests** - Fix bugs or add features
+- ⭐ **Star the repo** - Show your support!
+
+### Reporting Issues
+
+When reporting issues, please include:
+- Clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Python version and relevant dependencies
+- Code snippets or error messages
+
+Use [GitHub Issues](https://github.com/prompt-stanza/prompt-stanza-py/issues) to report any bugs or request features.
+
+### Pull Requests
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and checks (`make test && make check`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+For detailed development instructions, see the [Development Guide](docs/DEVELOPMENT.md).
+
+### Feedback
+
+Have feedback or questions? We'd love to hear from you:
+- Open a [discussion](https://github.com/prompt-stanza/prompt-stanza-py/discussions)
+- Create an [issue](https://github.com/prompt-stanza/prompt-stanza-py/issues)
+- Reach out on social media
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+Built with:
+- [Pydantic](https://docs.pydantic.dev/) - Data validation
+- [Jinja2](https://jinja.palletsprojects.com/) - Template engine
+- [LangChain](https://www.langchain.com/) - LLM framework integration
+- [uv](https://github.com/astral-sh/uv) - Python packaging
