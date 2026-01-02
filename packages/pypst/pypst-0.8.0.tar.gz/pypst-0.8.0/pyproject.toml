@@ -1,0 +1,90 @@
+[tool.poetry]
+name = "pypst"
+version = "0.8.0"
+description = "Declarative Typst in Python with Pandas data frame support."
+authors = ["Tilman Krokotsch <tilman@krokotsch.eu>"]
+readme = "README.md"
+repository = "https://github.com/tilman151/pypst"
+classifiers = [
+    "Topic :: Scientific/Engineering",
+    "Topic :: Text Processing :: Markup",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha"
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+frozenlist = "^1.4.1"
+frozendict = "^2.4.4"
+pandas = {version = "^2.2.2", optional = true}
+
+[tool.poetry.extras]
+pandas = ["pandas"]
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5.6"
+pytest = "^8.3.2"
+mypy = "^1.11.1"
+pandas-stubs = "^2.2.2.240807"
+typst = "^0.13.7"
+poethepoet = "^0.27.0"
+commitizen = "^3.29.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.31"
+mkdocstrings = "^0.25.2"
+mkdocs-section-index = "^0.3.9"
+mkdocs-gen-files = "^0.5.0"
+mkdocs-autorefs = "^1.0.1"
+mkdocs-literate-nav = "^0.6.1"
+mkdocstrings-python = "^1.10.8"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: mark a test as an integration test that compiles Typst code",
+    "visual: mark a test as a visual test used for manual inspection",
+]
+testpaths = ["tests", "pypst"]
+addopts = "--doctest-modules"
+
+[tool.poe.tasks]
+unit = "pytest -m 'not integration and not visual'"
+integration = "pytest -m integration"
+visual = "pytest -m visual"
+lint = "ruff check pypst tests"
+lint-types = "mypy"
+lint-commits = "cz check --rev-range HEAD"
+format = "ruff format pypst tests"
+bump = "cz bump --changelog"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "semver"
+version_provider = "poetry"
+update_changelog_on_bump = true
+major_version_zero = true
+version_files = [
+    "pypst/__init__.py"
+]
+
+[tool.mypy]
+packages = ["pypst"]
+python_version = "3.10"
+disallow_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
