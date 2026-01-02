@@ -1,0 +1,122 @@
+Metadata-Version: 2.4
+Name: loupedeck-python
+Version: 0.1.1
+Summary: Async Python port of the Loupedeck Node.js library for Live, Live S, CT, and Razer Stream Controller devices.
+Keywords: loupedeck,razer,stream-controller,hardware,usb,hid
+Author: Marian Hahne
+Author-email: Marian Hahne <marian@marianhahne.de>
+License-Expression: MIT
+License-File: LICENSE
+Requires-Dist: pillow>=12.0.0
+Requires-Dist: psutil>=7.2.0
+Requires-Dist: pyserial>=3.5
+Requires-Dist: pyserial-asyncio>=0.6
+Requires-Dist: websockets>=15.0.1
+Requires-Python: >=3.14
+Description-Content-Type: text/markdown
+
+Loupedeck Python
+================
+
+Async Python API for Loupedeck Live, Live S, CT, and Razer Stream Controller devices. This is a port of the original Node.js library ([foxxyz/loupedeck](https://github.com/foxxyz/loupedeck)), created with assistance from Codex.
+
+Quickstart
+----------
+
+Install dependencies:
+
+```shell
+uv sync
+```
+
+Minimal async example:
+
+```python
+import asyncio
+
+from loupedeck_python import discover
+
+
+async def main() -> None:
+    device = await discover(auto_connect=False)
+
+    async def on_connect(info: dict[str, str]) -> None:
+        print(f"Connected: {info['address']}")
+
+    async def on_button(event: dict[str, int | str]) -> None:
+        print(f"Button down: {event['id']}")
+
+    async def on_touch(event: dict[str, object]) -> None:
+        print(f"Touch: {event}")
+
+    device.on("connect", on_connect)
+    device.on("down", on_button)
+    device.on("touchstart", on_touch)
+    device.on("touchend", on_touch)
+
+    await device.connect()
+    await device.set_brightness(0.8)
+
+    while True:
+        await asyncio.sleep(1)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+Canvas drawing example (requires Pillow):
+
+```shell
+uv add pillow
+```
+
+```python
+import asyncio
+
+from loupedeck_python import discover
+
+
+async def main() -> None:
+    device = await discover(auto_connect=False)
+
+    def draw_screen(draw, width: int, height: int, _image) -> None:
+        draw.rectangle((0, 0, width, height), fill=(0, 0, 0))
+        draw.rectangle((10, 10, width - 10, height - 10), outline=(255, 255, 255), width=3)
+        draw.text((20, 20), "Hello Loupedeck", fill=(255, 255, 0))
+
+    await device.connect()
+    await device.draw_screen("center", draw_screen)
+
+    while True:
+        await asyncio.sleep(1)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+Notes
+-----
+
+- Ensure the official Loupedeck software is not running, as it can conflict with direct device access.
+- Firmware 0.2.26 reportedly fails on Linux; 0.2.23 is known to work.
+
+Examples
+--------
+
+- `examples/simple_async.py`: minimal connection + event logging
+- `examples/simple_demo.py`: button colors, knobs, touch, and CT knob rendering
+- `examples/draw_canvas.py`: Pillow-based drawing demo
+- `examples/slide_puzzle.py`: knob-controlled slide puzzle
+- `examples/web/`: local web UI + websocket relay
+
+Credits
+-------
+
+Original Node.js library by [foxxyz](https://github.com/foxxyz/loupedeck).
+
+License
+-------
+
+MIT
