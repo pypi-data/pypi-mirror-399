@@ -1,0 +1,246 @@
+[project]
+name = "pylazyimports"
+authors = [{ name = "Dhia Hmila" }]
+description = "A module to enable lazy imports using native python syntax"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+keywords = []
+readme = "README.md"
+dynamic = ['version']
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+dependencies = ["typing-extensions>=4.15.0 ; python_full_version < '3.11'"]
+
+[project.urls]
+Repository = "https://github.com/hmiladhia/lazyimports"
+Issues = "https://github.com/hmiladhia/lazyimports/issues"
+
+[dependency-groups]
+dev = [{ include-group = "tests" }, { include-group = "workspace" }]
+workspace = ["pylazyimports", "pylazyimports-eps"]
+tests = [
+    "pytest>=8.3.4",
+    "pytest-sugar",
+    "build",
+    { include-group = "workspace" },
+]
+ci = ["coverage", { include-group = "tests" }]
+linting = ["ruff==0.11.*", "mypy==0.16.*"]
+
+
+# == Dependency Management ==
+[tool.uv.workspace]
+members = ["plugins/*"]
+
+[tool.uv.sources]
+pylazyimports = { workspace = true }
+pylazyimports-eps = { workspace = true }
+
+# == Build and Environment Config ==
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel.hooks.autorun]
+dependencies = ["hatch-autorun"]
+code = "__import__('lazyimports').install()"
+
+[tool.hatch.version]
+path = "src/lazyimports/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/packages/",
+    "/plugins/",
+    "tests/",
+    ".github/",
+    "uv.lock",
+    ".pre-commit-config.yaml",
+    ".copier-answers.yml",
+    ".gitignore",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lazyimports"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src/lazyimports" = "lazyimports"
+
+[tool.commitizen]
+tag_format = "v$version"
+provider = "py-dist"
+update_changelog_on_bump = true
+changelog_merge_prerelease = true
+version_files = ["src/lazyimports/__init__.py:__version__"]
+
+# == Linting Rules ==
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "A",   # flake8-builtins
+    "B",   # flake8-bugbear
+    "E",   # pycodestyle - Error
+    "W",   # pycodestyle - Warning
+    "F",   # Pyflakes
+    "N",   # pep8-naming
+    "S",   # flake8-bandit
+    "RUF", # Ruff-specific rules
+    "PLC", # Pylint Convention
+    "PLE", # Pylint Error
+    "PLW", # Pylint Warning
+    "PLR", # Pylint Refactor
+    "Q",   # flake8-quotes
+]
+extend-select = [
+    "ARG",   # flake8-unused-arguments
+    "ASYNC", # flake8-async
+    "BLE",   # flake8-blind-except
+    "C4",    # flake8-comprehensions
+    "C90",   # mccabe (complexity)
+    "FA",    # flake8-future-annotations
+    "ISC",   # flake8-implicit-str-concat
+    "PIE",   # flake8-pie ( misc lints )
+    "PERF",  # Perflint
+    "PTH",   # flake8-use-pathlib
+    "SIM",   # flake8-simplify
+    "SLOT",  # flake8-slots
+    "TD",    # flake8-todos (EXCLUDE TD002)
+    "TID",   # flake8-tidy-imports
+    "UP",    # pyupgrade
+    "RET",   # flake8-return
+    "RSE",   # flake8-raise (RSE)
+
+    # Typing
+    "ANN", # flake8-annotations
+    "PYI", # flake8-pyi
+    "TCH", # flake8-type-checking
+
+    # Documentation
+    "D", # pydocstyle
+    # "DOC", # pydoclint # Preview
+
+    # Tool Specific
+    # "FAST", # FastAPI  # Preview
+    "NPY", # NumPy-specific rules
+    "PD",  # pandas-vet
+    "ICN", # flake8-import-conventions
+    "PT",  # flake8-pytest-style ( Only use in tests )
+]
+extend-ignore = [
+    "D1",     # pydocstyle - missing-docstring
+    "D203",   # pydocstyle - one-blank-line-before-class
+    "D212",   # multi-line-summary-first-line
+    "ISC001", # flake8-implicit-str-concat - single-line-implicit-string-concatenation
+    "TD002",  # flake8-todos - missing-todo-author
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**.py" = ["S101", "ANN201", "PLC0415"]
+"!**/tests/**.py" = ["PT"]
+"**/_proxy.py" = ["ANN", "PLC0415"]
+"**/_modules.py" = ["ANN401"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 6
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 100
+ignore-overlong-task-comments = true
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+strict = true
+ignore_missing_imports = true
+
+# == Tests config ==
+[tool.coverage.run]
+source = ["src"]
+relative_files = true
+branch = true
+
+[tool.tox]
+min_version = "4"
+requires = ["tox>=4.31", "tox-uv>=1.29.0"]
+env_list = [
+    "format",
+    "lint",
+    "type",
+    "ipython",
+    "3.14",
+    "3.13",
+    "3.12",
+    "3.11",
+    "3.10",
+]
+
+# This is a workaround
+# See Issue: https://github.com/ymyzk/tox-gh-actions/issues/198
+[tool.tox.gh-actions]
+python = """
+	3.10: py310
+	3.11: py311
+	3.12: py312
+	3.13: py313
+    3.14: py314
+    ipython: py312
+	"""
+
+[tool.tox.env_run_base]
+runner = "uv-venv-lock-runner"
+description = "run unit tests"
+dependency_groups = ["tests"]
+commands = [["pytest", { replace = "posargs", default = ["."], extend = true }]]
+
+[tool.tox.env.format]
+description = "run formatter"
+skip_install = true
+dependency_groups = ["linting"]
+commands = [
+    [
+        "ruff",
+        "format",
+        { replace = "posargs", default = [
+            ".",
+        ], extend = true },
+    ],
+]
+
+[tool.tox.env.lint]
+description = "run linters"
+skip_install = true
+dependency_groups = ["linting"]
+commands = [
+    [
+        "ruff",
+        "check",
+        { replace = "posargs", default = [
+            ".",
+        ], extend = true },
+    ],
+]
+
+[tool.tox.env.type]
+description = "run type checks"
+dependency_groups = ["linting"]
+commands = [
+    [
+        "mypy",
+        { replace = "posargs", default = [
+            "src",
+            "packages/*/src",
+        ], extend = true },
+    ],
+]
