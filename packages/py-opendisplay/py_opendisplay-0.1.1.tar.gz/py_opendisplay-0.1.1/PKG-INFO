@@ -1,0 +1,88 @@
+Metadata-Version: 2.4
+Name: py-opendisplay
+Version: 0.1.1
+Summary: Python library for OpenDisplay BLE e-paper displays
+Project-URL: Homepage, https://opendisplay.org
+Project-URL: Repository, https://github.com/OpenDisplay-org/py-opendisplay
+Author-email: g4bri3lDev <admin@g4bri3l.de>
+License-Expression: MIT
+License-File: LICENSE
+Keywords: ble,bluetooth,display,e-paper,eink,opendisplay
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: System :: Hardware
+Requires-Python: >=3.11
+Requires-Dist: bleak>=1.0.1
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: pillow>=10.0.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.19.1; extra == 'dev'
+Requires-Dist: ruff>=0.14.10; extra == 'dev'
+Provides-Extra: property
+Requires-Dist: hypothesis>=6.148.8; extra == 'property'
+Provides-Extra: test
+Requires-Dist: pytest-asyncio>=1.3.0; extra == 'test'
+Requires-Dist: pytest-cov>=7.0.0; extra == 'test'
+Requires-Dist: pytest-xdist>=3.8.0; extra == 'test'
+Requires-Dist: pytest>=9.0.2; extra == 'test'
+Description-Content-Type: text/markdown
+
+# py-opendisplay
+
+Python library for communicating with OpenDisplay BLE e-paper displays.
+
+## Installation
+
+```bash
+pip install py-opendisplay
+```
+
+## Quick Start
+
+### Option 1: Using MAC Address
+
+```python
+from opendisplay import OpenDisplayDevice
+from PIL import Image
+
+async with OpenDisplayDevice(mac_address="AA:BB:CC:DD:EE:FF") as device:
+    image = Image.open("photo.jpg")
+    await device.upload_image(image)
+```
+
+### Option 2: Using Device Name (Auto-Discovery)
+
+```python
+from opendisplay import OpenDisplayDevice, discover_devices
+from PIL import Image
+
+# List available devices
+devices = await discover_devices()
+print(devices)  # {"OpenDisplay-A123": "AA:BB:CC:DD:EE:FF", ...}
+
+# Connect using name
+async with OpenDisplayDevice(device_name="OpenDisplay-A123") as device:
+  image = Image.open("photo.jpg")
+  await device.upload_image(image)
+```
+
+Image Resizing
+
+Images are automatically resized to match the display dimensions. A warning is logged if resizing occurs:
+
+`WARNING:opendisplay.device:Resizing image from 1920x1080 to 296x128` (device display size)
+
+For best results, resize images to the exact display dimensions before uploading.
+
+Development
+
+```bash
+uv sync --all-extras
+uv run pytest
+```
