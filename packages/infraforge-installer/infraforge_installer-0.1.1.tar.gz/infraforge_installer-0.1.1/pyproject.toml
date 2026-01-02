@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infraforge-installer"
+version = "0.1.1"
+description = "InfraForge system installer (installer-only, runtime untouched)"
+requires-python = ">=3.8"
+dependencies = []
+
+[project.scripts]
+infraforge-installer = "infraforge_installer.main:main"
+
+[tool.setuptools]
+packages = ["infraforge_installer"]
