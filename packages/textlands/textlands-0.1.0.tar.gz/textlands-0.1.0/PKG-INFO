@@ -1,0 +1,140 @@
+Metadata-Version: 2.4
+Name: textlands
+Version: 0.1.0
+Summary: Play TextLands from your terminal
+Author-email: TextLands <hello@textlands.com>
+License: MIT
+Project-URL: Homepage, https://textlands.com
+Project-URL: Documentation, https://textlands.com/docs
+Project-URL: Repository, https://github.com/MindFortressInc/textlands-cli
+Keywords: game,text-adventure,mmo,ai,cli
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Games/Entertainment
+Classifier: Topic :: Games/Entertainment :: Role-Playing
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: typer>=0.9.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: httpx>=0.25.0
+Requires-Dist: keyring>=24.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+
+# TextLands CLI
+
+Play TextLands from your terminal.
+
+## Installation
+
+### Quick Install (Recommended)
+
+```bash
+curl -fsSL https://textlands.com/install.sh | bash
+```
+
+### Package Managers
+
+```bash
+# pip (Python 3.10+)
+pip install textlands
+
+# Homebrew (macOS/Linux)
+brew tap MindFortressInc/textlands
+brew install textlands
+
+# npm (Node.js 16+)
+npm install -g textlands
+```
+
+### Download Binary
+
+Pre-built binaries available on [GitHub Releases](https://github.com/MindFortressInc/textlands-cli/releases):
+
+| Platform | Download |
+|----------|----------|
+| macOS (Apple Silicon) | `textlands-macos-arm64` |
+| macOS (Intel) | `textlands-macos-x64` |
+| Linux (x64) | `textlands-linux-x64` |
+| Windows (x64) | `textlands-windows-x64.exe` |
+
+## Quick Start
+
+```bash
+# List available realms
+textlands realms
+
+# Start playing
+textlands play
+
+# Or jump straight into a realm
+textlands play <realm-id>
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `textlands realms` | List available realms |
+| `textlands play [REALM]` | Start or resume playing |
+| `textlands status` | Show current session |
+| `textlands login` | Authenticate with API key |
+| `textlands logout` | Clear credentials |
+| `textlands config` | Configure settings |
+
+## In-Game Commands
+
+While playing:
+
+- `/look` or `/l` - Look around
+- `/inventory` or `/i` - Check inventory
+- `/rest` or `/r` - Rest and recover
+- `/help` or `/h` - Show help
+- `/quit` or `/q` - Exit game
+
+Or just type what you want to do:
+- "search the room"
+- "talk to the bartender"
+- "attack the goblin"
+
+## Configuration
+
+The CLI stores config in `~/.textlands/`:
+- `config.json` - Settings and session state
+- API keys are stored in system keyring when available
+
+Environment variables:
+- `TEXTLANDS_API_URL` - Override API URL
+- `TEXTLANDS_API_KEY` - Set API key
+- `TEXTLANDS_INSTALL_DIR` - Custom install directory (for install.sh)
+
+## Development
+
+```bash
+# Clone and install
+git clone https://github.com/MindFortressInc/textlands-cli
+cd cli
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Local API testing
+textlands config --api-url http://localhost:8002
+
+# Build binary locally
+pip install pyinstaller
+pyinstaller --onefile textlands_cli/main.py
+```
+
+## License
+
+MIT
