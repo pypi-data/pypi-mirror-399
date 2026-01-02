@@ -1,0 +1,24 @@
+# Включаем важные файлы в дистрибутив
+include README.md
+include LICENSE
+include requirements.txt
+include pyproject.toml
+include setup.py
+
+# Включаем все Python файлы в пакете
+recursive-include nspd_request *.py
+
+# Исключаем ненужные файлы
+exclude .gitignore
+exclude .pypirc
+exclude demo.py
+exclude test_*.py
+exclude *test*.py
+exclude .git/*
+exclude __pycache__/*
+exclude *.pyc
+exclude *.pyo
+exclude *.pyd
+exclude .DS_Store
+exclude Thumbs.db
+
