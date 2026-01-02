@@ -1,0 +1,50 @@
+[project]
+name = "subclass-getter"
+version = "0.1.3"
+description = "Gets subclasses of a class recursively"
+readme = "README.md"
+authors = [{ name = "Tesla2000", email = "fratajczak124@gmail.com" }]
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+keywords = ["introspection", "inheritance", "subclasses"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://pypi.org/project/subclass-getter/"
+Repository = "https://github.com/Tesla2000/subclass-getter"
+Issues = "https://github.com/Tesla2000/subclass-getter/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["subclass_getter"]
+
+[tool.hatch.build.targets.wheel.package-data]
+subclass_getter = ["py.typed"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "subclass_getter",
+    "tests",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
+
+[dependency-groups]
+packaging = [
+    "build>=1.3.0",
+    "twine>=6.2.0",
+]
