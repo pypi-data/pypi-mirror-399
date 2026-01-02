@@ -1,0 +1,88 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lavendertown"
+version = "0.1.0"
+description = "A Streamlit-first Python package for detecting and visualizing data quality issues"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Odos Matthews", email = "odosmatthews@gmail.com"},
+]
+keywords = ["data-quality", "streamlit", "data-validation", "data-profiling"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "streamlit>=1.28.0",
+    "pandas>=1.5.0",
+    "altair>=5.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+]
+polars = [
+    "polars>=0.19.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/eddiethedean/lavendertown"
+Repository = "https://github.com/eddiethedean/lavendertown"
+Issues = "https://github.com/eddiethedean/lavendertown/issues"
+
+[tool.hatchling.build]
+packages = ["lavendertown"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "streamlit.*",
+    "altair.*",
+    "pandas.*",
+    "polars.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "lavendertown.ui.*",
+    "lavendertown.detectors.*",
+]
+# UI and detector modules use 'object' type for Streamlit/DataFrames to avoid runtime dependency
+# These are intentionally untyped for flexibility
+allow_untyped_defs = true
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
