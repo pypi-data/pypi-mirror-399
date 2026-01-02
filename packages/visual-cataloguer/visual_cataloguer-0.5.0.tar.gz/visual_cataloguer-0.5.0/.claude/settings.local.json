@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(file:*)",
+      "Bash(uv venv:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(brew install:*)",
+      "Bash(uv run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(uv add:*)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue status)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue diff --stat)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue log --oneline -5)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue add cataloguer/__init__.py cataloguer/cli.py cataloguer/database/__init__.py cataloguer/database/models.py cataloguer/processor/pipeline.py cataloguer/processor/identifier.py pyproject.toml uv.lock tests/test_identifier.py)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue commit -m \"$\\(cat <<''EOF''\nv0.5.0: Add AI-based item identification with Claude and Ollama\n\nAdd LLM-powered identification for items that don''t OCR well \\(stylized\nlogos, hardware, Japanese text\\). Supports Claude \\(default\\) and Ollama.\n\nNew CLI flags:\n- --ai-identify: Use AI for all items\n- --ai-fallback: Use AI when OCR fails to extract a title\n- --ai-provider: Choose claude or ollama\n- --ai-model: Override default model\n\nNew database columns: item_type, ai_description, ai_identified, brand,\nregion, year for richer item metadata.\n\nSupports 10 item types: game, console, controller, accessory, peripheral,\nbook, vinyl, cd, trading_card, other.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
