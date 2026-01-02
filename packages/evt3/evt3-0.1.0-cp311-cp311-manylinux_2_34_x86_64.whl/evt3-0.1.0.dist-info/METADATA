@@ -1,0 +1,95 @@
+Metadata-Version: 2.4
+Name: evt3
+Version: 0.1.0
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Rust
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Image Processing
+Classifier: Topic :: Multimedia :: Video
+Requires-Dist: numpy>=1.20
+Requires-Dist: pytest>=7.0 ; extra == 'dev'
+Requires-Dist: maturin>=1.4 ; extra == 'dev'
+Requires-Dist: pandas>=1.3 ; extra == 'dev'
+Provides-Extra: dev
+Summary: High-performance EVT 3.0 decoder for Prophesee event cameras
+Keywords: event-camera,evt3,prophesee,decoder,neuromorphic,dvs
+Author-email: Uthmann <mika.uthmann@uni-bielefeld.de>
+License: MIT
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown; charset=UTF-8; variant=GFM
+Project-URL: Homepage, https://github.com/muthmann/evt3
+Project-URL: Repository, https://github.com/muthmann/evt3
+Project-URL: Documentation, https://github.com/muthmann/evt3#readme
+Project-URL: Bug Tracker, https://github.com/muthmann/evt3/issues
+
+# EVT3 Python Bindings
+
+High-performance EVT 3.0 decoder for Prophesee event cameras with zero-copy numpy support.
+
+## Installation
+
+```bash
+# From source (requires Rust toolchain)
+cd evt3-python
+pip install maturin
+maturin develop
+
+# Or build a wheel
+maturin build --release
+pip install target/wheels/evt3-*.whl
+```
+
+## Usage
+
+```python
+import evt3
+import numpy as np
+
+# Decode a raw file
+events = evt3.decode_file("recording.raw")
+
+# Access metadata
+print(f"Decoded {len(events)} events")
+print(f"Sensor: {events.sensor_width}x{events.sensor_height}")
+
+# Access as numpy arrays
+x = events.x  # np.ndarray[np.uint16]
+y = events.y  # np.ndarray[np.uint16]
+p = events.polarity  # np.ndarray[np.uint8] (0=OFF, 1=ON)
+t = events.timestamp  # np.ndarray[np.uint64] (microseconds)
+
+# Short aliases also work
+p = events.p
+t = events.t
+
+# Get as dictionary (useful for pandas)
+import pandas as pd
+df = pd.DataFrame(events.to_dict())
+
+# Decode with trigger events
+events, triggers = evt3.decode_file_with_triggers("recording.raw")
+trigger_times = triggers.timestamp
+trigger_values = triggers.value
+
+# Decode raw bytes (for streaming)
+with open("recording.raw", "rb") as f:
+    raw_bytes = f.read()
+events = evt3.decode_bytes(raw_bytes, sensor_width=1280, sensor_height=720)
+```
+
+## Performance
+
+The decoder is implemented in Rust with careful attention to performance:
+- Streaming buffer decoding to handle large files
+- Columnar data layout for cache-efficient numpy access
+- Minimal memory allocations during decoding
+
