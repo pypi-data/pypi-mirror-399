@@ -1,0 +1,195 @@
+Metadata-Version: 2.4
+Name: agentrank
+Version: 0.1.3
+Summary: Temporal-aware embedding model for AI agent memory retrieval. The first embedder that understands WHEN memories happened.
+Author-email: Vrushket More <vrushket2604@gmail.com>
+License: Apache-2.0
+Project-URL: Homepage, https://github.com/vmore2/AgentRank-base
+Project-URL: Documentation, https://huggingface.co/vrushket/agentrank-base
+Project-URL: Repository, https://github.com/vmore2/AgentRank-base
+Project-URL: Issues, https://github.com/vmore2/AgentRank-base/issues
+Keywords: embeddings,transformers,ai-agents,memory,retrieval,rag,vector-search,temporal,llm
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: torch>=1.9.0
+Requires-Dist: transformers>=4.20.0
+Requires-Dist: huggingface-hub>=0.14.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=22.0.0; extra == "dev"
+Requires-Dist: flake8>=4.0.0; extra == "dev"
+
+# 🧠 AgentRank
+
+**Temporal-aware embeddings for AI agent memory retrieval.**
+
+[![PyPI version](https://badge.fury.io/py/agentrank.svg)](https://badge.fury.io/py/agentrank)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![HuggingFace](https://img.shields.io/badge/🤗-Models-yellow)](https://huggingface.co/vrushket)
+
+---
+
+## The Problem
+
+Standard embedding models (OpenAI, Cohere, MiniLM) treat **"yesterday"** and **"6 months ago"** identically. For AI agents with long-term memory, this breaks temporal reasoning completely.
+
+**AgentRank solves this** with embeddings that understand:
+- ⏰ **When** memories happened (temporal awareness)
+- 📂 **What type** of memory it is (episodic, semantic, procedural)
+- ⚡ **21% better retrieval** on agent memory benchmarks
+
+---
+
+## Installation
+
+```bash
+pip install agentrank
+```
+
+---
+
+## Quick Start
+
+```python
+from agentrank import AgentRankEmbedder
+
+# Load model
+model = AgentRankEmbedder.from_pretrained("vrushket/agentrank-base")
+
+# Encode with temporal context
+embeddings = model.encode(
+    texts=["User prefers Python for backend development"],
+    temporal_info=[7],        # 7 days ago
+    memory_types=["semantic"] # It's a preference
+)
+
+# Use embeddings for retrieval
+print(embeddings.shape)  # [1, 768]
+```
+
+---
+
+## Model Family
+
+| Model | Type | Params | Use Case | HuggingFace |
+|-------|------|--------|----------|-------------|
+| **AgentRank-Base** | Embedder | 149M | Best quality retrieval | [vrushket/agentrank-base](https://huggingface.co/vrushket/agentrank-base) |
+| **AgentRank-Small** | Embedder | 33M | Fast inference | [vrushket/agentrank-small](https://huggingface.co/vrushket/agentrank-small) |
+| **AgentRank-Reranker** | Cross-encoder | 149M | Accurate reranking | [vrushket/agentrank-reranker](https://huggingface.co/vrushket/agentrank-reranker) |
+
+---
+
+## Two-Stage Retrieval Pipeline
+
+For best results, use a two-stage pipeline:
+
+```python
+from agentrank import AgentRankEmbedder
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+import torch
+
+# Stage 1: Fast retrieval with embedder
+embedder = AgentRankEmbedder.from_pretrained("vrushket/agentrank-base")
+query_embedding = embedder.encode(["What's my Python preference?"])
+# ... search vector DB → get top-50 candidates ...
+
+# Stage 2: Accurate reranking with cross-encoder
+reranker = AutoModelForSequenceClassification.from_pretrained("vrushket/agentrank-reranker")
+tokenizer = AutoTokenizer.from_pretrained("vrushket/agentrank-reranker")
+
+def rerank(query, candidates, top_k=10):
+    scored = []
+    for memory in candidates:
+        inputs = tokenizer(query, memory, return_tensors="pt", truncation=True)
+        with torch.no_grad():
+            score = torch.sigmoid(reranker(**inputs).logits).item()
+        scored.append((score, memory))
+    return sorted(scored, reverse=True)[:top_k]
+
+top_10 = rerank("What's my Python preference?", top_50_candidates)
+```
+
+---
+
+## Benchmarks
+
+| Model | MRR | Recall@1 | Recall@5 | NDCG@10 |
+|-------|-----|----------|----------|---------|
+| **AgentRank-Base** | **0.6496** | **0.4440** | **99.6%** | 0.6786 |
+| **AgentRank-Small** | 0.6375 | 0.4460 | 97.4% | 0.6797 |
+| MPNet-base-v2 | 0.5351 | 0.3660 | 79.6% | 0.6335 |
+| MiniLM-L6-v2 | 0.5297 | 0.3720 | 75.2% | 0.6370 |
+
+**+22% MRR improvement** over baseline embedding models.
+
+| Reranker | Validation Accuracy | Val Loss |
+|----------|---------------------|----------|
+| **AgentRank-Reranker** | **89.11%** | 0.2554 |
+
+---
+
+## Key Features
+
+### Temporal Embeddings
+10 learnable time buckets encode recency:
+- Today/Yesterday, This Week, This Month, Last Quarter, etc.
+- Model learns what "recent" means in context
+
+### Memory Type Embeddings
+Distinguish between:
+- **Episodic**: Events ("We discussed Python yesterday")
+- **Semantic**: Facts/preferences ("User likes Python")
+- **Procedural**: Instructions ("To deploy, run npm build")
+
+### Architecture
+- Base: ModernBERT-base / MiniLM
+- Temporal + Type embeddings added (scaled by 0.1)
+- Trained on 500K synthetic agent memory samples
+- Hard negative mining with 7 negative types
+
+---
+
+## Works Great With
+
+**[CogniHive](https://pypi.org/project/cognihive/)** — Multi-agent memory with "who knows what" routing
+
+```bash
+pip install cognihive
+```
+
+**Together:** CogniHive routes questions to the right agent, AgentRank retrieves the right memories.
+
+---
+
+## Links
+
+- **GitHub**: [github.com/vmore2/AgentRank-base](https://github.com/vmore2/AgentRank-base)
+- **HuggingFace**: [huggingface.co/vrushket](https://huggingface.co/vrushket)
+  - [agentrank-base](https://huggingface.co/vrushket/agentrank-base)
+  - [agentrank-small](https://huggingface.co/vrushket/agentrank-small)
+  - [agentrank-reranker](https://huggingface.co/vrushket/agentrank-reranker)
+- **CogniHive**: [pypi.org/project/cognihive](https://pypi.org/project/cognihive/)
+
+---
+
+## Contact
+
+- **Author**: Vrushket More
+- **Email**: vrushket2604@gmail.com
+- **LinkedIn**: [linkedin.com/in/vrushket-more-07b38b25b](https://www.linkedin.com/in/vrushket-more-07b38b25b/)
+- **Issues**: [GitHub Issues](https://github.com/vmore2/AgentRank-base/issues)
+
+---
+
+## License
+
+Apache 2.0 — Free for commercial use.
