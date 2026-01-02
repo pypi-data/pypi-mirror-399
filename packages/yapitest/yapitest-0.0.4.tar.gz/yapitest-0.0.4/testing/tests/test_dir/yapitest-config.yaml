@@ -1,0 +1,15 @@
+
+step-sets:
+  create-user:
+    steps:
+      - id: create-user
+        path: /api/user/create
+        method: POST
+        data:
+          username: $vars.sample-user
+          password: $vars.sample-password
+    output:
+      username: $create-user.data.username
+      password: $create-user.data.password
+      token: $create-user.response.token
+
