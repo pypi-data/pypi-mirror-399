@@ -1,0 +1,35 @@
+[project]
+name = "SackosArt"
+version = "0.0.1"
+description = "SackosArt Software"
+authors = [
+    { name = "Josh", email = "joshua.sackos@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Other Audience",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/mrsackos/SackosArt"
+"Bug Tracker" = "https://github.com/mrsackos/SackosArt/issues"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+"SackosArt.assets" = ["*.jpg", "*.png", ".gif"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
