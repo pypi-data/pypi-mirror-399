@@ -1,0 +1,64 @@
+
+# littlecolors
+
+[![PyPi Version](https://img.shields.io/pypi/v/littlecolors.svg)](https://pypi.org/project/littlecolors/) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+`littlecolors` is a simple Python package to create, manipulate and mutate colors and color-scales.
+
+
+## Installation and Usage
+
+Install with `pip`:
+```bash
+pip install littlecolors
+```
+
+Here is a basic usage example:
+```python
+# Imports
+from littlecolors import Color, ColorGradient, ColorSegments
+from littlecolors.preset import COLORS, COLORS_CSS, CMAPS
+from littlecolors.helpers import show
+
+# Colors
+c1 = Color(0.65)
+show(c1)
+c2 = Color(120, 189, 56)
+c2_light = c2.copy().update_lightness(+0.1)
+show([c2, c2_light])
+c3 = Color('#33cccc')
+c4 = COLORS.MAGENTA()
+c5 = 0.3 * COLORS.MAGENTA() + 0.7 * COLORS_CSS.REBECCAPURPLE()
+
+# Colormaps
+cmap1 = ColorGradient([c2, c2_light, c3, c4, c5])
+show(cmap1)
+colors_list: list[Color] = cmap1([0.1, 0.1, 0.25, 0.15, 0.89, 0.14])
+cmap2 = ColorSegments([c2, c2_light, c3, c4, c5])
+show(cmap2)
+show(CMAPS.MATCH_RATIO())
+show(CMAPS.RSA())
+show(CMAPS.PLDDT())
+
+# Compatibility with matplotlib or other packages
+import numpy as np
+import matplotlib.pyplot as plt
+cmap = CMAPS.RedBlue()
+cmap.set_values_range([-5, 5])
+values_matrix = np.random.normal(0.0, 1.0, (20, 20))
+colors_matrix = cmap(values_matrix)
+plt.imshow(colors_matrix)
+plt.show()
+```
+
+See a more complete usage example in the Notebook ``./usage_example.ipynb``.
+
+## Requirements
+
+- Python 3.9 or later
+- Python packages `numpy`
+- Python package `matplotlib` (optional, only to be able to display colors and color scales)
+
+## Credits
+
+Some colors palette or colormaps are taken from the python packages [Matplotlib](https://matplotlib.org/) and [Seaborn](https://seaborn.pydata.org/).

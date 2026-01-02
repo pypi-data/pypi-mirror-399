@@ -1,0 +1,36 @@
+
+# Pip Build Setup --------------------------------------------------------------
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# Pip Package Metadata ---------------------------------------------------------
+[project]
+name = "littlecolors"
+version = "1.0.1"
+description = "A simple Python package to create, manipulate and mutate colors and color-scales."
+readme = "README.md"
+authors = [
+  { name = "Matsvei Tsishyn", email = "matsvei.tsishyn@protonmail.com" }
+]
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+  "numpy",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+urls = { Homepage = "https://github.com/MatsveiTsishyn/littlecolors" }
+
+[project.optional-dependencies]
+helpers = [
+  "matplotlib",
+]
+
+
+# Setup pip Package ------------------------------------------------------------
+# this finds all the python packages recursively
+[tool.setuptools]
+packages = { find = {} }
