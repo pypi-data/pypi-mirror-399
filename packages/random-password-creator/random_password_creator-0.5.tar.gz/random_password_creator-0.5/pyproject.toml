@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "random-password-creator"
+version = "0000.005"
+description = "A simple command-line tool to generate random and secure passwords using the Python Standard Library"
+
+authors = [
+  { name = "Giovanni Tognini Bonelli Sinclair", email = "sinclair.giovanni@gmail.com" }
+]
+
+keywords = ["password", "cli", "security", "generator"]
+
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.8"
+
+[project.scripts]
+password = "rpc.RandomPasswordCreator:main"
+
+[project.urls]
+Homepage = "https://github.com/GTBSinclair/RandomPasswordCreator"
+Issues = "https://github.com/GTBSinclair/RandomPasswordCreator/issues"
