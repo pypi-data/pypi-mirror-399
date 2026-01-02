@@ -1,0 +1,75 @@
+Metadata-Version: 2.4
+Name: KeyboardGate
+Version: 0.0.2
+Summary: A simple cross-platform library to block and unblock keyboard input.
+Project-URL: Homepage, https://github.com/pypa/sampleproject
+Project-URL: Bug Tracker, https://github.com/pypa/sampleproject/issues
+Author-email: Example Author <author@example.com>
+License: MIT License
+        
+        Copyright (c) 2025
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+License-File: LICENSE
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+
+# KeyboardGate
+
+A simple, cross-platform Python library to temporarily block and unblock keyboard input in the terminal.
+
+This can be useful for scenarios where you want to prevent user input during a critical operation or create a more controlled command-line interface.
+
+## How to Use
+
+Install the package from PyPI:
+```bash
+pip install KeyboardGate
+```
+
+Here is a basic example of how to use `KeyboardGate`:
+
+```python
+from KeyboardGate import KeyboardGate
+import time
+
+# Initialize the gate
+gate = KeyboardGate()
+
+print("Keyboard input will be disabled for 3 seconds.")
+gate.KeyboardGateDisable()
+time.sleep(3)
+gate.KeyboardGateEnable()
+print("Keyboard input is now enabled.")
+
+# You can also use it as a context manager
+with KeyboardGate():
+    print("Input is disabled inside this block.")
+    time.sleep(2)
+print("Input is automatically re-enabled outside the 'with' block.")
+
+```
+
+## How It Works
+
+-   **On Unix-like systems (Linux, macOS):** It modifies the terminal's attributes (`termios`) to turn off `ECHO`, which prevents characters from being displayed.
+-   **On Windows:** It uses the `msvcrt` module to consume any keyboard events that are waiting in the input buffer.
