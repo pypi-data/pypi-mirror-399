@@ -1,0 +1,296 @@
+Metadata-Version: 2.4
+Name: zestreleaser.towncrier
+Version: 2.0.0
+Summary: zest.releaser plugin to call towncrier
+Home-page: https://pypi.org/project/zestreleaser.towncrier
+Author: Maurits van Rees
+Author-email: m.van.rees@zestsoftware.nl
+License: GPL
+Keywords: Python Plone
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Environment :: Plugins
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Requires-Python: >=3.10
+License-File: LICENSE.GPL
+License-File: LICENSE.rst
+Requires-Dist: tomli; python_version < "3.11"
+Requires-Dist: towncrier>=19.9.0
+Requires-Dist: zest.releaser>=6.17.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+.. This README is meant for consumption by humans and pypi. Pypi can render rst files so please do not use Sphinx features.
+   If you want to learn more about writing documentation, please check out: http://docs.plone.org/about/documentation_styleguide.html
+   This text does not appear on pypi or github. It is a comment.
+
+zestreleaser.towncrier
+======================
+
+This calls `towncrier <https://github.com/hawkowl/towncrier>`_ when releasing a package with `zest.releaser <http://zestreleaser.readthedocs.io/en/latest/>`_.
+``towncrier`` updates your history file (like ``CHANGES.rst``) based on news snippets.
+This is for example `used by pip <https://pip.pypa.io/en/latest/development/#adding-a-news-entry>`_.
+
+The plugin will call ``towncrier build --draft --version <package version> --yes``.
+You can get a preview of the result yourself by calling ``towncrier build --draft --version 1.2.3``.
+
+The ``towncrier`` command should be on your ``PATH``.
+The plugin can also find it when it is in the same directory as the ``fullrelease`` script (or ``prerelease/postrelease``).
+
+
+Installation
+------------
+
+Install ``zestreleaser.towncrier`` with ``pip``::
+
+    $ pip install zestreleaser.towncrier
+
+Then you can run ``fullrelease`` like you would normally do when releasing a package.
+
+
+Contribute
+----------
+
+- Issue Tracker: https://github.com/collective/zestreleaser.towncrier/issues
+- Source Code: https://github.com/collective/zestreleaser.towncrier
+
+
+Support
+-------
+
+If you are having problems, please let us know by filing an `issue <https://github.com/collective/zestreleaser.towncrier/issues>`_.
+
+
+License
+-------
+
+The project is licensed under the GPL.
+
+
+
+``pyproject.toml`` example
+--------------------------
+
+``towncrier`` needs a configured ``pyproject.toml`` file in the root of the
+package, next to the ``setup.py``.
+For reference, here is the literal ``pyproject.toml`` file from
+``zestreleaser.towncrier`` (not all of this has to do with towncrier)::
+
+  [build-system]
+  requires = ["setuptools>=68.2,<81"]
+  
+  [tool.towncrier]
+  issue_format = "`Issue #{issue} <https://github.com/collective/zestreleaser.towncrier/issues/{issue}>`_"
+  filename = "CHANGES.rst"
+  directory = "news/"
+  title_format = "{version} ({project_date})"
+  # First underline is used for version/date header.
+  # Second underline is used for the type names (like 'Bug fixes:').
+  underlines = ["-", ""]
+  
+  [[tool.towncrier.type]]
+  directory = "breaking"
+  name = "Breaking changes:"
+  showcontent = true
+  
+  [[tool.towncrier.type]]
+  directory = "feature"
+  name = "New features:"
+  showcontent = true
+  
+  [[tool.towncrier.type]]
+  directory = "bugfix"
+  name = "Bug fixes:"
+  showcontent = true
+  
+  [tool.isort]
+  profile = "plone"
+  
+  [tool.check-manifest]
+  ignore = [
+      ".editorconfig",
+      ".flake8",
+      ".pre-commit-config.yaml",
+  ]
+
+
+Contributors
+============
+
+- Maurits van Rees, m.van.rees@zestsoftware.nl
+
+
+Changelog
+=========
+
+.. NOTE: You should *NOT* be adding new change log entries to this file, this
+         file is managed by towncrier. You *may* edit previous change logs to
+         fix problems like typo corrections or such.
+
+         To add a new change log entry, please see the notes from the ``pip`` project at
+             https://pip.pypa.io/en/latest/development/#adding-a-news-entry
+
+.. towncrier release notes start
+
+2.0.0 (2025-12-29)
+------------------
+
+Breaking changes:
+
+
+- Require at least Python 3.10.  [maurits]
+- Use native (implicit) namespace.  [maurits]
+
+
+New features:
+
+
+- Call ``towncrier check`` instead of doing those checks ourselves.  [maurits] (`Issue #29 <https://github.com/collective/zestreleaser.towncrier/issues/29>`_)
+
+
+Bug fixes:
+
+
+- Also look for ``towncrier.toml``, next to ``pyproject.toml``.
+  ``towncrier.toml`` is tried first.
+  [maurits] (`Issue #27 <https://github.com/collective/zestreleaser.towncrier/issues/27>`_)
+
+
+1.3.0 (2022-04-19)
+------------------
+
+New features:
+
+
+- Use the ``build`` subcommand for ``towncrier`` to build the changelog.
+  Fixes compatibility with ``towncrier`` 21.9.0 or later.
+  Requires ``towncrier`` 19.9.0 or later.
+  [mcflugen] (`Issue #22 <https://github.com/collective/zestreleaser.towncrier/issues/22>`_)
+- For parsing, use ``tomli`` when on Python 3, ``toml`` on Python 2.
+  Same as ``towncrier`` did until recently.
+  [maurits] (`Issue #23 <https://github.com/collective/zestreleaser.towncrier/issues/23>`_)
+
+
+1.2.0 (2019-03-05)
+------------------
+
+New features:
+
+
+- Use 'python -m towncrier' when the script is not easily findable.
+  Still check the directory of the fullrelease script first.
+  No longer check the PATH.
+  [maurits] (`Issue #17 <https://github.com/collective/zestreleaser.towncrier/issues/17>`_)
+
+
+Bug fixes:
+
+
+- Do not run sanity checks or run draft during postrelease.  [maurits] (`Issue #16 <https://github.com/collective/zestreleaser.towncrier/issues/16>`_)
+
+
+1.1.0 (2019-03-05)
+------------------
+
+New features:
+
+
+- Rerelease 1.0.3 as 1.1.0, as it contains new features. (`Issue #9 <https://github.com/collective/zestreleaser.towncrier/issues/9>`_)
+
+
+1.0.3 (2019-03-05)
+------------------
+
+New features:
+
+
+- Report on sanity of newsfragments: do they have the correct extensions?
+  Is at least one found?
+  Show dry-run (draft) of what towncrier would do.
+  [maurits] (`Issue #9 <https://github.com/collective/zestreleaser.towncrier/issues/9>`_)
+- Handle multiple news entries per issue/type pair.  [maurits] (`Issue #14 <https://github.com/collective/zestreleaser.towncrier/issues/14>`_)
+
+
+1.0.2 (2019-03-04)
+------------------
+
+Bug fixes:
+
+
+- Fixed finding towncrier when sys.argv is messed up.  [maurits] (`Issue #6 <https://github.com/collective/zestreleaser.towncrier/issues/6>`_)
+
+
+1.0.1 (2019-02-20)
+------------------
+
+Bug fixes:
+
+
+- Tell bumpversion to not update the history. [maurits] (`Issue #10
+  <https://github.com/collective/zestreleaser.towncrier/issues/10>`_)
+
+
+1.0.0 (2019-02-06)
+------------------
+
+New features:
+
+
+- Warn and ask when towncrier is wanted but not found. [maurits] (`Issue #7
+  <https://github.com/collective/zestreleaser.towncrier/issues/7>`_)
+
+
+1.0.0b3 (2018-05-17)
+--------------------
+
+New features:
+
+
+- Require towncrier 18.5.0 so we don't need a package name in the config.
+  [maurits] (`Issue #3
+  <https://github.com/collective/zestreleaser.towncrier/issues/3>`_)
+
+
+Bug fixes:
+
+
+- First look for ``towncrier`` next to the ``full/prerelease`` script. Then
+  fall back to looking on the ``PATH``. [maurits] (`Issue #4
+  <https://github.com/collective/zestreleaser.towncrier/issues/4>`_)
+
+
+1.0.0b2 (2018-05-16)
+--------------------
+
+Bug fixes:
+
+
+- Do not fail when pyproject.toml file is not there. [maurits] (`Issue #2
+  <https://github.com/collective/zestreleaser.towncrier/issues/2>`_)
+
+
+1.0.0b1 (2018-05-15)
+--------------------
+
+New features:
+
+
+- First release. [maurits] (`Issue #1
+  <https://github.com/collective/zestreleaser.towncrier/issues/1>`_)

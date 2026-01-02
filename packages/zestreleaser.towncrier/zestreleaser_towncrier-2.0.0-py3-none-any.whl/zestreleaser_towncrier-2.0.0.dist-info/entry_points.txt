@@ -1,0 +1,11 @@
+[zest.releaser.bumpversion.before]
+check_towncrier = zestreleaser.towncrier:check_towncrier
+
+[zest.releaser.postreleaser.before]
+check_towncrier = zestreleaser.towncrier:post_check_towncrier
+
+[zest.releaser.prereleaser.before]
+check_towncrier = zestreleaser.towncrier:check_towncrier
+
+[zest.releaser.prereleaser.middle]
+call_towncrier = zestreleaser.towncrier:call_towncrier
