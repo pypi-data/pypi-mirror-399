@@ -1,0 +1,300 @@
+Metadata-Version: 2.4
+Name: fluxibly
+Version: 0.1.0
+Summary: MCP-Native Agentic Framework for General-Purpose Task Automation
+Project-URL: Homepage, https://github.com/Lavaflux/fluxibly
+Project-URL: Documentation, https://github.com/Lavaflux/fluxibly#readme
+Project-URL: Repository, https://github.com/Lavaflux/fluxibly
+Project-URL: Issues, https://github.com/Lavaflux/fluxibly/issues
+Author-email: Lavaflux <209tungns@gmail.com>
+License: MIT
+License-File: LICENSE
+Keywords: agent,ai,automation,langchain,langgraph,mcp,workflow
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.11
+Requires-Dist: anyio>=4.0.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: langchain-anthropic>=1.2.0
+Requires-Dist: langchain-core>=0.3.0
+Requires-Dist: langchain-openai>=0.2.0
+Requires-Dist: langchain>=0.3.0
+Requires-Dist: langgraph>=0.2.0
+Requires-Dist: litellm>=1.80.9
+Requires-Dist: loguru>=0.7.3
+Requires-Dist: mcp>=1.0.0
+Requires-Dist: pydantic-settings>=2.0.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: qdrant-client>=1.16.2
+Requires-Dist: rich>=13.0.0
+Requires-Dist: sentence-transformers>=5.2.0
+Requires-Dist: structlog>=24.0.0
+Provides-Extra: dev
+Requires-Dist: mkdocs-material>=9.5.0; extra == 'dev'
+Requires-Dist: mkdocs>=1.5.0; extra == 'dev'
+Requires-Dist: pyright>=1.1.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.23.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.1.0; extra == 'dev'
+Requires-Dist: pytest-mock>=3.12.0; extra == 'dev'
+Requires-Dist: pytest>=8.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.8.0; extra == 'dev'
+Provides-Extra: mcp-servers
+Requires-Dist: opencv-python>=4.9.0; extra == 'mcp-servers'
+Requires-Dist: openpyxl>=3.1.0; extra == 'mcp-servers'
+Requires-Dist: pandas>=2.2.0; extra == 'mcp-servers'
+Requires-Dist: pdf2image>=1.17.0; extra == 'mcp-servers'
+Requires-Dist: pillow>=10.0.0; extra == 'mcp-servers'
+Requires-Dist: pytesseract>=0.3.10; extra == 'mcp-servers'
+Description-Content-Type: text/markdown
+
+# Fluxibly
+
+**MCP-Native Agentic Framework for General-Purpose Task Automation**
+
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Fluxibly is a modular, extensible agentic framework with native support for the Model Context Protocol (MCP). It enables developers to create sophisticated AI agents that can interact with external tools and services through MCP servers.
+
+## Features
+
+- **MCP-Native Architecture**: First-class support for Model Context Protocol servers
+- **Flexible Workflow Engine**: Execute single tasks or batch operations with ease
+- **Stateful Conversations**: Maintain context across multiple interactions
+- **Profile-Based Configuration**: Easy setup with YAML-based configuration profiles
+- **Async-First Design**: Fully asynchronous API for high performance
+
+## Installation
+
+Install Fluxibly using pip:
+
+```bash
+pip install fluxibly
+```
+
+Or using uv (recommended):
+
+```bash
+uv add fluxibly
+```
+
+## Quick Start
+
+### Simple One-Shot Execution
+
+```python
+import asyncio
+from fluxibly import run_workflow
+
+async def main():
+    response = await run_workflow(
+        "What is the capital of France?",
+        profile="default"
+    )
+    print(response)
+
+asyncio.run(main())
+```
+
+### Using the Workflow Engine
+
+```python
+import asyncio
+from fluxibly import WorkflowEngine, WorkflowConfig
+
+async def main():
+    # Configure the workflow
+    config = WorkflowConfig(
+        name="my_workflow",
+        agent_type="orchestrator",
+        profile="default",
+        stateful=False
+    )
+
+    # Create and initialize engine
+    engine = WorkflowEngine(config=config)
+    try:
+        await engine.initialize()
+        response = await engine.execute("Your task here")
+        print(response)
+    finally:
+        await engine.shutdown()
+
+asyncio.run(main())
+```
+
+### Batch Processing
+
+```python
+import asyncio
+from fluxibly import run_batch_workflow
+
+async def main():
+    tasks = [
+        "Explain async/await in Python",
+        "What are Python decorators?",
+        "How does the GIL work?"
+    ]
+
+    responses = await run_batch_workflow(
+        tasks,
+        profile="development_assistant"
+    )
+
+    for task, response in zip(tasks, responses):
+        print(f"Q: {task}")
+        print(f"A: {response}\n")
+
+asyncio.run(main())
+```
+
+## Configuration
+
+Fluxibly uses YAML-based configuration profiles. You can use built-in profiles or create custom ones.
+
+### Using Custom Profile Files
+
+You can also load profiles from custom file paths:
+
+```python
+# Load by absolute path
+engine = WorkflowEngine.from_profile("/path/to/my_profile.yaml")
+
+# Load by relative path
+engine = WorkflowEngine.from_profile("../custom_profiles/special.yaml")
+
+# Also works with convenience functions
+response = await run_workflow(
+    "Your task",
+    profile="/path/to/my_profile.yaml"
+)
+```
+
+### Profile Format
+
+Here's an example profile structure:
+
+```yaml
+name: default
+description: Default configuration profile
+
+llm:
+  provider: anthropic
+  model: claude-sonnet-4-5-20250929
+  temperature: 0.7
+  max_tokens: 4096
+
+mcp:
+  enabled: true
+  servers_config: config/mcp_servers.yaml
+```
+
+## MCP Server Integration
+
+Fluxibly provides seamless integration with MCP servers. Configure your MCP servers in `config/mcp_servers.yaml`:
+
+```yaml
+servers:
+  filesystem:
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - "/path/to/allowed/directory"
+    env:
+      NODE_OPTIONS: "--max-old-space-size=4096"
+```
+
+Then use the MCP client manager in your code:
+
+```python
+from fluxibly import MCPClientManager
+
+async def main():
+    manager = MCPClientManager()
+    await manager.initialize()
+
+    # MCP tools are now available to your agents
+    # ...
+
+    await manager.cleanup()
+```
+
+## Advanced Features
+
+### Stateful Conversations
+
+```python
+config = WorkflowConfig(
+    name="stateful_workflow",
+    agent_type="agent",
+    profile="default",
+    stateful=True  # Enable state persistence
+)
+
+engine = WorkflowEngine(config=config)
+await engine.initialize()
+
+# First interaction
+response1 = await engine.execute("My name is Alice")
+
+# Context is preserved
+response2 = await engine.execute("What's my name?")
+# Response will remember "Alice"
+```
+
+## Development
+
+### Setting Up Development Environment
+
+```bash
+# Clone the repository
+git clone https://github.com/Lavaflux/fluxibly.git
+cd fluxibly
+
+# Install dependencies
+uv sync
+
+# Run tests
+uv run --frozen pytest
+
+# Format code
+uv run --frozen ruff format .
+
+# Type checking
+uv run --frozen pyright
+```
+
+## Requirements
+
+- Python 3.11 or higher
+- API keys for LLM providers (e.g., Anthropic, OpenAI)
+- Optional: Node.js for MCP server support
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Links
+
+- **GitHub**: https://github.com/Lavaflux/fluxibly
+- **Issues**: https://github.com/Lavaflux/fluxibly/issues
+- **Documentation**: https://github.com/Lavaflux/fluxibly#readme
+
+## Acknowledgments
+
+Built with:
+- [LangChain](https://github.com/langchain-ai/langchain) - LLM application framework
+- [Model Context Protocol](https://modelcontextprotocol.io/) - Tool integration protocol
