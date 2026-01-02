@@ -1,0 +1,162 @@
+# Installation
+
+LavenderTown is available on PyPI and can be installed using pip.
+
+## Basic Installation
+
+```bash
+pip install lavendertown
+```
+
+## Optional Dependencies
+
+LavenderTown supports several optional dependencies for extended functionality:
+
+### Polars Support
+
+For better performance with large datasets:
+
+```bash
+pip install lavendertown[polars]
+```
+
+### Ecosystem Integrations
+
+Export rules to Pandera or Great Expectations:
+
+```bash
+pip install lavendertown[pandera]
+pip install lavendertown[great_expectations]
+```
+
+**Note:** LavenderTown is compatible with both altair 4.x and 5.x. Installing Great Expectations will automatically install altair 4.x (which is compatible with LavenderTown).
+
+### Enhanced CLI
+
+For the best CLI experience with beautiful terminal output:
+
+```bash
+pip install lavendertown[cli]
+```
+
+This includes:
+- **Rich**: Progress bars, formatted tables, and color-coded messages
+- **python-dotenv**: Configuration management via `.env` files
+- **orjson**: Fast JSON serialization (2-3x faster than standard library)
+
+### ML and Time-Series Features
+
+For machine learning-based anomaly detection and time-series analysis:
+
+```bash
+pip install lavendertown[ml]          # PyOD + scikit-learn for 40+ ML anomaly detection algorithms
+pip install lavendertown[timeseries]  # Ruptures + statsmodels + tsfresh for time-series analysis
+```
+
+**Phase 6 Features:**
+- **ML (`lavendertown[ml]`)**: Includes PyOD library with 40+ additional ML anomaly detection algorithms (ABOD, CBLOF, HBOS, KNN, MCD, PCA, and more) beyond scikit-learn's Isolation Forest, LOF, and One-Class SVM
+- **Time-Series (`lavendertown[timeseries]`)**: Includes Ruptures library for change point detection in time-series data
+
+**Phase 7 Features (v0.7.0):**
+- **Time-Series (`lavendertown[timeseries]`)**: Now also includes tsfresh for advanced time-series feature extraction (700+ features)
+
+### Data Profiling
+
+Generate comprehensive HTML profiling reports:
+
+```bash
+pip install lavendertown[profiling]   # ydata-profiling for advanced data profiling
+```
+
+### Parquet Export
+
+Export findings to efficient Parquet format:
+
+```bash
+pip install lavendertown[parquet]     # PyArrow for Parquet export/import
+```
+
+### Statistical Tests
+
+Enhanced drift detection with statistical tests:
+
+```bash
+pip install lavendertown[stats]       # scipy.stats for Kolmogorov-Smirnov and chi-square tests
+```
+
+### Phase 7 Features (v0.7.0)
+
+Advanced integrations for enhanced visualizations, UI components, and database storage:
+
+```bash
+pip install lavendertown[plotly]      # Plotly for interactive visualizations (zoom, pan, 3D charts)
+pip install lavendertown[ui]           # Streamlit Extras for enhanced UI components (metric cards, badges)
+pip install lavendertown[database]     # SQLAlchemy for database backend (SQLite and PostgreSQL)
+```
+
+**Phase 7 Features:**
+- **Plotly (`lavendertown[plotly]`)**: Interactive visualization backend with zoom, pan, and 3D charts
+- **UI (`lavendertown[ui]`)**: Streamlit Extras integration for enhanced metric cards, badges, and improved layouts
+- **Database (`lavendertown[database]`)**: SQLAlchemy support for scalable collaboration features with SQLite and PostgreSQL
+
+### All Optional Dependencies
+
+Install everything at once:
+
+```bash
+pip install lavendertown[all]
+```
+
+This includes:
+- Polars support
+- Pandera and Great Expectations exports
+- Enhanced CLI (Rich, python-dotenv, orjson, Typer)
+- ML anomaly detection (PyOD + scikit-learn)
+- Time-series analysis (Ruptures + statsmodels + tsfresh)
+- Data profiling (ydata-profiling)
+- Parquet export (PyArrow)
+- Statistical tests (scipy.stats)
+- Plotly interactive visualizations
+- Streamlit Extras UI components
+- SQLAlchemy database backend
+
+## Development Installation
+
+For contributing to LavenderTown:
+
+```bash
+git clone https://github.com/eddiethedean/lavendertown.git
+cd lavendertown
+pip install -e ".[dev]"
+```
+
+This installs LavenderTown in editable mode with development dependencies including pytest, mypy, ruff, and black.
+
+## Requirements
+
+- Python 3.10 or higher
+- Streamlit 1.28.0 or higher
+- Pandas 1.5.0 or higher
+- Altair 4.2.1 or higher (compatible with both 4.x and 5.x)
+
+## Verification
+
+After installation, verify that LavenderTown is working correctly:
+
+```python
+from lavendertown import Inspector
+import pandas as pd
+
+# Create a simple test DataFrame
+df = pd.DataFrame({"value": [1, 2, 3, None, 5]})
+
+# Create inspector
+inspector = Inspector(df)
+
+# Get findings
+findings = inspector.detect()
+print(f"Found {len(findings)} data quality issues")
+```
+
+If this runs without errors, LavenderTown is installed correctly!
+
