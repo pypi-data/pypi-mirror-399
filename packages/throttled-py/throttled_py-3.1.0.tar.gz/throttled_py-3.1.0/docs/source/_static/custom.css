@@ -1,0 +1,105 @@
+/* maple-mono-latin-400-normal */
+@font-face {
+    font-family: 'Maple Mono';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 400;
+    src: url(https://cdn.jsdelivr.net/fontsource/fonts/maple-mono@latest/latin-400-normal.woff2) format('woff2'),
+         url(https://cdn.jsdelivr.net/fontsource/fonts/maple-mono@latest/latin-400-normal.woff) format('woff');
+}
+
+/* maple-mono-latin-700-normal (for bold) */
+@font-face {
+    font-family: 'Maple Mono';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 700;
+    src: url(https://cdn.jsdelivr.net/fontsource/fonts/maple-mono@latest/latin-700-normal.woff2) format('woff2'),
+         url(https://cdn.jsdelivr.net/fontsource/fonts/maple-mono@latest/latin-700-normal.woff) format('woff');
+}
+
+* {
+    font-family: 'Maple Mono', monospace;
+}
+
+pre, code, h1, h2, h3, h4, h5, h6 {
+    font-family: 'Maple Mono', monospace !important;
+    /*line-height: 1;*/
+}
+
+
+pre, code, body, p {
+    font-size: 14px;
+}
+
+h1 {
+    font-size: 1.6rem;
+}
+
+h2 {
+    font-size: 1.4rem;
+}
+
+h3 {
+    font-size: 1.2rem;
+}
+
+h4 {
+    font-size: 1rem;
+}
+
+h3, h4, h5, h6 {
+    margin: 0.9rem 0 0.9rem;
+}
+
+h1, h2 {
+    margin: 1.2rem 0 1.2rem;
+}
+
+pre, code, .tab-content, .container, .highlight, .docutils.container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+/* Remove the default margin from the class method blocks */
+dl[class]:not(.option-list,.field-list,.footnote,.glossary,.simple) {
+    margin-bottom: 1rem;
+}
+
+.title {
+    font-family: 'Maple Mono', "Fallback Outline", monospace !important;
+    display: inline-flex;
+    align-items: center;
+    font-size: 1.8rem !important;
+    font-style: italic;
+    font-weight: 700;
+    font-variation-settings: "ital" 1;
+}
+
+/* Improve bold text visibility in dark mode */
+@media (prefers-color-scheme: dark) {
+    html[data-theme="dark"] strong,
+    html[data-theme="dark"] b {
+        /* Use a slightly lighter color for bold text */
+        color: #EBCB8B; /* Or another light color like #e0e0e0 */
+    }
+}
+
+/* Fallback for themes that don't use data-theme but might use a class */
+.dark-theme strong,
+.dark-theme b {
+    color: #EBCB8B;
+}
+
+/* Adjust row spacing for list-table */
+article table td, article table th {
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
+}
+
+article table td p, article table th p {
+    margin-bottom: 0.5rem !important;
+}
+
