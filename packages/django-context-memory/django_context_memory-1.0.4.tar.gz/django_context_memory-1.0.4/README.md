@@ -1,0 +1,271 @@
+# Django Context Memory
+
+[![PyPI version](https://badge.fury.io/py/django-context-memory.svg)](https://badge.fury.io/py/django-context-memory)
+[![Python Versions](https://img.shields.io/pypi/pyversions/django-context-memory.svg)](https://pypi.org/project/django-context-memory/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A standalone library for generating deep code intelligence and context for AI assistants like Claude Code.
+
+## What It Does
+
+Converts your Django codebase into structured, machine-readable context that AI assistants can use to:
+- Understand your models, views, and URL structure
+- Track dependencies and cross-app relationships
+- Navigate your architecture intelligently
+- Provide better suggestions with full project context
+
+## Features
+
+- **Deep Code Analysis**: Extracts functions, classes, models, views, forms, URLs, and imports
+- **Cross-App Intelligence**: Maps dependencies and relationships between apps
+- **Technology Stack Detection**: Identifies Django components and third-party packages
+- **Auto-Generated Documentation**: Creates project-specific README and policies
+- **CLI Tools**: Simple commands for initialization and context building
+- **Web Dashboard**: Built-in Django web UI for visual management (optional)
+- **Framework-Aware**: Understands Django patterns (models, views, admin, serializers)
+- **Three Ways to Use**: CLI commands, Python API, or web interface
+
+## Installation
+
+```bash
+pip install django-context-memory
+```
+
+Or install from source:
+```bash
+cd django_context_memory
+pip install -e .
+```
+
+## Quick Start
+
+### 1. Initialize in Your Project
+
+```bash
+cd /path/to/your/django/project
+django-context init
+```
+
+This will:
+- Create `.app_memory/` directory
+- Scan your project structure
+- Generate initial configuration
+- Create project-specific README and policies
+
+### 2. Build Context for an App
+
+```bash
+django-context scan <app_name>
+django-context build <app_name>
+```
+
+### 3. Build Context for All Apps (Recommended)
+
+```bash
+django-context build-all
+```
+
+This automatically scans all apps and builds aggregated context.
+
+### 4. Use in Your Code
+
+```python
+from django_context_memory import ContextBuilder, CodeAnalyzer
+
+# Analyze a single file
+analyzer = CodeAnalyzer('/path/to/models.py', '/path/to/app')
+analysis = analyzer.analyze()
+
+# Build app context
+builder = ContextBuilder('/path/to/project')
+context = builder.build_app_context('your_app_name')
+
+# Build aggregated context for all apps
+aggregated = builder.build_aggregated_context()
+```
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `django-context init` | Initialize context memory in project |
+| `django-context scan <app>` | Scan and snapshot a specific app |
+| `django-context scan-all` | Scan all apps in project |
+| `django-context build <app>` | Build context for specific app |
+| `django-context build-all` | Build aggregated context for all apps |
+| `django-context status` | Show current context status |
+| `django-context clean` | Clean all generated context files |
+
+## Configuration
+
+Create `.context_memory_config.json` in your project root:
+
+```json
+{
+  "project_name": "MyProject",
+  "memory_dir": ".app_memory",
+  "exclude_patterns": [
+    "*/migrations/*",
+    "*/__pycache__/*",
+    "*.pyc",
+    ".git/*"
+  ],
+  "deep_analysis": true,
+  "auto_generate_docs": true
+}
+```
+
+## Output Structure
+
+```
+.app_memory/
+├── claude_aggregated_context.json    # Main file for AI assistants
+├── aggregated_context.json           # Human-readable summary
+├── <app_name>/
+│   ├── snapshot.json                 # Raw scan data
+│   ├── app_memory.json              # Versioned context
+│   └── claude_context.json          # Machine-readable context
+├── <another_app>/
+│   └── ...
+└── <third_app>/
+    └── ...
+```
+
+## Context Data Structure
+
+Each app context includes:
+- **Models**: Fields, types, relationships, methods
+- **Views**: Function/class-based views with signatures
+- **URLs**: Route patterns mapped to views
+- **Forms**: Form classes and fields
+- **Dependencies**: Django, third-party, and local imports
+- **Classes & Functions**: All code structures
+- **Constants**: Module-level variables
+
+## Use Cases
+
+### With Claude Code
+1. Build context: `django-context build-all`
+2. Claude reads `.app_memory/claude_aggregated_context.json`
+3. Claude has full project intelligence
+4. Better suggestions, fewer hallucinations
+
+### With Other AI Tools
+- Use as knowledge base for AI pair programming
+- Feed to custom GPT models
+- Integrate with IDE extensions
+- Build custom analysis tools
+
+## Advanced Usage
+
+### Custom Analysis
+
+```python
+from django_context_memory import CodeAnalyzer
+
+class CustomAnalyzer(CodeAnalyzer):
+    def _extract_custom_patterns(self):
+        # Add your custom extraction logic
+        pass
+
+analyzer = CustomAnalyzer(file_path, app_root)
+analysis = analyzer.analyze()
+```
+
+### Programmatic Context Building
+
+```python
+from django_context_memory import ContextBuilder
+
+builder = ContextBuilder(
+    project_root='/path/to/project',
+    memory_dir='.app_memory',
+    deep_analysis=True
+)
+
+# Build with custom options
+context = builder.build_app_context(
+    'your_app_name',
+    include_tests=False,
+    include_migrations=False
+)
+```
+
+## Web UI Dashboard (Optional)
+
+The library includes a web dashboard for visualizing and managing context. To enable it:
+
+**1. Add to INSTALLED_APPS:**
+
+```python
+# In your project's settings.py
+INSTALLED_APPS = [
+    ...
+    'django_context_memory',  # Add the web UI
+]
+```
+
+**2. Include URLs:**
+
+```python
+# In your project's urls.py
+from django.urls import path, include
+
+urlpatterns = [
+    ...
+    path('context-memory/', include('django_context_memory.urls')),
+]
+```
+
+**3. Access the dashboard:**
+
+Visit `http://localhost:8000/context-memory/` to:
+- View all discovered apps
+- Create snapshots (START/END)
+- Build context for individual apps
+- Build aggregated context for all apps
+- View statistics and summaries
+
+The web UI provides the same functionality as the CLI, but with a clean, visual interface.
+
+## Requirements
+
+- Python 3.8+
+- Django 3.2+ (for Django projects)
+- No additional dependencies for core functionality
+
+## Development
+
+```bash
+git clone https://github.com/GavinHolder/django-context-memory
+cd django-context-memory
+pip install -e ".[dev]"
+pytest
+```
+
+## License
+
+MIT License
+
+## Contributing
+
+Contributions welcome! Please open an issue or pull request on GitHub.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+## Documentation
+
+- **CLI Guide**: [CLI_GUIDE.md](CLI_GUIDE.md)
+- **Installation**: [INSTALLATION.md](INSTALLATION.md)
+- **Publishing**: [PUBLISHING_TO_PYPI.md](PUBLISHING_TO_PYPI.md)
+
+## Support
+
+- **Issues**: https://github.com/GavinHolder/django-context-memory/issues
+- **Documentation**: https://github.com/GavinHolder/django-context-memory#readme
+
+---
+
+**Built for better AI-assisted development** 🚀

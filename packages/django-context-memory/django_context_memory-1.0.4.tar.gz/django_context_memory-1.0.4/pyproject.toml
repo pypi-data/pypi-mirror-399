@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-context-memory"
+version = "1.0.4"
+description = "Deep code intelligence for AI assistants working with Django projects"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Gavin Holder", email = "mangleholder@gmail.com"}
+]
+keywords = ["django", "ai", "claude", "code-intelligence", "context", "ast", "analysis"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Framework :: Django",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "flake8>=6.0",
+    "mypy>=1.0",
+]
+django = [
+    "Django>=3.2",
+]
+
+[tool.setuptools]
+packages = ["django_context_memory"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+django_context_memory = [
+    "templates/*.md",
+    "templates/*.txt",
+    "templates/django_context_memory/*.html",
+]
+
+[project.scripts]
+django-context = "django_context_memory.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/django-context-memory"
+Documentation = "https://django-context-memory.readthedocs.io"
+Repository = "https://github.com/yourusername/django-context-memory"
+"Bug Tracker" = "https://github.com/yourusername/django-context-memory/issues"
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --cov=django_context_memory --cov-report=term-missing"
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
