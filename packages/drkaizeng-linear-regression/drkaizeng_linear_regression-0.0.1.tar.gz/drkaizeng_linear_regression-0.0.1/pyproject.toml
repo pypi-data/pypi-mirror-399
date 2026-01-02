@@ -1,0 +1,49 @@
+[project]
+name = "drkaizeng-linear-regression"
+version = "0.0.1"
+description = "A Python wrapper around rust_projects/linear_regression."
+authors = [{ name = "Kai Zeng" }]
+readme = "README.md"
+license-files = ["LICENCE"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Software Development :: Libraries",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Rust",
+  "Operating System :: OS Independent",
+  "Environment :: Console",
+]
+requires-python = ">=3.13"
+dependencies = ["click>=8.3.1", "numpy>=2.4.0"]
+
+[project.urls]
+Homepage = "https://statistics-and-engineering-lab.readthedocs.io/en/latest/python_projects/linear_regression/"
+
+[dependency-groups]
+dev = ["pytest>=9.0.2", "pytest-cov>=7.0.0", "ruff>=0.14.10", "ty>=0.0.5"]
+
+[tool.ruff]
+line-length = 120
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+# Tell maturin where the Python source code is located
+python-source = "src"
+# Specify the name of the rust extension module.
+# This would result in a file named linear_regression_python_bindings.so (or .pyd on Windows) in
+# the linear_regression package.
+module-name = "linear_regression.linear_regression_python_bindings"
+manifest-path = "rust_projects/linear_regression_python_bindings/Cargo.toml"
+
+[project.scripts]
+linear-regression = "linear_regression.linear_regression:linear_regression"

@@ -1,0 +1,13 @@
+[package]
+name = "linear_regression_python_bindings"
+version = "0.0.1"
+edition = "2024"
+
+[lib]
+name = "linear_regression_python_bindings" # This is the name used in 'linear_regression_python_bindings'
+crate-type = ["cdylib"]
+
+[dependencies]
+linear_regression = { path = "../linear_regression", version = "0.0.3" }
+numpy = "0.27.1"
+pyo3 = "0.27.2"

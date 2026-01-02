@@ -1,0 +1,1 @@
+This package performs univariate linear regression. See the [homepage](https://statistics-and-engineering-lab.readthedocs.io/en/latest/python_projects/linear_regression/) for details.
