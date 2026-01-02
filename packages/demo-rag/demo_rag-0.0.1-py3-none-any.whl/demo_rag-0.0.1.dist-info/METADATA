@@ -1,0 +1,100 @@
+Metadata-Version: 2.4
+Name: demo-rag
+Version: 0.0.1
+Summary: A demo project for RAG using FastAPI and LlamaIndex
+Author: WH
+License: MIT
+Project-URL: Homepage, https://github.com/a171232886/demo_rag
+Project-URL: Bug Reports, https://github.com/a171232886/demo_rag/issues
+Project-URL: Source, https://github.com/a171232886/demo_rag
+Project-URL: 视频教程, https://www.bilibili.com/video/BV1u7BvBGEfX
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.127.0
+Requires-Dist: llama-index>=0.14.10
+Requires-Dist: llama-index-embeddings-openai-like>=0.2.2
+Requires-Dist: llama-index-llms-openai-like>=0.5.3
+Requires-Dist: llama-index-storage-docstore-mongodb>=0.4.1
+Requires-Dist: llama-index-storage-index-store-mongodb>=0.5.1
+Requires-Dist: llama-index-vector-stores-qdrant>=0.9.0
+Requires-Dist: motor>=3.7.1
+Requires-Dist: python-pptx>=1.0.2
+Requires-Dist: pyyaml>=6.0.3
+Requires-Dist: qdrant-client>=1.16.2
+Requires-Dist: s3fs>=2025.12.0
+Requires-Dist: uvicorn>=0.40.0
+
+# Readme
+
+This is a demo project for Retrieval-Augmented Generation (RAG) service based on LlamaIndex and FastAPI.
+It includes an example of how to set up and use the RAG service with a MinIO storage backend, MongoDB for metadata storage, and Qdrant for vector storage.
+
+## Prerequisites
+- Docker and Docker Compose installed on your machine.
+- Python 3.13 or higher installed.
+- Required Python packages listed in `pyproject.toml`.
+
+## Setup
+1. Clone the repository to your local machine.
+2. Install the required Python packages using Pip:
+   ```bash
+   pip install .
+   ```
+   or if you are using uv:
+
+   ```bash
+    uv sync
+   ```
+3. Start the MinIO, MongoDB and Qdrant service using Docker Compose:
+   ```bash
+   cd example
+   docker compose up
+   ```
+
+## Usage
+1. Modify the configuration in `example/config.yaml` as needed, especially the LLM settings.
+
+   Note: **we use the OpenAI-compatible models.**
+   
+   Here is an example configuration for the embedding and generation models:
+
+   ```yaml
+    rag:
+        embedding_model:
+            model_name: text-embedding-v4
+            api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+            api_key: <YOUR_API_KEY>
+
+
+        generation_model:
+            model_name: qwen3-next-80b-a3b-instruct
+            api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+            api_key: <YOUR_API_KEY>
+            other_parameters:
+                is_chat_model: true
+   ```
+
+2. Start the RAG service by running the `example/main.py` script:
+   ```bash
+   cd example
+   python main.py
+   ```
+
+## Test
+
+- The `test.py` file contains simple tests for the RAG service functionalities. You can run it:
+   ```bash
+    python test.py
+    ```
+
+- The `test_rag_service.py` file contains unit tests for the RAG service. You can run it using pytest:
+   ```bash
+    python test_rag_service.py
+    ```
