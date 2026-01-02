@@ -1,0 +1,302 @@
+Metadata-Version: 2.4
+Name: audit-trail-sdk
+Version: 1.0.0
+Summary: Official Python SDK for Audit Trail Universal
+Project-URL: Homepage, https://github.com/Mohmk10/audit-trail-server
+Project-URL: Documentation, https://github.com/Mohmk10/audit-trail-server#readme
+Project-URL: Repository, https://github.com/Mohmk10/audit-trail-server
+Author-email: mohmk10 <contact@mohmk10.com>
+License-Expression: MIT
+License-File: LICENSE
+Keywords: audit,compliance,logging,observability,security,trail
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Typing :: Typed
+Requires-Python: >=3.8
+Requires-Dist: httpx>=0.25.0
+Requires-Dist: pydantic>=2.5.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.7.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.1.0; extra == 'dev'
+Requires-Dist: pytest>=7.4.0; extra == 'dev'
+Requires-Dist: ruff>=0.1.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# Audit Trail SDK for Python
+
+Official Python SDK for Audit Trail Universal.
+
+## Installation
+
+```bash
+pip install audit-trail-sdk
+```
+
+## Quick Start
+
+```python
+from audit_trail_sdk import (
+    AuditTrailClient,
+    Actor,
+    Action,
+    Resource,
+    EventMetadata,
+    Event,
+)
+
+# Create client
+client = (
+    AuditTrailClient.builder()
+    .server_url("https://audit.example.com")
+    .api_key("your-api-key")
+    .build()
+)
+
+# Log an event (sync)
+response = client.log(
+    Event.create(
+        actor=Actor.user("user-123", "John Doe"),
+        action=Action.create("Created document"),
+        resource=Resource.document("doc-456", "Q4 Report"),
+        metadata=EventMetadata.create("web-app", "tenant-001"),
+    )
+)
+
+print(f"Event logged: {response.id}")
+```
+
+## Async Usage
+
+```python
+import asyncio
+
+async def main():
+    client = (
+        AuditTrailClient.builder()
+        .server_url("https://audit.example.com")
+        .api_key("your-api-key")
+        .build()
+    )
+
+    event = Event.create(
+        actor=Actor.user("user-123", "John Doe"),
+        action=Action.create("Created document"),
+        resource=Resource.document("doc-456", "Q4 Report"),
+        metadata=EventMetadata.create("web-app", "tenant-001"),
+    )
+
+    response = await client.log_async(event)
+    print(f"Event logged async: {response.id}")
+
+asyncio.run(main())
+```
+
+## Features
+
+- Python 3.10+ support
+- Full type hints with Pydantic
+- Sync and async API
+- Automatic retry with exponential backoff
+- Factory methods for common models
+- Builder pattern for client configuration
+
+## API Reference
+
+### Client Configuration
+
+```python
+client = (
+    AuditTrailClient.builder()
+    .server_url("http://localhost:8080")  # Required
+    .api_key("your-api-key")              # Optional
+    .timeout(30.0)                        # Default: 30 seconds
+    .retry_attempts(3)                    # Default: 3
+    .retry_delay(1.0)                     # Default: 1 second
+    .headers({"X-Custom": "value"})       # Optional custom headers
+    .build()
+)
+```
+
+### Logging Events
+
+#### Single Event
+
+```python
+response = client.log(event)
+# Response: EventResponse(id, timestamp, hash, status)
+
+# Async version
+response = await client.log_async(event)
+```
+
+#### Batch Events
+
+```python
+response = client.log_batch([event1, event2, event3])
+# Response: BatchEventResponse(total, succeeded, failed, events, errors)
+
+# Async version
+response = await client.log_batch_async([event1, event2, event3])
+```
+
+### Building Events
+
+#### Actor Types
+
+```python
+# Factory methods
+user = Actor.user("user-123", "John Doe")
+system = Actor.system("cron-job")
+service = Actor.service("payment-svc", "Payment Service")
+
+# Full constructor
+actor = Actor(
+    id="user-123",
+    type=ActorType.USER,
+    name="John Doe",
+    ip="192.168.1.1",
+    user_agent="Mozilla/5.0...",
+    attributes={"department": "IT"},
+)
+```
+
+#### Action Types
+
+```python
+# Factory methods
+create = Action.create("Created resource")
+read = Action.read("Viewed resource")
+update = Action.update("Modified resource")
+delete = Action.delete("Removed resource")
+login = Action.login()
+logout = Action.logout()
+
+# Custom action
+custom = Action.of("APPROVE", "Approved request", "WORKFLOW")
+```
+
+#### Resource Types
+
+```python
+# Factory methods
+doc = Resource.document("doc-123", "Report")
+user = Resource.user("user-456", "John")
+txn = Resource.transaction("txn-789", "Payment")
+custom = Resource.of("id", "CUSTOM_TYPE", "Name")
+
+# With before/after state
+resource = (
+    Resource.document("doc-123", "Report")
+    .with_before({"status": "draft"})
+    .with_after({"status": "published"})
+)
+```
+
+#### Metadata
+
+```python
+metadata = EventMetadata.create(
+    source="web-app",           # Required
+    tenant_id="tenant-001",     # Required
+    correlation_id="corr-123",  # Optional
+    session_id="sess-456",      # Optional
+    tags={"env": "production"}, # Optional
+)
+```
+
+### Searching Events
+
+#### Advanced Search
+
+```python
+from audit_trail_sdk import SearchCriteria
+
+criteria = SearchCriteria(
+    tenant_id="tenant-001",      # Required
+    actor_id="user-123",         # Optional
+    actor_type="USER",           # Optional
+    action_type="CREATE",        # Optional
+    resource_id="doc-456",       # Optional
+    resource_type="DOCUMENT",    # Optional
+    from_date="2024-01-01",      # Optional
+    to_date="2024-12-31",        # Optional
+    query="search term",         # Optional
+    page=0,                      # Default: 0
+    size=20,                     # Default: 20
+)
+
+result = client.search(criteria)
+# Result: SearchResult(items, total_count, page, size, total_pages)
+
+# Async version
+result = await client.search_async(criteria)
+```
+
+#### Quick Search
+
+```python
+result = client.quick_search("search term", "tenant-001", page=0, size=20)
+
+# Async version
+result = await client.quick_search_async("search term", "tenant-001")
+```
+
+### Retrieving Events
+
+```python
+event = client.get_by_id("event-id")
+# Returns None if not found
+
+# Async version
+event = await client.get_by_id_async("event-id")
+```
+
+## Error Handling
+
+```python
+from audit_trail_sdk import (
+    AuditTrailError,
+    AuditTrailConnectionError,
+    AuditTrailApiError,
+    AuditTrailValidationError,
+)
+
+try:
+    response = client.log(event)
+except AuditTrailConnectionError as e:
+    print(f"Connection failed: {e}")
+    print(f"Cause: {e.cause}")
+except AuditTrailApiError as e:
+    print(f"API error: {e.status_code}")
+    print(f"Body: {e.body}")
+except AuditTrailValidationError as e:
+    print(f"Validation errors: {e.violations}")
+except AuditTrailError as e:
+    print(f"General error: {e}")
+```
+
+## Development
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run linter
+ruff check src/
+
+# Type check
+mypy src/
+```
+
+## License
+
+MIT
