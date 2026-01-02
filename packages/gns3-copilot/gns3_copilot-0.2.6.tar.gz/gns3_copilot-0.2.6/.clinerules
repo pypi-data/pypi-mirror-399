@@ -1,0 +1,133 @@
+# GNS3 Copilot Project Description
+
+## Project Overview
+
+**GNS3 Copilot** is an AI-powered network automation assistant designed specifically for GNS3 network simulator. The project implements network device configuration, topology management, and network troubleshooting through natural language interaction.
+
+### Core Technology Stack
+- **Frontend UI**: Streamlit
+- **AI Framework**: LangGraph + LangChain
+- **Network Automation**: Nornir + Netmiko + Telnetlib3
+- **GNS3 Integration**: gns3fy (custom enhanced)
+- **Data Persistence**: SQLite
+- **LLM Support**: OpenAI, DeepSeek, Anthropic, XAI, OpenRouter, etc.
+
+### Core Features
+- AI-driven conversational interface (natural language interaction)
+- Device configuration management (batch configuration for multiple vendor devices)
+- Topology management (create, modify, and manage GNS3 network topologies)
+- Network diagnostics (intelligent troubleshooting and performance monitoring)
+- Voice interaction (TTS text-to-speech and STT speech-to-text)
+
+---
+
+## Project Module Structure
+
+### 1. src/gns3_copilot/ui_model/ - Presentation Layer
+Streamlit web interface components for user interaction and display
+- `chat.py` - Chat interface handling user message flow and response display
+- `settings.py` - System configuration page for LLM, GNS3 server, and other settings
+- `help.py` - Help documentation page
+- `utils/app_ui.py` - UI initialization and page routing
+- `utils/chat_helpers.py` - Chat helper functions (message formatting, updates, etc.)
+- `utils/config_manager.py` - Configuration manager (load, save configuration)
+- `utils/gns3_checker.py` - GNS3 connection checking and validation
+- `utils/update_ui.py` - UI update logic
+- `utils/updater.py` - Application update checking
+- `styles/main.css` - Interface styles
+
+### 2. src/gns3_copilot/agent/ - LangGraph Agent Framework
+Core AI agent responsible for intent recognition, tool calling, and conversation management
+- `gns3_copilot.py` - Main agent implementation
+  - StateGraph-based multi-node workflow
+  - Includes llm_call, tool_node, title_generator nodes
+  - Integrated with SQLite checkpoint for conversation state persistence
+  - Implements should_continue routing logic
+
+### 3. src/gns3_copilot/tools_v2/ - Tool Integration Layer
+Defines various network automation tools for LangGraph agent to invoke
+- `config_tools_nornir.py` - Nornir configuration tools (execute configuration commands)
+- `display_tools_nornir.py` - Nornir display command tools (execute show commands)
+- `linux_tools_nornir.py` - Linux device tools (via Netmiko)
+- `vpcs_tools_telnetlib3.py` - VPCS virtual PC tools (via Telnetlib3)
+- `gns3_create_node.py` - Create GNS3 nodes
+- `gns3_create_link.py` - Create GNS3 link connections
+- `gns3_start_node.py` - Start GNS3 nodes
+- `gns3_get_node_temp.py` - Get available GNS3 node templates
+
+### 4. src/gns3_copilot/gns3_client/ - GNS3 Integration Framework
+Client for interacting with GNS3 server
+- `custom_gns3fy.py` - Enhanced GNS3 client (based on gns3fy extensions)
+- `gns3_projects_list.py` - Project list management
+- `gns3_topology_reader.py` - Topology information reading and analysis
+
+### 5. src/gns3_copilot/public_model/ - Public Model Layer
+Common models and utility functions
+- `openai_tts.py` - Text-to-speech (TTS) functionality
+- `openai_stt.py` - Speech-to-text (STT) functionality
+- `parse_tool_content.py` - Tool execution result parsing
+- `get_gns3_device_port.py` - Get GNS3 device port information
+
+### 6. src/gns3_copilot/prompts/ - Prompt Templates
+LLM prompt management supporting multiple languages and proficiency levels
+- `base_prompt.py` - Base prompt template
+- `prompt_loader.py` - Prompt loader
+- `english_level_prompt_*.py` - English proficiency level prompts (A1-C2)
+- `voice_prompt_*.py` - Voice-related prompts
+- `vocie_prompt.py` - Voice prompt (legacy naming)
+
+### 7. src/gns3_copilot/log_config/ - Logging Configuration
+- `logging_config.py` - Unified logging configuration
+
+---
+
+# General Coding Guidelines - Follow PEP 8 and Python Best Practices
+
+1. Code Style
+   - Follow PEP 8 code style guidelines
+   - Use meaningful variable names and function names
+   - Avoid abbreviations and single-character naming (except loop variables)
+   - Keep each line under 88 characters (follow black formatting)
+
+2. Code Organization
+   - Maintain single responsibility for functions, avoid overly long functions (recommended not to exceed 50 lines)
+   - Extract repeated code into independent functions or constants
+   - Minimize the use of global variables
+   - Organize related functionality together
+
+3. Type Annotations
+   - Add type annotations for public functions
+   - Use type hints (typing module) to improve code readability
+
+4. Docstrings
+   - Add docstrings for functions and classes
+   - Follow Google or NumPy style docstring format
+
+5. Code Quality
+   - Avoid deep nesting (recommended not to exceed 4 levels)
+   - Use early return to reduce nesting
+   - Keep code concise and readable
+
+6. Testing and Static Analysis
+   - Ensure existing tests still pass when modifying code
+   - Add test coverage for new features
+   - Run `make lint` after code modifications to check code style
+   - Run `make type-check` after code modifications to verify type annotations
+
+7. Network Operations
+   - All network operations (SSH/Telnet/API calls) must set reasonable timeout values
+   - Implement retry mechanisms to handle temporary network failures
+   - GNS3 API calls need to be compatible with v2 and v3 versions
+   - Tool functions should be idempotent (repeatable without side effects)
+
+8. Security and Sensitive Information
+   - Sensitive information (API keys, passwords, etc.) must be managed through environment variables
+   - Do not commit .env files to version control
+   - Avoid logging sensitive information
+   - Follow principle of least privilege for GNS3 server access configuration
+
+9. Module Responsibility Principle
+   - Follow single responsibility principle, each module focuses on specific functionality
+   - Tool layer (tools_v2) only defines tools, does not contain business logic
+   - Agent layer (agent) is responsible for tool selection and invocation
+   - UI layer (ui_model) only handles display and user interaction, does not contain business logic

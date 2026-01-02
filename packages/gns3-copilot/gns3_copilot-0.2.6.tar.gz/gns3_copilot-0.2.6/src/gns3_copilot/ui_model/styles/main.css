@@ -1,0 +1,98 @@
+/* GNS3 Copilot - Main CSS Styles */
+
+/* ============================================
+   Sidebar Navigation Font Styles
+   ============================================ */
+
+/* Target navigation links specifically - only font size adjustments */
+[data-testid="stSidebarNavLink"] {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+}
+
+/* Target span elements inside navigation links */
+[data-testid="stSidebarNavLink"] span {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+}
+
+/* Sidebar buttons font size */
+section[data-testid="stSidebar"] button {
+    font-size: 14px !important;
+}
+
+section[data-testid="stSidebar"] button p {
+    font-size: 14px !important;
+    margin: 0 !important;
+}
+
+/* Fallback for general sidebar links */
+section[data-testid="stSidebar"] a {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+}
+
+/* ============================================
+   Workspace Iframe Styles
+   ============================================ */
+
+/* Main app container flex layout for better iframe display */
+[data-testid="stApp"] {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Main content area */
+[data-testid="stAppViewBlock"] {
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Iframe container optimization */
+iframe[title="st.iframe"] {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Reduce padding on workspace page for more iframe space */
+[data-testid="stVerticalBlock"] > [style*="flex-direction: column"] {
+    gap: 0.5rem !important;
+}
+
+/* ============================================
+   Maximize Main Container Width
+   ============================================ */
+
+/* Set main container to max width */
+[data-testid="stMainBlockContainer"] {
+    max-width: 100% !important;
+    padding: 1rem;
+}
+
+/* Adjust vertical block width */
+[data-testid="stVerticalBlock"] {
+    max-width: 100% !important;
+}
+
+/* Remove any width restrictions on columns */
+[data-testid="column"] {
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
+}
+
+/* ============================================
+   Button Font Size
+   ============================================ */
+
+/* Button font size */
+.stButton > button {
+    font-size: 14px !important;
+}
+
+/* Button text font size (text is inside <p> tag) */
+.stButton > button p {
+    font-size: 14px !important;
+    margin: 0 !important;
+}
