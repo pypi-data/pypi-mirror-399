@@ -1,0 +1,53 @@
+[project]
+name = "iflow-mcp_phelanshao_abacus-mcp-server"
+version = "0.1.0"
+description = "A Model Context Protocol server for ABACUS first-principles calculations"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "phelanshao", email = "contact@example.com"}
+]
+keywords = ["abacus", "mcp", "quantum-chemistry", "materials-science", "first-principles", "dft"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "fastmcp>=0.1.0",
+    "pydantic>=2.0.0",
+    "ase>=3.22.0",
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
+    "psutil>=5.8.0",
+    "python-json-logger>=2.0.0",
+]
+
+[project.scripts]
+abacus-mcp-server = "src.server:main"
+
+[project.urls]
+Homepage = "https://github.com/iflow-mcp/abacus-mcp-server"
+Repository = "https://github.com/iflow-mcp/abacus-mcp-server"
+Documentation = "https://abacus-mcp-server.readthedocs.io/"
+"Bug Reports" = "https://github.com/iflow-mcp/abacus-mcp-server/issues"
+"ABACUS Official" = "https://abacus.deepmodeling.com/"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.hatch.build.targets.sdist]
+packages = ["src"]
