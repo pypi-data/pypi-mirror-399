@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vibe-finder"
+version = "1.5.0"
+description = "Gap-tolerant fuzzy phrase matching for OCR documents and AI/LLM-generated text search. Find phrases even when text is altered, prettified, or contains OCR errors - without agentic multi-iteration approaches."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Indexing",
+    "Topic :: Text Processing :: Linguistic",
+]
+keywords = ["fuzzy", "search", "matching", "text", "nlp", "jaro-winkler", "phrase", "finder", "vibe", "ocr", "llm", "ai", "document-search"]
+
+[project.urls]
+Homepage = "https://github.com/LifeAITools/vibe-finder"
+Issues = "https://github.com/LifeAITools/vibe-finder/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
