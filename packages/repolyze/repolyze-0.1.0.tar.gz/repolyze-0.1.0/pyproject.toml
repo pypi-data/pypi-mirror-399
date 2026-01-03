@@ -1,0 +1,31 @@
+[project]
+name = "repolyze"
+version = "0.1.0"
+description = "Repo statistics"
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.9"
+authors = [
+  { name = "Dheeraj Bhat", email = "dheerajnbhat@gmail.com" }
+]
+maintainers = [
+  {name = "Dheeraj Bhat", email = "dheerajnbhat@gmail.com"}
+]
+dependencies = [
+]
+keywords = ["repolyze", "repo statistics", "repo", "stats", "statistics"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3 :: Only",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.10",
+]
+
+[project.scripts]
+repolyze = "repolyze.cli.main:main"
