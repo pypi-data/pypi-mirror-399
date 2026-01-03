@@ -1,0 +1,23 @@
+# Include additional files in source distribution
+
+include README.md
+include LICENSE
+include SECURITY.md
+include setup.py
+
+# Include seed files
+include golden_seed.hex
+include golden_seed_16.bin
+include golden_seed_32.bin
+
+# Include test vectors
+include tests/test_vectors.json
+
+# Include scripts
+include scripts/*.sh
+
+# Exclude unnecessary files
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *.so
+global-exclude .DS_Store

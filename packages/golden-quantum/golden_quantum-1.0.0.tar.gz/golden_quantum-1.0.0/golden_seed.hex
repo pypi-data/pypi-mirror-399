@@ -1,0 +1,15 @@
+# Universal Binary Golden Seed - Hex Representation
+# Language-agnostic, pure machine representation
+# iφ = 0 + i × φ where φ = (1 + √5)/2 ≈ 1.618033988749895
+
+# 16-byte seed (iφ):
+0000000000000000A8F4979B77E3F93F
+
+# 32-byte seed (iφ + 2×φ for consensus):
+0000000000000000A8F4979B77E3F93FA8F4979B77E3F93FA8F4979B77E3F93F
+
+# Usage in any language:
+# - Read binary file as raw bytes
+# - Interpret as IEEE 754 double-precision (little-endian complex)
+# - XOR with block hashes for deterministic tie-breaking
+# - No dependencies, no interpretation layer
