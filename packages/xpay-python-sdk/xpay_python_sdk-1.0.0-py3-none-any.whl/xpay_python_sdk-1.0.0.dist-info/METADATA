@@ -1,0 +1,635 @@
+Metadata-Version: 2.4
+Name: xpay-python-sdk
+Version: 1.0.0
+Summary: Official X-Pay Python SDK for payment processing
+Project-URL: Documentation, https://docs.x-pay.com/sdks/python
+Project-URL: Issues, https://github.com/Sound-X-Team/x-pay-integrations/issues
+Project-URL: Source, https://github.com/Sound-X-Team/x-pay-integrations
+Author-email: X-Pay Team <dev@x-pay.com>
+License-Expression: MIT
+Keywords: africa,api,mobile-money,payments,python,sdk,stripe,xpay
+Classifier: Development Status :: 4 - Beta
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Office/Business :: Financial
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.8
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: python-dateutil>=2.8.0
+Requires-Dist: requests>=2.25.0
+Requires-Dist: typing-extensions>=4.0.0
+Provides-Extra: async
+Requires-Dist: aiofiles>=0.8.0; extra == 'async'
+Requires-Dist: httpx>=0.24.0; extra == 'async'
+Provides-Extra: dev
+Requires-Dist: black>=23.0.0; extra == 'dev'
+Requires-Dist: flake8>=6.0.0; extra == 'dev'
+Requires-Dist: isort>=5.0.0; extra == 'dev'
+Requires-Dist: mypy>=1.0.0; extra == 'dev'
+Requires-Dist: pre-commit>=3.0.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.0.0; extra == 'dev'
+Requires-Dist: pytest-mock>=3.10.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Provides-Extra: django
+Requires-Dist: django>=3.2; extra == 'django'
+Provides-Extra: fastapi
+Requires-Dist: fastapi>=0.100.0; extra == 'fastapi'
+Provides-Extra: flask
+Requires-Dist: flask>=2.0.0; extra == 'flask'
+Description-Content-Type: text/markdown
+
+# X-Pay Python SDK
+
+[![PyPI version](https://badge.fury.io/py/xpay-python-sdk.svg)](https://badge.fury.io/py/xpay-python-sdk)
+[![Python Support](https://img.shields.io/pypi/pyversions/xpay-python-sdk.svg)](https://pypi.org/project/xpay-python-sdk/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+The official Python SDK for X-Pay payment processing API. Support for Django, Flask, FastAPI, and standalone applications.
+
+## Features
+
+- 🔐 **Secure Authentication**: API key-based authentication with automatic environment detection
+- 💰 **Payment Processing**: Support for Stripe, Mobile Money (Ghana, Liberia, Nigeria, Uganda, Rwanda), and X-Pay Wallet  
+- 🌍 **Multi-Currency**: USD, GHS, EUR, GBP with automatic currency conversion utilities
+- 🪝 **Webhooks**: Complete webhook management with signature verification
+- 👥 **Customer Management**: Full CRUD operations for customer data
+- 🔄 **Async Support**: Optional async HTTP client with httpx
+- 🏗️ **Framework Integration**: Native support for Django, Flask, and FastAPI
+- ✅ **Type Safety**: Full type hints and Pydantic models
+- 📊 **Testing**: Comprehensive test suite with 90%+ coverage
+
+## Installation
+
+```bash
+# Basic installation
+pip install xpay-python-sdk
+
+# With async support
+pip install xpay-python-sdk[async]
+
+# With Django integration
+pip install xpay-python-sdk[django]
+
+# With Flask integration  
+pip install xpay-python-sdk[flask]
+
+# With FastAPI integration
+pip install xpay-python-sdk[fastapi]
+
+# All optional dependencies
+pip install xpay-python-sdk[all]
+```
+
+## Quick Start
+
+```python
+from xpay import XPayClient
+from decimal import Decimal
+
+# Initialize the client
+client = XPayClient(
+    api_key="sk_sandbox_your_secret_key_here",
+    environment="sandbox"  # Optional: auto-detected from API key
+)
+
+# Create a payment
+payment = client.payments.create({
+    "amount": "10.00",
+    "currency": "USD",
+    "payment_method": "stripe",
+    "description": "Test payment",
+    "payment_method_data": {
+        "payment_method_types": ["card"]
+    }
+})
+
+print(f"Payment created: {payment.id}")
+print(f"Status: {payment.status}")
+```
+
+## Supported Payment Methods
+
+| Method | Code | Supported Currencies | Description |
+|--------|------|---------------------|-------------|
+| Stripe | `stripe` | USD, EUR, GBP, GHS | Credit/debit cards via Stripe |
+| Ghana Mobile Money | `momo` | GHS | MTN, Vodafone, AirtelTigo |
+| Liberia Mobile Money | `momo_liberia` | USD | Orange Money, MTN |
+| Nigeria Mobile Money | `momo_nigeria` | NGN | Various providers |
+| Uganda Mobile Money | `momo_uganda` | UGX | MTN, Airtel |
+| Rwanda Mobile Money | `momo_rwanda` | RWF | MTN, Airtel |
+| X-Pay Wallet | `xpay_wallet` | USD, GHS, EUR | Internal wallet system |
+
+## Framework Integrations
+
+### Django Integration
+
+```python
+# settings.py
+INSTALLED_APPS = [
+    # ...
+    'xpay.integrations.django',
+]
+
+XPAY = {
+    'API_KEY': 'sk_sandbox_your_key_here',
+    'ENVIRONMENT': 'sandbox',
+    'WEBHOOK_SECRET': 'whsec_your_webhook_secret',
+}
+
+# views.py  
+from xpay.integrations.django import XPayDjangoClient
+
+def create_payment(request):
+    client = XPayDjangoClient()  # Uses settings automatically
+    payment = client.payments.create({
+        "amount": "25.00",
+        "payment_method": "momo",
+        "payment_method_data": {
+            "phone_number": "+233501234567"
+        }
+    })
+    return JsonResponse({"payment_id": payment.id})
+```
+
+### Flask Integration
+
+```python
+from flask import Flask
+from xpay.integrations.flask import XPayBlueprint
+
+app = Flask(__name__)
+app.config['XPAY_API_KEY'] = 'sk_sandbox_your_key_here'
+app.config['XPAY_ENVIRONMENT'] = 'sandbox'
+
+# Register X-Pay blueprint
+xpay_bp = XPayBlueprint(api_key=app.config['XPAY_API_KEY'])
+app.register_blueprint(xpay_bp, url_prefix='/xpay')
+
+@app.route('/payments', methods=['POST'])
+def create_payment():
+    client = xpay_bp.get_client()
+    payment = client.payments.create(request.json)
+    return {"payment_id": payment.id}
+```
+
+### FastAPI Integration
+
+```python
+from fastapi import FastAPI, Depends
+from xpay.integrations.fastapi import get_xpay_client, XPayClientDep
+
+app = FastAPI()
+
+@app.post("/payments")
+async def create_payment(
+    payment_data: dict,
+    client: XPayClientDep = Depends(get_xpay_client)
+):
+    payment = await client.payments.create_async(payment_data)
+    return {"payment_id": payment.id}
+```
+
+## API Reference
+
+### Payments
+
+```python
+# Create a payment
+payment = client.payments.create({
+    "amount": "50.00",
+    "currency": "GHS", 
+    "payment_method": "momo",
+    "description": "Mobile money payment",
+    "customer_id": "cust_123",
+    "payment_method_data": {
+        "phone_number": "+233501234567"
+    },
+    "metadata": {"order_id": "ord_456"}
+})
+
+# Retrieve a payment
+payment = client.payments.retrieve("pay_12345")
+
+# List payments
+payments = client.payments.list(
+    limit=10,
+    status="completed",
+    customer_id="cust_123"
+)
+
+# Cancel a payment
+cancelled_payment = client.payments.cancel("pay_12345")
+```
+
+### Customers  
+
+```python
+# Create a customer
+customer = client.customers.create({
+    "name": "John Doe",
+    "email": "john@example.com", 
+    "phone": "+233501234567",
+    "metadata": {"source": "website"}
+})
+
+# Retrieve a customer
+customer = client.customers.retrieve("cust_12345")
+
+# Update a customer
+updated_customer = client.customers.update("cust_12345", {
+    "name": "John Smith",
+    "phone": "+233509876543"
+})
+
+# List customers
+customers = client.customers.list(
+    limit=50,
+    email="john@example.com"
+)
+
+# Delete a customer
+result = client.customers.delete("cust_12345")
+```
+
+### Webhooks
+
+```python
+# Create a webhook endpoint
+webhook = client.webhooks.create({
+    "url": "https://your-site.com/webhooks/xpay",
+    "events": ["payment.succeeded", "payment.failed"],
+    "description": "Payment notifications"
+})
+
+# List webhook endpoints  
+webhooks = client.webhooks.list()
+
+# Update a webhook
+updated_webhook = client.webhooks.update("whk_12345", {
+    "events": ["payment.succeeded", "payment.failed", "refund.created"]
+})
+
+# Test a webhook
+test_result = client.webhooks.test("whk_12345")
+
+# Verify webhook signature
+from xpay.utils.webhook import verify_signature
+
+is_valid = verify_signature(
+    payload=request.body,
+    signature=request.headers.get("X-XPay-Signature"),  
+    secret="whsec_your_webhook_secret"
+)
+```
+
+## Currency Utilities
+
+```python
+from xpay.utils.currency import CurrencyUtils
+from decimal import Decimal
+
+# Convert to smallest unit (cents, pesewas, etc.)
+amount_cents = CurrencyUtils.to_smallest_unit(Decimal("10.50"), "USD")  # 1050
+
+# Convert from smallest unit  
+amount_dollars = CurrencyUtils.from_smallest_unit(1050, "USD")  # Decimal("10.50")
+
+# Format currency for display
+formatted = CurrencyUtils.format_amount(Decimal("10.50"), "GHS")  # "₵10.50"
+
+# Get currency info
+info = CurrencyUtils.get_currency_info("GHS")
+# {"code": "GHS", "name": "Ghanaian Cedi", "symbol": "₵", "decimal_places": 2}
+```
+
+## Error Handling
+
+```python
+from xpay.exceptions import (
+    XPayError,
+    AuthenticationError, 
+    ValidationError,
+    PaymentError,
+    NetworkError
+)
+
+try:
+    payment = client.payments.create(invalid_data)
+except ValidationError as e:
+    print(f"Validation failed: {e.message}")
+    print(f"Error code: {e.code}")
+    print(f"Field errors: {e.details}")
+    
+except AuthenticationError as e:
+    print(f"Authentication failed: {e.message}")
+    
+except PaymentError as e:
+    print(f"Payment processing failed: {e.message}")
+    print(f"Payment ID: {e.payment_id}")
+    
+except NetworkError as e:
+    print(f"Network error: {e.message}")
+    
+except XPayError as e:
+    print(f"General X-Pay error: {e.message}")
+    print(f"Status code: {e.status_code}")
+```
+
+## Async Support
+
+```python
+from xpay import XPayAsyncClient
+
+# Initialize async client
+async_client = XPayAsyncClient(
+    api_key="sk_sandbox_your_key_here",
+    timeout=30.0
+)
+
+# Async payment creation
+async def create_payment_async():
+    payment = await async_client.payments.create_async({
+        "amount": "15.00",
+        "payment_method": "stripe"
+    })
+    return payment
+
+# Use in async context
+import asyncio
+payment = asyncio.run(create_payment_async())
+```
+
+## Testing
+
+```python
+# Unit tests
+pytest tests/unit/
+
+# Integration tests (requires valid API keys)
+pytest tests/integration/ 
+
+# All tests with coverage
+pytest --cov=xpay tests/
+
+# Type checking
+mypy src/xpay
+
+# Linting
+flake8 src/xpay
+black --check src/xpay
+isort --check-only src/xpay
+```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+export XPAY_API_KEY="sk_sandbox_your_key_here"
+export XPAY_ENVIRONMENT="sandbox"
+export XPAY_BASE_URL="https://api.xpay-bits.com" 
+export XPAY_TIMEOUT="30"
+export XPAY_WEBHOOK_SECRET="whsec_your_secret"
+```
+
+### Configuration File
+
+```python
+# config.py
+XPAY_CONFIG = {
+    "api_key": "sk_sandbox_your_key_here",
+    "environment": "sandbox",
+    "timeout": 30,
+    "retry_attempts": 3,
+    "base_url": "https://api.xpay-bits.com"
+}
+
+# Usage
+from xpay import XPayClient
+client = XPayClient(**XPAY_CONFIG)
+```
+
+## Security Best Practices
+
+1. **API Key Management**: Never commit API keys to version control
+2. **Environment Separation**: Use sandbox for development, live for production  
+3. **Webhook Verification**: Always verify webhook signatures
+4. **HTTPS Only**: Use HTTPS for all webhook endpoints
+5. **Error Handling**: Don't expose sensitive error details to end users
+
+## Requirements
+
+- Python 3.8+
+- requests >= 2.28.0
+- pydantic >= 1.10.0, < 3.0.0
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/x-pay/python-sdk.git
+cd python-sdk
+
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Set up pre-commit hooks
+pre-commit install
+
+# Run tests
+pytest
+
+# Check code quality
+black src/ tests/
+flake8 src/ tests/  
+isort src/ tests/
+mypy src/
+```
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+- 📧 Email: support@xpay-bits.com
+- 📚 Documentation: https://docs.xpay-bits.com
+- 🐛 Bug Reports: https://github.com/x-pay/python-sdk/issues
+- 💬 Discussions: https://github.com/x-pay/python-sdk/discussions
+
+---
+
+Made with ❤️ by the X-Pay team# X-Pay Python SDK
+
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+The official Python SDK for X-Pay payment processing platform. Accept payments from multiple providers including Stripe, Mobile Money, and X-Pay Wallets with a unified API.
+
+## Features
+
+- 🚀 **Multiple Payment Methods**: Stripe, Mobile Money (MoMo), X-Pay Wallets
+- 🔒 **Type Safety**: Full type hints and Pydantic models
+- 💰 **Decimal Precision**: Proper currency handling with Python Decimal
+- 🌍 **Environment Detection**: Auto-detect sandbox/live from API keys
+- 📱 **Framework Integration**: Django, Flask, FastAPI support
+- 👥 **Customer Management**: Complete customer lifecycle management
+- 🔗 **Webhook Management**: Easy webhook setup and verification
+- ⚡ **Async Support**: Optional async HTTP client with httpx
+
+## Installation
+
+```bash
+pip install xpay-python-sdk
+```
+
+### Optional Dependencies
+
+```bash
+# For async support
+pip install xpay-python-sdk[async]
+
+# For Django integration
+pip install xpay-python-sdk[django]
+
+# For Flask integration  
+pip install xpay-python-sdk[flask]
+
+# For FastAPI integration
+pip install xpay-python-sdk[fastapi]
+
+# For development
+pip install xpay-python-sdk[dev]
+```
+
+## Quick Start
+
+```python
+from xpay import XPayClient, PaymentRequest
+
+# Initialize client
+client = XPayClient(
+    api_key="sk_sandbox_your_secret_key_here",
+    merchant_id="your_merchant_id_here", 
+    environment="sandbox",
+    base_url="http://localhost:8000"  # For local development
+)
+
+# Create a payment
+payment_request = PaymentRequest(
+    amount="29.99",
+    currency="USD",
+    payment_method="stripe",
+    description="Python SDK test payment"
+)
+
+payment = client.payments.create(payment_request)
+print(f"Payment created: {payment.id}")
+```
+
+## Working Credentials (for testing)
+
+```python
+client = XPayClient(
+    api_key="sk_sandbox_7c845adf-f658-4f29-9857-7e8a8708",
+    merchant_id="548d8033-fbe9-411b-991f-f159cdee7745",
+    environment="sandbox",
+    base_url="http://localhost:8000"
+)
+```
+
+## Testing
+
+Run the test script to verify functionality:
+
+```bash
+cd integrations/sdks/python
+python test_sdk.py
+```
+
+## Type Safety
+
+The Python SDK is fully typed with Pydantic models:
+
+```python
+from xpay import XPayClient, PaymentRequest, Payment
+from decimal import Decimal
+
+# Type-safe payment creation
+payment_request = PaymentRequest(
+    amount="25.99",
+    currency="USD", 
+    payment_method="stripe",
+    metadata={"order_id": "123", "user_id": "456"}
+)
+
+# Response is properly typed
+payment: Payment = client.payments.create(payment_request)
+print(payment.client_secret)  # Type checker knows this exists for Stripe
+```
+
+## Currency Handling
+
+```python
+from xpay.utils import CurrencyUtils
+from decimal import Decimal
+
+# Convert to smallest unit (cents)
+cents = CurrencyUtils.to_smallest_unit(Decimal("25.99"), "USD")
+print(cents)  # 2599
+
+# Format for display
+formatted = CurrencyUtils.format_amount(cents, "USD")
+print(formatted)  # $25.99
+```
+
+## Payment Methods
+
+All payment methods from the JavaScript SDK are supported:
+
+- `stripe` - Credit/debit cards
+- `momo_liberia` - MTN Mobile Money Liberia  
+- `xpay_wallet` - X-Pay wallet transfers
+- More coming soon...
+
+## Error Handling
+
+```python
+from xpay import XPayClient
+from xpay.exceptions import XPayError, AuthenticationError, ValidationError
+
+try:
+    payment = client.payments.create(payment_request)
+except AuthenticationError as e:
+    print(f"Auth failed: {e.message}")
+except ValidationError as e:
+    print(f"Validation error: {e.message}")
+    print(f"Details: {e.details}")
+except XPayError as e:
+    print(f"X-Pay error [{e.code}]: {e.message}")
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)  
+5. Open Pull Request
+
+## License
+
+MIT License - see LICENSE file for details.
