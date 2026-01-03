@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ImportanceScore"
+version= "1.1.2"
+description = "A tool for creating heuristic and ML-based importance scores."
+authors = [{ name = "corb" }]
+readme = "docs/readme.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+
+dependencies = [
+    "joblib~=1.4",
+    "pandas~=2.2",
+    "scikit-learn~=1.5",
+    "flashtext~=2.7",
+    "YMLEditor>=0.6",
+]
+
+keywords = ["machine learning",  "scoring", "ranking"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License", # Example, change to your actual license
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Repository = "https://github.com/corb555/ImportanceScore"
+
+# --- Define Command-Line Scripts (Entry Points) ---
+[project.scripts]
+importance-train = "ImportanceScore.train_model:main"
+importance-predict = "ImportanceScore.predict_model:main"
+importance-tune = "ImportanceScore.tune_model:main"
+importance-rank = "ImportanceScore.importance_rank:main"
+
+# --- Define Optional Dependencies ---
+# Install with: `pip install .[tuning,viz]`
+[project.optional-dependencies]
+tuning = ["optuna~=3.5"]
+viz = ["matplotlib~=3.8"]
+explain = ["shap~=0.45"]
+dev = ["pytest", "pytest-mock"]
+
+[tool.setuptools.package-data]
+"ImportanceScore" = ["resources/*.yml"]
