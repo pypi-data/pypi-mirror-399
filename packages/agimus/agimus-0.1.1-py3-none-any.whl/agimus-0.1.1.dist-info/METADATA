@@ -1,0 +1,394 @@
+Metadata-Version: 2.4
+Name: agimus
+Version: 0.1.1
+Summary: Python SDK for the Agimus Platform Object Store API
+Author-email: Agimus <support@agimus.ai>
+License: MIT
+Project-URL: Homepage, https://agimus.ai
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Typing :: Typed
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: httpx>=0.25.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-httpx>=0.21; extra == "dev"
+Requires-Dist: black>=23.0; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+
+# Agimus Python SDK
+
+Official Python SDK for the Agimus Platform Object Store API.
+
+## Installation
+
+```bash
+pip install agimus
+```
+
+## Quick Start
+
+```python
+from agimus import AgimusClient
+
+# Initialize with your API key
+client = AgimusClient(api_key="agm_your_key_here")
+
+# Query objects
+customers = client.objects("customer").filter(status="active").all()
+
+# Get a single object
+customer = client.objects("customer").get("C123")
+
+# Create an object
+new_customer = client.objects("customer").create({
+    "id": "C999",
+    "name": "Acme Corp",
+    "email": "contact@acme.com"
+})
+
+# Update an object
+updated = client.objects("customer").update("C123", {"status": "premium"})
+
+# Delete an object
+client.objects("customer").delete("C123")
+```
+
+## Querying
+
+### Filtering
+
+Use Django-style double-underscore syntax for operators:
+
+```python
+# Equals (default)
+client.objects("customer").filter(status="active")
+
+# Not equals
+client.objects("customer").filter(status__ne="deleted")
+
+# Comparison
+client.objects("order").filter(total__gt=100)
+client.objects("order").filter(total__gte=100)
+client.objects("order").filter(total__lt=1000)
+client.objects("order").filter(total__lte=1000)
+
+# Between (inclusive)
+client.objects("order").filter(total__between=[100, 500])
+
+# In list
+client.objects("customer").filter(region__in=["US", "EU", "APAC"])
+
+# Not in list
+client.objects("customer").filter(status__nin=["deleted", "archived"])
+
+# String matching
+client.objects("customer").filter(name__like="Acme%")
+client.objects("customer").filter(email__ilike="%@gmail.com")
+client.objects("customer").filter(name__starts_with="A")
+client.objects("customer").filter(name__ends_with="Corp")
+
+# Null checks
+client.objects("customer").filter(deleted_at__is_null=True)
+client.objects("customer").filter(verified_at__is_not_null=True)
+
+# Empty checks (for arrays/strings)
+client.objects("customer").filter(tags__is_empty=True)
+client.objects("customer").filter(tags__is_not_empty=True)
+
+# Array operations
+client.objects("customer").filter(tags__contains="vip")
+client.objects("customer").filter(tags__overlaps=["premium", "enterprise"])
+
+# Multiple filters (AND)
+client.objects("customer").filter(status="active", region="US")
+```
+
+### Sorting
+
+```python
+# Ascending
+client.objects("customer").sort("name")
+
+# Descending (prefix with -)
+client.objects("customer").sort("-createdAt")
+
+# Multiple fields
+client.objects("customer").sort("-createdAt", "name")
+```
+
+### Field Selection
+
+```python
+# Only return specific fields
+client.objects("customer").fields("id", "name", "email").all()
+```
+
+### Expanding Relations
+
+```python
+# Include related objects
+customer = client.objects("customer").get("C123", expand=["orders"])
+
+# In queries
+customers = client.objects("customer").expand("orders").all()
+
+# Nested expansion
+client.objects("customer").expand("orders", "orders.items").all()
+```
+
+### Pagination
+
+```python
+# Set page size (max 100)
+client.objects("customer").limit(25).all()
+
+# Auto-pagination with iteration
+for customer in client.objects("customer").filter(status="active"):
+    print(customer["name"])
+
+# Manual cursor-based pagination
+query = client.objects("customer").filter(status="active").limit(50)
+# First page via .all() or iterate with .iter()
+```
+
+### Counting & First
+
+```python
+# Count matching objects
+total = client.objects("customer").filter(status="active").count()
+
+# Get first match only
+top_customer = client.objects("customer").sort("-revenue").first()
+```
+
+### Batch Get
+
+```python
+# Get multiple objects by PKs (max 100)
+result = client.objects("customer").batch_get(["C1", "C2", "C3"])
+# result = {"data": [...], "found": 3, "requested": 3}
+```
+
+### Distinct Values
+
+```python
+# Get distinct values for a field
+regions = client.objects("customer").distinct("region")
+# ["US", "EU", "APAC", ...]
+
+# With filter
+active_regions = client.objects("customer").filter(status="active").distinct("region")
+```
+
+## Aggregation
+
+Run powerful aggregation queries with grouping and metrics:
+
+```python
+# Count customers by region
+result = client.objects("customer").aggregate(
+    metrics=[{"op": "count", "alias": "total"}],
+    group_by=[{"field": "region"}],
+    sort=["-total"],
+    limit=10
+)
+# result["data"] = [{"region": "US", "total": 150}, ...]
+
+# Monthly revenue with order count
+result = client.objects("order").filter(status="completed").aggregate(
+    metrics=[
+        {"op": "sum", "field": "total", "alias": "revenue"},
+        {"op": "avg", "field": "total", "alias": "avgOrder"},
+        {"op": "count", "alias": "orders"}
+    ],
+    group_by=[{"field": "createdAt", "granularity": "month"}],
+    sort=["-revenue"]
+)
+
+# Available aggregation operators:
+# count, count_distinct, sum, avg, min, max, first, last
+
+# Available time granularities:
+# year, quarter, month, week, day, hour
+```
+
+## Link Traversal
+
+Navigate relationships between entities:
+
+```python
+# Get related objects
+orders = client.objects("customer").links("C123", "orders")
+# orders = {"data": [...], "hasMore": False, "cursor": None}
+
+# With pagination
+orders = client.objects("customer").links("C123", "orders", page_size=10, offset=0)
+
+# Count related objects
+order_count = client.objects("customer").count_links("C123", "orders")
+```
+
+## Write Operations
+
+### Create
+
+```python
+customer = client.objects("customer").create({
+    "id": "C999",
+    "name": "Acme Corp",
+    "email": "contact@acme.com",
+    "status": "active"
+})
+```
+
+### Update
+
+```python
+# Partial update - only specified fields are changed
+updated = client.objects("customer").update("C123", {
+    "status": "premium",
+    "tier": "enterprise"
+})
+```
+
+### Upsert
+
+```python
+# Create if doesn't exist, update if it does
+customer = client.objects("customer").upsert("C123", {
+    "name": "Acme Corp",
+    "status": "active"
+})
+```
+
+### Delete
+
+```python
+# Creates a tombstone - object won't appear in queries
+deleted = client.objects("customer").delete("C123")
+```
+
+### Batch Operations
+
+```python
+result = client.objects("customer").batch([
+    {"op": "create", "data": {"id": "C1", "name": "Customer 1"}},
+    {"op": "update", "pk": "C2", "data": {"status": "active"}},
+    {"op": "delete", "pk": "C3"},
+])
+# result = {"results": [...], "succeeded": 2, "failed": 1}
+```
+
+## Schema Discovery
+
+```python
+# List all accessible entities
+entities = client.list_entities()
+for entity in entities:
+    print(f"{entity['apiName']}: {entity['displayName']}")
+
+# Get full entity schema
+schema = client.get_entity_schema("customer")
+print(f"Primary key: {schema['primaryKey']}")
+for prop in schema["properties"]:
+    print(f"  {prop['apiName']}: {prop['baseType']}")
+for link in schema["links"]:
+    print(f"  -> {link['apiName']}: {link['targetEntity']}")
+
+# Get just properties
+properties = client.get_properties("customer")
+
+# Get single property details
+prop = client.get_property("customer", "email")
+
+# Get primary key info
+pk = client.get_primary_key("customer")
+
+# Get links
+links = client.get_links("customer")
+```
+
+## Utility Methods
+
+```python
+# Health check
+health = client.health()
+# {"status": "healthy", "version": "1.0.0"}
+
+# Get current API key info
+me = client.me()
+# {"tenantId": "...", "tenantName": "...", "userId": "...", ...}
+```
+
+## Error Handling
+
+```python
+from agimus import (
+    AgimusClient,
+    AgimusError,
+    NotFoundError,
+    ValidationError,
+    AuthenticationError,
+    AccessDeniedError,
+    RateLimitError,
+    ServerError,
+)
+
+client = AgimusClient(api_key="agm_...")
+
+try:
+    customer = client.objects("customer").get("nonexistent")
+except NotFoundError as e:
+    print(f"Not found: {e.entity} / {e.pk}")
+except ValidationError as e:
+    print(f"Invalid data: {e.message}, field: {e.field}")
+except AuthenticationError as e:
+    print(f"Auth failed: {e.message}")
+except AccessDeniedError as e:
+    print(f"Access denied: {e.message}")
+except RateLimitError as e:
+    print(f"Rate limited. Retry after: {e.retry_after}s")
+except ServerError as e:
+    print(f"Server error ({e.status_code}): {e.message}")
+except AgimusError as e:
+    print(f"API error: {e}")
+```
+
+## Context Manager
+
+```python
+with AgimusClient(api_key="agm_...") as client:
+    customers = client.objects("customer").all()
+# Connection automatically closed
+```
+
+## Configuration
+
+```python
+client = AgimusClient(
+    api_key="agm_...",
+    base_url="https://api.agimus.ai",  # Override base URL
+    timeout=60.0,                        # Request timeout in seconds
+)
+```
+
+## Getting an API Key
+
+1. Log in to your Agimus dashboard at https://agimus.ai
+2. Go to Settings > API Access
+3. Create a Service User
+4. Generate an API Key for that Service User
+
+The API key inherits permissions from the Service User's group memberships.
+
+## License
+
+MIT
