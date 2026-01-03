@@ -1,0 +1,11 @@
+API Reference
+=============
+
+.. toctree::
+   :maxdepth: 2
+
+   clients
+   models
+   config
+   exceptions
+   warnings
