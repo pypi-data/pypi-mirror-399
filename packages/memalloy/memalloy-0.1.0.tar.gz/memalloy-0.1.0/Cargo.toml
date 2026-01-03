@@ -1,0 +1,45 @@
+[package]
+name = "memalloy"
+version = "0.1.0"
+edition = "2021"
+readme = "README.md"
+
+[lib]
+name = "memalloy"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Python bindings
+pyo3 = { version = "*" }
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# AI & Storage
+fastembed = "*"
+lancedb = "0.19.0"
+arrow-array = "54"
+futures = "0.3"
+
+# Text processing
+regex = "1.10"
+unicode-segmentation = "1.11"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+openssl = { version = "0.10", features = ["vendored"] }
+
+# Utilities
+uuid = { version = "1.0", features = ["v4"] }
+chrono = "0.4"
+
+# File watching
+notify = "6.1"
+walkdir = "2.4"
+pathdiff = "0.2"
+arrow-schema = "54"
