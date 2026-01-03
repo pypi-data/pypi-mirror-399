@@ -1,0 +1,300 @@
+# MDSA Framework Configuration Template
+# Production-ready configuration for Multi-Domain Small Language Model Agentic Orchestration
+
+# Framework Metadata
+framework:
+  name: "MDSA"
+  version: "1.0.0"
+  environment: "production"  # Options: development, production, testing
+
+# Orchestrator Settings
+orchestrator:
+  # Confidence threshold for intent classification (0.0 - 1.0)
+  # Queries below this threshold will be escalated to human review
+  confidence_threshold: 0.85
+
+  # Device selection for orchestrator components
+  # Options: auto, cpu, cuda:0, mps
+  device: "auto"
+
+  # Maximum concurrent domain executions
+  max_concurrent_domains: 3
+
+  # Request timeout in seconds
+  request_timeout: 30
+
+# Intent Router Configuration (Tier 1 - TinyBERT)
+intent_router:
+  # TinyBERT model configuration
+  model_name: "huawei-noah/TinyBERT_General_6L_768D"
+
+  # Device for intent classification (typically CPU for <50ms latency)
+  device: "cpu"
+
+  # Maximum sequence length (shorter = faster)
+  max_length: 128
+
+  # Latency target in milliseconds
+  latency_target_ms: 50
+
+  # Enable model compilation for faster inference (PyTorch 2.0+)
+  enable_compile: true
+
+  # Fallback to keyword-based routing if ML fails
+  enable_keyword_fallback: true
+
+# State Machine Configuration
+state_machine:
+  # Enable state transition logging
+  log_transitions: true
+
+  # Allow force transitions (bypassing validation)
+  allow_force_transitions: true
+
+  # Maximum state history to keep
+  max_history: 100
+
+  # Enable state callbacks
+  enable_callbacks: true
+
+# Message Bus Configuration
+message_bus:
+  # Maximum message history to retain
+  max_history: 1000
+
+  # Enable message persistence
+  persist_messages: false
+
+  # Message persistence directory
+  persistence_dir: "${HOME}/.mdsa/messages"
+
+  # Default channels to create
+  default_channels:
+    - "system"
+    - "orchestrator"
+    - "state_changes"
+    - "domains"
+    - "metrics"
+
+# Hardware Detection
+hardware:
+  # Force specific hardware tier
+  # Options: auto, cpu_only, gpu_preferred, gpu_required
+  tier_preference: "auto"
+
+  # Minimum GPU memory (GB) for Tier 3 domain models
+  min_gpu_memory_gb: 8
+
+  # Minimum system RAM (GB) for CPU-based Tier 3
+  min_system_ram_gb: 32
+
+  # Enable hardware monitoring
+  enable_monitoring: true
+
+# Logging Configuration
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+
+  # Enable colored console output
+  enable_colors: true
+
+  # Log file path (null to disable file logging)
+  log_file: "${HOME}/.mdsa/logs/mdsa.log"
+
+  # Maximum log file size in MB
+  max_file_size_mb: 100
+
+  # Number of backup log files to keep
+  backup_count: 5
+
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+  # Enable structured logging (JSON format)
+  structured: false
+
+# Domain Configuration (Phase 4 - Will be expanded)
+domains:
+  # Auto-load domains from directory
+  auto_load: true
+
+  # Domain directory path
+  domain_dir: "${HOME}/.mdsa/domains"
+
+  # Maximum domains to load
+  max_domains: 10
+
+  # Default domain timeout in seconds
+  default_timeout: 20
+
+  # Enable domain hot-reloading
+  enable_hot_reload: false
+
+# Model Management (Phase 3 - Will be expanded)
+models:
+  # Model cache directory
+  cache_dir: "${HOME}/.mdsa/models"
+
+  # Auto-download missing models
+  auto_download: true
+
+  # Model download timeout in seconds
+  download_timeout: 600
+
+  # Enable model quantization for memory efficiency
+  enable_quantization: false
+
+  # Quantization bits (4, 8, 16)
+  quantization_bits: 8
+
+# Validation Configuration (Phase 7 - Will be expanded)
+validation:
+  # Enable pre-execution validation
+  enable_pre_validation: true
+
+  # Enable post-execution validation
+  enable_post_validation: true
+
+  # Validation timeout in seconds
+  validation_timeout: 5
+
+  # Validation rules directory
+  rules_dir: "${HOME}/.mdsa/validation_rules"
+
+# Monitoring and Metrics (Phase 8 - Will be expanded)
+monitoring:
+  # Enable metrics collection
+  metrics: true
+
+  # Enable performance logging
+  logging: true
+
+  # Metrics export interval in seconds
+  export_interval: 60
+
+  # Enable Prometheus metrics endpoint
+  prometheus_enabled: false
+  prometheus_port: 9090
+
+  # Enable web dashboard
+  dashboard_enabled: false
+  dashboard_port: 8000
+
+  # Track these metrics
+  tracked_metrics:
+    - "request_latency"
+    - "classification_accuracy"
+    - "domain_execution_time"
+    - "memory_usage"
+    - "gpu_utilization"
+
+# RAG Configuration (Phase 6 - Will be expanded)
+rag:
+  # Enable RAG system
+  enabled: true
+
+  # Vector database type: faiss, chromadb, pinecone
+  vector_db: "faiss"
+
+  # Embedding model for RAG
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+
+  # Chunk size for document splitting
+  chunk_size: 512
+
+  # Chunk overlap
+  chunk_overlap: 50
+
+  # Top-k retrieval
+  top_k: 5
+
+  # Local RAG directory per domain
+  local_rag_dir: "${HOME}/.mdsa/rag/local"
+
+  # Global RAG directory (cross-domain)
+  global_rag_dir: "${HOME}/.mdsa/rag/global"
+
+# Tool Execution Configuration (Phase 5 - Will be expanded)
+tools:
+  # Enable tool execution
+  enabled: true
+
+  # Tool timeout in seconds
+  timeout: 30
+
+  # Maximum tools per request
+  max_tools_per_request: 5
+
+  # Tool sandboxing
+  enable_sandboxing: true
+
+  # Allowed tool categories
+  allowed_categories:
+    - "web_search"
+    - "calculator"
+    - "file_operations"
+
+# Security Configuration
+security:
+  # Enable request validation
+  validate_requests: true
+
+  # Maximum request size in KB
+  max_request_size_kb: 1024
+
+  # Enable rate limiting
+  enable_rate_limiting: false
+
+  # Requests per minute per user
+  rate_limit_rpm: 60
+
+  # Enable API key authentication
+  require_api_key: false
+
+  # API keys file path
+  api_keys_file: "${HOME}/.mdsa/api_keys.json"
+
+# Performance Tuning
+performance:
+  # Enable request caching
+  enable_caching: true
+
+  # Cache TTL in seconds
+  cache_ttl: 300
+
+  # Maximum cache size in MB
+  max_cache_size_mb: 500
+
+  # Enable model warm-up on startup
+  warmup_on_startup: true
+
+  # Number of warmup iterations
+  warmup_iterations: 10
+
+  # Enable async processing
+  async_processing: false
+
+  # Thread pool size for async operations
+  thread_pool_size: 4
+
+# Development and Debugging
+development:
+  # Enable debug mode (verbose logging, stack traces)
+  debug_mode: false
+
+  # Enable request/response logging
+  log_requests: true
+
+  # Enable performance profiling
+  enable_profiling: false
+
+  # Profiling output directory
+  profiling_dir: "${HOME}/.mdsa/profiling"
+
+  # Enable mock domains for testing
+  enable_mock_domains: false
+
+# Environment Variables Support
+# Use ${VAR_NAME} or ${VAR_NAME:default_value} syntax
+# Example: cache_dir: "${MDSA_CACHE_DIR:~/.mdsa/models}"

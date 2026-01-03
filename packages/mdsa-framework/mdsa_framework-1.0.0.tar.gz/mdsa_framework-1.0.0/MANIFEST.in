@@ -1,0 +1,62 @@
+# Core Documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+include RELEASE_NOTES.md
+include RELEASE_CHECKLIST.md
+
+# Requirements
+include requirements.txt
+include .env.example
+
+# MDSA Framework Source
+recursive-include mdsa *.py *.yaml *.json *.html *.css *.js
+
+# Configuration Templates
+recursive-include configs *.yaml
+
+# Documentation (production only)
+recursive-include docs *.md
+recursive-include docs *.png *.jpg *.svg
+
+# Examples (code and docs only, no generated files)
+recursive-include examples *.py *.md *.txt
+recursive-include examples/*/app *.py
+recursive-include examples/*/domains *.yaml
+recursive-include examples/*/workflows *.yaml
+include examples/*/.env.example
+include examples/*/requirements.txt
+
+# Tests
+recursive-include tests *.py
+
+# Exclude Development Files
+exclude test_*.py
+exclude manual_test*.py
+global-exclude **/PHASE_*.md
+global-exclude **/SESSION_*.md
+global-exclude **/BUGS_*.md
+global-exclude **/FIXES_*.md
+
+# Exclude Directories
+prune archive
+prune chatbot_app
+prune .claude
+prune data
+prune build
+prune dist
+
+# Exclude Generated/Cache Files
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store
+recursive-exclude * *.so
+recursive-exclude * *.dylib
+recursive-exclude * *.log
+recursive-exclude * .env
+recursive-exclude * chroma_db
+recursive-exclude * .venv
+recursive-exclude * htmlcov
+recursive-exclude * .pytest_cache
+global-exclude users.json
