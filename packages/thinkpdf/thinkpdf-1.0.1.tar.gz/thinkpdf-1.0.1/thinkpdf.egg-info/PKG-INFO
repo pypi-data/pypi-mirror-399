@@ -1,0 +1,138 @@
+Metadata-Version: 2.4
+Name: thinkpdf
+Version: 1.0.1
+Summary: PDF to Markdown engine for LLMs. Smart table extraction, OCR, MCP server for AI IDEs.
+Author-email: Augusto Cesar Perin <augustocesarperin@abstratuslabs.com>
+License: AGPL-3.0
+Keywords: pdf,markdown,converter,ocr,tables,math,latex,llm,ai,mcp,cursor,docling
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Text Processing :: Markup :: Markdown
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pymupdf>=1.23.0
+Provides-Extra: docling
+Requires-Dist: docling>=2.0.0; extra == "docling"
+Provides-Extra: gui
+Requires-Dist: customtkinter>=5.2.0; extra == "gui"
+Requires-Dist: Pillow>=10.0.0; extra == "gui"
+Provides-Extra: ocr
+Requires-Dist: pytesseract>=0.3.10; extra == "ocr"
+Provides-Extra: full
+Requires-Dist: docling>=2.0.0; extra == "full"
+Requires-Dist: customtkinter>=5.2.0; extra == "full"
+Requires-Dist: Pillow>=10.0.0; extra == "full"
+Requires-Dist: pytesseract>=0.3.10; extra == "full"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Dynamic: license-file
+
+
+# thinkpdf
+
+
+Convert PDFs to clean Markdown for LLMs. Includes MCP Server for AI coding assistants.
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![PyPI](https://img.shields.io/pypi/v/thinkpdf.svg)](https://pypi.org/project/thinkpdf/)
+
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| **Smart Detection** | Auto-chooses best engine for each PDF |
+| **High Table Accuracy** | Uses IBM Docling's TableFormer |
+| **Fast Mode** | pdfmd for simple documents |
+| **Smart Cache** | Never reprocess the same PDF |
+| **MCP Server** | For AI coding assistants |
+
+## Installation
+
+```bash
+pip install thinkpdf
+```
+
+For maximum quality (requires GPU):
+```bash
+pip install thinkpdf[docling]
+```
+
+## Usage
+
+### MCP Server
+
+Add to `~/.cursor/mcp.json`:
+```json
+{
+  "mcpServers": {
+    "thinkpdf": {
+      "command": "python",
+      "args": ["-m", "thinkpdf.mcp_server"]
+    }
+  }
+}
+```
+
+Then just ask:
+> "Read the PDF at D:\docs\manual.pdf and explain it"
+
+### Python API
+
+```python
+from thinkpdf import convert
+
+# Simple conversion
+markdown = convert("document.pdf")
+print(markdown)
+
+# With output file
+convert("document.pdf", "output.md")
+```
+
+### CLI
+
+```bash
+thinkpdf document.pdf -o output.md
+```
+
+## How It Works
+
+1. Analyzes PDF complexity (tables, scans, simple text)
+2. Chooses best engine (Docling for complex, pdfmd for simple)
+3. Checks cache (instant if already converted)
+4. Converts to structured Markdown
+5. Caches result for next time
+
+
+## MCP Tools
+
+When using as MCP server:
+
+| Tool | Description |
+|------|-------------|
+| `read_pdf` | Convert and return content directly |
+| `convert_pdf` | Convert and save to file |
+| `get_document_info` | Get PDF metadata |
+
+
+## Requirements
+
+- Python 3.10+
+- PyMuPDF (included)
+- Docling (optional, for best quality)
+
+## License
+
+**AGPLv3** - Open source license. Commercial use requires sharing source code.
+
