@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "octarver"
+version = "0.1.2"
+requires-python = ">=3.10"
+description = "Octave Range Converter - Convert between musical note names and frequencies"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "Takayuki Kurosawa", email = "tkuro11@gmail.com"}]
+
+keywords = ["music", "audio", "frequency", "note", "pitch", "converter", "octave"]
+
+# add categories
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = []
+
+# package for development
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.2",
+]
+
+[project.scripts]
+octarver = "octarver:main"
+
+[project.urls]
+Homepage = "https://github.com/tkuro11/octarver"
+Repository = "https://github.com/tkuro11/octarver"
+Issues = "https://github.com/tkuro11/octarver/issues"
+Documentation = "https://github.com/tkuro11/octarver#readme"
+
+[tool.uv.workspace]
+members = [
+    "octarver",
+]
