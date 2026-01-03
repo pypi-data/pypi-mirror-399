@@ -1,0 +1,54 @@
+Metadata-Version: 2.4
+Name: ieeLabTools
+Version: 0.1.3
+Summary: General linear symbolic + numeric uncertainty propagation, weighted linear regression
+Project-URL: Homepage, https://github.com/ieepirzy/ieeLabTools
+Project-URL: Documentation, https://github.com/ieepirzy/ieeLabTools/blob/main/Docs/Documentation.md
+Project-URL: Source, https://github.com/ieepirzy/ieeLabTools/blob/main/Source/core.py
+Author-email: Ilari Pirkkalainen <iladevv0@gmail.com>
+License: MIT
+License-File: LICENSE
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Scientific/Engineering
+Requires-Python: >=3.9
+Requires-Dist: numpy
+Requires-Dist: sympy
+Description-Content-Type: text/markdown
+
+# ieeLabTools
+
+Tools for **laboratory data analysis**, including:
+
+- **General symbolic & numeric uncertainty propagation**
+- **Weighted linear regression** (uncertainties in `y`)
+- Designed for physics, engineering, and other quantitative lab work
+
+This library is part of the **PhySiLight-Tools** ecosystem.
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|--------|-------------|
+| `Yvel` | Propagate measurement uncertainties using partial derivatives |
+| Symbolic mode | Generates algebraic uncertainty expressions via SymPy |
+| Numeric mode | Evaluates uncertainty for data arrays of any length |
+| LaTeX output(WIP) | Pretty-print formulas for lab reports |
+| WeightedLinearRegression | Weighted least-squares fit (supports `y`-errors) |
+| ODR support | *Not implemented yet* (planned) |
+
+---
+
+## 📦 Installation
+
+```bash
+pip install ieeLabTools
+```
+
+>🧪 This package was originally developed to automate general uncertainty propagation for physics lab courses, reducing >manual symbolic differentiation and repetitive numeric error calculation.
+
+Part of the PhySiLight-Tools physics utilities collection.
