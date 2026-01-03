@@ -1,0 +1,61 @@
+windIO_version: '2.0'
+name: 5MW Tower only
+
+assembly:
+    turbine_class: I
+    turbulence_class: B
+    drivetrain: Geared
+    rotor_orientation: Upwind
+    number_of_blades: 3
+    hub_height: 90.
+    rotor_diameter: 126.
+    rated_power: 5.e+6
+
+components:
+    tower:
+        outer_shape:
+            outer_diameter:
+                grid: &grid_tower [0.0, 0.5, 1.0]
+                values: [6.0, 4.935, 3.87]
+            cd:
+                grid: [0.0, 1.0]
+                values: [1.0, 1.0]
+        structure:
+            outfitting_factor: 1.07
+            layers:
+               -  name: tower_wall
+                  material: steel
+                  thickness:
+                      grid: *grid_tower
+                      values: [0.027, 0.0222, 0.019]
+        reference_axis:
+            x:
+                grid: [0.0, 1.0]
+                values: [0.0, 0.0]
+            y:
+                grid: [0.0, 1.0]
+                values: [0.0, 0.0]
+            z:
+                grid: *grid_tower
+                values: [0.0, 43.8, 87.6974416]
+
+materials:
+   -  name: steel
+      description: Steel of the tower and monopile, ASTM A572 Grade 50
+      source: http://www.matweb.com/search/DataSheet.aspx?MatGUID=9ced5dc901c54bd1aef19403d0385d7f
+      orth: 0
+      rho: 7800
+      alpha: 0.0
+      E: 200.e+009
+      nu: 0.265
+      G: 79.3e+009
+      GIc: 0  #Place holder, currently not used
+      GIIc: 0  #Place holder, currently not used
+      alp0: 0  #Place holder, currently not used
+      Xt: 1.12e+9
+      Xc: 2.16e+9
+      S: 0
+      Xy: 345.e+6
+      m: 3
+      A: 3.5534648443719767e10
+      unit_cost: 0.7
