@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html{% if 'i18n' in config.plugins %} lang="{{ i18n_page_locale }}"{% endif %}>
+<head>
+{%- if i18n_config %}
+  {%- set i18n_theme = namespace(default="", languages=dict()) %}
+  {%- if 'default_language' in i18n_config %}
+    {%- set i18n_theme.default = i18n_config.default_language %}
+    {%- for lang, display in config.plugins.i18n.config.languages.items() %}
+      {%- set _ = i18n_theme.languages.update({lang: display.name }) %}
+    {%- endfor %}
+  {% else %}
+    {%- for lang in i18n_config.languages %}
+      {%- if lang.default %}
+        {%- set i18n_theme.default = lang.locale %}
+      {%- endif %}
+      {%- set _ = i18n_theme.languages.update({lang.locale: lang.name }) %}
+    {%- endfor %}
+  {%- endif %}
+{%- endif %}
+{%- block site_meta %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% if page and page.is_homepage %}<meta name="description" content="{{ config['site_description'] }}">{% endif %}
+  {% if config.site_author %}<meta name="author" content="{{ config.site_author }}">{% endif %}
+  {% if page and page.canonical_url %}<link rel="canonical" href="{{ page.canonical_url }}">{% endif %}
+  {% if config.theme.favicon %}<link rel="shortcut icon" href="{{ config.theme.favicon|url }}">
+  {%- else %}<link rel="shortcut icon" href="{{ 'img/favicon.ico'|url }}">{% endif %}
+  {%- if i18n_config %}
+    {%- for lang, name in i18n_theme.languages.items() %}
+      {%- if lang != i18n_page_locale %}
+        {%- if lang == i18n_theme.default %}
+  <link rel="alternate" hreflang="x-default" href="{{ page.canonical_url | replace('/' + i18n_page_locale + '/', '/') }}">
+        {%- elif i18n_page_locale == i18n_theme.default %}
+  <link rel="alternate" hreflang="{{ lang }}" href="{{ page.canonical_url | replace(page.url, '') + lang + '/' + page.url | replace(i18n_page_locale + '/', '') }}">
+        {%- else %}
+  <link rel="alternate" hreflang="{{ lang }}" href="{{ page.canonical_url | replace('/' + i18n_page_locale + '/', '/' + lang + '/') }}">
+        {%- endif %}
+      {%- endif %}
+    {%- endfor %}
+  {%- endif %}
+  {%- if config.theme.manifest %}
+    {%- if i18n_config and i18n_page_locale != i18n_theme.default %}
+  <link rel="manifest" href="{{ base_url + '/' + i18n_page_locale + '/' + config.theme.manifest }}">
+    {%- else %}
+  <link rel="manifest" href="{{ base_url + '/' + config.theme.manifest }}">
+    {%- endif %}
+  {%- endif %}
+{%- endblock %}
+
+{%- block htmltitle %}
+  <title>{% if page.title %}{{ page.title }} - {% endif %}{{ config.site_name }}</title>
+{%- endblock %}
+
+{%- block styles %}
+  <link rel="stylesheet" href="{{ 'css/w3.css'|url }}">
+  {%- if page_theme %}
+  <link rel="stylesheet" href="{{ ('css/w3-theme-'+page_theme+'.css')|url }}" id="theme-auto">
+  <link rel="stylesheet" href="{{ ('css/w3-theme-'+page_theme+'-light.css')|url }}" media="none" id="theme-light">
+  <link rel="stylesheet" href="{{ ('css/w3-theme-'+page_theme+'-dark.css')|url }}" media="none" id="theme-dark">
+  {%- else %}
+  <link rel="stylesheet" href="{{ 'css/w3-theme.css'|url }}" id="theme-auto">
+  <link rel="stylesheet" href="{{ 'css/w3-theme-light.css'|url }}" media="none" id="theme-light">
+  <link rel="stylesheet" href="{{ 'css/w3-theme-dark.css'|url }}" media="none" id="theme-dark">
+  {%- endif %}
+  <link rel="stylesheet" href="{{ 'css/theme.css'|url }}">
+  {%- for path in config.extra_css %}
+  <link href="{{ path|url }}" rel="stylesheet">
+  {%- endfor %}
+{%- endblock %}
+  <script>
+  var base_url = {{ base_url | tojson }};
+  var themeItem = 'risonia_theme_'+encodeURIComponent('{{ config.site_url }}');
+
+  function checkTheme() {
+    let theme = localStorage.getItem(themeItem);
+    if (theme) {
+      if (theme == 'light') {
+        document.getElementById('theme-dark').media = 'none';
+        document.getElementById('theme-light').media = '';
+      }
+      if (theme == 'dark') {
+        document.getElementById('theme-light').media = 'none';
+        document.getElementById('theme-dark').media = '';
+      }
+    }
+  }
+  checkTheme()
+  </script>
+  {%- block libs %}
+  {%- endblock %}
+{%- block extrahead %} {% endblock %}
+</head>
+
+<body class="w3-theme-l5">
+
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="open-menu" viewBox="0 0 10 10" fill="currentColor">
+    <rect y="0" width="10" height="2"/>
+    <rect y="4" width="10" height="2"/>
+    <rect y="8" width="10" height="2"/>
+  </symbol>
+  <symbol id="drop-down" viewBox="0 0 10 10" fill="currentColor">
+    <path d="m2 1h6l-3 8z"/>
+  </symbol>
+  <symbol id="to-top" viewBox="0 0 10 10" fill="currentColor">
+    <path d="m2 9h6l-3-8z" />
+  </symbol>
+  <symbol id="theme-toggle" viewBox="0 0 10 10">
+    <ellipse cx="5" cy="5" rx="4.35" ry="4.35" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M 5,0.5 A 4.5,4.5 0 0 1 9.5,5 4.5,4.5 0 0 1 5,9.5 V 5 Z" fill="currentColor"/>
+  </symbol>
+  <symbol id="close-menu" viewBox="0 0 10 10" fill="none" stroke="currentColor">
+    <path d="m0.71 0.71 8.58 8.58" stroke-width="2"/>
+    <path d="m9.29 0.71-8.58 8.58" stroke-width="2"/>
+  </symbol>
+  <symbol id="toc" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="m2.75 1.25h6.75"/>
+    <path d="m0.5 1.25h1.5"/>
+    <path d="m5 6.13h4.5"/>
+    <path d="m2.75 6.13h1.5"/>
+    <path d="m2.75 3.87h6.75"/>
+    <path d="m0.5 3.87h1.5"/>
+    <path d="m2.75 8.75h6.75"/>
+    <path d="m0.5 8.75h1.5"/>
+  </symbol>
+{%- if config.theme.extlink %}
+  <symbol id="extlink" viewBox="0 0 10 10" fill="none" stroke="currentColor">
+    <path d="m5 5 4-4" stroke-width=".75"/>
+    <path d="m9 4v-3h-3" stroke-width=".75"/>
+    <path d="m5 3h-3.5v5.5h5.5v-3.5" stroke-width="1.25"/>
+  </symbol>
+{%- endif %}
+{%- if 'i18n' in config.plugins %}
+  <symbol id="i18n" viewBox="0 0 10 10" fill="none" stroke="currentColor">
+    <ellipse cx="5" cy="5" rx="4.63" ry="4.63" fill="none" stroke-width=".732"/>
+    <g transform="matrix(1 0 0 .989 0 .0527)" fill="none" stroke-width=".75">
+      <path d="m0.5 5 9 5.1e-6"/>
+      <path d="m1.6 1.6c3.39 3.4 6.8 0 6.8 0"/>
+      <path d="m1.6 8.4c3.39-3.4 6.8 0 6.8 0"/>
+      <path d="m5 0.23s5.5 4.77 0 9.54"/>
+      <path d="m5 0.23s-5.5 4.77 0 9.54"/>
+      <path d="m5 0.452v9.1"/>
+    </g>
+  </symbol>
+{%- endif %}
+{%- if 'search' in config.plugins %}
+  <symbol id="search" viewBox="0 0 10 10" fill="none" stroke="currentColor">
+    <ellipse cx="3.25" cy="3.25" rx="2.75" ry="2.75" fill="none"/>
+    <path d="m5 5 4.65 4.65" fill="none"/>
+  </symbol>
+{%- endif %}
+{%- if 'encryptcontent' in config.plugins %}
+  <symbol id="encrypted" viewBox="0 0 10 10">
+    <path transform="scale(.265)" d="m5.67 15.1v22.7h26.5v-22.7zm13.2 4.28c2.87 6.63e-4 5.19 1.88 5.19 4.21-6.29e-4 1.85-1.5 3.49-3.69 4.02l2.05 6.54h-7.1l2.05-6.54c-2.19-0.537-3.69-2.17-3.69-4.02 1.62e-4 -2.32 2.32-4.21 5.19-4.21z"  fill="currentColor" stroke="none"/>
+    <path d="m5 0.874c-1.4-1.61e-4 -2.53 1.13-2.53 2.53 3.17e-4 0.179 0.0197 0.887 0.0579 1.06h4.94c0.0382-0.175 0.0576-0.883 0.0579-1.06 1.61e-4 -1.4-1.13-2.53-2.53-2.53z" fill="none" stroke="currentColor" stroke-width="1"/>
+  </symbol>
+{%- endif %}
+</svg>
+
+<div id="myTop" class="w3-container w3-cell-row w3-top w3-theme w3-medium no-print" style="z-index:2;">
+  <div class="w3-cell w3-cell-middle" style="width:0;">
+    {%- if config.theme.logo %}
+    <button class="w3-button w3-theme-d1 w3-hover-theme w3-padding-small" onclick="w3_open()"><img src="{{ config.theme.logo | url }}" class="svg-2em"></button>
+    {%- else %}
+    <button class="w3-button w3-theme-d1 w3-hover-theme w3-padding-small w3-hide-large no-print" onclick="w3_open()"><svg class="svg-2em"><use xlink:href="#open-menu" /></svg></button>
+    {%- endif %}
+  </div>
+  <div class="w3-cell w3-cell-middle w3-padding-24" style="width:0;">
+    <span style="height:2em;display:inline-block;padding:16px 0px;">&nbsp;</span>
+  </div>
+  <div class="w3-cell w3-cell-middle">
+    <span class="w3-left" id="title-top">{% if page.title %}{% if page.meta.title %}{{ page.meta.title }}{% else %}{{ page.title }}{% endif %}{% endif %}</span>
+  </div>
+  <div class="w3-cell w3-cell-middle" style="width:0;">
+    <button class="w3-button w3-theme-d1 w3-hover-theme w3-padding-small w3-left w3-hide no-print" onclick="topFunction()" id="myToTop"><svg class="svg-1em"><use xlink:href="#to-top" /></svg></button>
+  </div>
+  <div class="w3-cell w3-cell-middle">
+    <button class="w3-button w3-theme-d1 w3-hover-theme w3-padding-small w3-right no-print" onclick="toggleTheme(themeItem)" id="myThemeToggle"><svg class="svg-1em"><use xlink:href="#theme-toggle" /></svg></button> 
+    {%- if 'search' in config.plugins %}
+    <button class="w3-button w3-theme-d1 w3-hover-theme w3-padding-small w3-right no-print" onclick="openSearch()"><svg class="svg-1em"><use xlink:href="#search" /></svg></button> 
+    {%- endif %}
+    {%- block top_buttons %}
+    {%- endblock %}
+    </div>
+</div>
+
+<header class="w3-container w3-theme w3-medium">
+  {%- if config.theme.logo %}
+  <div class="w3-cell w3-cell-middle">
+    <button class="w3-button w3-theme w3-hover-theme w3-padding-small" style="background-color: transparent!important;"><img src="{{ config.theme.logo | url }}" class="svg-2em"></button>
+  </div>
+  {%- endif %}
+  <div class="w3-cell w3-cell-middle w3-padding-24" style="width:0;">
+    <span style="height:2em;display:inline-block;padding:16px 0px;">&nbsp;</span>
+  </div>
+  <div class="w3-cell w3-cell-middle">
+    <span class="w3-left" id="title-head">{% if page.title %}{% if page.meta.title %}{{ page.meta.title }}{% else %}{{ page.title }}{% endif %}{% endif %}</span>
+  </div>
+</header>
+
+{%- block site_nav %}
+{%- if nav|length>1 %}
+<nav class="w3-sidebar w3-bar-block w3-collapse{% if config.theme.toc_sidebar %}-custom{% endif %} w3-animate-left w3-theme-l4" style="z-index:3;width:300px;" id="mySidebar">
+  <div id="myNav" style="font-weight: bold;">
+{%- set accid = namespace(value=1, hidden=true, hidden2=true) %}
+{%- for nav_item in nav %}
+  {%- if nav_item.children %}
+    {%- set accid.hidden = true %}
+    {%- set accid.hidden2 = true %}
+    {%- for nav_subitem in nav_item.children %}
+      {%- if nav_subitem.active %}
+        {%- set accid.hidden = false %}
+      {%- endif %}
+      {%- if nav_subitem.children %}
+        {%- for nav_subsubitem in nav_subitem.children %}
+          {%- if nav_subsubitem.active %}
+            {%- set accid.hidden = false %}
+            {%- set accid.hidden2 = false %}
+          {%- endif %}
+        {%- endfor %}
+      {%- endif %}
+    {%- endfor %}
+    {%- if nav_item.children[0].is_index %}
+    <a class="w3-bar-item w3-padding-16 w3-button w3-hover-theme{% if nav_item.children[0].active %} w3-theme-l2{% else %} w3-theme-l4{% endif %}" href="{{ nav_item.children[0].url|url }}">
+      {{ nav_item.title }}{% if nav_item.children[0].encrypted %} <svg class="svg-1em"><use xlink:href="#encrypted" /></svg>{% endif %}<svg class="svg-1em"><use xlink:href="#drop-down" /></svg>
+    </a>
+    {%- else %}
+    <a class="w3-bar-item w3-padding-16 w3-button w3-hover-theme w3-theme-l4" onclick="myAccordion('acc{{  accid.value }}')" href="javascript:void(0)">
+      {{ nav_item.title }}{% if nav_item.encrypted %} <svg class="svg-1em"><use xlink:href="#encrypted" /></svg>{% endif %}<svg class="svg-1em"><use xlink:href="#drop-down" /></svg>
+    </a>
+    {%- endif %}
+    {%- if not nav_item.children[0].is_index or (nav_item.children[0].is_index and not accid.hidden) %}
+    <div id="acc{{  accid.value }}" class="w3-animate-left{% if accid.hidden %} w3-hide{% endif %}">{% set accid.value = accid.value + 1 %}
+      {%- for nav_subitem in nav_item.children %}
+        {%- if not nav_subitem.is_index %}
+          {%- if nav_subitem.children %}
+            {%- if nav_subitem.children[0].is_index %}
+      <a class="w3-bar-item w3-padding-16 w3-button w3-hover-theme{% if nav_subitem.children[0].active %} w3-theme-l2{% else %} w3-theme-l4{% endif %}" href="{{ nav_subitem.children[0].url|url }}" style="padding-left: 24px;">
+        {{ nav_subitem.title }}{% if nav_subitem.children[0].encrypted %} <svg class="svg-1em"><use xlink:href="#encrypted" /></svg>{% endif %}<svg class="svg-1em"><use xlink:href="#drop-down" /></svg>
+      </a>
+            {%- else %}
+      <a class="w3-bar-item w3-padding-16 w3-button w3-hover-theme w3-theme-l4" onclick="myAccordion('acc{{  accid.value }}')" href="javascript:void(0)" style="padding-left: 24px;">
+        {{ nav_subitem.title }}{% if nav_subitem.encrypted %} <svg class="svg-1em"><use xlink:href="#encrypted" /></svg>{% endif %}<svg class="svg-1em"><use xlink:href="#drop-down" /></svg>
+      </a>
+            {%- endif %}
+            {%- set accid.hidden2 = true %}
+            {%- for nav_subsubitem in nav_subitem.children %}
+              {%- if nav_subsubitem.active %}
+                {%- set accid.hidden2 = false %}
+              {%- endif %}
+            {%- endfor %}
+            {%- if not nav_subitem.children[0].is_index or (nav_subitem.children[0].is_index and not accid.hidden2) %}
+      <div id="acc{{  accid.value }}" class="w3-animate-left{% if accid.hidden2 %} w3-hide{% endif %}">{% set accid.value = accid.value + 1 %}
+              {%- for nav_subsubitem in nav_subitem.children %}
+                {%- if not nav_subsubitem.is_index %}
+        <a class="w3-bar-item w3-padding-16 w3-button w3-hover-theme{% if nav_subsubitem.active %} w3-theme-l2{% else %} w3-theme-l4{% endif %}" href="{{ nav_subsubitem.url|url }}" style="padding-left: 32px;">
+          {{ nav_subsubitem.title }}{% if nav_subsubitem.encrypted %} <svg class="svg-1em"><use xlink:href="#encrypted" /></svg>{% endif %}
+        </a>
+                {%- endif %}
+              {%- endfor %}
+      </div>
+            {%- endif %}
+          {%- else %}
+      <a class="w3-bar-item w3-padding-16 w3-button w3-hover-theme{% if nav_subitem.active %} w3-theme-l2{% else %} w3-theme-l4{% endif %}" href="{{ nav_subitem.url|url }}" style="padding-left: 24px;">
+        {{ nav_subitem.title }}{% if nav_subitem.encrypted %} <svg class="svg-1em"><use xlink:href="#encrypted" /></svg>{% endif %}
+      </a>
+          {%- endif %}
+        {%- endif %}
+      {%- endfor %}
+    </div>
+    {%- endif %}
+  {%- else %}
+    <a class="w3-bar-item w3-padding-16 w3-button w3-hover-theme{% if nav_item.active %} w3-theme-l2{% else %} w3-theme-l4{% endif %}" href="{{ nav_item.url|url }}">
+      {{ nav_item.title }}{% if nav_item.encrypted %} <svg class="svg-1em"><use xlink:href="#encrypted" /></svg>{% endif %}
+    </a>
+  {%- endif %}
+{%- endfor %}
+  </div>
+  <div class="w3-container w3-large" style="height: 8em;" >&nbsp;</div>
+</nav>
+
+<div class="w3-overlay w3-hide{% if config.theme.toc_sidebar %}-huge{% else %}-large{% endif %} w3-animate-opacity" onclick="w3_close()" style="cursor:pointer;" id="myOverlay"></div>
+{%- endif %}
+{%- endblock %}
+
+{%- set toc_check = namespace(anchors=0) %}
+{%- for toc_item in page.toc %}
+  {%- set toc_check.anchors = toc_check.anchors + 1 %}
+  {%- for toc_item in toc_item.children %}
+    {% set toc_check.anchors = toc_check.anchors + 1 %}
+  {%- endfor %}
+{%- endfor %}
+{%- if toc_check.anchors > 1 and config.theme.toc_sidebar %}
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-animate-right w3-theme-l4" style="z-index:3;width:300px;right:0;" id="myTocbar">
+  <div id="myToc">
+  {%- for toc_item in page.toc %}
+  <a href="{{ toc_item.url }}" class="w3-bar-item w3-button w3-hover-theme w3-theme-l4">{{ toc_item.title }}</a>
+    {%- for toc_item in toc_item.children %}
+    <a href="{{ toc_item.url }}" class="w3-bar-item w3-small w3-button w3-hover-theme w3-theme-l4">{{ toc_item.title }}</a>
+      {%- for toc_item in toc_item.children %}
+      <a href="{{ toc_item.url }}" class="w3-bar-item w3-small w3-button w3-hover-theme w3-theme-l4" style="padding-left: 24px;">{{ toc_item.title }}</a>
+      {%- endfor %}
+    {%- endfor %}
+  {%- endfor %}
+  </div>
+  <div class="w3-container w3-large" style="height: 8em;" >&nbsp;</div>
+</nav>
+{%- endif %}
+
+<div id="main-view" class="w3-main{% if config.theme.toc_sidebar %}-custom{% endif %}" style="margin-left:300px;{% if toc_check.anchors > 1 and config.theme.toc_sidebar %} margin-right:300px;{% endif %}">
+
+<div class="w3-container" style="padding: 32px;">
+  <div class="w3-right w3-margin-bottom no-print">
+  {%- if toc_check.anchors > 1 %}
+    <div class="w3-dropdown-hover{% if config.theme.toc_sidebar %} w3-hide-large{% endif %}" id="myTocButton" style="z-index:1;">
+      <button class="w3-button w3-hover-theme w3-theme-l3 w3-hover-theme"><svg class="svg-1em"><use xlink:href="#toc" /></svg></button>
+      <div class="w3-dropdown-content w3-bar-block" style="right:0;">
+      {%- for toc_item in page.toc %}
+        <a href="{{ toc_item.url }}" class="w3-bar-item w3-button w3-hover-theme w3-theme-l3">{{ toc_item.title }}</a>
+        {%- for toc_item in toc_item.children %}
+        <a href="{{ toc_item.url }}" class="w3-bar-item w3-small w3-button w3-hover-theme w3-theme-l3">{{ toc_item.title }}</a>
+          {%- for toc_item in toc_item.children %}
+          <a href="{{ toc_item.url }}" class="w3-bar-item w3-small w3-button w3-hover-theme w3-theme-l3" style="padding-left: 24px;">{{ toc_item.title }}</a>
+          {%- endfor %}
+        {%- endfor %}
+      {%- endfor %}
+      </div>
+    </div>
+  {%- endif %}
+  {%- if i18n_config %}
+    <div class="w3-dropdown-hover" style="z-index:1;">
+      <button class="w3-button w3-hover-theme w3-theme-l3"><svg class="svg-1em"><use xlink:href="#i18n" /></svg></button>
+      <div class="w3-dropdown-content w3-bar-block" style="right:0;">
+      {%- for lang, name in i18n_theme.languages.items() %}
+        {%- if lang == i18n_page_locale %}
+          {%- set langcolor = "w3-theme-l2" %}
+        {%- else %}
+          {%- set langcolor = "w3-theme-l4" %}
+        {%- endif %}
+
+        {%- if lang == i18n_theme.default %}
+          <a href="{{ page.abs_url | replace('/' + i18n_page_locale + '/', '/') }}" class="w3-bar-item w3-button w3-hover-theme {{ langcolor }}">{{ name }}</a>
+        {%- elif i18n_page_locale == i18n_theme.default %}
+          <a href="{{ page.abs_url | replace(page.url, '') + lang + '/' + page.url | replace(i18n_page_locale + '/', '') }}" class="w3-bar-item w3-button w3-hover-theme {{ langcolor }}">{{ name }}</a>
+        {%- else %}
+          <a href="{{ page.abs_url | replace('/' + i18n_page_locale + '/', '/' + lang + '/') }}" class="w3-bar-item w3-button w3-hover-theme {{ langcolor }}">{{ name }}</a>
+        {%- endif %}
+      {%- endfor %}
+      </div>
+    </div>
+  {%- endif %}
+  </div> 
+{%- block content %}
+{{ page.content }}
+{%- endblock %}
+
+{%- if 'search' in config.plugins %}
+<div id="mkdocs_search_modal" class="w3-modal">
+  <div class="w3-modal-content">
+    <div class="w3-theme-l4">
+      <span onclick="closeSearch();" class="w3-theme-l2 w3-button w3-hover-theme w3-display-topright"><svg class="svg-1em"><use xlink:href="#close-menu" /></svg></span>
+      <span class="w3-display-topleft" style="padding: 8px 16px;"><svg class="svg-2em"><use xlink:href="#search" /></svg></span>
+      <form id="content_search">
+        <div class="w3-container">&nbsp;</div>
+        <div class="w3-container">&nbsp;</div>
+        <div class="w3-container">
+          <input type="search" class="w3-input w3-border w3-round w3-theme-l5 w3-hover-theme" placeholder="" id="mkdocs-search-query">
+        </div>
+      </form>
+      <div class="w3-container search-results" id="mkdocs-search-results" data-no-results-text="-">&nbsp;</div>
+    </div>
+  </div>
+</div>
+{%- endif %}
+</div>
+{%- if config.theme.zoom_img %}
+<div id="zoom_img_modal" class="w3-modal" onclick="this.style.display='none'">
+  <div class="w3-modal-content w3-animate-zoom">
+    <img id="img_modal" style="width:100%;">
+  </div>
+</div>
+{%- endif %}
+{%- block footer %}
+<footer class="w3-container w3-theme no-print">
+  <p class="w3-left w3-tiny">
+    <a href="https://www.mkdocs.org" target="_blank">MkDocs{% if config.theme.extlink %}<svg class="svg-1em"><use xlink:href="#extlink" /></svg>{% endif %}</a>
+{%- if 'i18n' in config.plugins %}
+    <span class="w3-hide-small"> / <a href="https://ultrabug.github.io/mkdocs-static-i18n/" target="_blank">static i18n{% if config.theme.extlink %}<svg class="svg-1em"><use xlink:href="#extlink" /></svg>{% endif %}</a></span>
+{%- endif %}
+{%- if 'encryptcontent' in config.plugins %}
+    <span class="w3-hide-small"> / <a href="https://github.com/unverbuggt/mkdocs-encryptcontent-plugin" target="_blank">encryptcontent{% if config.theme.extlink %}<svg class="svg-1em"><use xlink:href="#extlink" /></svg>{% endif %}</a></span>
+{%- endif %}
+    <span class="w3-hide-small"> / <a href="https://www.w3schools.com/w3css/" target="_blank">w3.css{% if config.theme.extlink %}<svg class="svg-1em"><use xlink:href="#extlink" /></svg>{% endif %}</a></span>
+    / <a href="https://github.com/unverbuggt/mkdocs-risonia-theme" target="_blank">Risonia theme{% if config.theme.extlink %}<svg class="svg-1em"><use xlink:href="#extlink" /></svg>{% endif %}</a>
+  </p>
+  {%- block footer_ext %}
+  {%- endblock %}
+</footer>
+{%- endblock %}
+</div>
+
+{%- block scripts %}
+<script src="{{ 'js/theme.js'|url }}"></script>
+{%- for script in config.extra_javascript %}
+  {%- if script.path %}  {# Detected MkDocs 1.5+ which has `script.path` and `script_tag` #}
+    {{ script | script_tag }}
+  {%- else %}  {# Fallback - examine the file name directly #}
+    <script src="{{ script | url }}"{% if script.endswith(".mjs") %} type="module"{% endif %}></script>
+  {%- endif %}
+{%- endfor %}
+{%- if config.theme.serviceworker %}
+<script>
+  if ('serviceWorker' in navigator) { 
+    // register service worker
+{%- if i18n_config and i18n_page_file_locale %}
+    navigator.serviceWorker.register("{{ (base_url + '/' + i18n_page_locale + '/' + config.theme.serviceworker)|url }}");
+{%- else %}
+    navigator.serviceWorker.register("{{ (base_url + '/' + config.theme.serviceworker)|url }}");
+{%- endif %}
+  }
+</script>
+{%- endif %}
+{%- endblock %}
+{%- block exec_script %}
+{%- endblock %}
+</body>
+</html>
+{% if page and page.is_homepage %}
+<!--
+MkDocs version : {{ mkdocs_version }}
+Build Date UTC : {{ build_date_utc }}
+-->
+{% endif %}
