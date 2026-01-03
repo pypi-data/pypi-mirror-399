@@ -1,0 +1,120 @@
+{
+    "config": {
+        "error": {
+            "cannot_connect": "Povezivanje neuspe\u0161no"
+        },
+        "step": {
+            "reauth_confirm": {
+                "data": {
+                    "password": "Lozinka"
+                },
+                "data_description": {
+                    "password": "Lozinka za autentifikaciju sa instancom Transmission, ako je pode\u0161ena."
+                }
+            },
+            "user": {
+                "data": {
+                    "host": "Host",
+                    "password": "Lozinka",
+                    "port": "Port",
+                    "username": "Korisni\u010dko ime"
+                },
+                "data_description": {
+                    "host": "Naziv hosta ili IP adresa Transmission instance.",
+                    "password": "Lozinka za autentifikaciju sa instancom Transmission, ako je pode\u0161ena.",
+                    "port": "Broj porta instance prenosa.",
+                    "ssl": "Da li treba verifikovati SSL sertifikate. Onemoguc\u0301ite ovo za samopotpisane sertifikate.",
+                    "username": "Korisni\u010dko ime za autentifikaciju sa instancom Transmission, ako je pode\u0161eno."
+                }
+            }
+        }
+    },
+    "entity": {
+        "sensor": {
+            "transmission_status": {
+                "state": {
+                    "idle": "Mirovanje"
+                }
+            }
+        }
+    },
+    "exceptions": {
+        "not_loaded": {
+            "message": "{target} nije u\u010ditan"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data_description": {
+                    "limit": "Maksimalan broj torrenta koji se prikazuje u atributima informacija o torrentu.",
+                    "order": "Redosled kojim su torentovi navedeni u atributima informacija o torentima."
+                }
+            }
+        }
+    },
+    "selector": {
+        "order": {
+            "options": {
+                "best_ratio_first": "Prvo najbolji odnos",
+                "newest_first": "Prvo najnovije",
+                "oldest_first": "Prvo najstarije",
+                "worst_ratio_first": "Prvo najlo\u0161iji odnos"
+            }
+        },
+        "torrent_filter": {
+            "options": {
+                "active": "Aktivan",
+                "all": "Sve",
+                "completed": "Zavr\u0161eno",
+                "paused": "Pauzirano",
+                "started": "Pokrenuto"
+            }
+        }
+    },
+    "services": {
+        "add_torrent": {
+            "fields": {
+                "entry_id": {
+                    "description": "ID konfiguracione stavke koja \u0107e se koristiti.",
+                    "name": "Unos Transmission-a"
+                }
+            }
+        },
+        "get_torrents": {
+            "description": "Dobij listu trenutnih torenata",
+            "fields": {
+                "entry_id": {
+                    "description": "ID konfiguracione stavke koja \u0107e se koristiti.",
+                    "name": "Unos Transmission-a"
+                },
+                "torrent_filter": {
+                    "description": "Izaberite koje torente \u017eelite da prika\u017eete, na primer Sve ili Aktivne.",
+                    "name": "Filter torenata"
+                }
+            },
+            "name": "Preuzmi listu torenata"
+        },
+        "remove_torrent": {
+            "fields": {
+                "delete_data": {
+                    "description": "Obri\u0161i torrent podatke.",
+                    "name": "Obri\u0161i podatke"
+                },
+                "id": {
+                    "description": "ID torenta"
+                }
+            }
+        },
+        "stop_torrent": {
+            "fields": {
+                "entry_id": {
+                    "name": "Unos Transmission-a"
+                },
+                "id": {
+                    "description": "ID torenta"
+                }
+            }
+        }
+    }
+}
