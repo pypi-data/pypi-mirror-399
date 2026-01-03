@@ -1,0 +1,320 @@
+/* Miu Code TUI Styles - Vibe Inspired Layout */
+
+/* Miu brand color variables */
+$miu-primary: #1ABC9C;
+$miu-light: #48C9B0;
+$miu-secondary: #16A085;
+
+Screen {
+    background: $surface;
+}
+
+/* Hide default header/footer */
+Header {
+    display: none;
+}
+
+Footer {
+    display: none;
+}
+
+/* Chat area - takes remaining space, scrollable */
+#chat {
+    height: 1fr;
+    width: 100%;
+    background: $surface;
+    padding: 0;
+    scrollbar-gutter: stable;
+}
+
+/* Banner inside chat area - scrolls with content */
+#banner {
+    width: 100%;
+    height: auto;
+    border: round $surface;
+    border-title-align: center;
+    text-align: center;
+    content-align: center middle;
+    padding: 2 0;
+    margin: 1 0 0 0;
+    color: $text;
+}
+
+/* Messages container inside scroll area */
+#messages {
+    layout: stream;
+    width: 100%;
+    height: auto;
+    text-align: left;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+
+/* Loading area: loading content (left) + mode indicator (right) */
+#loading-area {
+    height: auto;
+    width: 100%;
+    background: $surface;
+    padding: 1 1 0 1;
+    layout: horizontal;
+    align: left middle;
+}
+
+#loading-area-content {
+    width: 1fr;
+    height: auto;
+    align: left middle;
+}
+
+/* Mode indicator - right side of loading area */
+#mode-indicator {
+    width: auto;
+    height: auto;
+    color: $text-muted;
+    padding: 0;
+}
+
+/* Bottom app container - holds input or approval */
+#bottom-app-container {
+    height: auto;
+    width: 100%;
+    background: $surface;
+}
+
+/* Input box container - vibe style with borders */
+#input-box {
+    height: auto;
+    width: 100%;
+    background: $surface;
+    border-top: solid $foreground-muted;
+    border-bottom: solid $foreground-muted;
+    padding: 0 1;
+}
+
+/* Input row with prompt + input - removed, using Horizontal default */
+
+/* Prompt ">" character */
+#prompt {
+    width: auto;
+    height: auto;
+    color: $miu-primary;
+    text-style: bold;
+    padding: 0 1 0 0;
+}
+
+/* Input field - no border (container has border) */
+#input {
+    width: 1fr;
+    height: auto;
+    max-height: 16;
+    background: transparent;
+    color: $text;
+    border: none;
+    padding: 0;
+    scrollbar-visibility: hidden;
+}
+
+#input:focus {
+    border: none;
+}
+
+/* Bottom bar - simple like vibe */
+#bottom-bar {
+    height: auto;
+    width: 100%;
+    background: $surface;
+    padding: 0 1;
+    align: left middle;
+    layout: horizontal;
+}
+
+/* Path display - left side */
+#path-display {
+    width: auto;
+    height: auto;
+    color: $miu-primary;
+    padding: 0;
+}
+
+/* Spacer - fills middle */
+#spacer {
+    width: 1fr;
+    height: auto;
+}
+
+/* Token display - far right */
+#token-display {
+    width: auto;
+    height: auto;
+    color: $miu-primary;
+    padding: 0;
+}
+
+/* Message styling classes */
+.message-user {
+    color: #3498DB;
+}
+
+.message-assistant {
+    color: $miu-primary;
+}
+
+.message-system {
+    color: $text-muted;
+}
+
+.message-error {
+    color: #E74C3C;
+}
+
+.message-thinking {
+    color: $miu-light;
+    text-style: italic;
+}
+
+/* Tool call styling */
+.tool-call {
+    width: 100%;
+    height: auto;
+    color: $miu-primary;
+}
+
+.tool-result {
+    width: 100%;
+    height: auto;
+    color: $text-muted;
+}
+
+/* Scrollbar styling */
+#chat > ScrollBar {
+    width: 1;
+}
+
+#chat > ScrollBar > .scrollbar--bar {
+    color: $miu-primary 30%;
+}
+
+#chat > ScrollBar > .scrollbar--bar-hover {
+    color: $miu-primary 60%;
+}
+
+/* Markdown styling */
+#messages Markdown {
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+}
+
+Markdown MarkdownFence {
+    overflow-x: auto;
+    scrollbar-size-horizontal: 1;
+    max-width: 95%;
+}
+
+/* Spacer utility */
+.spacer {
+    width: 1fr;
+    height: auto;
+}
+
+/* User message */
+UserMessage {
+    margin-top: 1;
+    padding: 1 0;
+    width: 100%;
+    height: auto;
+    background: $surface;
+}
+
+/* Assistant message */
+AssistantMessage {
+    margin-top: 1;
+    width: 100%;
+    height: auto;
+}
+
+/* Reasoning message */
+ReasoningMessage {
+    margin-top: 1;
+    width: 100%;
+    height: auto;
+}
+
+/* Bash output */
+BashOutputMessage {
+    margin-top: 1;
+    width: 100%;
+    height: auto;
+}
+
+/* Tool messages */
+ToolCallMessage {
+    width: 100%;
+    height: auto;
+    margin-top: 1;
+}
+
+ToolResultMessage {
+    width: 100%;
+    height: auto;
+}
+
+/* Error message */
+ErrorMessage {
+    width: 100%;
+    height: auto;
+}
+
+/* System message */
+SystemMessage {
+    width: 100%;
+    height: auto;
+}
+
+/* Chat input container */
+ChatInputContainer {
+    height: auto;
+    width: 100%;
+}
+
+#input-container {
+    height: auto;
+    width: 100%;
+}
+
+/* Completion popup */
+#completion-popup {
+    width: 100%;
+    padding: 0 1;
+    color: $text;
+    background: $surface;
+    border-bottom: solid #666666;
+}
+
+/* Input body */
+#input-body {
+    height: auto;
+}
+
+/* Border style variants */
+#input-box.border-safe {
+    border-top: solid #27AE60;
+    border-bottom: solid #27AE60;
+}
+
+#input-box.border-warning {
+    border-top: solid #F39C12;
+    border-bottom: solid #F39C12;
+}
+
+#input-box.border-error {
+    border-top: solid #E74C3C;
+    border-bottom: solid #E74C3C;
+}
+
+/* Global container rule - ensures full width */
+Horizontal {
+    width: 100%;
+    height: auto;
+}
