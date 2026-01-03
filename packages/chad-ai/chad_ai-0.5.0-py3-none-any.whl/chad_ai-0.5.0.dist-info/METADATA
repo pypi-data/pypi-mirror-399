@@ -1,0 +1,76 @@
+Metadata-Version: 2.4
+Name: chad-ai
+Version: 0.5.0
+Summary: Chad: YOLO AI
+Author: Team Chad: AI Police
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.31.0
+Requires-Dist: bcrypt>=4.0.0
+Requires-Dist: cryptography>=41.0.0
+Requires-Dist: gradio>=4.0.0
+Requires-Dist: pexpect>=4.9.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: playwright>=1.40.0; extra == "dev"
+Requires-Dist: mcp>=1.25.0; extra == "dev"
+
+# Chad: YOLO AI
+
+Coding agents need hand holding to implement complex features, but no one holds Chad's hand. 
+
+Add one or more Codex, Claude Code, Gemini, or Mistral Vibe coding agent sessions, ask for a coding task, and Chad will 
+verify and reprompt to deliver a one-shot result.
+
+<p style="text-align: center;">
+  <img src="docs/Chad.png" alt="Chad Code" width="80">
+</p>
+
+**The First Warning:** Chad was developed with...  Chad. Yes, this material writes itself. No, high quality robust code 
+this is not. 
+
+**World Warning II:** Chad is a risk-taker who knows no limits. Chad has access to everything on your hard drive and 
+your internet connection. Responsible models will stop Chad if they have the right context to do so, and I added a 
+safety prompt which will try to give them that context. However, if Chad REALLY wants to complete your task there
+are only so many ways I can explicitly prohibit it from ruining your life.
+
+### Blah blah how do I run it?
+```bash
+pip install chad-ai
+chad 
+```
+
+### How is this better than $Grug?
+
+-> Gradio UI to manage multiple coding agents, select preferred models, monitor usage quotas, and run tasks:
+<details open>
+<summary><b>Screenshots</b></summary>
+
+#### Select a task and agent
+<img src="docs/screenshot-task-input.png" width="800" alt="Task input panel">
+
+#### Monitor multiple provider accounts with usage tracking
+<img src="docs/screenshot-providers.png" width="800" alt="Providers tab">
+
+#### View completed tasks with verification results and live activity
+<img src="docs/screenshot-conversation.png" width="800" alt="Completed task conversation">
+
+</details>
+
+-> Provider tokens encrypted with a master password you create each session
+
+### Is this satire?
+
+Sadly, no. "As a society, what are we even doing here?" might be a better question.
