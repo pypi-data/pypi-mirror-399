@@ -1,0 +1,158 @@
+Metadata-Version: 2.4
+Name: windgrib
+Version: 0.1.0
+Summary: A Python package for working with GRIB weather data files
+Home-page: https://github.com/yorfy/windgrib
+Author: Your Name
+Author-email: Your Name <your.email@example.com>
+Project-URL: Homepage, https://github.com/yourusername/windgrib
+Project-URL: Bug Tracker, https://github.com/yourusername/windgrib/issues
+Project-URL: Documentation, https://github.com/yourusername/windgrib/blob/main/README.md
+Keywords: grib,weather,meteorology,data,forecast,weather-data,gfs,ecmwf
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Atmospheric Science
+Classifier: Development Status :: 3 - Alpha
+Classifier: Natural Language :: English
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: pandas>=1.3.0
+Requires-Dist: xarray>=0.20.0
+Requires-Dist: s3fs>=2021.11.0
+Requires-Dist: requests>=2.26.0
+Requires-Dist: tqdm>=4.62.0
+Requires-Dist: cfgrib>=0.9.10.0
+Requires-Dist: dask>=2021.11.0
+Requires-Dist: netCDF4>=1.6.0
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
+# WindGrib 🌬️
+
+[![PyPI version](https://badge.fury.io/py/windgrib.svg)](https://badge.fury.io/py/windgrib)
+[![Python Version](https://img.shields.io/pypi/pyversions/windgrib)](https://pypi.org/project/windgrib/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A Python package for reading, parsing, and analyzing GRIB weather data files.
+
+## Features
+
+- ✅ Read GRIB weather data files
+- ✅ Parse meteorological data
+- ✅ Easy-to-use Python interface
+- ✅ Modern Python packaging
+- ✅ Type hints support
+- ✅ Comprehensive error handling
+
+## Installation
+
+### From PyPI (when published)
+
+```bash
+pip install windgrib
+```
+
+### From source
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/windgrib.git
+cd windgrib
+
+# Install the package
+pip install .
+
+# Or install in development mode
+pip install -e .
+```
+
+### Development setup
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/windgrib.git
+cd windgrib
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Or install main package + dev extras
+pip install -e ".[dev]"
+```
+
+## Usage
+
+```python
+from windgrib import read_grib_file
+
+# Read a GRIB file
+data = read_grib_file("weather.grib")
+
+# Access weather data
+print(f"Temperature: {data['temperature']}°C")
+print(f"Wind speed: {data['wind_speed']} km/h")
+```
+
+## Example
+
+Check out the [example](examples/windgrib_example.py) for a complete usage demonstration.
+
+## Development
+
+### Install development dependencies
+
+```bash
+pip install -e .[dev]
+```
+
+### Run tests
+
+```bash
+pytest
+```
+
+### Format code
+
+```bash
+black .
+isort .
+```
+
+### Type checking
+
+```bash
+mypy windgrib
+```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request on GitHub.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For questions or support, please open an issue on GitHub.
+
+---
+
+*Made with ❤️ for weather data enthusiasts*
