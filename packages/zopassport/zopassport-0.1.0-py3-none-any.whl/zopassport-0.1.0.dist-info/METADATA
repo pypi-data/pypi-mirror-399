@@ -1,0 +1,468 @@
+Metadata-Version: 2.4
+Name: zopassport
+Version: 0.1.0
+Summary: Zo Passport Python SDK - Phone to Avatar to Passport authentication for Zo World.
+Project-URL: Homepage, https://zo.xyz
+Project-URL: Repository, https://github.com/ZoHouse/zopassport
+Project-URL: Documentation, https://github.com/ZoHouse/zopassport#readme
+Project-URL: Issues, https://github.com/ZoHouse/zopassport/issues
+Project-URL: Changelog, https://github.com/ZoHouse/zopassport/blob/main/CHANGELOG.md
+Author-email: Zo World Team <dev@zo.xyz>
+License-File: LICENSE
+Keywords: authentication,passport,sdk,web3,zo,zo-world
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.11
+Requires-Dist: aiofiles>=25.1.0
+Requires-Dist: cryptography>=41.0.0
+Requires-Dist: httpx>=0.28.1
+Requires-Dist: pbkdf2>=1.3
+Requires-Dist: pydantic>=2.12.5
+Requires-Dist: pytest-asyncio>=1.3.0
+Requires-Dist: python-dateutil>=2.8.0
+Requires-Dist: tenacity>=8.2.0
+Provides-Extra: dev
+Requires-Dist: bandit>=1.7.5; extra == 'dev'
+Requires-Dist: black>=23.7.0; extra == 'dev'
+Requires-Dist: mypy>=1.5.0; extra == 'dev'
+Requires-Dist: pre-commit>=3.3.3; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.1.0; extra == 'dev'
+Requires-Dist: pytest-httpx>=0.22.0; extra == 'dev'
+Requires-Dist: pytest-mock>=3.11.1; extra == 'dev'
+Requires-Dist: pytest>=7.4.0; extra == 'dev'
+Requires-Dist: ruff>=0.1.0; extra == 'dev'
+Requires-Dist: safety>=2.3.0; extra == 'dev'
+Requires-Dist: types-aiofiles>=23.1.0; extra == 'dev'
+Requires-Dist: types-python-dateutil>=2.8.19; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# ZoPassport Python SDK
+
+[![PyPI version](https://badge.fury.io/py/zopassport.svg)](https://pypi.org/project/zopassport/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://github.com/ZoHouse/zopassport/workflows/Tests/badge.svg)](https://github.com/ZoHouse/zopassport/actions)
+
+The official Python SDK for Zo World authentication and passport management. Provides seamless integration with the ZoPassport API for phone-based authentication, user profiles, avatar generation, and wallet operations.
+
+## ✨ Features
+
+- 📱 **Phone Authentication** - OTP-based authentication with phone numbers
+- 🔐 **Secure Session Management** - Encrypted storage with automatic token refresh
+- 👤 **User Profile Management** - Fetch and update user profiles
+- 🎨 **Avatar Generation** - Generate and manage user avatars
+- 💰 **Wallet Integration** - Check balances and transactions on Base & Avalanche
+- 🔄 **Automatic Token Refresh** - Built-in token refresh with configurable intervals
+- 🛡️ **Comprehensive Error Handling** - Specific exception types for all failure scenarios
+- 🔁 **Retry Logic** - Exponential backoff for failed requests
+- 📊 **Rate Limit Handling** - Automatic rate limit detection and retry-after support
+- 🔒 **Encrypted Storage** - Optional encryption for sensitive data at rest
+
+## 📦 Installation
+
+### Using pip
+
+```bash
+pip install zopassport
+```
+
+### Using uv (recommended for development)
+
+```bash
+uv add zopassport
+```
+
+### Development Installation
+
+```bash
+git clone https://github.com/ZoHouse/zopassport.git
+cd zopassport
+pip install -e ".[dev]"
+```
+
+## 🚀 Quick Start
+
+```python
+import asyncio
+from zopassport import ZoPassportSDK
+
+async def main():
+    # Initialize SDK
+    sdk = ZoPassportSDK(
+        client_key="YOUR_CLIENT_KEY",
+        debug=True  # Enable debug logging
+    )
+    await sdk.initialize()
+
+    # Check if already authenticated
+    if sdk.is_authenticated:
+        print(f"Welcome back, {sdk.user.first_name}!")
+    else:
+        # Step 1: Send OTP
+        await sdk.auth.send_otp("91", "9876543210")
+
+        # Step 2: Verify OTP and login
+        otp = input("Enter OTP: ")
+        result = await sdk.login_with_phone("91", "9876543210", otp)
+
+        if result["success"]:
+            print(f"Logged in as {result['user'].first_name}")
+
+    # Get wallet balance
+    balance = await sdk.wallet.get_balance()
+    print(f"Balance: {balance} $Zo")
+
+    # Cleanup
+    await sdk.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## 📚 Documentation
+
+### Authentication
+
+#### Send OTP
+
+```python
+result = await sdk.auth.send_otp(
+    country_code="91",
+    phone_number="9876543210"
+)
+if result["success"]:
+    print(result["message"])
+```
+
+#### Verify OTP and Login
+
+```python
+result = await sdk.login_with_phone(
+    country_code="91",
+    phone_number="9876543210",
+    otp="123456"
+)
+if result["success"]:
+    user = result["user"]
+    print(f"Logged in: {user.first_name}")
+```
+
+#### Check Authentication Status
+
+```python
+if sdk.is_authenticated:
+    print(f"User: {sdk.user.first_name}")
+else:
+    print("Not authenticated")
+```
+
+#### Logout
+
+```python
+await sdk.logout()
+```
+
+### Profile Management
+
+#### Get Profile
+
+```python
+token = await sdk.storage.get_item("zo_access_token")
+result = await sdk.profile.get_profile(token)
+if result["success"]:
+    profile = result["profile"]
+    print(f"Bio: {profile.bio}")
+```
+
+#### Update Profile
+
+```python
+token = await sdk.storage.get_item("zo_access_token")
+result = await sdk.profile.update_profile(
+    token,
+    updates={"bio": "New bio", "first_name": "Jane"}
+)
+if result["success"]:
+    print("Profile updated!")
+```
+
+### Avatar Generation
+
+#### Generate Avatar
+
+```python
+token = await sdk.storage.get_item("zo_access_token")
+result = await sdk.avatar.generate_avatar(token, body_type="bro")  # or "bae"
+if result["success"]:
+    task_id = result["task_id"]
+    print(f"Avatar generation started: {task_id}")
+```
+
+#### Check Avatar Status
+
+```python
+result = await sdk.avatar.get_avatar_status(token, task_id)
+if result["status"] == "completed":
+    print(f"Avatar ready: {result['avatar_url']}")
+```
+
+#### Poll for Completion
+
+```python
+await sdk.avatar.poll_avatar_status(
+    token,
+    task_id,
+    on_progress=lambda status: print(f"Status: {status}"),
+    on_complete=lambda url: print(f"Avatar: {url}"),
+    on_error=lambda error: print(f"Error: {error}")
+)
+```
+
+### Wallet Operations
+
+#### Get Balance
+
+```python
+balance = await sdk.wallet.get_balance()
+print(f"Balance: {balance} $Zo")
+```
+
+#### Get Transactions
+
+```python
+result = await sdk.wallet.get_transactions(page=1)
+transactions = result["transactions"]
+for tx in transactions:
+    print(tx)
+```
+
+## 🔧 Configuration
+
+### SDK Options
+
+```python
+sdk = ZoPassportSDK(
+    client_key="YOUR_CLIENT_KEY",           # Required: API client key
+    base_url="https://api.io.zo.xyz",       # Optional: API base URL
+    storage_adapter=None,                    # Optional: Custom storage adapter
+    auto_refresh=True,                       # Optional: Enable auto token refresh
+    refresh_interval=60000,                  # Optional: Refresh check interval (ms)
+    debug=False,                             # Optional: Enable debug logging
+    max_retries=3,                           # Optional: Max retry attempts
+    timeout=10,                              # Optional: Request timeout (seconds)
+)
+```
+
+### Storage Adapters
+
+#### File Storage (Default)
+
+```python
+from zopassport import FileStorageAdapter
+
+storage = FileStorageAdapter(file_path="session.json")
+sdk = ZoPassportSDK(client_key="...", storage_adapter=storage)
+```
+
+#### Encrypted File Storage
+
+```python
+from zopassport import EncryptedFileStorageAdapter
+
+# Option 1: With password
+storage = EncryptedFileStorageAdapter(
+    file_path="session.enc",
+    password="your-secure-password"
+)
+
+# Option 2: With key file
+storage = EncryptedFileStorageAdapter(
+    file_path="session.enc",
+    key_file=".session_key"
+)
+
+sdk = ZoPassportSDK(client_key="...", storage_adapter=storage)
+```
+
+#### Memory Storage (Not Persistent)
+
+```python
+from zopassport import MemoryStorageAdapter
+
+storage = MemoryStorageAdapter()
+sdk = ZoPassportSDK(client_key="...", storage_adapter=storage)
+```
+
+### Custom Storage Adapter
+
+```python
+from zopassport import StorageAdapter
+
+class CustomStorage(StorageAdapter):
+    async def get_item(self, key: str) -> Optional[str]:
+        # Your implementation
+        pass
+
+    async def set_item(self, key: str, value: str) -> None:
+        # Your implementation
+        pass
+
+    async def remove_item(self, key: str) -> None:
+        # Your implementation
+        pass
+```
+
+## ⚠️ Error Handling
+
+The SDK provides specific exception types for different error scenarios:
+
+```python
+from zopassport import (
+    ZoPassportError,           # Base exception
+    ZoAuthenticationError,     # Authentication failures
+    ZoNetworkError,            # Network issues
+    ZoRateLimitError,          # Rate limiting
+    ZoValidationError,         # Invalid input
+    ZoStorageError,            # Storage failures
+    ZoWalletError,             # Wallet operations
+)
+
+try:
+    await sdk.login_with_phone("91", "9876543210", "123456")
+except ZoAuthenticationError as e:
+    print(f"Auth failed: {e}")
+except ZoRateLimitError as e:
+    print(f"Rate limited, retry after {e.retry_after}s")
+except ZoNetworkError as e:
+    print(f"Network error: {e}")
+except ZoPassportError as e:
+    print(f"SDK error: {e}")
+```
+
+## 🔒 Security Best Practices
+
+### 1. Use Encrypted Storage
+
+```python
+# Use password-based encryption
+storage = EncryptedFileStorageAdapter(
+    file_path="session.enc",
+    password=os.environ["SESSION_PASSWORD"]
+)
+```
+
+### 2. Store Client Key Securely
+
+```python
+# Never hardcode credentials
+client_key = os.environ.get("ZO_CLIENT_KEY")
+sdk = ZoPassportSDK(client_key=client_key)
+```
+
+### 3. Handle Sensitive Data Carefully
+
+```python
+# Don't log sensitive information
+logger.setLevel("INFO")  # Avoid DEBUG in production
+```
+
+### 4. Implement Proper Session Management
+
+```python
+# Always close SDK when done
+try:
+    # Your code
+    pass
+finally:
+    await sdk.close()
+```
+
+### 5. Validate User Input
+
+```python
+# Validate before sending to API
+if not phone_number.isdigit():
+    raise ValueError("Invalid phone number")
+```
+
+## 🧪 Testing
+
+### Run Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=src/zopassport --cov-report=html
+
+# Run specific test file
+pytest tests/unit/test_auth.py
+
+# Run with verbose output
+pytest -v
+```
+
+### Run Linting
+
+```bash
+# Format code
+black src/ tests/
+
+# Lint code
+ruff check src/ tests/
+
+# Type check
+mypy src/
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+### Development Setup
+
+```bash
+# Clone repository
+git clone https://github.com/ZoHouse/zopassport.git
+cd zopassport
+
+# Install dependencies
+pip install -e ".[dev]"
+
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests
+pytest
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- [Homepage](https://zo.xyz)
+- [Documentation](https://github.com/ZoHouse/zopassport#readme)
+- [Issues](https://github.com/ZoHouse/zopassport/issues)
+- [Changelog](CHANGELOG.md)
+
+## 💬 Support
+
+- Create an issue on [GitHub](https://github.com/ZoHouse/zopassport/issues)
+- Email: dev@zo.xyz
+- Discord: [Zo World Community](https://discord.gg/zoworld)
+
+## 🙏 Acknowledgments
+
+Built with ❤️ by the Zo World Team
+
+---
+
+**Note**: This SDK requires Python 3.11 or higher.
