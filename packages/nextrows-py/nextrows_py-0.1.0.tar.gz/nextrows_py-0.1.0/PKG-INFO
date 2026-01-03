@@ -1,0 +1,209 @@
+Metadata-Version: 2.4
+Name: nextrows-py
+Version: 0.1.0
+Summary: Python client for the Nextrows Open API.
+Author: workbricksai
+License: MIT License
+        
+        Copyright (c) 2025 workbricksai
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+Project-URL: Homepage, https://nextrows.com
+Project-URL: Documentation, https://nextrows.com/docs/api
+Project-URL: Repository, https://nextrows.com
+Keywords: nextrows,api,client
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: requests>=2.31
+Requires-Dist: typing-extensions>=4.7
+Provides-Extra: schema
+Requires-Dist: pydantic>=1.10; extra == "schema"
+Provides-Extra: async
+Requires-Dist: httpx>=0.24; extra == "async"
+Provides-Extra: test
+Requires-Dist: pytest>=7.4; extra == "test"
+Dynamic: license-file
+
+# nextrows-py
+
+Python client for the Nextrows Open API.
+
+## Getting Started
+
+### API Key
+
+To use this client, you need a NextRows API key. Create one at:
+
+**NextRows Dashboard**: https://nextrows.com/dashboard/overview
+
+### Documentation
+
+API docs: https://nextrows.com/docs/api
+
+## Installation
+
+```bash
+pip install nextrows-py
+```
+
+## Development (uv)
+
+```bash
+uv venv
+uv pip install -e ".[test]"
+uv run pytest
+```
+
+## Quick Start
+
+```python
+from nextrows import Nextrows
+
+client = Nextrows(api_key="sk-nr-your-api-key")
+```
+
+## API Methods
+
+### Extract Data
+
+```python
+result = client.extract(
+    {
+        "type": "url",
+        "data": ["https://example.com/products"],
+        "prompt": "Extract all product names and prices",
+    }
+)
+
+if result["success"]:
+    print(result.get("data"))
+```
+
+#### Using Pydantic Schema (Optional)
+
+Install pydantic and pass a model or schema object. The client converts it to JSON Schema.
+
+```bash
+pip install "nextrows-py[schema]"
+```
+
+```python
+from pydantic import BaseModel
+from nextrows import Nextrows
+
+class Product(BaseModel):
+    name: str
+    price: float
+
+client = Nextrows(api_key="sk-nr-your-api-key")
+
+result = client.extract(
+    {
+        "type": "text",
+        "data": ["Product A costs $10, Product B costs $20"],
+        "schema": Product,
+    }
+)
+```
+
+### Async Client
+
+```bash
+pip install \"nextrows-py[async]\"
+```
+
+```python
+import asyncio
+from nextrows import AsyncNextrows
+
+async def main() -> None:
+    async with AsyncNextrows(api_key=\"sk-nr-your-api-key\") as client:
+        result = await client.get_credits()
+        print(result)
+
+asyncio.run(main())
+```
+
+### Run App (JSON)
+
+```python
+result = client.run_app_json(
+    {
+        "appId": "abc123xyz",
+        "inputs": [
+            {"key": "url", "value": "https://example.com/products"},
+            {"key": "maxItems", "value": 10},
+        ],
+    }
+)
+
+if result["success"] and result.get("data"):
+    for row in result["data"]:
+        print(row)
+```
+
+### Run App (Table)
+
+```python
+result = client.run_app_table(
+    {
+        "appId": "abc123xyz",
+        "inputs": [{"key": "url", "value": "https://example.com/products"}],
+    }
+)
+
+if result["success"] and result.get("data"):
+    print(result["data"]["columns"])
+    for row in result["data"]["tableData"]:
+        print(row)
+```
+
+### Get Credits
+
+```python
+result = client.get_credits()
+
+if result["success"] and result.get("data"):
+    print(f"Remaining credits: {result['data']['credits']}")
+```
+
+## Configuration
+
+```python
+client = Nextrows(
+    api_key="sk-nr-your-api-key",
+    base_url="https://api.nextrows.com",
+    timeout=30.0,
+)
+```
+
+## Notes
+
+- `timeout` is in seconds (float), default 30s.
+- `schema` accepts a JSON Schema dict or a Pydantic model/class with schema methods.
