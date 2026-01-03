@@ -1,0 +1,76 @@
+Metadata-Version: 2.4
+Name: mcp-reticle
+Version: 0.1.0rc7
+Summary: Real-time debugging proxy for MCP (Model Context Protocol) servers
+Project-URL: Homepage, https://github.com/labterminal/mcp-reticle
+Project-URL: Repository, https://github.com/labterminal/mcp-reticle
+Project-URL: Documentation, https://github.com/labterminal/mcp-reticle#readme
+Author: Reticle Team
+License-Expression: MIT
+Keywords: ai,debugging,llm,mcp,model-context-protocol,proxy
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Debuggers
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+
+# mcp-reticle
+
+**The Wireshark for the Model Context Protocol**
+
+*See what your Agent sees.*
+
+Reticle intercepts, visualizes, and profiles JSON-RPC traffic between your LLM and MCP servers in real-time — with zero latency overhead.
+
+## Installation
+
+```bash
+pip install mcp-reticle
+```
+
+## Usage
+
+Wrap your MCP server command with `mcp-reticle run`:
+
+```bash
+mcp-reticle run --name my-server -- python -m my_mcp_server
+```
+
+### Claude Desktop Configuration
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "command": "mcp-reticle",
+      "args": ["run", "--name", "my-server", "--", "python", "-m", "my_mcp_server"]
+    }
+  }
+}
+```
+
+## Features
+
+- **Deep Packet Inspection** — See raw JSON-RPC messages in real-time
+- **Request/Response Correlation** — Automatically links responses to requests
+- **Latency Profiling** — Color-coded latency indicators
+- **Token Profiling** — Real-time token estimation per message
+- **Multi-Session Support** — Debug multiple MCP servers simultaneously
+- **Zero-Latency Proxy** — Microsecond overhead
+
+## Documentation
+
+Full documentation at [github.com/labterminal/mcp-reticle](https://github.com/labterminal/mcp-reticle)
+
+## License
+
+MIT
