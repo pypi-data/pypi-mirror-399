@@ -1,0 +1,63 @@
+Metadata-Version: 2.4
+Name: iceberg-cli
+Version: 0.1.0
+Summary: A CLI for Iceberg REST Catalogs leveraging PyIceberg and DataFusion
+Author-email: Alex Merced <alex@alexmerced.com>
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: pyiceberg[datafusion]>=0.8.0
+Requires-Dist: click>=8.1.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: ruamel.yaml>=0.17.0
+Provides-Extra: s3
+Requires-Dist: pyiceberg[s3fs]; extra == "s3"
+Provides-Extra: adls
+Requires-Dist: pyiceberg[adlfs]; extra == "adls"
+Provides-Extra: gcs
+Requires-Dist: pyiceberg[gcsfs]; extra == "gcs"
+Provides-Extra: glue
+Requires-Dist: pyiceberg[glue]; extra == "glue"
+Provides-Extra: hive
+Requires-Dist: pyiceberg[hive]; extra == "hive"
+Provides-Extra: sql
+Requires-Dist: pyiceberg[sql-postgres]; extra == "sql"
+Provides-Extra: all
+Requires-Dist: pyiceberg[adlfs,gcsfs,glue,hive,s3fs,sql-postgres]; extra == "all"
+
+# Iceberg CLI
+
+A powerful, unified command-line interface for Apache Iceberg REST catalogs. This tool extends the capabilities of [PyIceberg](https://py.iceberg.apache.org/) with profile management, DataFusion SQL querying, and robust administrative tools.
+
+## Documentation
+
+**[-> View Full Documentation](./docs/README.md)**
+
+## Installation
+
+```bash
+pip install iceberg-cli
+```
+
+### Storage Extras
+
+```bash
+pip install "iceberg-cli[s3]"   # AWS S3
+pip install "iceberg-cli[adls]" # Azure Data Lake
+pip install "iceberg-cli[gcs]"  # Google Cloud Storage
+pip install "iceberg-cli[all]"  # All backends
+```
+
+## Quick Reference
+
+| Feature | Command |
+| :--- | :--- |
+| **Profiles** | `iceberg profile list`, `add`, `update`, `rename`, `remove` |
+| **Catalog** | `iceberg list`, `create`, `drop` |
+| **Data** | `iceberg query`, `upload`, `files` |
+| **Metadata** | `iceberg describe`, `metadata`, `maintenance` |
+| **Shell** | `iceberg shell`, `completion` |
+
+Run `iceberg docs` or `iceberg <command> --help` for details.
