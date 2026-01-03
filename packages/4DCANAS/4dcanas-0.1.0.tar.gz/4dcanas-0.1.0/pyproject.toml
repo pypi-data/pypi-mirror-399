@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=65.5.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "4DCANAS"
+version = "0.1.0"
+description = "Advanced 4D Visualization and Simulation Library"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "MERO", email = "contact@4dcanas.dev"},
+]
+keywords = [
+    "4D",
+    "visualization",
+    "tesseract",
+    "hypercube",
+    "physics",
+    "simulation",
+    "mathematics",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+
+dependencies = [
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
+    "matplotlib>=3.4.0",
+    "PyOpenGL>=3.1.5",
+    "PyQt5>=5.15.0",
+    "pillow>=8.3.0",
+]
+
+[project.optional-dependencies]
+viz = [
+    "pythreejs>=2.3.0",
+    "jupyter>=1.0.0",
+]
+dev = [
+    "pytest>=6.2.0",
+    "pytest-cov>=2.12.0",
+    "black>=21.5b0",
+    "flake8>=3.9.0",
+    "mypy>=0.910",
+]
+
+[project.urls]
+Homepage = "https://github.com/6x-u/4DCANAS"
+Documentation = "https://github.com/6x-u/4DCANAS/wiki"
+Repository = "https://github.com/6x-u/4DCANAS.git"
+"Bug Tracker" = "https://github.com/6x-u/4DCANAS/issues"
+Telegram = "https://t.me/QP4RM"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]  # <- هذا يضم كل شيء داخل الفولدر
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
