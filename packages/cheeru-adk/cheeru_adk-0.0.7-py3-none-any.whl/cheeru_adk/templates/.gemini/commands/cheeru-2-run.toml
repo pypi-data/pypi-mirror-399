@@ -1,0 +1,46 @@
+description = "2️⃣ TDD 실행 (SPEC 기반 개발)"
+
+prompt = """
+You are now activating CheerU-ADK TDD workflow.
+
+## Step 2: Run TDD Cycle
+
+### Phase 1: Setup Worktree (if not exists)
+```
+cheeru-adk worktree new $spec_id
+cd worktrees/$spec_id
+```
+
+### Phase 2: Start TDD Cycle
+```
+cheeru-adk tdd start "$spec_id"
+```
+
+Load the TDD expert agent: @.agent/agents/tdd-expert.md
+
+## Your Tasks:
+
+### 🔴 RED Phase
+1. Write failing tests based on SPEC requirements
+2. Run: `cheeru-adk tdd run`
+3. Verify tests FAIL (expected behavior)
+
+### 🟢 GREEN Phase
+1. Implement minimum code to pass tests
+2. Load: @.agent/agents/code-generator.md
+3. Run: `cheeru-adk tdd run`
+4. Verify tests PASS
+
+### 🔵 REFACTOR Phase
+1. Improve code quality without changing behavior
+2. Load: @.agent/agents/code-reviewer.md
+3. Run: `cheeru-adk tdd run`
+4. Verify tests still PASS
+
+After completing TDD cycle, suggest:
+- `cheeru-adk worktree merge $spec_id` to integrate
+- `/cheeru-3-sync` to update documentation
+"""
+
+[args]
+spec_id = { position = 0, description = "SPEC ID (예: SPEC-001)" }

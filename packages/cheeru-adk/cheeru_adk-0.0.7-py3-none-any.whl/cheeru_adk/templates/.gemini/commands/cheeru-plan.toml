@@ -1,0 +1,91 @@
+description = "📋 프로젝트 계획 및 기능별 SPEC 생성"
+
+prompt = """
+You are now activating CheerU-ADK's **Feature-Level Planning** mode.
+
+Load the planning agent: @.agent/agents/project-planner.md
+
+## 🎯 Your Mission
+
+프로젝트 "$project"를 **분야별/기능별로 세분화**하여 개별 SPEC을 생성합니다.
+
+## 📋 Step 1: 프로젝트 분석
+
+먼저 프로젝트의 전체 요구사항을 분석하고 다음 구조로 분류하세요:
+
+### 분야 (Domain) 분류
+예시:
+- **인증 (Auth)**: 로그인, 회원가입, 소셜 로그인
+- **사용자 (User)**: 프로필, 설정
+- **상품 (Product)**: 목록, 상세, 검색  
+- **주문 (Order)**: 장바구니, 결제, 배송
+
+### 기능 (Feature) 분류
+각 분야를 개별 기능으로 세분화:
+```
+Auth/
+├── SPEC-001: 이메일 로그인
+├── SPEC-002: 회원가입
+└── SPEC-003: 소셜 로그인 (Google)
+```
+
+## 📋 Step 2: 기능별 SPEC 생성
+
+**각 기능에 대해 개별 SPEC을 생성합니다.**
+
+다음 명령어를 실행하세요:
+```bash
+cheeru-adk spec new "기능명" --worktree
+```
+
+### 예시 시나리오
+프로젝트가 "전자상거래 플랫폼"인 경우:
+```bash
+# Phase 1: 인증
+cheeru-adk spec new "이메일 로그인" --worktree
+cheeru-adk spec new "회원가입" --worktree
+
+# Phase 2: 상품
+cheeru-adk spec new "상품 목록 API" --worktree
+cheeru-adk spec new "상품 검색" --worktree
+```
+
+## 📋 Step 3: SPEC 내용 작성
+
+각 SPEC 파일에 EARS 형식으로 다음을 작성하세요:
+1. **Environment**: 기술 스택
+2. **Assumptions**: 전제 조건
+3. **Requirements**: WHEN/THEN, IF/THEN 규칙
+4. **Success Criteria**: 완료 기준
+
+## 📋 Step 4: 의존성 정의
+
+SPEC 간 의존성을 명시하세요:
+```markdown
+## Dependencies
+- Requires: SPEC-001 (로그인이 필요한 기능의 경우)
+- Blocks: SPEC-003 (이 기능이 완료되어야 진행 가능)
+```
+
+## ⚠️ 중요 규칙
+
+1. **프로젝트 전체를 1개 SPEC으로 만들지 마세요**
+2. 각 SPEC은 **2-4시간 내 완료 가능한 크기**로
+3. 기능 간 **명확한 경계** 유지
+4. 의존성이 복잡하면 **더 작은 SPEC으로 분할**
+
+## 📋 Output Format
+
+다음 표 형식으로 계획을 출력하세요:
+
+| Phase | Domain | SPEC ID | Feature | 예상 시간 | 의존성 |
+|-------|--------|---------|---------|----------|--------|
+| 1 | Auth | SPEC-001 | 이메일 로그인 | 3h | - |
+| 1 | Auth | SPEC-002 | 회원가입 | 2h | - |
+| 2 | Product | SPEC-003 | 상품 목록 | 4h | SPEC-001 |
+
+사용자의 확인 후 각 SPEC을 순서대로 생성합니다.
+"""
+
+[args]
+project = { position = 0, description = "프로젝트 이름 또는 설명" }
