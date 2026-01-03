@@ -1,0 +1,246 @@
+Metadata-Version: 2.4
+Name: ELDB
+Version: 1.1.2
+Summary: A simple ELDB engine for Python
+Author: Baraa
+Author-email: cenomi3041@gavrom.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Database
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: requires-python
+Dynamic: summary
+
+# ELDB — EXTREMELY Lightweight DB Engine
+
+> Simple file-backed fixed-width record database for small projects and experimentation.
+
+ELDB is a minimal, easy-to-use embedded database implemented in Python. It stores tables as binary files with a small text header and fixed-width records. This project is intended for learning, prototyping, and small single-user applications — not for production use.
+
+**Features**
+- **Tiny footprint**: each table is a single `.eldb` file under a database folder
+- **Fixed-size fields**: supports `int` and fixed-length `str` columns
+- **Simple API**: create/load tables, insert/select/update/delete rows, add/delete columns
+- **Primary key index**: builds an in-memory index for a declared primary key on load
+
+
+
+## Installation
+
+No external dependencies — just Python 3.6+.
+
+Clone or copy the repository files to your project folder. The engine writes table files to a folder (default `mydb`).
+
+## Basic Usage
+
+Example session using the `ELDB` class from `ELDB_engine.py`:
+
+```python
+from MicroDB import ELDB
+
+# Create engine (defaults to folder 'mydb')
+db = ELDB(db_folder='ELDB_Data')
+
+# Define table schema: column -> {type, size, nullable}
+columns = {
+    'id': {'type': 'int', 'size': 4, 'nullable': False},
+    'name': {'type': 'str', 'size': 50, 'nullable': False},
+    'age': {'type': 'int', 'size': 4, 'nullable': True}
+}
+
+# Create table with a primary key
+db.create_table('users', columns, primary_key='id', if_not_exists=True)
+
+# Insert a row (note: columns with no value must be nullable or provide default)
+db.insert('users', {'id': 1, 'name': 'Alice', 'age': 30})
+db.insert('users', {'id': 2, 'name': 'Bob'})
+
+# Select rows (where uses dict: column -> (operator, value))
+rows = db.select('users', where={'age': ('>=', 18)}, order_by=('age', False), limit=10)
+print(rows)
+
+# Update rows
+db.update('users', updates={'age': 31}, where={'id': ('=', 1)})
+
+# Delete rows
+db.delete('users', where={'id': ('=', 2)})
+
+# Add a new column
+db.add_column('users', 'email', column_type='str', size=100, nullable=True, default='')
+
+# Delete table
+# db.delete_table('users')
+```
+
+## API Reference
+
+- `ELDB(db_folder='mydb')`
+  - Create engine instance. `db_folder` is the folder where `.eldb` files live.
+
+- `create_table(name, columns, primary_key=None, if_not_exists=False)`
+  - `columns` is a dict mapping column name to options: `{'type': 'int'|'str', 'size': <int>, 'nullable': True|False}`.
+  - `primary_key` (optional) column name to build an in-memory index on load.
+
+- `load_table(table_name)`
+  - Loads an existing `.eldb` table and builds the primary key index if present.
+
+- `insert(table_name, row)`
+  - `row` is a dict of column -> value. Type checks are performed.
+
+- `select(table_name=None, where=None, order_by=None, limit=None, columns=None)`
+  - `table_name`: choose specific table or `None` to select across all tables.
+  - `where`: dict of column -> (operator, value), operators: `=, !=, >, <, >=, <=`.
+  - `order_by`: tuple `(column, reverse)` where `reverse` is `True` for descending.
+  - `limit`: maximum number of rows to return.
+  - `columns`: list of column names to return.
+
+- `update(table_name, updates, where=None)`
+  - `updates` is a dict of column -> new value.
+
+- `delete(table_name, where=None)`
+  - Remove rows matching `where` — omit `where` to remove all rows.
+
+- `add_column(table_name, column_name, column_type='str', size=50, nullable=True, default=None)`
+  - Adds a column to the schema and writes the default value to existing rows.
+
+- `delete_column(table_name, column_name)`
+  - Removes a column from the schema and from existing rows.
+
+- `clear_table(table_name)`
+  - Remove all rows from a table (keeps file and schema).
+
+- `delete_table(table_name)` and `drop_all_tables()`
+  - Remove files from disk.
+
+## Table File Format
+
+Each table is stored as a `.eldb` file under the database folder. The file begins with a single text header line (a Python dictionary representation) that contains the `columns` schema, `primary_key`, and `row_count`. Following the header, records are stored as fixed-size binary blobs. String columns are fixed-length and padded with NUL bytes; integers are 4-byte little-endian signed integers using Python's `struct` format `i`.
+
+Note: The header is written using `str()` and read with `eval()` in the current implementation. This is simple but unsafe for untrusted inputs; do not open files from unknown sources.
+
+## Limitations & Notes
+
+- Binary fixed-width format: you must choose adequate `size` for `str` columns.
+- No concurrency control: this engine is not safe for concurrent writers.
+
+## Suggested Improvements
+
+- Add transaction/locking and append-mode writes for better concurrency.
+- Support variable-length fields or a simple heap for strings to save space.
+- Add basic tests and a small CLI for table inspection.
+
+## Development
+
+
+To experiment interactively, run `python` in the project folder and import the `ELDB` class.
+
+## Contributing
+
+Feel free to open issues or create pull requests with improvements, tests, or bug fixes.
+
+## License
+
+This project is provided as-is for learning and prototyping. No explicit license file is included.
+
+
+# ELDB Database - Changelog
+
+All notable changes to the ELDB database system will be documented in this file.
+
+## [v2.0.0] - 2024-01-15
+### Major Release: Foreign Key Support & Modernization
+
+### ✨ **New Features**
+- **Foreign Key System** - Simulated foreign key constraints with `RESTRICT`/`CASCADE` delete actions
+- **Relation Management** - Establish table relationships via `add_foreign_key()` method
+- **Cascade Operations** - Automatic deletion of dependent records in CASCADE mode
+- **Constraint Validation** - Real-time foreign key validation during insert/update operations
+- **Safe Header Parsing** - Replaced insecure `eval()` with `ast.literal_eval()`
+
+### 🔧 **API Changes**
+```python
+# NEW: Add foreign key constraint
+db.add_foreign_key('orders', 'user_id', 'users', 'id', on_delete='CASCADE')
+
+# NEW: Get foreign key information
+db.get_foreign_keys('orders')
+
+# NEW: Cascade table deletion
+db.delete_table('users', cascade=True)
+
+# ENHANCED: Delete with cascade support
+db.delete('users', where={'id': ('=', 1)})  # Cascades to related orders
+
+```
+
+### **Performance Improvements**
+**Optimized Row Reading** - Streamlined binary parsing with minimal memory usage
+
+**Efficient Index Rebuilding** - Faster primary key index reconstruction
+
+**Memory-Efficient Operations** - Reduced data copying during bulk operations
+
+**Compact Database Command** - New compact() method to rebuild and optimize tables
+
+## 🛡️ **Security Enhancements**
+**Eliminated eval()** - Replaced with secure ast.literal_eval() for header parsing
+
+**Input Validation** - Comprehensive type and constraint checking
+
+**Safe String Handling** - Proper UTF-8 encoding with error resilience
+
+**Constraint Enforcement** - Foreign key validation prevents orphaned records
+
+## **🐛 Bug Fixes**
+**Fixed** - Binary string encoding issues with null bytes
+
+**Fixed** - WHERE clause evaluation with None values
+
+**Fixed** - Index corruption when updating tables
+
+**Fixed** - Memory leak in large table operations
+
+**Fixed** - Concurrent file access issues
+
+## **📊 Schema Management**
+**Enhanced Column Operations** - Better validation for add_column() and delete_column()
+
+**Primary Key Enforcement** - Stricter uniqueness checking
+
+**Nullable Field Support** - Proper handling of optional columns
+
+**Type Safety** - Runtime type checking for all data operations
+
+## **🚨 Breaking Changes**
+**eval() Removal** - Database files from v1.x must be migrated or recreated
+
+**Error Messages** - Changed format for better debugging
+
+**File Structure** - Minor binary format optimization (backward compatible for reads)
+
+**Method Signatures** - delete_table() now accepts cascade parameter
+
+## **📈 Quality of Life**
+**Better Logging** - Informative console output for all operations
+
+**Clear Error Messages** - Descriptive error messages with actionable feedback
+
+**Example Usage** - Comprehensive example in main module
+
+**Type Hints** - Added Python type hints for better IDE support
+
+## **📋 Deprecated**
+❌ **Direct file manipulation** (use ELDB API instead)
+
+❌ **Manual header editing** (unsupported)
+
+❌ **Legacy eval()-based file format**
