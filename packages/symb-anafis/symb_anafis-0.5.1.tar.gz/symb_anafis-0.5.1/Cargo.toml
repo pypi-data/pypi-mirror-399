@@ -1,0 +1,60 @@
+[package]
+name = "symb_anafis"
+version = "0.5.1"
+edition = "2024"
+authors = ["CokieMiner"]
+description = "Fast symbolic differentiation library for Rust"
+license = "Apache-2.0"
+repository = "https://github.com/CokieMiner/SymbAnaFis"
+keywords = [
+    "symbolic",
+    "differentiation",
+    "calculus",
+    "mathematics",
+    "derivatives",
+]
+categories = ["mathematics", "science"]
+readme = "README.md"
+
+[lib]
+name = "symb_anafis"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+num-traits = "0.2.19"
+pyo3 = { version = "0.27.2", features = ["extension-module"], optional = true }
+numpy = { version = "0.27.1", optional = true }
+rayon = { version = "1.11.0", optional = true }
+wide = "1.1.1"
+
+[dev-dependencies]
+criterion = "0.8.1"
+symbolica = "1.2.1"
+quickcheck = "1.0.3"
+dotenvy = "0.15"
+
+[features]
+default = []
+python = ["pyo3", "numpy"]
+parallel = ["rayon"]
+
+[[bench]]
+name = "benchmark"
+harness = false
+path = "benches/rust/benchmark.rs"
+
+[[bench]]
+name = "benchmark_symbolica"
+harness = false
+path = "benches/rust/benchmark_symbolica.rs"
+
+[[bench]]
+name = "large_expr"
+harness = false
+path = "benches/rust/large_expr.rs"
+
+[[bench]]
+name = "benchmark_parallel"
+harness = false
+path = "benches/rust/benchmark_parallel.rs"
+required-features = ["parallel"]
