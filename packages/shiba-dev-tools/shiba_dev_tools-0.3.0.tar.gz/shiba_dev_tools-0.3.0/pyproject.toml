@@ -1,0 +1,88 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "shiba-dev-tools"
+version = "0.3.0"
+description = "Developer tools in a CLI"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.10"
+authors = [
+    { name = "Aaron Lee", email = "leeaaron629@users.noreply.github.com" }
+]
+keywords = [
+    "cli",
+    "developer-tools",
+    "github",
+    "configuration",
+    "devtools",
+    "productivity"
+]
+dependencies = [
+    "python-dotenv==1.2.1",
+    "requests>=2.31.0",
+    "rich>=13.9.0",
+    "typer>=0.20.0",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+    "Typing :: Typed"
+]
+
+[project.scripts]
+sdt = "dev_tools.main:main"
+
+[project.urls]
+Homepage = "https://github.com/leeaaron629/shiba-dev-tools"
+Documentation = "https://github.com/leeaaron629/shiba-dev-tools#readme"
+Repository = "https://github.com/leeaaron629/shiba-dev-tools"
+Issues = "https://github.com/leeaaron629/shiba-dev-tools/issues"
+Changelog = "https://github.com/leeaaron629/shiba-dev-tools/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8.6",
+    "pyright>=1.1.407",
+    "pytest>=9.0.1",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/dev_tools",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["dev_tools"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "C4", "SIM"]
+
+[tool.pyright]
+pythonVersion = "3.10"
+typeCheckingMode = "standard"
+
+[tool.pytest.ini_options]
+testpaths = ["dev_tools_tests"]
+addopts = "-v"
