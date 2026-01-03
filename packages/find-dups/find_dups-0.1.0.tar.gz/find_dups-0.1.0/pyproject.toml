@@ -1,0 +1,46 @@
+[project]
+name = "find-dups"
+version = "0.1.0"
+description = "Simple tool to find duplicate files in a directory tree."
+readme = "README.md"
+authors = [
+    { name = "Sergio F. Gonzalez", email = "sergio.f.gonzalez@gmail.com" },
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.14.8",
+    "pytest-cov>=7.0.0",
+    "pytest-sugar>=1.1.1",
+]
+
+[project.scripts]
+find-dups = "find_dups.main:main"
+
+[build-system]
+requires = ["uv_build>=0.9.15,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+ignore = [
+    "T201", # Allow print statements
+]
+
+# Enable all rules
+select = ["ALL"]
+
+# Specific per-file-ignores for the tests directory
+per-file-ignores = { "tst/**/*.py" = ["S101"] } # Allow assert in tests
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pytest.ini_options]
+addopts = "--verbosity=3 --cov --cov-report=html"
+pythonpath = ["."]
+
+[tool.coverage.run]
+omit = ["tst/*"]
