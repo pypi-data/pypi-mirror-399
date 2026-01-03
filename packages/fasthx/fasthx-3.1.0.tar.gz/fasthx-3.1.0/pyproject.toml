@@ -1,0 +1,110 @@
+[project]
+name = "fasthx"
+dynamic = []
+description = "FastAPI server-side rendering with built-in HTMX support."
+authors = [
+    { name = "Peter Volf", email = "do.volfp@gmail.com" },
+]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.100.0",
+]
+version = "3.1.0"
+
+[project.optional-dependencies]
+htmy = [
+    "htmy[lxml]>=0.10.1",
+]
+jinja = [
+    "jinja2>=3.0.0,<4",
+]
+
+[dependency-groups]
+dev = [
+    "htmy[lxml]>=0.10.1",
+    "httpx>=0.26.0",
+    "jinja2>=3.0.0,<4",
+    "mkdocstrings[python]>=0.30.0",
+    "mypy>=1.17.0",
+    "poethepoet>=0.38.0",
+    "pytest>=9.0.2",
+    "pytest-random-order>=1.2.0",
+    "ruff>=0.14.8,<0.15",
+    "typing-extensions>=4.5.0",
+    "uvicorn>=0.35.0",
+    "zensical>=0.0.11",
+]
+
+[build-system]
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
+
+[tool.mypy]
+strict = true
+show_error_codes = true
+
+[tool.pdm.build]
+excludes = [
+    "tests/",
+    "examples/",
+]
+
+[tool.pdm.version]
+source = "file"
+path = "fasthx/__init__.py"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+addopts = "--random-order"
+
+[tool.ruff]
+line-length = 108
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "dist",
+    "docs",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "S",
+    "C",
+    "B",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = [
+    "S101",
+]
+
+[tool.poe.tasks]
+format = "ruff format --check ."
+format-fix = "ruff format ."
+lint = "ruff check ."
+lint-fix = "ruff . --fix"
+mypy = "mypy ."
+test = "python -m pytest tests"
+serve-docs = "zensical serve"
+
+[tool.poe.tasks.check]
+sequence = [
+    "format",
+    "lint",
+    "mypy",
+]
+ignore_fail = "return_non_zero"
