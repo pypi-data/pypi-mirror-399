@@ -1,0 +1,135 @@
+[tool.poetry]
+name = "hdb-valuation-engine"
+version = "0.4.0"
+description = "Singapore Public Housing (HDB) Valuation Engine using geospatial accessibility scoring."
+authors = ["Mansib \"Xenix\" Miraj"]
+readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/theMansib/hdb-valuation-engine"
+repository = "https://github.com/theMansib/hdb-valuation-engine"
+keywords = ["HDB", "Singapore", "real-estate", "valuation", "geospatial", "MRT", "KDTree", "transport", "LRT", "data-analysis"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Financial and Insurance Industry",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Scientific/Engineering :: GIS",
+]
+# Include package data (PEP 561 type information)
+packages = [{include = "hdb_valuation_engine"}]
+include = ["hdb_valuation_engine/py.typed"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.1"
+numpy = "^1.26"
+scikit-learn = "^1.2"
+requests = "^2.31"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0"
+pytest-cov = "^4.0"
+pyarrow = "^16.0"
+black = "^24.0"
+ruff = "^0.6.0"
+
+[tool.poetry.scripts]
+# Console entry point for CLI
+hdb-valuation-engine = "hdb_valuation_engine.cli:main"
+
+# Black configuration (PEP 8 formatting - Industry Standard)
+[tool.black]
+line-length = 88  # PEP 8 standard (changed from 120 for enterprise compliance)
+target-version = ['py310']
+include = '\\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# Ruff configuration (Enterprise-grade linting)
+[tool.ruff]
+line-length = 88  # Match Black's standard
+target-version = "py310"
+
+[tool.ruff.lint]
+# Comprehensive rule set for institutional code quality
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "A",    # flake8-builtins
+    "C4",   # flake8-comprehensions
+    "ISC",  # flake8-implicit-str-concat
+    "PIE",  # flake8-pie
+    "PYI",  # flake8-pyi
+    "Q",    # flake8-quotes
+    "RET",  # flake8-return
+    "SIM",  # flake8-simplify
+    "TID",  # flake8-tidy-imports
+    "ARG",  # flake8-unused-arguments
+    "PLE",  # pylint errors
+    "PLW",  # pylint warnings
+]
+ignore = ["E501"]  # Line length enforced by Black
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+"tests/*" = ["ARG001", "ARG002"]  # Allow unused arguments in test fixtures
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=hdb_valuation_engine --cov-report=term-missing --cov-report=html"
+
+# MyPy configuration (PEP 484 type checking)
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_untyped_defs = false  # Set to true for strict mode
+disallow_any_unimported = false
+no_implicit_optional = true
+strict_equality = true
+check_untyped_defs = true
+ignore_missing_imports = true
+
+# isort configuration (import sorting - Black compatible)
+[tool.isort]
+profile = "black"
+line_length = 88  # Match Black
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+# Bandit configuration (security linting)
+[tool.bandit]
+exclude_dirs = ["/tests", "/.venv", "/venv", "/build", "/dist"]
+skips = ["B101", "B601"]  # Skip assert_used and shell_injection_subprocess (intentional usage)
+
+[build-system]
+requires = ["poetry-core>=1.7.0"]
+build-backend = "poetry.core.masonry.api"
