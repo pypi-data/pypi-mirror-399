@@ -1,0 +1,25 @@
+# Replace your current MANIFEST.in
+@'
+# Core package files
+include README.md
+include LICENSE
+include pyproject.toml
+include setup.py
+include requirements.txt
+
+# Documentation and examples
+include EXAMPLE_USAGE.md
+recursive-include examples *.py
+recursive-include examples *.md
+
+# Include Python source files
+recursive-include histopca *.py
+
+# Exclude compiled Python files and cache
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store
+global-exclude *.pyc
+'@ | Out-File -Encoding UTF8 MANIFEST.in
+
+Write-Host "✓ Updated MANIFEST.in"
