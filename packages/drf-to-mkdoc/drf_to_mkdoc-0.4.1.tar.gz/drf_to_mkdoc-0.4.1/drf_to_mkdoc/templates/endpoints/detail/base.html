@@ -1,0 +1,51 @@
+<!-- inject CSS and JS directly -->
+{% load custom_filters %}
+{% for stylesheet in stylesheets %}
+<link rel="stylesheet" href="{% static_with_prefix stylesheet prefix_path %}">
+{% endfor %}
+{% for script in scripts %}
+<script src="{% static_with_prefix script prefix_path %}" defer></script>
+{% endfor %}
+
+# {{ method|upper }} {{ path }}
+
+{{ method|format_method_badge|safe }} `{{ path }}`
+
+**View class:** {{ viewset_name }}
+
+{% if summary %}
+## Overview
+
+{{ summary }}
+{% endif %}
+
+{% if operation_id %}
+**Operation ID:** `{{ operation_id }}`
+{% endif %}
+
+{% include "endpoints/detail/permissions.html" %}
+
+{% if description %}
+{{ description|format_description }}
+{% endif %}
+
+{% include "endpoints/detail/path_parameters.html" %}
+{% include "endpoints/detail/query_parameters.html" %}
+{% include "endpoints/detail/request_body.html" %}
+{% include "endpoints/detail/schema.html" %}
+{% include "endpoints/detail/responses.html" %}
+
+{% if enable_auto_auth %}
+<script{% if request.csp_nonce %} nonce="{{ request.csp_nonce }}"{% endif %}>
+    // Auto-authentication configuration
+    window.DRF_TO_MKDOC_AUTH_CONFIG = {
+        enabled: {{ enable_auto_auth|yesno:"true,false" }},
+        authRequired: {{ auth_required|yesno:"true,false" }},
+    };
+    {% if auth_function_js %}
+    {{ auth_function_js|safe }}
+    {% endif %}
+</script>
+{% endif %}
+
+{% include 'try-out/main.html' %}
