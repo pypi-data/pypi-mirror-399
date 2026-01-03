@@ -1,0 +1,126 @@
+# Simulate input (siminput)
+
+模拟键盘与鼠标输入，并顺带检测输入。
+
+## 系统要求
+
+### 支持的平台
+- **操作系统**：Windows 10/11（64位）
+- **架构**：x64/AMD64
+- **Python**：3.14 或更高版本
+
+### 不支持的平台
+- 32位 Windows 系统
+- Linux 或 macOS
+- ARM 架构 Windows
+- Python 2.x
+
+## 安装
+
+### 从`PyPI`安装（推荐）
+```bash
+pip install siminput
+```
+
+### 验证安装
+#### PowerShell
+```bash
+python -c "try:`n import siminput`n print('安装成功')`nexcept:`n print('安装失败，请运行 pip install siminput')"
+```
+
+#### 命令提示符（cmd）或其它
+```bash
+python -c "import siminput; print('安装成功')"
+```
+如果报错提示`ModuleNotFoundError: No module named 'siminput'`则代表安装失败，请运行`pip install siminput`。
+
+## 快速开始
+
+### 基础示例
+```python
+import siminput
+import time
+
+keyname = {
+    "enter": 13,
+    "e": 69,
+    "n": 78,
+    "t": 84,
+    "r": 82
+}
+
+events = [
+    {"keycode": keyname["e"], "flag": "keydown"},
+    {"keycode": keyname["e"], "flag": "keyup"},
+    {"keycode": keyname["n"], "flag": "keydown"},
+    {"keycode": keyname["n"], "flag": "keyup"},
+    {"keycode": keyname["t"], "flag": "keydown"},
+    {"keycode": keyname["t"], "flag": "keyup"},
+    {"keycode": keyname["e"], "flag": "keydown"},
+    {"keycode": keyname["e"], "flag": "keyup"},
+    {"keycode": keyname["r"], "flag": "keydown"},
+    {"keycode": keyname["r"], "flag": "keyup"}
+]
+
+while True:
+    time.sleep(0.001)
+    if siminput.getkeyboard(keyname["enter"]) == "keydown":
+        while siminput.getkeyboard(keyname["enter"]) == "keydown":
+            time.sleep(0.1)
+        siminput.simkeyboard(events)
+```
+
+## API 参考
+### `getkeyboard`函数
+获取键盘按键状态。
+
+#### 参数
+- `keycode`：按键码。
+
+#### 返回值
+- `"keydown"`：按键码对应按键当前处于按下状态。
+- `"keyup"`：按键码对应按键当前处于弹起状态。
+
+### `simkeyboard`函数
+模拟发送一组键盘事件。
+
+#### 参数
+- `events`：一组按键事件。
+
+#### 返回值
+- 成功发送的按键数量。
+
+#### 备注
+- 以下是参数`events`的结构。此内容代表按下并弹起 A 键，然后按下并弹起 B 键。
+```python
+[
+    {
+        "keycode": 65, # A 的按键码
+        "flag": "keydown" # 按下
+    },
+    {
+        "keycode": 65, # A 的按键码
+        "flag": "keyup" # 弹起
+    },
+    {
+        "keycode": 66, # B 的按键码
+        "flag": "keydown" # 按下
+    },
+    {
+        "keycode": 66, # B 的按键码
+        "flag": "keyup" # 弹起
+    },
+]
+```
+
+## 更新日志
+### 最近版本
+- **v0.0.1** (2025-12-30)：
+- - 基础功能发布。
+
+<!-- 完整更新记录请查看项目文件中的 CHANGELOG.md。 -->
+
+## 许可证
+
+这是专有软件。请查看 LICENSE 文件了解详细条款。  
+**重要**: 使用本软件即表示您同意遵守许可证条款。
