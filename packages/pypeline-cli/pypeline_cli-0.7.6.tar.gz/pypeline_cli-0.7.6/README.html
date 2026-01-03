@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="pypeline-cli">pypeline-cli</h1>
+<blockquote>
+<p><strong>A highly-opinionated, batteries-included lightweight framework for building Snowflake ETL pipelines with Snowpark.</strong></p>
+<p>pypeline-cli scaffolds production-ready data pipeline projects with built-in session management, logging, table configuration, and a proven Extract-Transform-Load pattern - allowing developers to focus on business logic while the framework handles infrastructure and best practices.</p>
+</blockquote>
+<p><a href="https://badge.fury.io/py/pypeline-cli"><img src="https://badge.fury.io/py/pypeline-cli.svg" alt="PyPI version"></a>
+<a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.12+-blue.svg" alt="Python 3.12+"></a>
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#why-pypeline-cli">Why pypeline-cli?</a></li>
+<li><a href="#philosophy">Philosophy</a></li>
+<li><a href="#features">Features</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#quick-start-tutorial">Quick Start Tutorial</a></li>
+<li><a href="#command-reference">Command Reference</a></li>
+<li><a href="#project-structure">Project Structure</a></li>
+<li><a href="#example-generated-structures">Example Generated Structures</a></li>
+<li><a href="#development-workflow">Development Workflow</a></li>
+<li><a href="#etl-architecture--best-practices">ETL Architecture &amp; Best Practices</a></li>
+<li><a href="#built-in-utilities">Built-in Utilities</a></li>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#contributing">Contributing</a></li>
+</ul>
+<hr>
+<h2 id="why-pypeline-cli">Why pypeline-cli?</h2>
+<h3 id="the-problem">The Problem</h3>
+<p>Building production data pipelines in Snowflake involves repetitive boilerplate:</p>
+<ul>
+<li>Setting up project structure with proper src-layout</li>
+<li>Configuring Snowpark sessions and managing connections</li>
+<li>Writing table configuration logic for time-partitioned tables</li>
+<li>Implementing logging, timing, and monitoring</li>
+<li>Managing dependencies across multiple files</li>
+<li>Structuring Extract-Transform-Load (ETL) logic consistently</li>
+</ul>
+<p><strong>This takes time away from what matters: your business logic.</strong></p>
+<h3 id="the-solution">The Solution</h3>
+<p>pypeline-cli generates opinionated, production-ready project structures that follow industry best practices. It provides:</p>
+<p>✅ <strong>Instant scaffolding</strong> - Complete project setup in seconds</p>
+<p>✅ <strong>Consistent architecture</strong> - Processor pattern for modular ETL logic</p>
+<p>✅ <strong>Built-in utilities</strong> - Logger, ETL singleton, decorators, table configs</p>
+<p>✅ <strong>Dependency management</strong> - User-friendly Python file instead of TOML editing</p>
+<p>✅ <strong>Snowflake-first</strong> - Designed specifically for Snowpark development</p>
+<hr>
+<h2 id="philosophy">Philosophy</h2>
+<p>pypeline-cli is built on several core principles that guide how data pipelines are structured and organized:</p>
+<h3 id="1-convention-over-configuration">1. <strong>Convention Over Configuration</strong></h3>
+<p>Projects follow a standardized structure. This means:</p>
+<ul>
+<li>Onboarding new team members is faster</li>
+<li>Code reviews focus on business logic, not project setup</li>
+<li>Switching between projects feels familiar</li>
+</ul>
+<h3 id="2-separation-of-concerns">2. <strong>Separation of Concerns</strong></h3>
+<p>Clear boundaries between different pipeline components:</p>
+<ul>
+<li>
+<p><strong>Processors</strong> - A processor is a cohesive group of <strong>atomized transformations</strong>. Each processor:</p>
+<ul>
+<li>Receives pre-loaded data via TableCache (Extract is done at pipeline level)</li>
+<li>Orchestrates transformations in <code>process()</code> (Transform phase)</li>
+<li>Contains private methods that perform single, focused transformations</li>
+<li>Represents a logical unit of work (e.g., &quot;enrich customer data&quot;, &quot;calculate metrics&quot;)</li>
+<li>Returns a transformed DataFrame ready for the next stage</li>
+</ul>
+</li>
+<li>
+<p><strong>Pipelines</strong> - A pipeline is an <strong>organized sequence of processors</strong>. Each pipeline:</p>
+<ul>
+<li><strong>Handles Extract</strong>: Pre-loads all input tables into TableCache in <code>__init__()</code></li>
+<li><strong>Orchestrates Transform</strong>: Instantiates processors with shared cache, chains transformations</li>
+<li><strong>Handles Load</strong>: Writes final output via <code>_write_to_snowflake()</code></li>
+<li>Manages the high-level workflow and business logic</li>
+<li>Provides conditional write logic with the <code>_write</code> flag</li>
+</ul>
+</li>
+<li>
+<p><strong>Utilities</strong> - Framework-provided tools that handle cross-cutting concerns:</p>
+<ul>
+<li><strong>ETL Singleton</strong>: Manages Snowpark session lifecycle</li>
+<li><strong>Logger</strong>: Structured, color-coded logging with context</li>
+<li><strong>TableConfig</strong>: Dynamic table naming with time-based partitioning</li>
+<li><strong>TableCache</strong>: Pre-loads and caches input tables for efficiency</li>
+<li><strong>Decorators</strong>: Performance timing, table existence checks, freshness validation</li>
+<li><strong>Databases/Schemas</strong>: Centralized constants for environment configuration</li>
+</ul>
+</li>
+<li>
+<p><strong>Config</strong> - Configuration files that centralize definitions:</p>
+<ul>
+<li><strong>databases.py</strong>: Database and schema name constants</li>
+<li><strong>tables.py</strong>: TableConfig instances for all data sources</li>
+<li><strong>columns.py</strong>: Column generation utilities for dynamic schemas</li>
+<li><strong>Pipeline config.py</strong>: Pipeline-specific table configurations</li>
+</ul>
+</li>
+</ul>
+<p><strong>The Core Pattern:</strong></p>
+<pre class="hljs"><code><div>Pipeline.__init__()
+    ↓
+Extract: Pre-load all input tables into TableCache
+    ↓
+Processor 1(cache)
+    ↓
+Transform: Access cached tables, apply atomized transformations
+    ↓
+Processor 2(cache)
+    ↓
+Transform: Further transformations, aggregations
+    ↓
+Processor 3(cache)
+    ↓
+Transform: Final transformations
+    ↓
+Pipeline._write_to_snowflake()
+    ↓
+Load: Write final DataFrame to Snowflake
+</div></code></pre>
+<p><strong>Key Insight:</strong> Extract happens <strong>once</strong> at the pipeline level (via TableCache). Each processor receives the pre-loaded cache and focuses purely on <strong>Transform</strong> logic. This eliminates redundant queries and ensures all processors work with identical data snapshots.</p>
+<h3 id="3-developer-experience-first">3. <strong>Developer Experience First</strong></h3>
+<ul>
+<li>Edit dependencies in Python, not TOML</li>
+<li>Automatic import registration for pipelines and processors</li>
+<li>CLI-driven scaffolding reduces copy-paste errors</li>
+<li>Framework files marked &quot;DO NOT MODIFY&quot; for clarity</li>
+<li>User-editable files clearly documented</li>
+<li>Auto-generated test scaffolding with pytest fixtures</li>
+</ul>
+<h3 id="4-production-ready-from-day-one">4. <strong>Production-Ready from Day One</strong></h3>
+<ul>
+<li>Singleton ETL pattern prevents session leaks</li>
+<li>Structured logging with context and timestamps</li>
+<li>Performance timing decorators built-in</li>
+<li>Git integration and proper versioning (hatch-vcs)</li>
+<li>TableCache pattern reduces redundant Snowflake queries</li>
+<li>Comprehensive error handling and validation</li>
+</ul>
+<hr>
+<h2 id="features">Features</h2>
+<h3 id="%F0%9F%9A%80-project-scaffolding">🚀 <strong>Project Scaffolding</strong></h3>
+<ul>
+<li>Generate complete pipeline projects in seconds</li>
+<li>Pre-configured with Snowpark, logging, and utilities</li>
+<li>Git initialization with proper configuration</li>
+</ul>
+<h3 id="%F0%9F%93%A6-smart-dependency-management">📦 <strong>Smart Dependency Management</strong></h3>
+<ul>
+<li>Edit dependencies in a simple Python list</li>
+<li>Automatic synchronization to <code>pyproject.toml</code></li>
+<li>Validation of version specifications</li>
+</ul>
+<h3 id="%F0%9F%8F%97%EF%B8%8F-pipeline--processor-generation">🏗️ <strong>Pipeline &amp; Processor Generation</strong></h3>
+<ul>
+<li>Create pipelines with <code>pypeline create-pipeline</code></li>
+<li>Create processors with <code>pypeline create-processor</code></li>
+<li>Auto-registration for top-level imports</li>
+</ul>
+<h3 id="%F0%9F%94%A7-built-in-utilities">🔧 <strong>Built-in Utilities</strong></h3>
+<ul>
+<li><strong>ETL singleton</strong> for Snowpark session management</li>
+<li><strong>Logger</strong> with color-coded levels and context</li>
+<li><strong>Decorators</strong> for timing, table existence checks, freshness validation</li>
+<li><strong>TableConfig</strong> for dynamic table naming (yearly, monthly, stable)</li>
+</ul>
+<h3 id="%F0%9F%8E%AF-opinionated-templates">🎯 <strong>Opinionated Templates</strong></h3>
+<ul>
+<li>Processor pattern: Extract in <code>__init__</code>, Transform in <code>process()</code></li>
+<li>Pipeline pattern: Orchestrate processors, conditional writes</li>
+<li>Test scaffolding with pytest fixtures</li>
+</ul>
+<hr>
+<h2 id="installation">Installation</h2>
+<h3 id="using-pipx-recommended">Using pipx (Recommended)</h3>
+<pre class="hljs"><code><div>pipx install pypeline-cli
+</div></code></pre>
+<h3 id="using-pip">Using pip</h3>
+<pre class="hljs"><code><div>pip install pypeline-cli
+</div></code></pre>
+<h3 id="from-source">From Source</h3>
+<pre class="hljs"><code><div>git <span class="hljs-built_in">clone</span> https://github.com/dbrown540/pypeline-cli.git
+<span class="hljs-built_in">cd</span> pypeline-cli
+pipx install -e .
+</div></code></pre>
+<hr>
+<h2 id="quick-start-tutorial">Quick Start Tutorial</h2>
+<p>This tutorial will walk you through creating your first data pipeline from scratch.</p>
+<h3 id="step-1-initialize-a-new-project">Step 1: Initialize a New Project</h3>
+<pre class="hljs"><code><div>pypeline init \
+  --name customer_analytics \
+  --author-name <span class="hljs-string">"Jane Doe"</span> \
+  --author-email <span class="hljs-string">"jane@company.com"</span> \
+  --description <span class="hljs-string">"Customer analytics data pipelines"</span> \
+  --license mit
+</div></code></pre>
+<p><strong>What this creates:</strong></p>
+<ul>
+<li>Complete project structure (flat package layout)</li>
+<li>Git repository with initial commit</li>
+<li><code>pyproject.toml</code> configured for Python 3.12+</li>
+<li>Utility modules (ETL, Logger, TableConfig, etc.)</li>
+<li>Dependencies file for easy package management</li>
+</ul>
+<h3 id="step-2-navigate-and-install-dependencies">Step 2: Navigate and Install Dependencies</h3>
+<pre class="hljs"><code><div><span class="hljs-built_in">cd</span> customer_analytics
+pypeline install
+</div></code></pre>
+<p>This creates a <code>.venv</code> virtual environment and installs all dependencies.</p>
+<h3 id="step-3-configure-your-databases-and-tables">Step 3: Configure Your Databases and Tables</h3>
+<p>Edit <code>customer_analytics/utils/databases.py</code>:</p>
+<pre class="hljs"><code><div><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Database</span>:</span>
+    RAW = <span class="hljs-string">"RAW_DATA"</span>
+    STAGING = <span class="hljs-string">"STAGING"</span>
+    PROD = <span class="hljs-string">"PRODUCTION"</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Schema</span>:</span>
+    LANDING = <span class="hljs-string">"LANDING_ZONE"</span>
+    TRANSFORM = <span class="hljs-string">"TRANSFORMED"</span>
+    ANALYTICS = <span class="hljs-string">"ANALYTICS"</span>
+</div></code></pre>
+<p>Edit <code>customer_analytics/utils/tables.py</code>:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> .databases <span class="hljs-keyword">import</span> Database, Schema
+
+<span class="hljs-comment"># Example: Monthly partitioned sales table</span>
+SALES_MONTHLY = TableConfig(
+    database=Database.RAW,
+    schema=Schema.LANDING,
+    table_name_template=<span class="hljs-string">"sales_{MM}"</span>,
+    type=<span class="hljs-string">"MONTHLY"</span>,
+    month=<span class="hljs-number">1</span>  <span class="hljs-comment"># Can be updated dynamically</span>
+)
+
+<span class="hljs-comment"># Example: Yearly customer dimension</span>
+CUSTOMER_DIM = TableConfig(
+    database=Database.PROD,
+    schema=Schema.ANALYTICS,
+    table_name_template=<span class="hljs-string">"dim_customer_{YYYY}"</span>,
+    type=<span class="hljs-string">"YEARLY"</span>
+)
+
+<span class="hljs-comment"># Example: Stable reference table</span>
+PRODUCT_REF = TableConfig(
+    database=Database.PROD,
+    schema=Schema.ANALYTICS,
+    table_name_template=<span class="hljs-string">"ref_products"</span>,
+    type=<span class="hljs-string">"STABLE"</span>
+)
+</div></code></pre>
+<h3 id="step-4-create-your-first-pipeline">Step 4: Create Your First Pipeline</h3>
+<pre class="hljs"><code><div>pypeline create-pipeline --name customer-segmentation
+</div></code></pre>
+<p><strong>What this creates:</strong></p>
+<pre class="hljs"><code><div>customer_analytics/pipelines/customer_segmentation/
+├── __init__.py                        # Package marker
+├── customer_segmentation_runner.py   # Main orchestrator
+├── config.py                          # Pipeline-specific config
+├── README.md                          # Documentation
+├── processors/                        # Processor classes go here
+│   └── __init__.py
+└── tests/                             # Integration tests
+    └── __init__.py
+</div></code></pre>
+<p>The pipeline is automatically registered in your package's <code>__init__.py</code>, allowing:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> customer_analytics <span class="hljs-keyword">import</span> CustomerSegmentationPipeline
+</div></code></pre>
+<h3 id="step-5-create-processors">Step 5: Create Processors</h3>
+<p>Processors handle the Extract and Transform logic. Create a processor for each data source or transformation concern:</p>
+<pre class="hljs"><code><div>pypeline create-processor --name sales-extractor --pipeline customer-segmentation
+pypeline create-processor --name customer-enrichment --pipeline customer-segmentation
+pypeline create-processor --name segmentation-logic --pipeline customer-segmentation
+</div></code></pre>
+<p>Each processor is scaffolded with:</p>
+<ul>
+<li><code>__init__()</code> method for data extraction</li>
+<li><code>process()</code> method for transformations</li>
+<li>Logger and ETL utilities auto-instantiated</li>
+<li>Unit test file with pytest fixtures</li>
+</ul>
+<h3 id="step-6-implement-processor-logic">Step 6: Implement Processor Logic</h3>
+<p>Edit <code>customer_analytics/pipelines/customer_segmentation/processors/sales_extractor_processor.py</code>:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Final
+<span class="hljs-keyword">from</span> snowflake.snowpark <span class="hljs-keyword">import</span> DataFrame
+<span class="hljs-keyword">from</span> snowflake.snowpark.functions <span class="hljs-keyword">import</span> col, sum <span class="hljs-keyword">as</span> sum_, count
+
+<span class="hljs-keyword">from</span> ....utils.etl <span class="hljs-keyword">import</span> ETL
+<span class="hljs-keyword">from</span> ....utils.logger <span class="hljs-keyword">import</span> Logger
+<span class="hljs-keyword">from</span> ....utils.decorators <span class="hljs-keyword">import</span> time_function
+<span class="hljs-keyword">from</span> ..config <span class="hljs-keyword">import</span> SALES_MONTHLY  <span class="hljs-comment"># Import from pipeline config</span>
+
+MODULE_NAME: Final[str] = <span class="hljs-string">"pipelines/customer_segmentation/processors/sales_extractor_processor.py"</span>
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SalesExtractorProcessor</span>:</span>
+    <span class="hljs-string">"""
+    Extracts sales data from monthly partitioned tables.
+
+    This processor reads from the SALES_MONTHLY table configuration and
+    performs initial transformations to prepare data for enrichment.
+    """</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, month: int)</span>:</span>
+        <span class="hljs-string">"""
+        Initialize and extract sales data for specified month.
+
+        Args:
+            month: Month number (1-12) to extract
+        """</span>
+        self.logger = Logger()
+        self.etl = ETL()
+        self.month = month
+
+        <span class="hljs-comment"># Extract: Read from Snowflake using TableConfig</span>
+        SALES_MONTHLY.month = month
+        table_name = SALES_MONTHLY.generate_table_name()
+
+        self.logger.info(
+            message=<span class="hljs-string">f"Extracting sales data from <span class="hljs-subst">{table_name}</span>"</span>,
+            context=MODULE_NAME
+        )
+
+        self.raw_sales_df = self.etl.session.table(table_name)
+
+<span class="hljs-meta">    @time_function(f"{MODULE_NAME}.process")</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">process</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Transform sales data: filter, aggregate, and prepare for enrichment.
+
+        Returns:
+            Transformed DataFrame with customer purchase metrics
+        """</span>
+        self.logger.info(
+            message=<span class="hljs-string">"Starting sales data transformation"</span>,
+            context=MODULE_NAME
+        )
+
+        <span class="hljs-comment"># Apply transformations</span>
+        df = self._filter_valid_transactions()
+        df = self._aggregate_by_customer()
+        df = self._calculate_metrics(df)
+
+        <span class="hljs-keyword">return</span> df
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_filter_valid_transactions</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Filter out invalid or cancelled transactions.
+
+        Returns:
+            Filtered DataFrame
+        """</span>
+        <span class="hljs-keyword">return</span> self.raw_sales_df.filter(
+            (col(<span class="hljs-string">"STATUS"</span>) == <span class="hljs-string">"COMPLETED"</span>) &amp;
+            (col(<span class="hljs-string">"AMOUNT"</span>) &gt; <span class="hljs-number">0</span>)
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_aggregate_by_customer</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Aggregate sales metrics by customer.
+
+        Returns:
+            DataFrame with customer-level aggregates
+        """</span>
+        <span class="hljs-keyword">return</span> self.raw_sales_df.group_by(<span class="hljs-string">"CUSTOMER_ID"</span>).agg(
+            sum_(<span class="hljs-string">"AMOUNT"</span>).alias(<span class="hljs-string">"TOTAL_SALES"</span>),
+            count(<span class="hljs-string">"TRANSACTION_ID"</span>).alias(<span class="hljs-string">"TRANSACTION_COUNT"</span>)
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_calculate_metrics</span><span class="hljs-params">(self, df: DataFrame)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Calculate derived metrics like average order value.
+
+        Args:
+            df: Aggregated DataFrame
+
+        Returns:
+            DataFrame with calculated metrics
+        """</span>
+        <span class="hljs-keyword">return</span> df.with_column(
+            <span class="hljs-string">"AVG_ORDER_VALUE"</span>,
+            col(<span class="hljs-string">"TOTAL_SALES"</span>) / col(<span class="hljs-string">"TRANSACTION_COUNT"</span>)
+        )
+</div></code></pre>
+<h3 id="step-7-wire-processors-in-pipeline-runner">Step 7: Wire Processors in Pipeline Runner</h3>
+<p>Edit <code>customer_analytics/pipelines/customer_segmentation/customer_segmentation_runner.py</code>:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Final, Literal
+
+<span class="hljs-keyword">from</span> snowflake.snowpark <span class="hljs-keyword">import</span> DataFrame
+
+<span class="hljs-keyword">from</span> ...utils.etl <span class="hljs-keyword">import</span> ETL
+<span class="hljs-keyword">from</span> ...utils.logger <span class="hljs-keyword">import</span> Logger
+<span class="hljs-keyword">from</span> ...utils.decorators <span class="hljs-keyword">import</span> time_function
+
+<span class="hljs-comment"># Import processors (auto-added by create-processor command)</span>
+<span class="hljs-keyword">from</span> .processors.sales_extractor_processor <span class="hljs-keyword">import</span> SalesExtractorProcessor
+<span class="hljs-keyword">from</span> .processors.customer_enrichment_processor <span class="hljs-keyword">import</span> CustomerEnrichmentProcessor
+<span class="hljs-keyword">from</span> .processors.segmentation_logic_processor <span class="hljs-keyword">import</span> SegmentationLogicProcessor
+
+MODULE_NAME: Final[str] = Path(__file__).name
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomerSegmentationPipeline</span>:</span>
+    <span class="hljs-string">"""
+    Customer segmentation pipeline.
+
+    Extracts sales data, enriches with customer attributes, and applies
+    segmentation logic to classify customers into segments.
+    """</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, month: int)</span>:</span>
+        <span class="hljs-string">"""
+        Initialize pipeline.
+
+        Args:
+            month: Month to process (1-12)
+        """</span>
+        self.logger = Logger()
+        self.etl = ETL()
+        self.month = month
+
+<span class="hljs-meta">    @time_function("CustomerSegmentationPipeline.run")</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">run</span><span class="hljs-params">(self, _write: bool = False)</span>:</span>
+        <span class="hljs-string">"""
+        Entry point for pipeline execution.
+
+        Args:
+            _write: If True, writes results to Snowflake
+        """</span>
+        self.pipeline(_write)
+        self.logger.info(
+            message=<span class="hljs-string">"Customer segmentation pipeline completed successfully."</span>,
+            context=MODULE_NAME,
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pipeline</span><span class="hljs-params">(self, _write: bool)</span>:</span>
+        <span class="hljs-string">"""
+        Orchestrate processor execution and write logic.
+
+        Args:
+            _write: If True, writes results to Snowflake
+        """</span>
+        df: DataFrame = self.run_processors()
+
+        <span class="hljs-keyword">if</span> _write:
+            table_path = <span class="hljs-string">f"PRODUCTION.ANALYTICS.customer_segments_<span class="hljs-subst">{self.month:<span class="hljs-number">02</span>d}</span>"</span>
+            self._write_to_snowflake(df, write_mode=<span class="hljs-string">"overwrite"</span>, table_path=table_path)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">run_processors</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Instantiate and run processors in sequence.
+
+        Returns:
+            Final DataFrame with customer segments
+        """</span>
+        <span class="hljs-comment"># Extract sales data</span>
+        sales_processor = SalesExtractorProcessor(month=self.month)
+        sales_df = sales_processor.process()
+
+        <span class="hljs-comment"># Enrich with customer data</span>
+        enrichment_processor = CustomerEnrichmentProcessor(sales_df=sales_df)
+        enriched_df = enrichment_processor.process()
+
+        <span class="hljs-comment"># Apply segmentation logic</span>
+        segmentation_processor = SegmentationLogicProcessor(enriched_df=enriched_df)
+        segmented_df = segmentation_processor.process()
+
+        <span class="hljs-keyword">return</span> segmented_df
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_write_to_snowflake</span><span class="hljs-params">(
+        self,
+        df: DataFrame,
+        write_mode: Literal[<span class="hljs-string">"append"</span>, <span class="hljs-string">"overwrite"</span>, <span class="hljs-string">"truncate"</span>],
+        table_path: str,
+    )</span>:</span>
+        <span class="hljs-string">"""
+        Write DataFrame to Snowflake table.
+
+        Args:
+            df: DataFrame to write
+            write_mode: Write mode for save_as_table
+            table_path: Fully qualified table name
+        """</span>
+        self.logger.info(
+            message=<span class="hljs-string">f"Writing DataFrame to <span class="hljs-subst">{table_path}</span>"</span>,
+            context=MODULE_NAME
+        )
+
+        df.write.mode(write_mode).save_as_table(table_path)
+
+        self.logger.info(
+            message=<span class="hljs-string">f"Successfully saved table to <span class="hljs-subst">{table_path}</span>"</span>,
+            context=MODULE_NAME
+        )
+
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
+    pipeline = CustomerSegmentationPipeline(month=<span class="hljs-number">3</span>)
+    pipeline.run(_write=<span class="hljs-literal">True</span>)
+</div></code></pre>
+<h3 id="step-8-run-your-pipeline">Step 8: Run Your Pipeline</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Activate virtual environment</span>
+<span class="hljs-built_in">source</span> .venv/bin/activate
+
+<span class="hljs-comment"># Run the pipeline</span>
+python -m customer_analytics.pipelines.customer_segmentation.customer_segmentation_runner
+</div></code></pre>
+<p>Or import and run programmatically:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> customer_analytics <span class="hljs-keyword">import</span> CustomerSegmentationPipeline
+
+pipeline = CustomerSegmentationPipeline(month=<span class="hljs-number">3</span>)
+pipeline.run(_write=<span class="hljs-literal">True</span>)
+</div></code></pre>
+<hr>
+<h2 id="command-reference">Command Reference</h2>
+<h3 id="pypeline-init"><code>pypeline init</code></h3>
+<p>Creates a new pypeline project with complete structure.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div>pypeline init \
+  --name my-pipeline \
+  --author-name <span class="hljs-string">"Your Name"</span> \
+  --author-email <span class="hljs-string">"you@example.com"</span> \
+  --description <span class="hljs-string">"Pipeline description"</span> \
+  --license mit
+</div></code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--destination PATH</code> - Where to create project (default: current directory)</li>
+<li><code>--name TEXT</code> - Project name (required, must be valid Python identifier)</li>
+<li><code>--author-name TEXT</code> - Author name (required)</li>
+<li><code>--author-email TEXT</code> - Author email (required)</li>
+<li><code>--description TEXT</code> - Project description (required)</li>
+<li><code>--license TEXT</code> - License type (required)
+<ul>
+<li>Available: <code>mit</code>, <code>apache-2.0</code>, <code>gpl-3.0</code>, <code>gpl-2.0</code>, <code>lgpl-2.1</code>, <code>bsd-2-clause</code>, <code>bsd-3-clause</code>, <code>bsl-1.0</code>, <code>cc0-1.0</code>, <code>epl-2.0</code>, <code>agpl-3.0</code>, <code>mpl-2.0</code>, <code>unlicense</code>, <code>proprietary</code></li>
+</ul>
+</li>
+<li><code>--company-name TEXT</code> - Company/organization name (optional, for license)</li>
+<li><code>--git / --no-git</code> - Initialize git repository (default: disabled)</li>
+</ul>
+<p><strong>What it creates:</strong></p>
+<ul>
+<li>Project directory with src-layout</li>
+<li>Git repository with initial commit (if <code>--git</code> flag used)</li>
+<li><code>pyproject.toml</code> with either:
+<ul>
+<li>Git-based versioning (if <code>--git</code>): Uses hatch-vcs, version from git tags</li>
+<li>Manual versioning (if <code>--no-git</code>): Static version &quot;0.1.0&quot;</li>
+</ul>
+</li>
+<li>Utility modules in <code>{project}/utils/</code></li>
+<li>Test directory structure</li>
+<li><code>dependencies.py</code> for dependency management</li>
+<li>LICENSE file</li>
+<li><code>.gitignore</code> and optionally <code>.gitattributes</code> (if using git)</li>
+</ul>
+<hr>
+<h3 id="pypeline-create-pipeline"><code>pypeline create-pipeline</code></h3>
+<p>Creates a new pipeline within an existing pypeline project.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div>pypeline create-pipeline --name customer-segmentation
+</div></code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--name TEXT</code> - Pipeline name (required)
+<ul>
+<li>Accepts alphanumeric, hyphens, underscores</li>
+<li>Normalizes to lowercase with underscores</li>
+<li>Generates PascalCase class name with &quot;Pipeline&quot; suffix</li>
+</ul>
+</li>
+</ul>
+<p><strong>What it creates:</strong></p>
+<pre class="hljs"><code><div>pipelines/{pipeline_name}/
+├── {pipeline_name}_runner.py    # Main orchestrator
+├── config.py                     # Pipeline-specific configuration
+├── README.md                     # Documentation template
+├── processors/                   # Processor classes
+│   └── __init__.py
+└── tests/                        # Integration tests
+    └── __init__.py
+</div></code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Auto-registers pipeline class in package <code>__init__.py</code></li>
+<li>Enables top-level imports: <code>from my_project import CustomerSegmentationPipeline</code></li>
+<li>Includes template methods for run(), pipeline(), run_processors(), and _write_to_snowflake()</li>
+</ul>
+<hr>
+<h3 id="pypeline-create-processor"><code>pypeline create-processor</code></h3>
+<p>Creates a new processor within an existing pipeline.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div>pypeline create-processor --name sales-extractor --pipeline customer-segmentation
+</div></code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--name TEXT</code> - Processor name (required)</li>
+<li><code>--pipeline TEXT</code> - Pipeline name where processor will be created (required)</li>
+</ul>
+<p><strong>What it creates:</strong></p>
+<pre class="hljs"><code><div>pipelines/{pipeline}/processors/
+├── {processor_name}_processor.py           # Processor class
+└── tests/
+    └── test_{processor_name}_processor.py  # Unit tests
+</div></code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Auto-imports Logger, ETL, time_function decorator</li>
+<li>Scaffolds <code>__init__()</code> for extraction</li>
+<li>Scaffolds <code>process()</code> method for transformations</li>
+<li>Auto-registers import in pipeline runner file</li>
+<li>Includes pytest test template with fixtures</li>
+</ul>
+<p><strong>Example generated processor:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SalesExtractorProcessor</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        self.logger = Logger()
+        self.etl = ETL()
+        <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Extract data using TableConfig</span>
+
+<span class="hljs-meta">    @time_function(f"{MODULE_NAME}.process")</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">process</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Implement transformations</span>
+        <span class="hljs-keyword">pass</span>
+</div></code></pre>
+<hr>
+<h3 id="pypeline-sync-deps"><code>pypeline sync-deps</code></h3>
+<p>Synchronizes dependencies from <code>dependencies.py</code> to <code>pyproject.toml</code>.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div>pypeline sync-deps
+</div></code></pre>
+<p><strong>Workflow:</strong></p>
+<ol>
+<li>Edit <code>dependencies.py</code>:<pre class="hljs"><code><div>DEFAULT_DEPENDENCIES = [
+    <span class="hljs-string">"snowflake-snowpark-python&gt;=1.42.0"</span>,
+    <span class="hljs-string">"pandas&gt;=2.2.0"</span>,
+    <span class="hljs-string">"requests&gt;=2.31.0"</span>,  <span class="hljs-comment"># Added</span>
+]
+</div></code></pre>
+</li>
+<li>Run <code>pypeline sync-deps</code></li>
+<li><code>pyproject.toml</code> is automatically updated with proper formatting</li>
+</ol>
+<p><strong>Why this approach?</strong></p>
+<ul>
+<li>User-friendly: Edit a simple Python list instead of TOML</li>
+<li>Version control friendly: Track changes in readable format</li>
+<li>Validation: Automatic validation of version specifiers</li>
+<li>No manual TOML editing errors</li>
+</ul>
+<hr>
+<h3 id="pypeline-install"><code>pypeline install</code></h3>
+<p>Creates virtual environment and installs project dependencies.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-built_in">cd</span> your-project
+pypeline install
+</div></code></pre>
+<p><strong>What it does:</strong></p>
+<ol>
+<li>Detects Python 3.12 or 3.13 on your system</li>
+<li>Creates <code>.venv</code> directory</li>
+<li>Upgrades pip to latest version</li>
+<li>Installs project in editable mode</li>
+<li>Installs all dependencies from <code>pyproject.toml</code></li>
+</ol>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>Python 3.12 or 3.13 must be available on system</li>
+<li>Project must have valid <code>pyproject.toml</code></li>
+</ul>
+<hr>
+<h3 id="pypeline-build"><code>pypeline build</code></h3>
+<p>Creates a Snowflake-compatible ZIP archive of your project with <code>pyproject.toml</code> at the root level.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-built_in">cd</span> your-project
+pypeline build
+</div></code></pre>
+<p><strong>What it does:</strong></p>
+<ol>
+<li>Finds project root and reads <code>pyproject.toml</code> for project name and version</li>
+<li>Cleans existing <code>dist/snowflake/</code> directory</li>
+<li>Creates ZIP archive with all project files</li>
+<li>Ensures <code>pyproject.toml</code> is at ZIP root level (critical for Snowflake)</li>
+<li>Excludes build artifacts, venv, and cache files</li>
+<li>Verifies structure and displays upload instructions</li>
+</ol>
+<p><strong>Output:</strong></p>
+<pre class="hljs"><code><div>dist/
+└── snowflake/
+    └── my_project-0.1.0.zip    # Snowflake-ready ZIP
+</div></code></pre>
+<p><strong>ZIP Contents:</strong>
+When extracted, the ZIP contains your project files at the root level:</p>
+<pre class="hljs"><code><div>my_project-0.1.0.zip
+├── pyproject.toml           # At root - required by Snowflake
+├── my_project/              # Package at root - importable
+│   ├── __init__.py
+│   ├── pipelines/
+│   │   └── __init__.py
+│   ├── schemas/
+│   │   └── __init__.py
+│   └── utils/
+│       └── __init__.py
+</div></code></pre>
+<p><strong>Why This Structure Matters:</strong>
+Snowflake stages are strict about ZIP structure:</p>
+<ul>
+<li>✅ Correct: <code>pyproject.toml</code> at root → Snowflake can import the package</li>
+<li>❌ Wrong: <code>project_folder/pyproject.toml</code> → Snowflake import fails</li>
+</ul>
+<p>pypeline build ensures the correct structure automatically.</p>
+<p><strong>Excluded from ZIP:</strong></p>
+<ul>
+<li><code>.venv/</code> - Virtual environment</li>
+<li><code>dist/</code> - Distribution files</li>
+<li><code>__pycache__/</code>, <code>.pytest_cache/</code> - Python caches</li>
+<li><code>.git/</code> - Git repository</li>
+<li><code>*.pyc</code>, <code>*.pyo</code>, <code>.DS_Store</code> - Build artifacts</li>
+</ul>
+<p><strong>Upload to Snowflake:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment">-- From SnowSQL or Snowflake worksheet</span>
+PUT file://dist/snowflake/my_project-0.1.0.zip @your_stage AUTO_COMPRESS=FALSE;
+
+<span class="hljs-comment">-- Verify upload</span>
+LIST @your_stage;
+
+<span class="hljs-comment">-- Use in Snowpark procedure or UDF</span>
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">OR</span> <span class="hljs-keyword">REPLACE</span> <span class="hljs-keyword">PROCEDURE</span> run_customer_segmentation()
+<span class="hljs-keyword">RETURNS</span> <span class="hljs-keyword">STRING</span>
+<span class="hljs-keyword">LANGUAGE</span> PYTHON
+RUNTIME_VERSION = <span class="hljs-string">'3.12'</span>
+PACKAGES = (<span class="hljs-string">'snowflake-snowpark-python'</span>)
+IMPORTS = (<span class="hljs-string">'@your_stage/my_project-0.1.0.zip'</span>)
+<span class="hljs-keyword">HANDLER</span> = <span class="hljs-string">'my_project.pipelines.customer_segmentation.customer_segmentation_runner.CustomerSegmentationPipeline.run'</span>;
+</div></code></pre>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>Must run from within a pypeline project (looks for <code>pyproject.toml</code> with <code>[tool.pypeline]</code>)</li>
+<li>Project must have valid <code>pyproject.toml</code></li>
+</ul>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Run <code>pypeline build</code> before deploying to Snowflake</li>
+<li>Version your project:
+<ul>
+<li>With git: <code>git tag v0.1.0</code> (if using <code>--git</code> flag during init)</li>
+<li>Without git: Update <code>version</code> in <code>pyproject.toml</code> manually</li>
+</ul>
+</li>
+<li>Review excluded files - ensure no sensitive data is included</li>
+<li>Test ZIP structure with <code>unzip -l dist/snowflake/*.zip</code></li>
+</ul>
+<hr>
+<h2 id="project-structure">Project Structure</h2>
+<p>When you run <code>pypeline init --name my_pipeline</code>, it creates:</p>
+<pre class="hljs"><code><div>my_pipeline/
+├── my_pipeline/                     # Package directory (no src/ folder)
+│   ├── __init__.py              # Auto-generated imports
+│   ├── _version.py              # Git tag-based versioning (if using --git)
+│   ├── pipelines/               # Your pipeline implementations
+│   │   └── __init__.py
+│   ├── schemas/                 # Data schema definitions
+│   │   └── __init__.py
+│   └── utils/                   # Utility modules
+│       ├── __init__.py
+│       ├── databases.py         # ✏️ USER EDITABLE - Database constants
+│       ├── tables.py            # ✏️ USER EDITABLE - Table configurations
+│       ├── etl.py               # ⚙️ FRAMEWORK - Snowpark session manager
+│       ├── logger.py            # ⚙️ FRAMEWORK - Structured logging
+│       ├── decorators.py        # ⚙️ FRAMEWORK - Timing, table checks
+│       ├── date_parser.py       # ⚙️ FRAMEWORK - DateTime utilities
+│       ├── snowflake_utils.py   # ⚙️ FRAMEWORK - Snowflake helpers
+│       └── columns.py           # ⚙️ FRAMEWORK - Column utilities
+├── tests/                           # Integration tests
+│   └── test_basic.py
+├── dependencies.py                  # ✏️ USER EDITABLE - Dependency management
+├── pyproject.toml                   # Project configuration
+├── LICENSE                          # Your chosen license
+├── README.md                        # Project readme
+└── .gitignore                       # Python gitignore
+</div></code></pre>
+<h3 id="file-annotations">File Annotations</h3>
+<ul>
+<li><strong>✏️ USER EDITABLE</strong> - Safe and encouraged to modify</li>
+<li><strong>⚙️ FRAMEWORK</strong> - Auto-generated, do not modify (marked in file headers)</li>
+</ul>
+<hr>
+<h2 id="example-generated-structures">Example Generated Structures</h2>
+<h3 id="complete-project-example">Complete Project Example</h3>
+<p>Here's what <code>pypeline init --name customer_analytics</code> creates:</p>
+<pre class="hljs"><code><div>customer_analytics/
+├── pyproject.toml                      # Auto-generated project config
+├── dependencies.py                     # ✏️ User-managed dependency list
+├── LICENSE                             # Selected license (MIT, Apache, etc.)
+├── README.md                           # Project documentation template
+├── .gitignore                          # Python .gitignore (4500+ lines)
+├── .gitattributes                      # Line ending config (if using --git)
+├── customer_analytics/                 # Main package
+│   ├── __init__.py                     # Auto-registered pipeline imports
+│   ├── pipelines/                      # Pipeline implementations
+│   │   └── __init__.py
+│   ├── schemas/                        # Data schema definitions
+│   │   └── __init__.py
+│   └── utils/                          # Utility modules
+│       ├── __init__.py
+│       ├── columns.py                  # ✏️ Column generation utilities
+│       ├── databases.py                # ✏️ Database/schema constants
+│       ├── tables.py                   # ✏️ TableConfig definitions
+│       ├── decorators.py               # ⚙️ Timing, checks, validation
+│       ├── etl.py                      # ⚙️ Snowpark session singleton
+│       ├── logger.py                   # ⚙️ Structured logging
+│       ├── table_cache.py              # ⚙️ Table pre-loading cache
+│       ├── date_parser.py              # ⚙️ Date utilities
+│       └── snowflake_utils.py          # ⚙️ Snowflake helpers
+└── tests/                              # Integration tests
+    └── basic_test.py                   # Placeholder test
+</div></code></pre>
+<hr>
+<h3 id="pipeline-structure-example">Pipeline Structure Example</h3>
+<p>After running <code>pypeline create-pipeline --name customer-segmentation</code>:</p>
+<pre class="hljs"><code><div>customer_analytics/pipelines/customer_segmentation/
+├── __init__.py
+├── customer_segmentation_runner.py     # Main pipeline orchestrator
+├── config.py                            # Pipeline-specific TableConfigs
+├── README.md                            # Pipeline documentation
+├── processors/                          # Processor implementations
+│   └── __init__.py
+└── tests/                               # Integration tests
+    └── __init__.py
+</div></code></pre>
+<p><strong>Generated <code>customer_segmentation_runner.py</code>:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Final, Literal
+
+<span class="hljs-keyword">from</span> snowflake.snowpark <span class="hljs-keyword">import</span> DataFrame
+
+<span class="hljs-keyword">from</span> ...utils.etl <span class="hljs-keyword">import</span> ETL
+<span class="hljs-keyword">from</span> ...utils.logger <span class="hljs-keyword">import</span> Logger
+<span class="hljs-keyword">from</span> ...utils.decorators <span class="hljs-keyword">import</span> time_function
+<span class="hljs-keyword">from</span> ...utils.table_cache <span class="hljs-keyword">import</span> TableCache
+
+MODULE_NAME: Final[str] = Path(__file__).name
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomerSegmentationPipeline</span>:</span>
+    <span class="hljs-string">"""
+    Customer segmentation pipeline.
+
+    TODO: Add pipeline description and business logic overview.
+    """</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-string">"""Initialize pipeline with logger, ETL, and table cache."""</span>
+        self.logger = Logger()
+        self.etl = ETL()
+
+        <span class="hljs-comment"># Initialize table cache and pre-load input tables</span>
+        self.cache = TableCache()
+        <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Add tables to cache</span>
+        <span class="hljs-comment"># self.cache.add_table("customers", "DATABASE.SCHEMA.TABLE")</span>
+
+<span class="hljs-meta">    @time_function("CustomerSegmentationPipeline.run")</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">run</span><span class="hljs-params">(self, _write: bool = False)</span>:</span>
+        <span class="hljs-string">"""
+        Entry point for pipeline execution.
+
+        Args:
+            _write: If True, writes results to Snowflake
+        """</span>
+        self.pipeline(_write)
+        self.logger.info(
+            message=<span class="hljs-string">"Customer segmentation pipeline completed successfully."</span>,
+            context=MODULE_NAME,
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pipeline</span><span class="hljs-params">(self, _write: bool)</span>:</span>
+        <span class="hljs-string">"""
+        Orchestrate processor execution and write logic.
+
+        Args:
+            _write: If True, writes to Snowflake
+        """</span>
+        df: DataFrame = self.run_processors()
+
+        <span class="hljs-keyword">if</span> _write:
+            <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Configure target table</span>
+            table_path = <span class="hljs-string">"DATABASE.SCHEMA.TABLE"</span>
+            self._write_to_snowflake(df, write_mode=<span class="hljs-string">"overwrite"</span>, table_path=table_path)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">run_processors</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Instantiate and run processors in sequence.
+
+        Returns:
+            Final transformed DataFrame
+        """</span>
+        <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Instantiate processors and chain transformations</span>
+        <span class="hljs-comment"># processor1 = Processor1(self.cache)</span>
+        <span class="hljs-comment"># df = processor1.process()</span>
+        <span class="hljs-comment"># return df</span>
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_write_to_snowflake</span><span class="hljs-params">(
+        self,
+        df: DataFrame,
+        write_mode: Literal[<span class="hljs-string">"append"</span>, <span class="hljs-string">"overwrite"</span>, <span class="hljs-string">"truncate"</span>, <span class="hljs-string">"errorifexists"</span>, <span class="hljs-string">"ignore"</span>],
+        table_path: str,
+    )</span>:</span>
+        <span class="hljs-string">"""
+        Write DataFrame to Snowflake table.
+
+        Args:
+            df: DataFrame to write
+            write_mode: Write mode for save_as_table
+            table_path: Fully qualified table name (DATABASE.SCHEMA.TABLE)
+        """</span>
+        self.logger.info(
+            message=<span class="hljs-string">f"Writing DataFrame to <span class="hljs-subst">{table_path}</span>"</span>,
+            context=MODULE_NAME
+        )
+
+        df.write.mode(write_mode).save_as_table(table_path)
+
+        self.logger.info(
+            message=<span class="hljs-string">f"Successfully saved table to <span class="hljs-subst">{table_path}</span>"</span>,
+            context=MODULE_NAME
+        )
+
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
+    pipeline = CustomerSegmentationPipeline()
+    pipeline.run(_write=<span class="hljs-literal">False</span>)
+</div></code></pre>
+<p><strong>Generated <code>config.py</code>:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-string">"""
+Pipeline-specific configuration for customer_segmentation.
+
+Define TableConfig instances for this pipeline's input and output tables.
+"""</span>
+
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Dict
+<span class="hljs-keyword">from</span> ..utils.tables <span class="hljs-keyword">import</span> TableConfig
+<span class="hljs-keyword">from</span> ..utils.databases <span class="hljs-keyword">import</span> Database, Schema
+
+<span class="hljs-comment"># Example TableConfig instances</span>
+<span class="hljs-comment"># Uncomment and customize for your pipeline:</span>
+
+<span class="hljs-comment"># INPUT_TABLES: Dict[str, TableConfig] = {</span>
+<span class="hljs-comment">#     "sales": TableConfig(</span>
+<span class="hljs-comment">#         database=Database.RAW,</span>
+<span class="hljs-comment">#         schema=Schema.LANDING,</span>
+<span class="hljs-comment">#         table_name_template="sales_{MM}",</span>
+<span class="hljs-comment">#         type="MONTHLY",</span>
+<span class="hljs-comment">#         month=1</span>
+<span class="hljs-comment">#     ),</span>
+<span class="hljs-comment"># }</span>
+
+<span class="hljs-comment"># OUTPUT_TABLE = TableConfig(</span>
+<span class="hljs-comment">#     database=Database.PROD,</span>
+<span class="hljs-comment">#     schema=Schema.ANALYTICS,</span>
+<span class="hljs-comment">#     table_name_template="customer_segments",</span>
+<span class="hljs-comment">#     type="STABLE"</span>
+<span class="hljs-comment"># )</span>
+</div></code></pre>
+<hr>
+<h3 id="processor-structure-example">Processor Structure Example</h3>
+<p>After running <code>pypeline create-processor --name sales-enrichment --pipeline customer-segmentation</code>:</p>
+<pre class="hljs"><code><div>customer_analytics/pipelines/customer_segmentation/processors/
+├── __init__.py
+├── sales_enrichment_processor.py       # Processor implementation
+└── tests/
+    ├── __init__.py
+    └── test_sales_enrichment_processor.py  # Unit tests
+</div></code></pre>
+<p><strong>Generated <code>sales_enrichment_processor.py</code>:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> Final
+
+<span class="hljs-keyword">from</span> snowflake.snowpark <span class="hljs-keyword">import</span> DataFrame
+
+<span class="hljs-keyword">from</span> ....utils.etl <span class="hljs-keyword">import</span> ETL
+<span class="hljs-keyword">from</span> ....utils.logger <span class="hljs-keyword">import</span> Logger
+<span class="hljs-keyword">from</span> ....utils.decorators <span class="hljs-keyword">import</span> time_function
+<span class="hljs-keyword">from</span> ....utils.table_cache <span class="hljs-keyword">import</span> TableCache
+
+MODULE_NAME: Final[str] = Path(__file__).name
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SalesEnrichmentProcessor</span>:</span>
+    <span class="hljs-string">"""
+    Sales enrichment processor.
+
+    TODO: Add processor description and transformation logic overview.
+    """</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, cache: TableCache)</span>:</span>
+        <span class="hljs-string">"""
+        Initialize processor and extract data.
+
+        Args:
+            cache: Pre-populated TableCache from pipeline
+        """</span>
+        self.logger = Logger()
+        self.etl = ETL()
+        self.cache = cache
+
+        <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Extract data using cache</span>
+        <span class="hljs-comment"># self.sales_df = cache.get_table("sales")</span>
+
+        self.logger.info(
+            message=<span class="hljs-string">"Initialized SalesEnrichmentProcessor"</span>,
+            context=MODULE_NAME
+        )
+
+<span class="hljs-meta">    @time_function(f"{MODULE_NAME}.process")</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">process</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Transform data through orchestrated steps.
+
+        TODO: Implement transformation logic
+
+        Returns:
+            Transformed DataFrame
+        """</span>
+        self.logger.info(
+            message=<span class="hljs-string">"Processing sales enrichment transformations"</span>,
+            context=MODULE_NAME
+        )
+
+        <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Chain transformation methods</span>
+        <span class="hljs-comment"># df = self._filter_valid_sales()</span>
+        <span class="hljs-comment"># df = self._enrich_with_customer_data(df)</span>
+        <span class="hljs-comment"># df = self._calculate_metrics(df)</span>
+        <span class="hljs-comment"># return df</span>
+
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Add private transformation methods</span>
+    <span class="hljs-comment"># def _filter_valid_sales(self) -&gt; DataFrame:</span>
+    <span class="hljs-comment">#     """Filter to valid sales records."""</span>
+    <span class="hljs-comment">#     pass</span>
+</div></code></pre>
+<p><strong>Generated <code>test_sales_enrichment_processor.py</code>:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> pytest
+<span class="hljs-keyword">from</span> unittest.mock <span class="hljs-keyword">import</span> Mock, MagicMock
+<span class="hljs-keyword">from</span> snowflake.snowpark <span class="hljs-keyword">import</span> DataFrame
+
+<span class="hljs-keyword">from</span> customer_analytics.pipelines.customer_segmentation.processors.sales_enrichment_processor <span class="hljs-keyword">import</span> (
+    SalesEnrichmentProcessor
+)
+
+
+<span class="hljs-meta">@pytest.fixture</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">mock_snowpark_session</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-string">"""Mock Snowpark session."""</span>
+    <span class="hljs-keyword">return</span> Mock()
+
+
+<span class="hljs-meta">@pytest.fixture</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">mock_dataframe</span><span class="hljs-params">(mock_snowpark_session)</span>:</span>
+    <span class="hljs-string">"""Mock Snowpark DataFrame."""</span>
+    df = MagicMock(spec=DataFrame)
+    df.session = mock_snowpark_session
+    <span class="hljs-keyword">return</span> df
+
+
+<span class="hljs-meta">@pytest.fixture</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">mock_cache</span><span class="hljs-params">(mock_dataframe)</span>:</span>
+    <span class="hljs-string">"""Mock TableCache with pre-loaded tables."""</span>
+    cache = Mock()
+    cache.get_table.return_value = mock_dataframe
+    <span class="hljs-keyword">return</span> cache
+
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_sales_enrichment_processor_init</span><span class="hljs-params">(mock_cache)</span>:</span>
+    <span class="hljs-string">"""Test SalesEnrichmentProcessor initialization."""</span>
+    processor = SalesEnrichmentProcessor(cache=mock_cache)
+
+    <span class="hljs-keyword">assert</span> processor <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>
+    <span class="hljs-keyword">assert</span> processor.logger <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>
+    <span class="hljs-keyword">assert</span> processor.etl <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>
+    <span class="hljs-keyword">assert</span> processor.cache == mock_cache
+
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_sales_enrichment_processor_process</span><span class="hljs-params">(mock_cache, mock_dataframe)</span>:</span>
+    <span class="hljs-string">"""Test SalesEnrichmentProcessor.process() method."""</span>
+    processor = SalesEnrichmentProcessor(cache=mock_cache)
+
+    <span class="hljs-comment"># <span class="hljs-doctag">TODO:</span> Add test assertions for process() method</span>
+    <span class="hljs-comment"># result = processor.process()</span>
+    <span class="hljs-comment"># assert result is not None</span>
+    <span class="hljs-keyword">pass</span>
+</div></code></pre>
+<hr>
+<h3 id="import-auto-registration-example">Import Auto-Registration Example</h3>
+<p><strong>Package <code>__init__.py</code> after creating pipelines:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># customer_analytics/__init__.py</span>
+<span class="hljs-comment"># Auto-generated imports - DO NOT EDIT MANUALLY</span>
+
+<span class="hljs-keyword">from</span> .pipelines.customer_segmentation.customer_segmentation_runner <span class="hljs-keyword">import</span> CustomerSegmentationPipeline
+<span class="hljs-keyword">from</span> .pipelines.order_fulfillment.order_fulfillment_runner <span class="hljs-keyword">import</span> OrderFulfillmentPipeline
+<span class="hljs-keyword">from</span> .pipelines.inventory_sync.inventory_sync_runner <span class="hljs-keyword">import</span> InventorySyncPipeline
+
+__all__ = [
+    <span class="hljs-string">"CustomerSegmentationPipeline"</span>,
+    <span class="hljs-string">"OrderFulfillmentPipeline"</span>,
+    <span class="hljs-string">"InventorySyncPipeline"</span>,
+]
+</div></code></pre>
+<p><strong>Pipeline runner after creating processors:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># customer_segmentation_runner.py</span>
+<span class="hljs-comment"># Auto-registered processor imports</span>
+
+<span class="hljs-keyword">from</span> .processors.sales_extractor_processor <span class="hljs-keyword">import</span> SalesExtractorProcessor
+<span class="hljs-keyword">from</span> .processors.customer_enrichment_processor <span class="hljs-keyword">import</span> CustomerEnrichmentProcessor
+<span class="hljs-keyword">from</span> .processors.segmentation_logic_processor <span class="hljs-keyword">import</span> SegmentationLogicProcessor
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomerSegmentationPipeline</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        self.logger = Logger()
+        self.etl = ETL()
+        self.cache = TableCache()
+
+        <span class="hljs-comment"># Auto-registered processor instances</span>
+        self.sales_extractor = SalesExtractorProcessor(self.cache)
+        self.customer_enrichment = CustomerEnrichmentProcessor(self.cache)
+        self.segmentation_logic = SegmentationLogicProcessor(self.cache)
+</div></code></pre>
+<hr>
+<h3 id="dependencies-management-example">Dependencies Management Example</h3>
+<p><strong><code>dependencies.py</code> structure:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-string">"""
+Project dependencies management.
+
+Edit the USER_DEPENDENCIES list below, then run:
+    pypeline sync-deps
+
+DO NOT EDIT the BASE_DEPENDENCIES section - it's auto-generated.
+"""</span>
+
+<span class="hljs-comment"># ============================================================================</span>
+<span class="hljs-comment"># BASE DEPENDENCIES (Auto-generated - DO NOT MODIFY)</span>
+<span class="hljs-comment"># ============================================================================</span>
+BASE_DEPENDENCIES = [
+    <span class="hljs-string">"snowflake-snowpark-python&gt;=1.42.0"</span>,
+    <span class="hljs-string">"numpy&gt;=1.26.0"</span>,
+    <span class="hljs-string">"pandas&gt;=2.2.0"</span>,
+    <span class="hljs-string">"build&gt;=1.2.2"</span>,
+    <span class="hljs-string">"pytest&gt;=8.3.0"</span>,
+    <span class="hljs-string">"ruff&gt;=0.11.0"</span>,
+]
+
+<span class="hljs-comment"># ============================================================================</span>
+<span class="hljs-comment"># USER DEPENDENCIES (Edit this section)</span>
+<span class="hljs-comment"># ============================================================================</span>
+USER_DEPENDENCIES = [
+    <span class="hljs-string">"requests&gt;=2.31.0"</span>,
+    <span class="hljs-string">"pydantic&gt;=2.5.0"</span>,
+    <span class="hljs-string">"python-dateutil&gt;=2.8.2"</span>,
+]
+
+<span class="hljs-comment"># Final merged list</span>
+DEFAULT_DEPENDENCIES = BASE_DEPENDENCIES + USER_DEPENDENCIES
+</div></code></pre>
+<p><strong>After running <code>pypeline sync-deps</code>, <code>pyproject.toml</code> is updated:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-section">[project]</span>
+<span class="hljs-attr">dependencies</span> = [
+    <span class="hljs-string">"snowflake-snowpark-python&gt;=1.42.0"</span>,
+    <span class="hljs-string">"numpy&gt;=1.26.0"</span>,
+    <span class="hljs-string">"pandas&gt;=2.2.0"</span>,
+    <span class="hljs-string">"build&gt;=1.2.2"</span>,
+    <span class="hljs-string">"pytest&gt;=8.3.0"</span>,
+    <span class="hljs-string">"ruff&gt;=0.11.0"</span>,
+    <span class="hljs-string">"requests&gt;=2.31.0"</span>,
+    <span class="hljs-string">"pydantic&gt;=2.5.0"</span>,
+    <span class="hljs-string">"python-dateutil&gt;=2.8.2"</span>,
+]
+</div></code></pre>
+<hr>
+<h3 id="build-output-example">Build Output Example</h3>
+<p>After running <code>pypeline build</code>:</p>
+<pre class="hljs"><code><div>dist/
+└── snowflake/
+    └── customer_analytics-0.1.0.zip
+</div></code></pre>
+<p><strong>ZIP structure (verified by pypeline build):</strong></p>
+<pre class="hljs"><code><div>customer_analytics-0.1.0.zip
+├── pyproject.toml                      # ✅ At root - required by Snowflake
+├── customer_analytics/                 # ✅ Package at root - importable
+│   ├── __init__.py
+│   ├── pipelines/
+│   │   ├── __init__.py
+│   │   └── customer_segmentation/
+│   │       ├── __init__.py
+│   │       ├── customer_segmentation_runner.py
+│   │       ├── config.py
+│   │       └── processors/
+│   │           ├── __init__.py
+│   │           └── sales_enrichment_processor.py
+│   └── utils/
+│       ├── __init__.py
+│       ├── etl.py
+│       ├── logger.py
+│       ├── tables.py
+│       ├── databases.py
+│       └── table_cache.py
+</div></code></pre>
+<p><strong>Snowflake deployment:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment">-- Upload ZIP to Snowflake stage</span>
+PUT file://dist/snowflake/customer_analytics-0.1.0.zip
+  @my_stage
+  AUTO_COMPRESS=FALSE;
+
+<span class="hljs-comment">-- Create procedure using the pipeline</span>
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">OR</span> <span class="hljs-keyword">REPLACE</span> <span class="hljs-keyword">PROCEDURE</span> run_customer_segmentation()
+<span class="hljs-keyword">RETURNS</span> <span class="hljs-keyword">STRING</span>
+<span class="hljs-keyword">LANGUAGE</span> PYTHON
+RUNTIME_VERSION = <span class="hljs-string">'3.12'</span>
+PACKAGES = (<span class="hljs-string">'snowflake-snowpark-python'</span>)
+IMPORTS = (<span class="hljs-string">'@my_stage/customer_analytics-0.1.0.zip'</span>)
+<span class="hljs-keyword">HANDLER</span> = <span class="hljs-string">'customer_analytics.pipelines.customer_segmentation.customer_segmentation_runner.CustomerSegmentationPipeline.run'</span>;
+
+<span class="hljs-comment">-- Execute pipeline in Snowflake</span>
+<span class="hljs-keyword">CALL</span> run_customer_segmentation();
+</div></code></pre>
+<hr>
+<h2 id="development-workflow">Development Workflow</h2>
+<h3 id="recommended-development-process">Recommended Development Process</h3>
+<pre class="hljs"><code><div>1. Initialize Project
+   ↓
+2. Configure Databases &amp; Tables
+   ↓
+3. Create Pipeline(s)
+   ↓
+4. Create Processors
+   ↓
+5. Implement Extraction Logic (in processor __init__)
+   ↓
+6. Implement Transformation Logic (in processor.process())
+   ↓
+7. Wire Processors in Pipeline Runner
+   ↓
+8. Write Tests
+   ↓
+9. Run &amp; Iterate
+</div></code></pre>
+<h3 id="typical-development-session">Typical Development Session</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># 1. Create a new pipeline</span>
+pypeline create-pipeline --name order-fulfillment
+
+<span class="hljs-comment"># 2. Add processors for each data source or transformation</span>
+pypeline create-processor --name orders-extractor --pipeline order-fulfillment
+pypeline create-processor --name inventory-check --pipeline order-fulfillment
+pypeline create-processor --name fulfillment-logic --pipeline order-fulfillment
+
+<span class="hljs-comment"># 3. Configure table configs in pipeline's config.py</span>
+<span class="hljs-comment"># Edit: my_project/pipelines/order_fulfillment/config.py</span>
+
+<span class="hljs-comment"># 4. Implement each processor</span>
+<span class="hljs-comment"># Edit: processors/orders_extractor_processor.py</span>
+<span class="hljs-comment"># Edit: processors/inventory_check_processor.py</span>
+<span class="hljs-comment"># Edit: processors/fulfillment_logic_processor.py</span>
+
+<span class="hljs-comment"># 5. Wire processors in runner</span>
+<span class="hljs-comment"># Edit: order_fulfillment_runner.py</span>
+
+<span class="hljs-comment"># 6. Add dependencies if needed</span>
+<span class="hljs-comment"># Edit: dependencies.py</span>
+pypeline sync-deps
+pypeline install
+
+<span class="hljs-comment"># 7. Run pipeline</span>
+python -m my_project.pipelines.order_fulfillment.order_fulfillment_runner
+
+<span class="hljs-comment"># 8. Write tests</span>
+<span class="hljs-comment"># Edit: processors/tests/test_orders_extractor_processor.py</span>
+pytest tests/
+
+<span class="hljs-comment"># 9. Build Snowflake distribution</span>
+pypeline build
+
+<span class="hljs-comment"># 10. Deploy to Snowflake</span>
+<span class="hljs-comment"># Upload dist/snowflake/*.zip to Snowflake stage</span>
+</div></code></pre>
+<h3 id="adding-new-dependencies">Adding New Dependencies</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># 1. Edit dependencies.py</span>
+<span class="hljs-built_in">echo</span> <span class="hljs-string">'DEFAULT_DEPENDENCIES = ["snowflake-snowpark-python&gt;=1.42.0", "pandas&gt;=2.2.0", "numpy&gt;=1.26.0"]'</span> &gt; dependencies.py
+
+<span class="hljs-comment"># 2. Sync to pyproject.toml</span>
+pypeline sync-deps
+
+<span class="hljs-comment"># 3. Install</span>
+pypeline install
+</div></code></pre>
+<h3 id="versioning-and-releases">Versioning and Releases</h3>
+<p>pypeline projects use hatch-vcs for automatic versioning from git tags:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Make changes and commit</span>
+git add .
+git commit -m <span class="hljs-string">"Add order fulfillment pipeline"</span>
+
+<span class="hljs-comment"># Create version tag</span>
+git tag -a v0.1.0 -m <span class="hljs-string">"Initial release"</span>
+
+<span class="hljs-comment"># Push with tags</span>
+git push origin main --tags
+
+<span class="hljs-comment"># Version is automatically set to 0.1.0</span>
+</div></code></pre>
+<hr>
+<h2 id="etl-architecture--best-practices">ETL Architecture &amp; Best Practices</h2>
+<h3 id="the-processor-pattern">The Processor Pattern</h3>
+<p>pypeline-cli follows a <strong>Processor Pattern</strong> with centralized extraction for organizing ETL logic:</p>
+<pre class="hljs"><code><div>Pipeline.__init__()
+    ↓
+Extract: Pre-load input tables into TableCache
+    ↓
+Pipeline.run_processors()
+    ↓
+Processor 1(cache) → Transform
+    ↓
+Processor 2(cache) → Transform
+    ↓
+Processor 3(cache) → Transform
+    ↓
+Pipeline._write_to_snowflake() → Load
+</div></code></pre>
+<p><strong>Key Principles:</strong></p>
+<ol>
+<li>
+<p><strong>Extraction happens at Pipeline level</strong></p>
+<ul>
+<li>Pipeline's <code>__init__()</code> pre-loads all input tables into TableCache</li>
+<li>TableCache uses TableConfig from <code>config.py</code> for dynamic table names</li>
+<li>Each table loaded <strong>once</strong>, eliminating redundant Snowflake queries</li>
+<li>Cache is shared across all processors</li>
+</ul>
+</li>
+<li>
+<p><strong>Transformation happens in Processor <code>process()</code></strong></p>
+<ul>
+<li>Processors receive pre-populated cache in <code>__init__(cache)</code></li>
+<li>Access cached tables via <code>self.cache.get_table(&quot;table_key&quot;)</code></li>
+<li><code>process()</code> method orchestrates transformations</li>
+<li>Private methods implement atomized transformation steps</li>
+<li>Returns final DataFrame</li>
+</ul>
+</li>
+<li>
+<p><strong>Loading happens in Pipeline Runner</strong></p>
+<ul>
+<li>Pipeline orchestrates all processors with shared cache</li>
+<li>Pipeline handles final write to Snowflake via <code>_write_to_snowflake()</code></li>
+<li>Conditional writes based on <code>_write</code> flag</li>
+</ul>
+</li>
+</ol>
+<h3 id="extract-transform-load-etl-stages">Extract, Transform, Load (ETL) Stages</h3>
+<h4 id="stage-1-extract"><strong>Stage 1: Extract</strong></h4>
+<p><strong>Where:</strong> Pipeline <code>__init__()</code> method using TableCache</p>
+<p><strong>Purpose:</strong> Pre-load all input tables once and share across processors</p>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Define all TableConfigs in <code>config.py</code></li>
+<li>Pre-load tables in pipeline <code>__init__()</code> using <code>TableCache.preload_tables()</code></li>
+<li>Mark output tables with <code>is_output=True</code> to exclude from pre-loading</li>
+<li>Log cache statistics for monitoring</li>
+<li>Pass cache to all processors</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.table_cache <span class="hljs-keyword">import</span> TableCache
+<span class="hljs-keyword">from</span> .config <span class="hljs-keyword">import</span> TABLE_CONFIGS
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OrderFulfillmentPipeline</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, year: int, month: int)</span>:</span>
+        self.logger = Logger()
+        self.etl = ETL()
+        self.year = year
+        self.month = month
+
+        <span class="hljs-comment"># Extract: Pre-load all input tables into cache (one-time operation)</span>
+        self.cache = TableCache().preload_tables(
+            table_keys=[k <span class="hljs-keyword">for</span> k, config <span class="hljs-keyword">in</span> TABLE_CONFIGS.items() <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> config.is_output],
+            table_configs=TABLE_CONFIGS
+        )
+
+        self.logger.info(
+            message=<span class="hljs-string">f"Pre-loaded <span class="hljs-subst">{len(self.cache.tables)}</span> input tables into cache"</span>,
+            context=<span class="hljs-string">"OrderFulfillmentPipeline.__init__"</span>
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">run_processors</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-comment"># All processors receive the same pre-populated cache</span>
+        orders_proc = OrdersProcessor(self.cache)
+        inventory_proc = InventoryProcessor(self.cache)
+
+        df = orders_proc.process()
+        df = inventory_proc.process(df)
+        <span class="hljs-keyword">return</span> df
+</div></code></pre>
+<p><strong>config.py:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ..utils.tables <span class="hljs-keyword">import</span> TableConfig
+<span class="hljs-keyword">from</span> ..utils.databases <span class="hljs-keyword">import</span> Database, Schema
+
+TABLE_CONFIGS = {
+    <span class="hljs-string">"orders"</span>: TableConfig(
+        database=Database.RAW,
+        schema=Schema.LANDING,
+        table_name_template=<span class="hljs-string">"orders_{MM}"</span>,
+        type=<span class="hljs-string">"MONTHLY"</span>,
+        month=<span class="hljs-number">3</span>,
+        is_output=<span class="hljs-literal">False</span>  <span class="hljs-comment"># Input table - will be pre-loaded</span>
+    ),
+    <span class="hljs-string">"customers"</span>: TableConfig(
+        database=Database.PROD,
+        schema=Schema.DIM,
+        table_name_template=<span class="hljs-string">"dim_customers"</span>,
+        type=<span class="hljs-string">"STABLE"</span>,
+        is_output=<span class="hljs-literal">False</span>  <span class="hljs-comment"># Input table - will be pre-loaded</span>
+    ),
+    <span class="hljs-string">"output"</span>: TableConfig(
+        database=Database.PROD,
+        schema=Schema.ANALYTICS,
+        table_name_template=<span class="hljs-string">"order_summary"</span>,
+        type=<span class="hljs-string">"STABLE"</span>,
+        is_output=<span class="hljs-literal">True</span>  <span class="hljs-comment"># Output table - NOT pre-loaded</span>
+    ),
+}
+</div></code></pre>
+<p><strong>Architecture Diagram:</strong></p>
+<pre class="hljs"><code><div>┌────────────────────────────────────────────┐
+│  Pipeline.__init__()                       │
+├────────────────────────────────────────────┤
+│ 1. Initialize Logger, ETL                  │
+│ 2. Initialize TableCache                   │
+│ 3. Call preload_tables() with configs      │
+│    - Reads TABLE_CONFIGS from config.py    │
+│    - Generates table names dynamically     │
+│    - Loads each input table from Snowflake │
+│    - Stores in cache.tables dict           │
+│ 4. Log cache statistics                    │
+└────────────────────────────────────────────┘
+         │
+         ▼
+   self.cache.tables = {
+       &quot;orders&quot;: DataFrame,
+       &quot;customers&quot;: DataFrame
+   }
+         │
+         ▼
+   Pass to all processors
+</div></code></pre>
+<h4 id="stage-2-transform"><strong>Stage 2: Transform</strong></h4>
+<p><strong>Where:</strong> Processor <code>process()</code> method and private methods</p>
+<p><strong>Purpose:</strong> Clean, filter, join, aggregate, and enrich data</p>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Break transformations into small, focused private methods</li>
+<li>Each method should do ONE thing well</li>
+<li>Use descriptive method names (<code>_filter_active_customers</code>, not <code>_step1</code>)</li>
+<li>Chain transformations for readability</li>
+<li>Add comments explaining business logic</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ....utils.decorators <span class="hljs-keyword">import</span> time_function
+<span class="hljs-keyword">from</span> ....utils.logger <span class="hljs-keyword">import</span> Logger
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OrdersTransformProcessor</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, cache)</span>:</span>
+        <span class="hljs-string">"""
+        Receive pre-populated cache from pipeline.
+
+        Args:
+            cache: TableCache with pre-loaded input tables
+        """</span>
+        self.logger = Logger()
+        self.cache = cache
+
+        <span class="hljs-comment"># Access pre-loaded tables from cache (no Snowflake query)</span>
+        self.orders_df = cache.get_table(<span class="hljs-string">"orders"</span>)
+        self.customers_df = cache.get_table(<span class="hljs-string">"customers"</span>)
+
+<span class="hljs-meta">    @time_function(f"{MODULE_NAME}.process")</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">process</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Transform orders data: filter, enrich, aggregate.
+
+        Business Logic:
+        1. Filter to completed orders only
+        2. Calculate order totals
+        3. Add customer tier from lookup
+        4. Aggregate to daily summaries
+
+        Returns:
+            Transformed DataFrame ready for segmentation
+        """</span>
+        self.logger.info(
+            message=<span class="hljs-string">"Starting orders transformation"</span>,
+            context=MODULE_NAME
+        )
+
+        <span class="hljs-comment"># Chain transformations</span>
+        df = self._filter_completed_orders()
+        df = self._calculate_order_totals(df)
+        df = self._enrich_customer_tier(df)
+        df = self._aggregate_daily_summary(df)
+
+        <span class="hljs-keyword">return</span> df
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_filter_completed_orders</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Filter to completed orders with valid amounts.
+
+        Business Rule: Only include orders with STATUS='COMPLETED'
+        and TOTAL_AMOUNT &gt; 0
+        """</span>
+        <span class="hljs-keyword">return</span> self.orders_df.filter(
+            (col(<span class="hljs-string">"STATUS"</span>) == <span class="hljs-string">"COMPLETED"</span>) &amp;
+            (col(<span class="hljs-string">"TOTAL_AMOUNT"</span>) &gt; <span class="hljs-number">0</span>)
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_calculate_order_totals</span><span class="hljs-params">(self, df: DataFrame)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Calculate final order total including tax and shipping.
+
+        Formula: SUBTOTAL + TAX + SHIPPING - DISCOUNT
+        """</span>
+        <span class="hljs-keyword">return</span> df.with_column(
+            <span class="hljs-string">"FINAL_TOTAL"</span>,
+            col(<span class="hljs-string">"SUBTOTAL"</span>) + col(<span class="hljs-string">"TAX"</span>) + col(<span class="hljs-string">"SHIPPING"</span>) - col(<span class="hljs-string">"DISCOUNT"</span>)
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_enrich_customer_tier</span><span class="hljs-params">(self, df: DataFrame)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Join customer tier from pre-loaded customers table.
+
+        Adds CUSTOMER_TIER column based on lifetime value.
+        """</span>
+        <span class="hljs-comment"># Use pre-loaded customer data from cache (no additional query)</span>
+        <span class="hljs-keyword">return</span> df.join(
+            self.customers_df.select(<span class="hljs-string">"CUSTOMER_ID"</span>, <span class="hljs-string">"CUSTOMER_TIER"</span>),
+            on=<span class="hljs-string">"CUSTOMER_ID"</span>,
+            how=<span class="hljs-string">"left"</span>
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_aggregate_daily_summary</span><span class="hljs-params">(self, df: DataFrame)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Aggregate orders to daily summary by customer tier.
+
+        Returns:
+            DataFrame with ORDER_DATE, CUSTOMER_TIER, TOTAL_ORDERS, TOTAL_REVENUE
+        """</span>
+        <span class="hljs-keyword">return</span> df.group_by(<span class="hljs-string">"ORDER_DATE"</span>, <span class="hljs-string">"CUSTOMER_TIER"</span>).agg(
+            count(<span class="hljs-string">"ORDER_ID"</span>).alias(<span class="hljs-string">"TOTAL_ORDERS"</span>),
+            sum_(<span class="hljs-string">"FINAL_TOTAL"</span>).alias(<span class="hljs-string">"TOTAL_REVENUE"</span>)
+        )
+</div></code></pre>
+<p><strong>Architecture Diagram:</strong></p>
+<pre class="hljs"><code><div>┌────────────────────────────────────────┐
+│  Processor.__init__(cache)             │
+├────────────────────────────────────────┤
+│  1. Store cache reference              │
+│  2. Access pre-loaded tables:          │
+│     - orders_df = cache.get_table()    │
+│     - customers_df = cache.get_table() │
+└────────────────────────────────────────┘
+              │
+              ▼
+┌────────────────────────────────────────┐
+│  Processor.process()                   │
+├────────────────────────────────────────┤
+│  1. _filter_completed_orders()         │
+│       │                                 │
+│       ▼                                 │
+│  2. _calculate_order_totals(df)        │
+│       │                                 │
+│       ▼                                 │
+│  3. _enrich_customer_tier(df)          │
+│       │  (uses cached customers_df)    │
+│       ▼                                 │
+│  4. _aggregate_daily_summary(df)       │
+│       │                                 │
+│       ▼                                 │
+│  return final_df                       │
+└────────────────────────────────────────┘
+</div></code></pre>
+<p><strong>Transformation Best Practices:</strong></p>
+<table>
+<thead>
+<tr>
+<th>✅ Do</th>
+<th>❌ Don't</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Use descriptive method names</td>
+<td>Use generic names like <code>_transform1()</code></td>
+</tr>
+<tr>
+<td>One transformation per method</td>
+<td>Combine unrelated transformations</td>
+</tr>
+<tr>
+<td>Document business logic in docstrings</td>
+<td>Write code without context</td>
+</tr>
+<tr>
+<td>Chain method calls for clarity</td>
+<td>Create deeply nested transformations</td>
+</tr>
+<tr>
+<td>Use Snowpark operations</td>
+<td>Pull large data to pandas unnecessarily</td>
+</tr>
+<tr>
+<td>Log transformation steps</td>
+<td>Transform silently without metrics</td>
+</tr>
+</tbody>
+</table>
+<h4 id="stage-3-load"><strong>Stage 3: Load</strong></h4>
+<p><strong>Where:</strong> Pipeline Runner <code>_write_to_snowflake()</code> method</p>
+<p><strong>Purpose:</strong> Write final DataFrame to Snowflake table</p>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Centralize write logic in pipeline runner (not processors)</li>
+<li>Use conditional writes with <code>_write</code> flag</li>
+<li>Log table paths and write modes</li>
+<li>Consider write modes carefully (overwrite vs append vs truncate)</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OrderFulfillmentPipeline</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, year: int, month: int)</span>:</span>
+        self.logger = Logger()
+        self.etl = ETL()
+        self.year = year
+        self.month = month
+
+<span class="hljs-meta">    @time_function("OrderFulfillmentPipeline.run")</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">run</span><span class="hljs-params">(self, _write: bool = False)</span>:</span>
+        <span class="hljs-string">"""
+        Entry point for pipeline execution.
+
+        Args:
+            _write: If True, writes results to Snowflake. If False, runs
+                    transformations but doesn't write (useful for testing).
+        """</span>
+        self.pipeline(_write)
+        self.logger.info(
+            message=<span class="hljs-string">"Order fulfillment pipeline completed successfully"</span>,
+            context=MODULE_NAME
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pipeline</span><span class="hljs-params">(self, _write: bool)</span>:</span>
+        <span class="hljs-string">"""
+        Orchestrate processors and conditional write.
+
+        Args:
+            _write: If True, writes to Snowflake
+        """</span>
+        <span class="hljs-comment"># Run processors</span>
+        df: DataFrame = self.run_processors()
+
+        <span class="hljs-comment"># Conditional write</span>
+        <span class="hljs-keyword">if</span> _write:
+            <span class="hljs-comment"># Generate target table name</span>
+            table_path = <span class="hljs-string">f"PRODUCTION.ANALYTICS.order_summary_<span class="hljs-subst">{self.year}</span>_<span class="hljs-subst">{self.month:<span class="hljs-number">02</span>d}</span>"</span>
+
+            <span class="hljs-comment"># Write to Snowflake</span>
+            self._write_to_snowflake(
+                df=df,
+                write_mode=<span class="hljs-string">"overwrite"</span>,  <span class="hljs-comment"># Replace existing data</span>
+                table_path=table_path
+            )
+        <span class="hljs-keyword">else</span>:
+            self.logger.info(
+                message=<span class="hljs-string">"Skipping write (_write=False). Transformation complete."</span>,
+                context=MODULE_NAME
+            )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">run_processors</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-string">"""
+        Instantiate and run processors in sequence.
+
+        Returns:
+            Final transformed DataFrame
+        """</span>
+        <span class="hljs-comment"># Extract and transform orders</span>
+        orders_processor = OrdersExtractorProcessor(year=self.year, month=self.month)
+        orders_df = orders_processor.process()
+
+        <span class="hljs-comment"># Check inventory</span>
+        inventory_processor = InventoryCheckProcessor(orders_df=orders_df)
+        checked_df = inventory_processor.process()
+
+        <span class="hljs-comment"># Apply fulfillment logic</span>
+        fulfillment_processor = FulfillmentLogicProcessor(checked_df=checked_df)
+        final_df = fulfillment_processor.process()
+
+        <span class="hljs-keyword">return</span> final_df
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">_write_to_snowflake</span><span class="hljs-params">(
+        self,
+        df: DataFrame,
+        write_mode: Literal[<span class="hljs-string">"append"</span>, <span class="hljs-string">"overwrite"</span>, <span class="hljs-string">"truncate"</span>],
+        table_path: str,
+    )</span>:</span>
+        <span class="hljs-string">"""
+        Write DataFrame to Snowflake table.
+
+        Args:
+            df: DataFrame to write
+            write_mode: Write mode for save_as_table
+                - "overwrite": Drop and recreate table
+                - "append": Add rows to existing table
+                - "truncate": Delete all rows, keep schema
+            table_path: Fully qualified table name (DATABASE.SCHEMA.TABLE)
+        """</span>
+        self.logger.info(
+            message=<span class="hljs-string">f"Writing DataFrame to <span class="hljs-subst">{table_path}</span> (mode=<span class="hljs-subst">{write_mode}</span>)"</span>,
+            context=MODULE_NAME
+        )
+
+        <span class="hljs-comment"># Write to Snowflake</span>
+        df.write.mode(write_mode).save_as_table(table_path)
+
+        <span class="hljs-comment"># Log success metrics</span>
+        row_count = df.count()
+        self.logger.info(
+            message=<span class="hljs-string">f"Successfully wrote <span class="hljs-subst">{row_count}</span> rows to <span class="hljs-subst">{table_path}</span>"</span>,
+            context=MODULE_NAME
+        )
+</div></code></pre>
+<p><strong>Architecture Diagram:</strong></p>
+<pre class="hljs"><code><div>┌───────────────────────────────────────────┐
+│  Pipeline.run(_write=True)                │
+├───────────────────────────────────────────┤
+│  1. Call pipeline(_write)                 │
+│       │                                    │
+│       ▼                                    │
+│  2. Run processors (Extract + Transform)  │
+│       │                                    │
+│       ▼                                    │
+│  3. Check _write flag                     │
+│       │                                    │
+│       ├─ If True:                          │
+│       │    ├─ Generate table path         │
+│       │    ├─ Call _write_to_snowflake()  │
+│       │    └─ Log success                 │
+│       │                                    │
+│       └─ If False:                         │
+│            └─ Log skip                     │
+└───────────────────────────────────────────┘
+</div></code></pre>
+<p><strong>Write Modes Comparison:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Behavior</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>overwrite</code></td>
+<td>Drop and recreate table</td>
+<td>Full refresh, schema changes</td>
+</tr>
+<tr>
+<td><code>append</code></td>
+<td>Add rows to existing table</td>
+<td>Incremental loads, partitioned data</td>
+</tr>
+<tr>
+<td><code>truncate</code></td>
+<td>Delete rows, keep schema</td>
+<td>Full refresh with stable schema</td>
+</tr>
+<tr>
+<td><code>errorifexists</code></td>
+<td>Fail if table exists</td>
+<td>First-time table creation</td>
+</tr>
+<tr>
+<td><code>ignore</code></td>
+<td>Skip if table exists</td>
+<td>Idempotent operations</td>
+</tr>
+</tbody>
+</table>
+<h3 id="complete-etl-flow-diagram">Complete ETL Flow Diagram</h3>
+<pre class="hljs"><code><div>┌─────────────────────────────────────────────────────────────────┐
+│               PIPELINE ORCHESTRATOR                             │
+│                                                                 │
+│  __init__():                                                    │
+│    ├─ Initialize Logger, ETL                                    │
+│    └─ EXTRACT: Pre-load tables into TableCache                 │
+│         - Read TABLE_CONFIGS from config.py                    │
+│         - Load each input table (is_output=False)              │
+│         - Store in self.cache.tables dict                      │
+│                                                                 │
+│  run(_write: bool):                                             │
+│    └─ Call pipeline(_write)                                    │
+│                                                                 │
+│  pipeline(_write):                                              │
+│    ├─ Call run_processors()                                    │
+│    └─ Conditionally write results                              │
+│                                                                 │
+│  run_processors():                                              │
+└─────────────┬───────────────────────────────────────────────────┘
+              │
+              ▼ (pass self.cache to each processor)
+┌─────────────────────────────────────────────────────────────────┐
+│                PROCESSOR 1: TRANSFORM                           │
+│                                                                 │
+│  __init__(cache):                                               │
+│    - Store cache reference                                      │
+│    - Access pre-loaded tables:                                  │
+│      • self.orders_df = cache.get_table(&quot;orders&quot;)              │
+│      • self.customers_df = cache.get_table(&quot;customers&quot;)        │
+│                                                                 │
+│  process():                                                     │
+│    - _filter_valid_rows()                                       │
+│    - _join_with_customers() [uses cached customers_df]         │
+│    - _calculate_metrics()                                       │
+│    - return df                                                  │
+└─────────────┬───────────────────────────────────────────────────┘
+              │
+              ▼ (pass cache and/or df)
+┌─────────────────────────────────────────────────────────────────┐
+│                PROCESSOR 2: TRANSFORM                           │
+│                                                                 │
+│  __init__(cache):                                               │
+│    - Store cache reference                                      │
+│    - Access any additional cached tables if needed              │
+│                                                                 │
+│  process(df):                                                   │
+│    - _enrich_with_lookup() [may use cache.get_table()]         │
+│    - _apply_business_rules()                                    │
+│    - return df                                                  │
+└─────────────┬───────────────────────────────────────────────────┘
+              │
+              ▼ (pass cache and/or df)
+┌─────────────────────────────────────────────────────────────────┐
+│                PROCESSOR 3: TRANSFORM                           │
+│                                                                 │
+│  __init__(cache):                                               │
+│    - Store cache reference                                      │
+│                                                                 │
+│  process(df):                                                   │
+│    - _group_by_dimensions()                                     │
+│    - _calculate_aggregates()                                    │
+│    - return final_df                                            │
+└─────────────┬───────────────────────────────────────────────────┘
+              │
+              ▼ (return final_df to pipeline)
+┌─────────────────────────────────────────────────────────────────┐
+│                    PIPELINE: LOAD                               │
+│                                                                 │
+│  if _write:                                                     │
+│    _write_to_snowflake(df, &quot;overwrite&quot;, &quot;DB.SCHEMA.TABLE&quot;)    │
+│      │                                                           │
+│      ▼                                                           │
+│    df.write.mode(&quot;overwrite&quot;).save_as_table(&quot;DB.SCHEMA.TABLE&quot;) │
+│    Log success                                                  │
+│  else:                                                          │
+│    Log dry-run completion                                       │
+│                                                                 │
+│  Log pipeline completion                                        │
+└─────────────────────────────────────────────────────────────────┘
+
+Key: Extract happens ONCE at pipeline.__init__() via TableCache
+     All processors receive shared cache and focus on Transform only
+     Load happens at pipeline level via _write_to_snowflake()
+</div></code></pre>
+<hr>
+<h2 id="built-in-utilities">Built-in Utilities</h2>
+<p>pypeline-cli provides a comprehensive set of utility modules out-of-the-box. These are auto-generated in <code>{project}/utils/</code> during project initialization. Utilities fall into two categories:</p>
+<ul>
+<li><strong>⚙️ Framework Files</strong> - Auto-generated, optimized utilities (marked &quot;DO NOT MODIFY&quot;)</li>
+<li><strong>✏️ User-Editable Files</strong> - Configuration files meant to be customized for your project</li>
+</ul>
+<hr>
+<h3 id="etl-singleton">ETL Singleton</h3>
+<p><strong>File:</strong> <code>utils/etl.py</code> (⚙️ Framework - Do Not Modify)</p>
+<p><strong>Purpose:</strong> Manages a single Snowpark session throughout your pipeline execution.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.etl <span class="hljs-keyword">import</span> ETL
+
+etl = ETL()  <span class="hljs-comment"># Get singleton instance</span>
+df = etl.session.table(<span class="hljs-string">"DATABASE.SCHEMA.TABLE"</span>)
+
+<span class="hljs-comment"># Calling ETL() again returns the same instance</span>
+etl2 = ETL()
+<span class="hljs-keyword">assert</span> etl <span class="hljs-keyword">is</span> etl2  <span class="hljs-comment"># True</span>
+</div></code></pre>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li><strong>Singleton pattern</strong> - Only one session per process</li>
+<li><strong>Lazy initialization</strong> - Session created on first access</li>
+<li><strong>Thread-safe</strong> - Single instance shared across pipeline</li>
+<li><strong>No manual connection management</strong> - Uses <code>get_active_session()</code></li>
+</ul>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Instantiate in processor <code>__init__()</code>: <code>self.etl = ETL()</code></li>
+<li>Access session via <code>self.etl.session</code></li>
+<li>Don't create multiple ETL instances (they'll be the same object anyway)</li>
+</ul>
+<hr>
+<h3 id="logger">Logger</h3>
+<p><strong>File:</strong> <code>utils/logger.py</code> (⚙️ Framework - Do Not Modify)</p>
+<p><strong>Purpose:</strong> Provides structured, color-coded logging with context.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.logger <span class="hljs-keyword">import</span> Logger
+
+logger = Logger()
+
+logger.info(message=<span class="hljs-string">"Pipeline started"</span>, context=<span class="hljs-string">"CustomerPipeline"</span>)
+logger.warning(message=<span class="hljs-string">"Missing data for customer_id=123"</span>, context=<span class="hljs-string">"OrdersProcessor"</span>)
+logger.error(message=<span class="hljs-string">"Failed to write table"</span>, context=<span class="hljs-string">"Pipeline.load"</span>, customer_id=<span class="hljs-number">123</span>)
+logger.debug(message=<span class="hljs-string">"Debug info"</span>, context=<span class="hljs-string">"Dev"</span>)
+logger.critical(message=<span class="hljs-string">"Critical failure"</span>, context=<span class="hljs-string">"System"</span>)
+</div></code></pre>
+<p><strong>Output Format:</strong></p>
+<pre class="hljs"><code><div>2025-03-15 14:30:22 | INFO | CustomerPipeline | Pipeline started
+2025-03-15 14:30:25 | WARN | OrdersProcessor | Missing data for customer_id=123
+2025-03-15 14:30:28 | ERROR | Pipeline.load | Failed to write table | customer_id=123
+</div></code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li>Color-coded log levels (green=INFO, yellow=WARN, red=ERROR, etc.)</li>
+<li>Structured format: timestamp | level | context | message</li>
+<li>Support for key-value pairs (kwargs)</li>
+<li>Works in Snowflake and Databricks environments</li>
+</ul>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Instantiate in <code>__init__()</code>: <code>self.logger = Logger()</code></li>
+<li>Always provide <code>context</code> parameter (e.g., MODULE_NAME)</li>
+<li>Use appropriate levels (INFO for normal flow, ERROR for exceptions)</li>
+<li>Add kwargs for debugging: <code>logger.info(message=&quot;Processed&quot;, context=MODULE_NAME, row_count=1000)</code></li>
+</ul>
+<hr>
+<h3 id="tableconfig">TableConfig</h3>
+<p><strong>File:</strong> <code>utils/tables.py</code> (✏️ User Editable)</p>
+<p><strong>Purpose:</strong> Manages dynamic table names with time-based partitioning.</p>
+<p><strong>Table Types:</strong></p>
+<ol>
+<li><strong>YEARLY</strong> - Tables partitioned by year (e.g., <code>sales_2025</code>)</li>
+<li><strong>MONTHLY</strong> - Tables partitioned by month (e.g., <code>orders_03</code>)</li>
+<li><strong>STABLE</strong> - Static tables with no date suffix (e.g., <code>dim_customers</code>)</li>
+</ol>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.tables <span class="hljs-keyword">import</span> TableConfig
+<span class="hljs-keyword">from</span> ...utils.databases <span class="hljs-keyword">import</span> Database, Schema
+
+<span class="hljs-comment"># Define yearly sales table</span>
+SALES_TABLE = TableConfig(
+    database=Database.ANALYTICS,
+    schema=Schema.RAW,
+    table_name_template=<span class="hljs-string">"sales_{YYYY}"</span>,
+    type=<span class="hljs-string">"YEARLY"</span>
+)
+
+<span class="hljs-comment"># Generate table name for 2025</span>
+table_name = SALES_TABLE.generate_table_name(year=<span class="hljs-number">2025</span>)
+<span class="hljs-comment"># Result: "ANALYTICS.RAW.sales_2025"</span>
+
+<span class="hljs-comment"># Define monthly orders table</span>
+ORDERS_TABLE = TableConfig(
+    database=Database.PRODUCTION,
+    schema=Schema.PROCESSED,
+    table_name_template=<span class="hljs-string">"orders_{MM}"</span>,
+    type=<span class="hljs-string">"MONTHLY"</span>,
+    month=<span class="hljs-number">3</span>  <span class="hljs-comment"># March</span>
+)
+
+<span class="hljs-comment"># Generate table name</span>
+table_name = ORDERS_TABLE.generate_table_name()
+<span class="hljs-comment"># Result: "PRODUCTION.PROCESSED.orders_03"</span>
+
+<span class="hljs-comment"># Define stable dimension table</span>
+CUSTOMER_DIM = TableConfig(
+    database=Database.ANALYTICS,
+    schema=Schema.REPORTING,
+    table_name_template=<span class="hljs-string">"dim_customers"</span>,
+    type=<span class="hljs-string">"STABLE"</span>
+)
+
+table_name = CUSTOMER_DIM.generate_table_name()
+<span class="hljs-comment"># Result: "ANALYTICS.REPORTING.dim_customers"</span>
+</div></code></pre>
+<p><strong>Template Placeholders:</strong></p>
+<ul>
+<li><code>{YYYY}</code> - 4-digit year (e.g., 2025)</li>
+<li><code>{YY}</code> - 2-digit year (e.g., 25)</li>
+<li><code>{MM}</code> - 2-digit month with leading zero (e.g., 01, 12)</li>
+</ul>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Define all TableConfig instances in <code>utils/tables.py</code> or pipeline <code>config.py</code></li>
+<li>Use constants for database and schema names from <code>utils/databases.py</code></li>
+<li>Update month dynamically: <code>ORDERS_TABLE.month = 6</code> before calling <code>generate_table_name()</code></li>
+<li>Pass year as parameter for yearly tables: <code>generate_table_name(year=2025)</code></li>
+</ul>
+<hr>
+<h3 id="decorators">Decorators</h3>
+<p><strong>File:</strong> <code>utils/decorators.py</code> (⚙️ Framework - Do Not Modify)</p>
+<p><strong>Purpose:</strong> Provides reusable decorators for timing, table checks, and freshness validation.</p>
+<h4 id="timefunction"><code>@time_function</code></h4>
+<p>Measures and logs function execution time.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.decorators <span class="hljs-keyword">import</span> time_function
+
+<span class="hljs-meta">@time_function("OrdersProcessor.process")</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">process</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+    <span class="hljs-comment"># ... transformation logic ...</span>
+    <span class="hljs-keyword">return</span> df
+
+<span class="hljs-comment"># Logs: "OrdersProcessor.process completed in 3.45 seconds."</span>
+</div></code></pre>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Use on all <code>process()</code> methods</li>
+<li>Use on <code>run()</code> methods in pipelines</li>
+<li>Provide descriptive module names</li>
+</ul>
+<h4 id="skipifexists"><code>@skip_if_exists</code></h4>
+<p>Skips function execution if table already exists.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.decorators <span class="hljs-keyword">import</span> skip_if_exists
+<span class="hljs-keyword">from</span> ...utils.etl <span class="hljs-keyword">import</span> ETL
+
+etl = ETL()
+
+<span class="hljs-meta">@skip_if_exists('ANALYTICS.STAGING.users_2024', etl)</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">create_users_table</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-comment"># Table creation logic</span>
+    <span class="hljs-keyword">pass</span>
+
+create_users_table()
+<span class="hljs-comment"># Logs: "Table ANALYTICS.STAGING.users_2024 already exists. Skipping create_users_table."</span>
+</div></code></pre>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Use for idempotent table creation</li>
+<li>Provide full table path: <code>'DATABASE.SCHEMA.TABLE'</code></li>
+</ul>
+<h4 id="skipifupdatedthismonth"><code>@skip_if_updated_this_month</code></h4>
+<p>Skips function if table was updated this month (freshness check).</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.decorators <span class="hljs-keyword">import</span> skip_if_updated_this_month
+<span class="hljs-keyword">from</span> ...utils.etl <span class="hljs-keyword">import</span> ETL
+
+etl = ETL()
+
+<span class="hljs-meta">@skip_if_updated_this_month('ANALYTICS.REPORTS.monthly_summary', etl)</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">refresh_monthly_summary</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-comment"># Refresh logic</span>
+    <span class="hljs-keyword">pass</span>
+
+refresh_monthly_summary()  <span class="hljs-comment"># Skips if already updated this month</span>
+refresh_monthly_summary(override=<span class="hljs-literal">True</span>)  <span class="hljs-comment"># Forces execution</span>
+</div></code></pre>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Use for monthly refresh jobs</li>
+<li>Provides <code>override</code> parameter for manual runs</li>
+<li>Checks Snowflake's <code>SYSTEM$LAST_CHANGE_COMMIT_TIME</code></li>
+</ul>
+<hr>
+<h3 id="databases">Databases</h3>
+<p><strong>File:</strong> <code>utils/databases.py</code> (✏️ User Editable)</p>
+<p><strong>Purpose:</strong> Centralize database and schema constants.</p>
+<p><strong>Usage:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># Define your constants</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Database</span>:</span>
+    RAW = <span class="hljs-string">"RAW_DATA"</span>
+    STAGING = <span class="hljs-string">"STAGING"</span>
+    PROD = <span class="hljs-string">"PRODUCTION"</span>
+    ANALYTICS = <span class="hljs-string">"ANALYTICS_DB"</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Schema</span>:</span>
+    LANDING = <span class="hljs-string">"LANDING_ZONE"</span>
+    TRANSFORM = <span class="hljs-string">"TRANSFORMED"</span>
+    ANALYTICS = <span class="hljs-string">"ANALYTICS"</span>
+    REPORTING = <span class="hljs-string">"REPORTING"</span>
+
+<span class="hljs-comment"># Use throughout your project</span>
+<span class="hljs-keyword">from</span> ...utils.databases <span class="hljs-keyword">import</span> Database, Schema
+
+table_name = <span class="hljs-string">f"<span class="hljs-subst">{Database.PROD}</span>.<span class="hljs-subst">{Schema.ANALYTICS}</span>.customer_segments"</span>
+<span class="hljs-comment"># "PRODUCTION.ANALYTICS.customer_segments"</span>
+</div></code></pre>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Define all database and schema names here</li>
+<li>Use class constants instead of string literals</li>
+<li>Reference in TableConfig definitions</li>
+</ul>
+<hr>
+<h3 id="tablecache">TableCache</h3>
+<p><strong>File:</strong> <code>utils/table_cache.py</code> (⚙️ Framework - Do Not Modify)</p>
+<p><strong>Purpose:</strong> Pre-loads and caches input tables to eliminate redundant Snowflake queries across processors.</p>
+<p><strong>The Problem It Solves:</strong></p>
+<p>Without TableCache, if multiple processors need the same input table, each processor would query Snowflake separately:</p>
+<pre class="hljs"><code><div><span class="hljs-comment"># ❌ Without TableCache - Multiple redundant queries</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Processor1</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        self.customer_df = etl.session.table(<span class="hljs-string">"DB.SCHEMA.customers"</span>)  <span class="hljs-comment"># Query 1</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Processor2</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        self.customer_df = etl.session.table(<span class="hljs-string">"DB.SCHEMA.customers"</span>)  <span class="hljs-comment"># Query 2 (redundant!)</span>
+</div></code></pre>
+<p><strong>With TableCache:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment"># ✅ With TableCache - Single query, shared across processors</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Pipeline</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        self.cache = TableCache()
+        <span class="hljs-comment"># Pre-load all input tables once</span>
+        self.cache.add_table(<span class="hljs-string">"customers"</span>, <span class="hljs-string">"DB.SCHEMA.customers"</span>)
+        self.cache.add_table(<span class="hljs-string">"orders"</span>, <span class="hljs-string">"DB.SCHEMA.orders"</span>)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">run_processors</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-comment"># All processors receive same cache instance</span>
+        processor1 = Processor1(self.cache)  <span class="hljs-comment"># Uses cached customer_df</span>
+        processor2 = Processor2(self.cache)  <span class="hljs-comment"># Reuses same customer_df</span>
+</div></code></pre>
+<p><strong>Complete Example:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.table_cache <span class="hljs-keyword">import</span> TableCache
+<span class="hljs-keyword">from</span> ...utils.etl <span class="hljs-keyword">import</span> ETL
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomerSegmentationPipeline</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, month: int)</span>:</span>
+        self.logger = Logger()
+        self.etl = ETL()
+        self.month = month
+
+        <span class="hljs-comment"># Initialize cache</span>
+        self.cache = TableCache()
+
+        <span class="hljs-comment"># Pre-load all input tables</span>
+        self.cache.add_table(<span class="hljs-string">"customers"</span>, <span class="hljs-string">"PROD.DIM.customers"</span>)
+        self.cache.add_table(<span class="hljs-string">"orders"</span>, <span class="hljs-string">f"PROD.FACT.orders_<span class="hljs-subst">{month:<span class="hljs-number">02</span>d}</span>"</span>)
+        self.cache.add_table(<span class="hljs-string">"products"</span>, <span class="hljs-string">"PROD.DIM.products"</span>)
+
+        self.logger.info(
+            message=<span class="hljs-string">f"Pre-loaded <span class="hljs-subst">{len(self.cache.tables)}</span> tables into cache"</span>,
+            context=<span class="hljs-string">"CustomerSegmentationPipeline"</span>
+        )
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">run_processors</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-comment"># Processors access pre-loaded tables from cache</span>
+        sales = SalesProcessor(self.cache)
+        enrichment = EnrichmentProcessor(self.cache)
+        segmentation = SegmentationProcessor(self.cache)
+
+        df = sales.process()
+        df = enrichment.process(df)
+        df = segmentation.process(df)
+        <span class="hljs-keyword">return</span> df
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SalesProcessor</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, cache: TableCache)</span>:</span>
+        self.cache = cache
+        <span class="hljs-comment"># Access pre-loaded table (no Snowflake query)</span>
+        self.orders_df = cache.get_table(<span class="hljs-string">"orders"</span>)
+        self.products_df = cache.get_table(<span class="hljs-string">"products"</span>)
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">process</span><span class="hljs-params">(self)</span> -&gt; DataFrame:</span>
+        <span class="hljs-comment"># Join using cached tables</span>
+        <span class="hljs-keyword">return</span> self.orders_df.join(
+            self.products_df,
+            on=<span class="hljs-string">"PRODUCT_ID"</span>,
+            how=<span class="hljs-string">"left"</span>
+        )
+</div></code></pre>
+<p><strong>Key Methods:</strong></p>
+<ul>
+<li><code>add_table(name: str, table_path: str)</code> - Load and cache a table</li>
+<li><code>get_table(name: str) -&gt; DataFrame</code> - Retrieve cached table</li>
+<li><code>tables</code> property - Dict of all cached tables</li>
+</ul>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li><strong>Performance</strong>: Each table queried only once per pipeline run</li>
+<li><strong>Cost</strong>: Reduces Snowflake compute credits</li>
+<li><strong>Simplicity</strong>: Processors don't manage their own table loading</li>
+<li><strong>Consistency</strong>: All processors work with identical data snapshots</li>
+</ul>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Pre-load all input tables in pipeline <code>__init__()</code></li>
+<li>Pass cache instance to all processors</li>
+<li>Use descriptive cache keys (e.g., &quot;customers&quot;, &quot;orders&quot;, &quot;products&quot;)</li>
+<li>Log cache statistics for monitoring</li>
+</ul>
+<hr>
+<h3 id="columns-utilities">Columns Utilities</h3>
+<p><strong>File:</strong> <code>utils/columns.py</code> (✏️ User Editable)</p>
+<p><strong>Purpose:</strong> Generate dynamic column names and manage column configurations for time-partitioned data.</p>
+<p><strong>MonthlyColumnConfig:</strong></p>
+<p>Useful for generating month-specific column names in wide-format tables.</p>
+<p><strong>Example:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.columns <span class="hljs-keyword">import</span> MonthlyColumnConfig
+
+<span class="hljs-comment"># Define column configuration</span>
+REVENUE_COLUMNS = MonthlyColumnConfig(
+    prefix=<span class="hljs-string">"REVENUE"</span>,
+    suffix=<span class="hljs-string">"USD"</span>,
+    separator=<span class="hljs-string">"_"</span>
+)
+
+<span class="hljs-comment"># Generate column name for January</span>
+jan_col = REVENUE_COLUMNS.generate_column_name(month=<span class="hljs-number">1</span>)
+<span class="hljs-comment"># Result: "REVENUE_01_USD"</span>
+
+<span class="hljs-comment"># Generate column name for December</span>
+dec_col = REVENUE_COLUMNS.generate_column_name(month=<span class="hljs-number">12</span>)
+<span class="hljs-comment"># Result: "REVENUE_12_USD"</span>
+
+<span class="hljs-comment"># Use in DataFrame operations</span>
+df = df.with_column(
+    REVENUE_COLUMNS.generate_column_name(month=<span class="hljs-number">3</span>),
+    col(<span class="hljs-string">"MARCH_SALES"</span>) * col(<span class="hljs-string">"PRICE"</span>)
+)
+</div></code></pre>
+<p><strong>Use Cases:</strong></p>
+<ul>
+<li>Wide-format tables with monthly columns</li>
+<li>Pivot tables with time-based dimensions</li>
+<li>Budgeting and forecasting tables</li>
+<li>Year-over-year comparison tables</li>
+</ul>
+<hr>
+<h3 id="date-parser">Date Parser</h3>
+<p><strong>File:</strong> <code>utils/date_parser.py</code> (⚙️ Framework - Do Not Modify)</p>
+<p><strong>Purpose:</strong> Provides utilities for parsing, formatting, and manipulating dates in Snowflake pipelines.</p>
+<p><strong>Common Functions:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.date_parser <span class="hljs-keyword">import</span> (
+    parse_date,
+    get_month_start,
+    get_month_end,
+    format_table_date
+)
+
+<span class="hljs-comment"># Parse various date formats</span>
+date = parse_date(<span class="hljs-string">"2025-03-15"</span>)
+date = parse_date(<span class="hljs-string">"03/15/2025"</span>)
+
+<span class="hljs-comment"># Get month boundaries</span>
+month_start = get_month_start(year=<span class="hljs-number">2025</span>, month=<span class="hljs-number">3</span>)  <span class="hljs-comment"># 2025-03-01</span>
+month_end = get_month_end(year=<span class="hljs-number">2025</span>, month=<span class="hljs-number">3</span>)      <span class="hljs-comment"># 2025-03-31</span>
+
+<span class="hljs-comment"># Format dates for table names</span>
+table_suffix = format_table_date(year=<span class="hljs-number">2025</span>, month=<span class="hljs-number">3</span>)  <span class="hljs-comment"># "2025_03"</span>
+</div></code></pre>
+<p><strong>Best Practices:</strong></p>
+<ul>
+<li>Use for consistent date handling across pipelines</li>
+<li>Standardize date formats for table naming</li>
+<li>Handle month boundaries in time-partitioned data</li>
+</ul>
+<hr>
+<h3 id="snowflake-utilities">Snowflake Utilities</h3>
+<p><strong>File:</strong> <code>utils/snowflake_utils.py</code> (⚙️ Framework - Do Not Modify)</p>
+<p><strong>Purpose:</strong> Provides Snowflake-specific helper functions for common operations.</p>
+<p><strong>Common Operations:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-keyword">from</span> ...utils.snowflake_utils <span class="hljs-keyword">import</span> (
+    table_exists,
+    get_table_schema,
+    execute_sql,
+    grant_privileges
+)
+
+<span class="hljs-comment"># Check if table exists</span>
+<span class="hljs-keyword">if</span> table_exists(<span class="hljs-string">"PROD.ANALYTICS.customer_segments"</span>):
+    logger.info(<span class="hljs-string">"Table found"</span>)
+
+<span class="hljs-comment"># Get table schema</span>
+schema = get_table_schema(<span class="hljs-string">"PROD.DIM.customers"</span>)
+
+<span class="hljs-comment"># Execute arbitrary SQL</span>
+execute_sql(<span class="hljs-string">"GRANT SELECT ON TABLE customers TO ROLE analyst"</span>)
+
+<span class="hljs-comment"># Grant privileges</span>
+grant_privileges(
+    table=<span class="hljs-string">"PROD.ANALYTICS.revenue_summary"</span>,
+    role=<span class="hljs-string">"REPORTING_ROLE"</span>,
+    privileges=[<span class="hljs-string">"SELECT"</span>]
+)
+</div></code></pre>
+<p><strong>Use Cases:</strong></p>
+<ul>
+<li>Table existence checks before operations</li>
+<li>Schema validation and comparison</li>
+<li>Access control management</li>
+<li>Administrative operations</li>
+</ul>
+<hr>
+<h3 id="framework-files-summary">Framework Files Summary</h3>
+<table>
+<thead>
+<tr>
+<th>Utility</th>
+<th>File</th>
+<th>Purpose</th>
+<th>Modifiable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ETL Singleton</strong></td>
+<td><code>etl.py</code></td>
+<td>Snowpark session management</td>
+<td>⚙️ No</td>
+</tr>
+<tr>
+<td><strong>Logger</strong></td>
+<td><code>logger.py</code></td>
+<td>Structured, color-coded logging</td>
+<td>⚙️ No</td>
+</tr>
+<tr>
+<td><strong>Decorators</strong></td>
+<td><code>decorators.py</code></td>
+<td>Timing, table checks, freshness validation</td>
+<td>⚙️ No</td>
+</tr>
+<tr>
+<td><strong>TableCache</strong></td>
+<td><code>table_cache.py</code></td>
+<td>Pre-load and cache input tables</td>
+<td>⚙️ No</td>
+</tr>
+<tr>
+<td><strong>Date Parser</strong></td>
+<td><code>date_parser.py</code></td>
+<td>Date parsing and formatting utilities</td>
+<td>⚙️ No</td>
+</tr>
+<tr>
+<td><strong>Snowflake Utils</strong></td>
+<td><code>snowflake_utils.py</code></td>
+<td>Snowflake-specific helper functions</td>
+<td>⚙️ No</td>
+</tr>
+<tr>
+<td><strong>TableConfig</strong></td>
+<td><code>tables.py</code></td>
+<td>Dynamic table naming with time partitioning</td>
+<td>✏️ Yes</td>
+</tr>
+<tr>
+<td><strong>Databases</strong></td>
+<td><code>databases.py</code></td>
+<td>Database and schema constants</td>
+<td>✏️ Yes</td>
+</tr>
+<tr>
+<td><strong>Columns</strong></td>
+<td><code>columns.py</code></td>
+<td>Column generation utilities</td>
+<td>✏️ Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Principle:</strong></p>
+<p>Framework files (⚙️) are optimized, tested utilities that handle infrastructure concerns. User-editable files (✏️) are meant for you to customize with your project-specific configurations. This separation ensures framework stability while providing flexibility for your business logic.</p>
+<hr>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li><strong>Python 3.12 or 3.13</strong> (required)
+<ul>
+<li>Note: Python 3.14+ is not yet supported by snowflake-snowpark-python</li>
+</ul>
+</li>
+<li><strong>Git</strong> (for version management)</li>
+<li><strong>pipx</strong> (recommended for installation)</li>
+</ul>
+<hr>
+<h2 id="contributing">Contributing</h2>
+<p>Contributions are welcome! Please:</p>
+<ol>
+<li>Fork the repository</li>
+<li>Create a feature branch (<code>git checkout -b feature/amazing-feature</code>)</li>
+<li>Commit your changes (<code>git commit -m 'Add amazing feature'</code>)</li>
+<li>Push to the branch (<code>git push origin feature/amazing-feature</code>)</li>
+<li>Open a Pull Request</li>
+</ol>
+<p><strong>Development Setup:</strong></p>
+<pre class="hljs"><code><div>git <span class="hljs-built_in">clone</span> https://github.com/dbrown540/pypeline-cli.git
+<span class="hljs-built_in">cd</span> pypeline-cli
+python3.13 -m venv .venv
+<span class="hljs-built_in">source</span> .venv/bin/activate
+pip install -e <span class="hljs-string">".[dev]"</span>
+pytest
+</div></code></pre>
+<hr>
+<h2 id="license">License</h2>
+<p>MIT License - see <a href="LICENSE">LICENSE</a> file for details.</p>
+<hr>
+<h2 id="support">Support</h2>
+<ul>
+<li><strong>Issues:</strong> <a href="https://github.com/dbrown540/pypeline-cli/issues">GitHub Issues</a></li>
+<li><strong>PyPI:</strong> <a href="https://pypi.org/project/pypeline-cli/">pypeline-cli on PyPI</a></li>
+<li><strong>Documentation:</strong> This README</li>
+</ul>
+<hr>
+<p><strong>Built with ❤️ for data engineers working with Snowflake and Snowpark.</strong></p>
+
+</body>
+</html>
