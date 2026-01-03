@@ -1,0 +1,40 @@
+[project]
+site_name = "Simulatte"
+site_url = "https://simulatte.dev/"
+repo_url = "https://github.com/dmezzogori/simulatte"
+edit_uri = "edit/main/docs/"
+docs_dir = "docs"
+site_dir = "site"
+
+nav = [
+  { "Home" = "index.md" },
+  { "Getting Started" = "getting-started.md" },
+  { "Tutorials" = [
+    { "Overview" = "tutorials/index.md" },
+    { "Job-shop basics" = "tutorials/job-shop-basics.md" },
+    { "Release control" = "tutorials/release-control.md" },
+    { "ShopFloor extensibility" = "tutorials/shopfloor-extensibility.md" },
+    { "Multi-run experiments" = "tutorials/multi-run-experiments.md" },
+    { "Logging" = "tutorials/logging.md" },
+    { "Troubleshooting" = "tutorials/troubleshooting.md" },
+  ]},
+  { "Experimental" = [
+    { "Overview" = "experimental/index.md" },
+    { "Materials, warehouse, and AGVs" = "experimental/materials-warehouse-agvs.md" },
+  ]},
+]
+
+[project.markdown_extensions."pymdownx.highlight"]
+use_pygments = true
+
+[project.markdown_extensions."pymdownx.superfences"]
+
+[project.theme]
+features = [
+  "content.action.edit",
+  "content.action.view",
+  "navigation.instant",
+  "navigation.sections",
+  "navigation.tracking",
+  "toc.follow",
+]
