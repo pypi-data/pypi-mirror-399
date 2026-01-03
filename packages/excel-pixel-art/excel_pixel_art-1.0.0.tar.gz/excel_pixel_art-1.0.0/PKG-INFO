@@ -1,0 +1,123 @@
+Metadata-Version: 2.4
+Name: excel-pixel-art
+Version: 1.0.0
+Summary: Convert images to Excel pixel art and back
+Project-URL: Homepage, https://github.com/luigipascal/excelart
+Project-URL: Documentation, https://github.com/luigipascal/excelart#readme
+Project-URL: Issues, https://github.com/luigipascal/excelart/issues
+Author-email: Rondanini Publishing <info@rondanini.com>
+License-Expression: MIT
+License-File: LICENSE
+Keywords: excel,image-conversion,openpyxl,pixel-art
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Multimedia :: Graphics :: Graphics Conversion
+Requires-Python: >=3.9
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: openpyxl>=3.0.0
+Requires-Dist: pillow>=9.0.0
+Provides-Extra: dev
+Requires-Dist: pytest-cov>=4.0.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# Excel Pixel Art
+
+Convert images to Excel pixel art and back. Each cell becomes a pixel with its background colour matching the original image.
+
+## Installation
+
+```bash
+pip install excel-pixel-art
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/luigipascal/excelart.git
+cd excelart
+pip install -e .
+```
+
+## Usage
+
+### Convert Image to Excel
+
+```bash
+image2xlsx photo.png
+image2xlsx photo.png -o output.xlsx
+image2xlsx photo.png --max-size 150
+```
+
+Options:
+- `-o, --output`: Output Excel file path (default: `<input>_excel.xlsx`)
+- `--max-size`: Maximum dimension in cells (default: 100)
+
+### Convert Excel Back to Image
+
+```bash
+xlsx2image output.xlsx
+xlsx2image output.xlsx -o recovered.png
+xlsx2image output.xlsx --sheet Sheet1
+```
+
+Options:
+- `-o, --output`: Output image path (default: `<input>_reconstructed.png`)
+- `--sheet`: Worksheet name to use (default: 'Image' if present, else active)
+- `--background R,G,B`: Background colour for missing cells (default: 0,0,0)
+- `--no-autocrop`: Disable auto-crop to solid-fill bounds
+
+### QA & Verification
+
+```bash
+# Compare with original for fidelity check
+xlsx2image output.xlsx --compare original.png
+
+# Generate visual diff heatmap
+xlsx2image output.xlsx --compare original.png --diff-image diff.png
+
+# CI pass/fail with threshold
+xlsx2image output.xlsx --compare original.png --diff-threshold 5
+```
+
+## Python API
+
+```python
+from excel_pixel_art import image_to_excel, excel_to_image, compare_images
+
+# Convert image to Excel
+image_to_excel("photo.png", "output.xlsx", max_size=100)
+
+# Convert back
+excel_to_image("output.xlsx", "recovered.png")
+
+# Compare for QA
+compare_images("photo.png", "recovered.png", diff_output="diff.png", diff_threshold=5)
+```
+
+## How It Works
+
+1. **Image → Excel**: The image is resized to fit within `max_size` cells, maintaining aspect ratio. Each pixel becomes a cell with a solid fill colour matching the RGB value.
+
+2. **Excel → Image**: Cells with solid fills are read back, extracting their ARGB colour values. Auto-crop detects the actual pixel bounds, ignoring stray formatting.
+
+3. **QA Tools**: The fidelity report compares reconstructed images against originals, with optional diff heatmaps and threshold-based pass/fail for CI integration.
+
+## Features
+
+- **ARGB colour handling** - Proper Excel colour format (no transparency bugs)
+- **Fill caching** - Fast generation even for images with thousands of unique colours
+- **Auto-crop** - Ignores stray formatting outside the pixel grid
+- **Robust extraction** - Handles both `fgColor` and `start_color` patterns
+- **CI-friendly** - Threshold-based pass/fail for automated testing
+
+## License
+
+MIT
