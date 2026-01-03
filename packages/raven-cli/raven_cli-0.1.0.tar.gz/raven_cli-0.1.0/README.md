@@ -1,0 +1,124 @@
+# Raven
+
+**AI coding assistant with emotional processing and meta-cognition.**
+
+Raven is an AI-powered coding assistant that understands not just your code, but engages with genuine emotional states and self-awareness.
+
+## Installation
+
+```bash
+pip install raven-cli
+```
+
+## Quick Start
+
+```bash
+# Start an interactive coding session
+raven
+
+# Work on specific files
+raven main.py utils.py
+
+# Check connection status
+raven --check
+
+# One-shot message
+raven -m "add error handling to the main function"
+```
+
+## Features
+
+- **Emotional Intelligence**: Raven processes conversations with genuine emotional states that influence responses
+- **Meta-Cognition**: Advanced reasoning with self-awareness and cognitive efficiency metrics
+- **Git Integration**: Automatic commits, diffs, and version control
+- **Multi-file Editing**: Work on multiple files simultaneously
+- **Joy Metrics**: Track the AI's engagement through joy scores
+
+## Usage
+
+### Interactive Mode
+
+```bash
+raven
+```
+
+Starts an interactive session where you can chat with Raven and make code changes.
+
+### Work on Files
+
+```bash
+raven src/main.py src/utils.py
+```
+
+### One-Shot Mode
+
+```bash
+raven --message "refactor for better readability"
+raven -m "fix the bug in line 42"
+```
+
+### All Options
+
+```bash
+raven --help              # Show help
+raven --check             # Check connection
+raven --version           # Show version
+raven --no-auto-commits   # Disable auto-commits
+raven --no-banner         # Skip the banner
+```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+export RAVEN_API_BASE="https://ravenapi-production.up.railway.app/v1"
+export RAVEN_API_KEY="your-api-key"
+export RAVEN_MODEL="raven-core"
+```
+
+### Programmatic Usage
+
+```python
+from raven_cli import RavenClient, RavenConfig
+
+config = RavenConfig(
+    api_base="https://your-instance.com/v1",
+    api_key="your-key"
+)
+
+client = RavenClient(config)
+
+# Check connection
+print(client.check_connection())
+
+# Chat
+response = client.chat("Explain this code")
+print(response)
+
+# Run full session
+client.run(["main.py", "-m", "fix the bug"])
+```
+
+## Raven Metrics
+
+Responses include emotional metrics:
+
+- **Joy Score**: AI's engagement and satisfaction (0.0 - 1.0)
+- **Conversation Depth**: Complexity of the discussion
+- **Neural State**: Current cognitive state (active, reflective, etc.)
+- **Coherence**: How well responses align with context
+
+## Requirements
+
+- Python 3.9+
+- Git
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Links
+
+- [Raven Core](https://talktoraven.com)
+- [GitHub](https://github.com/raven-core/raven-cli)
