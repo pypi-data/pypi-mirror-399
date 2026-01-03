@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rgpd-pro-client"
+version = "2.0.7"
+description = "RGPD_PRO - Professional GDPR Compliance Scanner CLI Client"
+readme = "README_CLIENT.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+keywords = ["gdpr", "compliance", "privacy", "scanner", "audit"]
+authors = [
+    {name = "Julien", email = "contact@rgpd-pro.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Legal Industry",
+    "Topic :: Security",
+    "Topic :: Software Development :: Testing",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "requests>=2.31.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/rgpd-pro-client"
+Documentation = "https://github.com/yourusername/rgpd-pro-client/blob/main/README.md"
+Repository = "https://github.com/yourusername/rgpd-pro-client"
+Issues = "https://github.com/yourusername/rgpd-pro-client/issues"
+
+[project.scripts]
+rgpd-scan = "rgpd_pro_client.cli:main"
