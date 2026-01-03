@@ -1,0 +1,39 @@
+# Include essential files
+include LICENSE
+include README.md
+include pyproject.toml
+
+# Include the package
+recursive-include worm_library *.py
+
+# Exclude everything else (notebooks, tutorials, test files, etc.)
+exclude setup.py
+exclude *.ipynb
+exclude execute_notebooks.py
+exclude test_notebooks.py
+exclude TESTING.md
+exclude test-requirements.txt
+exclude nul
+
+# Exclude all tutorial/notebook directories
+prune 1-Introduction
+prune 2-Reaction-Properties
+prune 3-Aqueous-Speciation
+prune 4-Thermodynamic-Property-Estimation
+prune 5-Community-WORM-Notebooks
+prune WORKSHOP
+prune WORM-Development
+prune WORM-Tour
+
+# Exclude development/CI directories
+prune .github
+prune .claude
+prune .ipynb_checkpoints
+prune __pycache__
+
+# Exclude any generated files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.egg-info

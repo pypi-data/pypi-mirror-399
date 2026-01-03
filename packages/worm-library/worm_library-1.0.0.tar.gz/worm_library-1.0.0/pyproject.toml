@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "worm-library"
+version = "1.0.0"
+description = "Download WORM Portal tutorial notebooks and demo files"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Grayson Boyer", email = "gmboyer@asu.edu" }
+]
+keywords = ["geochemistry", "thermodynamics", "aqueous", "speciation", "tutorials"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+    "beautifulsoup4",
+    "lxml",
+]
+
+[project.urls]
+Homepage = "https://github.com/worm-portal/WORM-Library"
+Repository = "https://github.com/worm-portal/WORM-Library"
+Documentation = "https://github.com/worm-portal/WORM-Library"
+Issues = "https://github.com/worm-portal/WORM-Library/issues"
+
+[tool.setuptools]
+packages = ["worm_library"]
