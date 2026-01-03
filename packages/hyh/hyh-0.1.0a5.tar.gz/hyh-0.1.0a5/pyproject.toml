@@ -1,0 +1,159 @@
+[project]
+name = "hyh"
+version = "0.1.0a5"
+description = "CLI orchestration tool for agentic workflows - coordinate tasks with claude-code and other AI agents"
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Pedro Proenca", email = "pedro@10xengs.com" }]
+keywords = ["cli", "orchestration", "workflow", "tasks", "agents", "claude-code", "daemon", "unix-socket"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Distributed Computing",
+    "Typing :: Typed",
+]
+dependencies = [
+    "defusedxml>=0.7.1",
+    "msgspec>=0.18",
+]
+
+[project.urls]
+Homepage = "https://github.com/pproenca/hyh"
+Documentation = "https://github.com/pproenca/hyh#readme"
+Repository = "https://github.com/pproenca/hyh.git"
+Issues = "https://github.com/pproenca/hyh/issues"
+Changelog = "https://github.com/pproenca/hyh/releases"
+Funding = "https://github.com/sponsors/pproenca"
+
+# Development dependencies use PEP 735 dependency-groups (not optional-dependencies)
+# See: https://peps.python.org/pep-0735/
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-timeout>=2.0",
+    "pytest-xdist>=3.5",
+    "pytest-testmon>=2.1",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+    "pre-commit>=4.0",
+    "pyupgrade>=3.19",
+    "pytest-cov>=7.0.0",
+    "ty",
+    "big-o>=0.11.0",
+    "hypothesis>=6.100.0",
+    "time-machine>=2.10.0",
+    "pytest-benchmark>=4.0",
+    "pytest-memray>=1.7",
+]
+
+[project.scripts]
+hyh = "hyh.client:main"
+
+# pipx run optimization - https://packaging.python.org/en/latest/guides/creating-command-line-tools/
+[project.entry-points."pipx.run"]
+hyh = "hyh.client:main"
+
+[build-system]
+requires = ["hatchling >= 1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hyh"]
+
+# uv configuration - https://docs.astral.sh/uv/reference/settings/
+[tool.uv]
+# Pin uv version to avoid GitHub API rate limits in CI
+required-version = ">=0.9"
+# Explicitly mark as a package (builds and installs in editable mode)
+package = true
+# Default groups to sync (dev is already default, but explicit is better)
+default-groups = ["dev"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+# Default: testmon for fast dev feedback (no coverage overhead)
+addopts = "--testmon --timeout=30 --benchmark-disable"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "benchmark: marks benchmark tests (run with 'make benchmark')",
+    "memcheck: marks memory profiling tests (run with 'make memcheck')",
+]
+# pytest-asyncio: auto-detect async tests without explicit markers
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "UP",  # pyupgrade (Keep Python 3.13 modern)
+    "B",   # flake8-bugbear (Catch common bugs)
+    "SIM", # flake8-simplify
+    "I",   # isort (Import hygiene)
+    "N",   # pep8-naming
+    "ANN", # flake8-annotations (Strict Typing - Guido's Rule)
+    "S",   # flake8-bandit (Security - Justin's Rule)
+    "DTZ", # flake8-datetimez (Timezone Safety - Sam's Rule)
+    "PTH", # flake8-use-pathlib (Path Safety)
+    "RET", # flake8-return
+    "ARG", # flake8-unused-arguments
+    "RUF", # Ruff-specific quality checks
+]
+ignore = [
+    "S101",   # Use of assert (Allowed in general logic, critical for invariants)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests: allow assert, skip annotations, unused args, subprocess, /tmp paths, datetime without tz,
+# unused loop vars, unpacked vars, implicit return (common test patterns)
+"tests/*" = ["S101", "ANN", "ARG", "S603", "S607", "S108", "DTZ", "PTH", "RUF043", "B007", "RUF059", "RET503"]
+# Client prints to stdout (The Interface) and spawns daemon subprocess
+# S108: /tmp is standard Unix socket location per XDG
+"src/hyh/client.py" = ["T201", "S603", "S607", "S108"]
+# Daemon executes commands through runtime - trusted subprocess execution
+"src/hyh/daemon.py" = ["T201", "S603"]
+# Runtime is the subprocess execution layer - S603/S607 are intentional
+"src/hyh/runtime.py" = ["S603", "S607"]
+# Worktree module executes git worktree commands - S603/S607 are intentional
+"src/hyh/worktree.py" = ["S603", "S607"]
+# Init module executes git commands for branch detection - S603/S607 are intentional
+"src/hyh/init.py" = ["S603", "S607"]
+# State uses **kwargs: Any for Pydantic model_copy (legitimate Any usage)
+"src/hyh/state.py" = ["ANN401"]
+# Scripts: libcst visitor methods require specific naming (leave_Module, etc.) and unused args
+"scripts/*" = ["N802", "ARG002"]
+
+[tool.ty]
+# Target Python version
+[tool.ty.environment]
+python-version = "3.14"
+
+[tool.ty.src]
+# Include source and tests
+include = ["src"]
+
+[tool.ty.rules]
+# Default strictness level
+# All rules enabled by default, customize only if needed
+
+# TestPyPI index for testing before real PyPI publish
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
