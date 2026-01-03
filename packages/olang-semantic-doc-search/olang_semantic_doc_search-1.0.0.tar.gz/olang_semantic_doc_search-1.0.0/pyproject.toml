@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "olang-semantic-doc-search"
+version = "1.0.0"
+description = "Python semantic document search resolver for O-lang workflows"
+readme = "README.md"
+authors = [
+    {name = "Olami Ogundipe", email = "6962539414@users.noreply.telegram.org"}
+]
+maintainers = [
+    {name = "Olami Ogundipe", email = "6962539414@users.noreply.telegram.org"}
+]
+license = "MIT"  # ✅ FIXED: SPDX format (string, not table)
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Indexing"
+]
+keywords = [
+    "olang", "semantic-search", "document-search", "embeddings", 
+    "sentence-transformers", "pgvector", "ai-workflows", "vector-search"
+]
+dependencies = [
+    "Flask>=2.3.0,<3.0.0",
+    "sentence-transformers>=2.2.2,<3.0.0",
+    "torch>=1.13.0,<3.0.0",
+    "numpy>=1.21.0,<2.0.0",
+    "scikit-learn>=1.0.0,<2.0.0"
+]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+pgvector = ["pgvector>=0.2.0,<1.0.0", "psycopg2-binary>=2.9.0,<3.0.0"]
+all = ["olang-semantic-doc-search[pgvector]"]
+
+[project.urls]
+Homepage = "https://github.com/olang/resolver-semantic-doc-search"
+Documentation = "https://github.com/olang/resolver-semantic-doc-search#readme"
+Repository = "https://github.com/olang/resolver-semantic-doc-search"
+Issues = "https://github.com/olang/resolver-semantic-doc-search/issues"
+Changelog = "https://github.com/olang/resolver-semantic-doc-search/releases"
+
+[project.scripts]
+olang-semantic-doc-search = "semantic_doc_search.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["semantic_doc_search*"]
+
+[tool.setuptools.package-data]
+semantic_doc_search = ["py.typed"]
