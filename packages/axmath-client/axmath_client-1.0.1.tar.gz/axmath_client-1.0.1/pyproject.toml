@@ -1,0 +1,104 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "axmath-client"
+version = "1.0.1"
+description = "Python client for AxMath theorem proving API - connects to private AxMath service"
+readme = "README.md"
+authors = [
+    {name = "Dirk Englund", email = "englund@mit.edu"}
+]
+maintainers = [
+    {name = "Dirk Englund", email = "englund@mit.edu"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = [
+    "theorem-proving",
+    "lean4",
+    "mathematics",
+    "formal-verification",
+    "api-client",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "httpx>=0.24.0",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+# MCP server that calls authenticated API
+mcp = [
+    "mcp>=0.1.0",
+]
+
+# Development dependencies
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-httpx>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+]
+
+[project.urls]
+Homepage = "https://axmath.yourdomain.com"
+Documentation = "https://axmath.yourdomain.com/docs"
+"API Reference" = "https://axmath.yourdomain.com/api/docs"
+"Bug Tracker" = "https://github.com/dirkenglund/math-physics-agents-dream-team/issues"
+
+[tool.setuptools]
+packages = ["axmath_client", "axmath_client.mcp_server"]
+
+[tool.setuptools.package-data]
+axmath_client = ["py.typed"]
+
+[project.scripts]
+axmath-mcp-server = "axmath_client.mcp_server.__main__:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["-v", "--strict-markers"]
+asyncio_mode = "auto"
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312", "py313"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+ignore_missing_imports = true
