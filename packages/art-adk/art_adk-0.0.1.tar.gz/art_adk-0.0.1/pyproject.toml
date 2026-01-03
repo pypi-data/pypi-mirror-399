@@ -1,0 +1,39 @@
+[project]
+name = "art_adk"
+version = "0.0.1"
+description = "Python SDK for ART WebSocket platform with sync/async support"
+authors = [
+    {name = "Aiotrix Private Limited"}
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+keywords = ["websocket", "realtime", "art", "adk", "messaging", "pubsub"]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Communications",
+]
+
+dependencies = [
+    "aiohttp>=3.8.0", # Async HTTP
+    "websockets>=10.0,<15.0", # WebSocket (compatible version)
+    "PyNaCl>=1.5.0", # Encryption
+]
+
+[build-system]
+requires = ["uv_build >= 0.9.5, <0.10.0"]
+build-backend = "uv_build"
+
+
+[project.urls]
+Homepage = "https://arealtimetech.com"
