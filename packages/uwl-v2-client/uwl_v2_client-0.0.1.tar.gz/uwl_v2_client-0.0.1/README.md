@@ -1,0 +1,415 @@
+# UWL v2 Client
+
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+An **unofficial Python client** for the [WeatherLink v2 API](https://weatherlink.github.io/v2-api/api-reference).
+
+This library provides a simple and Pythonic interface to retrieve **stations, sensors, and historical weather data** from the WeatherLink v2 API.
+
+---
+
+## 📋 Table of Contents
+
+- [Disclaimer](#disclaimer)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Authentication](#authentication)
+- [Usage Examples](#usage-examples)
+- [API Reference](#api-reference)
+- [Error Handling](#error-handling)
+- [Advanced Usage](#advanced-usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
+---
+
+## ⚠️ Disclaimer
+
+This project is an **independent and unofficial implementation** of the WeatherLink v2 API client.
+
+It is **not affiliated with, maintained by, or endorsed by Davis Instruments**.  
+All trademarks, service marks, and product names are the property of their respective owners.
+
+The WeatherLink API may change without notice, which could affect the functionality of this library.  
+Use this software **at your own risk**.
+
+For official support and documentation, please refer to:
+- [WeatherLink Official Website](https://www.weatherlink.com/)
+- [WeatherLink v2 API Documentation](https://weatherlink.github.io/v2-api/)
+
+---
+
+## ✨ Features
+
+- ✅ **Station Management**: Retrieve stations linked to your WeatherLink account
+- ✅ **Sensor Information**: Access detailed sensor metadata, types, and activity
+- ✅ **Historical Data**: Query weather data by station and customizable time ranges
+- ✅ **Flexible Filtering**: Filter data by specific sensors or retrieve all sensors
+- ✅ **Data Consolidation**: Automatically merge data from multiple sensors by timestamp
+- ✅ **Raw Access**: Optional access to raw API responses for advanced users
+- ✅ **Type Safety**: Full type hints support for better IDE integration
+- ✅ **Error Handling**: Comprehensive error handling with custom exceptions
+- ✅ **Date Utilities**: Built-in helpers for timestamp conversions
+- ✅ **Pythonic API**: Clean, intuitive interface following Python best practices
+
+---
+
+## 📦 Requirements
+
+- **Python**: 3.8 or higher
+- **Dependencies**:
+  - `requests >= 2.31.0`
+  - `python-dateutil >= 2.8.0`
+
+---
+
+## 🚀 Installation
+
+### From GitHub
+
+Install directly from the GitHub repository:
+
+```bash
+pip install git+https://github.com/l2radamanthys/uwl-v2-client.git#egg=uwl-v2-client
+```
+
+### From Source
+
+Clone and install locally:
+
+```bash
+git clone https://github.com/l2radamanthys/uwl-v2-client.git
+cd uwl-v2-client
+pip install -e .
+```
+
+### Development Installation
+
+For contributing or development:
+
+```bash
+git clone https://github.com/l2radamanthys/uwl-v2-client.git
+cd uwl-v2-client
+pip install -e ".[dev]"
+```
+
+---
+
+## 🎯 Quick Start
+
+```python
+from uwl_client import UWLClient
+import datetime
+
+# Initialize the client
+client = UWLClient(
+    api_key="YOUR_API_KEY",
+    api_secret="YOUR_API_SECRET"
+)
+
+# Get all your stations
+stations = client.get_stations()
+print(f"Found {len(stations)} stations")
+
+# Get the first station
+station = stations[0]
+station_id = station['station_id']
+print(f"Station: {station['station_name']}")
+
+# Get historical data for the last 24 hours
+end = datetime.datetime.now()
+start = end - datetime.timedelta(days=1)
+
+data = client.get_historic(
+    station_id=station_id,
+    start=start,
+    end=end
+)
+
+# Display the data
+for record in data:
+    timestamp = client.timestamp_to_date(record['ts'])
+    temp = record.get('temp', 'N/A')
+    humidity = record.get('hum', 'N/A')
+    print(f"{timestamp}: Temp={temp}°F, Humidity={humidity}%")
+```
+
+---
+
+## 🔐 Authentication
+
+Before using the client, you need API credentials from WeatherLink:
+
+### Obtaining API Credentials
+
+1. **Log in** to your WeatherLink account at [weatherlink.com](https://www.weatherlink.com/)
+2. Navigate to **Account Settings** → **API Tokens**
+3. Click **Generate API Token**
+4. Save your **API Key** and **API Secret** securely
+
+⚠️ **Important Security Notes**:
+- Never commit your API credentials to version control
+- Store credentials in environment variables or secure configuration files
+- Use `.env` files (with `.gitignore`) for local development
+
+### Using Environment Variables
+
+```bash
+# .env file
+WEATHERLINK_API_KEY=your_api_key_here
+WEATHERLINK_API_SECRET=your_api_secret_here
+```
+
+```python
+import os
+from dotenv import load_dotenv
+from uwl_client import UWLClient
+
+load_dotenv()
+
+client = UWLClient(
+    api_key=os.getenv('WEATHERLINK_API_KEY'),
+    api_secret=os.getenv('WEATHERLINK_API_SECRET')
+)
+```
+
+---
+
+## 📖 Usage Examples
+
+### Retrieving Station Information
+
+```python
+# Get all stations
+stations = client.get_stations()
+
+for station in stations:
+    print(f"Station ID: {station['station_id']}")
+    print(f"Name: {station['station_name']}")
+    print(f"Latitude: {station['latitude']}")
+    print(f"Longitude: {station['longitude']}")
+    print(f"Active: {station['active']}")
+    print("---")
+
+# Get raw response for custom processing
+response = client.get_stations(raw_content=True)
+print(f"Status Code: {response.status_code}")
+print(f"Headers: {response.headers}")
+```
+
+### Working with Sensors
+
+```python
+# Get all sensors
+sensors = client.get_sensors()
+
+for sensor in sensors:
+    print(f"Sensor LSID: {sensor['lsid']}")
+    print(f"Type: {sensor['sensor_type']}")
+    print(f"Station: {sensor['station_id']}")
+    print("---")
+
+# Get sensor catalog (available sensor types)
+catalog = client.get_sensor_catalog()
+
+# Get specific sensor type information
+temp_sensor = client.get_sensor_catalog(sensor_type=56)
+if temp_sensor:
+    print(f"Sensor Type: {temp_sensor['sensor_type']}")
+    print(f"Description: {temp_sensor['manufacturer']}")
+    print(f"Product Name: {temp_sensor['product_name']}")
+
+# Get sensor activity
+activity = client.get_sensor_activity()
+```
+
+### Querying Historical Data
+
+#### Basic Historical Query
+
+```python
+import datetime
+
+# Define time range
+start = datetime.datetime(2024, 1, 1, 0, 0, 0)
+end = datetime.datetime(2024, 1, 2, 0, 0, 0)
+
+# Get all sensor data for the station
+data = client.get_historic(
+    station_id=123456,
+    start=start,
+    end=end,
+    sensors="all"  # Include all sensors
+)
+
+print(f"Retrieved {len(data)} records")
+```
+
+#### Filtering Specific Sensors
+
+```python
+# Get data from specific sensors only
+sensor_ids = [123, 456, 789]
+
+data = client.get_historic(
+    station_id=123456,
+    start=start,
+    end=end,
+    sensors=sensor_ids
+)
+
+# Process filtered data
+for record in data:
+    print(f"Timestamp: {record['ts']}")
+    print(f"Temperature: {record.get('temp', 'N/A')}")
+    print(f"Humidity: {record.get('hum', 'N/A')}")
+```
+
+#### Single Sensor Query
+
+```python
+# Get data from a single sensor
+data = client.get_historic(
+    station_id=123456,
+    start=start,
+    end=end,
+    sensors=123  # Single sensor ID
+)
+```
+
+### Working with Timestamps
+
+```python
+# Convert datetime to Unix timestamp
+now = datetime.datetime.now()
+timestamp = client._date_to_timestamp(now)
+print(f"Timestamp: {timestamp}")
+
+# Convert Unix timestamp to datetime
+dt = client.timestamp_to_date(1704110400)
+print(f"DateTime: {dt}")
+
+# Get current timestamp
+current_ts = client.get_timestamp()
+print(f"Current timestamp: {current_ts}")
+```
+
+### Data Processing and Analysis
+
+```python
+import datetime
+from collections import defaultdict
+
+# Get last 7 days of data
+end = datetime.datetime.now()
+start = end - datetime.timedelta(days=7)
+
+data = client.get_historic(
+    station_id=123456,
+    start=start,
+    end=end
+)
+
+# Calculate daily averages
+daily_temps = defaultdict(list)
+
+for record in data:
+    date = client.timestamp_to_date(record['ts']).date()
+    temp = record.get('temp')
+    if temp is not None:
+        daily_temps[date].append(temp)
+
+# Print daily averages
+for date, temps in sorted(daily_temps.items()):
+    avg_temp = sum(temps) / len(temps)
+    print(f"{date}: {avg_temp:.1f}°F (from {len(temps)} readings)")
+```
+
+---
+
+## 📚 API Reference
+
+### UWLClient Class
+
+#### Initialization
+
+```python
+UWLClient(api_key: str, api_secret: str, timeout: int = 600)
+```
+
+**Parameters:**
+- `api_key` (str): Your WeatherLink API key
+- `api_secret` (str): Your WeatherLink API secret
+- `timeout` (int, optional): Request timeout in seconds. Default: 600
+
+#### Methods
+
+##### `get_stations(raw_content=False)`
+
+Retrieve all stations linked to your account.
+
+**Returns:** List of station dictionaries or Response object
+
+**Example:**
+```python
+stations = client.get_stations()
+```
+
+##### `get_sensors(raw_content=False)`
+
+Get all sensors associated with your stations.
+
+**Returns:** List of sensor dictionaries or Response object
+
+##### `get_sensor_catalog(sensor_type=None, raw_content=False)`
+
+Get the catalog of available sensor types.
+
+**Parameters:**
+- `sensor_type` (int, optional): Specific sensor type ID to retrieve
+
+**Returns:** List of sensor types, single sensor type dict, or Response object
+
+##### `get_sensor_activity(raw_content=False)`
+
+Get recent activity for all sensors.
+
+**Returns:** Sensor activity data or Response object
+
+##### `get_historic(station_id, start, end, sensors="all", raw_content=False)`
+
+Query historical weather data.
+
+**Parameters:**
+- `station_id` (int/str): Station ID
+- `start` (datetime): Start date/time
+- `end` (datetime): End date/time
+- `sensors` (str/int/list): "all" or specific sensor ID(s)
+- `raw_content` (bool): Return raw response if True
+
+**Returns:** List of consolidated records or Response object
+
+**Example:**
+```python
+data = client.get_historic(
+    station_id=123456,
+    start=datetime.datetime(2024, 1, 1),
+    end=datetime.datetime(2024, 1, 2),
+    sensors=[123, 456]
+)
+```
+
+##### `get_timestamp()`
+
+Get current Unix timestamp.
+
+**Returns:** Integer timestamp
+
+##### `timestamp_to_date(timestamp)`
+
+Convert Unix timestamp to datetime.

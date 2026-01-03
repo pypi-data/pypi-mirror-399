@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uwl-v2-client"
+version = "0.0.1"
+authors = [
+  { name="Ricardo Daniel Quiroga", email="l2radamanthys@gmail.com" },
+]
+description = "An unofficial Python client for the WeatherLink v2 API"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "requests",
+    "python-dateutil",
+]
+
+[project.urls]
+Homepage = "https://github.com/l2radamanthys/uwl-v2-client"
+Issues = "https://github.com/l2radamanthys/uwl-v2-client/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+dev = [
+    "build>=1.2.2.post1",
+    "pytest>=8.3.5",
+]
