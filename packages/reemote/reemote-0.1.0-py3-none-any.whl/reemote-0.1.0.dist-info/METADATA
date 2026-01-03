@@ -1,0 +1,33 @@
+Metadata-Version: 2.4
+Name: reemote
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: asyncssh>=2.21.1
+Requires-Dist: coverage>=7.13.0
+Requires-Dist: fastapi[standard]>=0.123.5
+Requires-Dist: pydantic>=2.12.5
+Requires-Dist: pytest>=9.0.1
+Requires-Dist: pytest-asyncio>=1.3.0
+Requires-Dist: ruff>=0.14.9
+Dynamic: license-file
+
+# Reemote
+
+An API for controlling remote systems.
+
+Run the script
+
+```bash
+cd ~/reemote
+uv run python -m uvicorn app:app --reload --port 8001
+```
+
+Docs
+http://127.0.0.1:8001/redoc
+
+Swagger UI
+http://127.0.0.1:8001/docs
+
