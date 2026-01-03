@@ -1,0 +1,68 @@
+- case: include_file
+  skip: true
+  files: &INC
+    - path: inc.py
+      content: |
+        from lxml import etree as e
+        el: e._Element
+        comm: e._Comment
+        ent: e._Entity
+        pi_: e._ProcessingInstruction
+        s: str
+        b: bytes
+        i: int
+        o: object
+        qn: e.QName
+  main: ""
+
+- case: makeelement_goodargs
+  files: *INC
+  main: |
+    from typing import Dict, Optional, Union
+    from inc import el, s, b, qn
+    # crazy_nsmap = {None: s, s: b}
+    crazy_nsmap: Dict[str | None, str | bytes]
+    nsmap = {None: s, s: s}
+    myattrib = {s: s}
+    reveal_type(el.makeelement(s))  # NR: .+ "[\w\.]+\._Element"
+    el.makeelement(b, el.attrib)
+    el.makeelement(qn, myattrib)
+    el.makeelement(s, None, crazy_nsmap)
+    el.makeelement(s, foo=s)
+    el.makeelement(s, foo=s, baz=b)
+    el.makeelement(b, foo=s, nsmap={None: b})
+    el.makeelement(qn, foo=s, attrib={s: b, s: s})
+
+- case: makeelement_badargs
+  files: *INC
+  main: |
+    from typing import Dict, Optional, Union
+    from inc import el, s, b, qn
+    bad_attrib = {s: 1}
+    el.makeelement()  # ER: Too few arguments.*  \[call-arg]$
+    el.makeelement(None)  # ER: Argument 1 .+; expected ".+"  \[arg-type]$
+    el.makeelement(s, foo=1)  # ER: Argument "foo" .+; expected ".+"  \[arg-type]$
+    el.makeelement(s, bad_attrib)  # ER: Argument 2 .+; expected ".+"  \[arg-type]$
+
+- case: xpath
+  files: *INC
+  main: |
+    from inc import el, s
+    ns = {s: s}
+    badns = {s: 1}
+    def extfunc1(context, a): return ''
+    def extfunc2(context, a, b): return 0
+    ext1 = [{(None, s): extfunc1}]
+    ext2 = {(s, s): extfunc2}
+    badext = [{badns: extfunc1}]
+    el.xpath(s, namespaces=None)
+    el.xpath(s, namespaces=ns)
+    el.xpath(s, extensions=None)
+    el.xpath(s, extensions=ext2)
+    el.xpath(s, smart_string=True)
+    el.xpath(s, var=1)
+    el.xpath(s, namespaces=ns, extensions=ext1, smart_string=False)
+    el.xpath()  # ER: Too few arguments.*  \[call-arg]$
+    el.xpath(path=s)  # ER: Too few arguments.*  \[call-arg]$
+    el.xpath(s, namespaces=badns)  # ER: Argument "namespaces" .+; expected ".+"  \[arg-type]$
+    el.xpath(s, extensions=badext)  # ER: Argument "extensions" .+; expected ".+"  \[arg-type]$

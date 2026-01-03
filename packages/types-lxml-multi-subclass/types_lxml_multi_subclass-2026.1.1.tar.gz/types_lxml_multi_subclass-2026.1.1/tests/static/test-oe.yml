@@ -1,0 +1,73 @@
+- case: fromstring_default_arg
+  parametrized:
+    - args: s
+    - args: xml=b
+  main: |
+    s: str
+    b: bytes
+    from lxml.objectify import fromstring
+    reveal_type(fromstring({{ args }}))  # NR: Revealed type is "[\w\.]+\.ObjectifiedElement"
+
+- case: elementmaker_default
+  main: |
+    from lxml.objectify import E
+    reveal_type(E)  # NR: .+ "[\w\.]+\.ElementMaker"$
+
+- case: elementmaker_customize
+  parametrized:
+    - args: namespace=ns
+    # makeelement not choking on ObjectifiedElement is just
+    # an accident. Resulting XML is broken and unusable.
+    # - args: makeelement=ObjectifiedElement
+    - args: namespace=ns, nsmap=map
+    - args: annotate=True
+  main: |
+    from typing import Dict
+    from lxml.objectify import ObjectifiedElement, ElementMaker
+    ns: str
+    map: Dict[str, str]
+    E = ElementMaker({{ args }})
+    reveal_type(E)  # NR: Revealed type is "[\w\.]+\.ElementMaker"
+
+- case: elementmaker_create_elements
+  parametrized:
+    - method: foo
+      rt: '[\w\.]+\.ObjectifiedElement'
+    - method: BAR
+      rt: '[\w\.]+\.ObjectifiedElement'
+    - method: __nonExistent__
+      rt: '[\w\.]+\.ObjectifiedElement'
+    - method: __str__
+      rt: 'builtins\.str'
+  main: |
+    from lxml.objectify import E
+    reveal_type(E.{{ method }}())  # NR: Revealed type is "{{ rt }}"
+
+# Modified from official doc example
+- case: elementmaker_complex_example
+  main: |
+    from lxml.objectify import E
+
+    A = E.a
+    I = E.i
+    B = E.b
+
+    def CLASS(v):
+      return {'class': v}
+
+    page = (
+      E.html(
+        E.head(
+          E.title("This is a sample document")
+        ),
+        E.body(
+          E.h1("Hello!", CLASS("title")),
+          E.p("This is a paragraph with ", B("bold"), " text in it!"),
+          E.p("This is another paragraph, with a ",
+              A("link", href="http://www.python.org"), "."),
+          E.p("Here are some reserved characters: <spam&egg>."),
+          E.p("Paragraph with style.", style="color: blue;"),
+        )
+      )
+    )
+    reveal_type(page)  # NR: Revealed type is "[\w\.]+\.ObjectifiedElement"

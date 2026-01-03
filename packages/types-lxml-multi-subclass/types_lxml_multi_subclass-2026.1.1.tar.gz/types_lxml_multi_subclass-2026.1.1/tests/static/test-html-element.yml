@@ -1,0 +1,149 @@
+- case: include_file
+  skip: true
+  files: &INC
+    - path: inc.py
+      content: |
+        from lxml import etree as e, html as h
+        el: h.HtmlElement
+        s: str
+        b: bytes
+        i: int
+        qn: e.QName
+        def good_repl_func(href: str): return href[1:]
+        def bad_repl_func(href: bytes): return href[1:]
+        def extfunc1(context, a): return ''
+        def extfunc2(context, a, b): return 0
+  main: ""
+
+- case: mixin_method_drop_
+  parametrized:
+  - func: drop_tree
+  - func: drop_tag
+  main: |
+    from lxml.html import HtmlElement
+    elem: HtmlElement
+    elem.{{ func }}()
+
+- case: mixin_method_find_rel_links
+  main: |
+    from lxml.html import HtmlElement
+    elem: HtmlElement
+    result = elem.find_rel_links('stylesheet')
+    reveal_type(result)  # NR: Revealed type is "builtins.list\[[\w\.]+\.HtmlElement]"
+
+- case: mixin_method_find_class
+  files: *INC
+  main: |
+    from inc import s, b, el
+    reveal_type(el.find_class(s))  # NR: .+ "builtins\.list\[[\w\.]+\.HtmlElement]"
+    reveal_type(el.find_class(b))  # NR: .+ "builtins\.list\[[\w\.]+\.HtmlElement]"
+
+- case: mixin_method_get_element_by_id
+  files: *INC
+  main: |
+    from inc import s, b, el
+    reveal_type(el.get_element_by_id(s))  # NR: .+ "[\w\.]+\.HtmlElement"
+    reveal_type(el.get_element_by_id(b))  # NR: .+ "[\w\.]+\.HtmlElement"
+
+- case: mixin_method_get_element_by_id_badargs
+  expect_fail: true
+  parametrized:
+  - args: arg0
+    wrong_type: int
+  - args: arg1
+    wrong_type: bool
+  main: |
+    from lxml.html import HtmlElement
+    elem: HtmlElement
+    {{ args }}: {{ wrong_type }}
+    result = elem.get_element_by_id({{ args }})
+
+- case: mixin_method_text_content
+  main: |
+    from lxml.html import HtmlElement
+    elem: HtmlElement
+    result = elem.text_content()
+    reveal_type(result)  # N: Revealed type is "builtins.str"
+    result = elem.text_content(None)  # E: Too many arguments for "text_content" of "HtmlElement"  [call-arg]
+
+- case: mixin_method_iterlinks
+  main: |
+    from lxml.html import HtmlElement
+    elem: HtmlElement
+    result = elem.iterlinks()
+    reveal_type(result)  # NR: Revealed type is "typing\.Iterator\[tuple\[[\w\.]+\.HtmlElement, builtins\.str \| None, builtins\.str, builtins\.int]]"
+    result = elem.iterlinks(None)  # E: Too many arguments for "iterlinks" of "HtmlElement"  [call-arg]
+
+- case: mixin_method_make_links_absolute
+  expect_fail: true
+  files: *INC
+  main: |
+    from inc import b, el
+    url: str
+    f = el.make_links_absolute
+    f()
+    f(url)
+    f(url, False)
+    f(None, True, None)
+    f(base_url=url)
+    f(resolve_base_href=True)
+    f(handle_failures=None)
+    f(b)
+    f(url, 2, None)
+    f(handle_failures='badval')
+    f(badarg=1)
+    f(url, True, 'discard', None)
+
+- case: mixin_method_resolve_base_href
+  expect_fail: true
+  main: |
+    from lxml.html import HtmlElement
+    elem: HtmlElement
+    elem.resolve_base_href()
+    elem.resolve_base_href(b'ignore')
+    elem.resolve_base_href(handle_failures='discard')
+    elem.resolve_base_href(badarg=1)
+    elem.resolve_base_href(None, None)
+
+- case: mixin_method_rewrite_links
+  files: *INC
+  main: |
+    from inc import el, s, b, good_repl_func, bad_repl_func
+    f = el.rewrite_links
+    f(good_repl_func)
+    f(good_repl_func, resolve_base_href=False)
+    f(good_repl_func, True, s)
+    f(link_repl_func=good_repl_func, base_href=s)
+    f(resolve_base_href=True, link_repl_func=good_repl_func)
+    f()  # ER: Too few arguments.*  \[call-arg]$
+    f(bad_repl_func)  # ER: Argument 1 .+; expected ".+"  \[arg-type]$
+    f(good_repl_func, 'badval')  # ER: Argument 2 .+; expected ".+"  \[arg-type]$
+    f(good_repl_func, True, b)  # ER: Argument 3 .+; expected ".+"  \[arg-type]$
+
+- case: xpath_goodargs
+  files: *INC
+  main: |
+    from inc import el, s, extfunc1, extfunc2
+    expr: str
+    ns = {s: s}
+    ext1 = [{(None, s): extfunc1}]
+    ext2 = {(s, s): extfunc2}
+    result = el.xpath(expr, namespaces=None)
+    result = el.xpath(expr, namespaces=ns)
+    result = el.xpath(expr, extensions=None)
+    result = el.xpath(expr, extensions=ext2)
+    result = el.xpath(expr, smart_string=False)
+    result = el.xpath(expr, var=1)
+    result = el.xpath(expr, namespaces=ns, extensions=ext1, smart_string=False)
+
+- case: xpath_badargs
+  files: *INC
+  main: |
+    from inc import el, s, extfunc1
+    expr: str
+    badns = {s: 1}
+    badext = [{badns: extfunc1}]
+    el.xpath()  # ER: Too few arguments.*  \[call-arg]$
+    el.xpath(path=expr)  # ER: Too few arguments.*  \[call-arg]$
+    el.xpath(expr, namespaces=badns)  # ER: Argument "namespaces" .+; expected ".+"  \[arg-type]$
+    el.xpath(expr, extensions=badext)  # ER: Argument "extensions" .+; expected ".+"  \[arg-type]$
