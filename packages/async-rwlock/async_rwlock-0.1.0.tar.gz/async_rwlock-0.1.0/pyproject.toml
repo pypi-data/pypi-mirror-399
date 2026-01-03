@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "async-rwlock"
+version = "0.1.0"
+description = "Read-write lock implementation that yeilds rather than blocks. RW version of asyncio.Lock."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.5"
+keywords = ["asyncio", "lock", "rwlock", "read-write"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.5",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: System :: Distributed Computing",
+]
+
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/async_rwlock"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/async_rwlock",
+  "tests",
+  "README.md",
+  "LICENSE",
+  "pyproject.toml",
+]
