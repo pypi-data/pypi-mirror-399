@@ -1,0 +1,83 @@
+# {{ title }}
+
+{% if summary %}
+## Summary
+
+| ID              | Status |
+|-----------------|--------|
+{% for sum in summary %}
+| {{ sum.id }}    | {{ sum.status.to_display_symbol() }} |
+{% endfor %}
+{% endif %}
+
+{% for report in reports %}
+-------------------------
+**Test file :**
+**{{ report.filename }}**
+{% if report.date %}
+**Date : {{ report.date }}**
+{% endif %}
+{% if report.tag %}
+**Tag : {{ report.tag }}**
+{% endif %}
+{% if report.type == "xml" %}
+
+# {{ report.content.name }}
+
+**Date**: {{ report.content.timestamp }}
+**Number of tests**: {{ report.content.tests }}
+**Errors**: {{ report.content.errors }}
+**Failures**: {{ report.content.failures }} {{ report.content.status.to_display_symbol() if report.content.status else '' }}
+
+---
+
+{% for testsuite in report.content.suites %}
+#### {{ testsuite.name }}
+
+**Number of tests**: {{ testsuite.tests }}
+**Failures**: {{ testsuite.failures }} {{ testsuite.status }}
+
+{% for testcase in testsuite.testcases %}
+- {{ testcase.name }} {{ testcase.status.to_display_symbol() if testcase.status else '' }}
+  - **Number of tests**: {{ testcase.tests }}
+  - **Failures**: {{ testcase.failures }}
+
+{% endfor %}
+{% endfor %}
+
+{% elif report.type == "txt" %}
+
+{% for test_case in report.test_cases %}
+### {{ test_case.scenario }} {{ test_case.scenario_status.to_display_symbol() }}
+
+- **Covers**:
+{% for cover in test_case.requirements_covers %}
+{{ cover.id }},
+{% endfor %}
+
+{% if test_case.step_blocks %}
+{% for block in test_case.step_blocks %}
+{% if block.given %}
+**Given**: {{ block.given.label }} {{ block.given.status.to_display_symbol() }}
+{% endif %}
+{% if block.when %}
+**When**: {{ block.when.label }} {{ block.when.status.to_display_symbol() }}
+{% endif %}
+{% if block.then %}
+**Then**: {{ block.then.label }} {{ block.then.status.to_display_symbol() }}
+{% endif %}
+{% for and_step in block.and_steps %}
+**And**: {{ and_step.label }} {{ and_step.status.to_display_symbol() }}
+{% endfor %}
+
+{% endfor %}
+{% endif %}
+{% if test_case.additional_tests %}
+{% for additional_test in test_case.additional_tests %}
+{{ additional_test.label }} {{ additional_test.status.to_display_symbol() }}
+
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
