@@ -1,0 +1,78 @@
+Metadata-Version: 2.4
+Name: ewoksdask
+Version: 2.0.1
+Summary: Dask binding for Ewoks
+Author-email: ESRF <dau-pydev@esrf.fr>
+License: # MIT License
+        
+        **Copyright (c) 2021 European Synchrotron Radiation Facility**
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy of
+        this software and associated documentation files (the "Software"), to deal in
+        the Software without restriction, including without limitation the rights to
+        use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+        the Software, and to permit persons to whom the Software is furnished to do so,
+        subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+        FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+        COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+        IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+        CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+        
+Project-URL: Homepage, https://gitlab.esrf.fr/workflow/ewoks/ewoksdask/
+Project-URL: Documentation, https://ewoksdask.readthedocs.io/
+Project-URL: Repository, https://gitlab.esrf.fr/workflow/ewoks/ewoksdask/
+Project-URL: Issues, https://gitlab.esrf.fr/workflow/ewoks/ewoksdask/issues
+Project-URL: Changelog, https://gitlab.esrf.fr/workflow/ewoks/ewoksdask/-/blob/main/CHANGELOG.md
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: ewokscore>=4.0.1
+Requires-Dist: dask[distributed]>=2021.3.0
+Requires-Dist: dask-jobqueue>=0.7.3
+Requires-Dist: sphinx-argparse
+Requires-Dist: sphinx-copybutton
+Provides-Extra: dashboard
+Requires-Dist: dask[diagnostics]>=2021.3.0; extra == "dashboard"
+Provides-Extra: test
+Requires-Dist: pytest>=7; extra == "test"
+Provides-Extra: dev
+Requires-Dist: ewoksdask[test]; extra == "dev"
+Requires-Dist: black>=25; extra == "dev"
+Requires-Dist: flake8>=4; extra == "dev"
+Requires-Dist: isort; extra == "dev"
+Provides-Extra: doc
+Requires-Dist: ewoksdask[test]; extra == "doc"
+Requires-Dist: sphinx>=4.5; extra == "doc"
+Requires-Dist: sphinx-autodoc-typehints>=1.16; extra == "doc"
+Requires-Dist: pydata-sphinx-theme; extra == "doc"
+Dynamic: license-file
+
+# ewoksdask
+
+*ewoksdask* provides distributed task scheduling for [ewoks](https://ewoks.readthedocs.io/) workflows.
+
+## Install
+
+```bash
+pip install ewoksdask[test]
+```
+
+## Test
+
+```bash
+pytest --pyargs ewoksdask.tests
+```
+
+## Documentation
+
+https://ewoksdask.readthedocs.io/
+
