@@ -1,0 +1,216 @@
+Metadata-Version: 2.4
+Name: langchat
+Version: 1.0.1
+Summary: A powerful library for Ship production-grade AI chatbots in minutes
+Home-page: https://github.com/neurobrains/langchat
+Author: Sifat Hasan, NeuroBrain
+Author-email: contact@neurobrains.co
+License: MIT
+Keywords: rag,llm,ai,langchain,chatbot,vector-search,retrieval-augmented-generation
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: fastapi>=0.115.14
+Requires-Dist: uvicorn>=0.34.3
+Requires-Dist: starlette>=0.46.2
+Requires-Dist: pydantic>=2.11.7
+Requires-Dist: python-multipart>=0.0.20
+Requires-Dist: pytz>=2022.7
+Requires-Dist: requests>=2.32.3
+Requires-Dist: langchain==0.3.27
+Requires-Dist: langchain-core<1.0.0,>=0.3.72
+Requires-Dist: langchain-pinecone<0.3.0,>=0.1.0
+Requires-Dist: langchain-community<0.4.0,>=0.3.0
+Requires-Dist: langchain-openai<0.3.0,>=0.2.0
+Requires-Dist: openai
+Requires-Dist: tiktoken>=0.9.0
+Requires-Dist: pinecone-client
+Requires-Dist: flashrank>=0.2.10
+Requires-Dist: supabase>=2.15.2
+Requires-Dist: docsuite>=0.1.0
+Requires-Dist: pyperclip>=1.11.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: ty>=0.0.1; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Dynamic: author-email
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
+<div align="center">
+<img src="docs/public/logo-sidebar.png" alt="Lagchat-logo">
+
+<h2>Ship production-grade AI chatbots in minutes</h2>
+
+<p>
+  <strong>LangChat</strong> is a high-performance Python library designed to bridge the gap between "prototype" and "production." It unifies LLMs, vector databases, and session management into a single, modular interface.
+</p>
+
+<p>
+  <a href="https://langchat.neurobrains.co/"><strong>Explore the Docs</strong></a>
+</p>
+
+</div>
+
+---
+
+## Why LangChat?
+
+<p>
+  Most AI frameworks are great for experiments but require massive boilerplate for production. LangChat handles the "hard parts" out of the box so you can focus on building features.
+</p>
+
+
+<table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>LangChat</th>
+      <th>Other Libraries</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Setup Time</strong></td>
+      <td>Minutes</td>
+      <td>Days/Weeks</td>
+    </tr>
+    <tr>
+      <td><strong>API Key Rotation</strong></td>
+      <td>Built-in</td>
+      <td>Manual</td>
+    </tr>
+    <tr>
+      <td><strong>Chat History</strong></td>
+      <td>Automatic</td>
+      <td>Manual</td>
+    </tr>
+    <tr>
+      <td><strong>Vector Search</strong></td>
+      <td>Integrated</td>
+      <td>Separate</td>
+    </tr>
+    <tr>
+      <td><strong>Reranking</strong></td>
+      <td>Built-in</td>
+      <td>Manual</td>
+    </tr>
+    <tr>
+      <td><strong>Production Ready</strong></td>
+      <td>Yes</td>
+      <td>Depends</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+## Installation
+
+<pre><code>pip install langchat</code></pre>
+
+
+---
+
+## 🚀 Quick Start
+
+### Step 1: Build and run a production-ready agent in just a few lines of code
+
+```python
+import asyncio
+from langchat import LangChat
+from langchat.llm import OpenAI
+from langchat.vector_db import Pinecone
+from langchat.database import Supabase
+
+async def main():
+    # Initialize providers
+    llm = OpenAI(api_key="sk-...", model="gpt-4o-mini", temperature=0.7)
+    vector_db = Pinecone(api_key="your-key", index_name="your-index")
+    db = Supabase(url="https://xxxxx.supabase.co", key="your-key")
+    
+    # Initialize LangChat
+    ai = LangChat(llm=llm, vector_db=vector_db, db=db)
+    
+    # Chat with the AI
+    result = await ai.chat(
+        query="Hello! What can you help me with?",
+        user_id="guest",
+        domain="default"
+    )
+    print(result["response"])
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### As API Server
+
+```python
+from langchat.api.app import create_app
+from langchat.llm import OpenAI
+from langchat.vector_db import Pinecone
+from langchat.database import Supabase
+import uvicorn
+
+# Initialize providers
+llm = OpenAI(api_key="sk-...", model="gpt-4o-mini", temperature=0.7)
+vector_db = Pinecone(api_key="your-key", index_name="your-index")
+db = Supabase(url="https://xxxxx.supabase.co", key="your-key")
+
+app = create_app(
+    llm=llm,
+    vector_db=vector_db,
+    db=db
+)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+---
+
+## Use Cases
+
+| Education            | E-commerce | Enterprise|
+|----------------------|----------------------|----------------------|
+| Intelligent tutoring and course Q&A | Customer support and product discovery | Internal knowledge base search |
+
+---
+
+## Roadmap & Contributing
+
+<p> We are building the future of conversational AI infrastructure. </p>
+
+ - <p>Contributing: We welcome PRs! Please check <a href="CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+
+---
+
+<div align="center" style="margin-top: 40px; padding: 20px; background-color: #f5f5f5; border-radius: 10px;">
+
+<p style="font-size: 20px; margin: 0;">
+  <strong>Built with ❤️ by <a href="https://neurobrain.co">NeuroBrain</a></strong>
+</p>
+
+<p style="margin-top: 15px;">
+  <a href="https://github.com/neurobrains/langchat">GitHub</a> • 
+  <a href="https://pypi.org/project/langchat/">PyPI</a> • 
+  <a href="https://langchat.neurobrains.co/">Documentation</a>
+</p>
+
+</div>
