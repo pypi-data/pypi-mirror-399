@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "snapper-mcp"
+version = "0.1.0"
+description = "MCP server for managing BTRFS snapshots via Snapper"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Daniel Rosehill", email = "public@danielrosehill.com" }
+]
+keywords = ["mcp", "snapper", "btrfs", "snapshots", "filesystem"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Filesystems",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = [
+    "mcp>=1.0.0",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]
+
+[project.scripts]
+snapper-mcp = "snapper_mcp.server:run"
+
+[project.urls]
+Homepage = "https://github.com/danielrosehill/BTRFS-Snapper-MCP"
+Repository = "https://github.com/danielrosehill/BTRFS-Snapper-MCP"
+Issues = "https://github.com/danielrosehill/BTRFS-Snapper-MCP/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/snapper_mcp"]
