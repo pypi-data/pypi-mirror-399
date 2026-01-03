@@ -1,0 +1,9 @@
+from ..core import ChepyCore
+from typing import Any, TypeVar
+
+OtherT = TypeVar('OtherT', bound='Other')
+
+class Other(ChepyCore):
+    def __init__(self, *data: Any) -> None: ...
+    state: Any = ...
+    def generate_uuid(self: OtherT) -> OtherT: ...

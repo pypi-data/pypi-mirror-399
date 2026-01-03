@@ -1,0 +1,109 @@
+from ..core import ChepyCore
+from typing import Any, TypeVar, Union
+from typing_extensions import Literal as Literal
+
+type_password_hashes = Literal[
+    "apr_md5_crypt",
+    "argon2",
+    "atlassian_pbkdf2_sha1",
+    "bcrypt",
+    "bcrypt_sha256",
+    "bigcrypt",
+    "bsd_nthash",
+    "bsdi_crypt",
+    "cisco_asa",
+    "cisco_pix",
+    "cisco_type7",
+    "crypt16",
+    "cta_pbkdf2_sha1",
+    "des_crypt",
+    "django_digest",
+    "dlitz_pbkdf2_sha1",
+    "fshp",
+    "grub_pbkdf2_sha512",
+    "hex_digest",
+    "ldap_crypt",
+    "ldap_hex_md5",
+    "ldap_hex_sha1",
+    "ldap_md5",
+    "ldap_pbkdf2_digest",
+    "ldap_plaintext",
+    "ldap_salted_md5",
+    "ldap_salted_sha1",
+    "ldap_salted_sha256",
+    "ldap_salted_sha512",
+    "ldap_sha1",
+    "lmhash",
+    "md5_crypt",
+    "msdcc",
+    "msdcc2",
+    "mssql2000",
+    "mssql2005",
+    "mysql323",
+    "mysql41",
+    "nthash",
+    "oracle10",
+    "oracle11",
+    "pbkdf2_digest",
+    "phpass",
+    "postgres_md5",
+    "roundup_plaintext",
+    "scram",
+    "scrypt",
+    "sha1_crypt",
+    "sha256_crypt",
+    "sha512_crypt",
+    "sun_md5_crypt",
+    "unix_disabled",
+]
+
+HashingT = TypeVar('HashingT', bound='Hashing')
+hmac: Any
+MD2: Any
+MD4: Any
+MD5: Any
+SHA512: Any
+SHA1: Any
+SHA256: Any
+keccak: Any
+SHAKE128: Any
+SHAKE256: Any
+RIPEMD: Any
+BLAKE2s: Any
+BLAKE2b: Any
+KDF: Any
+
+class Hashing(ChepyCore):
+    def __init__(self, *data: Any) -> None: ...
+    state: Any = ...
+    def sha1(self: HashingT) -> HashingT: ...
+    def sha2_256(self: HashingT) -> HashingT: ...
+    def sha2_512(self: HashingT) -> HashingT: ...
+    def sha2_512_truncate(self: HashingT, truncate: Literal[256, 224]=...) -> HashingT: ...
+    def sha2_384(self: HashingT) -> HashingT: ...
+    def sha2_224(self: HashingT) -> HashingT: ...
+    def sha3_512(self: HashingT) -> HashingT: ...
+    def sha3_256(self: HashingT) -> HashingT: ...
+    def sha3_384(self: HashingT) -> HashingT: ...
+    def sha3_224(self: HashingT) -> HashingT: ...
+    def md2(self: HashingT) -> HashingT: ...
+    def md4(self: HashingT) -> HashingT: ...
+    def md5(self: HashingT) -> HashingT: ...
+    def keccak_512(self: HashingT) -> HashingT: ...
+    def keccak_384(self: HashingT) -> HashingT: ...
+    def keccak_256(self: HashingT) -> HashingT: ...
+    def keccak_224(self: HashingT) -> HashingT: ...
+    def shake_256(self: HashingT, size: int=...) -> HashingT: ...
+    def shake_128(self: HashingT, size: int=...) -> HashingT: ...
+    def ripemd_160(self: HashingT) -> HashingT: ...
+    def blake_2b(self: HashingT, bits: Literal[512, 384, 256, 160, 128]=..., key: bytes=...) -> HashingT: ...
+    def blake_2s(self: HashingT, bits: Literal[256, 160, 128]=..., key: bytes=...) -> HashingT: ...
+    def crc8_checksum(self: HashingT) -> HashingT: ...
+    def crc16_checksum(self: HashingT) -> HashingT: ...
+    def crc32_checksum(self: HashingT) -> HashingT: ...
+    def hmac_hash(self: HashingT, key: bytes=..., digest: Literal['md5', 'sha1', 'sha256', 'sha512']=...) -> HashingT: ...
+    def derive_pbkdf2_key(self: HashingT, password: Union[str, bytes], salt: Union[str, bytes], key_size: int=..., iterations: int=..., hash_type: Literal['md5', 'sha1', 'sha256', 'sha512']=..., hex_salt: bool=..., show_full_key: bool=...) -> Any: ...
+    def bcrypt_hash(self: HashingT, rounds: int=...) -> HashingT: ...
+    def bcrypt_compare(self: HashingT, hash: str) -> HashingT: ...
+    def scrypt_hash(self: HashingT, salt: str=..., key_length: int=..., N: int=..., r: int=..., p: int=...) -> HashingT: ...
+    def password_hashing(self: HashingT, format: type_password_hashes, **kwargs) -> HashingT: ...
