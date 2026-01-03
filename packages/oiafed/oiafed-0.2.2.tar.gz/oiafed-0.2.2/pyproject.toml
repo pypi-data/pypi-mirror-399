@@ -1,0 +1,188 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "oiafed"
+dynamic = ["version"]
+description = "OiaFed: One Framework for All Federation - A unified, modular, and extensible federated learning framework supporting all federation scenarios"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "OiaFed Team", email = "contact@oiafed.com"}
+]
+maintainers = [
+    {name = "OiaFed Team", email = "contact@oiafed.com"}
+]
+keywords = [
+    "federated-learning",
+    "machine-learning",
+    "deep-learning",
+    "distributed-computing",
+    "continual-learning",
+    "personalized-federated-learning",
+    "privacy-preserving",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: System :: Distributed Computing",
+]
+
+[project.urls]
+Homepage = "https://oiafed.cn"
+Documentation = "https://docs.oiafed.cn"
+Repository = "https://github.com/oiafed/oiafed"
+Issues = "https://github.com/oiafed/oiafed/issues"
+Changelog = "https://github.com/oiafed/oiafed/blob/main/CHANGELOG.md"
+
+[project.scripts]
+oiafed = "oiafed.cli:main"
+
+[project.optional-dependencies]
+mlflow = ["mlflow>=2.0.0"]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.20.0",
+    "pytest-html>=3.2.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "isort>=5.10.0",
+    "mypy>=0.990",
+    "flake8>=5.0.0",
+]
+docs = [
+    "sphinx>=5.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "myst-parser>=0.18.0",
+]
+all = ["oiafed[mlflow,dev,docs]"]
+
+dependencies = [
+    # === 深度学习框架 ===
+    "torch>=1.12.0",
+    "torchvision>=0.13.0",
+    "torchaudio>=0.12.0",
+    
+    # === gRPC 通信（必需） ===
+    "grpcio>=1.50.0",
+    "grpcio-tools>=1.50.0",
+    "protobuf>=3.20.0",
+    
+    # === 配置和日志 ===
+    "pyyaml>=6.0",
+    "omegaconf>=2.2.0",
+    "loguru>=0.6.0",
+    "toml>=0.10.0",
+    
+    # === 数据处理 ===
+    "numpy>=1.21.0",
+    "pandas>=1.4.0",
+    "scikit-learn>=1.0.0",
+    
+    # === 可视化 ===
+    "matplotlib>=3.5.0",
+    "tqdm>=4.60.0",
+    
+    # === 网络和异步 ===
+    "aiohttp>=3.8.0",
+    
+    # === 工具 ===
+    "psutil>=5.9.0",
+    "openpyxl>=3.0.0",
+]
+
+# ==================== 构建配置 ====================
+[tool.hatch.version]
+path = "oiafed/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/oiafed",
+    "/configs",
+    "/README.md",
+    "/README_EN.md", 
+    "/LICENSE",
+    "/CHANGELOG.md",
+]
+exclude = [
+    "/.github",
+    "/tests",
+    "/examples",
+    "/docs",
+    "/.git",
+    "__pycache__",
+    "*.pyc",
+    "*.pyo",
+    ".pytest_cache",
+    ".mypy_cache",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["oiafed"]
+
+# ==================== 工具配置 ====================
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | __pycache__
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip_gitignore = true
+known_first_party = ["oiafed"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+]
+
+[tool.coverage.run]
+source = ["oiafed"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
