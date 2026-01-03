@@ -1,0 +1,162 @@
+Metadata-Version: 2.4
+Name: hostxray
+Version: 0.0.0
+Summary: Best-effort host specification capture for environment comparison, troubleshooting, and LLM context.
+Author-email: Brent Carpenetti <brentwc.git@pm.me>
+License: MIT License
+        
+        Copyright (c) 2026 Brent Carpenetti
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: full
+Requires-Dist: psutil; extra == "full"
+Requires-Dist: pywin32; platform_system == "Windows" and extra == "full"
+Provides-Extra: test
+Requires-Dist: pytest>=7.0.0; extra == "test"
+Requires-Dist: pytest-cov>=4.0.0; extra == "test"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Requires-Dist: isort; extra == "dev"
+Provides-Extra: all
+Requires-Dist: psutil; extra == "all"
+Requires-Dist: pywin32; platform_system == "Windows" and extra == "all"
+Requires-Dist: pytest>=7.0.0; extra == "all"
+Requires-Dist: pytest-cov>=4.0.0; extra == "all"
+Requires-Dist: black; extra == "all"
+Requires-Dist: flake8; extra == "all"
+Requires-Dist: mypy; extra == "all"
+Requires-Dist: isort; extra == "all"
+Dynamic: license-file
+
+# hostxray
+
+`hostxray` collects a best-effort, privacy-aware machine specification for environment comparison (dev/uat/prod), troubleshooting, and providing LLM context.
+
+- Standard library first
+- Optional enrichment via extras (`pip install hostxray[full]`)
+- Best-effort collection with graceful degradation (never crash)
+- Deterministic, JSON-serializable output
+- Safe mode (default) redacts sensitive identifiers
+
+This README is intentionally self-contained for PyPI. The `docs/` folder (on GitHub) has deeper, field-by-field guidance, but you shouldn’t need it to get started.
+
+## Install
+
+```bash
+pip install hostxray
+# Optional extras
+pip install hostxray[full]
+```
+
+## Quickstart (CLI)
+
+Collect a standard, safe-by-default spec as JSON:
+
+```bash
+hostxray --format json --profile standard
+```
+
+Collect a more complete spec (may include identifying values):
+
+```bash
+hostxray --format json --profile full --unsafe
+```
+
+Targeted redaction (even in unsafe mode):
+
+```bash
+hostxray --format json --profile full --unsafe --redact hostname mac ip user serial
+```
+
+## Quickstart (Python)
+
+```python
+from hostxray import collect_spec
+
+spec = collect_spec(profile="standard")
+print(spec.to_json(indent=2))
+```
+
+## Key concepts (quick reference)
+
+### Profiles
+
+Profiles control *what to attempt to collect*.
+
+- `standard`: solid baseline for environment comparison (OS, hardware summary, Python, basic network shape)
+- `full`: attempts additional enrichment when available (more detailed hardware/network/process-level data)
+
+If a data source is unavailable (missing permissions, missing optional dependency, unsupported platform), `hostxray` skips it and continues.
+
+### Safe mode vs unsafe
+
+By default, `hostxray` runs in safe mode and redacts common identifiers.
+
+- Safe mode (default): returns a useful spec while redacting sensitive identifiers
+- Unsafe mode (`--unsafe` / API option): may include identifying values like hostname, usernames, MAC addresses, IPs, serials (depending on platform and availability)
+
+### Redaction controls
+
+You can explicitly redact categories:
+
+- `hostname`
+- `user`
+- `ip`
+- `mac`
+- `serial`
+
+(Exact available categories may evolve; the CLI `--help` is the source of truth for your installed version.)
+
+### Output guarantees
+
+- JSON-serializable, deterministic structure
+- Designed to be stable for diffing across machines
+- Collection is best-effort; missing fields are expected and normal
+
+## Extras (optional enrichment)
+
+`hostxray` works with the standard library alone. Installing extras enables additional collectors.
+
+```bash
+pip install hostxray[full]
+```
+
+If you’re distributing this in a locked-down environment, you can stay on the base install and still get a useful baseline.
+
+## CLI
+
+```bash
+hostxray --help
+```
+
+## Documentation
+
+If you’re viewing this on GitHub, deeper references are available:
+
+- [docs/README.md](docs/README.md): field-by-field guidance and sources
+- [docs/USAGE.md](docs/USAGE.md): CLI and API usage
+- [docs/EXTRAS.md](docs/EXTRAS.md): what `hostxray[full]` improves
