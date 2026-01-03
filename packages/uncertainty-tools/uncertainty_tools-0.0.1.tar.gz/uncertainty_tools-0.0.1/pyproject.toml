@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uncertainty_tools"
+version = "0.0.1"
+description = "Utilities for uncertainty-aware regression and symbolic function helpers."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Savateykin Yaroslav", email = "yaroslavsavateikinwork@yandex.ru" }]
+license = { file = "LICENSE" }
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Typing :: Typed",
+]
+dependencies = [
+  "matplotlib>=3.7",
+  "numpy>=1.23",
+  "pandas>=1.5",
+  "scipy>=1.10",
+  "sympy>=1.11",
+  "uncertainties>=3.1",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["unc_tools"]
+include = ["unc_tools/py.typed", "LICENSE"]
+
+[tool.hatch.build.targets.sdist]
+include = ["LICENSE", "README.md", "pyproject.toml", "unc_tools/**"]
+exclude = [
+  "build/**",
+  "notebooks/**",
+  "tests/**",
+  "uv.lock",
+  "venv/**",
+  "**/__pycache__/**",
+]
