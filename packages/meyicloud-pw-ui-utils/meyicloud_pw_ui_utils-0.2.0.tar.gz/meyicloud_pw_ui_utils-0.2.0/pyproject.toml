@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meyicloud-pw-ui-utils"
+version = "0.2.0"
+description = "Meyicloud private Playwright UI automation utilities"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "playwright>=1.41.0",
+    "pytest>=7.4.0",
+    "pytest-playwright>=0.3.0"  # Add back
+]
+authors = [{name = "Meyicloud Solutions", email = "support@meyicloud.com"}]  
+license = {text = "MIT"}
+
+[tool.setuptools]
+package-dir = {"" = "src"}  # Modern syntax [web:6]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+
+
