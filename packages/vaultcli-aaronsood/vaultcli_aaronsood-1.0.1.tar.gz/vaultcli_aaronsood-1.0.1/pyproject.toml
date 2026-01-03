@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vaultcli-aaronsood"
+version = "1.0.1"
+description = "A simple encrypted password manager CLI in Python"
+authors = [
+    { name="Aaron", email="theaaronsood@gmail.com"}
+]
+dependencies = [
+    "bcrypt",
+    "cryptography",
+    "pyperclip"
+]
+
+[project.scripts]
+vaultcli = "main:main"
