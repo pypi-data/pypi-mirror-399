@@ -1,0 +1,49 @@
+# $class_name Pipeline
+
+## Overview
+TODO: Brief description of what this pipeline does.
+
+## Data Sources
+TODO: List the input tables, files, or APIs this pipeline reads from.
+
+- Source 1: `DATABASE.SCHEMA.TABLE_NAME` - Description
+- Source 2: `DATABASE.SCHEMA.TABLE_NAME` - Description
+
+## Data Outputs
+TODO: List the output tables or destinations.
+
+- Output: `DATABASE.SCHEMA.TABLE_NAME` - Description
+
+## Processors
+TODO: Document the processors in this pipeline.
+
+### ProcessorName
+- **Purpose**: What this processor does
+- **Inputs**: What data it receives
+- **Outputs**: What data it produces
+- **Transformations**: Key business logic
+
+## Configuration
+See `config.py` for pipeline-specific configuration values.
+
+## Usage
+
+### Run Pipeline (Dry Run)
+```bash
+python pipelines/$pipeline_name/${pipeline_name}_runner.py
+```
+
+### Run Pipeline (Write to Snowflake)
+```bash
+python -c "from src.$project_name.pipelines.$pipeline_name.${pipeline_name}_runner import $class_name; $class_name().run(_write=True)"
+```
+
+## Testing
+Tests are located in `./tests/`
+
+```bash
+pytest pipelines/$pipeline_name/tests/
+```
+
+## Development Notes
+TODO: Add any development notes, known issues, or future enhancements.

@@ -1,0 +1,253 @@
+"""
+Decorators module for GVDB utilities.
+
+This module provides reusable decorators for common functionality such as
+timing function execution and logging performance metrics.
+"""
+
+import functools
+import time
+from typing import Any, Callable, TypeVar, cast
+
+from .logger import Logger
+from .etl import ETL
+
+F = TypeVar('F', bound=Callable[..., Any])
+
+
+def time_function(module_name: str) -> Callable[[F], F]:
+    """
+    Decorator that measures and logs the execution time of a function.
+
+    This decorator wraps a function to track its execution time using high-precision
+    performance counters. The elapsed time is logged with the module name for easy
+    identification in log files.
+
+    Args:
+        module_name (str): The name of the module or component to include in the log message.
+                          This helps identify which function's timing is being reported.
+
+    Returns:
+        function: A decorator function that can be applied to other functions.
+
+    Example:
+        >>> @time_function("DataProcessor")
+        ... def process_data(data):
+        ...     # Process data
+        ...     return processed_data
+
+        >>> result = process_data(my_data)
+        # Logs: "DataProcessor completed in 1.23 seconds."
+
+    Note:
+        The decorator preserves the original function's metadata (name, docstring, etc.)
+        using functools.wraps.
+    """
+    def decorator_timer(func: F) -> F:
+        """
+        Inner decorator that wraps the target function.
+
+        Args:
+            func (callable): The function to be timed.
+
+        Returns:
+            function: The wrapped function with timing capability.
+        """
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            """
+            Wrapper that executes the function and measures its execution time.
+
+            Args:
+                *args: Positional arguments to pass to the wrapped function.
+                **kwargs: Keyword arguments to pass to the wrapped function.
+
+            Returns:
+                The return value of the wrapped function.
+            """
+            start = time.perf_counter()
+            result = func(*args, **kwargs)
+            end = time.perf_counter()
+            elapsed = end - start
+            Logger.info(f"{module_name} completed in {elapsed:.2f} seconds.")
+            return result
+        return cast(F, wrapper)
+    return decorator_timer
+
+
+def skip_if_exists(table_string: str, etl: ETL) -> Callable[[F], F]:
+    """
+    Decorator that skips function execution if the specified table already exists.
+
+    This decorator checks for table existence before executing the wrapped function.
+    If the table exists, the function is skipped and None is returned. Otherwise,
+    the function executes normally.
+
+    Args:
+        table_string (str): Full table path in format 'database.schema.table'
+        etl (ETL): ETL session object with catalog access for checking table existence
+
+    Returns:
+        function: A decorator function that can be applied to table creation functions.
+
+    Example:
+        >>> @skip_if_exists('analytics.staging.users_2024_11', etl_session)
+        ... def create_users_table():
+        ...     # Table creation logic
+        ...     pass
+
+        >>> create_users_table()
+        # Logs: "Table analytics.staging.users_2024_11 already exists. Skipping create_users_table."
+
+    Raises:
+        ValueError: If table_string is not in the correct 'database.schema.table' format
+
+    Note:
+        The decorator preserves the original function's metadata using functools.wraps.
+    """
+    def decorator(func: F) -> F:
+        """
+        Inner decorator that wraps the target function.
+
+        Args:
+            func (callable): The function to conditionally execute.
+
+        Returns:
+            function: The wrapped function with existence checking.
+        """
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            """
+            Wrapper that checks table existence before executing the function.
+
+            Args:
+                *args: Positional arguments to pass to the wrapped function.
+                **kwargs: Keyword arguments to pass to the wrapped function.
+
+            Returns:
+                The return value of the wrapped function, or None if skipped.
+            """
+            if table_exists(table_string, etl):
+                Logger.info(
+                    f"Table {table_string} already exists. Skipping {func.__name__}."
+                )
+                return None
+            return func(*args, **kwargs)
+        return cast(F, wrapper)
+    return decorator
+
+
+def table_exists(table_string: str, etl: ETL) -> bool:
+    """
+    Check if a table exists in the database.
+
+    Args:
+        table_string (str): Full table path in format 'database.schema.table'
+        etl (ETL): ETL session object with catalog access
+
+    Returns:
+        bool: True if table exists, False otherwise
+
+    Raises:
+        ValueError: If table_string is not in the correct 'database.schema.table' format
+
+    Example:
+        >>> table_exists('analytics.staging.users', etl_session)
+        True
+    """
+    database, schema, table = parse_table_string(table_string)
+    return etl.session.catalog.table_exists(table, database=database, schema=schema)
+
+def skip_if_updated_this_month(table_string: str, etl: ETL) -> Callable[[F], F]:
+    """
+    Decorator that skips function execution if the table was updated this month.
+
+    Checks the last change timestamp of a Snowflake table and skips execution
+    if the table has been modified in the current month. Can be overridden by
+    passing override=True to the wrapped function.
+
+    Args:
+        table_string (str): Full table path in format 'database.schema.table'
+        etl (ETL): ETL session object for executing queries
+
+    Returns:
+        function: A decorator function that can be applied to table update functions.
+
+    Example:
+        >>> @skip_if_updated_this_month('analytics.staging.users_2024_11', etl)
+        ... def refresh_users_table():
+        ...     # Refresh logic
+        ...     pass
+
+        >>> refresh_users_table()  # Skips if updated this month
+        >>> refresh_users_table(override=True)  # Forces execution
+
+    Note:
+        The wrapped function can accept an 'override' keyword argument to bypass
+        the freshness check.
+    """
+    def decorator(func: F) -> F:
+        @functools.wraps(func)
+        def wrapper(*args: Any, override: bool = False, **kwargs: Any) -> Any:
+            if override:
+                Logger.info(
+                    message=f"Override set to True for {func.__name__}. Running function."
+                )
+                return func(*args, **kwargs)
+
+            try:
+                database, schema, table = parse_table_string(table_string)
+                
+                # Using parameterized identifiers would be safer, but Snowflake's
+                # SYSTEM$LAST_CHANGE_COMMIT_TIME requires string literals
+                query = f"""
+                    SELECT
+                       TO_TIMESTAMP_NTZ(
+                           SYSTEM$LAST_CHANGE_COMMIT_TIME('{database}.{schema}.{table}') / 1000000000
+                       ) as LAST_CHANGE_DATETIME,
+                       DATE_TRUNC('MONTH', 
+                           TO_TIMESTAMP_NTZ(SYSTEM$LAST_CHANGE_COMMIT_TIME('{database}.{schema}.{table}') / 1000000000)
+                       ) = DATE_TRUNC('MONTH', CURRENT_TIMESTAMP()) as IS_CURRENT_MONTH
+                """
+                result = etl.session.sql(query).collect()
+
+                if not result:
+                    Logger.warning(
+                        message=f"No results returned for {table_string}. Proceeding with function execution."
+                    )
+                    return func(*args, **kwargs)
+
+                last_change = result[0]["LAST_CHANGE_DATETIME"]
+                is_current_month = result[0]["IS_CURRENT_MONTH"]
+
+                if is_current_month:
+                    Logger.info(
+                        message=f"Table {table_string} last changed: {last_change}. "
+                                f"IS_CURRENT_MONTH = {is_current_month}. Skipping {func.__name__}."
+                    )
+                    return None
+                
+                Logger.info(
+                    message=f"Table {table_string} last changed: {last_change}. Proceeding with {func.__name__}."
+                )
+                return func(*args, **kwargs)
+                
+            except Exception as e:
+                Logger.error(
+                    message=f"Error checking table freshness for {table_string}: {str(e)}. "
+                            f"Proceeding with {func.__name__}."
+                )
+                return func(*args, **kwargs)
+                
+        return cast(F, wrapper)
+    return decorator
+
+def parse_table_string(table_string: str):
+    parts = table_string.split(".")
+    if len(parts) != 3:
+        raise ValueError(
+            f"Invalid table_string format: '{table_string}'. "
+            "Expected format: 'database.schema.table'"
+        )
+    
+    return parts
