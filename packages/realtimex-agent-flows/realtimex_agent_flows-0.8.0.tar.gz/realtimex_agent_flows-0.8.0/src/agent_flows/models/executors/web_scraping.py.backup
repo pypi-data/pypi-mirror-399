@@ -1,0 +1,279 @@
+"""Web Scraping executor configuration model using Crawl4AI."""
+
+from __future__ import annotations
+
+from typing import Any
+from urllib.parse import urlparse
+
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from ..shared import (
+    ExtractionMode,
+    HtmlVariant,
+    OutputMixin,
+    ResponseFormat,
+    SchemaFieldType,
+    TimeoutMixin,
+    UserAgentMode,
+)
+
+
+class SchemaField(BaseModel):
+    """Individual field definition in extraction schema."""
+
+    name: str = Field(..., min_length=1, max_length=100, description="Field name")
+    selector: str = Field(..., min_length=1, max_length=500, description="CSS selector")
+    type: SchemaFieldType = Field(..., description="Extraction type")
+    attribute: str | None = Field(default=None, max_length=100, description="HTML attribute name")
+
+    @model_validator(mode="after")
+    def validate_attribute_requirement(self) -> SchemaField:
+        """Validate attribute field requirements."""
+        if self.type == SchemaFieldType.ATTRIBUTE and not self.attribute:
+            raise ValueError("attribute field is required when type='attribute'")
+        if self.type != SchemaFieldType.ATTRIBUTE and self.attribute:
+            raise ValueError("attribute field should only be set when type='attribute'")
+        return self
+
+
+class ExtractionSchema(BaseModel):
+    """Schema configuration for structured data extraction."""
+
+    baseSelector: str = Field(..., min_length=1, max_length=500, description="Base CSS selector")
+    fields: list[SchemaField] = Field(
+        ..., min_length=1, max_length=50, description="Fields to extract"
+    )
+
+    @field_validator("fields")
+    @classmethod
+    def validate_unique_field_names(cls, v: list[SchemaField]) -> list[SchemaField]:
+        """Ensure field names are unique."""
+        field_names = [field.name for field in v]
+        if len(field_names) != len(set(field_names)):
+            raise ValueError("Field names must be unique within the schema")
+        return v
+
+
+class LlmConfig(BaseModel):
+    """Configuration for LLM-powered extraction."""
+
+    instruction: str = Field(..., min_length=1, description="LLM instruction")
+    responseFormat: ResponseFormat = Field(
+        default=ResponseFormat.JSON, description="Response format"
+    )
+
+    # Provider-based configuration
+    provider: str | None = Field(
+        None, description="LLM provider name (e.g., 'openai', 'anthropic')"
+    )
+    model: str = Field(default="auto", max_length=100, description="LLM model identifier")
+    temperature: float = Field(default=0.0, ge=0.0, le=2.0, description="Model temperature")
+
+    # Legacy configuration (deprecated)
+    apiBaseUrl: str | None = Field(
+        default=None,
+        max_length=500,
+        description="Custom API base URL (deprecated - use provider instead)",
+    )
+
+    @field_validator("provider")
+    @classmethod
+    def validate_provider(cls, v: str | None) -> str | None:
+        """Validate provider name format."""
+        if v is not None:
+            if not v.strip():
+                raise ValueError("Provider name cannot be empty")
+            # Normalize provider name to lowercase
+            return v.strip().lower()
+        return v
+
+    @model_validator(mode="after")
+    def validate_configuration_approach(self) -> LlmConfig:
+        """Validate that either provider or legacy apiBaseUrl is used, but not both."""
+        if self.provider and self.apiBaseUrl:
+            raise ValueError(
+                "Cannot specify both 'provider' and 'apiBaseUrl'. Use 'provider' for new configurations."
+            )
+        return self
+
+
+class ProxyConfig(BaseModel):
+    """Proxy server configuration."""
+
+    server: str = Field(..., min_length=1, max_length=500, description="Proxy server URL")
+    username: str | None = Field(default=None, max_length=100, description="Proxy username")
+    password: str | None = Field(default=None, max_length=100, description="Proxy password")
+
+    @field_validator("server")
+    @classmethod
+    def validate_proxy_server(cls, v: str) -> str:
+        """Validate proxy server URL format."""
+        try:
+            parsed = urlparse(v.strip())
+            if not parsed.scheme or not parsed.netloc:
+                raise ValueError("Proxy server must be a valid URL")
+            if parsed.scheme not in ["http", "https", "socks4", "socks5"]:
+                raise ValueError("Proxy scheme must be http, https, socks4, or socks5")
+        except Exception as e:
+            raise ValueError(f"Invalid proxy server URL: {str(e)}") from e
+        return v.strip()
+
+
+class BrowserConfig(BaseModel):
+    """Browser configuration."""
+
+    headless: bool = Field(default=True, description="Run in headless mode")
+    userAgentMode: UserAgentMode = Field(
+        default=UserAgentMode.RANDOM, description="User agent mode"
+    )
+    userAgent: str | None = Field(
+        default=None, max_length=500, description="Custom user agent string"
+    )
+    textMode: bool = Field(default=True, description="Disable images for faster crawling")
+    proxy: ProxyConfig | None = Field(default=None, description="Proxy configuration")
+
+    @model_validator(mode="after")
+    def validate_user_agent_config(self) -> BrowserConfig:
+        """Validate user agent configuration."""
+        if self.userAgentMode == UserAgentMode.DEFAULT and self.userAgent is None:
+            raise ValueError("userAgent must be provided when userAgentMode is 'default'")
+        if self.userAgentMode == UserAgentMode.RANDOM and self.userAgent is not None:
+            raise ValueError("userAgent should not be provided when userAgentMode is 'random'")
+        return self
+
+
+class PageConfig(BaseModel):
+    """Page interaction configuration."""
+
+    waitFor: str | None = Field(default=None, max_length=1000, description="Wait condition")
+    timeoutMs: int = Field(
+        default=60000, ge=1000, le=300000, description="Page timeout in milliseconds"
+    )
+
+    @field_validator("waitFor")
+    @classmethod
+    def validate_wait_condition(cls, v: str | None) -> str | None:
+        """Validate wait condition format."""
+        if v is None:
+            return v
+
+        wait_condition = v.strip()
+        if not wait_condition:
+            return None
+
+        if not (wait_condition.startswith("css:") or wait_condition.startswith("js:")):
+            raise ValueError("waitFor must start with 'css:' or 'js:' prefix")
+
+        condition_content = wait_condition[4:].strip()
+        if not condition_content:
+            raise ValueError("waitFor condition cannot be empty after prefix")
+
+        return wait_condition
+
+
+class RetryConfig(BaseModel):
+    """Retry configuration."""
+
+    attempts: int = Field(default=2, ge=0, le=10, description="Maximum retry attempts")
+
+
+class ExtractionConfig(BaseModel):
+    """Extraction configuration."""
+
+    mode: ExtractionMode = Field(..., description="Extraction mode")
+    htmlVariant: HtmlVariant | None = Field(default=None, description="HTML variant")
+
+    # rename the python attribute to avoid shadowing BaseModel.schema
+    schema_: ExtractionSchema | None = Field(
+        default=None,
+        description="Schema configuration",
+        validation_alias=AliasChoices("schema", "schema_"),
+        serialization_alias="schema",
+    )
+
+    llm: LlmConfig | None = Field(default=None, description="LLM configuration")
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_mode_requirements(cls, data: Any) -> Any:
+        """Validate mode-specific requirements and clear unused configs."""
+        if not isinstance(data, dict):
+            return data  # Should not happen with valid config
+
+        mode = data.get("mode")
+        if not mode:
+            # Let standard validation handle the missing 'mode' field
+            return data
+
+        # Use .value for comparison if enums are not pre-validated
+        if isinstance(mode, ExtractionMode):
+            mode = mode.value
+
+        # Clear configs for inactive modes before validation
+        if mode != ExtractionMode.HTML.value:
+            data["htmlVariant"] = None
+        if mode != ExtractionMode.SCHEMA.value:
+            data["schema"] = None
+            data["schema_"] = None
+        if mode != ExtractionMode.LLM.value:
+            data["llm"] = None
+
+        # Validate that the required config for the active mode is present
+        if mode == ExtractionMode.HTML.value and data.get("htmlVariant") is None:
+            raise ValueError("HTML Variant is required when extraction mode is 'html'")
+        if (
+            mode == ExtractionMode.SCHEMA.value
+            and data.get("schema") is None
+            and data.get("schema_") is None
+        ):
+            raise ValueError("Schema configuration is required when extraction mode is 'schema'")
+        if mode == ExtractionMode.LLM.value and data.get("llm") is None:
+            raise ValueError("LLM configuration is required when extraction mode is 'llm'")
+
+        return data
+
+
+class WebScrapingExecutorConfig(OutputMixin, TimeoutMixin, BaseModel):
+    """Configuration for WebScrapingExecutor using Crawl4AI."""
+
+    model_config = ConfigDict(extra="allow", use_enum_values=True)
+
+    urls: list[str] = Field(..., min_length=1, max_length=100, description="URLs to scrape")
+    extraction: ExtractionConfig = Field(..., description="Extraction configuration")
+    browser: BrowserConfig | None = Field(default=None, description="Browser configuration")
+    page: PageConfig | None = Field(default=None, description="Page configuration")
+    retry: RetryConfig | None = Field(default=None, description="Retry configuration")
+
+    @field_validator("urls")
+    @classmethod
+    def validate_urls(cls, v: list[str]) -> list[str]:
+        """Validate URLs format and uniqueness."""
+        validated_urls = []
+
+        for url in v:
+            url = url.strip()
+            if not url:
+                raise ValueError("URL cannot be empty")
+
+            if not url.startswith(("http://", "https://")):
+                raise ValueError("URL must start with http:// or https://")
+
+            validated_urls.append(url)
+
+        # Check for duplicates
+        if len(validated_urls) != len(set(validated_urls)):
+            raise ValueError("Duplicate URLs are not allowed")
+
+        return validated_urls
+
+    def get_browser_config(self) -> BrowserConfig:
+        """Get browser configuration with defaults."""
+        return self.browser or BrowserConfig()
+
+    def get_page_config(self) -> PageConfig:
+        """Get page configuration with defaults."""
+        return self.page or PageConfig()
+
+    def get_retry_config(self) -> RetryConfig:
+        """Get retry configuration with defaults."""
+        return self.retry or RetryConfig()
