@@ -1,0 +1,73 @@
+[project]
+name = "pikapika-organizer"
+version = "0.3.0"
+description = "A Python CLI utility to organize your Downloads folder by extension"
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+authors = [
+    {name = "Ariz Muajianisan", email = "arizmuajianisan@gmail.com"}
+]
+maintainers = [
+    {name = "Ariz Muajianisan", email = "arizmuajianisan@gmail.com"}
+]
+keywords = ["cli", "file-organizer", "downloads", "cleanup", "automation"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Topic :: Utilities",
+    "Topic :: System :: Filesystems",
+    "Intended Audience :: End Users/Desktop",
+    "Environment :: Console",
+]
+dependencies = [
+    "send2trash>=1.8.0",
+]
+
+[project.urls]
+Homepage = "https://arizmuajianisan.github.io/pikapika"
+Repository = "https://github.com/arizmuajianisan/pikapika"
+"Bug Reports" = "https://github.com/arizmuajianisan/pikapika/issues"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.14.10",
+    "twine>=6.2.0",
+]
+
+[project.scripts]
+pikapika = "pikapika_organizer:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "T10", "PT", "SIM"]
+fixable = ["ALL"]
+ignore = ["DTZ005", "DTZ006"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.14.10",
+]
