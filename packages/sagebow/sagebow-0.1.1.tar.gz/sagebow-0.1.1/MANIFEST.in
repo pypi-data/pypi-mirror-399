@@ -1,0 +1,20 @@
+# Strict Include
+include README.md
+recursive-include epicAI *.py
+recursive-include SageBow *.py
+recursive-include sagebow *.py
+include epicAI/py.typed
+include SageBow/py.typed
+
+# Strict Exclude
+exclude *.sh
+exclude *.yml
+exclude .gitignore
+exclude *.py
+prune tools
+prune tests
+prune examples
+prune obf_tmp
+prune *_src
+prune build
+prune dist
