@@ -1,0 +1,40 @@
+# Include documentation files
+include README.md
+include LICENSE
+include CONTRIBUTING.md
+include CODE_OF_CONDUCT.md
+include CHANGELOG.md
+include requirements.txt
+include requirements-demo.txt
+
+# Include demo application
+include app.py
+
+# Include all markdown documentation
+recursive-include docs *.md
+
+# Include type stubs
+recursive-include src *.pyi
+
+# Exclude unnecessary files
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store
+recursive-exclude * .git*
+exclude .gitignore
+
+# Exclude development/generated files
+exclude .env
+exclude .env.*
+exclude *.png
+exclude *.jpg
+exclude *.jpeg
+recursive-exclude tests *
+recursive-exclude scripts *
+recursive-exclude Research\ Papers *
+recursive-exclude DAG_Dataset *
+recursive-exclude Benchmark_Results *
+recursive-exclude graph_metadata *
+recursive-exclude graphs *
+recursive-exclude notebooks *
+
