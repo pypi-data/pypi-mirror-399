@@ -1,0 +1,86 @@
+Metadata-Version: 2.4
+Name: mcp-cuc-king
+Version: 0.1.0
+Summary: MCP Server for getting current time with timezone support
+Project-URL: Homepage, https://github.com/yourusername/mcp-time-server
+Project-URL: Repository, https://github.com/yourusername/mcp-time-server
+Project-URL: Issues, https://github.com/yourusername/mcp-time-server/issues
+Author-email: Your Name <your.email@example.com>
+License: MIT
+License-File: LICENSE
+Requires-Python: >=3.10
+Requires-Dist: mcp>=1.0.0
+Requires-Dist: pytz>=2024.1
+Description-Content-Type: text/markdown
+
+# MCP Time Server
+
+MCP Server for getting current time with timezone support.
+
+## Features
+
+- Get current time
+- Support custom timezone (optional parameter)
+- Default timezone is UTC
+
+## Installation
+
+```bash
+pip install mcp-time-server
+```
+
+## Usage
+
+### CLI
+
+```bash
+mcp-time-server
+```
+
+### As a Python module
+
+```python
+from mcp.server.fastmcp import FastMCP
+from datetime import datetime
+import pytz
+
+mcp = FastMCP("time_server")
+
+@mcp.tool()
+def get_current_time(timezone: str = "UTC") -> str:
+    """获取当前时间,支持指定时区。"""
+    try:
+        if timezone.upper() == "UTC":
+            current_time = datetime.now(pytz.UTC)
+        else:
+            tz = pytz.timezone(timezone)
+            current_time = datetime.now(tz)
+        
+        return f"当前时间 ({timezone}): {current_time.strftime('%Y-%m-%d %H:%M:%S %Z')}"
+    
+    except pytz.UnknownTimeZoneError:
+        return f"错误: 无效的时区 '{timezone}'"
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+## Development
+
+```bash
+# Install development dependencies
+pip install -e .
+
+# Run tests
+pytest
+
+# Build package
+python -m build
+
+# Publish to PyPI
+twine upload dist/*
+```
+
+## License
+
+MIT
