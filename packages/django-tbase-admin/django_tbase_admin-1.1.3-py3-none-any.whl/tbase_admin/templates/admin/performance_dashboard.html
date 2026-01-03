@@ -1,0 +1,488 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>🚀 性能优化管理</h2>
+        
+        <!-- 系统状态 -->
+        <div class="system-stats" style="margin: 20px 0;">
+            <h3>🖥️ 系统状态</h3>
+            <div id="system-loading" style="text-align: center; padding: 20px;">
+                <span>加载中...</span>
+            </div>
+            <div id="system-content" style="display: none;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
+                        <h4 style="margin: 0 0 10px 0; color: #333;">内存使用</h4>
+                        <div id="memory-usage" style="font-size: 18px; font-weight: bold; color: #333;"></div>
+                        <div id="memory-details" style="font-size: 12px; color: #666; margin-top: 5px;"></div>
+                    </div>
+                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
+                        <h4 style="margin: 0 0 10px 0; color: #333;">磁盘使用</h4>
+                        <div id="disk-usage" style="font-size: 18px; font-weight: bold; color: #333;"></div>
+                        <div id="disk-details" style="font-size: 12px; color: #666; margin-top: 5px;"></div>
+                    </div>
+                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
+                        <h4 style="margin: 0 0 10px 0; color: #333;">数据库状态</h4>
+                        <div id="db-status" style="font-size: 16px; font-weight: bold;"></div>
+                    </div>
+                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
+                        <h4 style="margin: 0 0 10px 0; color: #333;">缓存状态</h4>
+                        <div id="cache-status" style="font-size: 16px; font-weight: bold;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据库统计 -->
+        <div class="dashboard-stats" style="margin: 20px 0;">
+            <h3>📊 数据库统计</h3>
+            <div id="stats-loading" style="text-align: center; padding: 20px;">
+                <span>加载中...</span>
+            </div>
+            <div id="stats-content" style="display: none;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f8f8;">
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">表名</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">记录数</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">数据大小 (MB)</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">索引大小 (MB)</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">总大小 (MB)</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">引擎</th>
+                            <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sessions 清理 -->
+        <div class="cleanup-section" style="margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+            <h3>🧹 Sessions 清理</h3>
+            <p style="color: #666; margin-bottom: 15px;">清理过期的 Django sessions 数据，释放数据库空间。</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- 简单清理 -->
+                <div>
+                    <h4 style="margin: 0 0 10px 0;">快速清理</h4>
+                    <form method="post" action="{% url 'tbase_admin:cleanup_sessions' %}" style="margin-bottom: 10px;">
+                        {% csrf_token %}
+                        <button type="submit" class="button" style="background: #417690; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer;">
+                            清理过期 Sessions
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- 高级清理 -->
+                <div>
+                    <h4 style="margin: 0 0 10px 0;">高级清理</h4>
+                    <form method="post" action="{% url 'tbase_admin:cleanup_sessions_advanced' %}">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; margin-bottom: 5px; font-size: 12px;">清理多少天前的数据：</label>
+                            <select name="days" style="padding: 5px; border: 1px solid #ccc; border-radius: 3px; width: 100%;">
+                                <option value="0" selected>仅过期 Sessions</option>
+                                <option value="1">1 天前</option>
+                                <option value="3">3 天前</option>
+                                <option value="7">7 天前</option>
+                                <option value="14">14 天前</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="checkbox" name="dry_run" checked> 预览模式
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="button" style="background: #666; color: white; padding: 8px 15px; border: none; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                            高级清理
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <small style="color: #888;">建议每日执行一次，避免 sessions 表过度膨胀。</small>
+        </div>
+
+        <!-- Hitcount 清理 -->
+        <div class="cleanup-section" style="margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+            <h3>📈 Hitcount 数据清理</h3>
+            <p style="color: #666; margin-bottom: 15px;">清理旧的点击统计数据，保持 hitcount 表的合理大小。</p>
+            
+            <form method="post" action="{% url 'tbase_admin:cleanup_hitcount' %}" style="margin-bottom: 10px;">
+                {% csrf_token %}
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">清理多少天前的数据：</label>
+                    <select name="days" style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+                        <option value="7">7 天</option>
+                        <option value="30" selected>30 天</option>
+                        <option value="60">60 天</option>
+                        <option value="90">90 天</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px;">批量大小：</label>
+                    <select name="batch_size" style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;">
+                        <option value="1000">1,000</option>
+                        <option value="5000" selected>5,000</option>
+                        <option value="10000">10,000</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label>
+                        <input type="checkbox" name="dry_run" checked> 预览模式（不实际删除）
+                    </label>
+                </div>
+                
+                <button type="submit" class="button" style="background: #417690; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer;">
+                    清理 Hitcount 数据
+                </button>
+            </form>
+            
+            <small style="color: #888;">建议每月清理一次超过 30 天的数据。</small>
+        </div>
+
+        <!-- 表优化 -->
+        <div class="optimize-section" style="margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+            <h3>⚡ 数据库表优化</h3>
+            <p style="color: #666; margin-bottom: 15px;">优化数据库表结构，提升查询性能。</p>
+            
+            <form method="post" action="{% url 'tbase_admin:optimize_tables' %}">
+                {% csrf_token %}
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px;">选择要优化的表：</label>
+                        <div id="tables-selection" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 3px;">
+                            <!-- 表选择列表将由 JavaScript 动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 5px;">优化类型：</label>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="radio" name="optimize_type" value="optimize" checked> OPTIMIZE (完整优化)
+                            </label>
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="radio" name="optimize_type" value="analyze"> ANALYZE (更新统计)
+                            </label>
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="radio" name="optimize_type" value="repair"> REPAIR (修复表)
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="button" style="background: #ba2121; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; width: 100%;">
+                            优化选中的表
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- 优化结果 -->
+            <div id="optimize-results" style="margin-top: 20px; display: none;">
+                <h4>优化结果</h4>
+                <div id="results-content" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 3px;">
+                    <!-- 结果将由 JavaScript 动态填充 -->
+                </div>
+            </div>
+            
+            <small style="color: #888;">⚠️ 表优化会锁定表，请在低峰期执行。</small>
+        </div>
+
+        <!-- 性能建议 -->
+        <div class="tips-section" style="margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+            <h3>💡 性能优化建议</h3>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li style="margin-bottom: 8px;">🔄 定期清理过期数据，避免表过度膨胀</li>
+                <li style="margin-bottom: 8px;">📊 监控数据库大小，及时清理历史数据</li>
+                <li style="margin-bottom: 8px;">⏰ 在低峰期执行大批量清理操作</li>
+                <li style="margin-bottom: 8px;">🚀 使用批量删除避免长时间锁表</li>
+                <li style="margin-bottom: 8px;">📈 定期优化表结构，保持查询性能</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+// 全局变量
+let currentStats = {};
+
+// 页面加载时获取统计数据
+document.addEventListener('DOMContentLoaded', function() {
+    loadDatabaseStats();
+});
+
+function loadDatabaseStats() {
+    fetch('{% url "tbase_admin:get_database_stats" %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentStats = data.stats;
+                displaySystemInfo(data.stats._system || {});
+                displayStats(data.stats);
+                updateTablesSelection();
+            } else {
+                showError('stats-loading', '加载失败: ' + (data.error || '未知错误'));
+            }
+        })
+        .catch(error => {
+            showError('stats-loading', '加载失败: ' + error);
+        });
+}
+
+function showError(elementId, message) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.innerHTML = `<span style="color: red;">${message}</span>`;
+    }
+}
+
+function displaySystemInfo(systemInfo) {
+    if (!systemInfo || systemInfo.error) {
+        document.getElementById('system-loading').innerHTML = 
+            '<span style="color: orange;">系统信息不可用</span>';
+        return;
+    }
+    
+    // 内存使用
+    const memoryColor = systemInfo.memory_percent > 80 ? 'red' : 
+                       systemInfo.memory_percent > 60 ? 'orange' : 'green';
+    document.getElementById('memory-usage').innerHTML = 
+        `<span style="color: ${memoryColor};">${systemInfo.memory_percent.toFixed(1)}%</span>`;
+    document.getElementById('memory-details').innerHTML = 
+        `已使用 ${systemInfo.memory_used_gb} GB / 总计 ${systemInfo.memory_total_gb} GB`;
+    
+    // 磁盘使用
+    const diskColor = systemInfo.disk_percent > 90 ? 'red' : 
+                     systemInfo.disk_percent > 70 ? 'orange' : 'green';
+    document.getElementById('disk-usage').innerHTML = 
+        `<span style="color: ${diskColor};">${systemInfo.disk_percent.toFixed(1)}%</span>`;
+    document.getElementById('disk-details').innerHTML = 
+        `已使用 ${systemInfo.disk_used_gb} GB / 总计 ${systemInfo.disk_total_gb} GB`;
+    
+    // 数据库状态
+    const dbColor = systemInfo.db_status === 'connected' ? 'green' : 'red';
+    const dbText = systemInfo.db_status === 'connected' ? '✅ 已连接' : '❌ 连接异常';
+    document.getElementById('db-status').innerHTML = 
+        `<span style="color: ${dbColor};">${dbText}</span>`;
+    
+    // 缓存状态
+    const cacheColor = systemInfo.cache_status === 'available' ? 'green' : 'orange';
+    const cacheText = systemInfo.cache_status === 'available' ? '✅ 可用' : '⚠️ 不可用';
+    document.getElementById('cache-status').innerHTML = 
+        `<span style="color: ${cacheColor};">${cacheText}</span>`;
+    
+    document.getElementById('system-loading').style.display = 'none';
+    document.getElementById('system-content').style.display = 'block';
+}
+
+function displayStats(stats) {
+    const tbody = document.getElementById('stats-tbody');
+    tbody.innerHTML = '';
+
+    // 过滤掉系统信息
+    const tableStats = Object.entries(stats).filter(([key]) => !key.startsWith('_'));
+
+    for (const [table, data] of tableStats) {  // 修复：tableStats 已经是 [key, value] 对的数组，不需要再次使用 Object.entries
+        if (typeof data !== 'object' || !data.hasOwnProperty('rows')) continue;
+
+        const row = document.createElement('tr');
+
+        // 确定状态
+        let status = '✅ 正常';
+        let statusColor = 'green';
+        let statusTitle = '';
+
+        if (data.health && data.health.warnings.length > 0) {
+            status = '⚠️ 需要关注';
+            statusColor = 'orange';
+            statusTitle = data.health.warnings.join('; ');
+        }
+
+        if (data.status === 'error') {
+            status = '❌ 错误';
+            statusColor = 'red';
+            statusTitle = data.error || '未知错误';
+        }
+
+        // 数据大小格式化
+        const size_mb = data.size_mb || 0;
+        const index_mb = data.index_mb || 0;
+        const total_mb = data.total_mb || (size_mb + index_mb);
+
+        row.innerHTML = `
+            <td style="padding: 10px; border: 1px solid #ddd; font-family: monospace;">
+                ${table}
+                ${data.comment ? `<br><small style="color: #666;">${data.comment}</small>` : ''}
+            </td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-family: monospace;">
+                ${data.rows ? data.rows.toLocaleString() : 'N/A'}
+            </td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-family: monospace;">
+                ${size_mb.toFixed(2)}
+            </td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-family: monospace;">
+                ${index_mb.toFixed(2)}
+            </td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-family: monospace; font-weight: bold;">
+                ${total_mb.toFixed(2)}
+            </td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: left; font-family: monospace;">
+                ${data.engine || 'N/A'}
+            </td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; color: ${statusColor}; font-weight: bold;" title="${statusTitle}">
+                ${status}
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    }
+
+    document.getElementById('stats-loading').style.display = 'none';
+    document.getElementById('stats-content').style.display = 'block';
+}
+
+function updateTablesSelection() {
+    const container = document.getElementById('tables-selection');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    // 过滤出有效的表
+    const validTables = Object.entries(currentStats).filter(([key, data]) => 
+        !key.startsWith('_') && 
+        typeof data === 'object' && 
+        data.hasOwnProperty('rows') && 
+        data.status !== 'error'
+    );
+    
+    // 默认选中的表
+    const defaultChecked = ['django_session', 'hitcount_hit'];
+    
+    validTables.forEach(([tableName, tableData]) => {
+        const label = document.createElement('label');
+        label.style.cssText = 'display: block; margin-bottom: 5px;';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = 'tables';
+        checkbox.value = tableName;
+        checkbox.checked = defaultChecked.includes(tableName);
+        
+        const text = document.createTextNode(` ${tableName} (${tableData.rows?.toLocaleString() || 'N/A'} 行, ${(tableData.total_mb || 0).toFixed(2)} MB)`);
+        
+        label.appendChild(checkbox);
+        label.appendChild(text);
+        container.appendChild(label);
+    });
+}
+
+// 表单提交时检查优化结果
+document.addEventListener('submit', function(e) {
+    if (e.target.action && e.target.action.includes('optimize_tables')) {
+        // 延迟检查优化结果
+        setTimeout(() => {
+            loadOptimizeResults();
+        }, 1000);
+    }
+});
+
+function loadOptimizeResults() {
+    fetch('{% url "tbase_admin:get_optimize_results" %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.results.length > 0) {
+                displayOptimizeResults(data.results);
+            }
+        })
+        .catch(error => {
+            console.error('获取优化结果失败:', error);
+        });
+}
+
+function displayOptimizeResults(results) {
+    const container = document.getElementById('optimize-results');
+    const content = document.getElementById('results-content');
+    
+    if (!container || !content) return;
+    
+    content.innerHTML = '';
+    
+    results.forEach(result => {
+        const div = document.createElement('div');
+        div.style.cssText = 'margin-bottom: 10px; padding: 8px; border-radius: 3px;';
+        
+        if (result.status === 'success') {
+            div.style.backgroundColor = '#d4edda';
+            div.style.border = '1px solid #c3e6cb';
+            div.innerHTML = `
+                <strong>✅ ${result.table}</strong><br>
+                <small>
+                    操作: ${result.operation} | 
+                    优化前: ${result.size_before} MB | 
+                    优化后: ${result.size_after} MB
+                    ${result.size_saved > 0 ? `| 节省: ${result.size_saved} MB` : ''}
+                </small>
+            `;
+        } else {
+            div.style.backgroundColor = '#f8d7da';
+            div.style.border = '1px solid #f5c6cb';
+            div.innerHTML = `
+                <strong>❌ ${result.table}</strong><br>
+                <small>错误: ${result.message}</small>
+            `;
+        }
+        
+        content.appendChild(div);
+    });
+    
+    container.style.display = 'block';
+}
+
+// 每30秒自动刷新统计数据
+setInterval(loadDatabaseStats, 30000);
+</script>
+
+<style>
+.dashboard-stats table {
+    margin-top: 10px;
+}
+
+.dashboard-stats th {
+    font-weight: bold;
+    background: #f8f8f8 !important;
+}
+
+.dashboard-stats tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.cleanup-section, .optimize-section, .tips-section {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.button:hover {
+    background: #2c5aa0 !important;
+}
+
+.button:active {
+    background: #264c7d !important;
+}
+</style>
+{% endblock %}
