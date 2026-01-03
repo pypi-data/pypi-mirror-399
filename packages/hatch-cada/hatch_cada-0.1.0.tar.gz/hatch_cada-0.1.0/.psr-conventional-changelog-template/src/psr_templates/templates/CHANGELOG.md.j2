@@ -1,0 +1,20 @@
+{#- Main changelog template -#}
+{%- from ".components/macros.j2" import render_authors, commit_refs, get_body, render_commit -%}
+# Changelog
+
+{{ ctx.changelog_insertion_flag }}
+{%- for version, release in ctx.history.released.items() %}
+{%- set commit_objects = release["elements"] | dictsort -%}
+{%- set is_major = version.major > 0 and version.minor == 0 and version.patch == 0 -%}
+{%- set prev_version = loop.nextitem[0] if not loop.last else none -%}
+{%- set version_url = (prev_version.as_tag() | compare_url(version.as_tag())) if prev_version else (version.as_tag() | create_release_url) -%}
+{%- if is_major %}
+
+# [{{ version.as_semver_tag() }}]({{ version_url }}) ({{ release.tagged_date.strftime("%Y-%m-%d") }})
+{%- else %}
+
+## [{{ version.as_semver_tag() }}]({{ version_url }}) ({{ release.tagged_date.strftime("%Y-%m-%d") }})
+{%- endif %}
+{%- include ".components/breaking_changes.j2" -%}
+{%- include ".components/sections.j2" -%}
+{%- endfor %}

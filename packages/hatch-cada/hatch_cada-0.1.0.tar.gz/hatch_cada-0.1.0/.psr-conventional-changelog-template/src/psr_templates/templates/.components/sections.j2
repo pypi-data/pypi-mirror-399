@@ -1,0 +1,12 @@
+{#- Dynamically render all commit sections from PSR -#}
+{#- Section names come from commit_objects which PSR populates based on pyproject.toml config -#}
+{%- for type_, commits in commit_objects -%}
+{%- set valid_commits = commits | rejectattr("error", "defined") | list -%}
+{%- if valid_commits | length > 0 %}
+### {{ type_ | title }}
+
+{% for commit in valid_commits -%}
+{{ render_commit(commit) }}
+{% endfor %}
+{%- endif -%}
+{%- endfor -%}

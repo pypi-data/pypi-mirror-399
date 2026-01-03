@@ -1,0 +1,55 @@
+{#- Release notes template for GitHub releases -#}
+{#- TODO: PSR uses a hardcoded Jinja environment for release notes that ignores the custom
+    extensions and filters configured in [tool.semantic_release.changelog.environment].
+    This forces us to duplicate macros and logic here instead of reusing them from the changelog.
+    Once https://github.com/python-semantic-release/python-semantic-release/issues/1402 is resolved,
+    refactor this template to import shared macros and filters from the changelog configuration. -#}
+{%- set commit_objects = release["elements"] | dictsort -%}
+{%- set releases = context.history.released.values() | list -%}
+{%- set curr_release_index = releases.index(release) -%}
+{%- set prev_release_index = curr_release_index + 1 -%}
+
+{#- Macro to render a commit -#}
+{%- macro render_commit(commit) -%}
+- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.descriptions[0][:1] | upper }}{{ commit.descriptions[0][1:] }} ([{{ commit.short_hash }}]({{ commit.hexsha | commit_hash_url }})){% if commit.linked_merge_request %} in [{{ commit.linked_merge_request }}]({{ commit.linked_merge_request | pull_request_url }}){% endif %}
+{%- endmacro -%}
+
+## {{ release.version.as_semver_tag() }} ({{ release.tagged_date.strftime("%Y-%m-%d") }})
+
+{#- Breaking Changes -#}
+{%- set breaking_commits = [] -%}
+{%- for type_, commits in commit_objects -%}
+{%- for commit in commits -%}
+{%- if commit.error is not defined and commit.breaking_descriptions | length > 0 -%}
+{%- set _ = breaking_commits.append(commit) -%}
+{%- endif -%}
+{%- endfor -%}
+{%- endfor -%}
+{%- if breaking_commits | length > 0 %}
+### :warning: Breaking Changes :warning:
+
+{% for commit in breaking_commits -%}
+{{ render_commit(commit) }}
+{% endfor %}
+{%- endif %}
+
+{#- Regular sections -#}
+{%- for type_, commits in commit_objects -%}
+{%- set valid_commits = commits | rejectattr("error", "defined") | list -%}
+{%- if valid_commits | length > 0 %}
+### {{ type_ | title }}
+
+{% for commit in valid_commits -%}
+{{ render_commit(commit) }}
+{% endfor %}
+{%- endif -%}
+{%- endfor %}
+{%- if 'compare_url' is filter and prev_release_index < releases | length -%}
+{%- set prev_version_tag = releases[prev_release_index].version.as_tag() -%}
+{%- set new_version_tag = release.version.as_tag() -%}
+{%- set version_compare_url = prev_version_tag | compare_url(new_version_tag) %}
+
+---
+
+**Detailed Changes**: [{{ prev_version_tag }}...{{ new_version_tag }}]({{ version_compare_url }})
+{%- endif %}

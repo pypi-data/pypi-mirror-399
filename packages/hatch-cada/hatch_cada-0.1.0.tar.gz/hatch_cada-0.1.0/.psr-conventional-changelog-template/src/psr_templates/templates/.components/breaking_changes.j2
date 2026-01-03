@@ -1,0 +1,16 @@
+{#- Breaking Changes Section -#}
+{%- set breaking_commits = [] -%}
+{%- for type_, commits in commit_objects -%}
+{%- for commit in commits -%}
+{%- if commit.error is not defined and commit.breaking_descriptions | length > 0 -%}
+{%- set _ = breaking_commits.append(commit) -%}
+{%- endif -%}
+{%- endfor -%}
+{%- endfor -%}
+{%- if breaking_commits | length > 0 %}
+### :warning: Breaking Changes :warning:
+
+{% for commit in breaking_commits -%}
+{{ render_commit(commit, for_breaking=true) }}
+{% endfor %}
+{%- endif -%}
