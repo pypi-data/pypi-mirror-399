@@ -1,0 +1,318 @@
+Metadata-Version: 2.2
+Name: gllm-privacy-binary
+Version: 0.4.12
+Author-email: GenAI SDK Team <gat-sdk@gdplabs.id>
+Requires-Python: <3.14,>=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: gllm-core-binary<0.4.0,>=0.3.31
+Requires-Dist: faker<31.0.0,>=30.3.0
+Requires-Dist: numpy<2.0,>=1.26; python_version < "3.12"
+Requires-Dist: numpy<2.0,>=1.26; python_version >= "3.12" and python_version < "3.13"
+Requires-Dist: numpy<3.0,>=2.2; python_version >= "3.13"
+Requires-Dist: presidio-analyzer<3.0.0,>=2.2.0
+Requires-Dist: presidio_anonymizer<3.0.0,>=2.2.0
+Requires-Dist: requests-mock<2.0.0,>=1.12.1
+Requires-Dist: semver<4.0.0,>=3.0.4
+Provides-Extra: dev
+Requires-Dist: coverage<8.0.0,>=7.4.4; extra == "dev"
+Requires-Dist: mypy<2.0.0,>=1.15.0; extra == "dev"
+Requires-Dist: pre-commit<4.0.0,>=3.7.0; extra == "dev"
+Requires-Dist: presidio-analyzer[transformers]<3.0.0,>=2.2.0; extra == "dev"
+Requires-Dist: pytest<9.0.0,>=8.1.1; extra == "dev"
+Requires-Dist: pytest-asyncio<1.0.0,>=0.23.6; extra == "dev"
+Requires-Dist: pytest-cov<6.0.0,>=5.0.0; extra == "dev"
+Requires-Dist: ruff<1.0.0,>=0.6.7; extra == "dev"
+Requires-Dist: ipython<10.0.0,>=9.4.0; extra == "dev"
+Provides-Extra: flair
+Requires-Dist: flair<0.16.0,>=0.15.0; extra == "flair"
+Provides-Extra: transformers
+Requires-Dist: transformers<5.0.0,>=4.53.3; extra == "transformers"
+Requires-Dist: huggingface_hub; extra == "transformers"
+Requires-Dist: spacy_huggingface_pipelines==0.0.4; extra == "transformers"
+Provides-Extra: optimum-onnx
+Requires-Dist: transformers<5.0.0,>=4.53.3; extra == "optimum-onnx"
+Requires-Dist: huggingface_hub; extra == "optimum-onnx"
+Requires-Dist: spacy_huggingface_pipelines==0.0.4; extra == "optimum-onnx"
+Requires-Dist: onnx; extra == "optimum-onnx"
+Requires-Dist: optimum; extra == "optimum-onnx"
+Requires-Dist: onnxruntime; extra == "optimum-onnx"
+Provides-Extra: optimum-cuda
+Requires-Dist: transformers<5.0.0,>=4.53.3; extra == "optimum-cuda"
+Requires-Dist: huggingface_hub; extra == "optimum-cuda"
+Requires-Dist: spacy_huggingface_pipelines==0.0.4; extra == "optimum-cuda"
+Requires-Dist: onnx; extra == "optimum-cuda"
+Requires-Dist: optimum; extra == "optimum-cuda"
+Requires-Dist: onnxruntime-gpu; sys_platform != "darwin" and extra == "optimum-cuda"
+Provides-Extra: torch
+Requires-Dist: torch<3.0.0,>2.0.0; extra == "torch"
+
+# GLLM Privacy
+
+## Description
+
+A library to protect Personal Identifiable Information (PII) in a Generative AI project.
+
+## Installation
+
+### Prerequisites
+
+Mandatory:
+
+1. Python 3.11+ — [Install here](https://www.python.org/downloads/)
+2. pip — [Install here](https://pip.pypa.io/en/stable/installation/)
+3. uv — [Install here](https://docs.astral.sh/uv/getting-started/installation/)
+
+Extras (required only for Artifact Registry installations):
+
+1. gcloud CLI (for authentication) — [Install here](https://cloud.google.com/sdk/docs/install), then log in using:
+   ```bash
+   gcloud auth login
+   ```
+
+---
+
+### Option 1: Install from Artifact Registry
+
+This option requires authentication via the `gcloud` CLI.
+
+```bash
+uv pip install \
+  --extra-index-url "https://oauth2accesstoken:$(gcloud auth print-access-token)@glsdk.gdplabs.id/gen-ai-internal/simple/" \
+  gllm-privacy
+```
+
+---
+
+### Option 2: Install from PyPI
+
+This option requires no authentication.
+However, it installs the **binary wheel** version of the package, which is fully usable but **does not include source code**.
+
+```bash
+uv pip install gllm-privacy-binary
+```
+
+## Local Development Setup
+
+### Prerequisites
+
+1. Python 3.11+ — [Install here](https://www.python.org/downloads/)
+2. pip — [Install here](https://pip.pypa.io/en/stable/installation/)
+3. uv — [Install here](https://docs.astral.sh/uv/getting-started/installation/)
+4. gcloud CLI — [Install here](https://cloud.google.com/sdk/docs/install), then log in using:
+
+   ```bash
+   gcloud auth login
+   ```
+
+5. Git — [Install here](https://git-scm.com/downloads)
+6. Access to the [GDP Labs SDK GitHub repository](https://github.com/GDP-ADMIN/gl-sdk)
+
+---
+
+### 1. Clone Repository
+
+```bash
+git clone git@github.com:GDP-ADMIN/gl-sdk.git
+cd gl-sdk/libs/gllm-privacy
+```
+
+---
+
+### 2. Setup Authentication
+
+Set the following environment variables to authenticate with internal package indexes:
+
+```bash
+export UV_INDEX_GEN_AI_INTERNAL_USERNAME=oauth2accesstoken
+export UV_INDEX_GEN_AI_INTERNAL_PASSWORD="$(gcloud auth print-access-token)"
+export UV_INDEX_GEN_AI_USERNAME=oauth2accesstoken
+export UV_INDEX_GEN_AI_PASSWORD="$(gcloud auth print-access-token)"
+```
+
+---
+
+### 3. Quick Setup
+
+Run:
+
+```bash
+make setup
+```
+
+---
+
+### 4. Activate Virtual Environment
+
+```bash
+source .venv/bin/activate
+```
+
+---
+
+## Local Development Utilities
+
+The following Makefile commands are available for quick operations:
+
+### Install uv
+
+```bash
+make install-uv
+```
+
+### Install Pre-Commit
+
+```bash
+make install-pre-commit
+```
+
+### Install Dependencies
+
+```bash
+make install
+```
+
+### Update Dependencies
+
+```bash
+make update
+```
+
+### Run Tests
+
+```bash
+make test
+```
+
+---
+
+## Usage
+
+```python
+from gllm_privacy.pii_detector import TextAnalyzer, TextAnonymizer
+from gllm_privacy.pii_detector.constants import Entities
+from gllm_privacy.pii_detector.anonymizer import Operation
+from asyncio import run
+
+text = """
+    contoh nomor ktp 3525011212941001
+    repeat nomor ktp 3525011212941001
+    contoh email john.doe@example.com
+    contoh nomor telepon +628121729819 dan 0812898029384.
+    contoh npwp 01.123.456.7-891.234
+"""
+text_analyzer = TextAnalyzer()
+entities = [Entities.EMAIL_ADDRESS, Entities.KTP, Entities.NPWP, Entities.PHONE_NUMBER]
+
+text_anonymizer = TextAnonymizer(text_analyzer)
+anonymized_text = run(text_anonymizer.run(text=text, entities=entities))
+print(anonymized_text)
+
+deanonymized_text = run(text_anonymizer.run(text=text, entities=entities, operation=Operation.DEANONYMIZE))
+print(deanonymized_text)
+```
+
+If you need to detect person, organization, or location entities in text written in Bahasa Indonesia, you can use either
+`TransformersRecognizer` or `ProsaRemoteRecognizer`. To use the `TransformersRecognizer`, you can use it like this:
+
+```python
+from gllm_privacy.pii_detector.recognizer.config import CAHYA_BERT_CONFIGURATION
+from gllm_privacy.pii_detector.recognizer.transformers_recognizer import TransformersRecognizer
+from gllm_privacy.pii_detector import TextAnalyzer, TextAnonymizer
+from gllm_privacy.pii_detector.constants import Entities
+
+# Load the model, if you run it for the first time, it will download the model from the Hugging Face model hub
+transformers_recognizer = TransformersRecognizer(
+  model_path=CAHYA_BERT_CONFIGURATION.get("DEFAULT_MODEL_PATH"),
+  supported_entities=CAHYA_BERT_CONFIGURATION.get("PRESIDIO_SUPPORTED_ENTITIES"),
+)
+transformers_recognizer.load_transformer(**CAHYA_BERT_CONFIGURATION)
+analyzer = TextAnalyzer(additional_recognizers=[transformers_recognizer])
+
+text = "John Doe adalah seorang karyawan PT ABCD yang berlokasi di Jakarta."
+text_analyzer = TextAnalyzer(additional_recognizers=[transformers_recognizer])
+entities = [Entities.PERSON, Entities.LOCATION]
+
+text_anonymizer = TextAnonymizer(text_analyzer)
+anonymized_text = text_anonymizer.anonymize(text=text, entities=entities)
+print(anonymized_text)
+
+deanonymized_text = text_anonymizer.deanonymize(text=text)
+print(deanonymized_text)
+```
+
+### Enhanced TransformersRecognizer with Optimum
+
+The `TransformersRecognizer` now supports [Hugging Face Optimum](https://huggingface.co/docs/optimum/en/index) for improved performance:
+
+- **ONNX Runtime with CUDA**: GPU-accelerated inference using ONNX Runtime with CUDA provider
+- **ONNX Runtime with CPU**: Optimized CPU inference for better performance on laptops/servers
+- **Apple Silicon MPS**: GPU acceleration on Apple Silicon Macs
+- **Auto-detection**: Automatically selects the best available backend
+- **Fallback compatibility**: Works on any hardware with standard transformers
+
+#### Available Backends:
+
+- `onnx`: ONNX Runtime with CPU provider (optimized for NER tasks)
+- `cuda`: ONNX Runtime with CUDA provider (GPU acceleration)
+- `mps`: Apple Silicon MPS for GPU acceleration on Mac
+- `transformers`: Standard transformers as fallback
+
+#### Configuration Options:
+
+You can configure the backend behavior in your configuration:
+
+```python
+config = {
+    "USE_OPTIMUM": True,                    # Enable/disable Optimum
+    "OPTIMUM_BACKEND": "auto",              # "auto", "onnx", "cuda", "mps", "transformers"
+    "OPTIMUM_DEVICE": "auto",               # "auto", "cuda", "cpu", "mps"
+    "OPTIMUM_QUANTIZATION": False,          # Enable quantization
+    "OPTIMUM_MAX_BATCH_SIZE": 8,           # Max batch size
+}
+```
+
+#### Usage Example:
+
+```python
+from gllm_privacy.pii_detector import TextAnalyzer
+from gllm_privacy.pii_detector.recognizer.config import CAHYA_BERT_CONFIGURATION
+from gllm_privacy.pii_detector.recognizer.transformers_recognizer import TransformersRecognizer
+
+transformers_recognizer = TransformersRecognizer(
+    model_path=CAHYA_BERT_CONFIGURATION.get("DEFAULT_MODEL_PATH"),
+    supported_entities=CAHYA_BERT_CONFIGURATION.get("PRESIDIO_SUPPORTED_ENTITIES"),
+    use_optimum=True
+)
+
+transformers_recognizer.load_transformer(**CAHYA_BERT_CONFIGURATION)
+
+pipeline_info = transformers_recognizer.get_pipeline_info()
+print(f"Backend: {pipeline_info['backend']}")
+print(f"Device: {pipeline_info['device']}")
+print(f"Optimizations: {pipeline_info['optimizations']}")
+
+# Use as before
+analyzer = TextAnalyzer(additional_recognizers=[transformers_recognizer])
+```
+
+To use the `ProsaRemoteRecognizer`, you can use it like the following example.
+Please replace `<PROSA_API_URL>` and `<PROSA_API_KEY>` with the valid values.
+
+```python
+from gllm_privacy.pii_detector.recognizer.prosa_remote_recognizer import ProsaRemoteRecognizer
+from gllm_privacy.pii_detector import TextAnalyzer, TextAnonymizer
+from gllm_privacy.pii_detector.constants import Entities
+
+text = "John Doe adalah seorang karyawan PT ABCD yang berlokasi di Jakarta."
+prosa_recognizer = ProsaRemoteRecognizer('<PROSA_API_URL>', '<PROSA_API_KEY>')
+text_analyzer = TextAnalyzer(additional_recognizers=[prosa_recognizer])
+entities = [Entities.PERSON, Entities.LOCATION]
+
+text_anonymizer = TextAnonymizer(text_analyzer)
+anonymized_text = text_anonymizer.anonymize(text=text, entities=entities)
+print(anonymized_text)
+
+deanonymized_text = text_anonymizer.deanonymize(text=text)
+print(deanonymized_text)
+```
