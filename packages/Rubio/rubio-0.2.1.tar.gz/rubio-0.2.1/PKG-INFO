@@ -1,0 +1,61 @@
+Metadata-Version: 2.4
+Name: Rubio
+Version: 0.2.1
+Summary: The fastest and most user-friendly Rubika Bot API wrapper. Powered by httpx.
+Home-page: https://t.me/RubioLib
+Author: Rubio Team
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: httpx
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# Rubio 🚀 (v0.2.0)
+### The Ultimate Rubika Bot Framework
+
+Powered by `httpx` for extreme speed and efficiency. Developed by **@RubioLib**.
+
+## Features
+- **FastHTTP Integration**: Uses `httpx` for high-performance async requests.
+- **Ultra-Simple API**: Inspired by the best, optimized for humans.
+- **Official Channel**: Join us at **@RubioLib** for updates.
+
+## Installation
+```bash
+pip install Rubio --upgrade
+```
+
+## Quick Start
+```python
+import asyncio
+from rubio import Bot
+
+async def main():
+    async with Bot("YOUR_TOKEN") as bot:
+        # Simple and powerful
+        await bot.send_message("CHAT_ID", "Hello from the new Rubio!")
+        
+        # Get bot info
+        me = await bot.get_me()
+        print(f"I am {me['bot']['bot_title']}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Methods
+- `send_message(chat_id, text, **kwargs)`
+- `get_me()`
+- `get_updates(limit=10, offset_id=None)`
+- `delete_message(chat_id, message_id)`
+
+Join **@RubioLib** to crush the competition.
