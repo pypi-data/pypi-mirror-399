@@ -1,0 +1,49 @@
+[project]
+name = "siigo-mcp"
+version = "0.1.2"
+description = "MCP server for Siigo invoicing software"
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+authors = [
+    { name = "David Sanchez", email = "64162682+dsfaccini@users.noreply.github.com" }
+]
+keywords = ["mcp", "siigo", "invoicing", "colombia", "facturacion-electronica"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Accounting",
+]
+dependencies = [
+    "fastmcp>=2.14.1",
+    "httpx>=0.28.1",
+    "logfire>=4.16.0",
+    "pydantic>=2.12.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/dsfaccini/siigo-mcp"
+Repository = "https://github.com/dsfaccini/siigo-mcp"
+Issues = "https://github.com/dsfaccini/siigo-mcp/issues"
+Twitter = "https://twitter.com/dasfacc"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+]
+
+[project.scripts]
+siigo-mcp = "siigo_mcp.server:main"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/siigo_mcp"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+asyncio_default_fixture_loop_scope = "function"

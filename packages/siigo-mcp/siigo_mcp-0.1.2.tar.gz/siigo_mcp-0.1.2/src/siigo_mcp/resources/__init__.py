@@ -1,0 +1,1 @@
+"""Siigo MCP resources."""
