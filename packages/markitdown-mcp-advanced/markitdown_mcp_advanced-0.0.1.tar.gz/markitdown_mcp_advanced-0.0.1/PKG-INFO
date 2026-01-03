@@ -1,0 +1,89 @@
+Metadata-Version: 2.4
+Name: markitdown_mcp_advanced
+Version: 0.0.1
+Summary: Advanced MarkItDown MCP server with PaddleOCR support for PDF, images, and Office documents
+Project-URL: Homepage, https://github.com/DuanYan007/markitdown
+Project-URL: Issues, https://github.com/DuanYan007/markitdown/issues
+Author-email: DuanYan007 <duanyan2024@gmail.com>
+License-Expression: MIT
+License-File: LICENSE
+Keywords: document-conversion,docx,markitdown,mcp,ocr,pdf,pptx,xlsx
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Text Processing :: Markup
+Requires-Python: >=3.9
+Requires-Dist: mcp>=0.1.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: starlette>=0.27.0
+Requires-Dist: uvicorn[standard]>=0.30.0
+Provides-Extra: all
+Requires-Dist: xlrd==1.2.0; extra == 'all'
+Provides-Extra: xls
+Requires-Dist: xlrd==1.2.0; extra == 'xls'
+Description-Content-Type: text/markdown
+
+# MarkItDown MCP Advanced
+
+A powerful MCP (Model Context Protocol) server that converts various document formats to Markdown with PaddleOCR support.
+
+## Features
+
+- **Multi-format Support**: PDF, images, Office documents, HTML, CSV
+- **OCR Integration**: High-accuracy text recognition via PaddleOCR API
+- **URL Support**: Direct processing of remote file URLs
+- **MCP Protocol**: Full compliance with MCP standard (STDIO and HTTP modes)
+- **Lightweight**: Core features use only Python standard library
+
+## Supported Formats
+
+| Category | Extensions |
+|----------|------------|
+| PDF | `.pdf` |
+| Images | `.png`, `.jpg`, `.jpeg`, `.gif`, `.bmp`, `.tiff`, `.webp` |
+| Word | `.docx` |
+| PowerPoint | `.pptx` |
+| Excel | `.xlsx`, `.xls` (requires extra dependency) |
+| Web | `.html`, `.htm` |
+| CSV | `.csv` |
+
+## Configuration
+
+Required environment variables:
+
+```bash
+export PADDLE_API_URL="your_api_url"
+export PADDLE_TOKEN="your_token"
+export MARKITDOWN_TEMP_DIR="/path/to/temp"
+```
+
+
+## Usage with Claude Desktop
+
+Add to Claude Desktop config file:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "markitdown": {
+      "command": "markitdown-mcp",
+      "env": {
+        "PADDLE_API_URL": "your_api_url",
+        "PADDLE_TOKEN": "your_token"
+      }
+    }
+  }
+}
+```
+
+## Links
+
+- [GitHub Repository](https://github.com/DuanYan007/markitdown)
+- [Issue Tracker](https://github.com/DuanYan007/markitdown/issues)
+
+## License
+
+MIT License
