@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>EasyDAG Test</title>
+    <style>
+      #controls {
+        margin-bottom: 1em;
+      }
+
+      button {
+        padding: 0.5em 1em;
+        font-size: 1rem;
+        margin-right: 0.5em;
+      }
+
+      #log {
+        margin-top: 1em;
+        padding: 10px;
+        height: 300px;
+        overflow-y: auto;
+        background: #111;
+        color: #0f0;
+        font-family: monospace;
+        white-space: pre-wrap;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>EasyDAG Web Execution Test</h1>
+    <p>
+      Use the buttons below to control the DAG.
+      Events will appear in the log panel.
+    </p>
+
+    <div id="controls">
+      <button id="run-btn">Run DAG</button>
+      <button id="cancel-btn">Cancel DAG</button>
+      <button id="clear-btn">Clear Log</button>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+      const logEl = document.getElementById("log");
+
+      function logLine(msg) {
+        logEl.textContent += msg + "\n";
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      const ws = new WebSocket("ws://localhost:8000/ws/dag");
+
+      ws.onopen = () => {
+        console.log("WS connected");
+        logLine("[ws] connected");
+      };
+
+      ws.onmessage = (e) => {
+        const evt = JSON.parse(e.data);
+        console.log("EVENT:", evt);
+        logLine(JSON.stringify(evt, null, 2));
+      };
+
+      ws.onerror = (e) => {
+        console.error("WS error", e);
+        logLine("[ws] error");
+      };
+
+      document.getElementById("run-btn").onclick = () => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "run" }));
+          console.log("Run command sent");
+          logLine("[ui] run command sent");
+        } else {
+          console.warn("WebSocket not connected");
+          logLine("[ui] websocket not connected");
+        }
+      };
+
+      document.getElementById("cancel-btn").onclick = () => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "cancel" }));
+          console.log("Cancel command sent");
+          logLine("[ui] cancel command sent");
+        } else {
+          console.warn("WebSocket not connected");
+          logLine("[ui] websocket not connected");
+        }
+      };
+
+      document.getElementById("clear-btn").onclick = () => {
+        logEl.textContent = ""
+        logEl.scrollTop = logEl.scrollHeight;
+      };
+    </script>
+  </body>
+</html>
