@@ -1,0 +1,136 @@
+# acldpy
+
+[![PyPI](https://img.shields.io/pypi/v/project-name.svg)](https://pypi.org/project/project-name)
+[![Python](https://img.shields.io/pypi/pyversions/project-name.svg)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Tests](https://github.com/anyusernameisokay/acldpy/actions/workflows/test.yml/badge.svg)
+
+
+## Summary
+
+This Python 3 package assigns letters to indicate statistically significant
+differences between treatments following pairwise comparisons. It strives to be
+compatible with all major Python statistics libraries.
+
+<strong>acldpy = agnostic compact letter display for Python</strong>
+
+Users conduct their statistical test with the library of their choice. Then,
+they pass their result to acldpy.
+The package implements algorithms that were described by Piepho
+and coworkers [1,2].
+
+## Installation
+
+Install from PyPI test server:
+
+```bash
+pip install acldpy
+```
+
+## Basic usage
+
+To calculate the cld, you need three arguments.
+
+1. List of all first treatment names used in the pairwise comparisons.
+2. List of all second treatment names used in the pairwise comparisons.
+3. List of the p-values associated with each comparison.
+
+<strong>Generally</strong>, one's input should follow this structure: i-th entry of `p_values` corresponds to the p-value for the comparison between the i-th entry in `first_treatments` and the i-th entry in `second_treatments`:
+
+```python
+first_treatments = ["element 1", "element 1", "element 2"]
+second_treatments = ["element 2", "element 3", "element 3"]
+p_values = [0.9, 0.2, 0.01]
+```
+
+These three lists are passed to the `run_cld` function of the acldpy library. `run_cld` returns a dictionary where each key is a unique treatment and the value is its associated letters.
+
+```python
+from acldpy import run_cld
+
+cld = run_cld(first_treatments, second_treatments, p_values)
+print (cld) # {'element 1': 'ab', 'element 2': 'b', 'element 3': 'a'}
+```
+
+<strong>Typically</strong>, these three required lists can be parsed from the returned object of a statistical test, as illustrated here with the Pingouin implementation of the Tukey-Kramer test.
+
+```python
+import pingouin as pg
+from acldpy import run_cld
+
+penguins = pg.read_dataset("penguins") # Example dataset
+tk_result = penguins.pairwise_tukey(dv='body_mass_g', between='species')
+first_treatments, second_treatments, p_values = list(tk_result["A"]), list(tk_result["B"]), list(tk_result["p-tukey"])
+
+cld = run_cld(first_treatments, second_treatments, p_values)
+print (cld) # {'Adelie': 'b', 'Chinstrap': 'b', 'Gentoo': 'a'}
+```
+
+Besides these three lists, `run_cld` accepts two optional arguments:
+
+1. `alpha` (float, default: 0.05): Significance level. Two treatments are considered significantly different if their p‑value is less ("<", not "=<"!) than alpha.
+2. `letter_order` (None | list, default: None): If set, a list containing all treatments in the order of which they should be assigned letters to. Often, one would like to assign the letters in ascending order of the treatment mean values.
+
+```python
+from acldpy import run_cld
+
+first_treatments = ["element 1", "element 1", "element 1", "element 2", "element 2", "element 3"]
+second_treatments = ["element 2", "element 3", "element 4", "element 3", "element 4", "element 4"]
+p_values = [0.08, 0.02, 0.01, 0.2, 0.04, 0.08]
+mean_values = {"element 1": 1.2, "element 2": 2.8, "element 3": 3.2, "element 4": 4.0}
+
+cld = run_cld(first_treatments, second_treatments, p_values) # default values for alpha and letter_order
+print(cld) # {'element 1': 'c', 'element 2': 'bc', 'element 3': 'ab', 'element 4': 'a'}
+
+mean_values_sorted = dict(sorted(mean_values.items(), key=lambda item: item[1]))
+cld = run_cld(first_treatments, second_treatments, p_values, alpha=0.1, letter_order=mean_values_sorted.keys())
+print(cld) # {'element 1': 'a', 'element 2': 'b', 'element 3': 'b', 'element 4': 'c'}
+```
+
+## Extra Functionality
+
+`find_cld_columns` is a helper function that accepts the result objects of the most common statistical tests and returns the three required lists.
+
+```python
+from acldpy import find_cld_columns
+
+first_treatments, second_treatments, p_values = find_cld_columns(penguins_tk_result, "pg_tk")
+```
+
+Currently it works with the output of the following tests:
+
+1. `result_type="pg_tk"`: <a href="https://pingouin-stats.org/build/html/generated/pingouin.pairwise_tukey.html#pingouin-pairwise-tukey">pingouin's Tukey-Kramer test</a>
+2. `result_type="stm_tk"`: <a href="https://www.statsmodels.org/dev/generated/statsmodels.sandbox.stats.multicomp.MultiComparison.tukeyhsd.html#statsmodels-sandbox-stats-multicomp-multicomparison-tukeyhsd">statsmodels' Tukey-Kramer test</a>
+
+## Development and Distribution
+
+This package is provided under the MIT license. I (<a href="https://github.com/anyusernameisokay">NJung</a>) am its sole developer. I encourage you to report issues, when you find them under <https://github.com/anyusernameisokay/acldpy/issues>. If you do so, please provide your input data, and the error you receive.<br><br>
+Currently, the package is still under development, and I expect that some inputs lead to unhandled exceptions. However, the package will never silently return a wrong cld! 
+<br><br>
+Furthermore, the following improvements are planned:
+
+- Different and custom alternatives to the classical small letters.
+- Optimal utilization of NumPy under the hood.
+
+
+## References
+
+[1]
+J. Gramm, J. Guo, F. Hüffner, R. Niedermeier, H.-P. Piepho, and R. Schmid,
+“Algorithms for compact letter displays: Comparison and evaluation,”
+Computational Statistics & Data Analysis, vol. 52, no. 2, pp. 725–736,
+Oct. 2006,
+<a href="https://doi.org/10.1016/j.csda.2006.09.035">doi: 10.1016/j.csda.2006.09.035.</a>
+
+[2]
+H.-P. Piepho, “An algorithm for a Letter-Based representation of
+All-Pairwise comparisons,” Journal of Computational and Graphical Statistics,
+vol. 13, no. 2, pp. 456–466, Jun. 2004,
+<a href= "https://doi.org/10.1198/1061860043515">doi: 10.1198/1061860043515.</a>
+<br><br>
+I am not affiliated with the authors of these studies.
+
+## Links
+
+- PyPI: <https://pypi.org/p/acldpy/>
+- Source:  <https://github.com/anyusernameisokay/acldpy>
