@@ -1,0 +1,65 @@
+Metadata-Version: 2.4
+Name: mkmsg
+Version: 0.0.9
+Summary: Python library to send WhatsApp messages, emails, HTML emails, and generate OTPs
+Author-email: Mohamed <youremail@example.com>
+License: MIT
+Keywords: whatsapp,email,otp,messaging
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+Dynamic: license-file
+
+# mkmsg
+
+Python library to send:
+- WhatsApp messages via WhatsApp Web
+- Plain text emails
+- HTML emails (Gmail)
+
+## Installation
+```bash
+pip install mkmsg
+```
+## Usage
+
+```python
+>>> import mkmsg
+
+>>> # Send a plain text email
+>>> mkmsg.Send_mail(
+...     "sender@gmail.com",
+...     "APP_PASSWORD",
+...     "Your Name",
+...     "Test Email",
+...     "Hello from mkmsg",
+...     "receiver@gmail.com"
+... )
+'Email sent successfully'
+
+>>> # Send an HTML email
+>>> mkmsg.Send_html_mail(
+...     "sender@gmail.com",
+...     "APP_PASSWORD",
+...     "Your Name",
+...     "HTML Test",
+...     "<h1>Hello World</h1>",
+...     "receiver@gmail.com"
+... )
+'HTML email sent successfully'
+
+>>> # Generate an OTP
+>>> otp = mkmsg.Generate_otp(6)
+>>> otp
+'123456'
+
+>>> # Send a WhatsApp message
+>>> mkmsg.Send_whats_msg(
+...     "201234567890",
+...     "Hello from mkmsg",
+...     10
+... )
+'WhatsApp message sent successfully'
