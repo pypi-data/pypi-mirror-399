@@ -1,0 +1,53 @@
+Metadata-Version: 2.4
+Name: spyprot
+Version: 1.0.0
+Summary: This package provides a set of tools for accessing protein databases and manipulating PDB/CIF files.
+Home-page: https://github.com/ilbsm/spyProt
+Author: INTERDISCIPLINARY LABORATORY of BIOLOGICAL SYSTEMS MODELLING, University of Warsaw, Warsaw, Poland
+Author-email: bmjastrzebski@gmail.com, p.rubach@cent.uw.edu.pl
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6.0
+Description-Content-Type: text/markdown
+Requires-Dist: tqdm>=4.31.1
+Requires-Dist: lxml>=4.5.0
+Requires-Dist: requests>=2.0.0
+Requires-Dist: biopython>1.60
+Requires-Dist: psutil>5.6.0
+Requires-Dist: subprocess32>=3.5.0
+Requires-Dist: wget>=3.0
+Requires-Dist: pysolr>=3.9.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# spyProt 
+
+[![Python package](https://github.com/ilbsm/spyProt/actions/workflows/python-package.yml/badge.svg)](https://github.com/ilbsm/spyProt/actions/workflows/python-package.yml)
+Rapid protein overview from multiple databases (RCSB, PDBe, UniProt etc.)
+
+Fetch information from for EC, Uniprot, RCSB Search API etc.
+
+Includes the  ilbsm_database_downloader used to download data from [ILBSM databases](https://jsulkowska.cent.uw.edu.pl/) such as: 
+- [AlphaKnot](https://alphaknot.cent.uw.edu.pl/)
+- [Knotprot](https://knotprot.cent.uw.edu.pl/)
+- [LassoProt](https://lassoprot.cent.uw.edu.pl/)
+- [Genus](https://genus.fuw.edu.pl/)
+
+Have a look at tests to see how to use it.
+
+#git tag -d v0.8.8 ; git tag v0.8.8 ; git push origin :v0.8.8 ; git push origin --tags
