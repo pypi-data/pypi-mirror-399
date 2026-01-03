@@ -1,0 +1,70 @@
+---
+title: "Setup Python Environment"
+format: html
+---
+
+## Setup  
+This document briefly covers how to setup your python environment so you can start using the package to build dashboard. If anything doesn't make sense, please open a pull request or issue so I can improve this documentation. This documentation is pretty bare-bones, so if you want more details, there are also numerous other tutorials online that explain how to install python, create virtual environments and run python scripts. This example assumes you are using Windows.       
+   
+## Python      
+     
+1. Make sure [python](https://www.python.org/downloads/) is installed on your computer.       
+        
+## Create virtual environment       
+For this example, we're going to use a virtual environment to keep the package versions separate from what you have installed on your system     
+
+1. Open a command prompt and navigate to the folder you want to create dashboards in by running the following:      
+         
+```bash
+cd path/to/your/folder
+```
+   
+2. Create and activate a [virtual environment](https://www.w3schools.com/python/python_virtualenv.asp) by running the same:        
+         
+```bash
+# create a virtual environment
+python -m venv venv
+
+# for windows
+venv\Scripts\activate.bat
+
+# for linux or Mac (remove hashtag first)
+# source venv/bin/activate
+```
+   
+3. Install the Power Bpy module:       
+```bash
+# install the Power Bpy module
+pip install powerbpy
+```     
+4. Write a script to create a dashboard. (See [test dashboard](https://www.russellshean.com/powerbpy/example_dashboards/Test%20Dashboard/Testing%20Dashboard.html) and [example dashboards](https://www.russellshean.com/powerbpy/example_dashboards.html) tutorials for examples).      
+    
+5. When you're ready to create the dashboard, run the script by running the following in the command prompt window.       
+```bash
+python name_of_your_script.py
+```     
+  
+  
+## Development version
+To install the latest version of Power Bpy from Github instead of Pypi you can run the following
+```bash     
+python -m pip install git+https://github.com/Russell-Shean/powerbpy.git#egg=powerbpy     
+```     
+   
+## Power BI settings
+To open the dashboards in Power BI Desktop, you'll need to enable the following preview features:        
+   
+<ol>
+           <li>Power BI Project (.pbip) save option</li>
+           <li>Store Semantic Model using TMDL format</li>
+           <li>Store reports using enhanced metadata format (PBIR)</li>
+</ol>      
+    
+First click on `file` then `options and settings`, and then `options`:     
+![options and settings](https://github.com/Russell-Shean/powerbpy/raw/main/docs/assets/images/options_and_settings.png)
+
+Next click on the `preview features` menu:      
+![preview features](https://github.com/Russell-Shean/powerbpy/raw/main/docs/assets/images/preview_settings.png)    
+  
+Then check the following three boxes:     
+![.pbir settings](https://github.com/Russell-Shean/powerbpy/raw/main/docs/assets/images/pbir_options.png)

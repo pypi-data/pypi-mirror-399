@@ -1,0 +1,278 @@
+---
+title: "WOW Power BI 2025 week 13 demonstration"
+date: 2025-12-11
+description: Let's add a table and a sanky chart to a dashboard.
+image: "https://github.com/Russell-Shean/powerbpy/raw/main/docs/assets/images/sanky_screenshot.png"
+---
+
+# Sanky Chart and Table      
+I used the PowerBpy python module to recreate an <a href="https://workout-wednesday.com/pbi-2025-w13/">sanky chart and table</a> dashboard from the <a href="https://workout-wednesday.com/">Workout Wednesday</a> challenge. Here's a screenshot of the original dashboard (top) and the dashboard I recreated using Power Bpy (bottom).        
+    
+(It appears that the data has changed since the original author created his dashboard, so my version and his look a bit different because the data is a bit different).      
+    
+The rest of the blog will describe key parts of the code I used to make the dashboard. The full code is available [here](https://github.com/Russell-Shean/powerbpy-demos/tree/main/WOW/2025/13).      
+<img id="my-sanky-img" class="img-fluid" src="https://github.com/Russell-Shean/powerbpy/raw/main/docs/assets/images/sanky_screenshot.png" style="margin-bottom:10px">      
+![wow sanky](https://github.com/Russell-Shean/powerbpy/raw/main/docs/assets/images/WOW_sanky.png)
+  
+## Assumptions
+This example assumes that you already have python installed and that you know how to install python modules such as pandas. If you don't, please refer to basic setup [instructions](https://www.russellshean.com/powerbpy/basic_setup.html) section of this website or find one of the many great resources online that explains how to install python packages.  
+
+One of the central assumptions built into the PowerBpy package is that you'd prefer to write python code over using Power BI. Therefore, this example will avoid writing any M or DAX and will instead use python to extract, load and transform the data. Once the data is ready, I'll show how to use Power Bpy to create the dashboard. 
+
+ 
+## Download Data
+The data for this example is stored as an online zip file. The following code downloads the zip file and extracts the contents into a local directory. 
+```python
+'''
+This script downloads the data from Github and
+then extracts the individual datasets from the compressed archive file.
+'''
+
+import os
+import tempfile
+import requests
+import py7zr
+
+# step 1: obtain data from github --------------------------------------------------------------
+
+# Define paths
+DATASET_URL = "https://github.com/sql-bi/Contoso-Data-Generator-V2-Data/releases/download/ready-to-use-data/csv-10k.7z"
+DATA_DESTINATION_DIR = "data"
+
+
+# make sure the folder exists
+os.makedirs(DATA_DESTINATION_DIR, exist_ok=True)
+
+# download the zip file from the internet
+response = requests.get(DATASET_URL, stream=True)
+response.raise_for_status()
+
+# write to file
+with tempfile.NamedTemporaryFile(suffix=".7z", delete=False) as tmp_file:
+    with open(tmp_file.name, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+
+
+
+# extract the data
+with py7zr.SevenZipFile(tmp_file.name, mode="r") as z:
+    z.extractall(path=DATA_DESTINATION_DIR)
+
+```    
+
+## Process data
+The original example included creating measures in Power BI using DAX and M as part of the challenge. It's also possible to create the needed variables in python and then upload the processed data to Power BI without writing any DAX or M.     
+
+For this example we need to calculate sales totals by stores time period and classify the sales as low, medium or high. Here's the python code I used:
+
+```python
+'''
+This script processes the data we downloaded
+'''
+
+import pandas as pd
+import numpy as np
+
+# Read in the datasets
+store = pd.read_csv("data/store.csv")
+sales = pd.read_csv("data/sales.csv")
+
+# Create a dictionary of names and codes
+store_names = (
+                store[["StoreKey", "Description"]]
+               .drop_duplicates()
+               .reset_index(drop=True)
+               )
+
+# Makes sure OrderDate is a date
+sales["OrderDate"] = pd.to_datetime(sales["OrderDate"])
+
+# Create a new dataframe with aggregate sales total
+# By date periods and store
+
+sales_by_store_and_date = (
+    sales
+
+    # assign seems to be similar to mutate in R
+    # It creates a new variable
+    .assign(
+
+        # np.select appears to be similar to case_when
+        # It checks logical conditions and assigns a new value for 
+        # variable we created using assign based on the logical tests
+        time_period = lambda df: np.select(
+
+
+            # Define to logical conditions to check for
+            [
+                df["OrderDate"] <= df
+                                   .groupby("StoreKey")["OrderDate"]
+                                   .transform("min")
+                                   + pd.Timedelta(days=180),
+
+                df["OrderDate"] >= df
+                                   .groupby("StoreKey")["OrderDate"]
+                                   .transform("max")
+                                   - pd.Timedelta(days=180)
+            ],
+
+            # Define labels if the conditions are met
+            ["first_180",
+             "last_180"],
+
+             # Define a default for if neither condition is matched
+             default="middle_period"
+
+        )
+    )
+
+    # calculate grouped sales totals by time period and store
+    .groupby(["StoreKey", "time_period"], as_index=False)
+    .agg(store_total_sales = ("NetPrice", "sum"))
+
+
+    # label the sales volumes as small, medium and large
+    .assign(
+
+        sales_size = lambda df: np.select(
+            [
+                df["store_total_sales"] < 1000,
+
+                (df["store_total_sales"] >= 1000) &
+                (df["store_total_sales"] < 5000),
+
+                df["store_total_sales"] >= 5000
+            ],
+
+            [
+                "Small",
+                "Medium",
+                "Large"
+            ],
+        default="Unknown"
+        )
+    )
+
+    # Merge the store names onto the dataframe
+    .merge(
+        store_names,
+        on = "StoreKey",
+        how = "left"
+    )
+
+    # pivot the dataframe to expand the time period and sales size columns wider
+    .pivot(
+        index="Description",
+        columns="time_period",
+        values=['store_total_sales', "sales_size"]
+    )
+)
+
+
+# undo the multi indexing of column names
+# (I don't even want to try to imagine how Power BI 
+#   would try to handle multi-indexed columns lol)
+sales_by_store_and_date.columns = [
+    f"{val}_{col}" for val, col in sales_by_store_and_date.columns
+]
+
+# finish the final steps in the chain
+sales_by_store_and_date = (
+
+    sales_by_store_and_date
+
+    # reset the index
+    .reset_index()
+
+    # select the columns we want
+    .loc[:, ["Description",
+             "store_total_sales_first_180",
+             "store_total_sales_last_180",
+             "sales_size_first_180",
+             "sales_size_last_180"]]
+
+    # Rename the columns we want
+    .rename(columns={
+        'Description': 'Name',
+        'store_total_sales_first_180': 'Sales First 180 Days',
+        'store_total_sales_last_180': 'Sales Last 180 Days',
+        'sales_size_first_180': 'Starting Size',
+        'sales_size_last_180': 'Ending Size'
+    })
+
+)
+
+# write to file
+sales_by_store_and_date.to_csv("data/final_dataset.csv", index=False)
+
+```         
+It's of course also possible to do this type of data processing in other languages too. Here's a [link](https://github.com/Russell-Shean/powerbpy-demos/blob/main/WOW/2025/13/02-process_data.R) to an R script that does the exact same data processing. 
+
+## Create Dashboard
+Now that we've obtained and prepped the data, we can create the dashboard! The script below does the following:   
+
+   - Create a new dashboard
+   - Add the dataset we downloaded and processed to the dashboard
+   - Add a new page to the dashboard      
+   - Add a sanky chart to the new page
+   - Add a table to the new page
+
+For more details about creating dashboards, see the [test dashboard](https://www.russellshean.com/powerbpy/example_dashboards/Test%20Dashboard/Testing%20Dashboard.html) tutorial or the package's [methods documentation](https://www.russellshean.com/powerbpy/reference/).    
+
+```python
+'''
+This script creates a new dashboard using the data we downloaded and processed
+'''
+
+import os
+
+from powerbpy import Dashboard
+
+# Define the path to the dashboard
+dashboard_path = os.path.join(os.getcwd(), "sanky_demo")
+
+
+# Create a new blank dashboard
+my_dashboard = Dashboard.create(dashboard_path)
+
+# add the data from step 2
+my_dashboard.add_local_csv(data_path = "data/final_dataset.csv" )
+
+# Add a new page to the dashboard
+page1 = my_dashboard.new_page(page_name="A demonstration sanky chart")
+
+
+# add a table
+page1.add_table(visual_id = "sales_table",
+              data_source = "final_dataset",
+              variables = ["Name",
+                           "Sales First 180 Days",
+                           "Sales Last 180 Days",
+                           "Starting Size",
+                           "Ending Size"],
+              x_position = 615,
+              y_position = 0,
+              height = 800,
+              width = 615,
+              add_totals_row = False,
+              table_title = "Store Sales Details")
+
+
+page1.add_sanky_chart(visual_id = "sales_sanky",
+              data_source = "final_dataset",
+              chart_title="Store Starting and Ending Size",
+              starting_var="Starting Size",
+              starting_var_values=["Large", "Medium", "Small"],
+              ending_var="Ending Size",
+              ending_var_values=["Large", "Medium", "Small"],
+              values_from_var="Name",
+              x_position=0,
+              y_position=0,
+              height = 800,
+              width = 615)
+
+```    
+
+Here's a [link](https://github.com/Russell-Shean/powerbpy-demos/blob/main/WOW/2025/13/03-create_dashboard.py) to the dashboard creation script.   
+And heres a [link](https://github.com/Russell-Shean/powerbpy-demos/blob/main/WOW/2025/13/complete_process.py) to the script for the entire process including data processing.
