@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "toknc"
+version = "0.1.1"
+description = "A Python CLI application that estimates token usage for files in a directory"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+    {name = "gato001k1", email = "eduardoaltri520@gmail.com"}
+]
+keywords = ["token", "gpt", "openai", "cli", "code-analysis"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Code Generators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.optional-dependencies]
+tiktoken = ["tiktoken>=0.5.0"]
+
+[project.scripts]
+toknc = "toknc:main"
+
+[project.urls]
+Homepage = "https://github.com/gato001k1/toknc"
+Repository = "https://github.com/gato001k1/toknc"
+Documentation = "https://github.com/gato001k1/toknc#readme"
+Issues = "https://github.com/gato001k1/toknc/issues"
