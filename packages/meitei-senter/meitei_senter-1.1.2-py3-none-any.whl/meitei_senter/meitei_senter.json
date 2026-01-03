@@ -1,0 +1,661 @@
+{
+  "model_name": "extract_features>>list2ragged>>with_array(ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed)>>with_array(maxout>>layernorm>>dropout)>>ragged2list>>with_array(residual(expand_window>>maxout>>layernorm>>dropout))>>with_array(softmax)",
+  "layers": [
+    {
+      "index": 0,
+      "name": "extract_features",
+      "prefix": "layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "list2ragged",
+      "prefix": "layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_1.layer_1"
+    },
+    {
+      "index": 1,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_2.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_2.layer_1"
+    },
+    {
+      "index": 2,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_2"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_3.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_3.layer_1"
+    },
+    {
+      "index": 3,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "layer_0.layer_0.layer_2.layer_0.layer_3"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed",
+      "prefix": "layer_0.layer_0.layer_2.layer_0"
+    },
+    {
+      "index": 2,
+      "name": "with_array(ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed)",
+      "prefix": "layer_0.layer_0.layer_2"
+    },
+    {
+      "index": 0,
+      "name": "maxout",
+      "prefix": "layer_0.layer_0.layer_3.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "layernorm",
+      "prefix": "layer_0.layer_0.layer_3.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm",
+      "prefix": "layer_0.layer_0.layer_3.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "dropout",
+      "prefix": "layer_0.layer_0.layer_3.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm>>dropout",
+      "prefix": "layer_0.layer_0.layer_3.layer_0"
+    },
+    {
+      "index": 3,
+      "name": "with_array(maxout>>layernorm>>dropout)",
+      "prefix": "layer_0.layer_0.layer_3"
+    },
+    {
+      "index": 4,
+      "name": "ragged2list",
+      "prefix": "layer_0.layer_0.layer_4"
+    },
+    {
+      "index": 0,
+      "name": "extract_features>>list2ragged>>with_array(ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed)>>with_array(maxout>>layernorm>>dropout)>>ragged2list",
+      "prefix": "layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "expand_window",
+      "prefix": "layer_0.layer_1.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "maxout",
+      "prefix": "layer_0.layer_1.layer_0.layer_0.layer_1.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "layernorm",
+      "prefix": "layer_0.layer_1.layer_0.layer_0.layer_1.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm",
+      "prefix": "layer_0.layer_1.layer_0.layer_0.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "dropout",
+      "prefix": "layer_0.layer_1.layer_0.layer_0.layer_1.layer_1"
+    },
+    {
+      "index": 1,
+      "name": "maxout>>layernorm>>dropout",
+      "prefix": "layer_0.layer_1.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "expand_window>>maxout>>layernorm>>dropout",
+      "prefix": "layer_0.layer_1.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "residual(expand_window>>maxout>>layernorm>>dropout)",
+      "prefix": "layer_0.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "with_array(residual(expand_window>>maxout>>layernorm>>dropout))",
+      "prefix": "layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "extract_features",
+      "prefix": "layer_0.embed.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "list2ragged",
+      "prefix": "layer_0.embed.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_1.layer_1"
+    },
+    {
+      "index": 1,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_2.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_2.layer_1"
+    },
+    {
+      "index": 2,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_2"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_3.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_3.layer_1"
+    },
+    {
+      "index": 3,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "layer_0.embed.layer_2.layer_0.layer_3"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed",
+      "prefix": "layer_0.embed.layer_2.layer_0"
+    },
+    {
+      "index": 2,
+      "name": "with_array(ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed)",
+      "prefix": "layer_0.embed.layer_2"
+    },
+    {
+      "index": 0,
+      "name": "maxout",
+      "prefix": "layer_0.embed.layer_3.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "layernorm",
+      "prefix": "layer_0.embed.layer_3.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm",
+      "prefix": "layer_0.embed.layer_3.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "dropout",
+      "prefix": "layer_0.embed.layer_3.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm>>dropout",
+      "prefix": "layer_0.embed.layer_3.layer_0"
+    },
+    {
+      "index": 3,
+      "name": "with_array(maxout>>layernorm>>dropout)",
+      "prefix": "layer_0.embed.layer_3"
+    },
+    {
+      "index": 4,
+      "name": "ragged2list",
+      "prefix": "layer_0.embed.layer_4"
+    },
+    {
+      "index": 0,
+      "name": "expand_window",
+      "prefix": "layer_0.encode.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "maxout",
+      "prefix": "layer_0.encode.layer_0.layer_0.layer_1.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "layernorm",
+      "prefix": "layer_0.encode.layer_0.layer_0.layer_1.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm",
+      "prefix": "layer_0.encode.layer_0.layer_0.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "dropout",
+      "prefix": "layer_0.encode.layer_0.layer_0.layer_1.layer_1"
+    },
+    {
+      "index": 1,
+      "name": "maxout>>layernorm>>dropout",
+      "prefix": "layer_0.encode.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "expand_window>>maxout>>layernorm>>dropout",
+      "prefix": "layer_0.encode.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "residual(expand_window>>maxout>>layernorm>>dropout)",
+      "prefix": "layer_0.encode.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "extract_features>>list2ragged>>with_array(ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed)>>with_array(maxout>>layernorm>>dropout)>>ragged2list>>with_array(residual(expand_window>>maxout>>layernorm>>dropout))",
+      "prefix": "layer_0"
+    },
+    {
+      "index": 0,
+      "name": "softmax",
+      "prefix": "layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "with_array(softmax)",
+      "prefix": "layer_1"
+    },
+    {
+      "index": 0,
+      "name": "extract_features",
+      "prefix": "tok2vec.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "list2ragged",
+      "prefix": "tok2vec.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_1.layer_1"
+    },
+    {
+      "index": 1,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_2.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_2.layer_1"
+    },
+    {
+      "index": 2,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_2"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_3.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_3.layer_1"
+    },
+    {
+      "index": 3,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0.layer_3"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed",
+      "prefix": "tok2vec.layer_0.layer_2.layer_0"
+    },
+    {
+      "index": 2,
+      "name": "with_array(ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed)",
+      "prefix": "tok2vec.layer_0.layer_2"
+    },
+    {
+      "index": 0,
+      "name": "maxout",
+      "prefix": "tok2vec.layer_0.layer_3.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "layernorm",
+      "prefix": "tok2vec.layer_0.layer_3.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm",
+      "prefix": "tok2vec.layer_0.layer_3.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "dropout",
+      "prefix": "tok2vec.layer_0.layer_3.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm>>dropout",
+      "prefix": "tok2vec.layer_0.layer_3.layer_0"
+    },
+    {
+      "index": 3,
+      "name": "with_array(maxout>>layernorm>>dropout)",
+      "prefix": "tok2vec.layer_0.layer_3"
+    },
+    {
+      "index": 4,
+      "name": "ragged2list",
+      "prefix": "tok2vec.layer_0.layer_4"
+    },
+    {
+      "index": 0,
+      "name": "extract_features>>list2ragged>>with_array(ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed)>>with_array(maxout>>layernorm>>dropout)>>ragged2list",
+      "prefix": "tok2vec.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "expand_window",
+      "prefix": "tok2vec.layer_1.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "maxout",
+      "prefix": "tok2vec.layer_1.layer_0.layer_0.layer_1.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "layernorm",
+      "prefix": "tok2vec.layer_1.layer_0.layer_0.layer_1.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm",
+      "prefix": "tok2vec.layer_1.layer_0.layer_0.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "dropout",
+      "prefix": "tok2vec.layer_1.layer_0.layer_0.layer_1.layer_1"
+    },
+    {
+      "index": 1,
+      "name": "maxout>>layernorm>>dropout",
+      "prefix": "tok2vec.layer_1.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "expand_window>>maxout>>layernorm>>dropout",
+      "prefix": "tok2vec.layer_1.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "residual(expand_window>>maxout>>layernorm>>dropout)",
+      "prefix": "tok2vec.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "with_array(residual(expand_window>>maxout>>layernorm>>dropout))",
+      "prefix": "tok2vec.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "extract_features",
+      "prefix": "tok2vec.embed.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "list2ragged",
+      "prefix": "tok2vec.embed.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_1.layer_1"
+    },
+    {
+      "index": 1,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_2.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_2.layer_1"
+    },
+    {
+      "index": 2,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_2"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_3.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "hashembed",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_3.layer_1"
+    },
+    {
+      "index": 3,
+      "name": "ints-getitem>>hashembed",
+      "prefix": "tok2vec.embed.layer_2.layer_0.layer_3"
+    },
+    {
+      "index": 0,
+      "name": "ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed",
+      "prefix": "tok2vec.embed.layer_2.layer_0"
+    },
+    {
+      "index": 2,
+      "name": "with_array(ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed|ints-getitem>>hashembed)",
+      "prefix": "tok2vec.embed.layer_2"
+    },
+    {
+      "index": 0,
+      "name": "maxout",
+      "prefix": "tok2vec.embed.layer_3.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "layernorm",
+      "prefix": "tok2vec.embed.layer_3.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm",
+      "prefix": "tok2vec.embed.layer_3.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "dropout",
+      "prefix": "tok2vec.embed.layer_3.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm>>dropout",
+      "prefix": "tok2vec.embed.layer_3.layer_0"
+    },
+    {
+      "index": 3,
+      "name": "with_array(maxout>>layernorm>>dropout)",
+      "prefix": "tok2vec.embed.layer_3"
+    },
+    {
+      "index": 4,
+      "name": "ragged2list",
+      "prefix": "tok2vec.embed.layer_4"
+    },
+    {
+      "index": 0,
+      "name": "expand_window",
+      "prefix": "tok2vec.encode.layer_0.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "maxout",
+      "prefix": "tok2vec.encode.layer_0.layer_0.layer_1.layer_0.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "layernorm",
+      "prefix": "tok2vec.encode.layer_0.layer_0.layer_1.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "maxout>>layernorm",
+      "prefix": "tok2vec.encode.layer_0.layer_0.layer_1.layer_0"
+    },
+    {
+      "index": 1,
+      "name": "dropout",
+      "prefix": "tok2vec.encode.layer_0.layer_0.layer_1.layer_1"
+    },
+    {
+      "index": 1,
+      "name": "maxout>>layernorm>>dropout",
+      "prefix": "tok2vec.encode.layer_0.layer_0.layer_1"
+    },
+    {
+      "index": 0,
+      "name": "expand_window>>maxout>>layernorm>>dropout",
+      "prefix": "tok2vec.encode.layer_0.layer_0"
+    },
+    {
+      "index": 0,
+      "name": "residual(expand_window>>maxout>>layernorm>>dropout)",
+      "prefix": "tok2vec.encode.layer_0"
+    }
+  ],
+  "vocab_size": 262
+}
