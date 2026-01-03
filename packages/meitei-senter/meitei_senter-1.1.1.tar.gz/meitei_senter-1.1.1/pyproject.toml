@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meitei-senter"
+version = "1.1.1"
+description = "A lightweight sentence boundary detector for Meitei Mayek (Manipuri) text"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Okram Jimmy", email = "okramjimmy@gmail.com"}
+]
+keywords = [
+    "meitei", "manipuri", "nlp", "tokenizer", "sentence-splitter",
+    "meitei-mayek", "sentencepiece", "spacy", "pytorch"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Linguistic",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "sentencepiece>=0.1.99",
+    "torch>=2.0.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+]
+
+[project.optional-dependencies]
+spacy = [
+    "spacy>=3.5.0",
+]
+dev = [
+    "pytest",
+    "build",
+    "twine",
+]
+all = [
+    "meitei-senter[spacy,dev]",
+]
+
+[project.scripts]
+meitei-senter = "meitei_senter.cli:main"
+meitei-senter-server = "meitei_senter.server:main"
+
+[project.urls]
+Homepage = "https://github.com/Okramjimmy/mni_tokenizer"
+Documentation = "https://github.com/Okramjimmy/mni_tokenizer#readme"
+Repository = "https://github.com/Okramjimmy/mni_tokenizer.git"
+Issues = "https://github.com/Okramjimmy/mni_tokenizer/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["meitei_senter*"]
+
+[tool.setuptools.package-data]
+meitei_senter = [
+    "*.model",
+    "*.vocab",
+    "*.pth",
+    "*.json",
+    "*.thinc_bytes",
+    "spacy_model/**/*",
+]
