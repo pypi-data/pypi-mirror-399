@@ -1,0 +1,34 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "magenta-telemetry"
+version = "0.1.0"
+description = "Ultra-lightweight binary telemetry serialization format"
+authors = [{name = "Henry Ndou"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Rust",
+    "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://github.com/magenta/telemetry-format"
+Repository = "https://github.com/magenta/telemetry-format"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+module-name = "magenta_telemetry"
+manifest-path = 'python\Cargo.toml'
