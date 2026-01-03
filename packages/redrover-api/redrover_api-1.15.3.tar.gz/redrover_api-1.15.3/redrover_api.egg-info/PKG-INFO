@@ -1,0 +1,26 @@
+Metadata-Version: 2.4
+Name: redrover-api
+Version: 1.15.3
+Summary: Red Rover API
+Home-page: https://github.com/edustaff/redrover-api
+Author: Integrations
+Author-email: integrations@redroverk12.com
+Keywords: OpenAPI,OpenAPI-Generator,Red Rover API
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: urllib3<2.1.0,>=1.25.3
+Requires-Dist: python-dateutil
+Requires-Dist: pydantic>=2
+Requires-Dist: typing-extensions>=4.7.1
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: summary
+
+    Access Red Rover data via this REST API for Organizations that have granted you access.  # Authentication The API is protected by HTTP Basic Authentication.   Each application that connects to the API has a unique username and password that it must supply with every request.  This value needs to be supplied as an HTTP Header: &#x60;Authorization&#x3D;BASIC [hash]&#x60;. The value of [hash] is the string username:password base64 encoded.  Endpoints marked for Basic Auth can be used with the Basic Auth username and password that you have been assigned.  # API Information ## Api Key Each Red Rover organization that has authorized your application has a unique API Key for your application.  To retrieve the API Key, you can use the Organization endpoint (&#x60;api/v1/organization&#x60;) which returns an ApiKey uniquely used for each Organization.  You must supply this as an HTTP Header when accessing that organization: &#x60;apiKey&#x3D;[apiKey]&#x60;. The domains that require this &#x60;ApiKey&#x60; header are labeled as &#39;Requires an ApiKey&#39;.  ## Identifier Where an &#x60;Identifier&#x60; can be specified in the route, you may either supply the Red Rover Id of the object (numeric) or the External Id (alpha-numeric). When specifying an External Id, you will need to prepend the External Id with the pipe character&#x60;|&#x60; (e.g. &#x60;|ABC123&#x60;). Please note that this is only the case when the External Id is within the route. If the External Id is contained within the body of the request, do not append the pipe character.  ## Rate Limiting Requests are rate limited at a default rate of 100 requests per minute  ## Transaction Id Each request can be supplied with a &#x60;TransactionId&#x60; GUID which will be logged with the request. The &#x60;Transaction Id&#x60; can be supplied as an HTTP Header: &#x60;TransactionId&#x3D;[transactionId]&#x60;. If no &#x60;Transaction Id&#x60; is supplied, one will be generated for you. Please use a distinct TransactionId for each request.
+    
