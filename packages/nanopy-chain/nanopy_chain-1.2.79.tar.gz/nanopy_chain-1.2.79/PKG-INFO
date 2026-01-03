@@ -1,0 +1,130 @@
+Metadata-Version: 2.4
+Name: nanopy-chain
+Version: 1.2.79
+Summary: A lightweight Ethereum-compatible blockchain fork with P2P networking
+Home-page: https://github.com/nanopy/nanopy-chain
+Author: NanoPy Team
+Author-email: dev@nanopy.chain
+Keywords: blockchain ethereum fork cryptocurrency smart-contracts
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: System :: Distributed Computing
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: eth-account>=0.8.0
+Requires-Dist: eth-keys>=0.4.0
+Requires-Dist: eth-typing>=3.0.0
+Requires-Dist: eth-utils>=2.0.0
+Requires-Dist: eth-hash[pycryptodome]>=0.5.0
+Requires-Dist: eth-bloom>=3.0.0
+Requires-Dist: eth-abi>=4.0.0
+Requires-Dist: eth-rlp>=0.3.0
+Requires-Dist: rlp>=3.0.0
+Requires-Dist: web3>=6.0.0
+Requires-Dist: aiohttp>=3.8.0
+Requires-Dist: websockets>=10.0
+Requires-Dist: py-ecc>=6.0.0
+Requires-Dist: pycryptodome>=3.15.0
+Requires-Dist: ecdsa>=0.18.0
+Requires-Dist: trie>=2.0.0
+Requires-Dist: click>=8.0.0
+Requires-Dist: rich>=12.0.0
+Requires-Dist: python-dotenv>=0.20.0
+Requires-Dist: multiaddr>=0.0.9
+Requires-Dist: protobuf>=3.20.0
+Requires-Dist: trio>=0.22.0
+Requires-Dist: trio-typing>=0.10.0
+Requires-Dist: cryptography>=3.4.0
+Requires-Dist: lru-dict>=1.1.0
+Requires-Dist: base58>=2.0.0
+Requires-Dist: pynacl>=1.5.0
+Requires-Dist: coincurve>=18.0.0
+Requires-Dist: trio-websocket>=0.10.0
+Requires-Dist: aioquic>=0.9.0
+Requires-Dist: noiseprotocol>=0.3.0
+Requires-Dist: py-multihash>=2.0.0
+Requires-Dist: zeroconf>=0.50.0
+Requires-Dist: miniupnpc>=2.2.0
+Requires-Dist: fastecdsa>=2.0.0; sys_platform != "win32"
+Requires-Dist: grpcio>=1.50.0
+Requires-Dist: varint>=1.0.0
+Requires-Dist: psutil>=5.9.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
+Requires-Dist: black>=24.0.0; extra == "dev"
+Requires-Dist: mypy>=1.8.0; extra == "dev"
+Requires-Dist: ruff>=0.2.0; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# NanoPy
+
+Ethereum-compatible PoS blockchain in Python.
+
+## Install
+
+```bash
+pip install nanopy-chain
+nanopy-node
+```
+
+## Features
+
+- PoS consensus
+- EVM compatible
+- libp2p P2P networking
+- JSON-RPC (HTTP + WebSocket on same port)
+- `eth_subscribe` for real-time events
+
+## RPC
+
+Single port serves HTTP and WebSocket:
+
+```bash
+# HTTP
+curl -X POST http://localhost:8545 -d '{"method":"eth_blockNumber",...}'
+
+# WebSocket (same port)
+wscat -c ws://localhost:8545
+> {"method":"eth_subscribe","params":["newHeads"],...}
+```
+
+Subscriptions: `newHeads`, `newPendingTransactions`, `logs`
+
+## Network
+
+| Property | Value |
+|----------|-------|
+| Chain ID | 7770 |
+| Token | NPY |
+| RPC | 8545 |
+| P2P | 30303 |
+
+## CLI
+
+```bash
+nanopy-node              # Start node
+nanopy-node --testnet    # Testnet
+nanopy wallet            # Generate wallet
+nanopy balance 0x...     # Check balance
+```
+
+## License
+
+MIT
