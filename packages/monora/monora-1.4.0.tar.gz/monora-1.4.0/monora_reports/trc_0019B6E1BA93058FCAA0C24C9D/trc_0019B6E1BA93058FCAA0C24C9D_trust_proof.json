@@ -1,0 +1,191 @@
+{
+  "bundle_version": "2.0.0",
+  "bundle_type": "trust_proof",
+  "generated_at": "2025-12-30T07:14:24.135033+00:00",
+  "trace_info": {
+    "trace_id": "trc_0019B6E1BA93058FCAA0C24C9D",
+    "project_name": "unknown",
+    "environment": "development"
+  },
+  "chain_proof": {
+    "verification_status": "verified",
+    "verification_errors": [],
+    "first_hash": "sha256:ff092015c767a9043e75cb9cfb6e2e9ba538dc6bc6d0e89cec5e141e3e91fd33",
+    "last_hash": "sha256:929770f822f0ba342427c4c61266b0a5f4667c85fba068578a5c95e83ad0bc4b",
+    "chain_length": 5,
+    "events_verified": 5,
+    "verified_at": "2025-12-30T07:14:24.134955+00:00",
+    "merkle_root": "sha256:ff3c1ef6f1d947dce9d97abfb9d7e196c89d47ca8fa89dbfb4a0872b03d8cbdc"
+  },
+  "events_digest": {
+    "total_events": 5,
+    "events_sha256": "sha256:3a6c14bab6d942c4117f3bbed6ceb5d23c68e3c4c0c3a6e22a2c3d28fd3a1a82",
+    "events_included": true,
+    "events_url": null
+  },
+  "events": [
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E1BA912B064E9DD50B92",
+      "event_type": "span_start",
+      "trace_id": "trc_0019B6E1BA93058FCAA0C24C9D",
+      "span_id": "spn_0019B6E1BA2E89B999EA016F6D",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "async_test_trace",
+        "metadata": {}
+      },
+      "event_sequence": 1,
+      "timestamp": "2025-12-30T07:14:24.100+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 82050,
+      "prev_hash": null,
+      "event_hash": "sha256:ff092015c767a9043e75cb9cfb6e2e9ba538dc6bc6d0e89cec5e141e3e91fd33"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E1BAD5FE6D22136FC7AF",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E1BA93058FCAA0C24C9D",
+      "span_id": "spn_0019B6E1BAFBF99F746BD32FCE",
+      "parent_span_id": "spn_0019B6E1BA2E89B999EA016F6D",
+      "data_classification": "internal",
+      "purpose": "async_testing",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "prompt": "hello async",
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": "async response",
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 11.072083027102053,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 2,
+      "timestamp": "2025-12-30T07:14:24.112+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 82050,
+      "prev_hash": "sha256:ff092015c767a9043e75cb9cfb6e2e9ba538dc6bc6d0e89cec5e141e3e91fd33",
+      "event_hash": "sha256:1304704d9412cb1a9c0f7fe40a570da8c6e934572d2f2ca20b8b5c92d92084f4"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E1BA18BF417103FA20C5",
+      "event_type": "tool_call",
+      "trace_id": "trc_0019B6E1BA93058FCAA0C24C9D",
+      "span_id": "spn_0019B6E1BA95C26E68ACCB9B31",
+      "parent_span_id": "spn_0019B6E1BA2E89B999EA016F6D",
+      "data_classification": "internal",
+      "purpose": "async_testing",
+      "reason": null,
+      "body": {
+        "tool_name": "async_tool",
+        "arguments": {
+          "arg": "async_arg"
+        },
+        "result": {
+          "async_result": "async_arg"
+        },
+        "duration_ms": 11.060249991714954,
+        "error": null
+      },
+      "event_sequence": 3,
+      "timestamp": "2025-12-30T07:14:24.123+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 82050,
+      "prev_hash": "sha256:1304704d9412cb1a9c0f7fe40a570da8c6e934572d2f2ca20b8b5c92d92084f4",
+      "event_hash": "sha256:6f6cf575468c2af086465c721515daaafe32d8ac1e9deb998be45a57a79de903"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E1BA14B3AC5FC7C005DF",
+      "event_type": "agent_step",
+      "trace_id": "trc_0019B6E1BA93058FCAA0C24C9D",
+      "span_id": "spn_0019B6E1BAD55F8634FA80F1DF",
+      "parent_span_id": "spn_0019B6E1BA2E89B999EA016F6D",
+      "data_classification": "internal",
+      "purpose": "async_testing",
+      "reason": null,
+      "body": {
+        "agent_name": "async_agent",
+        "step_type": "reasoning",
+        "step_number": 1,
+        "input": {
+          "goal": "async_goal"
+        },
+        "output": [
+          "async_step"
+        ],
+        "duration_ms": 11.041291989386082,
+        "error": null
+      },
+      "event_sequence": 4,
+      "timestamp": "2025-12-30T07:14:24.134+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 82050,
+      "prev_hash": "sha256:6f6cf575468c2af086465c721515daaafe32d8ac1e9deb998be45a57a79de903",
+      "event_hash": "sha256:aeea66bd90082ce92ce5ef006f3b666b2037346428c72b4f286d0cda2f5261a7"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E1BADFBC5A4D365D63B9",
+      "event_type": "span_end",
+      "trace_id": "trc_0019B6E1BA93058FCAA0C24C9D",
+      "span_id": "spn_0019B6E1BA2E89B999EA016F6D",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "async_test_trace",
+        "metadata": {},
+        "duration_ms": 33.604875032324344
+      },
+      "event_sequence": 5,
+      "timestamp": "2025-12-30T07:14:24.134+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 82050,
+      "prev_hash": "sha256:aeea66bd90082ce92ce5ef006f3b666b2037346428c72b4f286d0cda2f5261a7",
+      "event_hash": "sha256:929770f822f0ba342427c4c61266b0a5f4667c85fba068578a5c95e83ad0bc4b"
+    }
+  ],
+  "compliance_summary": {
+    "policy_violations": 0,
+    "data_handling_issues": 0,
+    "unknown_models": [],
+    "forbidden_models_blocked": 0,
+    "total_tokens": 0
+  },
+  "report_artifacts": [
+    {
+      "artifact_type": "compliance",
+      "format": "json",
+      "path": "monora_reports/trc_0019B6E1BA93058FCAA0C24C9D/compliance.json",
+      "sha256": "sha256:d05898536e1ddda80f37e6e264d9ac8651cd18a24b381c35a1863b641da0f465"
+    }
+  ]
+}

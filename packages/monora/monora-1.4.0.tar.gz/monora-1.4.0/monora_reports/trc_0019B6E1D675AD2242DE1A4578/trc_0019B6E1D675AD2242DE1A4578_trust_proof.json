@@ -1,0 +1,128 @@
+{
+  "bundle_version": "2.0.0",
+  "bundle_type": "trust_proof",
+  "generated_at": "2025-12-30T07:16:19.997269+00:00",
+  "trace_info": {
+    "trace_id": "trc_0019B6E1D675AD2242DE1A4578",
+    "project_name": "unknown",
+    "environment": "development"
+  },
+  "chain_proof": {
+    "verification_status": "verified",
+    "verification_errors": [],
+    "first_hash": "sha256:1f3fa157083c6eaec41155e52d829595385d0bf96dc84c1d2bd818e88cf493df",
+    "last_hash": "sha256:e8eaffde0efb9858832eac549bc5f068c0ecefe3ccd06e882c5a03362bfe7002",
+    "chain_length": 3,
+    "events_verified": 3,
+    "verified_at": "2025-12-30T07:16:19.997204+00:00",
+    "merkle_root": "sha256:084186e6509e649ce3a246fc5cbfebf7d2ca8d4e74566b1f516c5daab30c4386"
+  },
+  "events_digest": {
+    "total_events": 3,
+    "events_sha256": "sha256:721f221bb84a64f6b6b0dfba98ed44a031b841b171038c41338b9b0884e5a2df",
+    "events_included": true,
+    "events_url": null
+  },
+  "events": [
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E1D6099A827CEA5E44FA",
+      "event_type": "span_start",
+      "trace_id": "trc_0019B6E1D675AD2242DE1A4578",
+      "span_id": "spn_0019B6E1D6194D45C3BCCF1616",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "test",
+        "metadata": {}
+      },
+      "event_sequence": 1,
+      "timestamp": "2025-12-30T07:16:19.996+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 83171,
+      "prev_hash": null,
+      "event_hash": "sha256:1f3fa157083c6eaec41155e52d829595385d0bf96dc84c1d2bd818e88cf493df"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E1D6A84E40A22C80BAAE",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E1D675AD2242DE1A4578",
+      "span_id": "spn_0019B6E1D6BF6B1712577A11E5",
+      "parent_span_id": "spn_0019B6E1D6194D45C3BCCF1616",
+      "data_classification": "internal",
+      "purpose": "test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005420297384262085,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 2,
+      "timestamp": "2025-12-30T07:16:19.996+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 83171,
+      "prev_hash": "sha256:1f3fa157083c6eaec41155e52d829595385d0bf96dc84c1d2bd818e88cf493df",
+      "event_hash": "sha256:996919f0d9b3fe52666e6e559a4a51ca631310a955e766dcae4b6cf22fb4641d"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E1D6750ADB519F1105D5",
+      "event_type": "span_end",
+      "trace_id": "trc_0019B6E1D675AD2242DE1A4578",
+      "span_id": "spn_0019B6E1D6194D45C3BCCF1616",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "test",
+        "metadata": {},
+        "duration_ms": 0.14895800268277526
+      },
+      "event_sequence": 3,
+      "timestamp": "2025-12-30T07:16:19.996+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 83171,
+      "prev_hash": "sha256:996919f0d9b3fe52666e6e559a4a51ca631310a955e766dcae4b6cf22fb4641d",
+      "event_hash": "sha256:e8eaffde0efb9858832eac549bc5f068c0ecefe3ccd06e882c5a03362bfe7002"
+    }
+  ],
+  "compliance_summary": {
+    "policy_violations": 0,
+    "data_handling_issues": 0,
+    "unknown_models": [],
+    "forbidden_models_blocked": 0,
+    "total_tokens": 0
+  },
+  "report_artifacts": [
+    {
+      "artifact_type": "compliance",
+      "format": "json",
+      "path": "monora_reports/trc_0019B6E1D675AD2242DE1A4578/compliance.json",
+      "sha256": "sha256:e51a21cc8b64f2d314015d2d62afd0b230538bce7bf3202e7e68c4ea2f9a7c1b"
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "bundle_version": "2.0.0",
+  "bundle_type": "trust_proof",
+  "generated_at": "2025-12-30T04:07:24.997299+00:00",
+  "trace_info": {
+    "trace_id": "trc_0019B6D707242D3A4FF912177B",
+    "project_name": "monora",
+    "environment": "dev",
+    "host_redaction": {
+      "method": "sha256",
+      "prefix": "host-sha256:"
+    }
+  },
+  "chain_proof": {
+    "verification_status": "verified",
+    "verification_errors": [],
+    "first_hash": "sha256:6a67d21f453ac1ce373c49222bcf78da69ad86159d68c3a4aa1c3aac836186f3",
+    "last_hash": "sha256:d5de9d8e18c6e1fd694c72d4341cabdac99eb9185acc5c24fdcb0dff32f13b77",
+    "chain_length": 3,
+    "events_verified": 3,
+    "verified_at": "2025-12-30T04:07:24.997251+00:00",
+    "merkle_root": "sha256:1b2f0a922a7b018d1681356bfa8071ca5b02efd240887652636b99c3ee1666ca"
+  },
+  "events_digest": {
+    "total_events": 3,
+    "events_sha256": "sha256:fdeb02fce50be2bff456e46ed6c3576f45600b7df64dbe7d38b3bc26a0306698",
+    "events_included": true,
+    "events_url": null
+  },
+  "events": [
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707581E3AD4D4B346AB",
+      "event_type": "span_start",
+      "trace_id": "trc_0019B6D707242D3A4FF912177B",
+      "span_id": "spn_0019B6D707455AFEB7BCEB33F9",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "test_trace",
+        "metadata": {}
+      },
+      "event_sequence": 1,
+      "timestamp": "2025-12-30T04:07:24.996+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "host-sha256:41fef1d8660d",
+      "process_id": 13826,
+      "prev_hash": null,
+      "event_hash": "sha256:6a67d21f453ac1ce373c49222bcf78da69ad86159d68c3a4aa1c3aac836186f3"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707D01ED4789E65A1B9",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D707242D3A4FF912177B",
+      "span_id": "spn_0019B6D7071B3C26B84B2662A0",
+      "parent_span_id": "spn_0019B6D707455AFEB7BCEB33F9",
+      "data_classification": "confidential",
+      "purpose": "testing",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "prompt": "Contact me at [REDACTED_EMAIL]",
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": "Email me at [REDACTED_EMAIL]",
+          "finish_reason": "stop",
+          "usage": {}
+        },
+        "duration_ms": 0.000833999365568161,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        },
+        "redaction": {
+          "applied": true,
+          "rules": [
+            "email"
+          ],
+          "mode": "redact"
+        }
+      },
+      "event_sequence": 2,
+      "timestamp": "2025-12-30T04:07:24.996+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "host-sha256:41fef1d8660d",
+      "process_id": 13826,
+      "prev_hash": "sha256:6a67d21f453ac1ce373c49222bcf78da69ad86159d68c3a4aa1c3aac836186f3",
+      "event_hash": "sha256:245a9a2a3f9377f93cbb9585d4fd93b34827af317bb52acdb2512e7ac1f99596"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707608194F88D84EF04",
+      "event_type": "span_end",
+      "trace_id": "trc_0019B6D707242D3A4FF912177B",
+      "span_id": "spn_0019B6D707455AFEB7BCEB33F9",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "test_trace",
+        "metadata": {},
+        "duration_ms": 0.18479098798707128
+      },
+      "event_sequence": 3,
+      "timestamp": "2025-12-30T04:07:24.996+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "host-sha256:41fef1d8660d",
+      "process_id": 13826,
+      "prev_hash": "sha256:245a9a2a3f9377f93cbb9585d4fd93b34827af317bb52acdb2512e7ac1f99596",
+      "event_hash": "sha256:d5de9d8e18c6e1fd694c72d4341cabdac99eb9185acc5c24fdcb0dff32f13b77"
+    }
+  ],
+  "compliance_summary": {
+    "policy_violations": 0,
+    "data_handling_issues": 0,
+    "unknown_models": [],
+    "forbidden_models_blocked": 0,
+    "total_tokens": 0
+  },
+  "report_artifacts": [
+    {
+      "artifact_type": "compliance",
+      "format": "json",
+      "path": "monora_reports/trc_0019B6D707242D3A4FF912177B/compliance.json",
+      "sha256": "sha256:d1c155123e2f2d0ea5c20215a7253949b856fd2f230bfdb4a1fd1a4d5b50e30f"
+    }
+  ]
+}

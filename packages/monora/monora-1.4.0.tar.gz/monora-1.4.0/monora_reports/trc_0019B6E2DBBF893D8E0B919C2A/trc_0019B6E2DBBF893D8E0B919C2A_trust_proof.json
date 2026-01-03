@@ -1,0 +1,68 @@
+{
+  "bundle_version": "2.0.0",
+  "bundle_type": "trust_proof",
+  "generated_at": "2025-12-30T07:34:08.821778+00:00",
+  "trace_info": {
+    "trace_id": "trc_0019B6E2DBBF893D8E0B919C2A",
+    "project_name": "unknown",
+    "environment": "development"
+  },
+  "chain_proof": {
+    "verification_status": "verified",
+    "verification_errors": [],
+    "first_hash": "sha256:73b7752e9b1d20962357e9112222e066cb930e51bcad25d01392630688e55978",
+    "last_hash": "sha256:73b7752e9b1d20962357e9112222e066cb930e51bcad25d01392630688e55978",
+    "chain_length": 1,
+    "events_verified": 1,
+    "verified_at": "2025-12-30T07:34:08.821752+00:00"
+  },
+  "events_digest": {
+    "total_events": 1,
+    "events_sha256": "sha256:2afc69617f62f51e0deb6f0f61c278bfc5c656a34f6e96e79da04d578a0bba8d",
+    "events_included": true,
+    "events_url": null
+  },
+  "events": [
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2DBCAE68D8B9824512F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2DBBF893D8E0B919C2A",
+      "span_id": "spn_0019B6E2DB283CEAEAE22A85A2",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "test",
+      "reason": null,
+      "body": {
+        "model": "forbidden-model",
+        "policy_name": "model_denylist",
+        "message": "Model matches denylist pattern",
+        "status": "policy_violation",
+        "error": null
+      },
+      "event_sequence": 1,
+      "timestamp": "2025-12-30T07:34:08.820+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 8665,
+      "prev_hash": null,
+      "event_hash": "sha256:73b7752e9b1d20962357e9112222e066cb930e51bcad25d01392630688e55978"
+    }
+  ],
+  "compliance_summary": {
+    "policy_violations": 0,
+    "data_handling_issues": 0,
+    "unknown_models": [],
+    "forbidden_models_blocked": 0,
+    "total_tokens": 0
+  },
+  "report_artifacts": [
+    {
+      "artifact_type": "compliance",
+      "format": "json",
+      "path": "monora_reports/trc_0019B6E2DBBF893D8E0B919C2A/compliance.json",
+      "sha256": "sha256:4dc4777090432ba1c9758bb01cffc60c6d24c99a443825ae27eb4d571e04bb9a"
+    }
+  ]
+}

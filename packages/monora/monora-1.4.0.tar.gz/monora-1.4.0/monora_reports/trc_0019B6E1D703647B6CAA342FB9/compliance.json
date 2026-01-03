@@ -1,0 +1,50 @@
+{
+  "total_events": 3,
+  "traces": 1,
+  "date_range": {
+    "start": "2025-12-30T07:16:24.055000+00:00",
+    "end": "2025-12-30T07:16:24.056000+00:00"
+  },
+  "by_event_type": {
+    "span_start": 1,
+    "llm_call": 1,
+    "span_end": 1
+  },
+  "by_model": {
+    "gpt-4": 1
+  },
+  "by_purpose": {
+    "general": 2,
+    "exception_test": 1
+  },
+  "by_classification": {
+    "internal": 3
+  },
+  "violations": [],
+  "errors": [
+    {
+      "timestamp": "2025-12-30T07:16:24.056+00:00",
+      "event_type": "llm_call",
+      "error": {
+        "type": "ValueError",
+        "message": "User error"
+      }
+    }
+  ],
+  "token_usage": {
+    "total_prompt_tokens": 0,
+    "total_completion_tokens": 0,
+    "total_tokens": 0,
+    "by_model": {}
+  },
+  "model_compliance": {
+    "allowed_models_used": [
+      "gpt-4"
+    ],
+    "forbidden_models_blocked": [],
+    "unknown_models_used": [
+      "gpt-4"
+    ],
+    "unused_allowlist_patterns": []
+  }
+}

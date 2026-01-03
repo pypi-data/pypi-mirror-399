@@ -1,0 +1,3990 @@
+{
+  "bundle_version": "2.0.0",
+  "bundle_type": "trust_proof",
+  "generated_at": "2025-12-30T07:35:21.710209+00:00",
+  "trace_info": {
+    "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+    "project_name": "unknown",
+    "environment": "development"
+  },
+  "chain_proof": {
+    "verification_status": "verified",
+    "verification_errors": [],
+    "first_hash": "sha256:43d2b0ffebf098b4d919e2f24b9d34095024bfe94b35489d7b44a0c2e38171a7",
+    "last_hash": "sha256:9a388595c3852253c5b86889022166cdce7dc0c8aa0cf215035c278a7878b852",
+    "chain_length": 102,
+    "events_verified": 102,
+    "verified_at": "2025-12-30T07:35:21.709371+00:00",
+    "merkle_root": "sha256:9dd2ffb9ad4ab55d86df0a581382f0bc8c7aa47bb3dd810f7cf87412d2cb1cd7"
+  },
+  "events_digest": {
+    "total_events": 102,
+    "events_sha256": "sha256:02c48b29a7d5065fca58efd9135a7f5054c93ac295881b7706389a1d5b7e6e41",
+    "events_included": true,
+    "events_url": null
+  },
+  "events": [
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED126D279AB7A218C8",
+      "event_type": "span_start",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED95378073CBD71599",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "overflow",
+        "metadata": {}
+      },
+      "event_sequence": 1,
+      "timestamp": "2025-12-30T07:35:21.659+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": null,
+      "event_hash": "sha256:43d2b0ffebf098b4d919e2f24b9d34095024bfe94b35489d7b44a0c2e38171a7"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDB2552873CDEF3D03",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED552934F6DCECF88F",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 0,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0008749775588512421,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 2,
+      "timestamp": "2025-12-30T07:35:21.659+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:43d2b0ffebf098b4d919e2f24b9d34095024bfe94b35489d7b44a0c2e38171a7",
+      "event_hash": "sha256:cba1d9eb319fd7a6d1c2d99eab2d396173cb5218625a03ee36d8ccc0ac0794e6"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED023E9733C7A2712F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDC9AC43B13E7AB48B",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 1,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005839974619448185,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 3,
+      "timestamp": "2025-12-30T07:35:21.659+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:cba1d9eb319fd7a6d1c2d99eab2d396173cb5218625a03ee36d8ccc0ac0794e6",
+      "event_hash": "sha256:5a7829c2d1dda32678b46faa957a40d72945f368cc80231ddcab2bc5a875c838"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDFDD30B9A3AB9D157",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED5FE274600419B93B",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 2,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005420297384262085,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 4,
+      "timestamp": "2025-12-30T07:35:21.659+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:5a7829c2d1dda32678b46faa957a40d72945f368cc80231ddcab2bc5a875c838",
+      "event_hash": "sha256:3385f3b3c1817cb3187c7b7c16787d8858453799a45c63135b7d6918fa3d7757"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDB3DE2AEB9A5845BE",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED5865BBEE517A48FB",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 3,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005409820005297661,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 5,
+      "timestamp": "2025-12-30T07:35:21.659+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:3385f3b3c1817cb3187c7b7c16787d8858453799a45c63135b7d6918fa3d7757",
+      "event_hash": "sha256:6849e40372834760366016de41d484da4ca8a4a423ddca6dee8a185b343a6311"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED1B637C5D5551FC85",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED083110326E507798",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 4,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 6,
+      "timestamp": "2025-12-30T07:35:21.659+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:6849e40372834760366016de41d484da4ca8a4a423ddca6dee8a185b343a6311",
+      "event_hash": "sha256:17064b4b64be1cdc13d872307a1515f84300fa60a2fec3be2963ab88022ef069"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDBCD6CB01DEEC86EB",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED87DE0C236EAC4BBC",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 5,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 7,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:17064b4b64be1cdc13d872307a1515f84300fa60a2fec3be2963ab88022ef069",
+      "event_hash": "sha256:de0f06f1fee85b8775116f8eec3a16767ef54c363cb1c3d530bfca1b3712a210"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED513BE00702EC6322",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED90345DC3B5899B8A",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 6,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00045797787606716156,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 8,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:de0f06f1fee85b8775116f8eec3a16767ef54c363cb1c3d530bfca1b3712a210",
+      "event_hash": "sha256:180a576f93405344b421ac1b3be66f2d2b1980aa3adbd098958e224b22c7af76"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDF05FBB16CC78988B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED8795BF91334BA63F",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 7,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005410402081906796,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 9,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:180a576f93405344b421ac1b3be66f2d2b1980aa3adbd098958e224b22c7af76",
+      "event_hash": "sha256:35ec031bde8a10ed0f73d36d243551e9c9c6b32ff57ff4a48156094d7c9c935f"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED9C8E749B8ABA847E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDBC8695289A48817B",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 8,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005410402081906796,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 10,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:35ec031bde8a10ed0f73d36d243551e9c9c6b32ff57ff4a48156094d7c9c935f",
+      "event_hash": "sha256:ecb22847a4ab757b1a0d1ed69cf2a409d7bf8279c9382329fa104b0a01e0c41d"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDD9FA7BB04D3A3E36",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED46C86EE1133AEAEE",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 9,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00045803608372807503,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 11,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:ecb22847a4ab757b1a0d1ed69cf2a409d7bf8279c9382329fa104b0a01e0c41d",
+      "event_hash": "sha256:917c1e46c7c232513311310fc05bb9a2faa57acb6c8b6097c85c5505e066a3c6"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED6C67664BA4D774A4",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED4590752CE7EADE05",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 10,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 12,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:917c1e46c7c232513311310fc05bb9a2faa57acb6c8b6097c85c5505e066a3c6",
+      "event_hash": "sha256:e410e418204f87d8d803df8c32ad2ad2dc0e8cbb2dcdd69e2abd8a167fcf78d6"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED66762AF8BBF1A2F2",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDB77AE249DE495AD3",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 11,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 13,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:e410e418204f87d8d803df8c32ad2ad2dc0e8cbb2dcdd69e2abd8a167fcf78d6",
+      "event_hash": "sha256:dd81ee9059634b523d0629c7c3f824d4628276c549bdb58b961fda9c2170d1c2"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED36CE376A9F60834D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED226DDB1D3938BFD7",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 12,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00041601015254855156,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 14,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:dd81ee9059634b523d0629c7c3f824d4628276c549bdb58b961fda9c2170d1c2",
+      "event_hash": "sha256:263f2f53a6a63beb0cedba95f872311ae5c292efc987220b1b96687ecd95a5bd"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDAB10955737B8ACF2",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED1BC71899A8E8DF98",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 13,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 15,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:263f2f53a6a63beb0cedba95f872311ae5c292efc987220b1b96687ecd95a5bd",
+      "event_hash": "sha256:4377f74789f983c0f13038df118376d024ecfb05adfff8c741880dc447025b48"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED780B93F77C237D3B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED2B28D59DA037451B",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 14,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0004169996827840805,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 16,
+      "timestamp": "2025-12-30T07:35:21.660+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:4377f74789f983c0f13038df118376d024ecfb05adfff8c741880dc447025b48",
+      "event_hash": "sha256:8cf4424d83789da028de10d4ba98b25d08f6151d6f3621853dfefa3847c79512"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED21D300F0027FF5C0",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDC063F29C0A727FA1",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 15,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0006660120561718941,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 17,
+      "timestamp": "2025-12-30T07:35:21.661+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:8cf4424d83789da028de10d4ba98b25d08f6151d6f3621853dfefa3847c79512",
+      "event_hash": "sha256:4dd3b6df97088f9426af4c9c9e1a0f11cef4f7f61afefd6f1648af3b2531958f"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED54096209E622EB2B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED2A0E57A377C4693F",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 16,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0004169996827840805,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 18,
+      "timestamp": "2025-12-30T07:35:21.661+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:4dd3b6df97088f9426af4c9c9e1a0f11cef4f7f61afefd6f1648af3b2531958f",
+      "event_hash": "sha256:8e004df959ed1d3297b074e6f43b79813f6bd98e6cdaf990b28948a78fb6339b"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED2AFE854B8A6F697E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED7DD0BAE6ECF6F82D",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 17,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 19,
+      "timestamp": "2025-12-30T07:35:21.661+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:8e004df959ed1d3297b074e6f43b79813f6bd98e6cdaf990b28948a78fb6339b",
+      "event_hash": "sha256:11b46e10a9deb4e249260149a4a33c6c311471effed2a75a7d0ad6e2ee8962f0"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDFC0A0D429EE5F743",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED8CA999B8F598BF8E",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 18,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00045797787606716156,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 20,
+      "timestamp": "2025-12-30T07:35:21.662+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:11b46e10a9deb4e249260149a4a33c6c311471effed2a75a7d0ad6e2ee8962f0",
+      "event_hash": "sha256:02c68fed34f5ca662cc9a926cc1440b1ec34aaa0c22585c4f9ef983fe1b1e276"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED7C482F29B8F38AAB",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDD70996144E21E92D",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 19,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000459025613963604,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 21,
+      "timestamp": "2025-12-30T07:35:21.662+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:02c68fed34f5ca662cc9a926cc1440b1ec34aaa0c22585c4f9ef983fe1b1e276",
+      "event_hash": "sha256:9e789986bf8889d2964f456e58553ed18d368f63afb5065e7d5a403a42af26f7"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDB1179444586CB8DD",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED6D92B5BBCD07C6FE",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 20,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0004169996827840805,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 22,
+      "timestamp": "2025-12-30T07:35:21.662+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:9e789986bf8889d2964f456e58553ed18d368f63afb5065e7d5a403a42af26f7",
+      "event_hash": "sha256:f9e092aad151b21dcd07ae9d0031138b361171fc683cc4c2e25c17b08331de59"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED2034B7D0DB7BBF6C",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED601E3D47A10D9302",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 21,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 23,
+      "timestamp": "2025-12-30T07:35:21.662+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:f9e092aad151b21dcd07ae9d0031138b361171fc683cc4c2e25c17b08331de59",
+      "event_hash": "sha256:59b2c0e4ac0fae852fcd44489bdfe79b65c657f20b1073f2ceed20a1f85e28dd"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDC4A39A0572DF5772",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDB8ED8A8F148240CF",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 22,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00045797787606716156,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 24,
+      "timestamp": "2025-12-30T07:35:21.662+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:59b2c0e4ac0fae852fcd44489bdfe79b65c657f20b1073f2ceed20a1f85e28dd",
+      "event_hash": "sha256:4ef730f319fa17312f0f2c27b1d758f043c1f1a87c05c955f6d4769238eecd3a"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED7E9594175B9516CF",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDB2FE725975A3BB94",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 23,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0004169996827840805,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 25,
+      "timestamp": "2025-12-30T07:35:21.662+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:4ef730f319fa17312f0f2c27b1d758f043c1f1a87c05c955f6d4769238eecd3a",
+      "event_hash": "sha256:f4fbcec83400123be7f303e2addb02db49146abc5e8b4f4d1b5d241b6f3e2a0a"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED33FB81CE9CA3F4B0",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED9986C198185FCFC5",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 24,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00045797787606716156,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 26,
+      "timestamp": "2025-12-30T07:35:21.662+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:f4fbcec83400123be7f303e2addb02db49146abc5e8b4f4d1b5d241b6f3e2a0a",
+      "event_hash": "sha256:095d81a9ca34674d674fc1aab4aa588abdcf7f1b95c30ff9fcd9cbdb2a339114"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED9E0458FD4F390F82",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED30AB0C40CE2000B7",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 25,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000667001586407423,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 27,
+      "timestamp": "2025-12-30T07:35:21.662+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:095d81a9ca34674d674fc1aab4aa588abdcf7f1b95c30ff9fcd9cbdb2a339114",
+      "event_hash": "sha256:fe24b0371d3f63614f7fccadf1cb38c75c1180df0d4edb8199422581b4c6112b"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED28680AAF514157C5",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDA8186F84077198C0",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 26,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005830079317092896,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 28,
+      "timestamp": "2025-12-30T07:35:21.663+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:fe24b0371d3f63614f7fccadf1cb38c75c1180df0d4edb8199422581b4c6112b",
+      "event_hash": "sha256:1d8d5e866281cd1f287a39135e310d7a7f8b269b6d5ea902f538619cd764c26f"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDABEA98D3ED3FC40A",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED7F0E2EC996272F57",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 27,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005409820005297661,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 29,
+      "timestamp": "2025-12-30T07:35:21.663+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:1d8d5e866281cd1f287a39135e310d7a7f8b269b6d5ea902f538619cd764c26f",
+      "event_hash": "sha256:3754cb33605188e8caaa5d7d4b35782f39025e39e3c0a46e3a0d61ae54d4ed84"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED3FD20EFAF87D20D1",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDB6F08C81EA3EF0D6",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 28,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000667001586407423,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 30,
+      "timestamp": "2025-12-30T07:35:21.663+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:3754cb33605188e8caaa5d7d4b35782f39025e39e3c0a46e3a0d61ae54d4ed84",
+      "event_hash": "sha256:9fade11bc6b67006170af77256e93104dbf9db2f500e8a5727a502e1cf3ac73e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED383BAFBDBF17A42E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED40474DBB6F90394E",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 29,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000708969309926033,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 31,
+      "timestamp": "2025-12-30T07:35:21.664+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:9fade11bc6b67006170af77256e93104dbf9db2f500e8a5727a502e1cf3ac73e",
+      "event_hash": "sha256:d0265f65bd8a8afd8a1c5f8a2a2fc87b82a929ddeb6a83d67199d81dfe538d7b"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDF7A0D73B899DB44E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED3AF54746EF6A97D8",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 30,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0006660120561718941,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 32,
+      "timestamp": "2025-12-30T07:35:21.664+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:d0265f65bd8a8afd8a1c5f8a2a2fc87b82a929ddeb6a83d67199d81dfe538d7b",
+      "event_hash": "sha256:77d1b6cc57b9aaea7cbc13ca5dc46420407b139fba18743cdbb6189c368757ba"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED72003244F4E65B9D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED4160480722CB64B0",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 31,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0006659538485109806,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 33,
+      "timestamp": "2025-12-30T07:35:21.664+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:77d1b6cc57b9aaea7cbc13ca5dc46420407b139fba18743cdbb6189c368757ba",
+      "event_hash": "sha256:813cd7d1a92dca9eb131e201c692b2291221a453f83121cc919b9e34abea1226"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED6AED3B452EC02FBB",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED5A3418CA920EA5F8",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 32,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005409820005297661,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 34,
+      "timestamp": "2025-12-30T07:35:21.665+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:813cd7d1a92dca9eb131e201c692b2291221a453f83121cc919b9e34abea1226",
+      "event_hash": "sha256:1dbbfad12cfff2c34c97a5e33c83a0dcff3787b34dcccfd88221c5c0290c8871"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED9A8F02543C786A4F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDC9C9EBA56E1E9FFC",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 33,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000541971530765295,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 35,
+      "timestamp": "2025-12-30T07:35:21.665+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:1dbbfad12cfff2c34c97a5e33c83a0dcff3787b34dcccfd88221c5c0290c8871",
+      "event_hash": "sha256:7c45bd0d4b243cc405e4f733dfb5d9ed51dc1a923f3282ece25796df9f2bf079"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED99BB1052A3610836",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDC6A40482736A45D3",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 34,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005420297384262085,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 36,
+      "timestamp": "2025-12-30T07:35:21.665+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:7c45bd0d4b243cc405e4f733dfb5d9ed51dc1a923f3282ece25796df9f2bf079",
+      "event_hash": "sha256:faa2e410b26a6de586b04b1e43277e895ded01807e79f6d88446672be9a06da0"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED5BF498E49333CCDD",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDFC7CA372D3F39FF8",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 35,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000667001586407423,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 37,
+      "timestamp": "2025-12-30T07:35:21.666+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:faa2e410b26a6de586b04b1e43277e895ded01807e79f6d88446672be9a06da0",
+      "event_hash": "sha256:1c4886e15695b740cebb2c61bbd4ff6937b700b33db2f7a3050218d031673e2a"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDD0AA4FD9CFDE5255",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED5F47C4F2B2E04DB2",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 36,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0006660120561718941,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 38,
+      "timestamp": "2025-12-30T07:35:21.666+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:1c4886e15695b740cebb2c61bbd4ff6937b700b33db2f7a3050218d031673e2a",
+      "event_hash": "sha256:641c5f577f63cd39be658e2ed754a625b0eb8fa5c1f0b17dc7de4c9ea09999c3"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDCF0302366F4F5A5F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED9D086C434A117682",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 37,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005830079317092896,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 39,
+      "timestamp": "2025-12-30T07:35:21.666+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:641c5f577f63cd39be658e2ed754a625b0eb8fa5c1f0b17dc7de4c9ea09999c3",
+      "event_hash": "sha256:6d34a781563aca7cc50f1b3e62135f6e49a155eeb4d281ab94c7d6654e586343"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED6EA402DE1966BC2B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED71A3F62DD04FD4E0",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 38,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005410402081906796,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 40,
+      "timestamp": "2025-12-30T07:35:21.667+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:6d34a781563aca7cc50f1b3e62135f6e49a155eeb4d281ab94c7d6654e586343",
+      "event_hash": "sha256:87845cdef0fc012664220e86e927e9ff28b092e6bb923797e7ad120ecbfc3369"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED79DEEEC67FC4E3F5",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED0590572D59C3D09B",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 39,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005830079317092896,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 41,
+      "timestamp": "2025-12-30T07:35:21.667+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:87845cdef0fc012664220e86e927e9ff28b092e6bb923797e7ad120ecbfc3369",
+      "event_hash": "sha256:470f9bdcd4d779de42ed889c718a349e3ba0288c3747b4f02545299ee8dd9434"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED88945472CCA5B325",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED8FE2EE165B5CF3EC",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 40,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 42,
+      "timestamp": "2025-12-30T07:35:21.667+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:470f9bdcd4d779de42ed889c718a349e3ba0288c3747b4f02545299ee8dd9434",
+      "event_hash": "sha256:fe2eb3cf94170589d8268ed155831bc8e2febc162bfd61daebe33bc024628b04"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED78294B4B8667C299",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED0118050E3333AAE6",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 41,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000708969309926033,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 43,
+      "timestamp": "2025-12-30T07:35:21.679+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:fe2eb3cf94170589d8268ed155831bc8e2febc162bfd61daebe33bc024628b04",
+      "event_hash": "sha256:7bdc5801433da010d9228b210d09fd0e5aaa28f2040c4632b93799fd4ee99b12"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED228DC0865ED9F6B8",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED939700920ABC9389",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 42,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00037497375160455704,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 44,
+      "timestamp": "2025-12-30T07:35:21.679+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:7bdc5801433da010d9228b210d09fd0e5aaa28f2040c4632b93799fd4ee99b12",
+      "event_hash": "sha256:eec60b958db3708d821de3dda695aec4b6d002188e6b96e062ee394d9087a429"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED4824EE8367879444",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED5B3A3E65BA56C71B",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 43,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002500019036233425,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 45,
+      "timestamp": "2025-12-30T07:35:21.679+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:eec60b958db3708d821de3dda695aec4b6d002188e6b96e062ee394d9087a429",
+      "event_hash": "sha256:e2a24b11137cf96ea4856aac59d48f3a66e091fe10d8b25343f7e6967f922d91"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED1787D1D7C5ACA61A",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED38E463CAD645AF5E",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 44,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002500019036233425,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 46,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:e2a24b11137cf96ea4856aac59d48f3a66e091fe10d8b25343f7e6967f922d91",
+      "event_hash": "sha256:ee1a92fab42d9c9702fcbe593d0a73187c923e9b22dacd1c3fdf27862770a4a2"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED24EAD583F1E97311",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED63966A40F7AAC8F2",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 45,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 47,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:ee1a92fab42d9c9702fcbe593d0a73187c923e9b22dacd1c3fdf27862770a4a2",
+      "event_hash": "sha256:83d89b39655b06cfd3a47791659cdef41d46fccd4c5427ca5c8a8125eed1a401"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDEFA2E84B0E4269D9",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED04141C0C6BB71206",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 46,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 48,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:83d89b39655b06cfd3a47791659cdef41d46fccd4c5427ca5c8a8125eed1a401",
+      "event_hash": "sha256:d635f89290ca6ebc90140b41c05cabc164b7c3bc4e9d981fa01d91876df8a801"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED4B5AB2E238EFF14F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED7AAE006FB4CD21A6",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 47,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 49,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:d635f89290ca6ebc90140b41c05cabc164b7c3bc4e9d981fa01d91876df8a801",
+      "event_hash": "sha256:599eebb62c70cb2389166e8eda5e355d79560f0464fcc62afa206adfa346baf2"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED338A816FBBF7A605",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED21E09CB55E8F25E2",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 48,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 50,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:599eebb62c70cb2389166e8eda5e355d79560f0464fcc62afa206adfa346baf2",
+      "event_hash": "sha256:d35119ad90791b5a23dc7aaf837a6f5afdc26a1ec742a97caafe6e7233fde58f"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDF88AEA6BFBC1714B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDB349803C7C05FD14",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 49,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 51,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:d35119ad90791b5a23dc7aaf837a6f5afdc26a1ec742a97caafe6e7233fde58f",
+      "event_hash": "sha256:7cfc28b5999750d74930cf5e23529ef1715f5ce9f46200f73b88673d919af203"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED15EC7CB7BCDE648C",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED5B15A9E82917AC44",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 50,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 52,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:7cfc28b5999750d74930cf5e23529ef1715f5ce9f46200f73b88673d919af203",
+      "event_hash": "sha256:4d9861540d422687dff160ee9123f6018b02ea616c0a3c1a1d33ffaf3a1012a6"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED8CA7D862902568EF",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDF8056023E4318147",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 51,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 53,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:4d9861540d422687dff160ee9123f6018b02ea616c0a3c1a1d33ffaf3a1012a6",
+      "event_hash": "sha256:55ea16d0dcf60e19e8d90ba51dae3536d18c50a8ddc94a02f14d54c2af78b897"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED2A37AA5FCACEA004",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED38383A7177CAB9B9",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 52,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002080341801047325,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 54,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:55ea16d0dcf60e19e8d90ba51dae3536d18c50a8ddc94a02f14d54c2af78b897",
+      "event_hash": "sha256:5dc539d28a92b801c552d4608e0e1ba83032322f8ee1a1bbd3651ae8576615cd"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDC19D041DC3A0739A",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED8820DB1D474BE9A2",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 53,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002500019036233425,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 55,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:5dc539d28a92b801c552d4608e0e1ba83032322f8ee1a1bbd3651ae8576615cd",
+      "event_hash": "sha256:53962644c081d30207330addcb0fc1689acd2dcd8df7d46241f17f808af41fe0"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDE603861730C93098",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDDB0DA2F254DBB0BA",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 54,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016595004126429558,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 56,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:53962644c081d30207330addcb0fc1689acd2dcd8df7d46241f17f808af41fe0",
+      "event_hash": "sha256:88c9a2ad292f4a7fc436995504ffb9744a2994edef89c6d5f37ff096c0e0efbd"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED105CF65F716AC94B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDF1FD51B123AFC7E8",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 55,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 57,
+      "timestamp": "2025-12-30T07:35:21.680+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:88c9a2ad292f4a7fc436995504ffb9744a2994edef89c6d5f37ff096c0e0efbd",
+      "event_hash": "sha256:28a80539040d13f0cdb7d390ebe81440d8865535d9bfbb43d777058fffffca4d"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED2D11D8DD1DD397DD",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDC27C4D803E027D47",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 56,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 58,
+      "timestamp": "2025-12-30T07:35:21.681+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:28a80539040d13f0cdb7d390ebe81440d8865535d9bfbb43d777058fffffca4d",
+      "event_hash": "sha256:acb0d109657a8cc4d538688fbe873d39e7a39b56c784effa0bd392ac5454b5d7"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED4EBC0737E249041D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED80A1C9DD6C240679",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 57,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 59,
+      "timestamp": "2025-12-30T07:35:21.681+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:acb0d109657a8cc4d538688fbe873d39e7a39b56c784effa0bd392ac5454b5d7",
+      "event_hash": "sha256:6dd57f0db52851c80ebeb8acd1e1308b02e87412690ae22862a1a94d168ba879"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED5B008F37CF546C5A",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED5F590B3D01ECD5AD",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 58,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 60,
+      "timestamp": "2025-12-30T07:35:21.681+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:6dd57f0db52851c80ebeb8acd1e1308b02e87412690ae22862a1a94d168ba879",
+      "event_hash": "sha256:e0c023043aebcd1a58c091bdfab06357c51a225a7c81c3869febcf7de8644f6f"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED5B751F295808CF8F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDA02C3929B3722851",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 59,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 61,
+      "timestamp": "2025-12-30T07:35:21.681+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:e0c023043aebcd1a58c091bdfab06357c51a225a7c81c3869febcf7de8644f6f",
+      "event_hash": "sha256:60d1bcd4cc6594c5875073f176e3e3df7774e2d0a02fa86575bc510aefa7ae4e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED1A7DDA412530658E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDF6FADF1DBA667304",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 60,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00020797597244381905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 62,
+      "timestamp": "2025-12-30T07:35:21.681+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:60d1bcd4cc6594c5875073f176e3e3df7774e2d0a02fa86575bc510aefa7ae4e",
+      "event_hash": "sha256:84145109cf41dbb1890a1505d16b0d3f745b95c937a6c217f4788fcefa17d243"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED93EAA55FC322E878",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED8AE99C89E917747F",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 61,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 63,
+      "timestamp": "2025-12-30T07:35:21.681+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:84145109cf41dbb1890a1505d16b0d3f745b95c937a6c217f4788fcefa17d243",
+      "event_hash": "sha256:69b78303cf01d4f121d3e3bb4cd5a34039612a3a37e43ff6e09717a260f082eb"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED5FFACDA144A98F71",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDB34A887442F3DBCD",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 62,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 64,
+      "timestamp": "2025-12-30T07:35:21.681+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:69b78303cf01d4f121d3e3bb4cd5a34039612a3a37e43ff6e09717a260f082eb",
+      "event_hash": "sha256:db4426ac2feb14e9d2aad73493805333427dac5c0af837daa990f31c670a1c22"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDB1D28D8DDD32576B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED8B4A71049B137407",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 63,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00020797597244381905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 65,
+      "timestamp": "2025-12-30T07:35:21.681+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:db4426ac2feb14e9d2aad73493805333427dac5c0af837daa990f31c670a1c22",
+      "event_hash": "sha256:ddc4acd65833a971c0467a4729727d921277993245d546117c009cb8bbe920d1"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDBE1A79D57946C64B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED27A41DA0B9430FCF",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 64,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 66,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:ddc4acd65833a971c0467a4729727d921277993245d546117c009cb8bbe920d1",
+      "event_hash": "sha256:cd41a941a3bf7e062e121977dd6b8bb6177f15bcb46e4207a9829d74da81d81a"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED7C18D19D393D38F3",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED6D09AF069E9E89D1",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 65,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002080341801047325,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 67,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:cd41a941a3bf7e062e121977dd6b8bb6177f15bcb46e4207a9829d74da81d81a",
+      "event_hash": "sha256:9f78d40a3bd4340de848a8bf4d77fa04c76d28f6e584456127da8751b7f7d361"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDF09024964CB974E5",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDF8BA2E14CA2B5C3C",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 66,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 68,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:9f78d40a3bd4340de848a8bf4d77fa04c76d28f6e584456127da8751b7f7d361",
+      "event_hash": "sha256:58298b0d1e30819fd376f6f0a51cb6425e74b27dc5023103dc4b4181be7174a4"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED008B381B395EDDBC",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED04177B3CB166DF71",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 67,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 69,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:58298b0d1e30819fd376f6f0a51cb6425e74b27dc5023103dc4b4181be7174a4",
+      "event_hash": "sha256:db24a80fd28be45c7b04fa45232fdcad9e78714f3224408bb07f4493cb7e4e26"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED97D5ACCE75372094",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED3788393061AB5F93",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 68,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 70,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:db24a80fd28be45c7b04fa45232fdcad9e78714f3224408bb07f4493cb7e4e26",
+      "event_hash": "sha256:91a3afe397c19cf65ac2693640d11eed68a97fb3e7456240b53ffcb292f2e2e1"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED152BC07B4BAF6AB9",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED5BB811AF0E9CCDE3",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 69,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 71,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:91a3afe397c19cf65ac2693640d11eed68a97fb3e7456240b53ffcb292f2e2e1",
+      "event_hash": "sha256:4b0c96ae2e28a698c1f60d43bdc36bcd88875bfa2fb7a85169c46401be9cc8ef"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDE7B26C587788679F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED4C2556C1DEA70A01",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 70,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 72,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:4b0c96ae2e28a698c1f60d43bdc36bcd88875bfa2fb7a85169c46401be9cc8ef",
+      "event_hash": "sha256:1afc90f1eccf579f81240475e4e867255cc301604cbf079a77e87db347ce1067"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED696C411BBA79AD1A",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED22C50756ACB30A01",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 71,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 73,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:1afc90f1eccf579f81240475e4e867255cc301604cbf079a77e87db347ce1067",
+      "event_hash": "sha256:a235d2dded0dcb3e19b394b9c8c2f4f4223552c72cb9a297ed8a498fdd3ca1a5"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDEDF922C88872CA16",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED842B47D5AAD669BA",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 72,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 74,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:a235d2dded0dcb3e19b394b9c8c2f4f4223552c72cb9a297ed8a498fdd3ca1a5",
+      "event_hash": "sha256:2c52788b9edadcd0c051f475b5ba86ddbd0e35bee9e3497bd4dd28cadcd19002"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED1B6BE34B5E2252BD",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED1BD07810FC139598",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 73,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 75,
+      "timestamp": "2025-12-30T07:35:21.682+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:2c52788b9edadcd0c051f475b5ba86ddbd0e35bee9e3497bd4dd28cadcd19002",
+      "event_hash": "sha256:f6c609b6cde66d956729cf950313a99ddc17b11b7b9ff8f5ce0478edee218ba1"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDFD6F136F5283BC2B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDC4683822629A53B3",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 74,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 76,
+      "timestamp": "2025-12-30T07:35:21.683+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:f6c609b6cde66d956729cf950313a99ddc17b11b7b9ff8f5ce0478edee218ba1",
+      "event_hash": "sha256:51110de19c246da442509bed2d6c80f7a484c3605864025a3664eecdd550a961"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED6882D9B9B592C3A7",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED839CC64AF60A5141",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 75,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 77,
+      "timestamp": "2025-12-30T07:35:21.683+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:51110de19c246da442509bed2d6c80f7a484c3605864025a3664eecdd550a961",
+      "event_hash": "sha256:6c682d58978c59e66546fe7a986087d5c792d03d07a3d5f52d587f7297f24c4c"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDE7FDA226493E5AF3",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDF4AC747469335113",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 76,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00020797597244381905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 78,
+      "timestamp": "2025-12-30T07:35:21.683+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:6c682d58978c59e66546fe7a986087d5c792d03d07a3d5f52d587f7297f24c4c",
+      "event_hash": "sha256:4e1e2feefb157c08d8665a25f1dd605e84ed503884051692d624cf4a9ea3ee77"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDC49E2AA7E8F9F31A",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDF99147795CE46C6D",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 77,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 79,
+      "timestamp": "2025-12-30T07:35:21.683+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:4e1e2feefb157c08d8665a25f1dd605e84ed503884051692d624cf4a9ea3ee77",
+      "event_hash": "sha256:a2800950c45b7e1ecfcd807a01e4188ac05ee750a408c25e341142f92afde816"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDF29472A10A2930E3",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED9F4A0823B54F802C",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 78,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 80,
+      "timestamp": "2025-12-30T07:35:21.683+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:a2800950c45b7e1ecfcd807a01e4188ac05ee750a408c25e341142f92afde816",
+      "event_hash": "sha256:5e82231ef28aa1d278ca7dc263a9217c736bf84014fae2101c5d15c3721ac402"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED36A0C3ECF5657C88",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED51A4FA0357C62EA2",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 79,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 81,
+      "timestamp": "2025-12-30T07:35:21.683+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:5e82231ef28aa1d278ca7dc263a9217c736bf84014fae2101c5d15c3721ac402",
+      "event_hash": "sha256:2187e51f5898dfe28b6808482c7cac7c35f2775ec08bab2107798a44ad306a20"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED8A77D17C33010BB5",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDCD55445C0DE8B39F",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 80,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 82,
+      "timestamp": "2025-12-30T07:35:21.683+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:2187e51f5898dfe28b6808482c7cac7c35f2775ec08bab2107798a44ad306a20",
+      "event_hash": "sha256:ce00315ad041a01398159a70a4feb38f45fc050637aec6cca33bb41c52812df8"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED1AA2F5D92BDC60B2",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED9EDA90C5B56F5844",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 81,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016595004126429558,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 83,
+      "timestamp": "2025-12-30T07:35:21.683+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:ce00315ad041a01398159a70a4feb38f45fc050637aec6cca33bb41c52812df8",
+      "event_hash": "sha256:bbc53e8714b17eb97bc1e1e72eed06a0236331ba9b2cc36c33ca86eb18c535a4"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED3ADC816A59E7807E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDE4A8CFF648B6B0E3",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 82,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002080341801047325,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 84,
+      "timestamp": "2025-12-30T07:35:21.684+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:bbc53e8714b17eb97bc1e1e72eed06a0236331ba9b2cc36c33ca86eb18c535a4",
+      "event_hash": "sha256:9b6595e72c5670785e59886dac73c2a0324d6ff8d112c9b8822c479b7e189e4e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDF4987720903ECB6A",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDCE291F4ED34AB653",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 83,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 85,
+      "timestamp": "2025-12-30T07:35:21.684+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:9b6595e72c5670785e59886dac73c2a0324d6ff8d112c9b8822c479b7e189e4e",
+      "event_hash": "sha256:62a801f3572b962bcff9053f289905ad5712d07148b60106c40191da4f5ab3f0"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED258E6E0522E86C32",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED6E7263323D31AA2E",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 84,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 86,
+      "timestamp": "2025-12-30T07:35:21.684+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:62a801f3572b962bcff9053f289905ad5712d07148b60106c40191da4f5ab3f0",
+      "event_hash": "sha256:9f67ec9ebd65ad57225ef7e5a60cb76e694d3d84418fba2269af2499dc035a7c"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDFF5FA6F69D9E4F3C",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED021FCACC3B7AF792",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 85,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 87,
+      "timestamp": "2025-12-30T07:35:21.684+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:9f67ec9ebd65ad57225ef7e5a60cb76e694d3d84418fba2269af2499dc035a7c",
+      "event_hash": "sha256:a51ef88d614000955a5a883e3f5bca6b4e7fe311c3b36e979c4ac4f193107b24"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED92960D41CFCB450F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED7039EC2D207E08A1",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 86,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 88,
+      "timestamp": "2025-12-30T07:35:21.684+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:a51ef88d614000955a5a883e3f5bca6b4e7fe311c3b36e979c4ac4f193107b24",
+      "event_hash": "sha256:0576234455eb2a6a425c5aa1145bf4be91463ac44e37165277b36c511aee36f3"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED44DAA7C892D020DA",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED5B89C5D9315BA97D",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 87,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 89,
+      "timestamp": "2025-12-30T07:35:21.684+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:0576234455eb2a6a425c5aa1145bf4be91463ac44e37165277b36c511aee36f3",
+      "event_hash": "sha256:9625653cf965d148474ce33ef907a8ae91ce8b7b7b8d5e5b65479687e22d7ba6"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED3379795CBFA8110A",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED0CDF4E4122E0A492",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 88,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0009579816833138466,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 90,
+      "timestamp": "2025-12-30T07:35:21.697+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:9625653cf965d148474ce33ef907a8ae91ce8b7b7b8d5e5b65479687e22d7ba6",
+      "event_hash": "sha256:00175479641179605788934e7a0630b974d77922271e4d7780ecee840a8a8984"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDB22F43BCE9BDD157",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDDF0CCF4ECE558BA5",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 89,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0006660120561718941,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 91,
+      "timestamp": "2025-12-30T07:35:21.697+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:00175479641179605788934e7a0630b974d77922271e4d7780ecee840a8a8984",
+      "event_hash": "sha256:27d3ce6e00687a9aa7dd294ab7dc8030ea0adbdae6339ef618c8d4a768ae5991"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDA35FBFD7704C26B6",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED1B05FDBD8656A2FC",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 90,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0005409820005297661,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 92,
+      "timestamp": "2025-12-30T07:35:21.697+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:27d3ce6e00687a9aa7dd294ab7dc8030ea0adbdae6339ef618c8d4a768ae5991",
+      "event_hash": "sha256:f3a51c9fb9605afe3740146aa664c56d4947f94aa535e897bfce2a2df879da77"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDFE2ACD33E3B599FD",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED17F532BCE7EFDC4C",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 91,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 93,
+      "timestamp": "2025-12-30T07:35:21.698+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:f3a51c9fb9605afe3740146aa664c56d4947f94aa535e897bfce2a2df879da77",
+      "event_hash": "sha256:8a6d4f7bab2954c0f3994d5af2d4b6dbba8c85bcba8c9d9f66792695430f00df"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED6FBB0C11DB774C69",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDFAD66AC41FCAE1BB",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 92,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000459025613963604,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 94,
+      "timestamp": "2025-12-30T07:35:21.698+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:8a6d4f7bab2954c0f3994d5af2d4b6dbba8c85bcba8c9d9f66792695430f00df",
+      "event_hash": "sha256:b5896f5e60cde45440fb267863c88236cabc748856b72c17e45f92569a4fb8e1"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED646F8DE1C9D80438",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED29DC2F7AF486EA19",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 93,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000500003807246685,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 95,
+      "timestamp": "2025-12-30T07:35:21.698+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:b5896f5e60cde45440fb267863c88236cabc748856b72c17e45f92569a4fb8e1",
+      "event_hash": "sha256:77464f0a21f17b41877ab27b68eb845d797d18086c07838df183941ddecd356c"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDAC8ACC7604181C07",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED69E9EF019AF84BCA",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 94,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000459025613963604,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 96,
+      "timestamp": "2025-12-30T07:35:21.698+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:77464f0a21f17b41877ab27b68eb845d797d18086c07838df183941ddecd356c",
+      "event_hash": "sha256:f7b015b3da5817d9993f989d034b7a27820c4e6baf14ab2b0b7a18b6a1f718e4"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED5BFCA384547038F4",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED2AF99CFB2EE52D6A",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 95,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0004169996827840805,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 97,
+      "timestamp": "2025-12-30T07:35:21.698+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:f7b015b3da5817d9993f989d034b7a27820c4e6baf14ab2b0b7a18b6a1f718e4",
+      "event_hash": "sha256:d9935c687c1b48ffc22d1f1908b78e7fb570e33e4d2bae240d56b5d58c214993"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDF0DD4BBD0128960B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED67C4EE8B1482DA1E",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 96,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0004169996827840805,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 98,
+      "timestamp": "2025-12-30T07:35:21.698+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:d9935c687c1b48ffc22d1f1908b78e7fb570e33e4d2bae240d56b5d58c214993",
+      "event_hash": "sha256:4323cef882e2749845f73c4fb20a04262536c2f362c23f14cf838e40bca0fc91"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED3DC35AE3B46B4A58",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED3E35286CCAEB89BE",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 97,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0004169996827840805,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 99,
+      "timestamp": "2025-12-30T07:35:21.698+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:4323cef882e2749845f73c4fb20a04262536c2f362c23f14cf838e40bca0fc91",
+      "event_hash": "sha256:c39fb7c8cf6ae8c60ca7272382b048e8f5e2d45f340cd04639d09fd2a87b9446"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED4A6D20E13E3F803E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDCF2BB2BAF11EA5EA",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 98,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00045797787606716156,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 100,
+      "timestamp": "2025-12-30T07:35:21.698+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:c39fb7c8cf6ae8c60ca7272382b048e8f5e2d45f340cd04639d09fd2a87b9446",
+      "event_hash": "sha256:56632c8cf9c47daa39f977a84d37afa68883915ed02782aaf8435fc2fb958d43"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2EDB176FA5D197C35F2",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2EDDC06FF5E8A25611A",
+      "parent_span_id": "spn_0019B6E2ED95378073CBD71599",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 99,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000541971530765295,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 101,
+      "timestamp": "2025-12-30T07:35:21.699+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:56632c8cf9c47daa39f977a84d37afa68883915ed02782aaf8435fc2fb958d43",
+      "event_hash": "sha256:a94a5153ad2bc431c18c6b6f24ed3edf18997af6238df8206cd379d34cb04802"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6E2ED2B396839C909AA61",
+      "event_type": "span_end",
+      "trace_id": "trc_0019B6E2ED9144AC48388FB9E7",
+      "span_id": "spn_0019B6E2ED95378073CBD71599",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "overflow",
+        "metadata": {},
+        "duration_ms": 47.81974997604266
+      },
+      "event_sequence": 102,
+      "timestamp": "2025-12-30T07:35:21.707+00:00",
+      "service_name": "pytest",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 17094,
+      "prev_hash": "sha256:a94a5153ad2bc431c18c6b6f24ed3edf18997af6238df8206cd379d34cb04802",
+      "event_hash": "sha256:9a388595c3852253c5b86889022166cdce7dc0c8aa0cf215035c278a7878b852"
+    }
+  ],
+  "compliance_summary": {
+    "policy_violations": 0,
+    "data_handling_issues": 0,
+    "unknown_models": [],
+    "forbidden_models_blocked": 0,
+    "total_tokens": 0
+  },
+  "report_artifacts": [
+    {
+      "artifact_type": "compliance",
+      "format": "json",
+      "path": "monora_reports/trc_0019B6E2ED9144AC48388FB9E7/compliance.json",
+      "sha256": "sha256:fdd7f4ca1b5cc7cdd6bb400395caf97052a26a8760a5884a4b204ad4a748c883"
+    }
+  ]
+}

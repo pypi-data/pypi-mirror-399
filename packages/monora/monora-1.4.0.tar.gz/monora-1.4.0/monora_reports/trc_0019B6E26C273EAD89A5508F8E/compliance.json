@@ -1,0 +1,43 @@
+{
+  "total_events": 2,
+  "traces": 1,
+  "date_range": {
+    "start": "2025-12-30T07:26:34.901000+00:00",
+    "end": "2025-12-30T07:26:34.901000+00:00"
+  },
+  "by_event_type": {
+    "llm_call": 2
+  },
+  "by_model": {
+    "forbidden-model": 2
+  },
+  "by_purpose": {
+    "testing": 2
+  },
+  "by_classification": {
+    "internal": 2
+  },
+  "violations": [
+    {
+      "timestamp": "2025-12-30T07:26:34.901+00:00",
+      "model": "forbidden-model",
+      "policy": "model_denylist",
+      "message": "Model matches denylist pattern"
+    }
+  ],
+  "errors": [],
+  "token_usage": {
+    "total_prompt_tokens": 0,
+    "total_completion_tokens": 0,
+    "total_tokens": 0,
+    "by_model": {}
+  },
+  "model_compliance": {
+    "allowed_models_used": [],
+    "forbidden_models_blocked": [
+      "forbidden-model"
+    ],
+    "unknown_models_used": [],
+    "unused_allowlist_patterns": []
+  }
+}

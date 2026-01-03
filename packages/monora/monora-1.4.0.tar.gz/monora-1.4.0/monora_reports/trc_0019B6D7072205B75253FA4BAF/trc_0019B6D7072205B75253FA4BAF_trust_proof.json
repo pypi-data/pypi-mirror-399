@@ -1,0 +1,3990 @@
+{
+  "bundle_version": "2.0.0",
+  "bundle_type": "trust_proof",
+  "generated_at": "2025-12-30T04:07:26.012430+00:00",
+  "trace_info": {
+    "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+    "project_name": "unknown",
+    "environment": "development"
+  },
+  "chain_proof": {
+    "verification_status": "verified",
+    "verification_errors": [],
+    "first_hash": "sha256:76bce4c4d7c5015b934942797a1921ef0afa8571d241b32def8bb6cc77a72596",
+    "last_hash": "sha256:ce881aaf93fb40a787beae473559c678741944488a47ce6f2e1b7f9081991f5b",
+    "chain_length": 102,
+    "events_verified": 102,
+    "verified_at": "2025-12-30T04:07:26.011619+00:00",
+    "merkle_root": "sha256:d43a672167758d3772d385b269cadfd4fa748f9b4fcc318adbcaad90dbc74e47"
+  },
+  "events_digest": {
+    "total_events": 102,
+    "events_sha256": "sha256:66670a42f6beec77aa2989a147c53b1e21be66c986923d03154b53f578afb7fc",
+    "events_included": true,
+    "events_url": null
+  },
+  "events": [
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7074FCF3380D0F6E1CA",
+      "event_type": "span_start",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "overflow",
+        "metadata": {}
+      },
+      "event_sequence": 1,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": null,
+      "event_hash": "sha256:76bce4c4d7c5015b934942797a1921ef0afa8571d241b32def8bb6cc77a72596"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A64F62D1BD182561",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707F432470F4D177490",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 0,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0003750319592654705,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 2,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:76bce4c4d7c5015b934942797a1921ef0afa8571d241b32def8bb6cc77a72596",
+      "event_hash": "sha256:213a72b559a79142cec14a5d4d3d2b9e1da0540bc5be13661e5125a8cae0e2e1"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7073197E1A342ED780E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70726620214C3E5C484",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 1,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000292027834802866,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 3,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:213a72b559a79142cec14a5d4d3d2b9e1da0540bc5be13661e5125a8cae0e2e1",
+      "event_hash": "sha256:c584a972f7daf717d580366bb13b88d8c4f27be2114c3633c1d9acaf195f7811"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7078231563C6F966A69",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7074DDB547CEA1E07E3",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 2,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002500019036233425,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 4,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:c584a972f7daf717d580366bb13b88d8c4f27be2114c3633c1d9acaf195f7811",
+      "event_hash": "sha256:8fab8e4fb55edf26210a06f8764364cf42cacd3da34f48c9ae98af3b45077d33"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70700FE53A5D88742A4",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7079D1DCBA4D5AD6A5A",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 3,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002080341801047325,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 5,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:8fab8e4fb55edf26210a06f8764364cf42cacd3da34f48c9ae98af3b45077d33",
+      "event_hash": "sha256:6a419d65185cc6251280677911bc0d61907c677205a75142e8bb777e3dc07925"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707D9BF80100E7D7E67",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7071E9255DE61F1DBF0",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 4,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002080341801047325,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 6,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:6a419d65185cc6251280677911bc0d61907c677205a75142e8bb777e3dc07925",
+      "event_hash": "sha256:a485e0b47a28a63c3629505970706519ccb7bdf087e07c3fad881b50a2051e2d"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707711E2DC0C3481DF3",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70732F9A872A7516DC2",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 5,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00020797597244381905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 7,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:a485e0b47a28a63c3629505970706519ccb7bdf087e07c3fad881b50a2051e2d",
+      "event_hash": "sha256:3ddfb99e13ca253b5a323d22a77852ff7761ff0ff86ef0edcaddd812855537f3"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707397908BB6CC4FD54",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70765461A0F4AAC33EA",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 6,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 8,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:3ddfb99e13ca253b5a323d22a77852ff7761ff0ff86ef0edcaddd812855537f3",
+      "event_hash": "sha256:e15ac1f355a307740cec1e9cbe1b0fe0de7cab6bbc975770e17e24e0999b0c34"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707C48D705C47B540E9",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7071C81468A107B4759",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 7,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000208965502679348,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 9,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:e15ac1f355a307740cec1e9cbe1b0fe0de7cab6bbc975770e17e24e0999b0c34",
+      "event_hash": "sha256:dd8166a8630090f52cd5332458492f6dd4f539c9c84e8a6d2ec795a48025fc79"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7075C433E5B8D1F9ADB",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7076BCC53C1DC0A58A6",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 8,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002080341801047325,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 10,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:dd8166a8630090f52cd5332458492f6dd4f539c9c84e8a6d2ec795a48025fc79",
+      "event_hash": "sha256:0f028dec9d58237418b212ee86f11b426a64acc72530f5a68478bf743e2163d6"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707B9F9E843DDDCF201",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707398E2E321377090F",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 9,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00020797597244381905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 11,
+      "timestamp": "2025-12-30T04:07:26.005+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:0f028dec9d58237418b212ee86f11b426a64acc72530f5a68478bf743e2163d6",
+      "event_hash": "sha256:90feb62779cb3c658132b60b425d960903b784272964537ec37852b5808df557"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707AADC99E0F949BA3E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707744E4C7064A43F4C",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 10,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00037497375160455704,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 12,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:90feb62779cb3c658132b60b425d960903b784272964537ec37852b5808df557",
+      "event_hash": "sha256:5d5794512e7be92b1bf796d40ec4f90756322bd0a70e01a0b4fad825900766bc"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7073A6EAF38DF3CB970",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70717CF565ECA8E69C6",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 11,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000208965502679348,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 13,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:5d5794512e7be92b1bf796d40ec4f90756322bd0a70e01a0b4fad825900766bc",
+      "event_hash": "sha256:b0a13631faead64642e026b441c25e5ed0d7800a9636a56808bfe86fb7f43150"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70730CC0ACCE165F484",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70703A63408A0014CE2",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 12,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00037497375160455704,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 14,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:b0a13631faead64642e026b441c25e5ed0d7800a9636a56808bfe86fb7f43150",
+      "event_hash": "sha256:41f857b03af9cea56a024ead2f15a81f6dc3f16356f7ef2b0f6cfe642a5faa01"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707F179975BC25B8FAE",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7070D830071E434BFF5",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 13,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00033300602808594704,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 15,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:41f857b03af9cea56a024ead2f15a81f6dc3f16356f7ef2b0f6cfe642a5faa01",
+      "event_hash": "sha256:b4c0d2d6db29eaf4af73ea6af812568601ac1d0651bb705bff86a5e3080ea937"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A4952414BB76DADC",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707755251B311DA055D",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 14,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002500019036233425,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 16,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:b4c0d2d6db29eaf4af73ea6af812568601ac1d0651bb705bff86a5e3080ea937",
+      "event_hash": "sha256:86b95e7ced941f828aeedbccb2a92edfe49e9a5dede06b12d5dd717d5cde4e9a"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707FA8A391AC895CDC7",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7077666ABD8840F645E",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 15,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000208965502679348,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 17,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:86b95e7ced941f828aeedbccb2a92edfe49e9a5dede06b12d5dd717d5cde4e9a",
+      "event_hash": "sha256:9ee62931b04c1be3868e964f3da89a8b94c2d9542763f529a92387d470af1c25"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7075B6D91F12E51E0B2",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707A4BD3CB673D7DF21",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 16,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 18,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:9ee62931b04c1be3868e964f3da89a8b94c2d9542763f529a92387d470af1c25",
+      "event_hash": "sha256:ab6fde97f309c3bf0b52e32c71f7830a45b1c5bbb502aaea3f470ec9d5db785f"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70738202E110F99641E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7071CE0DC1F6EE6B9F6",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 17,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 19,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:ab6fde97f309c3bf0b52e32c71f7830a45b1c5bbb502aaea3f470ec9d5db785f",
+      "event_hash": "sha256:4c0d729a9c2fdb04a41d8733c94d3e5183f83f1b23fc0287dc16bc644356867b"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7078943C56BBECE8F8B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707FC4FB19CBEABCE43",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 18,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 20,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:4c0d729a9c2fdb04a41d8733c94d3e5183f83f1b23fc0287dc16bc644356867b",
+      "event_hash": "sha256:1f40dba2cb0c29b1063a5f6a3a36f15024ae0fb289956102401edb9a3b5379e4"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707B348B7BA43D72857",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707A12E00BC5B25D78E",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 19,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 21,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:1f40dba2cb0c29b1063a5f6a3a36f15024ae0fb289956102401edb9a3b5379e4",
+      "event_hash": "sha256:90ec7150847777013f804eeacbaf9e316129deed71b781fc898ebc2700e04baf"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707ADC16185D9EDBAA1",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707BD4F9A65C8502F18",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 20,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 22,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:90ec7150847777013f804eeacbaf9e316129deed71b781fc898ebc2700e04baf",
+      "event_hash": "sha256:e1a92eb5d64f52179cc0c23b86cafe24f770badbb440d916c39f0b48318668ce"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A8ABFB9A9A744DF1",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707BC178F7F9E5FE6EE",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 21,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00020797597244381905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 23,
+      "timestamp": "2025-12-30T04:07:26.006+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:e1a92eb5d64f52179cc0c23b86cafe24f770badbb440d916c39f0b48318668ce",
+      "event_hash": "sha256:b0ea375709b5f37f2302e2ffd5d3d64e2bf8e09c075a78805ea1860f709d928c"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A968A36BD1C3E9D3",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707887928230633B432",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 22,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00020797597244381905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 24,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:b0ea375709b5f37f2302e2ffd5d3d64e2bf8e09c075a78805ea1860f709d928c",
+      "event_hash": "sha256:de9931502a259fb13d833d913926f9fb6824323eded0d64d9491cf9ed2f72ead"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707E34E66F9F2F15AA1",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707A8671A5F3FFA0D4D",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 23,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00020797597244381905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 25,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:de9931502a259fb13d833d913926f9fb6824323eded0d64d9491cf9ed2f72ead",
+      "event_hash": "sha256:2675b9e85fe6a3a542c4219623dfcbc921c2af196c83461bb194957102d0efec"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707C82ECF70E2759D9E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707E8DA0E657A4D8274",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 24,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 26,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:2675b9e85fe6a3a542c4219623dfcbc921c2af196c83461bb194957102d0efec",
+      "event_hash": "sha256:b0ec406d640b93dfe3313a7371e119d44b3baea853bfe32bfade90ea49f09ede"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707ECC04D44D3F802BF",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707564B388F510C5FBC",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 25,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 27,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:b0ec406d640b93dfe3313a7371e119d44b3baea853bfe32bfade90ea49f09ede",
+      "event_hash": "sha256:2dad40ba300b09eeb605f077ac8dd072e95e4066bed7110bfb40e8499365d0f5"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707DF65976BA55F36E3",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707DF937FDAEE979FC9",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 26,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 28,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:2dad40ba300b09eeb605f077ac8dd072e95e4066bed7110bfb40e8499365d0f5",
+      "event_hash": "sha256:d98d708b3793ad82e5407bc411575f892337a9335b995f4270d6da50d5e88946"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707EAEE98DAA2DE7BBF",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70717E0DB969C1448CD",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 27,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 29,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:d98d708b3793ad82e5407bc411575f892337a9335b995f4270d6da50d5e88946",
+      "event_hash": "sha256:3b5301ff47ae19ea82f1254512317fee548ed889a653e8d1aab3b97e76e1035f"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7071B963C7460F7E462",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707DA2D190BC114844F",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 28,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 30,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:3b5301ff47ae19ea82f1254512317fee548ed889a653e8d1aab3b97e76e1035f",
+      "event_hash": "sha256:337d9fb47dcb9442f9b5f49c69588a5e17144c4fb380a584bc395a9e199ef851"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707E41AD88BE6B313C7",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707FD4426C8956E1A8F",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 29,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 8.300412446260452e-05,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 31,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:337d9fb47dcb9442f9b5f49c69588a5e17144c4fb380a584bc395a9e199ef851",
+      "event_hash": "sha256:11ad5ce8899ff53070d123bae3695cd7794bc69e34eefed67f7e8dd78b26bc5e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707FD790D1157E2924F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70745211B6A28D6EB05",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 30,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 32,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:11ad5ce8899ff53070d123bae3695cd7794bc69e34eefed67f7e8dd78b26bc5e",
+      "event_hash": "sha256:10d40d16528169d860b74e1edb643986f19a4d4e5a4bd9d23858779e2472ad88"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707C9A0D523D038F591",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707353C8A42E0F1545F",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 31,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 33,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:10d40d16528169d860b74e1edb643986f19a4d4e5a4bd9d23858779e2472ad88",
+      "event_hash": "sha256:a340c0ea1000791be11333b3c4bfd0914490cae5418fae832b775ea4dc1dca62"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70725643681A1C21BBA",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707DE645BF351CFC705",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 32,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 34,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:a340c0ea1000791be11333b3c4bfd0914490cae5418fae832b775ea4dc1dca62",
+      "event_hash": "sha256:e504165166d9b8430d62b2e0db8a01f0b2f1772e559958b64a0392f8c960419a"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707C3887B2C6AD768E9",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7077BAA1A9C76EE6BB3",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 33,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 35,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:e504165166d9b8430d62b2e0db8a01f0b2f1772e559958b64a0392f8c960419a",
+      "event_hash": "sha256:297f82d76c8b85afbb8b1ec030193541d211c8f368146d148ea7206b2c5c5749"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707085F5AB90EE1E920",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7078D8B701AB456B305",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 34,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 36,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:297f82d76c8b85afbb8b1ec030193541d211c8f368146d148ea7206b2c5c5749",
+      "event_hash": "sha256:c3f0471555778c4e1d522f3e66e60c7263aadf26c4c581f6e335c65361e39eae"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707FD20F474A0D130BA",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70761E22957ADDAA65A",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 35,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 37,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:c3f0471555778c4e1d522f3e66e60c7263aadf26c4c581f6e335c65361e39eae",
+      "event_hash": "sha256:86153e289885520cce4d0e7f61834820d804e7f09e7aad1c79f8a505fa414a5d"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7070748ABB5ABE4C27D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707E330D12A1133ACA8",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 36,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 38,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:86153e289885520cce4d0e7f61834820d804e7f09e7aad1c79f8a505fa414a5d",
+      "event_hash": "sha256:8a1847bca55e96d76fcf5df269b946d5e460d1678659a0ba1b095a962bc86354"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7075557E68204F19F9C",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7078697D93439B2874A",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 37,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 39,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:8a1847bca55e96d76fcf5df269b946d5e460d1678659a0ba1b095a962bc86354",
+      "event_hash": "sha256:356e943dd554f8519f224e3339cb24a1d188ddb65800a1c28518d0234fdaf389"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707E58BA1675B6B351E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707338180258DA77F9D",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 38,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002080341801047325,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 40,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:356e943dd554f8519f224e3339cb24a1d188ddb65800a1c28518d0234fdaf389",
+      "event_hash": "sha256:e15513895df6582492aaddc3e8a5791f4eb5fbb54404dc1074297451e579c212"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707615AACF2541D692D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7077583111E49C6F189",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 39,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 41,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:e15513895df6582492aaddc3e8a5791f4eb5fbb54404dc1074297451e579c212",
+      "event_hash": "sha256:f4114a8a1f2fd4364e78c53baf76ecacaa79eac7d500f75857e5fb1d30a8106d"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7076EE0D547D36711D1",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707F35CE6BAD5E58111",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 40,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00020797597244381905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 42,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:f4114a8a1f2fd4364e78c53baf76ecacaa79eac7d500f75857e5fb1d30a8106d",
+      "event_hash": "sha256:0e4c8a5525677bdd3bd1253cffa66a885532dc54c65b01aef11c6e660a49eb07"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707708981ECB8E562B8",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70777C01F8CEFE2ECF8",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 41,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 43,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:0e4c8a5525677bdd3bd1253cffa66a885532dc54c65b01aef11c6e660a49eb07",
+      "event_hash": "sha256:e6f5f21e0b7953f575597fdd3f1ce05f0eee127056e22925c8bb6ddfcecebf12"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7075B84ECE51AD7EEE4",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7073408E73737E5C1E8",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 42,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002080341801047325,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 44,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:e6f5f21e0b7953f575597fdd3f1ce05f0eee127056e22925c8bb6ddfcecebf12",
+      "event_hash": "sha256:815b4e59a1204bcb3fb9d9c9ecb60f1dd97f85e07e4cedbbe8e01e0fbc5401ee"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707D4A1E21B26A88BED",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707F841B348494B1E01",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 43,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 45,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:815b4e59a1204bcb3fb9d9c9ecb60f1dd97f85e07e4cedbbe8e01e0fbc5401ee",
+      "event_hash": "sha256:e827fa429dc62d5928cfc23ced381f783e6756ffda4c2044ea8c722904f57031"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707C381F52BB4754EDF",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707694DA2A37CE5A8C4",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 44,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 46,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:e827fa429dc62d5928cfc23ced381f783e6756ffda4c2044ea8c722904f57031",
+      "event_hash": "sha256:7a1b9d94cbc7342f0ecd3555f3bd9c3b2efd44baf9713723ff1c0e852d266ccd"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7072D4D2290BCFD4140",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7076E24ECA49B92C084",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 45,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 47,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:7a1b9d94cbc7342f0ecd3555f3bd9c3b2efd44baf9713723ff1c0e852d266ccd",
+      "event_hash": "sha256:ded4c3935e20daf0fdb6e9267747a0869e21c4a1bbaa0b749487fd6106958d49"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707DC3B8F3BA631799B",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70721BF6E753E2B6305",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 46,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 48,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:ded4c3935e20daf0fdb6e9267747a0869e21c4a1bbaa0b749487fd6106958d49",
+      "event_hash": "sha256:432d5fd704a2ddcf1e1cb803c8665addf0ad112e441cb1251a5c327ffadf8b2b"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7079632C51FBE0305EA",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707605CE178B4F6183E",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 47,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 49,
+      "timestamp": "2025-12-30T04:07:26.007+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:432d5fd704a2ddcf1e1cb803c8665addf0ad112e441cb1251a5c327ffadf8b2b",
+      "event_hash": "sha256:edc0f0e33ab20457a01b07061c043ecbf7a8388e1c9ce5886d945906d5a4dfa9"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7070A71E910D22DD5D5",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7074C986DF879D0A1DF",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 48,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 50,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:edc0f0e33ab20457a01b07061c043ecbf7a8388e1c9ce5886d945906d5a4dfa9",
+      "event_hash": "sha256:95014d39c34eb3810b7324928cc5e52eaef2b84066166d1924c9d746dbac0859"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707CE896913840285E1",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707A54F9319449AF89D",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 49,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 51,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:95014d39c34eb3810b7324928cc5e52eaef2b84066166d1924c9d746dbac0859",
+      "event_hash": "sha256:86303c82bdc6585ad917ec53a47b9a52b4eb4476cbd793881f19efe1189b9784"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7071F169502D0277678",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7074C80E49060D0E0BF",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 50,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 52,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:86303c82bdc6585ad917ec53a47b9a52b4eb4476cbd793881f19efe1189b9784",
+      "event_hash": "sha256:4d9182c695d1a9088f219584b053ae84d121c285680f60f1c2d0f7b2c3d819db"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A0977DC55505EFEF",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707BC4FF0A73C88D936",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 51,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 53,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:4d9182c695d1a9088f219584b053ae84d121c285680f60f1c2d0f7b2c3d819db",
+      "event_hash": "sha256:01bae0cf0e850b4443a2388b84d0211e079e8b4e07e60763175d8d012a91a34f"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707B10FCB1E8B2D098F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707338BA59907727856",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 52,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 8.300412446260452e-05,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 54,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:01bae0cf0e850b4443a2388b84d0211e079e8b4e07e60763175d8d012a91a34f",
+      "event_hash": "sha256:0a9d9957f1229f3ef2c31750a68d43a6f3c7afaebbe7e3743a7d5071ff4a4716"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70704E4A113C028AC5F",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707DE780E6D4F70DC90",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 53,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 55,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:0a9d9957f1229f3ef2c31750a68d43a6f3c7afaebbe7e3743a7d5071ff4a4716",
+      "event_hash": "sha256:740cdc9184d0dda741c3c5aebbdd4356975c120551ae41d35deee7c5a5dd2187"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707D34E1A56FCA7379E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70708B23DB3BE85EE1E",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 54,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 56,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:740cdc9184d0dda741c3c5aebbdd4356975c120551ae41d35deee7c5a5dd2187",
+      "event_hash": "sha256:6d521f2a091a03c60cc1de9fb31156d36849d4b9b8c292f587d8a9c2622f89c1"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707D989B71ED530152D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707466445C9557754CC",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 55,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 57,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:6d521f2a091a03c60cc1de9fb31156d36849d4b9b8c292f587d8a9c2622f89c1",
+      "event_hash": "sha256:02a5835ab2d9b917a50d2c795a0eebdee972f0462dd1c5d12694b94a87b22476"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707B59B7214B946F6E4",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707208EF480E8110E7E",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 56,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 58,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:02a5835ab2d9b917a50d2c795a0eebdee972f0462dd1c5d12694b94a87b22476",
+      "event_hash": "sha256:24ae58ba1d2dbfb2c5a4cdfad129851fcfacf7708ddff18b8a42c3e57abdc319"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707D6E33621B023CAB3",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707FF71A97EE38D6A12",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 57,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016595004126429558,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 59,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:24ae58ba1d2dbfb2c5a4cdfad129851fcfacf7708ddff18b8a42c3e57abdc319",
+      "event_hash": "sha256:d8486eba3e3987217299b83fb24ae044282918e9a9ef1973a08cbf3fb0e4f3df"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707AECBB06BBC7607E0",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707137408DEEC1701C6",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 58,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 8.300412446260452e-05,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 60,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:d8486eba3e3987217299b83fb24ae044282918e9a9ef1973a08cbf3fb0e4f3df",
+      "event_hash": "sha256:859ecc0457bcd65206bc4b5a665bc92c94861820af0091bbbf966bb69c643a7c"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70729413149F96D73E5",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7072A8D092AFD9C0488",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 59,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 61,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:859ecc0457bcd65206bc4b5a665bc92c94861820af0091bbbf966bb69c643a7c",
+      "event_hash": "sha256:e869f1956c7ed7b203b18f8419818f17ab29c66146b8ee386ba00b5f0902f3ea"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707C4E6DD9531BC3E44",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70715BC669E843C9663",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 60,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 62,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:e869f1956c7ed7b203b18f8419818f17ab29c66146b8ee386ba00b5f0902f3ea",
+      "event_hash": "sha256:a6ef0e1281f4e68d796ea918573fafe86e98a451f8984d4f485ad99dcf35d416"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707DB244C095A3609F7",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70721587644F4ABC9FD",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 61,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 63,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:a6ef0e1281f4e68d796ea918573fafe86e98a451f8984d4f485ad99dcf35d416",
+      "event_hash": "sha256:6bb1c179896d55d30253dfcb1475c70c0b055c518786d7fcecb0b3fb5b5d2f82"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707094674BFE95B22A3",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707D284FFD9AAA9C31A",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 62,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 64,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:6bb1c179896d55d30253dfcb1475c70c0b055c518786d7fcecb0b3fb5b5d2f82",
+      "event_hash": "sha256:d2f5f5fceafc842389edc1872c5fdbe177280ffd0e00013f69d1717f2e1f453e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A16FDE44D23A7F7C",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707BABAB4581E78B04A",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 63,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 65,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:d2f5f5fceafc842389edc1872c5fdbe177280ffd0e00013f69d1717f2e1f453e",
+      "event_hash": "sha256:7a259e20c2b0c3b03e874226e09f194ed7106db36005447f5f7d2ccb36ea1ad6"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707C3B0C145F4B613D4",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707F0C4ECE23EF1167A",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 64,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 66,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:7a259e20c2b0c3b03e874226e09f194ed7106db36005447f5f7d2ccb36ea1ad6",
+      "event_hash": "sha256:ed4cc99cbcd78b04229492f5f7326d1f43b05ad56a9643f11b8af4b008b75080"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7077B053BF780B5187D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707EAEB56C8F7E77A8F",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 65,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 67,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:ed4cc99cbcd78b04229492f5f7326d1f43b05ad56a9643f11b8af4b008b75080",
+      "event_hash": "sha256:a7f3e3a33317fa41a31df9222df20bd6eb795f1a687959bfad4a78a68ee9e9f4"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707ED409305D158129A",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7072FD3CF79C773EC85",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 66,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 68,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:a7f3e3a33317fa41a31df9222df20bd6eb795f1a687959bfad4a78a68ee9e9f4",
+      "event_hash": "sha256:1ab43a507fa45d6d717f913d8cc94f9027259c477c59aa426700c1940626f89a"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A295D26851746486",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7078F890CA8A831862A",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 67,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 69,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:1ab43a507fa45d6d717f913d8cc94f9027259c477c59aa426700c1940626f89a",
+      "event_hash": "sha256:d408488fb65188f65f5ffa3d7e72659b9a71960fdfa0ad1eb99279a9a5b4b383"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70779546CBF00FF0C46",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707CBCB0BE1E3920B4F",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 68,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 70,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:d408488fb65188f65f5ffa3d7e72659b9a71960fdfa0ad1eb99279a9a5b4b383",
+      "event_hash": "sha256:94b10a90ba20c655a4c666aac778bb00b5e6ea781544fee1828a6876ec7a79cb"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7074F195D714E0593EB",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7072F8222C7A8EE02CA",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 69,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 71,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:94b10a90ba20c655a4c666aac778bb00b5e6ea781544fee1828a6876ec7a79cb",
+      "event_hash": "sha256:70df631b347f18437d7688af054193c7774e294d8fee9f2f3764531314440615"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70786570B0C94A8E20D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707F1B2DA2F3CA79E73",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 70,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 72,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:70df631b347f18437d7688af054193c7774e294d8fee9f2f3764531314440615",
+      "event_hash": "sha256:8b233425e84a0be416f5d1963eb1e8a567665c7bfb9491edf1918954e984ca73"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7072F3404D96B896782",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707D911B9FAFB0BD1ED",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 71,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 73,
+      "timestamp": "2025-12-30T04:07:26.008+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:8b233425e84a0be416f5d1963eb1e8a567665c7bfb9491edf1918954e984ca73",
+      "event_hash": "sha256:d59ee79524054e425c0bc7660b5733ba230bdb84389c446162e155a1e5286267"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707781B3EC2585087AB",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70743346551BB6C06D6",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 72,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 74,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:d59ee79524054e425c0bc7660b5733ba230bdb84389c446162e155a1e5286267",
+      "event_hash": "sha256:b336e23fe3d6b29e333e12a178c15746929ba5f2a2af8379de53d5c0954e624e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707CC180937E83E2591",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7075EBD645172F2E60C",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 73,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 75,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:b336e23fe3d6b29e333e12a178c15746929ba5f2a2af8379de53d5c0954e624e",
+      "event_hash": "sha256:60739a45be9ee37b8b42743a67890f8b72e317acab9e6c7452b4d78b4e64be2e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A129BC228F6CF572",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7076D84051367152927",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 74,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 76,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:60739a45be9ee37b8b42743a67890f8b72e317acab9e6c7452b4d78b4e64be2e",
+      "event_hash": "sha256:e0292ea5ba989cee038e8b29bd212aec4d4d8ec9a3894b8b8ddbfba83396d649"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7070A01D15E61953638",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7072FD95F157F2F8179",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 75,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016595004126429558,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 77,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:e0292ea5ba989cee038e8b29bd212aec4d4d8ec9a3894b8b8ddbfba83396d649",
+      "event_hash": "sha256:9691f8adb9a0939672555bf8a37dc57123a1be9d7e9ce7e35fb43f1d87662b4e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70789FE5553C64856AB",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70778047B950F393CF9",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 76,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 78,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:9691f8adb9a0939672555bf8a37dc57123a1be9d7e9ce7e35fb43f1d87662b4e",
+      "event_hash": "sha256:9378ba4c21ff294ffe56039958be29e488471cc74cb9c532500efc506e140de8"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7070EE400C6200FE525",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707E8CC23ABF363C0FC",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 77,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 79,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:9378ba4c21ff294ffe56039958be29e488471cc74cb9c532500efc506e140de8",
+      "event_hash": "sha256:5659e8e4a0af4357a4017a518ba4a7dc5c82eff7a26117ec542b52c201a57e77"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A9D02FA2031FC7DE",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707019F154C113BAB4D",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 78,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 80,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:5659e8e4a0af4357a4017a518ba4a7dc5c82eff7a26117ec542b52c201a57e77",
+      "event_hash": "sha256:12be0e052965d241e133ea1cf96c90b2bc19741658c566b48542310badcc350e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7076CE9C8788F9BDF53",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707C86214183115E72B",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 79,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 81,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:12be0e052965d241e133ea1cf96c90b2bc19741658c566b48542310badcc350e",
+      "event_hash": "sha256:a09d1f2e35ce5a7fa6a599af72bebdc09556a7e45458efbe883d72971b83a338"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A790FEBE02579AD6",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707586E32CCBECD404F",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 80,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 8.399365469813347e-05,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 82,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:a09d1f2e35ce5a7fa6a599af72bebdc09556a7e45458efbe883d72971b83a338",
+      "event_hash": "sha256:54ee2a33107c4c0418909b6ab4338cd3d73066bf630c8f0dfb7ac4be46440e02"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707BE65753CD19E20C2",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707B6AD8C1090A9E641",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 81,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 8.399365469813347e-05,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 83,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:54ee2a33107c4c0418909b6ab4338cd3d73066bf630c8f0dfb7ac4be46440e02",
+      "event_hash": "sha256:2e6fb3a31c7562dca140ee5de1ec115ee0e1736fd73359008d61c36b39c72a5d"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70740DFACA6FEB500F9",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7073DF6C41B72E33271",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 82,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 84,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:2e6fb3a31c7562dca140ee5de1ec115ee0e1736fd73359008d61c36b39c72a5d",
+      "event_hash": "sha256:0ac85b250757d3f4edf531a04065e7532a23fc2177a004814b236dfbcab9b37b"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707E6B9373B2799B9B0",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7073E0A0D5D016FD21F",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 83,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 85,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:0ac85b250757d3f4edf531a04065e7532a23fc2177a004814b236dfbcab9b37b",
+      "event_hash": "sha256:8b19bca7f6d9fb6587a5b17c3c58eb0cba2f6354fd76d3e89a06c9076e635ffc"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707CB7F6A5DF288B33E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707A6A19AFAD193EDEA",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 84,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 86,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:8b19bca7f6d9fb6587a5b17c3c58eb0cba2f6354fd76d3e89a06c9076e635ffc",
+      "event_hash": "sha256:e7a7a0dbd83431c6e569e8f60982c0a6ca3f629a17fe0ead44d227a72f7b22d4"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70708705B6DEF3461BE",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70744B898B31CEC4465",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 85,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 87,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:e7a7a0dbd83431c6e569e8f60982c0a6ca3f629a17fe0ead44d227a72f7b22d4",
+      "event_hash": "sha256:66eff0943ecdef972d6211075a11e81dff4dcb2ff3f25c2aa3b1074e909809a3"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70733579D29BB4F2C80",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707146B6B8456C7FF1C",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 86,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00029103830456733704,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 88,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:66eff0943ecdef972d6211075a11e81dff4dcb2ff3f25c2aa3b1074e909809a3",
+      "event_hash": "sha256:222a2fc191ee744d2ce5b79c14c1e8f6a84fb5384d3c0cbb5dd2a6e57dcfed54"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707F3BB024D7464223C",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7077D260A7C7A720068",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 87,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 89,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:222a2fc191ee744d2ce5b79c14c1e8f6a84fb5384d3c0cbb5dd2a6e57dcfed54",
+      "event_hash": "sha256:d9a9a0765637500403e5ab2797dc2b5346fdffa56f87d4d61f8fa27e605a5409"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707C50CCFF79320365C",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70747596316C6C13271",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 88,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 90,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:d9a9a0765637500403e5ab2797dc2b5346fdffa56f87d4d61f8fa27e605a5409",
+      "event_hash": "sha256:3e1462cc0ee202026e4b6dab98934855d90cfb29c43eddd5ebb2a91c0ece1e21"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7078EB860EA1297BE18",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70723347EBD16943773",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 89,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 91,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:3e1462cc0ee202026e4b6dab98934855d90cfb29c43eddd5ebb2a91c0ece1e21",
+      "event_hash": "sha256:22f2f4ede434c6ef62fbc6fada49049986451c683acd842bca0ce118077da62d"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7073748B91DB12F4DD6",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70724E87E79CDC33878",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 90,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.0002080341801047325,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 92,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:22f2f4ede434c6ef62fbc6fada49049986451c683acd842bca0ce118077da62d",
+      "event_hash": "sha256:c790a605d639a63787cccf07b07027f5919b4ec6bfa18c7c8b25da93701dd16e"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70773DFED2BEE03BF1D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707AEBCBD4A0DD0E66B",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 91,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000166997779160738,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 93,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:c790a605d639a63787cccf07b07027f5919b4ec6bfa18c7c8b25da93701dd16e",
+      "event_hash": "sha256:991cb3841ca86375bcbd6e389cf7ffab8979c7c3c39c0534d826f36aa15e25fc"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707F209E7B48B033894",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7076DAF369E9C747338",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 92,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016595004126429558,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 94,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:991cb3841ca86375bcbd6e389cf7ffab8979c7c3c39c0534d826f36aa15e25fc",
+      "event_hash": "sha256:0c1f35c0ec02f45b4ca92a93508ff221849c8e76c618b05710c83ab6448ee317"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7075DA45141D1DB5CB8",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707FB6C45E6B8E1724C",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 93,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 95,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:0c1f35c0ec02f45b4ca92a93508ff221849c8e76c618b05710c83ab6448ee317",
+      "event_hash": "sha256:4aec9bdf5a89f644388772986ca5a88e2abb4f469e161e9313ab7f5cbb1c1535"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7075673AFD21F5B4D4D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D70769474D9E9AFD940A",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 94,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 96,
+      "timestamp": "2025-12-30T04:07:26.009+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:4aec9bdf5a89f644388772986ca5a88e2abb4f469e161e9313ab7f5cbb1c1535",
+      "event_hash": "sha256:d8ad898ee27707b1bf5a1e1f5db9aeddd8ec8be3be4a7616273006b581bb6d68"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7072F56770642C94D28",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707D4F3B82EA44AD204",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 95,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 97,
+      "timestamp": "2025-12-30T04:07:26.010+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:d8ad898ee27707b1bf5a1e1f5db9aeddd8ec8be3be4a7616273006b581bb6d68",
+      "event_hash": "sha256:a64ce6da2ff947bf7ba32175a62616a13af0f3dd507b02e9f3eadc0bc9ceb07d"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7071C2A4CE564417B3C",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707542B4415D7BE9F80",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 96,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 98,
+      "timestamp": "2025-12-30T04:07:26.010+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:a64ce6da2ff947bf7ba32175a62616a13af0f3dd507b02e9f3eadc0bc9ceb07d",
+      "event_hash": "sha256:338685f1c6300a1678a805b1721b17e02a56f68d193b3a3ef4107eaf407fe3b5"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707602E1DF6D1B46E5E",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D7070BC80091F25CEF26",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 97,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00012497184798121452,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 99,
+      "timestamp": "2025-12-30T04:07:26.010+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:338685f1c6300a1678a805b1721b17e02a56f68d193b3a3ef4107eaf407fe3b5",
+      "event_hash": "sha256:7c0ba05f2eccf51582d04c1569f2960f71443d081970c7e3f4dc86985bc1f5a3"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D7073E118BD2E045776D",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707AE5A5C0293EAF06D",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 98,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.000125030055642128,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 100,
+      "timestamp": "2025-12-30T04:07:26.010+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:7c0ba05f2eccf51582d04c1569f2960f71443d081970c7e3f4dc86985bc1f5a3",
+      "event_hash": "sha256:5a285693afc0897cb214e588153aa2d72a3a144228e7fb613c65161b9e0ad7fb"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707A134DC42C9D74D18",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707672300856B18A3E9",
+      "parent_span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "data_classification": "internal",
+      "purpose": "overflow_test",
+      "reason": null,
+      "body": {
+        "model": "gpt-4",
+        "provider": "openai",
+        "request": {
+          "i": 99,
+          "model": "gpt-4"
+        },
+        "response": {
+          "content": null,
+          "finish_reason": null,
+          "usage": null
+        },
+        "duration_ms": 0.00016600824892520905,
+        "status": "success",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0"
+        }
+      },
+      "event_sequence": 101,
+      "timestamp": "2025-12-30T04:07:26.010+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:5a285693afc0897cb214e588153aa2d72a3a144228e7fb613c65161b9e0ad7fb",
+      "event_hash": "sha256:71d689f7273b419c5bb4fea61f3a9a796b343ed4648e037e422018ee14270d9b"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D707FC72FBD46C6AA89C",
+      "event_type": "span_end",
+      "trace_id": "trc_0019B6D7072205B75253FA4BAF",
+      "span_id": "spn_0019B6D707703ED8B5D9457EC6",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "overflow",
+        "metadata": {},
+        "duration_ms": 4.937041027005762
+      },
+      "event_sequence": 102,
+      "timestamp": "2025-12-30T04:07:26.010+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:71d689f7273b419c5bb4fea61f3a9a796b343ed4648e037e422018ee14270d9b",
+      "event_hash": "sha256:ce881aaf93fb40a787beae473559c678741944488a47ce6f2e1b7f9081991f5b"
+    }
+  ],
+  "compliance_summary": {
+    "policy_violations": 0,
+    "data_handling_issues": 0,
+    "unknown_models": [],
+    "forbidden_models_blocked": 0,
+    "total_tokens": 0
+  },
+  "report_artifacts": [
+    {
+      "artifact_type": "compliance",
+      "format": "json",
+      "path": "monora_reports/trc_0019B6D7072205B75253FA4BAF/compliance.json",
+      "sha256": "sha256:dbe9014d70ef04e737404a0b39784f97aa1955dc791987fa926ebf3d2301d278"
+    }
+  ]
+}
