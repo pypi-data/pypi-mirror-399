@@ -1,0 +1,46 @@
+[project]
+name = "kit-market-mcp"
+version = "1.0.0"
+description = "MCP Server for Kit Market - AI-powered code kit discovery and integration"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Ngoc Nguyen", email = "ngocnguyen88@users.noreply.github.com" }
+]
+keywords = ["mcp", "claude", "ai", "code-kit", "marketplace", "model-context-protocol"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ngocnguyen88/vibe-kit-market"
+Documentation = "https://github.com/ngocnguyen88/vibe-kit-market#readme"
+Repository = "https://github.com/ngocnguyen88/vibe-kit-market"
+Issues = "https://github.com/ngocnguyen88/vibe-kit-market/issues"
+
+[project.scripts]
+kit-market-mcp = "kit_market_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kit_market_mcp"]
