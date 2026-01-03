@@ -1,0 +1,25 @@
+[project]
+name = "bedrock_bio"
+version = "1.0.0"
+description = "Curated datasets for computational biology workflows."
+readme = "README.md"
+authors = [
+    { name = "Liam Abbott", email = "liam@bedrock.bio" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "polars[fsspec,pandas]>=1.36.1",
+]
+
+[project.scripts]
+bedrock-bio = "bedrock_bio:main"
+
+[build-system]
+requires = ["uv_build>=0.9.8,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "ruff>=0.14.10",
+]
