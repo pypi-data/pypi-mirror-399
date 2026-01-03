@@ -1,0 +1,13 @@
+[package]
+name = "lzkn64"
+version = "0.1.0"
+edition = "2024"
+description = "A library for compressing and decompressing data in the LZKN64 format."
+
+[lib]
+name = "lzkn64"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { version = "0.20", features = ["extension-module"] }
+thiserror = "1.0"
