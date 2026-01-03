@@ -1,0 +1,326 @@
+# LLB (Large Language Blocks)
+
+A Python library for generating LLM-readable structured context.
+
+## Why LLB?
+
+Serialize Python objects (especially graphs) into LLM-friendly text:
+
+- **Graph Mode**: Nodes + edges with focus/radius context pruning
+- **Flat Mode**: Simple independent block packaging
+
+## Installation
+
+```bash
+pip install llb_doc
+```
+
+## Quick Start
+
+### Flat Mode - Independent Blocks
+
+```python
+from llb_doc import create_llb, parse_llb
+
+doc = create_llb()
+
+# Method 1: Fluent API with builder pattern
+doc.block("ticket", lang="en").meta(source="jira", priority="high").content(
+    "User cannot upload files larger than 10MB"
+).add()
+
+# Method 2: Context manager
+with doc.block("api", "json") as b:
+    b.meta["source"] = "storage_service"
+    b.content = '{"max_size": 5242880, "unit": "bytes"}'
+
+# Method 3: Direct add
+doc.add_block("note", "Config mismatch detected", source="code_review", lang="en")
+
+# Render to LLB format
+print(doc.render())
+
+# Parse LLB text back to document
+doc2 = parse_llb(doc.render())
+```
+
+#### Output
+
+```text
+@block B1 ticket en
+source=jira
+priority=high
+
+User cannot upload files larger than 10MB
+
+@end B1
+
+@block B2 api json
+source=storage_service
+
+{"max_size": 5242880, "unit": "bytes"}
+
+@end B2
+
+@block B3 note en
+source=code_review
+
+Config mismatch detected
+
+@end B3
+```
+
+### Graph Mode - Connected Nodes
+
+```python
+from llb_doc import create_graph
+
+g = create_graph()
+
+# Add nodes
+python = g.add_node("concept", "Python", id_="python", category="language")
+django = g.add_node("concept", "Django", id_="django", category="framework")
+flask = g.add_node("concept", "Flask", id_="flask", category="framework")
+
+# Add edges
+g.add_edge("python", "django", "has_framework")
+g.add_edge("python", "flask", "has_framework")
+
+# Render with focus and radius
+print(g.render(focus="python", radius=1))
+```
+
+#### Output
+
+```text
+@ctx C1
+focus=python
+radius=1
+strategy=bfs
+tiers=0:python;1:django,flask
+@end C1
+
+@node django concept
+category=framework
+tier=1
+in_edges=['python:has_framework']
+out_edges=[]
+
+Django
+
+@end django
+
+@node flask concept
+category=framework
+tier=1
+in_edges=['python:has_framework']
+out_edges=[]
+
+Flask
+
+@end flask
+
+@edge E1 python django has_framework @end
+
+@edge E2 python flask has_framework @end
+
+@node python concept
+category=language
+tier=0
+in_edges=[]
+out_edges=['django:has_framework', 'flask:has_framework']
+
+Python
+
+@end python
+```
+
+## Block Structure
+
+Each block follows this structure:
+
+```text
+@block <id> <type> [lang]
+key1=value1
+key2=value2
+
+<content>
+
+@end <id>
+```
+
+## Features
+
+### Document Operations
+
+```python
+doc = create_llb()
+b1 = doc.add_block("task", "First task")
+b2 = doc.add_block("task", "Second task")
+
+# Check, get, remove blocks
+doc.has_block(b1.id)        # True
+doc.get_block(b1.id)        # Block object
+doc.remove_block(b1.id)     # Remove and return block
+
+# Reorder blocks
+doc.move_block(b2.id, 0)    # Move to position
+doc.swap_blocks(b1.id, b2.id)  # Swap positions
+
+# Prefix and suffix
+doc.prefix = "# Analysis Context"
+doc.suffix = "# End"
+```
+
+### Custom Meta Generators
+
+Auto-generate metadata for blocks:
+
+```python
+from llb_doc import create_llb, meta_generator, Block
+
+@meta_generator("word_count")
+def gen_word_count(block: Block) -> str:
+    return str(len(block.content.split()))
+
+doc = create_llb(generators=[gen_word_count])
+doc.add_block("text", "Hello world!")
+print(doc.render())
+# word_count=2 will be auto-added
+```
+
+### Custom Block Sorters
+
+Sort blocks in custom order:
+
+```python
+from llb_doc import create_llb, block_sorter, Block
+
+@block_sorter("by_priority")
+def sort_by_priority(blocks: list[Block]) -> list[Block]:
+    order = {"high": 0, "medium": 1, "low": 2}
+    return sorted(blocks, key=lambda b: order.get(b.meta.get("priority", ""), 99))
+
+doc = create_llb(sorters=[sort_by_priority])
+doc.add_block("task", "Task A", priority="low")
+doc.add_block("task", "Task B", priority="high")
+print(doc.render(order="by_priority"))
+```
+
+### Graph Mode Features
+
+```python
+g = create_graph()
+
+# Builder pattern for nodes
+g.node("person").id("p1").meta(name="Alice").content("Developer").add()
+
+# Builder pattern for edges
+g.edge("p1", "c1", "works_at").meta(since="2020").content("Full-time").add()
+
+# Render with different sorting strategies
+g.render(focus="p1", radius=2, order="focus_last")   # Default: focus at end
+g.render(focus="p1", radius=2, order="focus_first")  # Focus at beginning
+g.render(focus="p1", radius=2, order="tier_asc")     # By tier ascending
+g.render(focus="p1", radius=2, order="tier_desc")    # By tier descending
+
+# Render all nodes without focus
+g.render()  # No @ctx block, shows all nodes and edges
+```
+
+### Free Mode - Full Control
+
+For complex scenarios where you need explicit control over which nodes and edges to render:
+
+```python
+from llb_doc import create_graph, Ctx
+
+g = create_graph()
+g.add_node("person", "Alice's full bio...", id_="N1")
+g.add_node("person", "Bob's full bio...", id_="N2")
+g.add_node("person", "Carol's full bio...", id_="N3")
+g.add_edge("N1", "N2", "knows", id_="E1")
+g.add_edge("N2", "N3", "knows", id_="E2")
+
+# Render specific nodes/edges in exact order
+# Use tuple (id, True) for brief mode (meta only, no content)
+output = g.render_free(
+    items=[
+        "N1",           # full render
+        ("N2", True),   # brief render (no content)
+        "E1",           # full render
+    ],
+    ctx={
+        "content": "Custom neighborhood view",
+        "meta": {"view": "neighborhood", "roots": "N1"},
+    },
+)
+
+# Custom brief renderer
+output = g.render_free(
+    items=["N1", ("N2", True), ("N3", True)],
+    brief_renderer=lambda b: f"@{b.type} {b.id} [brief] @end",
+)
+```
+
+Free mode features:
+- **Explicit ordering**: Items render in the exact order you specify
+- **Brief mode**: Use `(id, True)` tuple to render only meta (no content)
+- **Custom brief renderer**: Pass a function to fully customize brief output
+- **Optional ctx**: Pass dict or Ctx object, automatically placed at top
+
+## API Reference
+
+### Main Functions
+
+| Function | Description |
+|----------|-------------|
+| `create_llb()` | Create a new Document for flat mode |
+| `create_graph()` | Create a new GraphDocument for graph mode |
+| `parse_llb(text)` | Parse LLB format text into Document |
+
+### GraphDocument Methods
+
+| Method | Description |
+|--------|-------------|
+| `render(focus, radius, ...)` | Render with BFS-based focus/radius filtering |
+| `render_free(items, ctx, brief_renderer)` | Render with explicit control over nodes/edges |
+| `add_node(type, content, ...)` | Add a node to the graph |
+| `add_edge(from_id, to_id, rel, ...)` | Add an edge between nodes |
+
+### Decorators
+
+| Decorator | Description |
+|-----------|-------------|
+| `@meta_generator(key)` | Register a metadata generator function |
+| `@block_sorter(name)` | Register a block sorter function |
+
+### Classes
+
+| Class | Description |
+|-------|-------------|
+| `Document` | Container for blocks in flat mode |
+| `GraphDocument` | Container for nodes, edges in graph mode |
+| `Block` | Basic block with type, lang, meta, content |
+| `Node` | Graph node (renders as `@node`) |
+| `Edge` | Graph edge (renders as `@edge`) |
+| `Ctx` | Graph context (renders as `@ctx`) |
+
+### Types
+
+| Type | Description |
+|------|-------------|
+| `ItemSpec` | `str \| tuple[str, bool]` - Item ID or (ID, brief) tuple |
+| `BriefRenderer` | `Callable[[Block], str]` - Custom brief render function |
+
+## Demo
+
+Run the demo script to see all features in action:
+
+```bash
+python demo.py
+```
+
+## License
+
+MIT
