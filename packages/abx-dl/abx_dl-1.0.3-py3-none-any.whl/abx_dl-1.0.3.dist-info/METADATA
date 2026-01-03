@@ -1,0 +1,282 @@
+Metadata-Version: 2.1
+Name: abx-dl
+Version: 1.0.3
+Summary: All-in-one CLI tool to download and extract content from URLs
+Keywords: scraping,crawling,downloading,internet archiving,web archiving,digipres,warc,preservation,backups,archiving,web,bookmarks,puppeteer,browser,download
+Author-Email: Nick Sweeting <pyproject.toml@archivebox.io>
+License: MIT
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: Legal Industry
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Indexing/Search
+Classifier: Topic :: Internet :: WWW/HTTP :: WSGI :: Application
+Classifier: Topic :: Sociology :: History
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: System :: Archiving
+Classifier: Topic :: System :: Archiving :: Backup
+Classifier: Topic :: System :: Recovery Tools
+Classifier: Topic :: Utilities
+Classifier: Typing :: Typed
+Project-URL: Homepage, https://github.com/ArchiveBox/abx-dl
+Project-URL: Source, https://github.com/ArchiveBox/abx-dl
+Project-URL: Documentation, https://github.com/ArchiveBox/abx-dl
+Project-URL: Bug Tracker, https://github.com/ArchiveBox/abx-dl/issues
+Project-URL: Changelog, https://github.com/ArchiveBox/abx-dl/releases
+Project-URL: Community, https://github.com/ArchiveBox/ArchiveBox/wiki/Web-Archiving-Community
+Project-URL: Donate, https://github.com/ArchiveBox/ArchiveBox/wiki/Donations
+Requires-Python: >=3.10
+Requires-Dist: rich-click>=1.8.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: abx-pkg>=0.6.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: platformdirs>=4.0.0
+Requires-Dist: requests>=2.28.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: pytest-xdist>=3.5.0; extra == "dev"
+Requires-Dist: ruff>=0.6.6; extra == "dev"
+Requires-Dist: flake8>=7.1.1; extra == "dev"
+Requires-Dist: mypy>=1.11.2; extra == "dev"
+Description-Content-Type: text/markdown
+
+# ⬇️ `abx-dl`
+
+> A simple all-in-one CLI tool to auto-detect and download *everything* available from a URL.
+
+```bash
+pip install abx-dl
+abx-dl 'https://example.com/page/to/download'
+```
+
+---
+
+✨ *Ever wish you could `yt-dlp`, `gallery-dl`, `wget`, `curl`, `puppeteer`, etc. all in one command?*
+
+`abx-dl` is an all-in-one CLI tool for downloading URLs "by any means necessary".
+
+It's useful for scraping, downloading, OSINT, digital preservation, and more.
+`abx-dl` provides a simpler one-shot CLI interface to the [ArchiveBox](https://github.com/ArchiveBox/ArchiveBox) plugin ecosystem.
+
+---
+
+<br/>
+
+#### 🍜 What does it save?
+
+```bash
+abx-dl --plugins=title,favicon,headers,wget,singlefile,screenshot,pdf,dom,readability,git,... 'https://example.com'
+```
+
+`abx-dl` runs all plugins by default, or you can specify `--plugins=...` for specific methods:
+- HTML, JS, CSS, images, etc. rendered with a headless browser
+- title, favicon, headers, outlinks, and other metadata
+- audio, video, subtitles, playlists, comments
+- snapshot of the page as a PDF, screenshot, and [Singlefile](https://github.com/gildas-lormeau/single-file-cli) HTML
+- article text, `git` source code
+- [and much more](https://github.com/ArchiveBox/abx-dl#All-Outputs)...
+
+<br/>
+
+#### 🧩 How does it work?
+
+`abx-dl` uses the **[ABX Plugin Library](https://docs.sweeting.me/s/archivebox-plugin-ecosystem-announcement)** (shared with [ArchiveBox](https://github.com/ArchiveBox/ArchiveBox)) to run a collection of downloading and scraping tools.
+
+Plugins are discovered from the `plugins/` directory and execute hooks in order:
+1. **Crawl hooks** run first (setup/install dependencies like Chrome)
+2. **Snapshot hooks** run per-URL to extract content
+
+Each plugin can output:
+- Files to its output directory
+- JSONL records for status reporting
+- Config updates that propagate to subsequent plugins
+
+<br/>
+
+#### ⚙️ Configuration
+
+Configuration is handled via environment variables or persistent config file (`~/.config/abx/config.env`):
+
+```bash
+abx-dl config                        # show all config (global + per-plugin)
+abx-dl config --get WGET_TIMEOUT     # get a specific value
+abx-dl config --set TIMEOUT=120      # set persistently (resolves aliases)
+```
+
+Output is grouped by section:
+```bash
+# GLOBAL
+TIMEOUT=60
+USER_AGENT="Mozilla/5.0 ..."
+...
+
+# plugins/wget
+WGET_BINARY="wget"
+WGET_TIMEOUT=60
+...
+
+# plugins/chrome
+CHROME_BINARY="chromium"
+...
+```
+
+Common options:
+- `TIMEOUT=60` - default timeout for hooks
+- `USER_AGENT` - default user agent string
+- `{PLUGIN}_BINARY` - path to plugin's binary (e.g. `WGET_BINARY`, `CHROME_BINARY`)
+- `{PLUGIN}_ENABLED=true/false` - enable/disable specific plugins
+- `{PLUGIN}_TIMEOUT=120` - per-plugin timeout overrides
+
+Aliases are automatically resolved (e.g. `--set USE_WGET=false` saves as `WGET_ENABLED=false`).
+
+<br/>
+
+---
+
+<br/>
+
+### 📦 Install
+
+```bash
+pip install abx-dl
+abx-dl plugins --install   # optional: pre-install plugin dependencies
+```
+
+<br/>
+
+### 🔠 Usage
+
+```bash
+# Basic usage - download URL with all plugins:
+abx-dl 'https://example.com'
+
+# Download with specific plugins only:
+abx-dl --plugins=wget,ytdlp,git,screenshot 'https://example.com'
+
+# Skip auto-installing missing dependencies (emit warnings instead):
+abx-dl --no-install 'https://example.com'
+
+# Specify output directory:
+abx-dl --output=./downloads 'https://example.com'
+
+# Set timeout:
+abx-dl --timeout=120 'https://example.com'
+```
+
+#### Commands
+
+```bash
+abx-dl <url>                              # Download URL (default command)
+abx-dl plugins                            # Check + show info for all plugins
+abx-dl plugins wget ytdlp git             # Check + show info for specific plugins
+abx-dl plugins --install                  # Install all plugin dependencies
+abx-dl plugins --install wget ytdlp git   # Install specific plugin dependencies
+abx-dl config                             # Show all config values
+abx-dl config --get TIMEOUT               # Get a specific config value
+abx-dl config --set TIMEOUT=120           # Set a config value persistently
+```
+
+#### Installing Dependencies
+
+Many plugins require external binaries (e.g., `wget`, `chrome`, `yt-dlp`, `single-file`).
+
+By default, `abx-dl` lazily auto-installs missing dependencies as needed when you download a URL.
+Use `--no-install` to skip plugins with missing dependencies instead:
+
+```bash
+# Auto-installs missing deps on-the-fly (default behavior)
+abx-dl 'https://example.com'
+
+# Skip plugins with missing deps, emit warnings instead
+abx-dl --no-install 'https://example.com'
+
+# Pre-install all plugin dependencies
+abx-dl plugins --install
+
+# Install dependencies for specific plugins only
+abx-dl plugins --install wget singlefile ytdlp
+
+# Check which dependencies are available/missing
+abx-dl plugins
+```
+
+Dependencies are installed to `~/.config/abx/lib/{arch}/` using the appropriate package manager:
+- **pip packages** → `~/.config/abx/lib/{arch}/pip/venv/`
+- **npm packages** → `~/.config/abx/lib/{arch}/npm/`
+- **brew/apt packages** → system locations
+
+You can override the install location with `LIB_DIR=/path/to/lib abx-dl install`.
+
+<br/>
+
+---
+
+<br/>
+
+### Output Structure
+
+```
+./
+├── index.jsonl             # Snapshot metadata and results (JSONL format)
+├── title/
+│   └── title.txt
+├── favicon/
+│   └── favicon.ico
+├── screenshot/
+│   └── screenshot.png
+├── pdf/
+│   └── output.pdf
+├── dom/
+│   └── output.html
+├── wget/
+│   └── example.com/
+│       └── index.html
+├── singlefile/
+│   └── output.html
+└── ...
+```
+
+<br/>
+
+### All Outputs
+
+- `index.jsonl` - snapshot metadata and plugin results (JSONL format, ArchiveBox-compatible)
+- `title/title.txt` - page title
+- `favicon/favicon.ico` - site favicon
+- `screenshot/screenshot.png` - full page screenshot (Chrome)
+- `pdf/output.pdf` - page as PDF (Chrome)
+- `dom/output.html` - rendered DOM (Chrome)
+- `wget/example.com/...` - mirrored site files
+- `singlefile/output.html` - single-file HTML snapshot
+- ... and more via plugin library ...
+
+---
+
+### Architecture
+
+`abx-dl` is built on these components:
+
+- **`abx_dl/plugins.py`** - Plugin discovery from `plugins/` directory
+- **`abx_dl/executor.py`** - Hook execution engine with config propagation
+- **`abx_dl/config.py`** - Environment variable configuration
+- **`abx_dl/cli.py`** - Rich CLI with live progress display
+
+Plugins are symlinked from [ArchiveBox](https://github.com/ArchiveBox/ArchiveBox)'s plugin directory.
+
+---
+
+For more advanced use with collections, parallel downloading, a Web UI + REST API, etc.
+See: [`ArchiveBox/ArchiveBox`](https://github.com/ArchiveBox/ArchiveBox)
