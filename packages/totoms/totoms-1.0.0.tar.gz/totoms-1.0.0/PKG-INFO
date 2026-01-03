@@ -1,0 +1,83 @@
+Metadata-Version: 2.4
+Name: totoms
+Version: 1.0.0
+Summary: Toto Microservice SDK - Python framework for building microservices
+Home-page: https://github.com/nicolasances/toto-microservice-sdk
+Author: Toto
+Author-email: Toto <info@toto.com>
+License: MIT
+Project-URL: Homepage, https://github.com/nicolasances/toto-microservice-sdk
+Project-URL: Repository, https://github.com/nicolasances/toto-microservice-sdk.git
+Project-URL: Issues, https://github.com/nicolasances/toto-microservice-sdk/issues
+Keywords: microservices,fastapi,cloud,message-bus,pubsub
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: fastapi>=0.68.0
+Requires-Dist: uvicorn>=0.15.0
+Requires-Dist: pydantic>=1.8.0
+Requires-Dist: boto3>=1.17.0
+Requires-Dist: google-cloud-pubsub>=2.5.0
+Requires-Dist: google-cloud-storage>=1.42.0
+Requires-Dist: google-cloud-secret-manager>=2.6.0
+Requires-Dist: pyjwt>=2.1.0
+Requires-Dist: cryptography>=3.4.0
+Requires-Dist: python-dotenv>=0.19.0
+Provides-Extra: dev
+Requires-Dist: pytest>=6.2.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.18.0; extra == "dev"
+Requires-Dist: black>=21.0; extra == "dev"
+Requires-Dist: flake8>=3.9.0; extra == "dev"
+Requires-Dist: isort>=5.9.0; extra == "dev"
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
+# Toto Microservice SDK - Python
+
+Python framework for building cloud-agnostic microservices with FastAPI.
+
+## Installation
+
+```bash
+pip install totoms
+```
+
+## Quick Start
+
+```python
+from totoms import TotoMicroservice, TotoMicroserviceConfiguration
+
+config = TotoMicroserviceConfiguration()
+microservice = TotoMicroservice(config)
+```
+
+## Features
+
+- **API Controller**: FastAPI-based REST API framework
+- **Message Bus**: Event-driven architecture with PubSub and Queue support
+- **Cloud Support**: AWS, GCP, and Azure
+- **Secrets Management**: Secure secrets handling
+- **Token Verification**: Built-in JWT token verification
+- **Logging**: Structured logging with correlation IDs
+
+## Documentation
+
+For full documentation, visit the [Toto SDK repository](https://github.com/nicolasances/toto-microservice-sdk).
+
+## License
+
+MIT License - see LICENSE file for details
