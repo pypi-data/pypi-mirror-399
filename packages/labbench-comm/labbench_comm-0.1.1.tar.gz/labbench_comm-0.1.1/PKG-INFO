@@ -1,0 +1,97 @@
+Metadata-Version: 2.4
+Name: labbench_comm
+Version: 0.1.1
+Summary: Communication with LabBench devices
+Author: Kristian Hennings
+License: MIT License
+        
+        Copyright (c) 2025 LabBench Society
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Homepage, https://labbench.io/
+Project-URL: Repository, https://github.com/LabBench-Society/LabBench.Python
+Project-URL: Issues, https://github.com/LabBench-Society/LabBench.Python/issues
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: System :: Hardware :: Hardware Drivers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pyserial>=3.5
+Requires-Dist: typing-extensions>=4.5
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23; extra == "dev"
+Requires-Dist: pytest-cov>=5.0; extra == "dev"
+Dynamic: license-file
+
+# labbench-comm
+
+**labbench-comm** is an asynchronous Python framework for communicating with LabBench hardware devices over serial connections.  
+It provides a robust, testable, and extensible protocol stack with concrete device implementations, starting with the **CPAR+** device.
+
+The package is designed for:
+- Scientific and clinical research setups
+- Hardware control and automation
+- Deterministic, protocol-driven device communication
+- Async-first Python applications (`asyncio`)
+
+---
+
+## Features
+
+- **Async-first architecture** using `asyncio`
+- **Robust serial communication** built on `pyserial`
+- **Protocol abstraction** (framing, packets, checksums, dispatch)
+- **Typed device functions and messages**
+- **Extensible device model** for adding new LabBench devices
+- **Unit tests + hardware integration tests**
+- **CPAR+ device support** (functions, messages, waveform control)
+
+---
+
+## Supported Devices
+
+- **CPAR+** (pressure stimulation device)
+
+Additional devices can be added by implementing new `Device`, `DeviceFunction`, and `DeviceMessage` classes.
+
+---
+
+## Requirements
+
+- Python **3.12+**
+- Supported platforms: Windows, Linux, macOS (serial access required)
+
+---
+
+## Installation
+
+Install from PyPI:
+
+```bash
+pip install labbench-comm
