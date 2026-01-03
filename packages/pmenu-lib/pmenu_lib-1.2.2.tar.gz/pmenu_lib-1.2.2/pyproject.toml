@@ -1,0 +1,51 @@
+[project]
+name = "pmenu-lib"
+version = "1.2.2"
+description = "Sleek dmenu alternative written in Python and powered by curses."
+readme = "README.md"
+authors = [
+    {name = "Julio Cabria", email = "juliocabria@tutanota.com"}
+]
+maintainers = [
+    {name = "Julio Cabria", email = "juliocabria@tutanota.com"}
+]
+license = {text = "GPLv2"}
+requires-python = ">=3.8"
+dependencies = [
+    "windows-curses>=2.3.0; platform_system=='Windows'",
+]
+keywords = ["dmenu", "menu", "terminal", "curses", "cli"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console :: Curses",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Terminals",
+]
+
+[project.urls]
+Homepage = "https://github.com/Julynx/pmenu"
+Repository = "https://github.com/Julynx/pmenu"
+Issues = "https://github.com/Julynx/pmenu/issues"
+
+[project.scripts]
+pmenu = "pmenu_lib.cli:main"
+
+[tool.uv]
+package = true
+
+[dependency-groups]
+dev = [
+    "black>=24.0.0",
+    "pylint>=3.0.0",
+]
