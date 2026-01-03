@@ -1,0 +1,38 @@
+"""{{ module_name|title }} Schemas"""
+from pydantic import BaseModel, Field, ConfigDict
+from datetime import datetime{% if has_date %}, date{% endif %}
+from typing import Optional
+
+
+class {{ class_name }}Base(BaseModel):
+    """{{ class_name }} 基础 Schema"""
+    {%- for field in fields %}
+    {{ field.name }}: {{ field.type_hint }} = Field({{ field.pydantic_field }})
+    {%- endfor %}
+
+
+class {{ class_name }}Create({{ class_name }}Base):
+    """{{ class_name }} 创建 Schema"""
+    pass
+
+
+class {{ class_name }}Update(BaseModel):
+    """{{ class_name }} 更新 Schema（所有字段可选）"""
+    {%- for field in fields %}
+    {{ field.name }}: Optional[{{ field.base_type }}] = Field(None)
+    {%- endfor %}
+    
+    model_config = ConfigDict(
+        extra='forbid'
+    )
+
+
+class {{ class_name }}Response({{ class_name }}Base):
+    """{{ class_name }} 响应 Schema"""
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime]
+    
+    model_config = ConfigDict(
+        from_attributes=True
+    )

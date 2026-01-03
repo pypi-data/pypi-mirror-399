@@ -1,0 +1,98 @@
+"""{{ module_name|title }} API"""
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List
+
+from app.database import get_db
+from app.models.{{ module_name }} import {{ class_name }}
+from app.schemas.{{ module_name }} import {{ class_name }}Create, {{ class_name }}Update, {{ class_name }}Response
+from app.schemas.pagination import PaginatedResponse
+from app.schemas.common import MessageResponse
+from app.crud.{{ module_name }} import {{ module_name }}_crud
+{%- if auth %}
+from app.core.dependencies import get_current_user
+from app.models.user import User
+{%- endif %}
+
+router = APIRouter(prefix="{{ api_prefix }}", tags=["{{ api_tag }}"])
+
+
+@router.get("", response_model=PaginatedResponse[{{ class_name }}Response])
+def list_{{ module_name }}s(
+    page: int = 1,
+    page_size: int = 20,
+    db: Session = Depends(get_db){% if auth %},
+    current_user: User = Depends(get_current_user){% endif %}
+) -> PaginatedResponse[{{ class_name }}Response]:
+    """获取{{ class_name }}列表（分页）"""
+    skip = (page - 1) * page_size
+    items, total = {{ module_name }}_crud.get_list(db, skip=skip, limit=page_size)
+    
+    total_pages = (total + page_size - 1) // page_size
+    
+    return PaginatedResponse(
+        items=items,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages
+    )
+
+
+@router.post("", response_model={{ class_name }}Response, status_code=status.HTTP_201_CREATED)
+def create_{{ module_name }}(
+    data: {{ class_name }}Create,
+    db: Session = Depends(get_db){% if auth %},
+    current_user: User = Depends(get_current_user){% endif %}
+) -> {{ class_name }}Response:
+    """创建{{ class_name }}"""
+    return {{ module_name }}_crud.create(db, obj_in=data)
+
+
+@router.get("/{id}", response_model={{ class_name }}Response)
+def get_{{ module_name }}(
+    id: int,
+    db: Session = Depends(get_db){% if auth %},
+    current_user: User = Depends(get_current_user){% endif %}
+) -> {{ class_name }}Response:
+    """获取{{ class_name }}详情"""
+    db_obj = {{ module_name }}_crud.get_by_id(db, id)
+    if not db_obj:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="{{ class_name }} not found"
+        )
+    return db_obj
+
+
+@router.put("/{id}", response_model={{ class_name }}Response)
+def update_{{ module_name }}(
+    id: int,
+    data: {{ class_name }}Update,
+    db: Session = Depends(get_db){% if auth %},
+    current_user: User = Depends(get_current_user){% endif %}
+) -> {{ class_name }}Response:
+    """更新{{ class_name }}"""
+    db_obj = {{ module_name }}_crud.get_by_id(db, id)
+    if not db_obj:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="{{ class_name }} not found"
+        )
+    return {{ module_name }}_crud.update(db, db_obj, data)
+
+
+@router.delete("/{id}", response_model=MessageResponse)
+def delete_{{ module_name }}(
+    id: int,
+    db: Session = Depends(get_db){% if auth %},
+    current_user: User = Depends(get_current_user){% endif %}
+) -> MessageResponse:
+    """删除{{ class_name }}"""
+    success = {{ module_name }}_crud.delete(db, id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="{{ class_name }} not found"
+        )
+    return MessageResponse(message="{{ class_name }} deleted successfully")
