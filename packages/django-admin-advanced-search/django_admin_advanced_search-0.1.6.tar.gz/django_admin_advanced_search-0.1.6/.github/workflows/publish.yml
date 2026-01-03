@@ -1,0 +1,32 @@
+# .github/workflows/publish.yml
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]  # 仅在你点击 "Publish release" 时触发
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # ⚠️ 必须！用于 OIDC 身份验证（Trusted Publishing）
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install build tool
+        run: pip install build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # 注意：不要添加 token、username、password！
