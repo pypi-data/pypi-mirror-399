@@ -1,0 +1,427 @@
+[build-system]
+requires = [
+    "setuptools>=68",
+    "numpy>=2.0.0",
+    "cython>=3.2.2",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phasorpy"
+description = "Analysis of luminescence lifetime and hyperspectral images using the phasor approach"
+readme = { file = "README.md", content-type = "text/markdown" }
+dynamic = ["version"]
+dependencies = [
+    # sync with [dependency-groups.run]
+    # https://scientific-python.org/specs/spec-0000/
+    "numpy>=2.0.0",
+    "matplotlib>=3.9.0",
+    "pandas>=2.2.0",
+    # "scikit-image>=0.23.0",
+    "scikit-learn>=1.5.0",
+    "scipy>=1.13.0",
+    "tifffile>=2024.8.30",
+    "xarray>=2024.6.0",
+    "click",
+    "pooch",
+    "tqdm",
+]
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+authors = [{ name = "PhasorPy Contributors" }]
+license = "MIT"
+license-files = ["LICENSE.txt"]
+
+[project.urls]
+Homepage = "https://www.phasorpy.org"
+Documentation = "https://www.phasorpy.org/docs/stable/"
+Download = "https://pypi.org/project/phasorpy/#files"
+"Source code" = "https://github.com/phasorpy/phasorpy"
+"Issue tracker" = "https://github.com/phasorpy/phasorpy/issues"
+"Release notes" = "https://www.phasorpy.org/docs/stable/release"
+
+[project.scripts]
+phasorpy = "phasorpy.cli:main"
+
+[project.optional-dependencies]
+all = [
+    # sync with [dependency-groups.optional]
+    "fbdfile>=2025.9.18",
+    "lfdfiles>=2024.5.24",
+    "liffile>=2025.2.10",
+    "ptufile>=2024.9.14",
+    "sdtfile>=2024.5.24",
+    "pawflim>=1.0.4",
+    # "mkl-fft>=2.1.1",
+]
+
+[dependency-groups]
+run = [
+    # runtime dependencies; sync with [project.dependencies]
+    "numpy>=2.0.0",
+    "matplotlib>=3.9.0",
+    "pandas>=2.2.0",
+    "scikit-learn>=1.5.0",
+    "scipy>=1.13.0",
+    "tifffile>=2024.8.30",
+    "xarray>=2024.6.0",
+    "click",
+    "pooch",
+    "tqdm",
+]
+optional = [
+    # optional runtime dependencies; sync with [project.optional-dependencies]
+    "fbdfile>=2025.9.18",
+    "lfdfiles>=2024.5.24",
+    "liffile>=2025.2.10",
+    "ptufile>=2024.9.14",
+    "sdtfile>=2024.5.24",
+    "pawflim>=1.0.4",
+]
+minimal = [
+    # minimal runtime versions for testing against oldest supported versions
+    "numpy==2.0.2; python_version == \"3.12\"",
+    "matplotlib==3.9.4; python_version == \"3.12\"",
+    "pandas==2.2.3; python_version == \"3.12\"",
+    "scikit-learn==1.5.0; python_version == \"3.12\"",
+    "scipy==1.13.1; python_version == \"3.12\"",
+    "tifffile==2024.8.30; python_version == \"3.12\"",
+    "xarray==2024.6.0; python_version == \"3.12\"",
+    # optional
+    "fbdfile==2025.9.18; python_version == \"3.12\"",
+    "lfdfiles==2024.5.24; python_version == \"3.12\"",
+    "liffile==2025.2.10; python_version == \"3.12\"",
+    "ptufile==2024.9.14; python_version == \"3.12\"",
+    "sdtfile==2024.5.24; python_version == \"3.12\"",
+    "pawflim==1.0.4; python_version == \"3.12\"",
+]
+build = [
+    # build requirements
+    "cython>=3.2.2",
+    "numpy>=2.0.0",
+    "abi3audit",
+    "build",
+    "cibuildwheel",
+    "packaging",
+    "setuptools",
+    "twine",
+    "wheel",
+]
+test = [
+    # test requirements
+    "coverage",
+    "cython",  # for Cython.Coverage plugin
+    "pytest",
+    "pytest-cov",
+    "pytest-doctestplus",
+    "pytest-runner",
+]
+docs = [
+    # documentation build requirements
+    "numpydoc",
+    "pydata-sphinx-theme>=0.16.0",
+    "sphinx",
+    "sphinx-copybutton",
+    "sphinx-design",
+    "sphinx-inline-tabs",
+    "sphinx-issues",
+    "sphinx_click",
+    "sphinx_gallery",
+]
+lint = [
+    # static code analysis requirements
+    "autoflake",
+    "black",
+    "blackdoc",
+    "codespell",
+    "cython_lint",
+    "flake8",
+    "isort",
+    "mypy",
+    "pre-commit",
+    "pre-commit-hooks",
+    "pyupgrade",
+    "ruff",
+]
+dev = [
+    # all development requirements
+    {include-group = "run"},
+    {include-group = "optional"},
+    {include-group = "build"},
+    {include-group = "test"},
+    {include-group = "docs"},
+    {include-group = "lint"},
+]
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.dynamic]
+version = { attr = "phasorpy.__version__" }
+
+[tool.setuptools.package-data]
+phasorpy = ["py.typed"]
+
+[tool.ruff]
+line-length = 79
+exclude = [
+    # similar to [tool.pytest.ini_options.norecursedirs]
+    "._",
+    "__pycache__",
+    "_htmlcov",
+    ".git",
+    ".github",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".vscode",
+    "adhoc",
+    "build",
+    "docs/_build",
+    "fixture",
+    "htmlcov",
+    "phasorpy-dev",
+    "phasorpy.egg-info",
+    "phasorpy_dev",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = [
+    "ALL",
+    # "A",  # flake8-builtins
+    # "ANN",  # flake8-annotations
+    # "B",  # flake8-bugbear
+    # "C4",  # flake8-comprehensions
+    # "D",  # pydocstyle
+    # "DTZ",  # flake8-datetimez
+    # "E",  # pycodestyle errors
+    # "F",  # Pyflakes
+    # "FA",  # flake8-future-annotations
+    # "G",  # flake8-logging-format
+    # "I",  # isort
+    # "ISC",  # flake8-import-conventions
+    # "N",  # pep8-naming
+    # "NPY",  # NumPy-specific rules
+    # "PIE",  # flake8-pie
+    # "RET",  # flake8-return
+    # "RUF100",  # unused-noqa
+    # "S",  # flake8-bandit
+    # "SIM",  # flake8-simplify
+    # "UP",  # pyupgrade
+    # "W",  # pycodestyle warnings
+    # "YTT",  # flake8-2020
+]
+ignore = [
+    "C901",  # complex-structure
+    "COM812",  # missing-trailing-comma
+    "F821", # undefined-name in Literal type hints
+    "FIX002",  # todo
+    "ICN001",  # import-convention
+    "PLC0415",  # import-outside-top-level
+    "PLR0911",  # too-many-return-statements
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0915",  # too-many-statements
+    "PLR2004",  # magic-value-comparison
+    "TD",  # todo
+    "TID252",  # relative-imports
+    "UP037",  # quoted-annotation
+    # TODO: consider enabling these later
+    "ERA001",  # commented-out-code
+    "PTH",  # pathlib
+    "S101",  # assert
+]
+typing-modules = ["_typing"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"conftest.py" = ["ARG001"]
+"setup.py" = ["T201"]
+"tests/*" = ["ANN", "D", "INP001", "PT011", "SLF001", "S101"]
+"tools/*" = ["ANN", "INP001", "T201"]
+"tutorials/*" = ["ANN", "D", "E402", "INP001", "T201", "S101", "ERA001"]
+"docs/conf.py" = ["A001", "ANN204", "D102", "E402", "INP001", "RUF012"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.isort]
+known-first-party = ["phasorpy"]
+
+[tool.pylint.format]
+max-line-length = 79
+max-module-lines = 2500
+good-names = [
+    "i",
+    "j",
+    "k",
+    "x",
+    "y",
+    "z",
+    "c",
+    "t",
+    "ax",
+    "fh",
+    "dc",
+    "re",
+    "im",
+]
+
+[tool.pylint.messages_control]
+disable = [
+    "import-outside-toplevel",
+    "wrong-import-order",
+    "wrong-import-position",
+]
+
+[tool.black]
+line-length = 79
+target-version = ["py312", "py313"]
+skip-string-normalization = true
+
+[tool.isort]
+known_first_party = ["phasorpy"]
+profile = "black"
+line_length = 79
+
+[tool.codespell]
+skip = "*.html,*.css,*.js,*.r64,*.map,./.git,./data,./venv,./phasorpy-dev,./phasorpy_dev,./docs/_build,./docs/tutorials,PKG-INFO,_htmlcov,pyproject.toml"
+ignore-words-list = "ba,compiletime,hist,nd,unparseable,HSI,coo,aHd"
+
+[tool.typos]
+
+[tool.typos.files]
+extend-exclude = []
+
+[tool.typos.default.extend-words]
+ome = "ome"
+OME = "OME"
+HSI = "HSI"
+NDTiff = "NDTiff"
+ND = "ND"
+ND2 = "ND2"
+
+[tool.mypy]
+packages = ["phasorpy"]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
+plugins = []
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+strict = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = [
+    "phasorpy._phasorpy",
+    "pooch.*",
+    "scipy.*",
+    "mkl_fft.*",
+    "sklearn.*",
+]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+plugins = ["Cython.Coverage"]
+omit = ["conftest.py", "__main__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "if TYPE_CHECKING:",
+    "plot.show()",
+    "pragma: no cover",
+    "pragma: ${PY_MAJOR_VERSION} no cover"
+]
+
+[tool.coverage.html]
+directory = "_htmlcov"
+
+[tool.pytest.ini_options]
+minversion = "7"
+log_cli_level = "INFO"
+# filterwarnings = ["error"]  # breaks debugging tests in VSCode (Sept. 2024)
+xfail_strict = true
+addopts = "-rfEXs --strict-config --strict-markers --doctest-modules --doctest-glob=*.py --doctest-glob=*.rst"
+doctest_optionflags = [
+    "NORMALIZE_WHITESPACE",
+    "ELLIPSIS",
+    "IGNORE_EXCEPTION_DETAIL",
+]
+testpaths = ["src/phasorpy", "tests", "docs"]
+norecursedirs = [
+    # similar to [tool.ruff.exclude]
+    "._",
+    "__pycache__",
+    "_htmlcov",
+    ".git",
+    ".github",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".vscode",
+    "htmlcov",
+    "adhoc",
+    "build",
+    "docs/_build",
+    "fixture",
+    "htmlcov",
+    "phasorpy-dev",
+    "phasorpy.egg-info",
+    "phasorpy_dev",
+    "tutorials",
+    "venv"
+]
+
+[tool.cibuildwheel]
+skip = [
+    "cp38*",
+    "cp39*",
+    "cp310*",
+    "cp311*",
+    "cp313*",
+    "cp314-*",
+    "*musllinux*",
+    "*i686*",
+    "*ppc64le*",
+    "*s390x*",
+]
+test-command = "pytest {project}/tests"
+test-skip = ["cp314t*"]
+test-requires = [
+    # sync with [dependency-groups.optional]
+    "fbdfile",
+    "lfdfiles",
+    "liffile",
+    "ptufile",
+    "sdtfile",
+    "pawflim",
+    # sync with [dependency-groups.test]
+    "coverage",
+    "cython",  # for Cython.Coverage plugin
+    "pytest",
+    "pytest-cov",
+    "pytest-doctestplus",
+    "pytest-runner",
+]
+
+[tool.cibuildwheel.test-environment]
+PHASORPY_DATA_ON_GITHUB = "1"
+SKIP_FETCH = "1"
+MPLBACKEND = "agg"
