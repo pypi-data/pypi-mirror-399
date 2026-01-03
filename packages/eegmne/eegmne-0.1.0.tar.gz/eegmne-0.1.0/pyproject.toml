@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "eegmne"
+version = "0.1.0"
+description = "EEG model"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "eegmnebci" }
+]
+license = { text = "MIT" }
+
+[project.scripts]
+eegmne = "eegmne.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/eegmne"]
