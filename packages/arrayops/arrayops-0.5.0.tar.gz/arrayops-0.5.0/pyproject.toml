@@ -1,0 +1,41 @@
+[build-system]
+requires = ["maturin>=1.10,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "arrayops"
+requires-python = ">=3.8"
+authors = [
+    {name = "Odos Matthews", email = "odosmatthews@gmail.com"}
+]
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 3 - Alpha",
+]
+dynamic = ["version"]
+description = "Rust-backed acceleration for Python array.array"
+readme = "README.md"
+[project.urls]
+Homepage = "https://github.com/eddiethedean/arrayops"
+Repository = "https://github.com/eddiethedean/arrayops"
+Documentation = "https://github.com/eddiethedean/arrayops#readme"
+
+[tool.maturin]
+module-name = "arrayops._arrayops"
+compatibility = "manylinux_2_24"
+strip = true
+
+[tool.maturin.sdist]
+include = ["arrayops/**/*.py", "src/**/*", "Cargo.toml", "pyproject.toml", "README.md", "LICENSE"]
+
+[tool.pytest.ini_options]
+# Filter warnings from pytest-green-light plugin's ensure_greenlet_context fixture
+# This plugin provides async/SQLAlchemy support but arrayops tests don't use it
+# The warning is a deprecation that will become an error in pytest 9
+# We suppress it since arrayops doesn't use async/SQLAlchemy features
+filterwarnings = [
+    "ignore::pytest.PytestRemovedIn9Warning",
+]
