@@ -1,0 +1,2223 @@
+openapi: 3.1.0
+info:
+  title: MUXI Server API
+  description: |
+    The MUXI Server API provides orchestration and management capabilities for MUXI formations.
+
+    ## Overview
+    MUXI Server is a production-grade orchestration platform that manages the lifecycle of MUXI formations.
+    It combines robust process management with intelligent HTTP routing, enabling organizations to run
+    multiple AI formations as a unified service.
+
+    ## Architecture
+    ```
+    ┌─────────────────────────────────────────────────────────┐
+    │ MUXI Server (Port 7890)                                 │
+    ├─────────────────────────────────────────────────────────┤
+    │                                                         │
+    │ /health, /ping           → Server health (public)       │
+    │ /rpc/formations/*        → Formation management (auth)  │
+    │ /rpc/server/*            → Server management (auth)     │
+    │ /api/{formation_id}/*    → Formation proxy (no auth)    │
+    │                                                         │
+    └─────────────────────────────────────────────────────────┘
+    ```
+
+    ## Authentication
+    The API uses HMAC-based authentication for management endpoints:
+    - **Management API** (`/rpc/*`): Requires HMAC signature in `Authorization` header
+    - **Public Endpoints**: No authentication required (`/health`, `/ping`)
+    - **Formation Proxy** (`/api/*`): No server authentication (formations handle their own auth)
+
+    ### HMAC Authentication Format
+    ```
+    Authorization: MUXI-HMAC key={KEY}, timestamp={TIMESTAMP}, signature={SIGNATURE}
+    ```
+
+    **Signature Generation:**
+    ```
+    message = "{timestamp};{method};{path}"
+    signature = base64(HMAC-SHA256(secret, message))
+    ```
+
+    **Example:**
+    ```
+    Authorization: MUXI-HMAC key=MUXI_abc123, timestamp=1732538400, signature=YWJjZGVm...
+    ```
+
+    ## Response Format
+    All API responses use a consistent JSON format:
+
+    ### Success Response
+    ```json
+    {
+      "success": true,
+      "data": {
+        // Response payload
+      }
+    }
+    ```
+
+    ### Error Response
+    ```json
+    {
+      "error": "ErrorType",
+      "message": "Human-readable error description",
+      "code": 400
+    }
+    ```
+
+    ## Runtime Integration
+    MUXI Server integrates with the MUXI Runtime to execute formations:
+    - **macOS/Windows**: Uses Docker containers (muxi-runtime:VERSION)
+    - **Linux**: Uses Singularity SIF containers (native)
+    - **Platform Detection**: Automatic runtime selection
+    - **Version Resolution**: Resolves formation runtime constraints to specific versions
+
+    ## Key Features
+    - Formation lifecycle management (deploy, update, rollback, delete)
+    - Automatic port allocation (8000-9000 pool)
+    - Process monitoring and auto-restart
+    - HTTP reverse proxy with formation routing
+    - Formation versioning (current/previous)
+    - Audit logging for all management operations
+    - Cross-platform support (Linux, macOS, Windows)
+    - Health checks and monitoring
+
+  version: 1.0.0-dev
+  contact:
+    name: MUXI Team
+    url: https://muxi.ai
+    email: support@muxi.ai
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:7890
+    description: Local development server
+  - url: https://{server_host}:{port}
+    description: Production server
+    variables:
+      server_host:
+        default: api.muxi.ai
+        description: MUXI server hostname
+      port:
+        default: '7890'
+        description: MUXI server port (default 7890)
+
+security:
+  - HMACAuth: []
+
+tags:
+  - name: Public
+    description: Public endpoints (no authentication required)
+  - name: Formations
+    description: Formation lifecycle management
+  - name: Server
+    description: Server management and monitoring
+  - name: Proxy
+    description: Formation HTTP proxy (transparent, no server auth)
+
+paths:
+  /health:
+    get:
+      summary: Server health check
+      description: |
+        Returns the health status of the MUXI Server.
+        This endpoint is public (no authentication required) and is designed for
+        load balancer health checks and basic monitoring.
+      operationId: getHealth
+      tags:
+        - Public
+      security: []
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                success: true
+                status: ok
+                version: "1.0.0"
+
+  /ping:
+    get:
+      summary: Connectivity test
+      description: Simple endpoint to test server connectivity
+      operationId: ping
+      tags:
+        - Public
+      security: []
+      responses:
+        '200':
+          description: Server is reachable
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+
+  /rpc/formations:
+    post:
+      summary: Deploy formation
+      description: |
+        Deploy a new formation to the MUXI Server by uploading a gzipped tarball
+        containing formation.afs and application code.
+
+        **Required Headers:**
+        - `Content-Type: application/gzip`
+        - `X-Formation-ID: {formation-id}` - For early conflict detection before upload
+
+        **Optional Headers:**
+        - `X-Formation-Version: {version}` - Formation version (defaults to "1.0.0")
+        - `Accept: text/event-stream` - Enable streaming progress updates (SSE)
+
+        **Early Validation:** The server validates headers before reading the request body.
+        This enables fast failure for conflicts or invalid IDs without wasting bandwidth.
+
+        **Post-Extraction Verification:** After extraction, the server verifies that:
+        - formation.afs ID matches X-Formation-ID header
+        - formation.afs version matches X-Formation-Version header (or default)
+
+        **Processing Steps:**
+        1. Validate X-Formation-ID header (format, conflicts)
+        2. Upload and extract the bundle
+        3. Verify bundle ID and version match headers
+        4. Parse formation.afs for configuration
+        5. Inject server metadata (server_id, deployment_mode)
+        6. Allocate port from pool (8000-9000)
+        7. Resolve runtime version (if specified)
+        8. Download SIF runtime (if missing)
+        9. Pull runtime-runner Docker image (macOS/Windows, if missing)
+        10. Move to permanent storage (~/.muxi/server/formations/{id}/)
+        11. Spawn formation process/container
+        12. Wait for health check to pass
+        13. Register formation
+
+        **Streaming Progress (SSE):**
+        When `Accept: text/event-stream` header is provided, the server streams
+        progress updates as Server-Sent Events instead of waiting for completion.
+
+        Each event has the format:
+        ```
+        event: {event_type}
+        data: {json_payload}
+
+        ```
+
+        **Event Types:**
+        - `progress` - Deployment stage update
+        - `complete` - Deployment succeeded (final event)
+        - `error` - Deployment failed (final event)
+
+        **Progress Stages:**
+        1. `extracting` - Extracting bundle
+        2. `validating` - Validating formation.afs
+        3. `resolving_runtime` - Resolving runtime version
+        4. `downloading_sif` - Downloading SIF file (includes progress %)
+        5. `pulling_runner` - Pulling runtime-runner Docker image
+        6. `spawning` - Starting formation process
+        7. `health_check` - Waiting for health check (includes attempt count)
+
+        **Example SSE Stream:**
+        ```
+        event: progress
+        data: {"stage":"extracting","message":"Extracting bundle..."}
+
+        event: progress
+        data: {"stage":"resolving_runtime","message":"Resolving runtime version","version":"0.2025.0"}
+
+        event: progress
+        data: {"stage":"downloading_sif","message":"Downloading SIF...","progress":45,"url":"https://..."}
+
+        event: progress
+        data: {"stage":"spawning","message":"Starting formation. It might take 1-2 minutes."}
+
+        event: progress
+        data: {"stage":"health_check","message":"Waiting for formation to start...","attempt":31,"max_attempts":60}
+
+        event: complete
+        data: {"formation_id":"my-app","port":8000,"status":"running","url":"http://localhost:7890/api/my-app"}
+        ```
+
+        **Bundle Structure:**
+        ```
+        formation.tar.gz
+        └── {formation-id}/
+            ├── formation.afs    # Required: formation configuration
+            ├── app.py            # Application code
+            └── ...               # Other files
+        ```
+      operationId: deployFormation
+      tags:
+        - Formations
+      parameters:
+        - name: X-Formation-ID
+          in: header
+          required: true
+          description: |
+            Formation ID for early conflict detection. Must match the ID in formation.afs.
+            Validated before reading the request body to fail fast on conflicts.
+          schema:
+            type: string
+            pattern: '^[a-z0-9][a-z0-9-]*[a-z0-9]$'
+            minLength: 2
+            maxLength: 63
+          example: chat-api
+        - name: X-Formation-Version
+          in: header
+          required: false
+          description: |
+            Formation version for validation. Must match the version in formation.afs.
+            Defaults to "1.0.0" if not provided. Used for version verification after extraction.
+          schema:
+            type: string
+            pattern: '^\d+\.\d+\.\d+.*$'
+          example: 1.0.0
+      requestBody:
+        required: true
+        content:
+          application/gzip:
+            schema:
+              type: string
+              format: binary
+              description: Gzipped tarball containing formation.afs and application code
+      responses:
+        '200':
+          description: |
+            Streaming progress updates (when Accept: text/event-stream header is provided).
+            The response is a stream of Server-Sent Events (SSE) with progress updates
+            followed by a final complete or error event.
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/DeployProgressStream'
+              example: |
+                event: progress
+                data: {"stage":"extracting","message":"Extracting bundle..."}
+
+                event: progress
+                data: {"stage":"downloading_sif","message":"Downloading SIF...","progress":67}
+
+                event: progress
+                data: {"stage":"health_check","message":"Waiting for formation...","attempt":15,"max_attempts":60}
+
+                event: complete
+                data: {"formation_id":"my-app","port":8000,"status":"running"}
+        '201':
+          description: Formation deployed successfully (standard JSON response)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeployFormationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      summary: List formations
+      description: |
+        Retrieve a list of all formations currently managed by the server.
+        Returns detailed information about each formation including status,
+        port, health, and metadata.
+      operationId: listFormations
+      tags:
+        - Formations
+      responses:
+        '200':
+          description: List of formations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFormationsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rpc/formations/{formation_id}:
+    get:
+      summary: Get formation details
+      description: Retrieve detailed information about a specific formation
+      operationId: getFormation
+      tags:
+        - Formations
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+      responses:
+        '200':
+          description: Formation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFormationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update formation
+      description: |
+        Update an existing formation by uploading a new version using zero-downtime
+        blue-green deployment.
+
+        **Required Headers:**
+        - `Content-Type: application/gzip`
+
+        **Optional Headers:**
+        - `X-Formation-Version: {version}` - Version being deployed (defaults to "1.0.0")
+        - `Accept: text/event-stream` - Enable streaming progress updates (SSE)
+
+        **Blue-Green Deployment Process:**
+        1. Allocate staging port for new version
+        2. Extract bundle to staging directory
+        3. Verify bundle version matches header
+        4. Resolve runtime version (if muxi_runtime specified)
+        5. Download SIF / pull runtime-runner (if needed)
+        6. Start new version on staging port
+        7. Health check staging (wait for healthy)
+        8. If healthy: atomic switch (staging → current, old → previous)
+        9. Stop old version
+        10. If unhealthy: abort, keep old version running
+
+        **Zero Downtime:** The old version keeps running until the new version is
+        verified healthy. If health checks fail, the old version remains active.
+
+        **Rollback:** After update, you can rollback to the previous version using
+        POST /rpc/formations/{id}/rollback
+
+        **Streaming Progress (SSE):**
+        When `Accept: text/event-stream` header is provided, the server streams
+        progress updates as Server-Sent Events instead of waiting for completion.
+
+        **Progress Stages:**
+        1. `extracting` - Extracting bundle to staging
+        2. `validating` - Validating formation.afs
+        3. `resolving_runtime` - Resolving runtime version
+        4. `downloading_sif` - Downloading SIF file
+        5. `pulling_runner` - Pulling runtime-runner Docker image
+        6. `spawning_staging` - Starting staging version
+        7. `health_check` - Waiting for staging health check (with attempt count)
+        8. `swapping` - Atomic switch (staging → current)
+        9. `stopping_old` - Stopping old version
+
+        **Example SSE Stream:**
+        ```
+        event: progress
+        data: {"stage":"extracting","message":"Extracting bundle to staging..."}
+
+        event: progress
+        data: {"stage":"spawning_staging","message":"Starting staging version on port 8002"}
+
+        event: progress
+        data: {"stage":"health_check","message":"Waiting for staging health check...","attempt":1,"max_attempts":60}
+
+        event: progress
+        data: {"stage":"swapping","message":"Switching traffic to new version"}
+
+        event: complete
+        data: {"formation_id":"my-app","port":8002,"status":"running","previous_version":"1.0.0","new_version":"2.0.0"}
+        ```
+      operationId: updateFormation
+      tags:
+        - Formations
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+        - name: X-Formation-Version
+          in: header
+          required: false
+          description: |
+            Version being deployed. Must match the version in formation.afs.
+            Defaults to "1.0.0" if not provided. Validated after extraction for fast failure.
+          schema:
+            type: string
+            pattern: '^\d+\.\d+\.\d+.*$'
+          example: 2.0.0
+      requestBody:
+        required: true
+        content:
+          application/gzip:
+            schema:
+              type: string
+              format: binary
+              description: Gzipped tarball containing updated formation
+      responses:
+        '200':
+          description: |
+            Formation updated successfully.
+            - With `Accept: text/event-stream`: Streaming progress updates (SSE)
+            - Without: JSON response after completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateFormationResponse'
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/UpdateProgressStream'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Formation is already being updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete formation
+      description: |
+        Delete a formation from the server.
+
+        This will:
+        1. Stop the formation process/container
+        2. Release the allocated port
+        3. Remove from registry
+        4. Clean up formation directory (optional)
+      operationId: deleteFormation
+      tags:
+        - Formations
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+      responses:
+        '200':
+          description: Formation deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteFormationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rpc/formations/{formation_id}/start:
+    post:
+      summary: Start formation
+      description: |
+        Start a stopped formation. The formation must be in stopped state.
+
+        **Optional Headers:**
+        - `Accept: text/event-stream` - Enable streaming progress updates (SSE)
+
+        **Start Process:**
+        1. Validate formation is stopped
+        2. Load formation configuration
+        3. Resolve runtime version (if muxi_runtime specified)
+        4. Download SIF / pull runtime-runner (if needed)
+        5. Start process/container
+        6. Wait for health check to pass
+
+        **Streaming Progress (SSE):**
+        When `Accept: text/event-stream` header is provided, the server streams
+        progress updates as Server-Sent Events.
+
+        **Progress Stages:**
+        1. `validating` - Loading formation configuration
+        2. `resolving_runtime` - Resolving runtime version
+        3. `downloading_sif` - Downloading SIF file (includes progress %)
+        4. `pulling_runner` - Pulling runtime-runner Docker image
+        5. `spawning` - Starting process
+        6. `health_check` - Waiting for health check (with attempt count)
+
+        **Example SSE Stream:**
+        ```
+        event: progress
+        data: {"stage":"validating","message":"Loading formation configuration..."}
+
+        event: progress
+        data: {"stage":"resolving_runtime","message":"Resolved runtime version: 0.2025.0","version":"0.2025.0"}
+
+        event: progress
+        data: {"stage":"spawning","message":"Starting formation..."}
+
+        event: progress
+        data: {"stage":"health_check","message":"Health check 5/60...","attempt":5,"max_attempts":60}
+
+        event: complete
+        data: {"formation_id":"my-app","port":8000,"status":"running"}
+        ```
+      operationId: startFormation
+      tags:
+        - Formations
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+      responses:
+        '200':
+          description: Formation started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormationActionResponse'
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/StartProgressStream'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Formation is already running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rpc/formations/{formation_id}/stop:
+    post:
+      summary: Stop formation
+      description: |
+        Stop a running formation. The formation process/container will be terminated
+        gracefully. The formation remains registered and can be started again.
+      operationId: stopFormation
+      tags:
+        - Formations
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+      responses:
+        '200':
+          description: Formation stopped successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormationActionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Formation is already stopped
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rpc/formations/{formation_id}/restart:
+    post:
+      summary: Restart formation
+      description: |
+        Restart a formation. This will stop the current process/container and
+        start a new one with the same configuration.
+
+        **Optional Headers:**
+        - `Accept: text/event-stream` - Enable streaming progress updates (SSE)
+
+        **Restart Process:**
+        1. Stop current process/container
+        2. Resolve runtime version (if muxi_runtime specified)
+        3. Download SIF / pull runtime-runner (if needed)
+        4. Start new process/container
+        5. Wait for health check to pass
+
+        **Streaming Progress (SSE):**
+        When `Accept: text/event-stream` header is provided, the server streams
+        progress updates as Server-Sent Events.
+
+        **Progress Stages:**
+        1. `stopping` - Stopping current process
+        2. `resolving_runtime` - Resolving runtime version
+        3. `downloading_sif` - Downloading SIF file (includes progress %)
+        4. `pulling_runner` - Pulling runtime-runner Docker image
+        5. `spawning` - Starting new process
+        6. `health_check` - Waiting for health check (with attempt count)
+
+        **Example SSE Stream:**
+        ```
+        event: progress
+        data: {"stage":"stopping","message":"Stopping current process..."}
+
+        event: progress
+        data: {"stage":"spawning","message":"Starting formation..."}
+
+        event: progress
+        data: {"stage":"health_check","message":"Health check 5/60...","attempt":5,"max_attempts":60}
+
+        event: complete
+        data: {"formation_id":"my-app","port":8000,"status":"running","restart_count":3}
+        ```
+      operationId: restartFormation
+      tags:
+        - Formations
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+      responses:
+        '200':
+          description: |
+            Formation restarted successfully.
+            - With `Accept: text/event-stream`: Streaming progress updates (SSE)
+            - Without: JSON response after completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormationActionResponse'
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/RestartProgressStream'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rpc/formations/{formation_id}/rollback:
+    post:
+      summary: Rollback formation
+      description: |
+        Rollback a formation to its previous version.
+
+        This swaps current ↔ previous directories and restarts the formation
+        with the previous version. Only available if a previous version exists.
+
+        **Streaming Progress (SSE):**
+        When `Accept: text/event-stream` header is provided, the server streams
+        progress updates as Server-Sent Events instead of waiting for completion.
+
+        **Progress Stages:**
+        1. `validating` - Validating rollback request
+        2. `stopping` - Stopping current formation
+        3. `swapping` - Swapping to previous version
+        4. `resolving_runtime` - Resolving runtime version (if muxi_runtime)
+        5. `downloading_sif` - Downloading SIF file (if needed)
+        6. `pulling_runner` - Pulling runtime-runner Docker image (if needed)
+        7. `spawning` - Starting formation
+        8. `health_check` - Waiting for health check (with attempt count)
+
+        **Example SSE Stream:**
+        ```
+        event: progress
+        data: {"stage":"validating","message":"Validating rollback request..."}
+
+        event: progress
+        data: {"stage":"stopping","message":"Stopping current formation..."}
+
+        event: progress
+        data: {"stage":"swapping","message":"Swapping to previous version..."}
+
+        event: progress
+        data: {"stage":"spawning","message":"Starting formation..."}
+
+        event: progress
+        data: {"stage":"health_check","message":"Health check attempt 1/300...","attempt":1,"max_attempts":300}
+
+        event: complete
+        data: {"formation_id":"my-app","port":8000,"status":"running","previous_version":"2","new_version":"1"}
+        ```
+      operationId: rollbackFormation
+      tags:
+        - Formations
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+      responses:
+        '200':
+          description: |
+            Formation rolled back successfully.
+            - With `Accept: text/event-stream`: Streaming progress updates (SSE)
+            - Without: JSON response after completion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RollbackFormationResponse'
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/RollbackProgressStream'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rpc/formations/{formation_id}/cancel-update:
+    post:
+      summary: Cancel in-progress update
+      description: |
+        Cancel an in-progress formation update.
+
+        This stops the staging formation, releases the staging port, and cleans up
+        the staging directory. The original formation continues running unaffected.
+
+        Use this endpoint when a user cancels an update operation (e.g., Ctrl+C)
+        before it completes.
+      operationId: cancelFormationUpdate
+      tags:
+        - Formations
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+      responses:
+        '200':
+          description: Update cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelUpdateResponse'
+        '400':
+          description: No update in progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rpc/formations/{formation_id}/logs:
+    get:
+      summary: Get formation logs
+      description: |
+        Retrieve logs for a specific formation. Returns both stdout and stderr logs.
+
+        **Streaming Logs (SSE):**
+        When `follow=true` is provided, the server streams new log lines via Server-Sent Events.
+        This is similar to `tail -f` behavior.
+
+        **SSE Event Types:**
+        - `connected` - Initial connection confirmation
+        - `log` - New log line
+
+        **Example SSE Stream:**
+        ```
+        event: connected
+        data: {"formation_id":"my-app"}
+
+        event: log
+        data: {"line":"[INFO] Starting server...","formation_id":"my-app"}
+
+        event: log
+        data: {"line":"[INFO] Listening on port 8000","formation_id":"my-app"}
+        ```
+      operationId: getFormationLogs
+      tags:
+        - Formations
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+        - name: lines
+          in: query
+          description: Number of log lines to return (default 100)
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 10000
+        - name: stream
+          in: query
+          description: Log stream to retrieve
+          schema:
+            type: string
+            enum: [stdout, stderr, all]
+            default: all
+        - name: follow
+          in: query
+          description: Stream new logs via SSE (like tail -f)
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: |
+            Formation logs.
+            - With `follow=true`: SSE stream of new log lines
+            - Without: JSON response with recent logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLogsResponse'
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/LogStreamEvent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rpc/server/status:
+    get:
+      summary: Get server status
+      description: |
+        Retrieve comprehensive server status including:
+        - Server version and uptime
+        - Formation statistics (total, running, stopped)
+        - Resource usage (port pool, memory)
+        - Runtime information
+      operationId: getServerStatus
+      tags:
+        - Server
+      responses:
+        '200':
+          description: Server status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerStatusResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rpc/server/logs:
+    get:
+      summary: Get server audit logs
+      description: |
+        Retrieve server audit logs showing all management API requests.
+        Audit logs include timestamp, method, path, status, and duration.
+      operationId: getServerLogs
+      tags:
+        - Server
+      parameters:
+        - name: lines
+          in: query
+          description: Number of log lines to return (default 100)
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 10000
+      responses:
+        '200':
+          description: Server audit logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerLogsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/{formation_id}/{proxy+}:
+    x-summary: Formation HTTP Proxy
+    get:
+      summary: Proxy GET request to formation
+      description: |
+        Transparent HTTP proxy to the formation. The server forwards the request
+        to the formation's port and returns the response as-is.
+
+        **No server authentication required.** Formations handle their own authentication.
+      operationId: proxyGetToFormation
+      tags:
+        - Proxy
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+        - $ref: '#/components/parameters/ProxyPath'
+      responses:
+        '200':
+          description: Proxied response from formation
+        '404':
+          description: Formation not found
+        '502':
+          description: Formation is not responding
+        '503':
+          description: Formation is not healthy
+
+    post:
+      summary: Proxy POST request to formation
+      description: Transparent HTTP proxy to the formation
+      operationId: proxyPostToFormation
+      tags:
+        - Proxy
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+        - $ref: '#/components/parameters/ProxyPath'
+      requestBody:
+        description: Request body to forward to formation
+        content:
+          '*/*':
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Proxied response from formation
+        '404':
+          description: Formation not found
+        '502':
+          description: Formation is not responding
+        '503':
+          description: Formation is not healthy
+
+    put:
+      summary: Proxy PUT request to formation
+      description: Transparent HTTP proxy to the formation
+      operationId: proxyPutToFormation
+      tags:
+        - Proxy
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+        - $ref: '#/components/parameters/ProxyPath'
+      requestBody:
+        description: Request body to forward to formation
+        content:
+          '*/*':
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Proxied response from formation
+        '404':
+          description: Formation not found
+        '502':
+          description: Formation is not responding
+        '503':
+          description: Formation is not healthy
+
+    delete:
+      summary: Proxy DELETE request to formation
+      description: Transparent HTTP proxy to the formation
+      operationId: proxyDeleteToFormation
+      tags:
+        - Proxy
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+        - $ref: '#/components/parameters/ProxyPath'
+      responses:
+        '200':
+          description: Proxied response from formation
+        '404':
+          description: Formation not found
+        '502':
+          description: Formation is not responding
+        '503':
+          description: Formation is not healthy
+
+    patch:
+      summary: Proxy PATCH request to formation
+      description: Transparent HTTP proxy to the formation
+      operationId: proxyPatchToFormation
+      tags:
+        - Proxy
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/FormationId'
+        - $ref: '#/components/parameters/ProxyPath'
+      requestBody:
+        description: Request body to forward to formation
+        content:
+          '*/*':
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Proxied response from formation
+        '404':
+          description: Formation not found
+        '502':
+          description: Formation is not responding
+        '503':
+          description: Formation is not healthy
+
+components:
+  securitySchemes:
+    HMACAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |
+        HMAC-based authentication for management API endpoints.
+
+        Format: `MUXI-HMAC key={KEY}, timestamp={TIMESTAMP}, signature={SIGNATURE}`
+
+        **Signature Generation:**
+        ```
+        message = "{timestamp};{method};{path}"
+        signature = base64(HMAC-SHA256(secret, message))
+        ```
+
+        Example:
+        ```
+        Authorization: MUXI-HMAC key=MUXI_abc123, timestamp=1732538400, signature=YWJjZGVm...
+        ```
+
+  parameters:
+    FormationId:
+      name: formation_id
+      in: path
+      required: true
+      description: Unique formation identifier
+      schema:
+        type: string
+        pattern: '^[a-z0-9][a-z0-9-]*[a-z0-9]$'
+        minLength: 2
+        maxLength: 63
+      example: chat-api
+
+    ProxyPath:
+      name: proxy+
+      in: path
+      required: true
+      description: Path to forward to the formation
+      schema:
+        type: string
+      example: v1/chat
+
+  schemas:
+    # Health Responses
+    HealthResponse:
+      type: object
+      required:
+        - success
+        - status
+        - version
+      properties:
+        success:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum: [ok]
+          description: Server health status
+          example: ok
+        version:
+          type: string
+          description: Server version
+          example: "1.0.0"
+
+    # Deployment Progress Streaming (SSE)
+    DeployProgressStream:
+      type: object
+      description: |
+        Server-Sent Events (SSE) stream for deployment progress.
+
+        The stream consists of multiple events, each with:
+        - `event:` line specifying the event type
+        - `data:` line containing JSON payload
+        - Empty line to separate events
+
+        Event types: progress, complete, error
+      oneOf:
+        - $ref: '#/components/schemas/DeployProgressEvent'
+        - $ref: '#/components/schemas/DeployCompleteEvent'
+        - $ref: '#/components/schemas/DeployErrorEvent'
+
+    DeployProgressEvent:
+      type: object
+      description: Progress update during deployment
+      required:
+        - stage
+        - message
+      properties:
+        stage:
+          type: string
+          enum:
+            - extracting
+            - validating
+            - resolving_runtime
+            - downloading_sif
+            - pulling_runner
+            - spawning
+            - health_check
+          description: |
+            Current deployment stage:
+            - extracting: Extracting bundle tarball
+            - validating: Validating formation.afs
+            - resolving_runtime: Resolving runtime version constraint
+            - downloading_sif: Downloading SIF runtime file
+            - pulling_runner: Pulling runtime-runner Docker image
+            - spawning: Starting formation process/container
+            - health_check: Waiting for health check to pass
+          example: downloading_sif
+        message:
+          type: string
+          description: Human-readable progress message
+          example: "Downloading SIF file..."
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Progress percentage (only for downloading_sif stage)
+          example: 67
+        url:
+          type: string
+          description: Download URL (only for downloading_sif stage)
+          example: "https://github.com/muxi-ai/runtime/releases/download/v0.2025.0/muxi-runtime-0.2025.0-linux-arm64.sif"
+        version:
+          type: string
+          description: Resolved version (only for resolving_runtime stage)
+          example: "0.2025.0"
+        attempt:
+          type: integer
+          description: Current health check attempt (only for health_check stage)
+          example: 31
+        max_attempts:
+          type: integer
+          description: Maximum health check attempts (only for health_check stage)
+          example: 60
+
+    DeployCompleteEvent:
+      type: object
+      description: Deployment completed successfully (final event)
+      required:
+        - formation_id
+        - port
+        - status
+        - url
+      properties:
+        formation_id:
+          type: string
+          description: Deployed formation ID
+          example: my-app
+        port:
+          type: integer
+          description: Allocated port
+          example: 8000
+        status:
+          type: string
+          enum: [running]
+          description: Formation status
+          example: running
+        url:
+          type: string
+          description: Formation proxy URL
+          example: "http://localhost:7890/api/my-app"
+        health_url:
+          type: string
+          description: Direct health check URL
+          example: "http://localhost:8000/health"
+        pid:
+          type: integer
+          description: Process ID
+          example: 12345
+
+    DeployErrorEvent:
+      type: object
+      description: Deployment failed (final event)
+      required:
+        - error
+        - message
+        - stage
+      properties:
+        error:
+          type: string
+          description: Error type/code
+          example: "RuntimeNotFound"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Failed to download SIF: connection timeout"
+        stage:
+          type: string
+          description: Stage where the error occurred
+          example: "downloading_sif"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+    # Update Progress Streaming (SSE)
+    UpdateProgressStream:
+      type: object
+      description: |
+        Server-Sent Events (SSE) stream for update progress (blue-green deployment).
+
+        The stream consists of multiple events, each with:
+        - `event:` line specifying the event type
+        - `data:` line containing JSON payload
+        - Empty line to separate events
+
+        Event types: progress, complete, error
+      oneOf:
+        - $ref: '#/components/schemas/UpdateProgressEvent'
+        - $ref: '#/components/schemas/UpdateCompleteEvent'
+        - $ref: '#/components/schemas/UpdateErrorEvent'
+
+    UpdateProgressEvent:
+      type: object
+      description: Progress update during blue-green deployment
+      required:
+        - stage
+        - message
+      properties:
+        stage:
+          type: string
+          enum:
+            - extracting
+            - validating
+            - resolving_runtime
+            - downloading_sif
+            - pulling_runner
+            - spawning_staging
+            - health_check
+            - swapping
+            - stopping_old
+          description: |
+            Current update stage:
+            - extracting: Extracting bundle to staging
+            - validating: Validating formation.afs
+            - resolving_runtime: Resolving runtime version constraint
+            - downloading_sif: Downloading SIF runtime file
+            - pulling_runner: Pulling runtime-runner Docker image
+            - spawning_staging: Starting staging version
+            - health_check: Waiting for staging health check
+            - swapping: Atomic switch (staging → current)
+            - stopping_old: Stopping old version
+          example: health_check
+        message:
+          type: string
+          description: Human-readable progress message
+          example: "Waiting for staging health check..."
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Progress percentage (only for downloading_sif stage)
+          example: 67
+        version:
+          type: string
+          description: Resolved version (only for resolving_runtime stage)
+          example: "0.2025.0"
+        staging_port:
+          type: integer
+          description: Staging port (only for spawning_staging stage)
+          example: 8002
+        attempt:
+          type: integer
+          description: Current health check attempt (only for health_check stage)
+          example: 5
+        max_attempts:
+          type: integer
+          description: Maximum health check attempts (only for health_check stage)
+          example: 60
+
+    UpdateCompleteEvent:
+      type: object
+      description: Update completed successfully (final event)
+      required:
+        - formation_id
+        - port
+        - status
+      properties:
+        formation_id:
+          type: string
+          description: Updated formation ID
+          example: my-app
+        port:
+          type: integer
+          description: New port (was staging port)
+          example: 8002
+        status:
+          type: string
+          enum: [running]
+          description: Formation status
+          example: running
+        url:
+          type: string
+          description: Formation proxy URL
+          example: "http://localhost:7890/api/my-app"
+        previous_version:
+          type: string
+          description: Previous formation version
+          example: "1.0.0"
+        new_version:
+          type: string
+          description: New formation version
+          example: "2.0.0"
+
+    UpdateErrorEvent:
+      type: object
+      description: Update failed (final event). Old version remains running.
+      required:
+        - error
+        - message
+        - stage
+      properties:
+        error:
+          type: string
+          description: Error type/code
+          example: "HealthCheckFailed"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Staging health check failed after 60 attempts"
+        stage:
+          type: string
+          description: Stage where the error occurred
+          example: "health_check"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+        rollback_status:
+          type: string
+          description: Status of automatic rollback
+          enum: [not_needed, success, failed]
+          example: "not_needed"
+
+    # Restart Progress Streaming (SSE)
+    RestartProgressStream:
+      type: object
+      description: |
+        Server-Sent Events (SSE) stream for restart progress.
+        Event types: progress, complete, error
+      oneOf:
+        - $ref: '#/components/schemas/RestartProgressEvent'
+        - $ref: '#/components/schemas/RestartCompleteEvent'
+        - $ref: '#/components/schemas/RestartErrorEvent'
+
+    RestartProgressEvent:
+      type: object
+      description: Progress update during restart
+      required:
+        - stage
+        - message
+      properties:
+        stage:
+          type: string
+          enum:
+            - stopping
+            - resolving_runtime
+            - downloading_sif
+            - pulling_runner
+            - spawning
+            - health_check
+          description: |
+            Current restart stage:
+            - stopping: Stopping current process
+            - resolving_runtime: Resolving runtime version constraint
+            - downloading_sif: Downloading SIF runtime file
+            - pulling_runner: Pulling runtime-runner Docker image
+            - spawning: Starting new process
+            - health_check: Waiting for health check
+          example: health_check
+        message:
+          type: string
+          description: Human-readable progress message
+          example: "Health check 5/60..."
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Progress percentage (only for downloading_sif stage)
+          example: 67
+        version:
+          type: string
+          description: Resolved version (only for resolving_runtime stage)
+          example: "0.2025.0"
+        attempt:
+          type: integer
+          description: Current health check attempt (only for health_check stage)
+          example: 5
+        max_attempts:
+          type: integer
+          description: Maximum health check attempts (only for health_check stage)
+          example: 60
+
+    RestartCompleteEvent:
+      type: object
+      description: Restart completed successfully (final event)
+      required:
+        - formation_id
+        - port
+        - status
+      properties:
+        formation_id:
+          type: string
+          description: Restarted formation ID
+          example: my-app
+        port:
+          type: integer
+          description: Formation port
+          example: 8000
+        status:
+          type: string
+          enum: [running]
+          description: Formation status
+          example: running
+        restart_count:
+          type: integer
+          description: Total restart count
+          example: 3
+
+    RestartErrorEvent:
+      type: object
+      description: Restart failed (final event)
+      required:
+        - error
+        - message
+        - stage
+      properties:
+        error:
+          type: string
+          description: Error type/code
+          example: "HealthCheckFailed"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Health check failed after 60 attempts"
+        stage:
+          type: string
+          description: Stage where the error occurred
+          example: "health_check"
+
+    # Start Progress Streaming (SSE)
+    StartProgressStream:
+      type: object
+      description: |
+        Server-Sent Events (SSE) stream for start progress.
+        Event types: progress, complete, error
+      oneOf:
+        - $ref: '#/components/schemas/StartProgressEvent'
+        - $ref: '#/components/schemas/StartCompleteEvent'
+        - $ref: '#/components/schemas/StartErrorEvent'
+
+    StartProgressEvent:
+      type: object
+      description: Progress update during start
+      required:
+        - stage
+        - message
+      properties:
+        stage:
+          type: string
+          enum:
+            - validating
+            - resolving_runtime
+            - downloading_sif
+            - pulling_runner
+            - spawning
+            - health_check
+          description: |
+            Current start stage:
+            - validating: Loading formation configuration
+            - resolving_runtime: Resolving runtime version constraint
+            - downloading_sif: Downloading SIF runtime file
+            - pulling_runner: Pulling runtime-runner Docker image
+            - spawning: Starting process
+            - health_check: Waiting for health check
+          example: health_check
+        message:
+          type: string
+          description: Human-readable progress message
+          example: "Health check 5/60..."
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Progress percentage (only for downloading_sif stage)
+          example: 67
+        version:
+          type: string
+          description: Resolved version (only for resolving_runtime stage)
+          example: "0.2025.0"
+        attempt:
+          type: integer
+          description: Current health check attempt (only for health_check stage)
+          example: 5
+        max_attempts:
+          type: integer
+          description: Maximum health check attempts (only for health_check stage)
+          example: 60
+
+    StartCompleteEvent:
+      type: object
+      description: Start completed successfully (final event)
+      required:
+        - formation_id
+        - port
+        - status
+      properties:
+        formation_id:
+          type: string
+          description: Started formation ID
+          example: my-app
+        port:
+          type: integer
+          description: Formation port
+          example: 8000
+        status:
+          type: string
+          enum: [running]
+          description: Formation status
+          example: running
+
+    StartErrorEvent:
+      type: object
+      description: Start failed (final event)
+      required:
+        - error
+        - message
+        - stage
+      properties:
+        error:
+          type: string
+          description: Error type/code
+          example: "HealthCheckFailed"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Health check failed after 60 attempts"
+        stage:
+          type: string
+          description: Stage where the error occurred
+          example: "health_check"
+
+    # Rollback Progress Streaming (SSE)
+    RollbackProgressStream:
+      type: object
+      description: |
+        Server-Sent Events (SSE) stream for rollback progress.
+        Event types: progress, complete, error
+      oneOf:
+        - $ref: '#/components/schemas/RollbackProgressEvent'
+        - $ref: '#/components/schemas/RollbackCompleteEvent'
+        - $ref: '#/components/schemas/RollbackErrorEvent'
+
+    RollbackProgressEvent:
+      type: object
+      description: Progress update during rollback
+      required:
+        - stage
+        - message
+      properties:
+        stage:
+          type: string
+          enum:
+            - validating
+            - stopping
+            - swapping
+            - resolving_runtime
+            - downloading_sif
+            - pulling_runner
+            - spawning
+            - health_check
+          description: |
+            Current rollback stage:
+            - validating: Validating rollback request
+            - stopping: Stopping current formation
+            - swapping: Swapping to previous version
+            - resolving_runtime: Resolving runtime version constraint
+            - downloading_sif: Downloading SIF runtime file
+            - pulling_runner: Pulling runtime-runner Docker image
+            - spawning: Starting formation
+            - health_check: Waiting for health check
+          example: health_check
+        message:
+          type: string
+          description: Human-readable progress message
+          example: "Health check attempt 5/300..."
+        version:
+          type: string
+          description: Resolved version (only for resolving_runtime stage)
+          example: "0.2025.0"
+        attempt:
+          type: integer
+          description: Current health check attempt (only for health_check stage)
+          example: 5
+        max_attempts:
+          type: integer
+          description: Maximum health check attempts (only for health_check stage)
+          example: 300
+
+    RollbackCompleteEvent:
+      type: object
+      description: Rollback completed successfully (final event)
+      required:
+        - formation_id
+        - port
+        - status
+      properties:
+        formation_id:
+          type: string
+          description: Rolled back formation ID
+          example: my-app
+        port:
+          type: integer
+          description: Formation port
+          example: 8000
+        status:
+          type: string
+          enum: [running]
+          description: Formation status
+          example: running
+        previous_version:
+          type: string
+          description: Previous version number (now current after rollback)
+          example: "1"
+        new_version:
+          type: string
+          description: New current version number
+          example: "2"
+
+    RollbackErrorEvent:
+      type: object
+      description: Rollback failed (final event)
+      required:
+        - error
+        - message
+        - stage
+      properties:
+        error:
+          type: string
+          description: Error type/code
+          example: "HealthCheckFailed"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Health check failed after 300 attempts"
+        stage:
+          type: string
+          description: Stage where the error occurred
+          example: "health_check"
+
+    # Formation Deployment
+    DeployFormationResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          required:
+            - formation_id
+            - port
+            - status
+            - url
+            - health_url
+            - pid
+          properties:
+            formation_id:
+              type: string
+              example: chat-api
+            port:
+              type: integer
+              description: Allocated port
+              example: 8001
+            status:
+              type: string
+              enum: [starting, running]
+              example: starting
+            url:
+              type: string
+              description: Formation proxy URL
+              example: http://localhost:7890/api/chat-api
+            health_url:
+              type: string
+              description: Direct health check URL (localhost only)
+              example: http://localhost:8001/health
+            pid:
+              type: integer
+              description: Process ID
+              example: 12345
+
+    # Formation Listing
+    ListFormationsResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          required:
+            - formations
+            - total
+          properties:
+            formations:
+              type: array
+              items:
+                $ref: '#/components/schemas/FormationInfo'
+            total:
+              type: integer
+              description: Total number of formations
+              example: 3
+
+    # Formation Details
+    GetFormationResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/FormationInfo'
+
+    FormationInfo:
+      type: object
+      required:
+        - id
+        - name
+        - port
+        - status
+        - healthy
+        - pid
+        - restart_count
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Formation ID
+          example: chat-api
+        name:
+          type: string
+          description: Formation name
+          example: Chat API
+        port:
+          type: integer
+          description: Allocated port
+          example: 8001
+        status:
+          type: string
+          enum: [running, stopped, starting, stopping]
+          description: Formation status
+          example: running
+        healthy:
+          type: boolean
+          nullable: true
+          description: Health check status. Null when status is "starting" (unknown during startup).
+          example: true
+        pid:
+          type: integer
+          description: Process ID (0 if stopped)
+          example: 12345
+        restart_count:
+          type: integer
+          description: Number of times formation has been restarted
+          example: 0
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        version:
+          type: object
+          description: Version information
+          properties:
+            semantic:
+              type: string
+              description: Semantic version from formation.afs (e.g., "1.0.0")
+              example: "1.0.0"
+            current:
+              type: string
+              description: Current bundle hash
+            previous:
+              type: string
+              description: Previous bundle hash (for rollback)
+        runtime:
+          type: object
+          description: Runtime information
+          properties:
+            version:
+              type: string
+              description: Runtime version
+              example: 0.2025.0
+            type:
+              type: string
+              enum: [docker, singularity, native]
+              description: Runtime type
+              example: docker
+
+    # Formation Actions
+    UpdateFormationResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            formation_id:
+              type: string
+              example: chat-api
+            version:
+              type: object
+              properties:
+                previous:
+                  type: string
+                  description: Previous version hash
+                current:
+                  type: string
+                  description: New version hash
+            status:
+              type: string
+              example: running
+
+    DeleteFormationResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: chat-api
+            message:
+              type: string
+              example: Formation deleted successfully
+
+    FormationActionResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            formation_id:
+              type: string
+              example: chat-api
+            action:
+              type: string
+              enum: [stopped, restarted]
+              example: stopped
+            status:
+              type: string
+              example: stopped
+
+    RollbackFormationResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            formation_id:
+              type: string
+              example: chat-api
+            action:
+              type: string
+              example: rolled back
+            version:
+              type: object
+              properties:
+                previous:
+                  type: string
+                  description: Previous version (now current after rollback)
+                current:
+                  type: string
+                  description: Current version (now previous after rollback)
+
+    CancelUpdateResponse:
+      type: object
+      required:
+        - message
+        - formation_id
+        - staging_port
+        - status
+        - current_port
+      properties:
+        message:
+          type: string
+          example: Update cancelled successfully
+        formation_id:
+          type: string
+          example: chat-api
+        staging_port:
+          type: integer
+          description: The staging port that was released
+          example: 8001
+        status:
+          type: string
+          description: Current status of the formation
+          example: running
+        current_port:
+          type: integer
+          description: The port where the original formation is running
+          example: 8000
+
+    # Logs
+    GetLogsResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            formation_id:
+              type: string
+              example: chat-api
+            logs:
+              type: object
+              properties:
+                stdout:
+                  type: array
+                  items:
+                    type: string
+                  description: Stdout log lines
+                stderr:
+                  type: array
+                  items:
+                    type: string
+                  description: Stderr log lines
+
+    LogStreamEvent:
+      description: SSE event for log streaming (follow=true)
+      oneOf:
+        - type: object
+          description: Connected event - sent when stream starts
+          properties:
+            event:
+              type: string
+              enum: [connected]
+            data:
+              type: object
+              properties:
+                formation_id:
+                  type: string
+        - type: object
+          description: Log event - sent for each new log line
+          properties:
+            event:
+              type: string
+              enum: [log]
+            data:
+              type: object
+              properties:
+                line:
+                  type: string
+                  description: The log line content
+                formation_id:
+                  type: string
+
+    # Server Status
+    ServerStatusResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            server:
+              type: object
+              properties:
+                version:
+                  type: string
+                  example: 1.0.0-dev
+                server_id:
+                  type: string
+                  example: server-hostname-abc123
+                uptime:
+                  type: integer
+                  description: Server uptime in seconds
+                  example: 86400
+                port:
+                  type: integer
+                  example: 7890
+            formations:
+              type: object
+              properties:
+                total:
+                  type: integer
+                  example: 5
+                running:
+                  type: integer
+                  example: 4
+                stopped:
+                  type: integer
+                  example: 1
+                healthy:
+                  type: integer
+                  example: 3
+            ports:
+              type: object
+              properties:
+                allocated:
+                  type: integer
+                  example: 5
+                available:
+                  type: integer
+                  example: 995
+                range:
+                  type: string
+                  example: 8000-9000
+            runtime:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [docker, singularity]
+                  example: docker
+                platform:
+                  type: string
+                  example: darwin-arm64
+                versions:
+                  type: array
+                  items:
+                    type: string
+                  example: [0.2025.0]
+
+    # Server Logs
+    ServerLogsResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            logs:
+              type: array
+              items:
+                type: object
+                properties:
+                  timestamp:
+                    type: string
+                    format: date-time
+                  method:
+                    type: string
+                    example: POST
+                  path:
+                    type: string
+                    example: /rpc/formations
+                  status:
+                    type: integer
+                    example: 201
+                  duration_ms:
+                    type: number
+                    format: float
+                    example: 123.45
+                  remote_addr:
+                    type: string
+                    example: 192.168.1.100
+
+    # Error Responses
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - code
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: BadRequest
+        message:
+          type: string
+          description: Human-readable error message
+          example: Formation ID is required
+        code:
+          type: integer
+          description: HTTP status code
+          example: 400
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: BadRequest
+            message: Formation ID is required
+            code: 400
+
+    Unauthorized:
+      description: Unauthorized - invalid or missing authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Unauthorized
+            message: Invalid HMAC signature
+            code: 401
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: NotFound
+            message: Formation not found
+            code: 404
+
+    Conflict:
+      description: Resource conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Conflict
+            message: Formation already exists
+            code: 409
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: InternalServerError
+            message: An unexpected error occurred
+            code: 500
