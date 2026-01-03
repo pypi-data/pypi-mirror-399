@@ -1,0 +1,44 @@
+description = "3️⃣ 문서 동기화 (Auto Documentation)"
+
+prompt = """
+You are now activating CheerU-ADK documentation sync workflow.
+
+## Step 3: Sync Documentation
+
+### Execute Sync Commands
+```
+cheeru-adk sync all
+```
+
+This will:
+1. Update CHANGELOG.md with recent commits
+2. Update README.md with feature/test counts
+3. Generate API documentation from docstrings
+
+### Check Documentation Freshness
+```
+cheeru-adk sync check
+```
+
+## Your Tasks:
+
+1. Run the sync all command
+2. Review generated CHANGELOG entries
+3. Verify README badges are updated
+4. Check documentation freshness score (target: 100%)
+
+### If Issues Found:
+- For stale CHANGELOG: `cheeru-adk sync changelog`
+- For outdated README: `cheeru-adk sync readme`
+- For missing API docs: `cheeru-adk sync api`
+
+After sync is complete:
+- Commit changes: `cheeru-adk commit "docs: sync documentation"`
+- Push to remote: `git push`
+
+## Workflow Complete! 🎉
+The SPEC-First TDD cycle is now complete:
+1. ✅ SPEC Created (Plan)
+2. ✅ Code Implemented (Run)
+3. ✅ Documentation Synced (Sync)
+"""

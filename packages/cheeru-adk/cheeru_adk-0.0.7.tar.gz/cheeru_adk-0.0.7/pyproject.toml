@@ -1,0 +1,130 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cheeru-adk"
+version = "0.0.7"
+description = "CheerU-ADK: AI Portfolio Auto-Generation Framework for Job Seekers (Gemini CLI)"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "CheerU Team", email = "cheeru.adk@gmail.com"}
+]
+keywords = [
+    "portfolio",
+    "job-seeker",
+    "ai",
+    "automation",
+    "gemini",
+    "adk",
+    "agentic",
+    "career",
+    "resume",
+    "tdd",
+    "spec-first",
+    "cli",
+    "multi-agent"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Testing",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "click>=8.0",
+    "rich>=13.0",
+    "questionary>=2.0.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+cheeru-adk = "cheeru_adk.cli.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/Dalgoi/cheeru-adk"
+Repository = "https://github.com/Dalgoi/cheeru-adk"
+Issues = "https://github.com/Dalgoi/cheeru-adk/issues"
+Changelog = "https://github.com/Dalgoi/cheeru-adk/blob/main/CHANGELOG.md"
+
+# ============================================================================
+# Build Configuration
+# ============================================================================
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cheeru_adk"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+
+[tool.hatch.build]
+include = [
+    "src/cheeru_adk/**/*",
+]
+exclude = [
+    "**/__pycache__",
+    "**/*.pyc",
+    ".git",
+    ".github",
+    "tests",
+]
+
+# ============================================================================
+# Tool Configurations
+# ============================================================================
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v"
+
+[tool.coverage.run]
+source = ["src/cheeru_adk"]
+omit = ["tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 70
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+# ============================================================================
+# UV Index Configuration (for PyPI)
+# ============================================================================
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+publish-url = "https://upload.pypi.org/legacy/"
+

@@ -1,0 +1,77 @@
+description = "1️⃣ 개별 기능 SPEC 생성 (Worktree 자동)"
+
+prompt = """
+You are creating a **single feature SPEC** for parallel development.
+
+Load the planning agent: @.agent/agents/project-planner.md
+
+## 🎯 Your Task
+
+기능 "$feature"에 대한 **개별 SPEC**을 생성합니다.
+
+## 📋 Step 1: SPEC 생성
+
+다음 명령어를 실행하세요:
+```bash
+cheeru-adk spec new "$feature" --worktree
+```
+
+이 명령어는:
+1. SPEC 문서 생성 (EARS 형식)
+2. 사용자 확인 대기
+3. Worktree 자동 생성
+
+## 📋 Step 2: SPEC 내용 작성
+
+`.cheeru/specs/SPEC-XXX/spec.md` 파일을 편집하세요:
+
+```markdown
+---
+id: SPEC-XXX
+title: $feature
+version: 1.0.0
+status: draft
+---
+
+## Environment
+- Language: [Python/TypeScript/etc]
+- Framework: [FastAPI/React/etc]
+- Dependencies: [if any]
+
+## Assumptions
+1. [전제 조건 1]
+2. [전제 조건 2]
+
+## Requirements
+
+### Event-driven (WHEN...THEN)
+- WHEN [이벤트 발생]
+  - THEN [결과]
+
+### State-driven (IF...THEN)
+- IF [상태]
+  - THEN [동작]
+
+## Success Criteria
+- [ ] 모든 테스트 통과
+- [ ] 코드 커버리지 >= 80%
+- [ ] API 문서 작성
+```
+
+## 📋 Step 3: Worktree 진입
+
+SPEC 작성 완료 후:
+```bash
+cd .worktrees/SPEC-XXX
+cheeru-adk tdd start
+```
+
+## ⚠️ 이 SPEC의 범위
+
+- **이 기능만** 구현 (다른 기능 X)
+- **2-4시간** 내 완료 가능한 크기
+- 다른 SPEC과 **의존성 최소화**
+"""
+
+[args]
+feature = { position = 0, description = "기능 이름 (예: '이메일 로그인')" }

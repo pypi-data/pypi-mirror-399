@@ -1,0 +1,56 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "name": "cheeru-context-loader",
+            "type": "command",
+            "command": "node $GEMINI_PROJECT_DIR/.gemini/hooks/session-start.js",
+            "description": "Load CheerU-ADK project context automatically"
+          }
+        ]
+      }
+    ],
+    "AfterModel": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "name": "cheeru-tdd-detector",
+            "type": "command",
+            "command": "node $GEMINI_PROJECT_DIR/.gemini/hooks/tdd-detector.js",
+            "description": "Detect and track TDD cycle state"
+          }
+        ]
+      }
+    ],
+    "BeforeTool": [
+      {
+        "matcher": "write_file|replace",
+        "hooks": [
+          {
+            "name": "cheeru-code-validator",
+            "type": "command",
+            "command": "$GEMINI_PROJECT_DIR/.gemini/hooks/code-validator.sh",
+            "description": "Validate code before writing"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "name": "cheeru-session-saver",
+            "type": "command",
+            "command": "node $GEMINI_PROJECT_DIR/.gemini/hooks/session-end.js",
+            "description": "Save session learnings for future reference"
+          }
+        ]
+      }
+    ]
+  }
+}
