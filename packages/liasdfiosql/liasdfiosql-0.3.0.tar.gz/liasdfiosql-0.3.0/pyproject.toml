@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "liasdfiosql"
+version = "0.3.0"
+description = "Sandboxed file CLI with fixed webhook curl and safe helpers (ls/cat/find/grep/sleep)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "liasdfio" }]
+keywords = ["cli", "sandbox", "webhook", "filesystem"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Environment :: Console",
+  "Topic :: Utilities",
+]
+dependencies = []
+
+[project.scripts]
+liasdfio = "liasdfiosql.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+test = ["pytest"]
