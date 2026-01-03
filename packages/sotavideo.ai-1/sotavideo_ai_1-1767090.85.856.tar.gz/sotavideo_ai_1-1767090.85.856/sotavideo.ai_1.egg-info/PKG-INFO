@@ -1,0 +1,116 @@
+Metadata-Version: 2.4
+Name: sotavideo.ai-1
+Version: 1767090.85.856
+Summary: High-quality integration for https://sotavideo.ai/
+Home-page: https://sotavideo.ai/
+Author: SuperMaker
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+Dynamic: summary
+
+# sotavideo.ai-1: Your Gateway to Automated Video Intelligence
+
+`sotavideo.ai-1` is a Python library designed to streamline interaction with the sotavideo.ai platform, providing automated access to its video intelligence capabilities. This package simplifies the process of integrating your projects with advanced video analysis features.
+
+## Installation
+
+Install the package using pip:
+bash
+pip install sotavideo.ai-1
+
+## Basic Usage
+
+Here are a few examples demonstrating how to use `sotavideo.ai-1`:
+
+**1. Analyzing Video Content for Object Detection:**
+python
+from sotavideoai import VideoAnalyzer
+
+analyzer = VideoAnalyzer(api_key="YOUR_API_KEY") # Replace with your actual API key
+
+video_url = "https://example.com/video.mp4"
+results = analyzer.detect_objects(video_url)
+
+for object_data in results:
+    print(f"Object: {object_data['object_name']}, Confidence: {object_data['confidence']}")
+
+This example demonstrates how to analyze a video from a URL and detect objects within the video frames. Replace `"YOUR_API_KEY"` with your actual API key obtained from the sotavideo.ai platform.
+
+**2. Transcribing Audio from a Video:**
+python
+from sotavideoai import VideoTranscriber
+
+transcriber = VideoTranscriber(api_key="YOUR_API_KEY")
+
+video_file = "path/to/your/video.mp4"
+transcript = transcriber.transcribe_audio(video_file)
+
+print(transcript)
+
+This snippet shows how to transcribe the audio content of a local video file. The `transcribe_audio` function returns the transcribed text.
+
+**3. Summarizing Video Content:**
+python
+from sotavideoai import VideoSummarizer
+
+summarizer = VideoSummarizer(api_key="YOUR_API_KEY")
+
+video_url = "https://example.com/long_video.mp4"
+summary = summarizer.generate_summary(video_url, length="short") # Options: "short", "medium", "long"
+
+print(summary)
+
+This example illustrates how to generate a summary of a video hosted online. The `length` parameter allows you to control the length of the generated summary.
+
+**4. Identifying Key Moments in a Video:**
+python
+from sotavideoai import VideoKeyMoments
+
+key_moments = VideoKeyMoments(api_key="YOUR_API_KEY")
+
+video_file = "path/to/your/video.mp4"
+moments = key_moments.get_key_moments(video_file, num_moments=3)
+
+for moment in moments:
+    print(f"Timestamp: {moment['timestamp']}, Description: {moment['description']}")
+
+This example demonstrates how to identify the most important moments within a video file. The `num_moments` parameter controls the number of key moments returned.
+
+**5. Analyzing Video Sentiment:**
+python
+from sotavideoai import VideoSentimentAnalyzer
+
+sentiment_analyzer = VideoSentimentAnalyzer(api_key="YOUR_API_KEY")
+
+video_url = "https://example.com/video.mp4"
+sentiment = sentiment_analyzer.analyze_sentiment(video_url)
+
+print(f"Overall Sentiment: {sentiment['overall_sentiment']}, Positive Score: {sentiment['positive_score']}, Negative Score: {sentiment['negative_score']}")
+
+This example showcases how to analyze the overall sentiment expressed in a video.  It returns the overall sentiment (e.g., positive, negative, neutral) along with positive and negative sentiment scores.
+
+## Features
+
+*   **Object Detection:** Identify objects present in video frames.
+*   **Audio Transcription:** Convert spoken audio in videos to text.
+*   **Video Summarization:** Generate concise summaries of video content.
+*   **Key Moment Identification:** Pinpoint important timestamps within a video.
+*   **Sentiment Analysis:** Determine the overall sentiment expressed in a video.
+*   **Easy Integration:** Simple and intuitive API for seamless integration.
+*   **Authentication:** Secure API key-based authentication.
+
+## License
+
+MIT License
+
+This project is a gateway to the sotavideo.ai-1 ecosystem. For advanced features and full capabilities, please visit: https://sotavideo.ai/
