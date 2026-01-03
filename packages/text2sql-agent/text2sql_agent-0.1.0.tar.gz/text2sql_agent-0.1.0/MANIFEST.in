@@ -1,0 +1,21 @@
+# Include essential documentation only
+include README.md
+include LICENSE
+
+# Exclude everything else
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *.so
+global-exclude .DS_Store
+global-exclude *.db
+global-exclude *.sqlite
+global-exclude *.sqlite3
+global-exclude *.log
+global-exclude .env
+
+# Exclude build artifacts
+prune build
+prune dist
+prune *.egg-info
+prune .pytest_cache
+prune htmlcov

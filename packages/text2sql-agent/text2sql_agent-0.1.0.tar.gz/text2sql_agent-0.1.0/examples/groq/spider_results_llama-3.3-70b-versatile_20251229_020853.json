@@ -1,0 +1,152 @@
+{
+  "timestamp": "20251229_020853",
+  "model": "llama-3.3-70b-versatile",
+  "temperature": 0.1,
+  "total_examples": 10,
+  "successful": 8,
+  "accuracy": 80.0,
+  "by_difficulty": {
+    "unknown": {
+      "total": 10,
+      "success": 8
+    }
+  },
+  "by_database": {
+    "concert_singer": {
+      "total": 10,
+      "success": 8
+    }
+  },
+  "detailed_results": [
+    {
+      "index": 0,
+      "db_id": "concert_singer",
+      "question": "How many singers do we have?",
+      "expected_sql": "SELECT count(*) FROM singer",
+      "difficulty": "unknown",
+      "success": true,
+      "generated_sql": "SELECT COUNT(Singer_ID) FROM singer",
+      "exact_match": false,
+      "execution_match": true,
+      "error": null,
+      "execution_time_ms": 4117.624759674072
+    },
+    {
+      "index": 1,
+      "db_id": "concert_singer",
+      "question": "What is the total number of singers?",
+      "expected_sql": "SELECT count(*) FROM singer",
+      "difficulty": "unknown",
+      "success": true,
+      "generated_sql": "SELECT COUNT(Singer_ID) FROM singer",
+      "exact_match": false,
+      "execution_match": true,
+      "error": null,
+      "execution_time_ms": 6736.989974975586
+    },
+    {
+      "index": 2,
+      "db_id": "concert_singer",
+      "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+      "expected_sql": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+      "difficulty": "unknown",
+      "success": true,
+      "generated_sql": "SELECT \"Name\", \"Country\", \"Age\" FROM singer ORDER BY \"Age\" DESC LIMIT 10",
+      "exact_match": false,
+      "execution_match": true,
+      "error": null,
+      "execution_time_ms": 36980.26490211487
+    },
+    {
+      "index": 3,
+      "db_id": "concert_singer",
+      "question": "What are the names, countries, and ages for every singer in descending order of age?",
+      "expected_sql": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+      "difficulty": "unknown",
+      "success": true,
+      "generated_sql": "SELECT \"Name\", \"Country\", \"Age\" FROM singer ORDER BY \"Age\" DESC LIMIT 10",
+      "exact_match": false,
+      "execution_match": true,
+      "error": null,
+      "execution_time_ms": 37058.47907066345
+    },
+    {
+      "index": 4,
+      "db_id": "concert_singer",
+      "question": "What is the average, minimum, and maximum age of all singers from France?",
+      "expected_sql": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+      "difficulty": "unknown",
+      "success": true,
+      "generated_sql": "SELECT AVG(Age) AS average_age, MIN(Age) AS min_age, MAX(Age) AS max_age FROM singer WHERE Country = 'France'",
+      "exact_match": false,
+      "execution_match": true,
+      "error": null,
+      "execution_time_ms": 37677.897930145264
+    },
+    {
+      "index": 5,
+      "db_id": "concert_singer",
+      "question": "What is the average, minimum, and maximum age for all French singers?",
+      "expected_sql": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+      "difficulty": "unknown",
+      "success": true,
+      "generated_sql": "SELECT AVG(Age) AS average_age, MIN(Age) AS min_age, MAX(Age) AS max_age FROM singer WHERE Country = 'France'",
+      "exact_match": false,
+      "execution_match": true,
+      "error": null,
+      "execution_time_ms": 35894.08802986145
+    },
+    {
+      "index": 6,
+      "db_id": "concert_singer",
+      "question": "Show the name and the release year of the song by the youngest singer.",
+      "expected_sql": "SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": "SELECT \"Name\", \"Song_release_year\" FROM singer ORDER BY \"Age\" ASC LIMIT 1",
+      "exact_match": false,
+      "execution_match": false,
+      "error": null,
+      "execution_time_ms": 36130.138874053955
+    },
+    {
+      "index": 7,
+      "db_id": "concert_singer",
+      "question": "What are the names and release years for all the songs of the youngest singer?",
+      "expected_sql": "SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": "```sql\nSELECT \"Name\", \"Song_Name\", \"Song_release_year\" \nFROM singer \nORDER BY \"Age\" ASC;\n```",
+      "exact_match": false,
+      "execution_match": false,
+      "error": "Execution error",
+      "execution_time_ms": 37992.68102645874
+    },
+    {
+      "index": 8,
+      "db_id": "concert_singer",
+      "question": "What are all distinct countries where singers above age 20 are from?",
+      "expected_sql": "SELECT DISTINCT country FROM singer WHERE age  >  20",
+      "difficulty": "unknown",
+      "success": true,
+      "generated_sql": "SELECT DISTINCT Country FROM singer WHERE Age > 20",
+      "exact_match": true,
+      "execution_match": false,
+      "error": null,
+      "execution_time_ms": 35607.78069496155
+    },
+    {
+      "index": 9,
+      "db_id": "concert_singer",
+      "question": "What are  the different countries with singers above age 20?",
+      "expected_sql": "SELECT DISTINCT country FROM singer WHERE age  >  20",
+      "difficulty": "unknown",
+      "success": true,
+      "generated_sql": "SELECT DISTINCT \"Country\" FROM singer WHERE \"Age\" > 20",
+      "exact_match": false,
+      "execution_match": true,
+      "error": null,
+      "execution_time_ms": 35976.55987739563
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "timestamp": "20251229_021200",
+  "model": "llama-3.3-70b-versatile",
+  "temperature": 0.1,
+  "total_examples": 10,
+  "successful": 0,
+  "accuracy": 0.0,
+  "by_difficulty": {
+    "unknown": {
+      "total": 10,
+      "success": 0
+    }
+  },
+  "by_database": {
+    "concert_singer": {
+      "total": 10,
+      "success": 0
+    }
+  },
+  "detailed_results": [
+    {
+      "index": 0,
+      "db_id": "concert_singer",
+      "question": "How many singers do we have?",
+      "expected_sql": "SELECT count(*) FROM singer",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 312.67809867858887
+    },
+    {
+      "index": 1,
+      "db_id": "concert_singer",
+      "question": "What is the total number of singers?",
+      "expected_sql": "SELECT count(*) FROM singer",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 67.3971176147461
+    },
+    {
+      "index": 2,
+      "db_id": "concert_singer",
+      "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+      "expected_sql": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 51.21016502380371
+    },
+    {
+      "index": 3,
+      "db_id": "concert_singer",
+      "question": "What are the names, countries, and ages for every singer in descending order of age?",
+      "expected_sql": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 64.12196159362793
+    },
+    {
+      "index": 4,
+      "db_id": "concert_singer",
+      "question": "What is the average, minimum, and maximum age of all singers from France?",
+      "expected_sql": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 50.99201202392578
+    },
+    {
+      "index": 5,
+      "db_id": "concert_singer",
+      "question": "What is the average, minimum, and maximum age for all French singers?",
+      "expected_sql": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 56.81896209716797
+    },
+    {
+      "index": 6,
+      "db_id": "concert_singer",
+      "question": "Show the name and the release year of the song by the youngest singer.",
+      "expected_sql": "SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 58.34484100341797
+    },
+    {
+      "index": 7,
+      "db_id": "concert_singer",
+      "question": "What are the names and release years for all the songs of the youngest singer?",
+      "expected_sql": "SELECT song_name ,  song_release_year FROM singer ORDER BY age LIMIT 1",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 55.46903610229492
+    },
+    {
+      "index": 8,
+      "db_id": "concert_singer",
+      "question": "What are all distinct countries where singers above age 20 are from?",
+      "expected_sql": "SELECT DISTINCT country FROM singer WHERE age  >  20",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 49.00789260864258
+    },
+    {
+      "index": 9,
+      "db_id": "concert_singer",
+      "question": "What are  the different countries with singers above age 20?",
+      "expected_sql": "SELECT DISTINCT country FROM singer WHERE age  >  20",
+      "difficulty": "unknown",
+      "success": false,
+      "generated_sql": null,
+      "exact_match": false,
+      "execution_match": false,
+      "error": "'NoneType' object has no attribute 'strip'",
+      "execution_time_ms": 67.64698028564453
+    }
+  ]
+}

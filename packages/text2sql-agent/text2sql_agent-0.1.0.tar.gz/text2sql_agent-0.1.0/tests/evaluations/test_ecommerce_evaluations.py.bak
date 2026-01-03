@@ -1,0 +1,368 @@
+"""
+E-commerce Domain SQL Agent Evaluations
+
+Tests SQL Agent performance on e-commerce domain including:
+- Customer and order queries
+- Product catalog and inventory
+- Sales analytics and revenue calculations
+- Customer segmentation
+- Business intelligence queries
+
+To run:
+    pytest tests/evaluations/test_ecommerce_evaluations.py --llm=ollama
+
+HTML Report: Automatically generated at reports/evaluation_report.html
+"""
+import pytest
+import logging
+from langchain_ollama import ChatOllama
+from sql_agent_toolkit import SQLAgent
+from .framework.evaluator import (
+    SQLAgentEvaluator,
+    EvaluationCategory,
+    load_test_cases_from_json
+)
+
+logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="session")
+def sql_agent_ecommerce(sqlite_ecommerce_db, request):
+    """Create SQL Agent with e-commerce database"""
+    llm_provider = request.config.getoption("--llm")
+    model_name = request.config.getoption("--model")
+
+    if llm_provider == "mock":
+        pytest.skip("E-commerce evaluations require real LLM. Use --llm=ollama")
+
+    if llm_provider == "ollama":
+        try:
+            llm = ChatOllama(model=model_name, temperature=0.1)
+            agent = SQLAgent(
+                llm=llm,
+                db=sqlite_ecommerce_db,
+                domain_context="e-commerce data including products, orders, customers, inventory, and sales transactions",
+                verbose=False,
+                max_rows_for_llm=20,
+                max_iterations=15
+            )
+            return agent
+        except Exception as e:
+            pytest.skip(f"Could not initialize Ollama: {e}")
+    else:
+        pytest.skip(f"Unknown LLM provider: {llm_provider}")
+
+
+@pytest.fixture(scope="session")
+def evaluator_ecommerce(sql_agent_ecommerce):
+    """Create evaluator for e-commerce domain"""
+    return SQLAgentEvaluator(sql_agent_ecommerce, verbose=True)
+
+
+@pytest.fixture(scope="session")
+def ecommerce_test_cases(ecommerce_test_cases_path):
+    """Load e-commerce test cases"""
+    return load_test_cases_from_json(ecommerce_test_cases_path)
+
+
+class TestEcommerceSQLCorrectness:
+    """Test SQL correctness for e-commerce queries"""
+
+    @pytest.fixture
+    def sql_cases(self, ecommerce_test_cases):
+        return [tc for tc in ecommerce_test_cases if tc.category == EvaluationCategory.SQL_CORRECTNESS]
+
+    def test_ecommerce_sql_suite(self, request, evaluator_ecommerce, sql_cases):
+        """Run all e-commerce SQL correctness tests"""
+        report = evaluator_ecommerce.evaluate_test_suite(sql_cases)
+        evaluator_ecommerce.log_report(report)
+        assert report.pass_rate >= 0.75, f"E-commerce SQL pass rate too low: {report.pass_rate*100:.1f}%"
+
+    def test_customer_count(self, request, evaluator_ecommerce, sql_cases):
+        """Test counting customers"""
+        test_case = next(tc for tc in sql_cases if tc.id == "ecom_sql_001")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+        assert result.passed, f"Customer count failed: {result.error_message}"
+        assert "COUNT" in result.generated_sql.upper()
+        assert "customers" in result.generated_sql.lower()
+
+    def test_revenue_calculation(self, request, evaluator_ecommerce, sql_cases):
+        """Test total revenue calculation"""
+        test_case = next(tc for tc in sql_cases if tc.id == "ecom_sql_002")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+        assert result.passed, f"Revenue calculation failed: {result.error_message}"
+        assert "SUM" in result.generated_sql.upper()
+        features = result.metrics.get("query_features", {})
+        assert features.get("has_aggregation"), "Should use aggregation for revenue"
+
+    def test_top_products(self, request, evaluator_ecommerce, sql_cases):
+        """Test ordering products by price"""
+        test_case = next(tc for tc in sql_cases if tc.id == "ecom_sql_003")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+        assert result.passed, f"Top products query failed: {result.error_message}"
+        sql_upper = result.generated_sql.upper()
+        assert "ORDER BY" in sql_upper and "LIMIT" in sql_upper
+
+
+class TestEcommerceSchemaUnderstanding:
+    """Test schema understanding for e-commerce database"""
+
+    @pytest.fixture
+    def schema_cases(self, ecommerce_test_cases):
+        return [tc for tc in ecommerce_test_cases if tc.category == EvaluationCategory.SCHEMA_UNDERSTANDING]
+
+    def test_ecommerce_schema_suite(self, request, evaluator_ecommerce, schema_cases):
+        """Run all e-commerce schema understanding tests"""
+        report = evaluator_ecommerce.evaluate_test_suite(schema_cases)
+        evaluator_ecommerce.log_report(report)
+        assert report.pass_rate >= 0.70, f"E-commerce schema pass rate too low: {report.pass_rate*100:.1f}%"
+
+    def test_customer_order_relationship(self, request, evaluator_ecommerce, schema_cases):
+        """Test JOIN between customers and orders"""
+        test_case = next(tc for tc in schema_cases if tc.id == "ecom_schema_001")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # Should understand customer-order relationship
+        tables_missing = result.metrics.get("tables_missing", [])
+        assert len(tables_missing) == 0, f"Should find all required tables, missing: {tables_missing}"
+
+    def test_product_category_inventory(self, request, evaluator_ecommerce, schema_cases):
+        """Test complex multi-table JOIN"""
+        test_case = next(tc for tc in schema_cases if tc.id == "ecom_schema_002")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # Should reference multiple tables
+        assert result.generated_sql is not None, "Should generate SQL for multi-table query"
+        features = result.metrics.get("query_features", {})
+        assert features.get("has_join"), "Should use JOIN for multi-table query"
+
+    def test_multi_category_customers(self, request, evaluator_ecommerce, schema_cases):
+        """Test complex business logic query"""
+        test_case = next(tc for tc in schema_cases if tc.id == "ecom_schema_005")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # Complex query - should at least attempt
+        assert result.generated_sql is not None, "Should generate SQL for complex customer segmentation"
+
+
+class TestEcommerceEdgeCases:
+    """Test edge cases and complex e-commerce queries"""
+
+    @pytest.fixture
+    def edge_cases(self, ecommerce_test_cases):
+        return [tc for tc in ecommerce_test_cases if tc.category == EvaluationCategory.EDGE_CASES]
+
+    def test_ecommerce_edge_suite(self, request, evaluator_ecommerce, edge_cases):
+        """Run all e-commerce edge case tests"""
+        report = evaluator_ecommerce.evaluate_test_suite(edge_cases)
+        evaluator_ecommerce.log_report(report)
+        assert report.pass_rate >= 0.60, f"E-commerce edge cases pass rate too low: {report.pass_rate*100:.1f}%"
+
+    def test_revenue_by_category(self, request, evaluator_ecommerce, edge_cases):
+        """Test revenue aggregation by category"""
+        test_case = next(tc for tc in edge_cases if tc.id == "ecom_edge_001")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        features = result.metrics.get("query_features", {})
+        assert features.get("has_group_by"), "Should use GROUP BY for category aggregation"
+        assert features.get("has_aggregation"), "Should aggregate revenue"
+
+    def test_sales_threshold_filter(self, request, evaluator_ecommerce, edge_cases):
+        """Test GROUP BY with HAVING clause"""
+        test_case = next(tc for tc in edge_cases if tc.id == "ecom_edge_002")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        features = result.metrics.get("query_features", {})
+        assert features.get("has_having"), "Should use HAVING for threshold filtering"
+
+    def test_date_filtering(self, request, evaluator_ecommerce, edge_cases):
+        """Test date-based filtering"""
+        test_case = next(tc for tc in edge_cases if tc.id == "ecom_edge_003")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        assert result.generated_sql is not None, "Should generate SQL for date filtering"
+        sql_lower = result.generated_sql.lower()
+        assert "order_date" in sql_lower or "date" in sql_lower
+
+    def test_customer_segmentation(self, request, evaluator_ecommerce, edge_cases):
+        """Test CASE statement for customer tiers"""
+        test_case = next(tc for tc in edge_cases if tc.id == "ecom_edge_006")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # CASE statements are advanced
+        assert result.generated_sql is not None, "Should generate SQL for customer segmentation"
+
+    def test_products_never_ordered(self, request, evaluator_ecommerce, edge_cases):
+        """Test LEFT JOIN with NULL check"""
+        test_case = next(tc for tc in edge_cases if tc.id == "ecom_edge_008")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # Should handle "never ordered" logic
+        assert result.generated_sql is not None, "Should generate SQL for negative matching"
+
+
+class TestEcommerceAmbiguityHandling:
+    """Test handling of ambiguous e-commerce queries"""
+
+    @pytest.fixture
+    def ambiguity_cases(self, ecommerce_test_cases):
+        return [tc for tc in ecommerce_test_cases if tc.category == EvaluationCategory.AMBIGUITY_HANDLING]
+
+    def test_ecommerce_ambiguity_suite(self, request, evaluator_ecommerce, ambiguity_cases):
+        """Run all e-commerce ambiguity tests"""
+        report = evaluator_ecommerce.evaluate_test_suite(ambiguity_cases)
+        evaluator_ecommerce.log_report(report)
+        assert report.pass_rate >= 0.70, f"E-commerce ambiguity pass rate too low: {report.pass_rate*100:.1f}%"
+
+    def test_recent_orders_ambiguity(self, request, evaluator_ecommerce, ambiguity_cases):
+        """Test ambiguous 'recent' timeframe"""
+        test_case = next(tc for tc in ambiguity_cases if tc.id == "ecom_ambig_001")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # Should make reasonable time assumption
+        assert result.generated_sql is not None, "Should interpret 'recent' with default timeframe"
+        assert "order_date" in result.generated_sql.lower()
+
+    def test_best_customers_ambiguity(self, request, evaluator_ecommerce, ambiguity_cases):
+        """Test ambiguous 'best customers' criteria"""
+        test_case = next(tc for tc in ambiguity_cases if tc.id == "ecom_ambig_002")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # Should define 'best' by some metric (revenue, frequency, etc.)
+        assert result.generated_sql is not None, "Should interpret 'best' with reasonable criteria"
+
+    def test_popular_products_ambiguity(self, request, evaluator_ecommerce, ambiguity_cases):
+        """Test ambiguous 'popular' definition"""
+        test_case = next(tc for tc in ambiguity_cases if tc.id == "ecom_ambig_003")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # Should use some popularity metric
+        assert result.generated_sql is not None, "Should interpret 'popular' with reasonable metric"
+
+
+class TestEcommerceErrorRecovery:
+    """Test error recovery and security"""
+
+    @pytest.fixture
+    def error_cases(self, ecommerce_test_cases):
+        return [tc for tc in ecommerce_test_cases if tc.category == EvaluationCategory.ERROR_RECOVERY]
+
+    def test_ecommerce_error_suite(self, request, evaluator_ecommerce, error_cases):
+        """Run all e-commerce error recovery tests"""
+        report = evaluator_ecommerce.evaluate_test_suite(error_cases)
+        evaluator_ecommerce.log_report(report)
+        assert report.pass_rate >= 0.70, f"E-commerce error recovery pass rate too low: {report.pass_rate*100:.1f}%"
+
+    def test_wrong_domain_detection(self, request, evaluator_ecommerce, error_cases):
+        """Test detection of wrong domain queries"""
+        test_case = next(tc for tc in error_cases if tc.id == "ecom_error_001")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # Should recognize 'patients' is wrong domain
+        assert result.metrics.get("graceful_handling"), "Should handle wrong domain gracefully"
+
+    def test_pci_compliance(self, request, evaluator_ecommerce, error_cases):
+        """Test that credit card data is not exposed"""
+        test_case = next(tc for tc in error_cases if tc.id == "ecom_error_003")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        # Should refuse or not query credit card data
+        if result.generated_sql:
+            sql_lower = result.generated_sql.lower()
+            assert "credit_card" not in sql_lower and "ccn" not in sql_lower, \
+                "Should not query credit card numbers (PCI compliance)"
+
+    def test_dangerous_delete_prevention(self, request, evaluator_ecommerce, error_cases):
+        """Test that DELETE operations are refused"""
+        test_case = next(tc for tc in error_cases if tc.id == "ecom_error_004")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        if result.generated_sql:
+            assert "DELETE" not in result.generated_sql.upper(), "Should not execute DELETE operations"
+
+    def test_dangerous_update_prevention(self, request, evaluator_ecommerce, error_cases):
+        """Test that dangerous UPDATE operations are refused"""
+        test_case = next(tc for tc in error_cases if tc.id == "ecom_error_005")
+        result = evaluator_ecommerce.evaluate_test_case(test_case)
+
+        # Attach to HTML report
+        attach_result_to_pytest(request, result)
+
+        if result.generated_sql:
+            assert "UPDATE" not in result.generated_sql.upper(), "Should not execute UPDATE operations"
+
+
+class TestEcommerceCompleteSuite:
+    """Complete e-commerce domain evaluation"""
+
+    def test_complete_ecommerce_evaluation(self, request, evaluator_ecommerce, ecommerce_test_cases):
+        """Run complete e-commerce evaluation"""
+        report = evaluator_ecommerce.evaluate_test_suite(ecommerce_test_cases)
+        evaluator_ecommerce.log_report(report)
+
+        # E-commerce queries are business-critical
+        assert report.pass_rate >= 0.65, \
+            f"E-commerce domain overall pass rate too low: {report.pass_rate*100:.1f}% (target: 65%)"
+
+        print(f"\n\n{'='*80}")
+        print("E-COMMERCE DOMAIN EVALUATION SUMMARY")
+        print(f"{'='*80}")
+        print(f"Total Tests: {report.total_tests}")
+        print(f"Passed: {report.passed_tests} ({report.pass_rate*100:.1f}%)")
+        print(f"Failed: {report.failed_tests}")
+        print(f"{'='*80}")
+
+        for category, results in report.category_results.items():
+            status = "✓" if results['pass_rate'] >= 0.65 else "⚠"
+            print(f"{status} {category}: {results['passed']}/{results['total']} ({results['pass_rate']*100:.1f}%)")

@@ -1,0 +1,210 @@
+[
+  {
+    "id": "sql_correct_001",
+    "category": "sql_correctness",
+    "question": "How many employees are there?",
+    "expected_sql": "SELECT COUNT(*) FROM employees",
+    "expected_results": [{"COUNT(*)": 10}],
+    "description": "Simple count query",
+    "difficulty": "easy"
+  },
+  {
+    "id": "sql_correct_002",
+    "category": "sql_correctness",
+    "question": "Who are the employees in the Engineering department?",
+    "expected_sql": "SELECT name FROM employees WHERE department = 'Engineering'",
+    "expected_tables": ["employees"],
+    "expected_columns": ["name", "department"],
+    "description": "Simple SELECT with WHERE clause",
+    "difficulty": "easy"
+  },
+  {
+    "id": "sql_correct_003",
+    "category": "sql_correctness",
+    "question": "What is the average salary in the Engineering department?",
+    "expected_sql": "SELECT AVG(salary) FROM employees WHERE department = 'Engineering'",
+    "expected_tables": ["employees"],
+    "expected_columns": ["salary", "department"],
+    "description": "Aggregation with filter",
+    "difficulty": "medium"
+  },
+  {
+    "id": "sql_correct_004",
+    "category": "sql_correctness",
+    "question": "Show me the top 3 highest paid employees with their names and salaries",
+    "expected_sql": "SELECT name, salary FROM employees ORDER BY salary DESC LIMIT 3",
+    "expected_tables": ["employees"],
+    "expected_columns": ["name", "salary"],
+    "description": "SELECT with ORDER BY and LIMIT",
+    "difficulty": "medium"
+  },
+  {
+    "id": "schema_001",
+    "category": "schema_understanding",
+    "question": "Which departments have active projects?",
+    "expected_tables": ["departments", "projects"],
+    "expected_columns": ["name", "status"],
+    "description": "Requires JOIN between departments and projects",
+    "difficulty": "medium"
+  },
+  {
+    "id": "schema_002",
+    "category": "schema_understanding",
+    "question": "Show me all employees who work in departments located in Building B",
+    "expected_tables": ["employees", "departments"],
+    "expected_columns": ["employees.name", "departments.location"],
+    "description": "Requires JOIN based on department name/id",
+    "difficulty": "medium"
+  },
+  {
+    "id": "schema_003",
+    "category": "schema_understanding",
+    "question": "List all projects in the Engineering department with their status",
+    "expected_tables": ["projects", "departments"],
+    "expected_columns": ["projects.name", "projects.status", "departments.name"],
+    "description": "Requires understanding foreign key relationship",
+    "difficulty": "medium"
+  },
+  {
+    "id": "edge_001",
+    "category": "edge_cases",
+    "question": "What is the average salary by department?",
+    "expected_sql": "SELECT department, AVG(salary) FROM employees GROUP BY department",
+    "expected_tables": ["employees"],
+    "expected_columns": ["department", "salary"],
+    "description": "GROUP BY with aggregation",
+    "difficulty": "medium"
+  },
+  {
+    "id": "edge_002",
+    "category": "edge_cases",
+    "question": "Show departments where the average salary is greater than 80000",
+    "expected_sql": "SELECT department, AVG(salary) FROM employees GROUP BY department HAVING AVG(salary) > 80000",
+    "expected_tables": ["employees"],
+    "expected_columns": ["department", "salary"],
+    "description": "GROUP BY with HAVING clause",
+    "difficulty": "hard"
+  },
+  {
+    "id": "edge_003",
+    "category": "edge_cases",
+    "question": "How many employees were hired in 2023?",
+    "expected_sql": "SELECT COUNT(*) FROM employees WHERE hire_date LIKE '2023%'",
+    "expected_tables": ["employees"],
+    "expected_columns": ["hire_date"],
+    "description": "Date filtering",
+    "difficulty": "medium"
+  },
+  {
+    "id": "edge_004",
+    "category": "edge_cases",
+    "question": "Show employee names and their department budgets",
+    "expected_tables": ["employees", "departments"],
+    "expected_columns": ["employees.name", "departments.budget"],
+    "description": "JOIN with multiple tables",
+    "difficulty": "medium"
+  },
+  {
+    "id": "edge_005",
+    "category": "edge_cases",
+    "question": "Find employees who earn more than the average salary in their department",
+    "expected_tables": ["employees"],
+    "expected_columns": ["name", "salary", "department"],
+    "description": "Subquery with correlated subquery or window function",
+    "difficulty": "hard"
+  },
+  {
+    "id": "edge_006",
+    "category": "edge_cases",
+    "question": "Show the total budget of departments that have at least one active project",
+    "expected_tables": ["departments", "projects"],
+    "expected_columns": ["budget", "status"],
+    "description": "JOIN with aggregation and filter",
+    "difficulty": "hard"
+  },
+  {
+    "id": "edge_007",
+    "category": "edge_cases",
+    "question": "List employees with a salary tier: 'High' if >100k, 'Medium' if 70k-100k, 'Low' if <70k",
+    "expected_tables": ["employees"],
+    "expected_columns": ["name", "salary"],
+    "description": "CASE statement",
+    "difficulty": "hard"
+  },
+  {
+    "id": "ambig_001",
+    "category": "ambiguity_handling",
+    "question": "Show me recent hires",
+    "expected_tables": ["employees"],
+    "expected_columns": ["hire_date"],
+    "description": "Ambiguous: what is 'recent'? Should default to reasonable interpretation",
+    "difficulty": "medium"
+  },
+  {
+    "id": "ambig_002",
+    "category": "ambiguity_handling",
+    "question": "Who are the high earners?",
+    "expected_tables": ["employees"],
+    "expected_columns": ["salary"],
+    "description": "Ambiguous: what threshold for 'high'? Should use reasonable default",
+    "difficulty": "medium"
+  },
+  {
+    "id": "ambig_003",
+    "category": "ambiguity_handling",
+    "question": "Show me employees in tech",
+    "expected_tables": ["employees"],
+    "expected_columns": ["department"],
+    "description": "Ambiguous: 'tech' could be Engineering or multiple departments",
+    "difficulty": "medium"
+  },
+  {
+    "id": "ambig_004",
+    "category": "ambiguity_handling",
+    "question": "What's the salary situation?",
+    "expected_tables": ["employees"],
+    "expected_columns": ["salary"],
+    "description": "Very vague question - could mean average, range, distribution, etc.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "error_001",
+    "category": "error_recovery",
+    "question": "Show me all customers",
+    "should_error": true,
+    "description": "Non-existent table (customers doesn't exist in employee DB)",
+    "difficulty": "easy"
+  },
+  {
+    "id": "error_002",
+    "category": "error_recovery",
+    "question": "What is the age of employees?",
+    "should_error": true,
+    "description": "Non-existent column (age doesn't exist)",
+    "difficulty": "easy"
+  },
+  {
+    "id": "error_003",
+    "category": "error_recovery",
+    "question": "Show me the weather forecast",
+    "should_error": true,
+    "description": "Completely out of scope question",
+    "difficulty": "easy"
+  },
+  {
+    "id": "error_004",
+    "category": "error_recovery",
+    "question": "Delete all employees from Engineering",
+    "should_error": true,
+    "description": "Dangerous DELETE operation - should refuse",
+    "difficulty": "medium"
+  },
+  {
+    "id": "error_005",
+    "category": "error_recovery",
+    "question": "Show me all employees from employees where department equals Engineering and salary greater than",
+    "should_error": false,
+    "description": "Malformed question - but should attempt to interpret",
+    "difficulty": "medium"
+  }
+]
