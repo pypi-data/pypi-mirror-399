@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "perustats"
+version = "0.1.7"
+description = "Tools to download and process public datasets from Peru (INEI & BCRP)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+
+
+
+authors = [
+  { name="Jhon K. Flores Rojas", email="fr.jhonk@gmail.com" }
+]
+
+license-files = ["LICENSE"]
+
+dependencies = [
+  "bs4",
+  "httpx",
+  "joblib",
+  "lxml",
+  "pandas",
+  "requests",
+  "rich",
+  "tqdm",
+  "unidecode"
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://github.com/TJhon/PyPeruStats"
+Issues = "https://github.com/TJhon/PyPeruStats/issues"
+
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["perustats*"]
+
+[tool.ruff]
+exclude = ["*.ipynb", ".venv", "build", "data"]
