@@ -1,0 +1,72 @@
+# Pre-commit hooks configuration
+# Install with: pre-commit install
+
+repos:
+  # Basic file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer      # Ensure files end with newline
+      - id: trailing-whitespace    # Remove trailing whitespace
+      - id: check-yaml             # Validate YAML files
+      - id: check-toml             # Validate TOML files
+      - id: check-json             # Validate JSON files
+      - id: check-added-large-files # Prevent large files
+      - id: check-merge-conflict   # Check for merge conflicts
+      - id: check-case-conflict    # Check for case conflicts
+      - id: check-docstring-first  # Check docstring placement
+
+  # Python: Ruff (linting and formatting)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: ["--fix", "--select=E,W,F,I,B,C4", "--ignore=E501,B008,C901"]
+        files: ^(src|tests|examples)/
+      - id: ruff-format
+        files: ^(src|tests|examples)/
+
+  # Python: MyPy (type checking)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-all]
+        args: [--ignore-missing-imports, --no-strict-optional]
+        files: ^src/
+
+  # Rust: Format and clippy
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        entry: cargo fmt --all --
+        language: system
+        types: [rust]
+        pass_filenames: false
+      - id: cargo-clippy
+        name: cargo clippy
+        entry: cargo clippy --workspace --all-targets --all-features -- -D warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+  # TypeScript/JavaScript: ESLint and Prettier
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.17.0
+    hooks:
+      - id: eslint
+        additional_dependencies:
+          - eslint@9.17.0
+          - '@typescript-eslint/eslint-plugin@latest'
+          - '@typescript-eslint/parser@latest'
+        files: \.(js|jsx|ts|tsx)$
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.41.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+
+

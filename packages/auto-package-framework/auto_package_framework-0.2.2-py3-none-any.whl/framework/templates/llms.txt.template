@@ -1,0 +1,344 @@
+# {{ PROJECT_NAME }}
+
+> {{ PROJECT_DESCRIPTION }}
+
+## Overview
+
+{{ PROJECT_NAME }} provides {{ MAIN_FUNCTIONALITY }}. {{ ADDITIONAL_DESCRIPTION }}
+
+- **Package**: `pip install {{ PACKAGE_NAME }}`
+- **Python**: {{ PYTHON_VERSION }}+
+- **Platforms**: {{ PLATFORMS }}
+- **License**: {{ LICENSE }}
+
+## Quick Start
+
+### Installation
+
+```bash
+# Basic installation
+pip install {{ PACKAGE_NAME }}
+
+# With optional dependencies
+pip install {{ PACKAGE_NAME }}[optional]
+```
+
+### Basic Usage
+
+```python
+from {{ PACKAGE_NAME }} import {{ MAIN_CLASS }}
+
+# Create instance
+instance = {{ MAIN_CLASS }}.create("My App", config={...})
+instance.initialize()
+```
+
+## Core API Reference
+
+### {{ MAIN_CLASS }} Class
+
+The main class for {{ PRIMARY_PURPOSE }}.
+
+#### Constructor Parameters
+
+```python
+{{ MAIN_CLASS }}(
+    param1: type = default,      # Description
+    param2: type = default,       # Description
+    param3: type = None,          # Optional description
+)
+```
+
+#### Factory Methods
+
+```python
+# Recommended way to create instance
+instance = {{ MAIN_CLASS }}.create(
+    name="My Instance",
+    config={...},
+    option=True,
+)
+
+# Alternative creation method
+instance = {{ MAIN_CLASS }}.create_alternative(
+    param=value,
+)
+```
+
+#### Core Methods
+
+```python
+# Primary operation
+instance.primary_method(param1, param2)
+
+# Secondary operation
+result = instance.secondary_method(param)
+
+# Async operation
+await instance.async_method(param)
+```
+
+#### Properties
+
+```python
+instance.property1          # Get/set property
+instance.property2          # Read-only property
+instance.property3          # Computed property
+```
+
+### Python → External Communication
+
+```python
+# Emit event
+instance.emit("event_name", {"key": "value"})
+```
+
+```javascript
+// External: Listen for events
+external.on('event_name', (data) => {
+    console.log('Received:', data);
+});
+```
+
+### External → Python Communication
+
+#### Method 1: Events (fire-and-forget)
+
+```javascript
+// External: Send event
+external.send_event('action_name', {
+    param: 'value'
+});
+```
+
+```python
+# Python: Register event handler
+@instance.on("action_name")
+def handle_action(data):
+    print(f"Action: {data['param']}")
+```
+
+#### Method 2: RPC with Return Value
+
+```javascript
+// External: Call Python method and get result
+const result = await external.api.method_name({ param: value });
+console.log(result);
+```
+
+```python
+# Python: Bind callable method
+@instance.bind_call("api.method_name")
+def method_name(param=None):
+    return {"result": "value"}
+```
+
+### API Binding
+
+```python
+# Bind single method
+@instance.bind_call("api.method")
+def method(param: str = "") -> dict:
+    return {"result": param}
+
+# Bind all methods of an object
+class API:
+    def get_data(self) -> dict:
+        return {"items": [1, 2, 3]}
+
+    def save_item(self, name: str = "", value: int = 0) -> dict:
+        return {"ok": True, "name": name}
+
+instance.bind_api(API(), namespace="api")
+```
+
+### Event Handling
+
+```python
+@instance.on_event
+def on_event(data):
+    print("Event received:", data)
+
+@instance.on_custom_event
+def on_custom_event(data):
+    return True  # Return True to allow, False to cancel
+```
+
+### Error Handling
+
+```python
+# Handle errors
+try:
+    result = instance.operation()
+except CustomError as e:
+    print(f"Error: {e}")
+    # Handle error
+```
+
+## Advanced Features
+
+### Feature 1: Advanced Configuration
+
+```python
+# Configure advanced options
+instance.configure(
+    option1=True,
+    option2="value",
+    option3={"nested": "config"}
+)
+```
+
+### Feature 2: Integration Support
+
+```python
+# Integration with external systems
+from {{ PACKAGE_NAME }}.integration import ExternalIntegration
+
+integration = ExternalIntegration(
+    system="external_system",
+    config={...}
+)
+integration.connect()
+```
+
+### Feature 3: Standalone Mode
+
+```python
+from {{ PACKAGE_NAME }} import run_standalone
+
+# One-liner for standalone usage
+run_standalone(
+    name="My App",
+    config={...},
+    option=True
+)
+```
+
+## Command Line Interface
+
+```bash
+# Basic usage
+{{ PACKAGE_NAME }} --config config.yaml
+
+# With options
+{{ PACKAGE_NAME }} --config config.yaml --option value
+
+# Using uvx
+uvx {{ PACKAGE_NAME }} --help
+```
+
+## Testing Framework
+
+### Test Utilities
+
+```python
+from {{ PACKAGE_NAME }}.testing import TestUtilities
+
+# Create test instance
+with TestUtilities.create_test_instance() as instance:
+    # Run tests
+    result = instance.test_method()
+    assert result == expected
+```
+
+## Platform Support
+
+| Platform | Status | Python | Notes |
+|----------|--------|--------|-------|
+| Windows | ✅ | {{ PYTHON_VERSION }}+ | Full support |
+| macOS | ✅ | {{ PYTHON_VERSION }}+ | Full support |
+| Linux | ✅ | {{ PYTHON_VERSION }}+ | Full support |
+
+## JavaScript API Reference (if applicable)
+
+### window.{{ PACKAGE_NAME }}
+
+```javascript
+// Call Python method (returns Promise)
+const result = await {{ PACKAGE_NAME }}.call('api.method_name', { param: value });
+
+// Call via api proxy (shorthand)
+const result = await {{ PACKAGE_NAME }}.api.method_name({ param: value });
+
+// Send event to Python (fire-and-forget)
+{{ PACKAGE_NAME }}.send_event('event_name', { data: value });
+
+// Listen for Python events
+const unsubscribe = {{ PACKAGE_NAME }}.on('event_name', (data) => {
+    console.log('Received:', data);
+});
+
+// Unsubscribe
+{{ PACKAGE_NAME }}.off('event_name', handler);
+```
+
+### Ready Event
+
+```javascript
+window.addEventListener('{{ PACKAGE_NAME }}ready', () => {
+    // Safe to use {{ PACKAGE_NAME }} API
+    {{ PACKAGE_NAME }}.api.init();
+});
+```
+
+## Key Imports
+
+```python
+from {{ PACKAGE_NAME }} import (
+    # Core
+    {{ MAIN_CLASS }},
+    {{ UTILITY_CLASS }},
+
+    # Integration
+    {{ INTEGRATION_CLASS }},
+    run_standalone,
+
+    # Utilities
+    {{ UTILITY_FUNCTION }},
+)
+```
+
+## Examples
+
+### Example 1: Basic Usage
+
+```python
+from {{ PACKAGE_NAME }} import {{ MAIN_CLASS }}
+
+# Create and use
+instance = {{ MAIN_CLASS }}.create("Example")
+instance.initialize()
+result = instance.process()
+print(result)
+```
+
+### Example 2: Advanced Usage
+
+```python
+from {{ PACKAGE_NAME }} import {{ MAIN_CLASS }}
+
+# Advanced configuration
+instance = {{ MAIN_CLASS }}.create(
+    name="Advanced Example",
+    config={
+        "option1": True,
+        "option2": "value"
+    }
+)
+
+# Register handlers
+@instance.on("event")
+def handler(data):
+    print(f"Event: {data}")
+
+# Use
+instance.start()
+```
+
+## Links
+
+- **Repository**: https://github.com/{{ USERNAME }}/{{ PACKAGE_NAME }}
+- **PyPI**: https://pypi.org/project/{{ PACKAGE_NAME }}/
+- **Documentation**: https://github.com/{{ USERNAME }}/{{ PACKAGE_NAME }}/tree/main/docs
+- **Examples**: https://github.com/{{ USERNAME }}/{{ PACKAGE_NAME }}/tree/main/examples
+
