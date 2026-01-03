@@ -1,0 +1,179 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "text2sql-agent"
+version = "0.1.1"
+description = "A flexible, LLM-agnostic text-to-SQL agent that works with any database"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+keywords = ["sql", "llm", "langchain", "database", "natural-language", "text-to-sql", "agent", "ai"]
+authors = [
+    {name = "Jasmin Patel", email = "jasmin.patel@sourcefuse.com"}
+]
+maintainers = [
+    {name = "Jasmin Patel", email = "jasmin.patel@sourcefuse.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "langchain>=0.1.0",
+    "langchain-core>=0.1.0",
+    "langchain-community>=0.0.20",
+    "sqlalchemy>=2.0.0",
+]
+
+[project.optional-dependencies]
+bedrock = [
+    "langchain-aws>=0.1.0",
+    "boto3>=1.28.0",
+]
+openai = [
+    "langchain-openai>=0.0.5",
+    "openai>=1.0.0",
+]
+anthropic = [
+    "langchain-anthropic>=0.1.0",
+    "anthropic>=0.18.0",
+]
+ollama = [
+    "langchain-ollama>=0.0.1",
+]
+google = [
+    "langchain-google-genai>=0.0.5",
+]
+groq = [
+    "langchain-groq>=0.0.1",
+]
+postgresql = [
+    "psycopg2-binary>=2.9.0",
+]
+mysql = [
+    "pymysql>=1.1.0",
+]
+mssql = [
+    "pyodbc>=4.0.0",
+]
+bigquery = [
+    "sqlalchemy-bigquery>=1.6.0",
+]
+all-llms = [
+    "langchain-aws>=0.1.0",
+    "boto3>=1.28.0",
+    "langchain-openai>=0.0.5",
+    "openai>=1.0.0",
+    "langchain-anthropic>=0.1.0",
+    "anthropic>=0.18.0",
+    "langchain-groq>=0.0.1",
+]
+all-dbs = [
+    "psycopg2-binary>=2.9.0",
+    "pymysql>=1.1.0",
+    "pyodbc>=4.0.0",
+]
+all = [
+    "langchain-aws>=0.1.0",
+    "boto3>=1.28.0",
+    "langchain-openai>=0.0.5",
+    "openai>=1.0.0",
+    "langchain-anthropic>=0.1.0",
+    "anthropic>=0.18.0",
+    "langchain-groq>=0.0.1",
+    "psycopg2-binary>=2.9.0",
+    "pymysql>=1.1.0",
+    "pyodbc>=4.0.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-html>=4.1.1",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["text_to_sql"]
+exclude = [
+    "/tests",
+    "/examples",
+    "/reports",
+    "*.db",
+    "*.sqlite",
+    "*.sqlite3",
+    "*.log",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/text_to_sql",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
+exclude = [
+    "/.git",
+    "/.github",
+    "/.pytest_cache",
+    "/.claude",
+    "/tests",
+    "/examples",
+    "/venv",
+    "/dist",
+    "/reports",
+    "/build",
+    "/htmlcov",
+    "*.egg-info",
+    "*.db",
+    "*.sqlite",
+    "*.sqlite3",
+    "*.log",
+    ".env",
+    ".DS_Store",
+    "*.py[cod]",
+    "*.so",
+    "__pycache__",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312', 'py313']
+include = '\.pyi?$'
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+markers = [
+    "unit: Unit tests (fast, no external dependencies)",
+    "integration: Integration tests (require database)",
+    "evaluation: Evaluation tests (require real LLM)",
+    "feature_test: Feature tests (test specific features)",
+    "slow: Slow tests (may take several seconds/minutes)",
+]
