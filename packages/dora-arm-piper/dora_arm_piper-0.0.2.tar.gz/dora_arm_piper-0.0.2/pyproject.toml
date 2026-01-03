@@ -1,0 +1,32 @@
+[build-system]
+requires = ["uv>=0.1.0", "setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dora-arm-piper"
+version = "0.0.2"
+description = ""
+authors = [
+    {name = "Xiang Yang",email = "ryu-yang@qq.com"}
+]
+readme = "README.md"
+requires-python = ">=3.8,<3.14"
+dependencies = [
+    "dora-rs (>=0.3.11,<0.4.0)",
+    "piper_sdk >= 0.0.8",
+    "numpy>=1.24.4",
+]
+
+[project.optional-dependencies]
+view = [
+    "dora-rs-cli",
+    "dora-rerun",
+]
+
+[project.scripts]
+dora-arm-piper = "dora_arm_piper.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dora_arm_piper"]
+exclude = []
