@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sharesight-python"
+version = "0.1.0"
+description = "An unofficial Python SDK for the Sharesight API (v2 and v3)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    { name = "Peter de Jersey", email = "peter.dejersey@me.com" }
+]
+keywords = ["sharesight", "api", "sdk", "investing", "portfolio", "stocks"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+dependencies = [
+    "httpx>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/dejersey/sharesight-python"
+Documentation = "https://github.com/dejersey/sharesight-python#readme"
+Repository = "https://github.com/dejersey/sharesight-python.git"
+Issues = "https://github.com/dejersey/sharesight-python/issues"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/sharesight",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["sharesight"]
