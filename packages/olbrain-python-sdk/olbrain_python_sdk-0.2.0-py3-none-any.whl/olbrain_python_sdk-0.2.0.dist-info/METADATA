@@ -1,0 +1,357 @@
+Metadata-Version: 2.4
+Name: olbrain-python-sdk
+Version: 0.2.0
+Summary: Official Python SDK for Olbrain AI agents
+Home-page: https://github.com/Olbrain/olbrain-python-sdk
+Author: Olbrain Team
+Author-email: Olbrain Team <support@olbrain.com>
+License: MIT
+Project-URL: Homepage, https://github.com/Olbrain/olbrain-python-sdk
+Project-URL: Bug Reports, https://github.com/Olbrain/olbrain-python-sdk/issues
+Project-URL: Source, https://github.com/Olbrain/olbrain-python-sdk
+Project-URL: Documentation, https://docs.olbrain.com/python-sdk
+Keywords: olbrain,ai,agents,chatbot,nlp,artificial intelligence,sdk,api,conversation,streaming
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.25.0
+Requires-Dist: urllib3>=1.26.0
+Provides-Extra: dev
+Requires-Dist: pytest>=6.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.18.0; extra == "dev"
+Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
+Requires-Dist: black>=22.0.0; extra == "dev"
+Requires-Dist: flake8>=4.0.0; extra == "dev"
+Requires-Dist: mypy>=0.910; extra == "dev"
+Requires-Dist: requests-mock>=1.9.0; extra == "dev"
+Provides-Extra: async
+Requires-Dist: aiohttp>=3.8.0; extra == "async"
+Requires-Dist: aiofiles>=0.7.0; extra == "async"
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
+# Olbrain Python SDK
+
+[![PyPI version](https://badge.fury.io/py/olbrain-python-sdk.svg)](https://badge.fury.io/py/olbrain-python-sdk)
+[![Python Support](https://img.shields.io/pypi/pyversions/olbrain-python-sdk.svg)](https://pypi.org/project/olbrain-python-sdk/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Official Python SDK for integrating Olbrain AI agents into websites and mobile apps. Provides a simple interface for session management, messaging, and real-time streaming.
+
+## Features
+
+- **Simple Integration**: Just provide `agent_id` and `api_key`
+- **Session Management**: Full CRUD operations for sessions
+- **Synchronous & Streaming**: Both request-response and real-time streaming patterns
+- **Message History**: Retrieve conversation history with pagination
+- **Token Tracking**: Monitor token usage and costs
+- **Model Override**: Switch models per-message
+- **Error Handling**: Comprehensive exception hierarchy
+
+## Installation
+
+```bash
+pip install olbrain-python-sdk
+```
+
+### Development Installation
+
+```bash
+git clone https://github.com/olbrain/olbrain-python-sdk.git
+cd olbrain-python-sdk
+pip install -e ".[dev]"
+```
+
+## Quick Start
+
+### Basic Usage (Synchronous)
+
+```python
+from olbrain import AgentClient
+
+# Initialize client
+client = AgentClient(
+    agent_id="your-agent-id",
+    api_key="ak_your_api_key"
+)
+
+# Create a session
+session_id = client.create_session(title="My Chat", user_id="user-123")
+
+# Send message and get response
+response = client.send_and_wait(session_id, "Hello! How can you help me?")
+print(f"Agent: {response.text}")
+print(f"Tokens used: {response.token_usage.total_tokens}")
+
+# Clean up
+client.close()
+```
+
+### Real-Time Streaming
+
+```python
+from olbrain import AgentClient
+
+client = AgentClient(agent_id="your-agent-id", api_key="ak_your_api_key")
+
+# Define callback for incoming messages
+def on_message(msg):
+    print(f"[{msg['role']}]: {msg['content']}")
+
+# Create session with streaming enabled
+session_id = client.create_session(on_message=on_message, title="Streaming Chat")
+
+# Send message - response arrives via callback
+client.send(session_id, "Tell me a story")
+
+# Block and process messages (Ctrl+C to exit)
+client.run()
+```
+
+### Session Management
+
+```python
+from olbrain import AgentClient
+
+client = AgentClient(agent_id="your-agent-id", api_key="ak_your_api_key")
+
+# Create session with metadata
+session_id = client.create_session(
+    title="Support Chat",
+    user_id="customer-456",
+    metadata={"source": "website", "page": "/help"},
+    mode="production",  # or "development", "testing"
+    description="Customer support conversation"
+)
+
+# Get session details
+info = client.get_session(session_id)
+print(f"Title: {info.title}")
+print(f"Status: {info.status}")
+print(f"Messages: {info.message_count}")
+
+# Update session
+client.update_session(session_id, title="Renamed Chat")
+
+# Get message history
+result = client.get_messages(session_id, limit=20)
+for msg in result['messages']:
+    print(f"{msg['role']}: {msg['content']}")
+
+# Get session statistics
+stats = client.get_session_stats(session_id)
+print(f"Total tokens: {stats['stats'].get('total_tokens')}")
+
+# Archive session when done
+client.delete_session(session_id)
+```
+
+### Model Override
+
+```python
+# Use a specific model for a message
+response = client.send(
+    session_id,
+    "Explain quantum computing",
+    model="gpt-4"  # Override the agent's default model
+)
+```
+
+### Error Handling
+
+```python
+from olbrain import AgentClient
+from olbrain.exceptions import (
+    AuthenticationError,
+    SessionNotFoundError,
+    RateLimitError,
+    NetworkError,
+    OlbrainError
+)
+
+try:
+    client = AgentClient(agent_id="your-agent-id", api_key="ak_your_key")
+    session_id = client.create_session()
+    response = client.send_and_wait(session_id, "Hello!")
+
+except AuthenticationError:
+    print("Invalid API key")
+except SessionNotFoundError:
+    print("Session does not exist")
+except RateLimitError as e:
+    print(f"Rate limited. Retry after {e.retry_after} seconds")
+except NetworkError as e:
+    print(f"Network error: {e}")
+except OlbrainError as e:
+    print(f"Error: {e}")
+```
+
+### Context Manager
+
+```python
+from olbrain import AgentClient
+
+with AgentClient(agent_id="your-agent-id", api_key="ak_your_key") as client:
+    session_id = client.create_session(title="Quick Chat")
+    response = client.send_and_wait(session_id, "Hello!")
+    print(response.text)
+# Client automatically closed
+```
+
+## API Reference
+
+### AgentClient
+
+Main client class for interacting with Olbrain agents.
+
+#### Constructor
+
+```python
+AgentClient(
+    agent_id: str,           # Agent identifier (required)
+    api_key: str,            # API key starting with 'ak_' (required)
+    agent_url: str = None    # Custom URL (auto-constructed if not provided)
+)
+```
+
+#### Methods
+
+| Method | Description |
+|--------|-------------|
+| `create_session(on_message, title, user_id, metadata, mode, description)` | Create a new session |
+| `send(session_id, message, user_id, metadata, model, mode)` | Send message (async via callback) |
+| `send_and_wait(session_id, message, user_id, metadata, model, timeout)` | Send message and wait for response |
+| `listen(session_id, on_message)` | Start listening to a session |
+| `get_session(session_id)` | Get session details |
+| `update_session(session_id, title, metadata, status)` | Update session |
+| `delete_session(session_id)` | Archive a session |
+| `get_session_stats(session_id)` | Get session statistics |
+| `get_messages(session_id, limit, offset)` | Get message history |
+| `run()` | Block and process message callbacks |
+| `close()` | Clean up resources |
+
+### Data Classes
+
+#### ChatResponse
+
+```python
+@dataclass
+class ChatResponse:
+    text: str                          # Response text
+    session_id: str                    # Session identifier
+    success: bool                      # Success status
+    token_usage: Optional[TokenUsage]  # Token usage info
+    model_used: Optional[str]          # Model that generated response
+    response_time_ms: Optional[int]    # Response time
+    error: Optional[str]               # Error message if failed
+```
+
+#### TokenUsage
+
+```python
+@dataclass
+class TokenUsage:
+    prompt_tokens: int      # Input tokens
+    completion_tokens: int  # Output tokens
+    total_tokens: int       # Total tokens
+    cost: float            # Cost in USD
+```
+
+#### SessionInfo
+
+```python
+@dataclass
+class SessionInfo:
+    session_id: str         # Session identifier
+    title: str              # Session title
+    status: str             # 'active' or 'archived'
+    created_at: str         # Creation timestamp
+    updated_at: str         # Last update timestamp
+    message_count: int      # Number of messages
+    user_id: Optional[str]  # User identifier
+    channel: str            # Channel type
+    metadata: Dict          # Session metadata
+```
+
+### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `OlbrainError` | Base exception class |
+| `AuthenticationError` | Invalid API key |
+| `SessionNotFoundError` | Session does not exist |
+| `SessionError` | Session operation failed |
+| `RateLimitError` | Rate limit exceeded (has `retry_after`) |
+| `NetworkError` | Network connectivity issues |
+| `ValidationError` | Input validation failed |
+| `StreamingError` | Streaming error |
+
+## Configuration
+
+### Environment Variables
+
+```bash
+export OLBRAIN_API_KEY="ak_your_api_key"
+export OLBRAIN_AGENT_ID="your-agent-id"
+export OLBRAIN_AGENT_URL="https://custom-url.com"  # Optional
+```
+
+### Logging
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+## Examples
+
+See the [examples/](examples/) directory:
+
+- `basic_usage.py` - Core SDK features
+- `session_management.py` - Session CRUD operations
+- `streaming_responses.py` - Real-time streaming
+
+## Changelog
+
+### v0.2.0
+
+- Added session management methods (`get_session`, `update_session`, `delete_session`)
+- Added `get_session_stats` and `get_messages` for analytics
+- Added `send_and_wait` for synchronous request-response
+- Enhanced `create_session` with `user_id`, `metadata`, `mode`, `description`
+- Enhanced `send` with `user_id`, `metadata`, `model` override
+- Added `TokenUsage` and `SessionInfo` data classes
+- Added `SessionNotFoundError` exception
+- Improved error handling with `_handle_response_errors`
+- Renamed from `alchemist` to `olbrain`
+
+### v0.1.0
+
+- Initial release
+- Basic session creation and messaging
+- Real-time streaming support
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/olbrain/olbrain-python-sdk/issues)
+- **Email**: support@olbrain.com
