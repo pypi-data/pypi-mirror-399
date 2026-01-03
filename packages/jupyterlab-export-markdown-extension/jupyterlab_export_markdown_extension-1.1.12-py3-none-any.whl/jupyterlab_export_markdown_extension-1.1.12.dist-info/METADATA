@@ -1,0 +1,145 @@
+Metadata-Version: 2.4
+Name: jupyterlab_export_markdown_extension
+Version: 1.1.12
+Summary: Jupyterlab extension to export markdown file as pdf, docx and html (with embedded images)
+Project-URL: Homepage, https://github.com/stellarshenson/jupyterlab_export_markdown_extension
+Project-URL: Bug Tracker, https://github.com/stellarshenson/jupyterlab_export_markdown_extension/issues
+Project-URL: Repository, https://github.com/stellarshenson/jupyterlab_export_markdown_extension.git
+Author-email: Stellars Henson <konrad.jelen@gmail.com>
+License: BSD 3-Clause License
+        
+        Copyright (c) 2025, Stellars Henson
+        All rights reserved.
+        
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are met:
+        
+        1. Redistributions of source code must retain the above copyright notice, this
+           list of conditions and the following disclaimer.
+        
+        2. Redistributions in binary form must reproduce the above copyright notice,
+           this list of conditions and the following disclaimer in the documentation
+           and/or other materials provided with the distribution.
+        
+        3. Neither the name of the copyright holder nor the names of its
+           contributors may be used to endorse or promote products derived from
+           this software without specific prior written permission.
+        
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+        AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+        IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+        FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+        SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+        CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+        OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+License-File: LICENSE
+Keywords: jupyter,jupyterlab,jupyterlab-extension
+Classifier: Framework :: Jupyter
+Classifier: Framework :: Jupyter :: JupyterLab
+Classifier: Framework :: Jupyter :: JupyterLab :: 4
+Classifier: Framework :: Jupyter :: JupyterLab :: Extensions
+Classifier: Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Requires-Python: >=3.9
+Requires-Dist: cairosvg>=2.7
+Requires-Dist: htmldocx>=0.0.6
+Requires-Dist: markdown>=3.4
+Requires-Dist: python-docx>=1.0
+Requires-Dist: reportlab>=4.0
+Provides-Extra: dev
+Requires-Dist: jupyterlab>=4; extra == 'dev'
+Provides-Extra: test
+Requires-Dist: coverage; extra == 'test'
+Requires-Dist: pytest; extra == 'test'
+Requires-Dist: pytest-asyncio; extra == 'test'
+Requires-Dist: pytest-cov; extra == 'test'
+Requires-Dist: pytest-jupyter[server]>=0.6.0; extra == 'test'
+Description-Content-Type: text/markdown
+
+# jupyterlab_export_markdown_extension
+
+[![GitHub Actions](https://github.com/stellarshenson/jupyterlab_export_markdown_extension/actions/workflows/build.yml/badge.svg)](https://github.com/stellarshenson/jupyterlab_export_markdown_extension/actions/workflows/build.yml)
+[![npm version](https://img.shields.io/npm/v/jupyterlab_export_markdown_extension.svg)](https://www.npmjs.com/package/jupyterlab_export_markdown_extension)
+[![PyPI version](https://img.shields.io/pypi/v/jupyterlab-export-markdown-extension.svg)](https://pypi.org/project/jupyterlab-export-markdown-extension/)
+[![Total PyPI downloads](https://static.pepy.tech/badge/jupyterlab-export-markdown-extension)](https://pepy.tech/project/jupyterlab-export-markdown-extension)
+[![JupyterLab 4](https://img.shields.io/badge/JupyterLab-4-orange.svg)](https://jupyterlab.readthedocs.io/en/stable/)
+[![Brought To You By KOLOMOLO](https://img.shields.io/badge/Brought%20To%20You%20By-KOLOMOLO-00ffff?style=flat)](https://kolomolo.com)
+
+Export markdown files to PDF, DOCX, and HTML directly from JupyterLab. No external dependencies required - just `pip install` and go.
+
+![Export Markdown As menu](.resources/screenshot.png)
+
+## Features
+
+- **PDF Export** - Full Unicode and emoji support via weasyprint
+- **DOCX Export** - Microsoft Word documents with smart image sizing (fit-to-page for large images)
+- **HTML Export** - Standalone files with embedded images
+- **Mermaid Diagrams** - Client-side rendering with calibrated DPI scaling (configurable, default 150 DPI)
+- **Embedded Images** - Local images automatically converted to base64
+- **Export Spinner** - Modal dialog shows progress during export operations
+- **File Menu Integration** - "Export Markdown As" submenu appears when markdown is active
+- **Command Palette** - All export commands available via Ctrl+Shift+C
+- **Settings** - Configure diagram DPI via JupyterLab Settings Editor
+- **Pure Python** - No pandoc, no LaTeX, no system dependencies
+
+## Requirements
+
+- JupyterLab >= 4.0.0
+- Python >= 3.9
+
+For PDF export, install required system libraries and emoji font:
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install libcairo2 libpango-1.0-0 libpangoft2-1.0-0 fonts-noto-color-emoji
+```
+
+Mermaid diagrams are rendered client-side using JupyterLab's built-in Mermaid support - no additional installation required.
+
+## Install
+
+```bash
+pip install jupyterlab_export_markdown_extension
+```
+
+That's it. No really, that's actually it. We spent considerable effort making sure you don't have to install pandoc, LaTeX, or sacrifice a goat to get this working.
+
+## Usage
+
+1. Open a markdown file in JupyterLab
+2. Use **File -> Export Markdown As** submenu, or
+3. Open command palette (Ctrl+Shift+C) and search "Export Markdown"
+
+## Export Formats
+
+| Format | Library                | Notes                                           |
+| ------ | ---------------------- | ----------------------------------------------- |
+| PDF    | weasyprint             | Unicode, emojis, compact styling                |
+| DOCX   | python-docx + htmldocx | Smart image sizing, banded tables, 0.5" margins |
+| HTML   | markdown               | Standalone with embedded images                 |
+
+## Settings
+
+Configure the extension via **Settings -> Settings Editor -> Export Markdown Extension**:
+
+- **Diagram DPI** - Resolution for Mermaid diagrams (default: 150, range: 72-600)
+
+## Uninstall
+
+```bash
+pip uninstall jupyterlab_export_markdown_extension
+```
+
+## License
+
+BSD 3-Clause License
