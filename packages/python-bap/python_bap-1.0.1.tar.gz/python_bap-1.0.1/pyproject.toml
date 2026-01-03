@@ -1,0 +1,24 @@
+[project]
+name = "python-bap"
+version = "1.0.1"
+description = ""
+authors = [
+    {name = "Dave Martinez",email = "34991082+dkm-coder@users.noreply.github.com"}
+]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "typer (>=0.21.0,<0.22.0)",
+    "urllib3 (<2)",
+    "requests (>=2.32.5,<3.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "python_bap", from = "src"}]
+
+[tool.poetry.scripts]
+python-bap = "python_bap.main:app"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
