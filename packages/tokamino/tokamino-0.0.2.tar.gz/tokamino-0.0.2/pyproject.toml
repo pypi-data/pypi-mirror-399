@@ -1,0 +1,165 @@
+[project]
+name = "tokamino"
+version = "0.0.2"
+description = "High-performance LLM inference with zero dependencies"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-xdist>=3.0",
+    "numpy>=1.21",
+    "torch>=2.0",
+    "transformers>=4.40",
+    "accelerate>=0.30",
+]
+
+# Dev dependencies - installed by default with `uv sync`
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-xdist>=3.0",
+    "numpy>=1.21",
+    "torch>=2.0",
+    "accelerate>=0.30",
+    "mistral-common>=1.8.8",
+    "transformers>=4.57.3",
+    "markdown>=3.10",
+    "pygments>=2.19.2",
+    "ruff>=0.8",
+]
+
+[project.scripts]
+tokamino = "tokamino.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+artifacts = ["tokamino/*.so", "tokamino/*.dylib", "tokamino/*.dll", "tokamino/*.metallib"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["tokamino"]
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = ".github/ci/build_hook.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "tokamino/",
+    "core/",
+    "build.zig",
+    ".github/ci/build_hook.py",
+    "Makefile",
+    "pyproject.toml",
+    "README.md",
+    "LICENSE",
+]
+exclude = [
+    "*.so",
+    "*.dylib",
+    "*.dll",
+    "__pycache__/",
+    ".git/",
+    "zig-out/",
+    ".zig-cache/",
+    "deps/",
+    "dist/",
+    ".venv/",
+    "cache/",
+    "models/.venv/",
+]
+
+# =============================================================================
+# Pytest Configuration
+# =============================================================================
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Ignore archived tests (legacy format)
+norecursedirs = ["archive", "__pycache__", ".git"]
+
+# Markers for filtering tests
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "gpu: marks tests requiring GPU",
+    "requires_model: marks tests requiring a model",
+    "memory: marks memory/leak detection tests",
+]
+
+# Default options
+addopts = [
+    "-v",
+    "--tb=short",
+    "-ra",  # Show summary of all non-passed tests
+]
+
+# Filter warnings
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+# Minimum pytest version
+minversion = "7.0"
+
+# =============================================================================
+# Coverage Configuration (optional, if pytest-cov is installed)
+# =============================================================================
+
+[tool.coverage.run]
+source = ["tokamino"]
+omit = [
+    "tokamino/cli/*",
+    "tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+
+# =============================================================================
+# Ruff Configuration
+# =============================================================================
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "D",      # pydocstyle (docstring checks)
+]
+ignore = [
+    "D100",   # Missing docstring in public module
+    "D104",   # Missing docstring in public package
+    "D105",   # Missing docstring in magic method (__repr__, __len__, etc.)
+    "D107",   # Missing docstring in __init__
+    "D203",   # 1 blank line required before class docstring (conflicts with D211)
+    "D213",   # Multi-line docstring summary should start at the second line (conflicts with D212)
+    "E501",   # Line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]  # Don't require docstrings in tests
+"docs/*" = ["D"]   # Don't require docstrings in docs scripts
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
