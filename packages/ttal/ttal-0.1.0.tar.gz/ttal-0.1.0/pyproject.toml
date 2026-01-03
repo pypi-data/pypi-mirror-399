@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ttal"
+version = "0.1.0"
+description = "Torch Tune abstractions for local LLM inference."
+requires-python = ">=3.8"
+dependencies = [
+    "torch",
+    "torchtune",
+    "huggingface_hub"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
