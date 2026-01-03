@@ -1,0 +1,427 @@
+# configmerge
+
+> Load, merge, and validate configuration from JSON, YAML, TOML, and environment variables.
+
+[![PyPI version](https://badge.fury.io/py/configmerge.svg)](https://pypi.org/project/configmerge/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-green.svg)]()
+
+## The Problem
+
+Configuration management in Python is fragmented:
+
+```python
+# You need different libraries for different formats 😤
+import json
+import yaml  # pip install pyyaml
+import tomllib  # Python 3.11+ only
+import os
+
+# Manual loading and merging 😫
+with open("base.json") as f:
+    base_config = json.load(f)
+
+with open("local.yaml") as f:
+    local_config = yaml.safe_load(f)
+
+# Manual environment variable handling 😵
+config = {**base_config, **local_config}
+if os.getenv("DATABASE_URL"):
+    config["database"]["url"] = os.getenv("DATABASE_URL")
+```
+
+## The Solution
+
+```python
+from configmerge import load
+
+# Load and merge multiple formats + environment variables! 🎉
+config = load(
+    "config.json",           # Base configuration
+    "config.local.yaml",     # Local overrides  
+    "config.prod.toml",      # Production settings
+    env_prefix="APP_"        # Environment variables (APP_*)
+)
+
+# Access nested configuration easily
+db_host = config["database"]["host"]
+```
+
+## Installation
+
+```bash
+# Core functionality (JSON + .env files)
+pip install configmerge
+
+# With YAML support
+pip install configmerge[yaml]
+
+# With TOML support  
+pip install configmerge[toml]
+
+# With all format support
+pip install configmerge[all]
+```
+
+## Features
+
+- **Multi-format support**: JSON, YAML, TOML, .env files
+- **Zero core dependencies**: JSON and .env work out of the box
+- **Deep merging**: Nested dictionaries merged intelligently
+- **Environment integration**: Load env vars with nested key support
+- **Type preservation**: Automatic type conversion from env vars
+- **Error handling**: Graceful handling of missing files
+- **Python 3.10+**: Modern Python with full type hints
+
+## Quick Start
+
+### Basic Usage
+
+```python
+from configmerge import load, load_file, merge
+
+# Load single file
+config = load_file("config.json")
+
+# Load and merge multiple files
+config = load("base.yaml", "local.yaml", "prod.yaml")
+
+# Include environment variables
+config = load("config.yaml", env_prefix="APP_")
+```
+
+### Supported Formats
+
+```python
+from configmerge import load_file
+
+# JSON (always supported)
+config = load_file("config.json")
+
+# YAML (requires pyyaml)
+config = load_file("config.yaml")
+
+# TOML (requires tomli on Python < 3.11)
+config = load_file("config.toml")
+
+# .env files (always supported)
+config = load_file(".env")
+```
+
+### Environment Variables
+
+```python
+from configmerge import from_env
+
+# Set environment variables
+# APP_DATABASE__HOST=localhost
+# APP_DATABASE__PORT=5432
+# APP_DEBUG=true
+
+config = from_env("APP_")
+# Result: {
+#   "database": {"host": "localhost", "port": 5432},
+#   "debug": True
+# }
+```
+
+## Advanced Usage
+
+### Deep Merging
+
+```python
+from configmerge import merge
+
+base = {
+    "database": {"host": "localhost", "port": 5432},
+    "cache": {"ttl": 300}
+}
+
+override = {
+    "database": {"port": 3306},  # Override port, keep host
+    "debug": True                # Add new key
+}
+
+result = merge(base, override)
+# Result: {
+#   "database": {"host": "localhost", "port": 3306},
+#   "cache": {"ttl": 300},
+#   "debug": True
+# }
+```
+
+### Configuration Layers
+
+```python
+from configmerge import load
+
+# Load configuration in priority order (later overrides earlier)
+config = load(
+    "config/default.yaml",      # 1. Default settings
+    "config/production.yaml",   # 2. Environment-specific
+    "config/local.yaml",        # 3. Local overrides
+    env_prefix="MYAPP_"         # 4. Environment variables (highest priority)
+)
+```
+
+### Environment Variable Mapping
+
+Environment variables use `__` (double underscore) for nested keys:
+
+```bash
+# Environment variables
+export MYAPP_DATABASE__HOST=prod-db.example.com
+export MYAPP_DATABASE__PORT=5432
+export MYAPP_CACHE__REDIS__URL=redis://localhost:6379
+export MYAPP_DEBUG=false
+export MYAPP_WORKERS=4
+```
+
+```python
+from configmerge import from_env
+
+config = from_env("MYAPP_")
+# Result: {
+#   "database": {
+#     "host": "prod-db.example.com",
+#     "port": 5432
+#   },
+#   "cache": {
+#     "redis": {
+#       "url": "redis://localhost:6379"
+#     }
+#   },
+#   "debug": False,
+#   "workers": 4
+# }
+```
+
+### Type Conversion
+
+Environment variables are automatically converted to appropriate types:
+
+```bash
+export APP_DEBUG=true          # → Boolean: True
+export APP_PORT=8080          # → Integer: 8080  
+export APP_RATE=1.5           # → Float: 1.5
+export APP_TAGS='["a","b"]'   # → List: ["a", "b"]
+export APP_CONFIG='{"x":1}'   # → Dict: {"x": 1}
+export APP_NAME=myapp         # → String: "myapp"
+```
+
+## Configuration Examples
+
+### Web Application
+
+```python
+# config/default.yaml
+database:
+  host: localhost
+  port: 5432
+  name: myapp
+  
+server:
+  host: 0.0.0.0
+  port: 8000
+  
+cache:
+  ttl: 300
+```
+
+```python
+# config/production.yaml  
+database:
+  host: prod-db.example.com
+  
+server:
+  port: 80
+```
+
+```python
+# Load configuration
+from configmerge import load
+
+config = load(
+    "config/default.yaml",
+    "config/production.yaml", 
+    env_prefix="APP_"
+)
+
+# Use configuration
+app.run(
+    host=config["server"]["host"],
+    port=config["server"]["port"]
+)
+```
+
+### Docker Configuration
+
+```dockerfile
+# Dockerfile
+ENV APP_DATABASE__HOST=postgres
+ENV APP_DATABASE__PORT=5432
+ENV APP_REDIS__URL=redis://redis:6379
+```
+
+```python
+# app.py
+from configmerge import load
+
+config = load(
+    "config.yaml",        # Base configuration
+    env_prefix="APP_"     # Docker environment variables
+)
+```
+
+### 12-Factor App
+
+```python
+from configmerge import load
+
+# Follow 12-factor app principles
+config = load(
+    "config/default.json",    # Defaults in code
+    env_prefix="APP_"         # Config from environment
+)
+
+# All configuration comes from environment in production
+DATABASE_URL = config["database"]["url"]
+SECRET_KEY = config["security"]["secret_key"]
+```
+
+## API Reference
+
+### `load(*paths, env_prefix=None)`
+
+Load and merge configuration from multiple sources.
+
+**Parameters:**
+- `*paths`: Configuration file paths
+- `env_prefix`: Environment variable prefix (optional)
+
+**Returns:** Merged configuration dictionary
+
+### `load_file(path)`
+
+Load configuration from a single file.
+
+**Parameters:**
+- `path`: Path to configuration file
+
+**Returns:** Configuration dictionary
+
+### `merge(base, override)`
+
+Deep merge two configuration dictionaries.
+
+**Parameters:**
+- `base`: Base configuration
+- `override`: Override configuration  
+
+**Returns:** Merged configuration dictionary
+
+### `from_env(prefix)`
+
+Load configuration from environment variables.
+
+**Parameters:**
+- `prefix`: Environment variable prefix
+
+**Returns:** Configuration dictionary
+
+## Error Handling
+
+```python
+from configmerge import load, load_file
+
+# Missing files are silently ignored
+config = load("missing.yaml", "existing.yaml")  # Only loads existing.yaml
+
+# Unknown formats raise ValueError
+try:
+    config = load_file("config.xml")
+except ValueError as e:
+    print(f"Unsupported format: {e}")
+
+# Missing dependencies raise ImportError
+try:
+    config = load_file("config.yaml")  # Without pyyaml installed
+except ImportError as e:
+    print(f"Install pyyaml: {e}")
+```
+
+## Best Practices
+
+### 1. Layer Configuration
+
+```python
+# Good: Clear priority order
+config = load(
+    "config/defaults.yaml",     # Lowest priority
+    "config/environment.yaml",  # Environment-specific
+    "config/local.yaml",        # Local development
+    env_prefix="APP_"           # Highest priority
+)
+```
+
+### 2. Use Environment Variables for Secrets
+
+```python
+# config.yaml - No secrets in files!
+database:
+  host: localhost
+  port: 5432
+  # Don't put passwords in config files!
+
+# Environment variables for secrets
+# APP_DATABASE__PASSWORD=secret123
+config = load("config.yaml", env_prefix="APP_")
+```
+
+### 3. Validate Configuration
+
+```python
+from configmerge import load
+
+config = load("config.yaml", env_prefix="APP_")
+
+# Validate required settings
+required_keys = ["database.host", "database.port", "secret_key"]
+for key in required_keys:
+    keys = key.split(".")
+    value = config
+    for k in keys:
+        value = value.get(k)
+        if value is None:
+            raise ValueError(f"Missing required config: {key}")
+```
+
+## Comparison
+
+| Feature | configmerge | python-decouple | dynaconf | python-dotenv |
+|---------|-------------|-----------------|----------|---------------|
+| Multi-format | ✅ JSON/YAML/TOML/.env | ❌ .env only | ✅ Many formats | ❌ .env only |
+| Deep merging | ✅ | ❌ | ✅ | ❌ |
+| Zero dependencies | ✅ Core features | ✅ | ❌ | ✅ |
+| Type conversion | ✅ Automatic | ✅ Manual | ✅ Automatic | ❌ |
+| Nested env vars | ✅ `__` separator | ❌ | ✅ | ❌ |
+
+## Requirements
+
+- Python 3.10+
+- Optional: pyyaml (for YAML support)
+- Optional: tomli (for TOML support on Python < 3.11)
+
+## License
+
+MIT License - Free for commercial use
+
+## Contributing
+
+Contributions welcome! Please see our [Contributing Guide](https://github.com/SerityOps/configmerge/blob/main/CONTRIBUTING.md).
+
+## Related Projects
+
+- [asyncbridge](https://github.com/SerityOps/asyncbridge) - Async/sync conversion utilities
+- [httpx-defaults](https://github.com/SerityOps/httpx-defaults) - Production HTTP client
+- [devkitx](https://github.com/SerityOps/devkitx) - Security-first Python utilities
