@@ -1,0 +1,2 @@
+class MatrixDimensionsInvalid(Exception):
+    pass
