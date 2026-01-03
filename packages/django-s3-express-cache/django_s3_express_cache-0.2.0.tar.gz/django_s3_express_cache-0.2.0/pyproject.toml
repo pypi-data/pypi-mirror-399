@@ -1,0 +1,79 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools",
+]
+
+[project]
+name = "django-s3-express-cache"
+version = "0.2.0"
+description = "django-s3-express-cache"
+authors = [{ name = "Free Law Project", email = "info@free.law" }]
+requires-python = ">=3.13"
+readme = "README.md"
+license = "BSD-2-Clause"
+keywords = [
+    "legal",
+    "courts",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  "Django>=5.0",
+  "boto3>=1.37.20"
+]
+
+urls.Repository = "https://github.com/freelawproject/django-s3-express-cache"
+urls."Organisation Homepage" = "https://free.law/"
+
+[tool.setuptools]
+packages = [ "django_s3_express_cache" ]
+
+[tool.ruff]
+line-length = 79
+lint.extend-safe-fixes = [
+  # non-pep585-annotation
+  "UP006",
+]
+lint.select = [
+  # flake8-bugbear
+  "B",
+  # flake8-comprehensions
+  "C4",
+  # pycodestyle
+  "E",
+  # Pyflakes errors
+  "F",
+  # isort
+  "I",
+  # flake8-simplify
+  "SIM",
+  # flake8-tidy-imports
+  "TID",
+  # pyupgrade
+  "UP",
+  # Pyflakes warnings
+  "W",
+]
+lint.ignore = [
+  # flake8-bugbear opinionated rules
+  "B9",
+  # line-too-long
+  "E501",
+  # suppressible-exception
+  "SIM105",
+  # if-else-block-instead-of-if-exp
+  "SIM108",
+  # printf-string-formatting
+  "UP031",
+]
