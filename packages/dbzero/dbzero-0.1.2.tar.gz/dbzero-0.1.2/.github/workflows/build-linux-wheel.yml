@@ -1,0 +1,84 @@
+name: Build Linux Wheel
+
+on: 
+  workflow_call:
+    inputs:
+      python-version: 
+        required: true
+        type: string
+      build-args: 
+        required: false
+        type: string
+        default: ''
+      timeout-minutes:
+        required: false
+        type: number
+        default: 60
+  workflow_dispatch:
+    inputs: 
+      python-version:
+        description: 'Python version to build'
+        required: true
+        type: choice
+        options:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+          - '3.12'
+          - '3.13'
+          - '3.14'
+        default: '3.12'
+      build-args:
+        description: 'Additional build arguments (e.g., --config-setting=setup-args=-Denable_sanitizers=true)'
+        required: false
+        type: string
+        default: ''
+      timeout-minutes:
+        description: 'Timeout in minutes'
+        required: false
+        type: number
+        default: 60
+
+jobs: 
+  build-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(inputs.timeout-minutes) }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version:  ${{ inputs.python-version }}
+      
+      - name: Generate meson files
+        run: |
+          python3 scripts/generate_meson.py ./src/dbzero/ core
+          python3 scripts/generate_meson_tests.py tests/
+          python3 scripts/generate_meson_dbzero.py dbzero/
+      
+      - name: Configure git
+        run:  |
+          git config --global user.email "ci@example.com"
+          git config --global user.name "CI Builder"
+          rm -f .gitignore
+          git add . && git commit -m "Update meson files"
+      
+      - name: Set Python version for cibuildwheel
+        id: py-version
+        run: echo "py_tag=$(echo ${{ inputs.python-version }} | tr -d '.')" >> $GITHUB_OUTPUT
+      
+      - name: Build manylinux wheels
+        uses: pypa/cibuildwheel@v2.21
+        env:
+          CIBW_BUILD: cp${{ steps.py-version.outputs.py_tag }}-manylinux_x86_64
+          CIBW_SKIP: pp* cp36-* *-musllinux*
+          CIBW_ARCHS_LINUX: x86_64
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          CIBW_BUILD_VERBOSITY: 1
+          CIBW_PRERELEASE_PYTHONS: true
+      
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-${{ inputs.python-version }}
+          path: ./wheelhouse/*.whl

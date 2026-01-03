@@ -1,0 +1,5 @@
+subdir('full_text')
+subdir('vector')
+subdir('pools')
+subdir('range_tree')
+subdir('b_index')

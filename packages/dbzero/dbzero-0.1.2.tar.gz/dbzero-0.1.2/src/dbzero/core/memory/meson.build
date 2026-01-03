@@ -1,0 +1,32 @@
+
+all_srcs += [
+meson.current_source_dir() / 'diff_utils.cpp',
+meson.current_source_dir() / 'VObjectCache.cpp',
+meson.current_source_dir() / 'config.cpp',
+meson.current_source_dir() / 'OneShotAllocator.cpp',
+meson.current_source_dir() / 'SnapshotCache.cpp',
+meson.current_source_dir() / 'SlabManager.cpp',
+meson.current_source_dir() / 'DP_Lock.cpp',
+meson.current_source_dir() / 'CacheRecycler.cpp',
+meson.current_source_dir() / 'WideLock.cpp',
+meson.current_source_dir() / 'MemLock.cpp',
+meson.current_source_dir() / 'SlotAllocator.cpp',
+meson.current_source_dir() / 'ResourceLock.cpp',
+meson.current_source_dir() / 'PrefixCache.cpp',
+meson.current_source_dir() / 'MetaAllocator.cpp',
+meson.current_source_dir() / 'AccessOptions.cpp',
+meson.current_source_dir() / 'mptr.cpp',
+meson.current_source_dir() / 'SlabAllocator.cpp',
+meson.current_source_dir() / 'PrefixViewImpl.cpp',
+meson.current_source_dir() / 'utils.cpp',
+meson.current_source_dir() / 'SlabItem.cpp',
+meson.current_source_dir() / 'Prefix.cpp',
+meson.current_source_dir() / 'BoundaryLock.cpp',
+meson.current_source_dir() / 'AlgoAllocator.cpp',
+meson.current_source_dir() / 'Address.cpp',
+meson.current_source_dir() / 'Memspace.cpp',
+meson.current_source_dir() / 'PrefixImpl.cpp',
+meson.current_source_dir() / 'Allocator.cpp',
+meson.current_source_dir() / 'DirtyCache.cpp']
+
+        

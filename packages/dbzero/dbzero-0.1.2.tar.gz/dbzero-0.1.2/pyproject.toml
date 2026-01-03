@@ -1,0 +1,31 @@
+[build-system]
+build-backend = 'mesonpy'
+requires = ['meson-python']
+
+[project]
+name = 'dbzero'
+version = '0.1.2'
+description = 'A state management system for Python 3.x that unifies your applications business logic, data persistence, and caching into a single, efficient layer.'
+readme = 'README.md'
+requires-python = '>=3.9'
+license = {file = 'LICENSE'}
+authors = [
+     { name = 'DBZero Software sp. z o.o', email='info@dbzero.io' },
+]
+dependencies = [
+    'fasteners==0.19'
+]
+
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+]
+
+[project.urls]
+homepage = 'https://dbzero.io/'
+documentation = 'https://docs.dbzero.io/'
+repository = 'https://github.com/dbzero-software/dbzero'
+
+
+[tool.pytest.ini_options]
+testpaths = ["python_tests"]

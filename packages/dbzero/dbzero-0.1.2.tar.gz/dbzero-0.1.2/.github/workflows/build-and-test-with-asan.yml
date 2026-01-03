@@ -1,0 +1,26 @@
+name: Build and test with assan
+on:
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+    uses: ./.github/workflows/build-linux-wheel.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      build-args: '--config-setting=setup-args=-Denable_sanitizers=true'
+  
+  test-wheels-linux:
+    needs: build-linux
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+    uses: ./.github/workflows/test-linux-wheel.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      ld-preload: 'LD_PRELOAD=$(gcc -print-file-name=libasan.so)'
+
