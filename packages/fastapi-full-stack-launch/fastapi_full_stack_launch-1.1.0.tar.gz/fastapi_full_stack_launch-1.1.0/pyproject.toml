@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastapi-full-stack-launch"
+version = "1.1.0"
+description = "A CLI tool to scaffold full-stack projects with FastAPI backend and React Vite frontend"
+readme = "README.md"
+authors = [{ name = "Krishi Devani" }]
+requires-python = ">=3.8"
+license = "MIT"
+keywords = ["fullstack", "fastapi", "react", "vite", "cli", "scaffold", "project-generator", "uv", "typescript"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Utilities",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://pypi.org/project/fastapi-full-stack-launch/"
+Repository = "https://github.com/krishi-devani/fastapi-full-stack-launch"
+
+[project.scripts]
+fastapi-full-stack-launch = "fastapi_full_stack.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fastapi_full_stack", "fastapi_full_stack.*"]
+
+[tool.setuptools.package-data]
+"*" = ["*"]
