@@ -1,0 +1,111 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uace"
+version = "0.1.1"
+description = "Universal Auto-Caption Engine - Speech refinement with motion typography"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Chigozie Anyaeji", email = "chigozieanyaeji@gmail.com"}
+]
+keywords = [
+    "captions",
+    "subtitles",
+    "whisper",
+    "transcription",
+    "video",
+    "accessibility",
+    "motion-typography"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "numpy>=1.24.0",
+    "pydantic>=2.0.0",
+    "rich>=13.0.0",
+    "click>=8.0.0",
+]
+
+[project.optional-dependencies]
+whisper = [
+    "faster-whisper>=1.0.0",
+    "torch>=2.0.0",
+]
+whisperx = [
+    "whisperx>=3.1.0",
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+]
+distil = [
+    "transformers>=4.30.0",
+    "torch>=2.0.0",
+]
+video = [
+    "ffmpeg-python>=0.2.0",
+]
+all = [
+    "faster-whisper>=1.0.0",
+    "whisperx>=3.1.0",
+    "transformers>=4.30.0",
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+    "ffmpeg-python>=0.2.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/chigozie-coder/uace"
+Documentation = "https://github.com/chigozie-coder/uace"
+Repository = "https://github.com/chigozie-coder/uace"
+Issues = "https://github.com/chigozie-coder/uace/issues"
+
+[project.scripts]
+uace = "uace.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ['py39']
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=uace --cov-report=term-missing"
