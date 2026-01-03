@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cli_tools_by_oleksa"
+version = "2.2.0"
+authors = [
+  { name = "Oleksa" }
+]
+description = "Lightweight helper toolkit for building CLI (command-line) applications in Python."
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = [
+    "cli",
+    "console",
+    "interactive",
+    "input-validation",
+    "menu",
+    "prompt",
+    "styling",
+    "terminal",
+    "cursor-control",
+    "ansi",
+    "rgb",
+    "true-color",
+    "menu-selection",
+    "table",
+    "error-handling",
+    "validators",
+    "regex",
+    "composition",
+    "no-dependency",
+]
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Topic :: Utilities",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: User Interfaces",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Terminals",
+    "Topic :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+    "Environment :: Console"
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+[tool.hatch.build]
+include = [
+    "src/cli_tools"
+]
+
+[tool.hatch.build.targets.wheel]
+directory = "dist"
+packages = ["src/cli_tools"]
