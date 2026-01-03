@@ -1,0 +1,144 @@
+Metadata-Version: 2.4
+Name: uneval
+Version: 0.2.0
+Summary: Library for generating python-expressions
+Author-email: lverweijen <lauwerund@gmail.com>
+License: Apache License 2.0
+Project-URL: Homepage, https://github.com/lverweijen/python-uneval
+Project-URL: Repository, https://github.com/lverweijen/python-uneval
+Project-URL: Issues, https://github.com/lverweijen/python-uneval/issues
+Project-URL: Changelog, https://github.com/lverweijen/python-uneval/blob/main/changes.md
+Project-URL: Pypi, https://github.com/lverweijen/python-uneval
+Keywords: expression,ast,dsl,fexpr,lambda,symbolic
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Topic :: Software Development :: Code Generators
+Classifier: Typing :: Typed
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# uneval #
+
+Uneval is a small library for working with python-expressions.
+
+It makes working with expressions more intuitive than ast-objects and safer than working on strings.
+You may use it to dynamically generate code, write [macros](https://en.wikipedia.org/wiki/Macro) or implement [domain specific languages](https://en.wikipedia.org/wiki/Domain-specific_language),
+It also provides a shorthand (`F.x`) for code that heavily uses anonymous functions.
+
+## Installation ##
+
+Make sure to [install pip](https://pip.pypa.io/en/stable/installation/) then run:
+```sh
+pip install uneval
+```
+
+## Usage
+
+### Functionality
+
+```python
+# Factory to create an expression
+expr(obj: str | ast.AST | Expression) -> Expression
+
+# Create variable x as an Expression
+var(x: str) -> Expression[ast.Name]
+var.x
+
+# Evaluate an expression
+evaluate(expr: str | Expression | ast.AST, **vars) -> Any
+
+# Compile an expression
+compiled(expr: str | Expression | ast.AST | CodeType) -> CodeType
+
+# Create anonymous function (lambda) with parameter x and expression as body
+F.x(expr: str | Expression | ast.AST) -> Callable[[Any], Any]
+
+# Convert expression to abstract syntax tree node
+to_ast(expr: Expression | ast.AST) -> ast.AST
+```
+
+### Example
+
+```python
+import ast
+from uneval import var, evaluate, F
+
+>>> square_x = expr("x * x")
+>>> square_x = var.x * var.x  # alternative way of writing expressions
+>>> evaluate(square_x, x=3)
+9
+>>> square = F.x(square_x)
+>>> square(3)
+9
+>>> str(square_x)
+'x * x'
+>>> to_ast(square_x)
+ast.BinOp(ast.Name(id="x", ctx=ast.Load()), ast.Mult(), ast.Name(id="x", ctx=ast.Load()))
+```
+
+### Building blocks ###
+
+| Factory       | Example                                                 | Result                       |
+|---------------|---------------------------------------------------------|------------------------------|
+| `expr`        | `expr("a + 3")`                                         | `a + 3`                      |
+| `var`         | `var('a')` or `var.a` (shortcut)                        | `a`                          |
+| `if_`         | `if_(var.x >= 0, var.x, -var.x)`                        | `x if x >= 0 else -x`        |
+| `for_`        | `for_(var.x**2, (var.x, range(5)))`                     | `(x**2 for x in range(5))`   |
+| `lambda_`     | `lambda_([var.x], var.x * var.x)`                       | `lambda x: x * x`            |
+| `and_`, `or_` | `and_(var.x >= 10, var.x <= 15)`                        | `x >= 10 and x <= 15`        |
+| `not_`, `in_` | `not_(in_(var.x, {1, 2, 3}))`                           | `not x in {1, 2, 3}`         |
+| `fstr`, `fmt` | `fstr("sin(", var.a, ") is ", fmt(var.sin(q.a), ".3"))` | `f'sin({a}) is {sin(a):.3}'` |
+
+### Keeping track of context ###
+
+Note that expressions don't capture context. In this case `scoped` can be used instead.
+
+```python
+x = 5
+
+# This raises an AttributeError
+evaluate(var.x + 3)
+
+# Pass any context variables along that you need.
+evaluate(var.x + 3, x=x)  # => 8
+
+# Use scoped to capture the surrounding context (including x)
+evaluate(scoped(var.x + 3))  # => 8
+```
+
+This also applies to modules:
+
+```python
+import math
+
+x = 2
+evaluate(var.math.sqrt(var.x), x=x, math=math)  # => 1.4
+evaluate(scoped(var.math.sqrt(var.x)))  # => 1.4
+```
+
+## Similar libraries ##
+
+Libraries that implement something similar:
+- [Macropy](https://github.com/lihaoyi/macropy) has [quasiquote](https://macropy3.readthedocs.io/en/latest/reference.html#quasiquote).
+- [SymPy](https://www.sympy.org/en/index.html) - Symbolic manipulation, but its representation is different from Python.
+- [Polars](https://docs.pola.rs/user-guide/expressions/) - Writing `col.x` creates something like this `Expression`-object.
+
+Other:
+- [Fixing lambda](https://stupidpythonideas.blogspot.com/2014/02/fixing-lambda.html) - A blog post about alternative lambda syntaxes.
+- [Mini-lambda](https://smarie.github.io/python-mini-lambda/#see-also) - Packages to "fix" lambda.
+- [Meta](https://srossross.github.io/Meta/html/) - A few utils to work on AST's.
+- [latexify](https://github.com/google/latexify_py) and [pytexit](https://github.com/erwanp/pytexit) - Convert python to LaTeX.
+- [numexpr](https://github.com/pydata/numexpr) and [aesara](https://github.com/aesara-devs/aesara) / [pytensor](https://github.com/pymc-devs/pytensor) - Fast evaluation of numerical expressions.
+
+Useful references:
+- [python macros use cases](https://stackoverflow.com/questions/764412/python-macros-use-cases) - Stack-overflow discussion.
+- [Green tree snakes](https://greentreesnakes.readthedocs.io/en/latest/) - Unofficial documentation of AST nodes.
