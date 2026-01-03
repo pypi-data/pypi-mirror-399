@@ -1,0 +1,122 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "socials"
+dynamic = ["version"]
+description = "Social Account Detection for Python"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+requires-python = ">=3.9"
+authors = [
+    { name = "Karl Lorey", email = "git@karllorey.com" }
+]
+keywords = ["social media", "url extraction", "facebook", "twitter", "linkedin", "github", "instagram", "youtube"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "pydantic>=2.0",
+    "typer>=0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.8",
+    "mypy>=1.0",
+    "pre-commit>=3.0",
+]
+docs = [
+    "mkdocs>=1.5",
+    "mkdocs-material>=9.0",
+    "mkdocstrings[python]>=0.24",
+]
+
+[project.scripts]
+socials = "socials.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/lorey/socials"
+Documentation = "https://socials.readthedocs.io"
+Repository = "https://github.com/lorey/socials"
+Changelog = "https://github.com/lorey/socials/blob/main/CHANGELOG.md"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "socials/_version.py"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "B008",   # function call in default arg (required for typer)
+    "D203",   # conflicts with D211 (no blank line before class)
+    "D213",   # conflicts with D212 (multi-line summary first line)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "S101",    # assert is fine in tests
+    "INP001",  # tests don't need __init__.py
+    "PLR2004", # magic values are fine in tests
+    "ANN",     # type annotations not required in tests
+    "D",       # docstrings not required in tests
+]
+"socials/cli.py" = [
+    "FBT001",  # typer requires boolean positional args
+    "UP045",   # Typer needs Optional[X] for Python 3.9 runtime evaluation
+]
+"socials/platforms/*.py" = [
+    "UP045",   # Pydantic needs Optional[X] for Python 3.9 runtime evaluation
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["socials"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "docs", "."]
+addopts = "-v --tb=short --markdown-docs"
+
+[tool.coverage.run]
+source = ["socials"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[[tool.mypy.overrides]]
+module = "socials.platforms.*"
+# Pydantic Literal types + regex groupdict() triggers false positives
+disable_error_code = ["arg-type"]
+
+[dependency-groups]
+dev = [
+    "pytest-markdown-docs>=0.9.0",
+]
