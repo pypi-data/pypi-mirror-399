@@ -1,0 +1,104 @@
+# 🎙️ Cast-Away
+Minimalist TUI Podcast Client for Hackers
+
+Cast-Away is a lightweight, keyboard-driven terminal application designed for developers who want to listen to podcasts without leaving their terminal environment. Built with Python and Textual, it provides a distraction-free experience with real-time audio visualization.
+
+✨ Features
+- **RSS Integration**: Add any public podcast RSS feed (NPR, BBC, Darknet Diaries, etc.).
+- **Dynamic UI**: Responsive grid layout that maps your podcast library from a local JSON store.
+- **Smooth Playback**: Non-blocking audio streaming using Pygame.mixer.
+- **ASCII Visualizer**: Real-time audio waveform animation in the terminal.
+- **Self-Contained**: No external dependencies required once compiled.
+
+🛠️ Requirements (TerminalCraft v2)
+- [x] Real Problem: Solves the "heavy GUI" problem of modern podcast apps.
+- [x] Unix Support: Tested on Linux, macOS, and WSL.
+- [x] Open Source: Licensed under MIT for the community.
+- [x] No Wrapper: Custom built RSS parser and audio manager (not just a wrapper).
+
+🚀 Quick Start
+🚀 Quick Start
+
+1. **Installation**
+
+   Ensure you have Python 3.8+ installed. Clone the repo and install dependencies:
+
+   ```bash
+   git clone https://github.com/MadushankaRajapaksha/castAway.git
+   cd castAway
+   pip install -e .
+   ```
+
+2. **Run the App**
+
+   ```bash
+   castAway
+   ```
+
+   Or run directly with Python:
+
+   ```bash
+   python -m castAway
+   ```
+
+ 
+
+📂 Project Structure
+```
+castAway/
+├── cli.py          # Main entry point and CLI interface
+├── core.py         # Core RSS parsing and podcast logic
+├── db.py           # Database management for subscriptions
+├── player.py       # Audio playback functionality
+├── screen.py       # TUI interface using Textual
+└── test.py         # Testing utilities
+```
+
+📸 Screenshots & Demo
+(Tip: Add a GIF here showing you searching for a podcast and playing it!)
+
+🔧 Development & Contributing
+
+We welcome contributions! Here's how to set up your development environment:
+
+```bash
+# Clone the repository
+git clone https://github.com/MadushankaRajapaksha/castAway.git
+cd castAway
+
+# Install in development mode
+pip install -e .
+
+# Install development dependencies
+pip install pytest pytest-cov flake8 black isort mypy
+
+# Run tests
+pytest
+
+# Format code
+black castAway/
+isort castAway/
+```
+
+📦 Automated Releases
+
+This project uses GitHub Actions for CI/CD:
+
+- **CI Pipeline**: Runs on every push and PR with:
+  - Unit tests across Python 3.8-3.12
+  - Code linting (flake8, black, isort)
+  - Type checking (mypy)
+  - Code coverage reporting
+
+- **PyPI Release**: Automatically publishes to PyPI when you push a version tag:
+  ```bash
+  git tag v0.1.0
+  git push origin v0.1.0
+  ```
+
+👥 User Testing
+We are looking for at least 10 active users! If you find a bug or have a feature request, please [Open an Issue](https://github.com/MadushankaRajapaksha/castAway/issues).
+
+🌍 Open Source & License
+Distributed under the MIT License. See LICENSE for more information.
+ 
