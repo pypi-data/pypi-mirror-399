@@ -1,0 +1,39 @@
+from typing import Generator, List, Optional, Tuple
+
+from ..data_structures.entry import Entry
+from ..exceptions import UttError
+from .entry_lines import EntryLines
+from .entry_parser import EntryParser
+
+Entries = List[Entry]
+
+
+def entries(entry_lines: EntryLines, entry_parser: EntryParser) -> Entries:
+    return list(_parse_log(entry_lines(), entry_parser))
+
+
+def _parse_log(lines: List[Tuple[int, str]], entry_parser: EntryParser) -> Generator[Entry, None, None]:
+    previous_entry = None
+    for line_number, line in lines:
+        parsed_line = _parse_line(previous_entry, line_number, line.strip(), entry_parser)
+
+        if parsed_line is not None:
+            previous_entry, entry = parsed_line
+            yield entry
+
+
+def _parse_line(previous_entry: Optional[Entry], line_number: int, line: str, entry_parser: EntryParser):
+    # Ignore empty lines
+    if not line:
+        return None
+
+    try:
+        new_entry = entry_parser.parse(line)
+    except ValueError as e:
+        raise UttError(f"Invalid entry at line {line_number}: {line}") from e
+
+    if previous_entry is not None and previous_entry.datetime > new_entry.datetime:
+        raise UttError(f"Line {line_number} not in chronological order: {line}")
+
+    previous_entry = new_entry
+    return previous_entry, new_entry
