@@ -1,0 +1,57 @@
+Metadata-Version: 2.4
+Name: room-heater
+Version: 0.0.1
+Summary: A program that dynamically utilizes system resources to warm a room
+Author-email: HookSSi <sounghoo12@gmail.com>
+Project-URL: Homepage, https://github.com/hookSSi/Heater
+Project-URL: Repository, https://github.com/hookSSi/Heater
+Project-URL: Issues, https://github.com/hookSSi/Heater/issues
+Keywords: setuptools,development,heater,cpu,temperature,utility
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Utilities
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: psutil>=7.2.1
+Requires-Dist: numpy>=2.4.0
+Provides-Extra: windows
+Requires-Dist: WinTmp<=1.2.0; extra == "windows"
+Provides-Extra: gpu
+Requires-Dist: gputil>=1.4.0; extra == "gpu"
+Requires-Dist: nvidia-ml-py>=12.0.0; extra == "gpu"
+Provides-Extra: full
+Requires-Dist: gputil>=1.4.0; extra == "full"
+Requires-Dist: nvidia-ml-py>=12.0.0; extra == "full"
+Requires-Dist: WinTmp<=1.2.0; extra == "full"
+Dynamic: license-file
+
+# Heater
+
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+KEEP WARM YOUR ROOM FOR CODING
+
+## Install
+
+```
+pip install room_heater
+python -m room_heater
+```
+
+## Contribute
+
+I wouldn’t say I’m great at Python.
+This project was built around a simple idea: pushing system usage to warm up the computer.
+If you have ideas for improvements or cleaner implementations, feel free to PR
