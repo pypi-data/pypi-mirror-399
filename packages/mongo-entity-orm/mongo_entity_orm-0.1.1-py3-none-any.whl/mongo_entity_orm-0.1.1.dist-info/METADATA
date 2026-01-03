@@ -1,0 +1,94 @@
+Metadata-Version: 2.3
+Name: mongo-entity-orm
+Version: 0.1.1
+Summary: A MongoDB ORM for Python
+License: MIT
+Keywords: mongodb,orm,mongo,async
+Author: Juraj Bezdek
+Author-email: juraj.bezdek@gmail.com
+Requires-Python: >=3.9,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3 :: Only
+Requires-Dist: motor (>=3.7.1,<4.0.0)
+Requires-Dist: pymongo (>=4.13.2,<5.0.0)
+Project-URL: Documentation, https://github.com/ju-bezdek/mongo#readme
+Project-URL: Homepage, https://github.com/ju-bezdek/mongo-orm
+Project-URL: Repository, https://github.com/ju-bezdek/mongo
+Description-Content-Type: text/markdown
+
+# mongo-orm
+
+A MongoDB ORM for Python
+
+## Usage
+
+### Defining an Entity
+
+Use the `@entity` decorator to map a class to a MongoDB collection. Your class should inherit from `BaseEntity`.
+
+```python
+from mongo_orm import BaseEntity, entity
+
+@entity("users")
+class User(BaseEntity):
+    name: str
+    email: str
+    
+    # Define indexes
+    __indexes__ = [
+        {"keys": [("email", 1)], "unique": True},
+        {"keys": [("name", 1)]}
+    ]
+```
+
+### Index Management
+
+The ORM can automatically manage your MongoDB indexes based on the `__indexes__` attribute. This behavior is controlled by the `MONGODB_INDEX_AUTOAPPLY` environment variable.
+
+#### Configuration (`MONGODB_INDEX_AUTOAPPLY`)
+
+- `never` (default): No automatic index management.
+- `always`: Checks and applies indexes every time an entity class is initialized (on startup).
+- `auto-lock`: Checks and applies indexes once. After a successful check, it writes a hash of the index to `mongo-orm.lock`. Subsequent startups will skip the check if the hash is present in the lock file.
+
+#### Manual Index Application
+
+You can also trigger index application manually for all registered entities:
+
+```python
+from mongo_orm.utils import apply_all_indexes
+
+# Apply indexes using the current environment configuration
+apply_all_indexes()
+
+# Or force a specific mode
+apply_all_indexes(mode="always")
+```
+
+## Development
+
+```bash
+# Install dependencies
+poetry install
+
+# Run tests
+poetry run pytest
+
+# Format code
+poetry run black .
+poetry run isort .
+
+# Type checking
+poetry run mypy src/
+```
+
+## License
+
+MIT
