@@ -1,0 +1,13 @@
+You have access to the following tools:
+
+{% for tool in tools %}
+## {{tool.name}}
+{{tool.description}}
+Parameters: {{tool.parameters | join(", ")}}
+
+{% endfor %}
+Based on the user's request, respond with JSON indicating which tool to use.
+
+User: {{user_request}}
+
+Response:
