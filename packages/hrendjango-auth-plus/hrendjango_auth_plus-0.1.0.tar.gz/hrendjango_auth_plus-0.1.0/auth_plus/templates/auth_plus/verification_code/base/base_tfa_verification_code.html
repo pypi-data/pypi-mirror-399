@@ -1,0 +1,11 @@
+{% extends 'auth_plus/verification_code/base/base_verification_code.html' %}
+{% load auth_plus_tools %}
+
+{% block action %}подтверждения входа{% endblock %}
+
+{% block extra_content %}
+	<expd>
+        <expd-header>Другой способ</expd-header>
+        <expd-content>{% tfa_ways %}</expd-content>
+    </expd>
+{% endblock %}

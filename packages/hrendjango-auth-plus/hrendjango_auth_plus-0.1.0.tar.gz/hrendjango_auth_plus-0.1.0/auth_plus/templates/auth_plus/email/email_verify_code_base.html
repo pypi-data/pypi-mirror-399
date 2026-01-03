@@ -1,0 +1,12 @@
+{% extends 'auth_plus/email/email_base.html' %}
+{% load i18n %}
+
+{% block content %}
+	<h1>Здравствуйте, {{ name }}</h1>
+    <p>Кто-то (возможно вы) запросил {% block action %}{{ action }}{% endblock %}</p>
+    <p>Если это не вы, то {% block dont_you %} %}проигнорируйте это письмо. Возможно, кто-то ввел ваш адрес электронной почты по ошибке{% endblock %}</p>
+    <p>Если же это вы, и вы хотите {% block action_verb %}{{ action_verb }}{% endblock %}, то введите код:</p>
+    <div style="{{ code_style }}">{{ code }}</div>
+    <p>Или перейдите по ссылке: <a href="{{ reset_url }}" target="_blank">{{ reset_url }}</a></p>
+    <h4>С уважением, {{ signature }}</h4>
+{% endblock %}

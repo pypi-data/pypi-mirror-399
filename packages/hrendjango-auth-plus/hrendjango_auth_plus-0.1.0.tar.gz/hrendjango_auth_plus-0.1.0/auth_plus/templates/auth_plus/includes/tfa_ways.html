@@ -1,0 +1,12 @@
+<expd>
+    <expd-header>Другой способ</expd-header>
+    <expd-content>
+        <ul id="tfa-ways">
+            {% for way in tfa_ways %}
+                {% if current_id != way.id or 1 %}
+                    <li><a href="/account/two-factor/{{ way.id }}/">{{ way.text }}</a></li>	
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </expd-content>
+</expd>
