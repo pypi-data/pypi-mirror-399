@@ -1,0 +1,77 @@
+package vtx:api@1.2.6;
+
+interface sql {
+    variant db-value {
+        text(string),
+        integer(s64),
+        real(f64),
+        null-val,
+    }
+
+    execute: func(statement: string, params: list<db-value>) -> result<u64, string>;
+
+    query-json: func(statement: string, params: list<db-value>) -> result<string, string>;
+}
+
+interface stream-io {
+    resource buffer {
+        size: func() -> u64;
+
+        read: func(offset: u64, max-bytes: u64) -> list<u8>;
+    }
+
+    open-file: func(uuid: string) -> result<buffer, string>;
+
+    create-memory-buffer: func(data: list<u8>) -> buffer;
+}
+
+interface auth-types {
+    record user-context {
+        user-id: string,
+        username: string,
+        groups: list<string>,
+        metadata: string,
+    }
+}
+
+interface types {
+    use stream-io.{buffer};
+    use auth-types.{user-context};
+
+    record http-request {
+        method: string,
+        path: string,
+        query: string,
+    }
+
+    record http-response {
+        status: u16,
+        body: option<buffer>,
+    }
+
+    record manifest {
+        id: string,
+        name: string,
+        version: string,
+        description: string,
+        entrypoint: string,
+    }
+}
+
+world plugin {
+    use types.{http-request, http-response, manifest};
+    use auth-types.{user-context};
+
+    import stream-io;
+    import sql;
+
+    export handle: func(req: http-request) -> http-response;
+
+    export get-migrations: func() -> list<string>;
+
+    export get-manifest: func() -> manifest;
+
+    export get-resources: func() -> list<string>;
+
+    export authenticate: func(headers: list<tuple<string, string>>) -> result<user-context, u16>;
+}
