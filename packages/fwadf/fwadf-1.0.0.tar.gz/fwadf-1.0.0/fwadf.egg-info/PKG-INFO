@@ -1,0 +1,378 @@
+Metadata-Version: 2.4
+Name: fwadf
+Version: 1.0.0
+Summary: Fourier Wavelet Augmented Dickey-Fuller Unit Root Test
+Author-email: "Dr. Merwan Roudane" <merwanroudane920@gmail.com>
+Maintainer-email: "Dr. Merwan Roudane" <merwanroudane920@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/merwanroudane/fwadf
+Project-URL: Documentation, https://github.com/merwanroudane/fwadf#readme
+Project-URL: Repository, https://github.com/merwanroudane/fwadf.git
+Project-URL: Issues, https://github.com/merwanroudane/fwadf/issues
+Keywords: econometrics,unit root test,wavelet,fourier,time series,stationarity,FWADF,WADF,ADF,structural breaks
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Education
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: scipy>=1.7.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=5.0.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
+Requires-Dist: numpydoc>=1.5.0; extra == "docs"
+Provides-Extra: all
+Requires-Dist: pandas>=1.3.0; extra == "all"
+Requires-Dist: matplotlib>=3.5.0; extra == "all"
+Requires-Dist: statsmodels>=0.13.0; extra == "all"
+Dynamic: license-file
+
+# FWADF - Fourier Wavelet Augmented Dickey-Fuller Unit Root Test
+
+[![PyPI version](https://badge.fury.io/py/fwadf.svg)](https://badge.fury.io/py/fwadf)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+
+A Python library implementing the **Fourier Wavelet Augmented Dickey-Fuller (FWADF)** and **Wavelet Augmented Dickey-Fuller (WADF)** unit root tests with finite-sample, lag-adjusted critical values and approximate p-values.
+
+## Features
+
+- **FWADF Test**: Unit root test with Fourier terms to capture smooth structural breaks
+- **WADF Test**: Wavelet-based ADF test without Fourier terms
+- **Finite-sample critical values**: Response surface methodology following Sephton (2024)
+- **Automatic lag selection**: Using AIC or BIC criteria
+- **Fractional frequencies**: Support for non-integer Fourier frequencies (0.1 to 5.9)
+- **Monte Carlo simulation**: Tools for generating custom critical values
+- **Publication-ready output**: Formatted results for academic papers
+
+## Installation
+
+```bash
+pip install fwadf
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/merwanroudane/fwadf.git
+cd fwadf
+pip install -e .
+```
+
+## Quick Start
+
+### FWADF Test (with Fourier terms)
+
+```python
+import numpy as np
+from fwadf import fwadf_test
+
+# Generate sample data (random walk with structural break)
+np.random.seed(42)
+T = 200
+data = np.cumsum(np.random.randn(T))
+data[100:] += 5  # Add level shift
+
+# Run FWADF test with constant
+result = fwadf_test(data, model=1)
+
+# Access results
+print(f"Test Statistic: {result.statistic:.4f}")
+print(f"P-value: {result.pvalue:.4f}")
+print(f"Fourier Frequency: {result.k}")
+print(f"Fourier term significant: {result.fourier_significant}")
+```
+
+### WADF Test (without Fourier terms)
+
+```python
+from fwadf import wadf_test
+
+# Run WADF test
+result = wadf_test(data, model=1)
+
+print(f"Test Statistic: {result.statistic:.4f}")
+print(f"P-value: {result.pvalue:.4f}")
+```
+
+## Detailed Usage
+
+### Model Specifications
+
+Both tests support three model specifications:
+
+| Model | Description | Deterministic Terms |
+|-------|-------------|---------------------|
+| 0 | No deterministics | None (FWADF: only Fourier) |
+| 1 | Constant | Intercept |
+| 2 | Constant and Trend | Intercept + Linear Trend |
+
+### FWADF Test with Different Options
+
+```python
+from fwadf import fwadf_test, fwadf_test_fractional_freq
+
+# Standard FWADF with integer frequencies (k = 1, 2, 3, 4, 5)
+result = fwadf_test(
+    data,
+    model=2,           # Constant and trend
+    max_lag=8,         # Maximum lag length
+    max_freq=5,        # Maximum Fourier frequency
+    ic='bic',          # Information criterion for lag selection
+    verbose=True       # Print results
+)
+
+# FWADF with fractional frequencies (k = 0.1, 0.2, ..., 5.9)
+# Following Sephton (2024)
+result = fwadf_test_fractional_freq(data, model=1)
+
+# Custom frequency grid
+result = fwadf_test(
+    data,
+    freq_grid=[1.0, 1.5, 2.0, 2.5, 3.0]  # Custom frequencies
+)
+```
+
+### Accessing Test Results
+
+The test functions return result objects with comprehensive information:
+
+```python
+result = fwadf_test(data, model=1)
+
+# Unit root test results
+print(f"Test Statistic: {result.statistic}")
+print(f"P-value: {result.pvalue}")
+print(f"Critical Values: {result.critical_values}")
+
+# Fourier term analysis
+print(f"Selected Frequency: {result.k}")
+print(f"Fourier t-statistic: {result.fourier_t_stat}")
+print(f"Fourier p-value: {result.fourier_t_pvalue}")
+print(f"Fourier significant: {result.fourier_significant}")
+
+# Model details
+print(f"Selected Lag: {result.lag}")
+print(f"Original Sample Size: {result.sample_size}")
+print(f"Wavelet Sample Size: {result.wavelet_sample_size}")
+
+# Coefficient estimates
+print(f"Delta (unit root coef): {result.delta}")
+print(f"Beta (Fourier coef): {result.beta}")
+
+# Results for all tested frequencies
+for k, res in result.all_k_results.items():
+    print(f"k={k}: SSR={res['ssr']:.4f}, stat={res['test_stat']:.4f}")
+```
+
+### Critical Values and P-Values
+
+You can also compute critical values and p-values directly:
+
+```python
+from fwadf import (
+    get_fwadf_critical_values,
+    get_fwadf_pvalue,
+    get_wadf_critical_values,
+    get_wadf_pvalue
+)
+
+# Get critical values
+cv = get_fwadf_critical_values(
+    T=100,      # Sample size (after wavelet transform)
+    lag=2,      # Lag length
+    model=1,    # Constant
+    k=2         # Fourier frequency
+)
+print(f"Critical values: {cv}")
+
+# Calculate p-value for a test statistic
+pval = get_fwadf_pvalue(
+    statistic=-3.5,
+    T=100,
+    lag=2,
+    model=1,
+    k=2
+)
+print(f"P-value: {pval}")
+```
+
+### Monte Carlo Simulation
+
+Generate custom critical values through simulation:
+
+```python
+from fwadf import (
+    simulate_fwadf_critical_values,
+    simulate_wadf_critical_values
+)
+
+# Simulate FWADF critical values
+cv = simulate_fwadf_critical_values(
+    T=200,              # Sample size
+    lag=2,              # Lag length
+    k=1.5,              # Fourier frequency
+    model=1,            # Model specification
+    replications=10000, # Number of replications
+    quantiles=[0.01, 0.05, 0.10],
+    seed=42,
+    verbose=True
+)
+print(f"Simulated critical values: {cv}")
+
+# Simulate WADF critical values
+cv_wadf = simulate_wadf_critical_values(
+    T=200,
+    lag=2,
+    model=1,
+    replications=10000,
+    seed=42
+)
+```
+
+### Wavelet Transformation
+
+Access the Haar wavelet transformation directly:
+
+```python
+from fwadf import haar_dwt, haar_scaling_coefficients
+
+# Get both scaling (low-freq) and wavelet (high-freq) coefficients
+scaling_coefs, wavelet_coefs = haar_dwt(data)
+
+# Get only scaling coefficients (used in tests)
+V = haar_scaling_coefficients(data)
+print(f"Original length: {len(data)}")
+print(f"Wavelet length: {len(V)}")
+```
+
+## Interpretation of Results
+
+### Unit Root Test
+
+- **Null Hypothesis (H0)**: The series has a unit root (non-stationary)
+- **Alternative Hypothesis (H1)**: The series is stationary
+
+**Decision Rule**: Reject H0 if the test statistic is more negative than the critical value (or p-value < significance level).
+
+### Fourier Term Significance
+
+When using FWADF, check if the Fourier term is significant:
+
+```python
+if result.fourier_significant:
+    print("Use FWADF results - Fourier term captures structural breaks")
+else:
+    print("Use WADF results - No significant smooth breaks detected")
+```
+
+## Critical Values Table
+
+### FWADF Test - Constant Model
+
+| k | 1% | 5% | 10% |
+|---|-----|-----|------|
+| 1 | -3.84 | -3.23 | -2.89 |
+| 2 | -3.54 | -2.91 | -2.51 |
+| 3 | -3.24 | -2.69 | -2.41 |
+| 4 | -3.17 | -2.67 | -2.42 |
+| 5 | -3.24 | -2.66 | -2.35 |
+
+### WADF Test
+
+| Model | 1% | 5% | 10% |
+|-------|-----|-----|------|
+| Constant | -3.19 | -2.61 | -2.34 |
+| Constant + Trend | -3.69 | -3.05 | -2.75 |
+
+## Methodology
+
+### Wavelet Transformation
+
+The test uses the Haar discrete wavelet transform to decompose the series into low-frequency (scaling) and high-frequency (wavelet) components:
+
+```
+V[n] = (x[2n] + x[2n+1]) / √2   (scaling coefficients)
+W[n] = (x[2n+1] - x[2n]) / √2   (wavelet coefficients)
+```
+
+### FWADF Test Equation
+
+```
+ΔV_t = δ·V_{t-1} + β·sin(2πkt/T) + Σρ_j·ΔV_{t-j} + deterministics + ε_t
+```
+
+where:
+- V_t are the Haar scaling coefficients
+- k is the Fourier frequency (selected by minimizing SSR)
+- The test statistic is the t-ratio on δ
+
+### WADF Test Equation
+
+```
+ΔV_t = δ·V_{t-1} + Σρ_j·ΔV_{t-j} + deterministics + ε_t
+```
+
+### Response Surface for Critical Values
+
+Following Sephton (2024):
+
+```
+CV_p = β_∞ + Σβ_i·(1/T)^i + Σγ_j·(L/T)^j
+```
+
+where T is the sample size and L is the lag length.
+
+## References
+
+When using this package, please cite:
+
+1. **Aydin, M. & Pata, U.K. (2020).** "Are Shocks to Disaggregated Renewable Energy Consumption Permanent or Temporary for the USA? Wavelet Based Unit Root Test with Smooth Structural Shifts." *Energy*, 207, 118245. https://doi.org/10.1016/j.energy.2020.118245
+
+2. **Sephton, P.S. (2024).** "Finite Sample Lag Adjusted Critical Values and Probability Values for the Fourier Wavelet Unit Root Test." *Computational Economics*, 64, 693-705. https://doi.org/10.1007/s10614-023-10458-4
+
+3. **Eroglu, B. & Soybilgen, B. (2018).** "On the Performance of Wavelet Based Unit Root Tests." *Journal of Risk and Financial Management*, 11(3), 47. https://doi.org/10.3390/jrfm11030047
+
+4. **Enders, W. & Lee, J. (2012).** "The Flexible Fourier Form and Dickey-Fuller Unit Root Tests." *Economics Letters*, 117(1), 196-199. https://doi.org/10.1016/j.econlet.2012.04.081
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Dr. Merwan Roudane**  
+Email: merwanroudane920@gmail.com  
+GitHub: https://github.com/merwanroudane/fwadf
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Changelog
+
+### Version 1.0.0 (2024)
+- Initial release
+- FWADF and WADF tests implemented
+- Response surface critical values
+- Monte Carlo simulation tools
+- Full compatibility with original GAUSS code
