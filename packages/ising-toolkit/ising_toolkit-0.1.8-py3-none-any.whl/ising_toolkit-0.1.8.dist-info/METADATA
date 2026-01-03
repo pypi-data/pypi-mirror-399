@@ -1,0 +1,249 @@
+Metadata-Version: 2.4
+Name: ising-toolkit
+Version: 0.1.8
+Summary: 用于调用伊辛云平台的SDK
+Author-email: 北京伊辛智能科技有限公司 <max@isingtech.com>
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Scientific/Engineering
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.21
+Provides-Extra: sa
+Requires-Dist: torch; extra == "sa"
+Provides-Extra: remote
+Requires-Dist: ising; extra == "remote"
+Provides-Extra: all
+Requires-Dist: torch; extra == "all"
+Requires-Dist: ising; extra == "all"
+Dynamic: license-file
+
+
+# Ising Toolkit (v0.1.1)
+
+`ising-toolkit` 是一个为解决二次无约束二元优化 (QUBO) 和 Ising (伊辛) 模型问题而设计的 Python 工具包。
+
+它提供了一个清晰的高级 API，可以自动处理模型（`IsingModel`, `QUBOModel`）的预处理、在 Ising 和 QUBO 格式之间转换，并支持使用本地**模拟退火**或远程**伊辛云平台**进行求解。
+
+## 核心功能
+
+  * [cite\_start]**模型定义**: 提供了 `IsingModel` 和 `QUBOModel` [cite: 2] 两个高级类来构建您的问题。
+  * **自动预处理**:
+      * **IsingModel**: 自动将非零的 `h` 向量（外部磁场）通过引入**辅助自旋**来转换模型，使其符合纯粹的 Ising 求解器要求。
+      * [cite\_start]**QUBOModel**: 自动将线性 `h` 向量合并到 `Q` 矩阵的对角线上 [cite: 2]。
+      * 所有模型都会自动验证输入并进行矩阵对称化。
+  * [cite\_start]**模型转换**: 包含 `to_ising` 等工具函数，用于在 QUBO 和 Ising 模型之间轻松转换 [cite: 3]。
+  * **双求解器支持**:
+      * `SimulatedAnnealingSolver`: 一个内置的、多副本并行的模拟退火求解器，用于快速本地测试。
+      * `IsingSolver`: 对接 "伊辛云平台" 的远程求解器，用于提交任务到光电伊辛机。
+  * **标准化的工作流**: 无论使用本地还是云端求解器，工作流都保持一致。
+
+## 📦 安装
+
+您可以直接使用 pip 安装此 wheel 文件：
+
+```bash
+pip install ising_toolkit-0.1.1-py3-none-any.whl
+```
+
+## 🚀 快速上手：求解最大割 (Max-Cut) 问题
+
+本示例（基于 `使用伊辛云平台解决最大割问题教程.ipynb`）将引导您完成一个 100 节点图的最大割问题求解。
+
+```python
+import numpy as np
+import networkx as nx
+import time
+from ising_toolkit.models import IsingModel
+from ising_toolkit.solvers import SimulatedAnnealingSolver, IsingSolver
+
+# --- 1. 生成问题 ---
+# 创建一个 100 节点的随机图
+N = 100
+G = nx.erdos_renyi_graph(N, p=0.08, seed=42)
+print(f"图已生成，共有 {N} 个节点和 {G.number_of_edges()} 条边。")
+
+# --- 2. 构建 Ising 模型 ---
+# 最大割问题的 J 矩阵：如果节点 i 和 j 之间有边，则 J[i,j] = 1
+J_matrix = np.zeros((N, N), dtype=np.float64)
+for i, j in G.edges():
+    J_matrix[i, j] = 1.0
+
+# h 向量为 None，工具包会自动处理 J 的对称化
+ising_model = IsingModel(J=J_matrix, h=None)
+
+# --- 3. 方案 A：本地模拟退火求解 ---
+print("\n--- 方案 A：本地求解 (SimulatedAnnealingSolver) ---")
+sa_solver = SimulatedAnnealingSolver(agents=128, steps_per_temp=100)
+
+# .solve() 方法接收 IsingModel 对象
+sa_result = sa_solver.solve(ising_model)
+
+print(f"本地 SA 求解完成。")
+print(f"  找到的最优能量: {sa_result['energy']}")
+# print(f"  自旋状态 (前10个): {sa_result['spins'][:10]}")
+
+
+# --- 4. 方案 B：伊辛云平台求解 ---
+print("\n--- 方案 B：云平台求解 (IsingSolver) ---")
+# 替换为您的 API 密钥
+API_KEY = "YOUR_API_KEY_HERE" # 教程中使用了示例key
+
+# 检查是否设置了 API_KEY
+if API_KEY == "YOUR_API_KEY_HERE":
+    print("请设置您的 API_KEY 来运行云平台求解器。")
+else:
+    try:
+        # 4.1 初始化云求解器
+        ising_solver = IsingSolver(api_key=API_KEY)
+        
+        # 4.2 提交任务
+        # .solve() 返回一个包含任务 ID 的字典
+        task_response = ising_solver.solve(
+            ising_model=ising_model,
+            name=f"MaxCut-{N}-Nodes-Tutorial",
+            shots=5
+        )
+
+        if task_response.get("success"):
+            task_id = task_response.get("taskId")
+            print(f"任务提交成功, Task ID: {task_id}")
+
+            # 4.3 轮询获取结果
+            cloud_result_data = None
+            while cloud_result_data is None:
+                print("正在等待云端结果...")
+                time.sleep(5)
+                cloud_result_data = ising_solver.get_result(task_id)
+            
+            print("✅ 云端计算完成！")
+            print(f"  找到的最优能量: {cloud_result_data['energy']}")
+            # print(f"  自旋状态 (前10个): {cloud_result_data['spins'][:10]}")
+
+        else:
+            print(f"❌ 任务提交失败: {task_response.get('message')}")
+
+    except Exception as e:
+        print(f"❌ 云平台求解时发生错误: {e}")
+
+```
+
+## API 使用指南
+
+### 1\. 定义模型 (Models)
+
+#### `IsingModel`
+
+用于定义 Ising 问题：$H = \sum_{i,j} J_{ij} s_i s_j + \sum_i h_i s_i$
+
+  * **如何使用**: `IsingModel(J, h=None)`
+  * **参数**:
+      * `J` (np.ndarray | List[List]): `(N, N)` 耦合矩阵。
+      * `h` (np.ndarray | List | None): `(N,)` 线性（磁场）向量。
+  * **自动转换**: 如果提供了 `h` 向量，该模型会自动引入一个**辅助自旋**，将 `J` 转换为 `(N+1, N+1)` 矩阵，并将 `h` 向量清零。这对于那些只接受纯 Ising 模型的求解器（如本包中的求解器）至关重要。
+
+<!-- end list -->
+
+```python
+# 示例：一个 3 自旋问题，带外部磁场 h
+J = [[0, 1, 2], [1, 0, 0], [2, 0, 0]]
+h = [0.5, 0, -0.5]
+ising_model = IsingModel(J=J, h=h)
+
+# ising_model.J 现在是一个 (4, 4) 矩阵
+# ising_model.h 现在是一个 [0, 0, 0, 0] 向量
+# ising_model.aux_spin_index 将会是 3
+```
+
+#### `QUBOModel`
+
+[cite\_start][cite: 2]
+用于定义 QUBO 问题：$H = \sum_{i,j} Q_{ij} x_i x_j + \sum_i h_i x_i$
+
+  * [cite\_start]**如何使用**: `QUBOModel(Q, h=None)` [cite: 2]
+  * **参数**:
+      * [cite\_start]`Q` (np.ndarray): `(N, N)` 二次项矩阵 [cite: 2]。
+      * [cite\_start]`h` (np.ndarray | None): `(N,)` 线性项向量 [cite: 2]。
+  * [cite\_start]**自动转换**: 构造函数会自动将 `h` 向量合并到 `Q` 矩阵的对角线上 [cite: 2]。
+
+<!-- end list -->
+
+```python
+# 示例：一个 2 变量的 QUBO
+Q = [[1, 2], [2, 1]]
+h = [0.5, -0.5]
+qubo_model = QUBOModel(Q=Q, h=h)
+
+# qubo_model.Q 现在是 [[1.5, 2], [2, 0.5]]
+```
+
+### 2\. 求解器 (Solvers)
+
+#### `SimulatedAnnealingSolver` (本地求解)
+
+使用多副本并行计算在本地 CPU 上运行模拟退火。
+
+  * **如何初始化**: `SimulatedAnnealingSolver(agents=128, initial_temp=10.0, final_temp=0.1, cooling_rate=0.99, steps_per_temp=100)`
+  * **如何求解**: `.solve(ising_model)`
+  * **返回**: 一个字典，包含 `{'spins': np.ndarray, 'energy': float}`。
+
+<!-- end list -->
+
+```python
+# (接上文 ising_model 示例)
+local_solver = SimulatedAnnealingSolver(agents=64, steps_per_temp=50)
+result = local_solver.solve(ising_model)
+print(result['energy'])
+```
+
+#### `IsingSolver` (云平台求解)
+
+将问题提交到远程光电伊辛机。
+
+  * **如何初始化**: `IsingSolver(api_key: str)`
+  * **如何提交任务**: `.solve(ising_model, name: str, shots: int = 5, post_process: bool = False)`
+      * 此方法会自动将 `ising_model.J` 和 `ising_model.h` 转换为 CSV 格式并上传。
+      * **返回**: 一个字典，包含 `{'success': bool, 'taskId': str}`。
+  * **如何获取结果**: `.get_result(task_id: str)`
+      * 轮询此方法直到任务完成。
+      * **返回**: 任务完成时，返回 `{'spins': np.ndarray, 'energy': float}`。如果任务仍在运行，返回 `None`。
+
+<!-- end list -->
+
+```python
+# (接上文 ising_model 示例)
+cloud_solver = IsingSolver(api_key="YOUR_API_KEY")
+
+task_resp = cloud_solver.solve(ising_model, name="My_Test_Task", shots=10)
+
+if task_resp['success']:
+    task_id = task_resp['taskId']
+    # (...轮询...)
+    cloud_result = cloud_solver.get_result(task_id)
+    if cloud_result:
+        print(cloud_result['energy'])
+```
+
+### 3\. 工具 (Utils)
+
+#### `to_ising`
+
+[cite\_start][cite: 3]
+将 `QUBOModel` 转换为 `IsingModel`。
+
+  * [cite\_start]**如何使用**: `to_ising(qubo_model)` [cite: 3]
+  * **返回**: 一个新的 `IsingModel` 实例。
+
+<!-- end list -->
+
+```python
+from ising_toolkit.utils.converters import to_ising
+
+# (接上文 qubo_model 示例)
+converted_ising_model = to_ising(qubo_model)
+
+# 现在你可以使用 local_solver 或 cloud_solver 来求解 converted_ising_model
+result = local_solver.solve(converted_ising_model)
+```
