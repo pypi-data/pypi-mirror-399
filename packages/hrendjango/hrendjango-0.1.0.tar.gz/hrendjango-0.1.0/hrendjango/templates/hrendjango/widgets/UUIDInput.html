@@ -1,0 +1,6 @@
+<input type="text" style="{{ input__style }}" onclick="copy_inputText_to_clipboard(this)" value="{{ widget.value }}" 
+       readonly name="{{ widget.name }}" id="id_{{ widget.name }}">
+<button class="btn btn-hren hrendjango hrendjango-uuid hrendjango-uuid-generate" type="button" 
+        onclick="document.getElementById('id_{{ widget.name }}').value = generateUUIDv4()">
+    Сгенерировать новый {{ name }}
+</button>
