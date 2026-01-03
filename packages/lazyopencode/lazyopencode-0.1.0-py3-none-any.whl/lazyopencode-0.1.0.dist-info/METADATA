@@ -1,0 +1,118 @@
+Metadata-Version: 2.4
+Name: lazyopencode
+Version: 0.1.0
+Summary: A lazygit-style TUI for visualizing OpenCode customizations
+Project-URL: Homepage, https://github.com/nikiforovall/lazyopencode
+Project-URL: Repository, https://github.com/nikiforovall/lazyopencode
+Author: nikiforovall
+License-Expression: MIT
+License-File: LICENSE
+Keywords: cli,opencode,textual,tui
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: User Interfaces
+Requires-Python: >=3.11
+Requires-Dist: pathspec>=0.12.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: textual>=0.89.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.13.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.24.0; extra == 'dev'
+Requires-Dist: pytest-textual-snapshot>=1.0.0; extra == 'dev'
+Requires-Dist: pytest>=8.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.8.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# LazyOpenCode
+
+A keyboard-driven TUI for managing OpenCode customizations.
+
+<!-- ![LazyOpenCode Screenshot](docs/screenshot.png) -->
+
+## Features
+
+- Visual discovery of all OpenCode customizations
+- Keyboard-driven navigation (lazygit-inspired)
+- View commands, agents, skills, rules, MCPs, and plugins
+- Filter by configuration level (global/project)
+- Search within customizations
+
+## Installation
+
+```bash
+uvx lazyopencode
+```
+
+Or install with pip:
+
+```bash
+pip install lazyopencode
+```
+
+## Keyboard Shortcuts
+
+| Key       | Action         |
+| --------- | -------------- |
+| `q`       | Quit           |
+| `1`       | Commands panel |
+| `2`       | Agents panel   |
+| `3`       | Skills panel   |
+| `4`       | Rules panel    |
+| `5`       | MCPs panel     |
+| `6`       | Plugins panel  |
+| `j` / `↓` | Move down      |
+| `k` / `↑` | Move up        |
+| `Tab`     | Next panel     |
+| `e`       | Edit selected  |
+| `ctrl`+`u` | User Config    |
+| `?`       | Help           |
+
+## Configuration Paths
+
+LazyOpenCode discovers customizations from:
+
+| Type     | Global                         | Project              |
+| -------- | ------------------------------ | -------------------- |
+| Commands | `~/.config/opencode/command/`  | `.opencode/command/` |
+| Agents   | `~/.config/opencode/agent/`    | `.opencode/agent/`   |
+| Skills   | `~/.config/opencode/skill/`    | `.opencode/skill/`   |
+| Rules    | `~/.config/opencode/AGENTS.md` | `AGENTS.md`          |
+| MCPs     | `opencode.json`                | `opencode.json`      |
+| Plugins  | `~/.config/opencode/plugin/`   | `.opencode/plugin/`  |
+
+## Inspired By
+
+- [LazyClaude](https://github.com/NikiforovAll/lazyclaude) - Similar TUI for Claude Code
+- [Lazygit](https://github.com/jesseduffield/lazygit) - Keyboard-driven Git TUI
+- [OpenCode](https://opencode.ai) - AI coding agent
+
+
+## Development
+
+```bash
+# Clone and install
+git clone https://github.com/yourusername/lazyopencode
+cd lazyopencode
+uv sync
+
+# Run
+uv run lazyopencode
+
+# Run tests
+uv run pytest
+
+# Lint and format
+uv run ruff check .
+uv run ruff format .
+```
+
+## License
+
+MIT
