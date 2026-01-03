@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "onelab-tts"
+version = "0.1.0"
+description = "A Text-to-Speech and Podcast generation library using Chatterbox Turbo TTS"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+  { name = "OneLab Team", email = "satadeep.dasgupta@brainiuminfotech.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "torch",
+    "torchaudio",
+    "chatterbox-tts",
+    "pydantic"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/satadeep3927/onelab"
+"Bug Tracker" = "https://github.com/satadeep3927/onelab/issues"
+
+[tool.setuptools.package-data]
+onelab = ["sample/*.wav"]
