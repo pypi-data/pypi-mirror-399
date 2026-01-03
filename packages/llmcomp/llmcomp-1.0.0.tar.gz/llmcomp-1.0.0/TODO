@@ -1,0 +1,28 @@
+Release
+2. Write purpose section
+3. Random notes:
+   * mention planned TODOs
+   * mention not planned TODOs
+
+
+
+Post-release
+5. James: RELEASE one nice thing to sanity check "ok this all runs first time" is to ask claude / cursor to clone it , setup env, and fix any missing deps and  instructions
+
+--- LATER ---
+Minor stuff
+1. Birds replication (add to docs as an example)
+2. NextToken has samples_per_paraphrase and num_samples. This feels a bit useless.
+
+Major stuff
+1. Add OpenAI finetuning utils (llmcomp/finetuning/)
+2. New models - GPT-5 etc
+   * current idea:
+     * make runner totally agnostic with regards to parameters
+     * in get_runner_input call some Config.x function
+     * make this publicly avaiable
+   * maybe: 
+      * extract things like max_tokens or temperature to a separate structure
+      * have the default structure in config
+      * also in config, have config.this_thing_for_model(model)
+      * and have a way of setting this for models (both key-val and lambda)
