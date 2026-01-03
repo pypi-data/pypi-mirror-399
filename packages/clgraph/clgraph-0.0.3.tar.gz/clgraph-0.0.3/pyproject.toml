@@ -1,0 +1,136 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clgraph"
+version = "0.0.3"
+description = "Column lineage and pipeline dependency analysis for SQL"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Ming Jer Lee", email = "mingjer@clpipe.dev"}
+]
+keywords = ["sql", "lineage", "column-lineage", "data-lineage", "pipeline", "sqlglot"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+dependencies = [
+    "sqlglot>=28.0.0",
+    "graphviz>=0.20.0",
+    "jinja2>=3.0.0",
+    "cloudpickle>=3.1.2",
+]
+
+[project.optional-dependencies]
+# LLM integration for description generation and SQL tools
+llm = [
+    "langchain>=1.0.0",
+    "langchain-core>=1.0.0",
+    "langchain-ollama>=1.0.0",  # For local Ollama models
+    "langchain-openai>=0.3.0",  # For OpenAI models
+]
+# MCP server for Claude Desktop integration
+mcp = [
+    "mcp>=1.0.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.6.0",
+    "ty>=0.0.1a0",
+    "jinja2>=3.0.0",
+    "duckdb>=0.9.0",
+    # Notebook testing
+    "nbformat>=5.0.0",
+    "nbclient>=0.7.0",
+    "ipykernel>=6.0.0",
+    # For examples that use pandas/numpy
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    # Include LLM deps for testing
+    "langchain>=1.0.0",
+    "langchain-core>=1.0.0",
+    "langchain-ollama>=1.0.0",
+]
+build = [
+    "build>=1.0.0",
+    "twine>=4.0.0",
+]
+examples = [
+    "streamlit>=1.28.0",
+    "pandas>=2.0.0",
+    "graphviz>=0.20.0",
+]
+templates = [
+    "jinja2>=3.0.0",
+]
+airflow = [
+    "apache-airflow>=2.7.0,<3.0.0",  # Pin to 2.x (3.x has breaking changes)
+]
+# All optional dependencies
+all = [
+    "clgraph[llm,mcp,airflow]",
+]
+
+[project.urls]
+Homepage = "https://github.com/mingjerli/clgraph"
+Documentation = "https://github.com/mingjerli/clgraph#readme"
+Repository = "https://github.com/mingjerli/clgraph"
+Issues = "https://github.com/mingjerli/clgraph/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/clgraph"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--verbose",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
