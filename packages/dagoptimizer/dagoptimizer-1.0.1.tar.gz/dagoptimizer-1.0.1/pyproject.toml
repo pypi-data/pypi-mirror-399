@@ -1,0 +1,100 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dagoptimizer"
+version = "1.0.1"
+description = "Advanced DAG optimization library with adaptive transitive reduction, PERT/CPM analysis, and 25+ research-grade metrics"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Sahil Shrivastava", email = "sahilshrivastava28@gmail.com"}
+]
+maintainers = [
+    {name = "Sahil Shrivastava", email = "sahilshrivastava28@gmail.com"}
+]
+keywords = [
+    "dag",
+    "graph",
+    "optimization",
+    "transitive-reduction",
+    "pert",
+    "cpm",
+    "critical-path",
+    "networkx",
+    "directed-acyclic-graph",
+    "graph-algorithms",
+    "workflow-optimization",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "networkx>=2.6",
+    "numpy>=1.20",
+    "scipy>=1.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=0.990",
+]
+neo4j = ["neo4j>=5.0.0"]
+visualization = ["matplotlib>=3.5.0", "pygraphviz>=1.10"]
+ai = ["openai>=1.0.0", "anthropic>=0.5.0"]
+all = ["dagoptimizer[dev,neo4j,visualization,ai]"]
+
+[project.urls]
+Homepage = "https://github.com/SahilShrivastava-Dev/Optimisation_of_DAGs"
+Documentation = "https://github.com/SahilShrivastava-Dev/Optimisation_of_DAGs/wiki"
+Repository = "https://github.com/SahilShrivastava-Dev/Optimisation_of_DAGs"
+"Bug Tracker" = "https://github.com/SahilShrivastava-Dev/Optimisation_of_DAGs/issues"
+"Demo Application" = "https://github.com/SahilShrivastava-Dev/Optimisation_of_DAGs#demo-application"
+
+[project.scripts]
+dagoptimizer = "dagoptimizer.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["dagoptimizer*"]
+exclude = ["tests*", "docs*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --cov=dagoptimizer --cov-report=term-missing"
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
