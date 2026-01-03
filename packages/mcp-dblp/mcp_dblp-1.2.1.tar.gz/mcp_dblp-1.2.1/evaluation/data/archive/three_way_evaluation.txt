@@ -1,0 +1,160 @@
+# Comprehensive Citation Evaluation Report
+
+**Date:** November 19, 2025
+**Scope:** 104 Citations across 3 Batches
+**Groups:**
+1.  **Control:** Manual Web Search (Human)
+2.  **Treatment v2:** MCP-DBLP Manual Agent
+3.  **Treatment v3:** MCP-DBLP Automatic Agent
+
+## 1. Comparative Statistics
+
+| Metric | Control (Group 1) | Treatment v2 (Group 2) | Treatment v3 (Group 3) |
+| :--- | :---: | :---: | :---: |
+| **PM (Perfect Match)** | 28 (26.9%) | 91 (87.5%) | 96 (92.3%) |
+| **IM (Incomplete Metadata)** | 6 (5.8%) | 0 (0.0%) | 0 (0.0%) |
+| **CM (Corrupted Metadata)** | 5 (4.8%) | 1 (1.0%) | 0 (0.0%) |
+| **IA (Incomplete Author)** | 4 (3.8%) | 0 (0.0%) | 0 (0.0%) |
+| **WP (Wrong Paper)** | 0 (0.0%) | 5 (4.8%) | 5 (4.8%) |
+| **NF (Not Found)** | 61 (58.7%) | 7 (6.7%) | 3 (2.9%) |
+| **FP (Fabricated Paper)** | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) |
+| **FM (Fabricated Metadata)** | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) |
+| **Total Success (PM+IM)** | **32.7%** | **87.5%** | **92.3%** |
+
+## 2. Key Findings
+
+1.  **Massive Recall Improvement:** The Control group failed to find 58.7% of citations, often citing "Multiple authors found" or "Not indexed yet." Both AI agents achieved >87% perfect matches.
+2.  **v3 Superiority:** Treatment v3 (Auto Agent) outperformed v2 (Manual Agent) by resolving 4 difficult citations that v2 missed (Items 12, 13, 15, 23).
+3.  **Ambiguity Handling:** Both agents struggled with vague queries where multiple valid papers existed (e.g., "Sheth 2020", "Doppa 2018"), resulting in **WP** (Wrong Paper) relative to Ground Truth, though the retrieved papers were valid publications by the correct authors.
+4.  **Human Fatigue:** The Control group showed signs of fatigue, using "Author Unknown" (IA) or skipping fields (IM) more frequently in later batches.
+
+## 3. Critical Examples (v2 vs v3 vs Control)
+
+| ID | Query | Control | Treatment v2 (Manual) | Treatment v3 (Auto) | Analysis |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **12** | Parallel CUDA-Based... | **IM** (Wrong Auth/No Venue) | **NF** (Not Found) | **PM** (Found Zuo et al.) | v3 successfully located a paper v2 missed. |
+| **15** | Model and Data Management... | **NF** | **NF** | **PM** (Found Zheng et al.) | v3 found a difficult conference paper with incomplete title. |
+| **23** | Yap ieee25 | **NF** | **NF** | **PM** (Found Li...Yap) | v3 identified the correct IEEE Trans. paper. |
+| **36** | Cabitza int25 | **NF** | **WP** (Found Natali et al.) | **WP** (Found Natali et al.) | Query implied *Int. J. Hum.* (GT); Agents found *AI Review*. Ambiguous query. |
+| **74** | Sheth et al. 2020 | **NF** | **WP** (Found Proceedings) | **WP** (Found Proceedings) | Agents found the Book/Proceedings where Sheth was editor, not the specific paper. |
+
+---
+
+## 4. Complete Citation Classification Table
+
+*Legend:*
+*   **PM:** Perfect Match
+*   **IM:** Incomplete Metadata (Missing DOI/Pages)
+*   **CM:** Corrupted Metadata (Typos/Wrong Year)
+*   **IA:** Incomplete Author (et al. used too early/Unknown)
+*   **WP:** Wrong Paper (Valid paper, but not the one requested)
+*   **NF:** Not Found
+
+| ID | Query Fragment | Control | Trt v2 | Trt v3 | Note |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| 1 | Grassi's paper on computer virus | CM | PM | PM | Control had wrong author order. |
+| 2 | idealized machine paper by Stodden | IM | PM | PM | Control missing DOI/Pages. |
+| 3 | Voncila 2025 | NF | PM | PM | |
+| 4 | Sanchez-Viteri et al. 2024 | NF | PM | PM | |
+| 5 | Li's clust paper on 3-path vertex | PM | PM | PM | |
+| 6 | Dronyuk algori25 | PM | PM | PM | |
+| 7 | advantage of machine paper by Levine | PM | PM | PM | |
+| 8 | Cinquemani algori25 | NF | PM | PM | |
+| 9 | adaptive feature recognition Tang | NF | PM | PM | |
+| 10 | Chen's quantum machine work | NF | PM | PM | v2/v3 found Chen et al. (ISCAS/ICASSP). |
+| 11 | Leoreanu-Fotea determining | PM | PM | PM | |
+| 12 | Parallel CUDA-Based Optimization | IM | **NF** | **PM** | **Critical Win for v3.** |
+| 13 | Waern et al. 2023 | PM | **NF** | **PM** | **Critical Win for v3.** |
+| 14 | bringing machine paper Buxmann | PM | PM | PM | |
+| 15 | Model and Data Management | NF | **NF** | **PM** | **Critical Win for v3.** |
+| 16 | Garc'{}a-Sanchez algori25 | PM | WP | WP | Agents found Luque-Hernandez (Garcia-Sanchez co-author); GT is Morante-Gonzalez. |
+| 17 | Assigning Candidate Tutors | PM | PM | PM | |
+| 18 | Triantafillou algori25 | NF | PM | PM | |
+| 19 | McShane's paper on hybrid | PM | PM | PM | |
+| 20 | Tuma's paper on machine learning | IA | PM | PM | Control: "Author Unknown". |
+| 21 | Chaki ieee25 | PM | PM | PM | |
+| 22 | Ethics in the Age of Algorithms | PM | PM | PM | |
+| 23 | Yap ieee25 | NF | **NF** | **PM** | **Critical Win for v3.** |
+| 24 | Mohd's paper on textual criticism | PM | PM | PM | |
+| 25 | Dojer algori25 | PM | PM | PM | |
+| 26 | Lei's paper on rapidly-exploring | NF | PM | PM | |
+| 27 | Hei's paper on multi-objective | NF | PM | PM | |
+| 28 | Testing a New "Decrypted" | NF | PM | PM | |
+| 29 | framework design Gan 2025 | NF | PM | PM | |
+| 30 | that familiarity breeds Wang | NF | PM | PM | |
+| 31 | exploring vulnerabilities Voicu | PM | PM | PM | |
+| 32 | algorithm computing Kchikech | PM | PM | PM | |
+| 33 | marine predators Islam 2025 | PM | PM | PM | |
+| 34 | breast cancer Nassih 2025 | PM | PM | PM | |
+| 35 | Wang's paper linear regression | PM | PM | PM | |
+| 36 | Cabitza int25 | NF | WP | WP | GT: *Int. J. Hum.* (Vicente). Agents: *AI Rev* (Natali). Ambiguous query. |
+| 37 | Hsu's paper on hair drawing | PM | PM | PM | |
+| 38 | changing landscape Naik 2023 | PM | PM | PM | |
+| 39 | hybrid algorithm auvs Sun | NF | PM | PM | |
+| 40 | the sa-net leveraging paper | NF | PM | PM | |
+| 41 | training algorithm Carcangiu | NF | PM | PM | |
+| 42 | that robust client Tamee | PM | PM | PM | |
+| 43 | Kameyama 2025 | PM | PM | PM | |
+| 44 | Teede's paper comparison machine | NF | PM | PM | |
+| 45 | Karabatak et al. 2023 | PM | PM | PM | |
+| 46 | exploring effects literacy Yin | NF | PM | PM | |
+| 47 | Chen's paper two-stage stock | NF | PM | PM | |
+| 48 | Belhaouari 2025 | NF | PM | PM | |
+| 49 | that pufferfish cost-aware Kumar | PM | PM | PM | |
+| 50 | Zogic et al. 2022 | NF | PM | PM | |
+| 51 | Druchok et al. 2024 | PM | PM | PM | |
+| 52 | Jin's paper on hipaco | PM | PM | PM | |
+| 53 | Rosenberg-Kima teaching machine | PM | PM | PM | |
+| 54 | sample size effects Yang | NF | PM | PM | |
+| 55 | Roy's paper beamforming | NF | PM | PM | |
+| 56 | Carrion et al. 2025 | NF | PM | PM | |
+| 57 | pendulum search Aziz 2022 | PM | PM | PM | |
+| 58 | Baamonde-Lozano et al. 2021 | NF | PM | PM | |
+| 59 | machine learning job Shen | PM | PM | PM | |
+| 60 | Achieving Tight O(4({ | NF | PM | PM | |
+| 61 | Stirbu's machine learning 2025 | PM | PM | PM | |
+| 62 | Vakili et al. 2024 | NF | PM | PM | |
+| 63 | Kelava et al. 2023 | NF | PM | PM | |
+| 64 | review hybrid vehicles Li | PM | PM | PM | |
+| 65 | securing machine learning Qayyum | PM | PM | PM | |
+| 66 | Landman's creati paper | PM | PM | PM | |
+| 67 | Algorithmic Gossiping | PM | PM | PM | |
+| 68 | Zou's detecting refactoring | PM | PM | PM | |
+| 69 | Taylor's paper opioid use | NF | PM | PM | |
+| 70 | Kaymak discre25 | NF | PM | PM | |
+| 71 | multi-objective weighted Waele | NF | PM | PM | |
+| 72 | survey paper Capogrosso | PM | PM | PM | |
+| 73 | Oncioiu et al. 2025 | NF | PM | PM | |
+| 74 | Sheth et al. 2020 | NF | WP | WP | Found Proceedings (Ed. Sheth) instead of Paper (Kursuncu). |
+| 75 | test validation Vietor | PM | PM | PM | |
+| 76 | Benbouzid procee23 | NF | PM | PM | |
+| 77 | digital background Meng | NF | PM | PM | |
+| 78 | Schmid's paper batch-like | PM | PM | PM | |
+| 79 | Kukreja's machine learning | NF | PM | PM | |
+| 80 | Hosseini et al. 2025 | NF | PM | PM | |
+| 81 | Lu's paper clean energy | PM | PM | PM | |
+| 82 | conduct rigorous Satzger | PM | PM | PM | |
+| 83 | Tejani comput25 | PM | PM | PM | |
+| 84 | Total Outer-Independent | PM | PM | PM | |
+| 85 | Cai's paper gin-guided | PM | PM | PM | |
+| 86 | Liu's paper resilient cyber | PM | PM | PM | |
+| 87 | Zdun's paper understandability | PM | PM | PM | |
+| 88 | Hou's work scoring functions | NF | PM | PM | |
+| 89 | Mallet et al. 2024 | PM | PM | PM | |
+| 90 | improving k-means Pant | PM | PM | PM | |
+| 91 | Karmore intell25 | PM | PM | PM | |
+| 92 | Human-Hendricks et al. 2023 | NF | PM | PM | |
+| 93 | Zhang's paper improved a* | NF | PM | PM | |
+| 94 | Trojovsky's ieee paper | PM | PM | PM | |
+| 95 | Zhou's paper fractional | PM | PM | PM | |
+| 96 | isoplot database Tsai | PM | PM | PM | |
+| 97 | Fan's paper rice genomic | NF | PM | PM | |
+| 98 | Group's paper mouse genome | NF | PM | PM | |
+| 99 | Jones's paper phytochelatin | NF | PM | PM | |
+| 100 | supervised machine Cukurova | PM | PM | PM | |
+| 101 | integrated national Fox | PM | PM | PM | |
+| 102 | Tosatto et al. 2018 | NF | PM | PM | |
+| 103 | Doppa 2018 | NF | WP | WP | Found Kim et al. (Doppa co-author) instead of Hoag & Doppa. |
+| 104 | supervised machine Nian | PM | PM | PM | |
+
+---

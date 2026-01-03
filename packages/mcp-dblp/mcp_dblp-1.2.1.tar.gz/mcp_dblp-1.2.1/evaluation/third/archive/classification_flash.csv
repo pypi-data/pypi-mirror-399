@@ -1,0 +1,298 @@
+```python
+import bibtexparser
+import re
+from fuzzywuzzy import fuzz
+
+def normalize_text(text):
+    if text is None:
+        return ""
+    # Remove specific BibTeX formatting (e.g., {{...}}, {...}, \textasciitilde{})
+    text = re.sub(r'\{|\}|\\textasciitilde{}', '', text)
+    # Remove HTML entities like &{\'{a}}
+    text = re.sub(r'&[^;]+;', '', text)
+    # Normalize unicode characters to ASCII equivalents where possible (e.g., 'á' to 'a')
+    # This specifically handles diacritic variations as PM, as per prompt.
+    text = text.encode('ascii', 'ignore').decode('ascii')
+    text = text.lower()
+    text = re.sub(r'\s+', ' ', text).strip() # Normalize whitespace
+    return text
+
+def normalize_doi(doi):
+    if doi is None:
+        return None
+    doi = doi.lower()
+    doi = doi.replace("https://doi.org/", "").strip()
+    return doi
+
+def normalize_pages(pages):
+    if pages is None:
+        return None
+    pages = pages.replace('--', '-').strip()
+    return pages
+
+def parse_authors(author_string):
+    if not author_string:
+        return []
+    authors = []
+    for author in author_string.split(' and '):
+        author_norm = normalize_text(author)
+        
+        # Try to parse into Last, First Middle
+        if ',' in author_norm:
+            parts = [p.strip() for p in author_norm.split(',')]
+            last = parts[0]
+            first_middle = ' '.join(parts[1:])
+        else:
+            parts = [p.strip() for p in author_norm.split()]
+            last = parts[-1]
+            first_middle = ' '.join(parts[:-1]) if len(parts) > 1 else ''
+        
+        # Generate initials only for comparison
+        first_middle_initials = '. '.join([n[0] for n in first_middle.split() if n])
+        if first_middle_initials:
+            first_middle_initials += '.'
+        
+        authors.append({
+            'original': author, # Keep original for specific checks like "and others"
+            'full_norm': f"{last}, {first_middle}".strip(),
+            'initials_norm': f"{last}, {first_middle_initials}".strip(),
+            'first_middle_norm': first_middle,
+            'last_norm': last
+        })
+    return authors
+
+class BibEntry:
+    def __init__(self, entry_dict):
+        self.raw = entry_dict
+        self.type = entry_dict.get('ENTRYTYPE')
+        self.key = entry_dict.get('ID')
+        self.title = normalize_text(entry_dict.get('title'))
+        self.authors_raw = entry_dict.get('author')
+        self.authors = parse_authors(self.authors_raw)
+        self.year = entry_dict.get('year')
+        self.journal_booktitle_raw = entry_dict.get('journal') or entry_dict.get('booktitle')
+        self.journal_booktitle = normalize_text(self.journal_booktitle_raw)
+        self.volume = entry_dict.get('volume')
+        self.number = entry_dict.get('number')
+        self.pages = normalize_pages(entry_dict.get('pages'))
+        self.doi = normalize_doi(entry_dict.get('doi'))
+        self.url = entry_dict.get('url')
+        self.publisher = normalize_text(entry_dict.get('publisher'))
+        self.note = entry_dict.get('note') # For "NOT FOUND" checks
+
+def load_bib_file(filepath):
+    with open(filepath, 'r', encoding='utf-8') as bibfile:
+        return bibtexparser.load(bibfile)
+
+def load_all_results_from_batches(base_path, batch_prefix):
+    all_entries = {}
+    for i in range(1, 4): # Assuming batch1.bib, batch2.bib, batch3.bib
+        filepath = f"{base_path}/{batch_prefix}{i}.bib"
+        try:
+            db = load_bib_file(filepath)
+            for entry in db.entries:
+                all_entries[entry['ID']] = BibEntry(entry)
+        except FileNotFoundError:
+            # print(f"Warning: {filepath} not found.") # Suppress for conciseness
+            continue
+    return all_entries
+
+def compare_journal_booktitle(gt_val, out_val):
+    if gt_val == out_val:
+        return True
+    # Use fuzzy matching to allow for abbreviations and minor differences
+    score = fuzz.token_set_ratio(gt_val, out_val)
+    return score >= 85 # High threshold for similarity (e.g., "J. Comput. Assist. Learn." vs "Journal of Computer Assisted Learning")
+
+
+def classify_entry(gt_entry, output_entry):
+    # 1. NF (Not Found)
+    if output_entry is None:
+        return "NF"
+    if output_entry.note and "not found" in output_entry.note.lower():
+        return "NF"
+
+    # 2. WP (Wrong Paper) - based on title
+    # Use fuzzy matching for titles. A high threshold allows for minor wording differences.
+    title_similarity = fuzz.token_set_ratio(gt_entry.title, output_entry.title)
+    if title_similarity < 90: # If titles are not very similar, classify as WP
+        return "WP"
+
+    # Initialize flags for other classifications
+    issues_im = False
+    issues_cm = False
+    issues_ia = False
+
+    # 3. Author comparison (IA, CM, IM)
+    gt_authors = gt_entry.authors
+    output_authors = output_entry.authors
+
+    # IA: Check for truncated/placeholder authors
+    if output_entry.authors_raw and ("and others" in output_entry.authors_raw.lower() or "author unknown" in output_entry.authors_raw.lower()):
+        issues_ia = True
+    elif len(gt_authors) != len(output_authors):
+        # If author counts differ significantly, it's IA, provided the output authors are a subset of GT.
+        # If output authors contain names not in GT, it's CM.
+        gt_author_full_names_set = {auth['full_norm'] for auth in gt_authors}
+        gt_author_initials_set = {auth['initials_norm'] for auth in gt_authors}
+        
+        output_authors_are_subset = True
+        for out_auth in output_authors:
+            if out_auth['full_norm'] not in gt_author_full_names_set and \
+               out_auth['initials_norm'] not in gt_author_initials_set:
+                output_authors_are_subset = False
+                break
+        
+        if not output_authors_are_subset:
+            issues_cm = True # Output includes wrong authors, even if count is less/more
+        else:
+            issues_ia = True # Fewer authors, but they are correct (subset)
+
+    # If no IA or CM from count/placeholder, check individual author names for subtle CM/IM
+    if not issues_ia and not issues_cm:
+        # Check if all GT authors are represented in output, and if there are abbreviation issues
+        for gt_auth in gt_authors:
+            found_match = False
+            for out_auth in output_authors:
+                if gt_auth['full_norm'] == out_auth['full_norm']:
+                    found_match = True
+                    break
+                # Check for abbreviation match (e.g., John Smith vs J. Smith)
+                if gt_auth['last_norm'] == out_auth['last_norm']:
+                    gt_first_initial = gt_auth['first_middle_norm'].split()[0][0] if gt_auth['first_middle_norm'] else ''
+                    out_first_initial = out_auth['first_middle_norm'].split()[0][0] if out_auth['first_middle_norm'] else ''
+                    
+                    if gt_first_initial and out_first_initial and gt_first_initial == out_first_initial:
+                        # If first initials match and last names match, consider it a match
+                        found_match = True
+                        if gt_auth['full_norm'] != out_auth['full_norm']: # If full names are different, it's an abbreviation difference
+                            issues_im = True # Example: GT: John, Output: J. -> IM
+                        break
+            if not found_match:
+                # A GT author is not found at all, or is a significant mismatch (e.g., Ma'mon vs Manal)
+                # This indicates a wrong author, hence CM
+                issues_cm = True
+                break
+        
+        # Also check if output has authors not present in GT at all
+        if not issues_cm:
+            gt_author_full_names_set = {auth['full_norm'] for auth in gt_authors}
+            gt_author_initials_set = {auth['initials_norm'] for auth in gt_authors}
+            for out_auth in output_authors:
+                if out_auth['full_norm'] not in gt_author_full_names_set and \
+                   out_auth['initials_norm'] not in gt_author_initials_set:
+                    issues_cm = True # Output has an author not present in GT
+                    break
+
+    if issues_cm:
+        return "CM"
+    if issues_ia:
+        return "IA"
+
+    # 4. Field Comparisons (CM, IM) - Year, Volume, Number, Pages, DOI, Journal/Booktitle
+    
+    # DOI
+    if gt_entry.doi:
+        if not output_entry.doi:
+            issues_im = True
+        elif gt_entry.doi != output_entry.doi:
+            issues_cm = True
+    
+    # Year
+    if gt_entry.year:
+        if not output_entry.year:
+            issues_im = True
+        elif gt_entry.year != output_entry.year:
+            issues_cm = True
+
+    # Volume
+    if gt_entry.volume:
+        if not output_entry.volume:
+            issues_im = True
+        elif gt_entry.volume != output_entry.volume:
+            try: # Try numerical comparison first
+                if int(gt_entry.volume) != int(output_entry.volume):
+                    issues_cm = True
+            except ValueError: # Fallback to string if not purely numerical
+                if gt_entry.volume != output_entry.volume:
+                    issues_cm = True
+    
+    # Number
+    if gt_entry.number:
+        if not output_entry.number:
+            issues_im = True
+        elif gt_entry.number != output_entry.number:
+            try: # Try numerical comparison first
+                if int(gt_entry.number) != int(output_entry.number):
+                    issues_cm = True
+            except ValueError: # Fallback to string if not purely numerical
+                if gt_entry.number != output_entry.number:
+                    issues_cm = True
+
+    # Pages
+    if gt_entry.pages:
+        if not output_entry.pages:
+            issues_im = True
+        elif gt_entry.pages != output_entry.pages:
+            # Special handling for page format differences (PM Case #14)
+            gt_is_single_num = re.fullmatch(r'\d+', gt_entry.pages)
+            output_is_single_num = re.fullmatch(r'\d+', output_entry.pages)
+
+            # If one is a single number and the other is a range, this is a PM acceptable variation
+            if not ((gt_is_single_num and not output_is_single_num) or (not gt_is_single_num and output_is_single_num)):
+                issues_cm = True # Otherwise, different pages are CM
+
+    # Journal/Booktitle comparison (allowing for abbreviations)
+    if gt_entry.journal_booktitle:
+        if not output_entry.journal_booktitle:
+            issues_im = True
+        elif not compare_journal_booktitle(gt_entry.journal_booktitle, output_entry.journal_booktitle):
+            issues_cm = True
+    
+    # DBLP-specific fields (url, biburl, bibsource, timestamp) missing or differing are PM.
+    # Their absence or minor variations are not considered IM/CM.
+
+    if issues_cm:
+        return "CM"
+    if issues_im:
+        return "IM"
+    
+    return "PM"
+
+# Load ground truth
+gt_db = load_bib_file('/Users/szeider/git/mcp-dblp/evaluation/ground_truth/ground_truth.bib')
+ground_truth_entries = {}
+for i, entry in enumerate(gt_db.entries):
+    ground_truth_entries[f"cite{i+1}"] = BibEntry(entry)
+
+# Load results from all batches
+control_results = load_all_results_from_batches('/Users/szeider/git/mcp-dblp/evaluation/third/results_control', 'batch')
+mcp_m_results = load_all_results_from_batches('/Users/szeider/git/mcp-dblp/evaluation/third/results_mcp_m', 'batch')
+mcp_u_results = load_all_results_from_batches('/Users/szeider/git/mcp-dblp/evaluation/third/results_mcp_u', 'batch')
+
+results_output = []
+results_output.append("citation_num,web,mcp_m,mcp_u")
+
+for i in range(1, 105): # Iterate from cite1 to cite104
+    cite_key = f"cite{i}"
+    gt_entry = ground_truth_entries.get(cite_key)
+
+    if not gt_entry:
+        # This should ideally not happen if the ground_truth.bib has 104 entries indexed correctly
+        results_output.append(f"{i},UK,UK,UK")
+        continue
+
+    control_entry = control_results.get(cite_key)
+    mcp_m_entry = mcp_m_results.get(cite_key)
+    mcp_u_entry = mcp_u_results.get(cite_key)
+
+    class_control = classify_entry(gt_entry, control_entry)
+    class_mcp_m = classify_entry(gt_entry, mcp_m_entry)
+    class_mcp_u = classify_entry(gt_entry, mcp_u_entry)
+
+    results_output.append(f"{i},{class_control},{class_mcp_m},{class_mcp_u}")
+
+# Output the results in CSV format
+for row in results_output:
+    print(row)
+```
