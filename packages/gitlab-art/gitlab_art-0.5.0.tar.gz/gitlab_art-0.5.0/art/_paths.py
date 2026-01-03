@@ -1,0 +1,58 @@
+import errno
+import os
+
+import click
+import platformdirs
+
+
+_platformdirs = platformdirs.PlatformDirs('art')
+artifacts_file = 'artifacts.yml'
+artifacts_lock_file = 'artifacts.lock.yml'
+config_file = os.path.join(_platformdirs.user_config_dir, 'config.yml')
+cache_dir = _platformdirs.user_cache_dir
+
+
+def strip_components(path, num):
+    """
+    Strip "num" leading components from path
+    """
+    if not path:
+        return path
+
+    parts = path.split(os.path.sep)
+    if parts[0] == '':
+        num += 1
+
+    parts = parts[num:]
+    if not parts:
+        return ''
+
+    return os.path.join(*parts)
+
+def mkdirs(path):
+    """
+    Like `os.makedirs`, but doesn't complain if the directory already exist.
+    """
+    try:
+        os.makedirs(path)
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            raise
+
+def remove(path):
+    try:
+        if os.path.isdir(path) and not os.listdir(path):
+            os.rmdir(path)
+        elif os.path.isfile(path):
+            os.remove(path)
+    except PermissionError:
+        raise click.ClickException('Permission denied removing "%s"' % (path,))
+
+def lockfile(path):
+    """Get lock file path from an artifacts.yml path"""
+    if path.endswith('.yml'):
+        return path[:-4]+'.lock.yml'
+    elif path.endswith('.yaml'):
+        return path[:-5]+'.lock.yaml'
+
+    return path+'.lock'
