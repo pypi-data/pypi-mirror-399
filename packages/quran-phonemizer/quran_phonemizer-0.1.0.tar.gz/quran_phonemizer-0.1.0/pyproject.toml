@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "quran-phonemizer"
+version = "0.1.0"
+description = "A deterministic, rule-based Quranic phonemizer for TTS and AI training."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Razwan M. Haji", email = "razwan.siktany778@gmail.com" },
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Text Processing :: Linguistic",
+    "Topic :: Religion",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+]
+keywords = ["quran", "tajweed", "phonemizer", "tts", "nlp", "arabic", "islamic-ai", "speech-synthesis"]
+dependencies = [
+    "pydantic>=2.0",
+    "tqdm>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "twine>=4.0",
+    "build>=0.10.0",
+]
+app = [
+    "streamlit>=1.20.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/RazwanSiktany/quran-phonemizer"
+"Live Demo" = "https://quran-phonemizer.streamlit.app/"
+"Source Code" = "https://github.com/RazwanSiktany/quran-phonemizer"
+"Issue Tracker" = "https://github.com/RazwanSiktany/quran-phonemizer/issues"
+
+# Build configuration for Hatchling (Src Layout)
+[tool.hatch.build.targets.wheel]
+packages = ["src/quran_phonemizer"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+pythonpath = "src"
+testpaths = ["tests"]
