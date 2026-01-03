@@ -1,0 +1,283 @@
+Metadata-Version: 2.4
+Name: fastapi-di-kit
+Version: 0.1.0
+Summary: A simple, powerful dependency injection library for FastAPI supporting hexagonal architecture
+Project-URL: Homepage, https://github.com/tonlls1999/fastapi-di-kit
+Project-URL: Documentation, https://github.com/tonlls1999/fastapi-di-kit#readme
+Project-URL: Repository, https://github.com/tonlls1999/fastapi-di-kit
+Project-URL: Issues, https://github.com/tonlls1999/fastapi-di-kit/issues
+Project-URL: Changelog, https://github.com/tonlls1999/fastapi-di-kit/blob/main/CHANGELOG.md
+Author-email: Ton Llucia <tonlls1999@gmail.com>
+License: MIT
+License-File: LICENSE
+Keywords: clean-architecture,container,dependency-injection,di,fastapi,hexagonal-architecture
+Classifier: Development Status :: 4 - Beta
+Classifier: Framework :: FastAPI
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=3.12
+Requires-Dist: fastapi>=0.104.0
+Requires-Dist: typing-extensions>=4.8.0
+Requires-Dist: uvicorn>=0.24.0
+Provides-Extra: dev
+Requires-Dist: httpx>=0.25.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest>=7.4.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# fastapi-di-kit
+
+A simple, powerful dependency injection library for FastAPI supporting hexagonal architecture.
+
+## Features
+
+- 🎯 **Decorator-based Registration** - Simply decorate classes with `@service`, `@repository`, or `@factory`
+- 🔄 **Lifecycle Management** - Support for singleton, transient, and request-scoped services
+- 🏗️ **Hexagonal Architecture** - Interface-to-implementation binding for ports and adapters pattern
+- ⚡ **FastAPI Integration** - Seamless integration with FastAPI's dependency injection via `Inject[ServiceType]`
+- 🔍 **Circular Dependency Detection** - Automatic detection and clear error messages
+- 💤 **Lazy Loading** - Defer dependency resolution with `Lazy[T]` wrapper
+- 🧪 **Test-Friendly** - Easy mocking and dependency overriding
+
+## Installation
+
+```bash
+uv add fastapi-di-kit
+```
+
+Or with pip:
+
+```bash
+pip install fastapi-di-kit
+```
+
+## Quick Start
+
+### 1. Define Your Domain (Ports)
+
+```python
+from typing import Protocol
+
+class IUserRepository(Protocol):
+    def get_user(self, id: int) -> User:
+        ...
+
+class IEmailService(Protocol):
+    def send_email(self, to: str, subject: str) -> bool:
+        ...
+```
+
+### 2. Implement Infrastructure (Adapters)
+
+```python
+from fastapi_di_kit import repository, Lifecycle
+
+@repository(interface=IUserRepository, lifecycle=Lifecycle.SINGLETON)
+class PostgresUserRepository:
+    def get_user(self, id: int) -> User:
+        # Database logic here
+        ...
+
+@repository(interface=IEmailService)
+class SendGridEmailService:
+    def send_email(self, to: str, subject: str) -> bool:
+        # Email sending logic
+        ...
+```
+
+### 3. Create Domain Services
+
+```python
+from fastapi_di_kit import service
+
+@service()
+class UserService:
+    def __init__(self, repository: IUserRepository, email: IEmailService):
+        self.repository = repository
+        self.email = email
+    
+    def register_user(self, name: str, email: str) -> User:
+        user = self.repository.create_user(name, email)
+        self.email.send_email(email, "Welcome!")
+        return user
+```
+
+### 4. Use in FastAPI Routes
+
+```python
+from fastapi import FastAPI, Depends
+from fastapi_di_kit import Inject, setup_di_middleware
+
+app = FastAPI()
+setup_di_middleware(app)  # Enable request-scoped services
+
+@app.post("/users")
+def create_user(
+    name: str, 
+    email: str,
+    service: UserService = Depends(Inject[UserService])
+):
+    return service.register_user(name, email)
+```
+
+That's it! The DI container automatically:  
+✅ Resolves dependencies based on type hints  
+✅ Injects the correct implementations  
+✅ Manages lifecycles  
+✅ Detects circular dependencies
+
+## Advanced Features
+
+### Lifecycle Management
+
+```python
+from fastapi_di_kit import service, Lifecycle
+
+@service(lifecycle=Lifecycle.SINGLETON)  # One instance for the entire app
+class ConfigService:
+    pass
+
+@service(lifecycle=Lifecycle.TRANSIENT)  # New instance every time
+class RequestLogger:
+    pass
+
+@service(lifecycle=Lifecycle.SCOPED)  # One instance per HTTP request
+class AuthContext:
+    pass
+```
+
+### Lazy Loading
+
+```python
+from fastapi_di_kit import service, Lazy
+
+@service()
+class ReportGenerator:
+    def __init__(self, heavy_analyzer: Lazy[HeavyAnalyzer]):
+        self._analyzer_factory = heavy_analyzer
+    
+    def generate(self):
+        if self.needs_analysis:
+            # Only load when needed
+            analyzer = self._analyzer_factory()
+            analyzer.analyze()
+```
+
+### Factory Functions
+
+```python
+from fastapi_di_kit import factory
+import boto3
+
+@factory(service_type=boto3.client, lifecycle=Lifecycle.SINGLETON)
+def create_s3_client():
+    return boto3.client('s3', region_name='us-east-1')
+```
+
+## Examples
+
+fastapi-di-kit includes comprehensive examples demonstrating all features:
+
+### Quick Examples
+
+1. **[Basic Usage](examples/01_basic_usage.py)** - Service registration, dependency injection, container basics
+2. **[Lifecycle Management](examples/02_lifecycle_management.py)** - SINGLETON, TRANSIENT, and SCOPED lifecycles
+3. **[Lazy Loading](examples/03_lazy_loading.py)** - Defer expensive initialization with `Lazy[T]`
+4. **[Factory Functions](examples/04_factory_functions.py)** - Complex initialization and runtime configuration
+5. **[Testing and Mocking](examples/05_testing_and_mocking.py)** - Test patterns and mock implementations
+6. **[Async Services](examples/06_async_services.py)** - Async/await support with FastAPI
+
+### Complete Application
+
+**[Hexagonal Architecture App](examples/hexagonal_app/)** - Full application demonstrating:
+- Domain-driven design
+- Port/adapter pattern
+- Repository pattern with interface binding
+- Clean architecture principles
+
+See [`examples/README.md`](examples/README.md) for detailed documentation and instructions.
+
+### Running Examples
+
+```bash
+# From repository root
+uv run python examples/01_basic_usage.py
+uv run python examples/03_lazy_loading.py
+uv run python examples/05_testing_and_mocking.py
+
+# Web server examples (runs on http://localhost:8000)
+uv run python examples/02_lifecycle_management.py
+uv run python examples/06_async_services.py
+```
+
+## API Reference
+
+### Decorators
+
+- `@service(lifecycle=Lifecycle.SINGLETON, interface=None)` - Register a service class
+- `@repository(interface, lifecycle=Lifecycle.SINGLETON)` - Register a repository with interface binding
+- `@factory(service_type, lifecycle=Lifecycle.TRANSIENT)` - Register a factory function
+- `@inject` - Optional marker for dependency injection (auto-detected via type hints)
+
+### FastAPI Integration
+
+- `Inject[ServiceType]` - Dependency marker for FastAPI routes
+- `setup_di_middleware(app)` - Add middleware for request-scoped services
+- `DIMiddleware` - The middleware class (auto-added by setup function)
+
+### Container
+
+- `get_container()` - Access the global DI container
+- `container.register(service_type, factory, lifecycle, interface)` - Manual registration
+- `container.resolve(service_type)` - Manual resolution
+- `container.request_scope()` - Context manager for request scope
+
+### Types
+
+- `Lifecycle.SINGLETON` - Single instance shared globally
+- `Lifecycle.TRANSIENT` - New instance on every resolution
+- `Lifecycle.SCOPED` - Single instance per request
+- `Lazy[T]` - Wrapper for lazy dependency loading
+
+## Testing
+
+Override dependencies for testing:
+
+```python
+from fastapi_di_kit import get_container
+
+def test_user_service():
+    container = get_container()
+    
+    # Register a mock
+    container.register(IEmailService, factory=MockEmailService)
+    
+    # Now UserService will use MockEmailService
+    service = container.resolve(UserService)
+    assert isinstance(service.email, MockEmailService)
+```
+
+## Why fastapi-di-kit?
+
+| Feature | fastapi-di-kit | dependency-injector | FastAPI native |
+|---------|---------------|---------------------|----------------|
+| Decorator-based | ✅ | ✅ | ❌ |
+| Hexagonal architecture support | ✅ | ⚠️ Complex | ❌ |
+| Request-scoped services | ✅ | ✅ | ✅ |
+| Circular dependency detection | ✅ | ❌ | ❌ |
+| Lazy loading | ✅ | ⚠️ Manual | ❌ |
+| Learning curve | Low | High | Low |
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions welcome! Please feel free to submit a Pull Request.
