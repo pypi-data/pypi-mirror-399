@@ -1,0 +1,122 @@
+# Setting Up Your Project for Erk
+
+> **Audience**: This guide is for **project maintainers** setting up erk in a repository for the first time. If you're a developer joining a repo that already has erk configured, see [Developer Onboarding](developer-onboarding.md) instead.
+
+This guide covers how to configure your repository to work with erk's planning and implementation workflows.
+
+## Step 1: Initialize Erk
+
+First, initialize erk in your repository:
+
+```bash
+erk init
+```
+
+This creates the `erk.toml` configuration file in your repository root.
+
+## Step 2: Directory Structure
+
+Erk uses specific directories in your repository:
+
+```
+your-repo/
+├── .erk/
+│   ├── prompt-hooks/
+│   │   └── post-plan-implement-ci.md  # Custom CI workflow (optional)
+│   └── scratch/             # Session-specific temporary files
+├── .impl/                   # Created per-worktree for implementation plans
+│   ├── plan.md
+│   ├── progress.md
+│   └── issue.json
+├── .github/
+│   └── workflows/
+│       └── erk/             # Erk GitHub Actions
+└── ...
+```
+
+## Step 3: Configure .gitignore
+
+Add these entries to your `.gitignore` to exclude erk's temporary and session-specific files:
+
+```gitignore
+# Erk temporary files
+.erk/scratch/
+.impl/
+```
+
+**Why these are ignored:**
+
+- **`.erk/scratch/`**: Session-specific scratch storage. Each Claude session creates temporary files here scoped by session ID. These are ephemeral and should not be committed.
+- **`.impl/`**: Implementation plan files created per-worktree. These track in-progress work and are deleted after successful PR submission.
+
+## Step 4: Commit Your Setup
+
+After completing the setup, commit the following files to git:
+
+- **`erk.toml`** - Project configuration (created by `erk init`)
+- **`.claude/`** - Claude Code artifacts (commands, skills, hooks)
+- **`.gitignore`** - Updated exclusions for erk temporary files
+
+This makes the erk configuration available to all team members who clone the repository.
+
+## Post-Implementation CI Configuration
+
+After erk completes a plan implementation, it runs CI validation. You can customize this workflow by creating `.erk/prompt-hooks/post-plan-implement-ci.md`.
+
+### How It Works
+
+1. When `/erk:plan-implement` finishes implementing a plan, it checks for `.erk/prompt-hooks/post-plan-implement-ci.md`
+2. If found, erk follows the instructions in that file for CI validation
+3. If not found, erk skips automated CI and prompts you to run it manually
+
+### Example: Python Project
+
+For a Python project using a Makefile for CI, create `.erk/prompt-hooks/post-plan-implement-ci.md`:
+
+```markdown
+# Post-Implementation CI
+
+Run CI validation after plan implementation using `make ci`.
+
+Load the `ci-iteration` skill for the iterative fix workflow.
+```
+
+The `@` reference includes your CI iteration documentation, keeping the CI process in one place.
+
+If you don't have a shared CI iteration doc, you can inline the instructions:
+
+```markdown
+# Post-Implementation CI
+
+Run CI validation after plan implementation.
+
+## CI Command
+
+Use the Task tool with subagent_type `devrun` to run `make ci`:
+
+    Task(
+        subagent_type="devrun",
+        description="Run make ci",
+        prompt="Run make ci from the repository root. Report all failures."
+    )
+
+## Iteration Process (max 5 attempts)
+
+1. Run `make ci` via devrun agent
+2. If all checks pass: Done
+3. If checks fail: Apply targeted fixes (e.g., `make fix`, `make format`)
+4. Re-run CI
+5. If max attempts reached without success: Exit with error
+
+## Success Criteria
+
+All checks pass: linting, formatting, type checking, tests.
+```
+
+## What's Next
+
+More configuration options coming soon:
+
+- Custom worktree naming conventions
+- Project-specific planning templates
+- Integration with project-specific tooling
