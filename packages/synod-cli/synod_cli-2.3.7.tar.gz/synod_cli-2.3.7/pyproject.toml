@@ -1,0 +1,109 @@
+[project]
+name = "synod-cli"
+version = "2.3.7"
+description = "AI coding agent with adversarial debate. Multiple models critique each other, only battle-tested answers survive. Infinite memory that never forgets."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "KekwanuLabs", email = "hello@kekwanu.com"}
+]
+keywords = ["ai", "llm", "coding-assistant", "cli", "adversarial-debate", "multi-model", "claude", "gpt", "gemini", "memory", "coding-agent", "code-review"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Quality Assurance",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "python-dotenv>=1.0.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.9.0",
+    "typer>=0.12.3",
+    "rich>=13.7.1",
+    "inquirer>=3.1.0",
+    "pyyaml>=6.0.0",
+    "prompt-toolkit>=3.0.43",
+    "questionary>=2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/KekwanuLabs/synod-cli"
+Documentation = "https://github.com/KekwanuLabs/synod-cli/blob/main/README.md"
+Repository = "https://github.com/KekwanuLabs/synod-cli"
+Issues = "https://github.com/KekwanuLabs/synod-cli/issues"
+
+[project.scripts]
+synod = "synod.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["synod"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/synod",
+    "/.synod.template.yaml",
+]
+
+[tool.hatch.build.targets.wheel.shared-data]
+".synod.template.yaml" = "share/synod/.synod.template.yaml"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "respx>=0.21.0",  # Mock httpx requests
+    "coverage[toml]>=7.4.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "-ra",
+]
+markers = [
+    "unit: Unit tests (fast, no external dependencies)",
+    "integration: Integration tests (may use mocked external services)",
+    "slow: Slow tests",
+]
+
+[tool.coverage.run]
+source = ["synod"]
+branch = true
+omit = [
+    "synod/__pycache__/*",
+    "tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
+fail_under = 15  # Adjusted for current module coverage (many individual modules are 80%+)
+show_missing = true
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
