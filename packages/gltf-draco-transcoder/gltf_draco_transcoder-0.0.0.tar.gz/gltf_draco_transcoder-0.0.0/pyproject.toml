@@ -1,0 +1,58 @@
+[build-system]
+requires = ["scikit-build-core>=0.10", "setuptools-scm"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "gltf_draco_transcoder"
+dynamic = ["version"]
+description = "Python package for GLTF Draco transcoding with C++ backend"
+authors = [
+    { name="Fan Gong", email="gongfan99@hotmail.com"},
+]
+readme = "README.md"
+requires-python = ">=3.10, <3.15"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    # Add any Python dependencies here
+]
+
+[tool.scikit-build]
+cmake.version = ">=3.15"
+cmake.source-dir = "."
+cmake.args = [
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DVCPKG_OVERLAY_TRIPLETS=./vcpkg-triplets",
+    "-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0"
+]
+build.targets = ["install"]
+wheel.install-dir = "gltf_draco_transcoder"
+wheel.py-api = "py3"
+
+[tool.cibuildwheel]
+build = ["cp311-*"]
+skip = ["*-win32", "*-manylinux_i686", "*-musllinux_i686"]
+environment-pass = ["VCPKG_ROOT", "VCPKG_TARGET_TRIPLET"]
+test-requires = ["pytest"]
+test-command = "pytest {project}/tests"
+
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+before-all = "sh scripts/install_vcpkg_linux.sh"
+environment = { VCPKG_ROOT="/opt/vcpkg" }
+
+[tool.setuptools-scm]
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
+write_to = "src/gltf_draco_transcoder/_version.py"

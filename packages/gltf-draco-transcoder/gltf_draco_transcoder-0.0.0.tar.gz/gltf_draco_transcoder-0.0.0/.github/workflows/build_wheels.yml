@@ -1,0 +1,185 @@
+name: Build and Release Wheels
+
+on:
+  push:
+    branches:
+      - "**" # Trigger on push to any branch
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+env:
+  VCPKG_BINARY_SOURCES: "clear;files,${{ github.workspace }}/vcpkg_cache,readwrite"
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            triplet: x64-linux-python
+          - os: ubuntu-24.04-arm
+            triplet: arm64-linux-python
+          - os: windows-latest
+            triplet: x64-windows-python
+          - os: macos-latest
+            triplet: arm64-osx-python
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache vcpkg binaries
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: vcpkg-${{ matrix.triplet }}-${{ hashFiles('vcpkg.json') }}
+
+      - name: Install and set VCPKG_ROOT
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            echo "before-all hook of cibuildwheel will install VCPKG inside the container"
+          else
+            if [[ -n "$VCPKG_INSTALLATION_ROOT" ]]; then
+              VCPKG_ROOT_FS=$(echo "$VCPKG_INSTALLATION_ROOT" | sed 's/\\/\//g')
+            else
+              git clone https://github.com/microsoft/vcpkg.git ~/vcpkg
+              cd ~/vcpkg
+              ./bootstrap-vcpkg.sh
+              VCPKG_ROOT_FS=$(echo "$HOME/vcpkg" | sed 's/\\/\//g')
+            fi
+            echo "VCPKG_ROOT=$VCPKG_ROOT_FS" >> $GITHUB_ENV
+          fi
+
+      - name: Configure vcpkg env
+        shell: bash
+        run: |
+          echo "VCPKG_TARGET_TRIPLET=${{ matrix.triplet }}" >> $GITHUB_ENV
+
+      - name: Cache wheels
+        id: cache-wheels
+        uses: actions/cache@v4
+        with:
+          path: ./wheelhouse
+          key: cibw-wheels-${{ matrix.triplet }}
+
+      - name: Set up Python
+        if: steps.cache-wheels.outputs.cache-hit != 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        if: steps.cache-wheels.outputs.cache-hit != 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install cibuildwheel
+
+      - name: Build wheels
+        if: steps.cache-wheels.outputs.cache-hit != 'true'
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_ARCHS_MACOS: arm64
+          CIBW_ENVIRONMENT: >
+            CMAKE_ARGS="-DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}"
+          CIBW_ENVIRONMENT_LINUX: >
+            CMAKE_ARGS="-DCMAKE_TOOLCHAIN_FILE=/opt/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}"
+            VCPKG_BINARY_SOURCES="clear;files,/host${{ github.workspace }}/vcpkg_cache,readwrite"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+          retention-days: 2
+
+      - name: Build sdist
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          pip install build
+          python -m build --sdist
+
+      - name: Upload sdist artifact
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
+          retention-days: 1
+
+  test_wheels:
+    name: Test on ${{ matrix.os }} (Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    needs: [build_wheels]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        exclude:
+          - os: windows-latest
+            python-version: "3.11"
+          - os: windows-latest
+            python-version: "3.12"
+          - os: windows-latest
+            python-version: "3.13"
+          - os: macos-latest
+            python-version: "3.11"
+          - os: macos-latest
+            python-version: "3.12"
+          - os: macos-latest
+            python-version: "3.13"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}
+          path: dist/
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install wheel and test
+        run: |
+          pip install pytest
+          pip install --no-index --find-links dist/ gltf_draco_transcoder
+          pytest tests/
+
+  publish:
+    needs: [test_wheels]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    environment: release
+    permissions:
+      id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cibw-wheels-ubuntu-latest
+          path: dist/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: cibw-wheels-ubuntu-24.04-arm
+          path: dist/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: cibw-wheels-windows-latest
+          path: dist/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: cibw-wheels-macos-latest
+          path: dist/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
