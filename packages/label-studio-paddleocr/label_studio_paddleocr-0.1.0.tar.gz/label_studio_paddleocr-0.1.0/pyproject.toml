@@ -1,0 +1,33 @@
+[project]
+name = "label-studio-paddleocr"
+version = "0.1.0"
+description = "Integrate Label Studio with PaddleOCR-VL"
+readme = "README.md"
+authors = [
+    { name = "Roger Chen", email = "chenrui@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "gunicorn>=23.0.0",
+    "label-studio-ml",
+    "pip-system-certs>=5.3",
+    "pydantic-settings[yaml]>=2.12.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+label-studio-ml = { git = "https://github.com/HumanSignal/label-studio-ml-backend" }
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
+
+[tool.uv]
+# uv can't resolve https://github.com/HumanSignal/label-studio-sdk/blob/master/pyproject.toml as it miss "version" in "project".
+override-dependencies = [
+    "label-studio-sdk>=2.0.16"
+]
