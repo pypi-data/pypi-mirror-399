@@ -1,0 +1,96 @@
+"""Pydantic models for match info and draft data."""
+
+from typing import List, Literal, Optional
+
+from pydantic import BaseModel, Field
+
+
+class DraftTiming(BaseModel):
+    """Timing information for a single draft pick/ban."""
+
+    order: int = Field(description="Draft order")
+    is_pick: bool = Field(description="True if pick, False if ban")
+    active_team: Literal["radiant", "dire"] = Field(description="Team making this selection")
+    hero_id: int = Field(description="Hero ID")
+    player_slot: Optional[int] = Field(default=None, description="Player slot if pick")
+    extra_time: Optional[int] = Field(default=None, description="Extra time remaining after selection")
+    total_time_taken: Optional[int] = Field(default=None, description="Time spent on this selection")
+
+
+class DraftAction(BaseModel):
+    """A single pick or ban in the draft."""
+
+    order: int = Field(description="Draft order (1-24 for CM)")
+    is_pick: bool = Field(description="True if pick, False if ban")
+    team: Literal["radiant", "dire"] = Field(description="Team making this selection")
+    hero_id: int = Field(description="Hero ID")
+    hero_name: str = Field(description="Hero internal name (e.g., 'juggernaut')")
+    localized_name: str = Field(description="Hero display name (e.g., 'Juggernaut')")
+    position: Optional[int] = Field(default=None, description="Position 1-5 if known")
+    lane: Optional[Literal["safelane", "mid", "offlane"]] = Field(
+        default=None,
+        description="Expected lane based on position (pos1/5=safelane, pos2=mid, pos3/4=offlane)"
+    )
+
+
+class DraftResult(BaseModel):
+    """Complete draft information for a match."""
+
+    match_id: int = Field(description="Match ID")
+    game_mode: int = Field(description="Game mode ID (2 = Captains Mode)")
+    game_mode_name: str = Field(description="Game mode name")
+    radiant_picks: List[DraftAction] = Field(description="Radiant's picked heroes")
+    radiant_bans: List[DraftAction] = Field(description="Radiant's banned heroes")
+    dire_picks: List[DraftAction] = Field(description="Dire's picked heroes")
+    dire_bans: List[DraftAction] = Field(description="Dire's banned heroes")
+    draft_timings: List[DraftTiming] = Field(default_factory=list, description="Draft timing data from OpenDota")
+
+
+class TeamInfo(BaseModel):
+    """Team information for a match."""
+
+    team_id: int = Field(description="Team ID (0 if not a pro match)")
+    team_tag: str = Field(description="Team tag/abbreviation (empty if not pro)")
+    team_name: str = Field(description="Full team name (derived from tag or generic)")
+    logo_url: Optional[str] = Field(default=None, description="Team logo URL from OpenDota")
+
+
+class LeagueInfo(BaseModel):
+    """League/tournament information for a match."""
+
+    league_id: int = Field(description="League ID")
+    name: Optional[str] = Field(default=None, description="League name")
+    tier: Optional[str] = Field(default=None, description="League tier (premium, professional, amateur)")
+
+
+class PlayerInfo(BaseModel):
+    """Player information in a match."""
+
+    player_name: str = Field(description="Player's display name")
+    hero_name: str = Field(description="Hero internal name (e.g., 'juggernaut')")
+    hero_localized: str = Field(description="Hero display name (e.g., 'Juggernaut')")
+    hero_id: int = Field(description="Hero ID")
+    team: Literal["radiant", "dire"] = Field(description="Player's team")
+    steam_id: int = Field(description="Player's Steam ID")
+
+
+class MatchInfoResult(BaseModel):
+    """Complete match information from replay."""
+
+    match_id: int = Field(description="Match ID")
+    is_pro_match: bool = Field(description="Whether this is a professional match")
+    league_id: int = Field(description="League ID (0 if not a league match)")
+    league: Optional[LeagueInfo] = Field(default=None, description="League info from OpenDota")
+    game_mode: int = Field(description="Game mode ID")
+    game_mode_name: str = Field(description="Game mode name (e.g., 'Captains Mode')")
+    winner: Literal["radiant", "dire"] = Field(description="Winning team")
+    duration_seconds: float = Field(description="Match duration in seconds")
+    duration_str: str = Field(description="Match duration as MM:SS")
+    pre_game_duration: Optional[int] = Field(default=None, description="Pre-horn duration in seconds")
+    comeback: Optional[float] = Field(default=None, description="Comeback factor (0.0-1.0, higher = bigger comeback)")
+    stomp: Optional[float] = Field(default=None, description="Stomp factor (0.0-1.0, higher = more one-sided)")
+    radiant_team: TeamInfo = Field(description="Radiant team info")
+    dire_team: TeamInfo = Field(description="Dire team info")
+    players: List[PlayerInfo] = Field(description="All 10 players")
+    radiant_players: List[PlayerInfo] = Field(description="Radiant's 5 players")
+    dire_players: List[PlayerInfo] = Field(description="Dire's 5 players")
