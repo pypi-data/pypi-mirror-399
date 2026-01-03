@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# This determines the install command.
+# If this is "privsci", users run: pip install privsci
+name = "privsci"  
+version = "0.0.3"
+description = "Client library for the PrivSci platform"
+readme = "README.md"
+requires-python = ">=3.8"
+
+# Add your dependencies here
+dependencies = [
+    "requests",
+    "typer",
+    "pydantic",
+    "rdkit"  # <-- The modern, official package
+]
+
+[project.scripts]
+# This determines the CLI command.
+# If this is "privsci", users type: privsci --help
+privsci = "privsci_client.cli.main:cli" 
+
+[tool.setuptools.packages.find]
+where = ["."]
