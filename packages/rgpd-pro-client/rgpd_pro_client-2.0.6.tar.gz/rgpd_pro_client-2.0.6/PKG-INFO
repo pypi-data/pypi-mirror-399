@@ -1,0 +1,137 @@
+Metadata-Version: 2.4
+Name: rgpd-pro-client
+Version: 2.0.6
+Summary: RGPD_PRO - Professional GDPR Compliance Scanner CLI Client
+Home-page: https://github.com/yourusername/rgpd-pro-client
+Author: Julien
+Author-email: Julien <contact@rgpd-pro.com>
+License: MIT
+Project-URL: Homepage, https://github.com/yourusername/rgpd-pro-client
+Project-URL: Documentation, https://github.com/yourusername/rgpd-pro-client/blob/main/README.md
+Project-URL: Repository, https://github.com/yourusername/rgpd-pro-client
+Project-URL: Issues, https://github.com/yourusername/rgpd-pro-client/issues
+Keywords: gdpr,compliance,privacy,scanner,audit
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Legal Industry
+Classifier: Topic :: Security
+Classifier: Topic :: Software Development :: Testing
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.31.0
+Dynamic: author
+Dynamic: home-page
+Dynamic: requires-python
+
+# 🛡️ RGPD_PRO CLI Client
+
+**Professional GDPR Compliance Scanner - Command Line Interface**
+
+Connect to RGPD_PRO scanning service to audit websites for GDPR compliance.
+
+## 💰 Pricing
+
+**$24.99 per scan**
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+pip install rgpd-pro-client
+```
+
+### Usage
+
+```bash
+rgpd-scan
+```
+
+The CLI will guide you through:
+1. Connect to API server (default: http://65.108.59.188:8000)
+2. Enter website URL to scan
+3. Configure company details (revenue, employees, sector)
+4. Run scan and get results
+
+## 📊 What You Get
+
+- **Interactive HTML Report** - Violations, risk assessment, remediation roadmap
+- **Fine Estimates** - Based on 2,091 real European GDPR sanctions
+- **ROI Analysis** - Investment costs vs. risk avoided
+- **Forensic Evidence** - Optional legal-grade proof package
+
+## 🎯 Features
+
+✅ **Simple CLI Interface** - Guided menu system  
+✅ **Remote Scanning** - No browser installation needed  
+✅ **Progress Tracking** - Real-time scan status  
+✅ **Auto Download** - HTML reports and evidence packages  
+✅ **Fast Results** - 2-3 minutes average  
+
+## 📋 Requirements
+
+- Python 3.8+
+- Internet connection
+- API access (subscription required)
+
+## 🔧 Advanced Usage
+
+### Custom API Server
+
+```bash
+# When prompted, enter your custom API URL
+rgpd-scan
+```
+
+### Programmatic Use
+
+```python
+import requests
+
+# Submit scan
+response = requests.post(
+    "http://65.108.59.188:8000/scans",
+    json={
+        "url": "https://example.com",
+        "revenue_bracket": "MEDIUM",
+        "employee_bracket": "MEDIUM",
+        "sector": "ecommerce"
+    }
+)
+
+scan_id = response.json()["scan_id"]
+
+# Poll status
+status = requests.get(f"http://65.108.59.188:8000/scans/{scan_id}").json()
+
+# Download report
+html_report = requests.get(f"http://65.108.59.188:8000{status['html_url']}").content
+```
+
+## 📖 Documentation
+
+Full documentation: https://github.com/yourusername/rgpd-pro-client
+
+## 🆘 Support
+
+- Issues: https://github.com/yourusername/rgpd-pro-client/issues
+- Email: support@rgpd-pro.com
+
+## 📄 License
+
+MIT License - See LICENSE file
+
+## ⚠️ Legal Disclaimer
+
+This tool provides technical analysis, NOT legal advice. Fine estimates are statistical projections with ±30% margin. Always consult qualified legal counsel for compliance matters.
+
+---
+
+**Built for GDPR compliance professionals**
