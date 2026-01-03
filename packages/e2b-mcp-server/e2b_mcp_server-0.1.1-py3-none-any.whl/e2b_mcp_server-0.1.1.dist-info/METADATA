@@ -1,0 +1,65 @@
+Metadata-Version: 2.1
+Name: e2b-mcp-server
+Version: 0.1.1
+Summary: E2B MCP Server
+Home-page: https://e2b.dev/
+License: Apache-2.0
+Author: e2b
+Author-email: hello@e2b.dev
+Requires-Python: >=3.10,<4.0
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Dist: e2b-code-interpreter (>=1.0.2,<2.0.0)
+Requires-Dist: mcp (>=1.23.3,<2.0.0)
+Requires-Dist: pydantic (>=2.10.2,<3.0.0)
+Requires-Dist: python-dotenv (==1.0.1)
+Project-URL: Bug Tracker, https://github.com/e2b-dev/mcp-server/issues
+Project-URL: Repository, https://github.com/e2b-dev/mcp-server/tree/main/packages/python
+Description-Content-Type: text/markdown
+
+# E2B MCP Server (Python)
+
+A Model Context Protocol server for running code in a secure sandbox by [E2B](https://e2b.dev).
+
+## Development
+
+Install dependencies:
+```
+uv install
+```
+
+## Installation
+
+To use with Claude Desktop, add the server config:
+
+On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "e2b-mcp-server": {
+      "command": "uvx",
+      "args": ["e2b-mcp-server"],
+      "env": { "E2B_API_KEY": "${e2bApiKey}" }
+    }
+  }
+}
+```
+
+### Debugging
+
+Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which is available as a package script:
+
+```
+npx @modelcontextprotocol/inspector \
+  uv \
+  --directory . \
+  run \
+  e2b-mcp-server \
+```
+
+The Inspector will provide a URL to access debugging tools in your browser.
+
