@@ -1,0 +1,134 @@
+[project]
+name = "celery-redis-plus"
+version = "0.1.0a3"
+description = "Enhanced Redis transport for Celery with priority support and reliable fanout"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.13"
+keywords = ["celery", "redis", "message-queue", "priority-queue", "kombu"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: System :: Distributed Computing",
+]
+dependencies = ["kombu>=5.5.0", "redis>=7.1.0"]
+
+[project.entry-points."kombu.transport"]
+"redis+celery-redis-plus" = "celery_redis_plus.transport:Transport"
+
+[project.optional-dependencies]
+dev = [
+  "celery>=5.4.0",
+  "celery-types==0.24.0",
+  "pre-commit==4.5.1",
+  "pytest==9.0.2",
+  "ruff==0.14.10",
+  "testcontainers[redis]==4.13.3",
+  "ty==0.0.8",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+explicit-preview-rules = true
+fixable = ["ALL"]
+ignore = [
+  # flake8-annotations (ANN) - Type annotations
+  "ANN201", # INTENTIONAL: Missing return type - context managers and complex returns
+  "ANN401", # INTENTIONAL: Any needed for untyped external APIs (Celery, Kombu)
+
+  # flake8-unused-arguments (ARG) - Unused arguments
+  "ARG001", # INTENTIONAL: Too many false positives, unused-function-argument.
+  "ARG002", # INTENTIONAL: Too many false positives, unused-method-argument.
+
+  # mccabe (C901) - Complexity
+  "C901", # INTENTIONAL: Some functions are inherently complex (connection params, etc.)
+
+  # flake8-commas (COM)
+  "COM812", # INTENTIONAL: Can cause problems in combination with ruff-format
+
+  # pydocstyle (D) - Documentation
+  "D", # INTENTIONAL: Too extensive, even if only partially enabled
+
+  # pycodestyle (E5) - Line too long and similar
+  "E5", # INTENTIONAL: Line length violations - 120 char limit is sufficient
+
+  # flake8-errmsg (EM) - Error message patterns
+  "EM101", # INTENTIONAL: raw-string-in-exception - opinionated readability change not needed
+  "EM102", # INTENTIONAL: f-string-in-exception - opinionated readability change not needed
+
+  # eradicate (ERA) - Commented-out code
+  "ERA001", # INTENTIONAL: Formula comments are documentation, not dead code
+
+  # flake8-future-annotations (FA) - Future annotations
+  "FA", # INTENTIONAL: We prefer to stay with the current Python version.
+
+  # flake8-boolean-trap (FBT) - Boolean traps
+  "FBT001", # INTENTIONAL: boolean-type-hint-positional-argument - too many violations across patterns
+  "FBT002", # INTENTIONAL: boolean-default-value-positional-argument - breaks compatibility
+
+  # pep8-naming (N) - Naming conventions
+  "N802", # INTENTIONAL: Function names follow kombu conventions (get_redis_ConnectionError, Mutex)
+  "N806", # INTENTIONAL: Variable names follow kombu conventions (DataError)
+  "N818", # INTENTIONAL: Exception names follow kombu conventions (MutexHeld)
+
+  # pylint (PLC) - Pylint conventions
+  "PLC0415", # INTENTIONAL: import-outside-top-level - needed for optional dependencies
+
+  # pylint (PLR) - Pylint refactor
+  "PLR0913", # INTENTIONAL: too-many-arguments - signal handlers have many args
+  "PLR1704", # INTENTIONAL: Redefining argument in context manager is intentional pattern
+  "PLR2004", # INTENTIONAL: magic-value-comparison - test values are fine
+
+  # flake8-pyi (PYI) - Type stub issues
+  "PYI024", # INTENTIONAL: namedtuple usage follows kombu patterns
+
+  # flake8-raise (RSE) - Raise issues
+  "RSE102", # INTENTIONAL: Empty() parentheses are clearer
+
+  # Ruff-specific (RUF)
+  "RUF005", # INTENTIONAL: Tuple concatenation is clearer in error_classes_t
+  "RUF012", # INTENTIONAL: Too many false positives
+  "RUF015", # INTENTIONAL: unnecessary-iterable-allocation-for-first-element - readability
+  "RUF059", # INTENTIONAL: Keep variable as unused
+
+  # flake8-blind-except (BLE)
+  "BLE001", # INTENTIONAL: Broad exception catching needed for message recovery
+
+  # flake8-bandit (S) - Security
+  "S101", # INTENTIONAL: assert - needed for tests and type narrowing
+
+  # flake8-simplify (SIM) - Simplify
+  "SIM102", # INTENTIONAL: Nested if statements are clearer in poll loops
+  "SIM105", # INTENTIONAL: try/except/pass is clearer than contextlib.suppress for specific cases
+
+  # flake8-self (SLF) - Private member access
+  "SLF001", # INTENTIONAL: private-member-access - needed for testing internals
+
+  # flake8-type-checking (TC)
+  "TC003", # INTENTIONAL: move-stdlib-import - prefer explicit imports
+  "TC005", # INTENTIONAL: empty-type-checking-block - sometimes needed for structure
+
+  # tryceratops (TRY) - Exception handling
+  "TRY003", # INTENTIONAL: raise-vanilla-args - long exception messages are fine
+]
+preview = true
+select = ["ALL", "UP045"]
+unfixable = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "unit: marks tests as unit tests",
+  "integration: marks tests as integration tests",
+]

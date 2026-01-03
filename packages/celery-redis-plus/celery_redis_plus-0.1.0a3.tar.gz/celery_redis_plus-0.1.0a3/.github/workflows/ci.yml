@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Run ruff check
+        run: uv run ruff check
+
+      - name: Run ruff format check
+        run: uv run ruff format --check
+
+      - name: Run ty check
+        run: uv run ty check
+
+      - name: Run tests
+        run: uv run pytest
+
+  tag:
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check if tag exists for current version
+        id: version
+        run: |
+          # Get current version
+          CURRENT_VERSION=$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+          # Check if tag already exists (fetch tags first)
+          git fetch --tags
+          if git rev-parse "v$CURRENT_VERSION" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag v$CURRENT_VERSION already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag v$CURRENT_VERSION does not exist, will create"
+          fi
+
+      - name: Create and push tag
+        if: steps.version.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ steps.version.outputs.current }}"
+          git push origin "v${{ steps.version.outputs.current }}"
+
+      - name: Trigger publish workflow
+        if: steps.version.outputs.exists == 'false'
+        run: gh workflow run publish.yml -f version=${{ steps.version.outputs.current }}
+        env:
+          GH_TOKEN: ${{ github.token }}
