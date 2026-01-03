@@ -1,0 +1,90 @@
+# Two Agent Orchestration Restart Test with Memory
+# This configuration demonstrates orchestration restart with memory persistence across attempts
+# Uses debug_final_answer to force restart on first attempt for testing
+#
+# Setup Requirements:
+# 1. Set environment variable in .env file:
+#    OPENAI_API_KEY="your_openai_key"
+# 2. Start Qdrant server:
+#    docker-compose -f docker-compose.qdrant.yml up -d
+#
+# Example usage:
+# massgen --config @examples/configs/debug/restart_test_controlled_with_memory.yaml "Describe two famous Beatles members: John Lennon and Paul McCartney. Include their birth year, role in the band, and notable contributions."
+#
+# Expected behavior:
+# - Attempt 1: Agents coordinate, memory records facts, final presentation shows debug override
+# - Post-evaluation detects incomplete answer and calls restart_orchestration()
+# - Restart banner displays with reason and previous attempt's answer
+# - Attempt 2: Agents see restart context + can retrieve memories from attempt 1
+# - Post-evaluation approves and calls submit()
+# - Memory facts from both attempts are stored
+
+agents:
+  - id: "agent_a"
+    backend:
+      type: "openai"
+      model: "gpt-5-nano"
+
+  - id: "agent_b"
+    backend:
+      type: "openai"
+      model: "gpt-5-nano"
+
+# ====================
+# MEMORY CONFIGURATION
+# ====================
+memory:
+  enabled: true
+  # debug: true  # Uncomment to save memory debug files
+
+  conversation_memory:
+    enabled: true
+
+  persistent_memory:
+    enabled: true
+    on_disk: true
+
+    # LLM for fact extraction
+    llm:
+      provider: "openai"
+      model: "gpt-4.1-nano-2025-04-14"
+
+    # Embeddings for vector search
+    embedding:
+      provider: "openai"
+      model: "text-embedding-3-small"
+
+    # Qdrant configuration
+    qdrant:
+      mode: "server"
+      host: "localhost"
+      port: 6333
+
+  # Context compression (low threshold for testing)
+  compression:
+    trigger_threshold: 0.75
+    target_ratio: 0.40
+
+  # Memory retrieval
+  retrieval:
+    limit: 5
+    exclude_recent: true
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  # Restart configuration
+  coordination:
+    max_orchestration_restarts: 2  # Allow up to 2 restarts (3 total attempts)
+
+  # DEBUG MODE: Override final answer on attempt 1 to simulate incomplete response
+  # This forces the post-evaluation to trigger restart, allowing us to test:
+  # - Restart context injection (reason + instructions + previous answer)
+  # - Memory persistence across attempts within same turn
+  debug_final_answer: |
+    John Lennon was born in 1940 in Liverpool, England. He was a founding member of The Beatles and served as rhythm guitarist and vocalist.
+
+ui:
+  display_type: "rich_terminal"
+  logging_enabled: true

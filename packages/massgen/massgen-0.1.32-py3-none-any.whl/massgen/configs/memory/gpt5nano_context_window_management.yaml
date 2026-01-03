@@ -1,0 +1,108 @@
+# Example Configuration: Context Window Management with Memory
+#
+# Use Case: Demonstrates automatic context compression when approaching token limits
+#
+# This configuration demonstrates:
+# - Automatic context window monitoring and compression
+# - Token-aware conversation management (75% threshold, 40% target)
+# - Persistent memory integration for long-term knowledge retention
+# - Graceful handling when context window fills up
+#
+# Run with:
+#   massgen \
+#     --config massgen/configs/tools/memory/gpt5nano_context_window_management.yaml \
+#     "Tell me a detailed story about a space explorer. After each paragraph, ask me what happens next, and I'll guide the story. Keep expanding the narrative with rich details about planets, aliens, technology, and adventures. Make each response at least 500 words."
+
+# ====================
+# AGENT DEFINITIONS
+# ====================
+agent:
+  id: "storyteller"
+  system_message: |
+    You are a creative storyteller who crafts detailed, immersive narratives.
+
+    When telling stories:
+    - Create rich, detailed descriptions of settings, characters, and events
+    - Build on previous plot points and maintain narrative consistency
+    - Ask engaging questions to guide the story forward
+    - Make each response substantial and immersive (aim for 400-600 words)
+    - Reference earlier story elements to create callbacks and continuity
+
+    Your goal is to create a long, engaging narrative that will naturally fill up
+    the context window over multiple turns, demonstrating how the system manages
+    conversation history automatically.
+
+  backend:
+    # Use GPT-5-nano for cost-effective testing
+    type: "openai"
+    model: "gpt-5-nano"
+
+    # LLM parameters
+    temperature: 0.8  # Higher temperature for creative storytelling
+    max_tokens: 2000  # Allow longer responses
+
+    text:
+      verbosity: "high"  # Detailed responses
+
+    reasoning:
+      effort: "medium"
+      summary: "auto"
+
+# ====================
+# MEMORY CONFIGURATION
+# ====================
+# Note: Memory is configured programmatically in the test script
+# This config demonstrates the structure - actual memory setup
+# requires initializing ConversationMemory and PersistentMemory
+# in Python code before running the agent.
+#
+# See massgen/memory/examples.py for programmatic setup examples.
+
+# ====================
+# ORCHESTRATOR CONFIGURATION
+# ====================
+orchestrator:
+  # Agent workspace for any file operations
+  agent_temporary_workspace: "memory_test_workspaces"
+  snapshot_storage: "memory_test_snapshots"
+
+# ====================
+# UI CONFIGURATION
+# ====================
+ui:
+  display_type: "rich_terminal"
+  logging_enabled: true
+
+# ====================
+# EXECUTION FLOW
+# ====================
+# What happens:
+# 1. User starts an interactive story with the agent
+# 2. Agent responds with detailed narrative (400-600 words per turn)
+# 3. As conversation continues, token usage is monitored automatically
+# 4. When context usage reaches 75% of model's limit:
+#    - System logs: "📊 Context usage: X / Y tokens (Z%) - compressing old context"
+#    - Old messages are compressed into persistent memory (if configured)
+#    - Recent messages (fitting in 40% of context window) are kept
+#    - Compression details logged: "📦 Compressed N messages (X tokens) into long-term memory"
+# 5. Agent continues seamlessly with compressed context
+# 6. Story maintains consistency by referencing persistent memories
+# 7. Process repeats as needed for very long conversations
+#
+# Expected output with persistent memory:
+#   📊 Context usage: 96,000 / 128,000 tokens (75.0%) - compressing old context
+#   📦 Compressed 15 messages (60,000 tokens) into long-term memory
+#      Kept 8 messages (36,000 tokens) in context
+#
+# Expected output WITHOUT persistent memory:
+#   📊 Context usage: 96,000 / 128,000 tokens (75.0%) - compressing old context
+#   ⚠️  Warning: Dropping 15 messages (60,000 tokens)
+#      No persistent memory configured to retain this information
+#      Consider adding persistent_memory to avoid losing context
+#
+# Token Budget Allocation (after compression):
+# - Conversation history: 40% (kept in active context)
+# - New user messages: 20%
+# - Retrieved memories: 10%
+# - System prompt overhead: 10%
+# - Response generation: 20%

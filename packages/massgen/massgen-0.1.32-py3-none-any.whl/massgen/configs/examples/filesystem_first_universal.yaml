@@ -1,0 +1,147 @@
+# Universal Workspace Configuration (Filesystem-First)
+#
+# This demonstrates the "universal workspace" - a single configuration that works
+# for ANY task. Attach every MCP server you own, and agents discover what they need.
+#
+# Key Innovation: 50+ MCP servers = same 3K token context cost as 0 servers!
+
+massgen:
+  execution_mode: "filesystem_first"
+
+  # Minimal in-context tools (only essentials for bootstrap)
+  in_context_tools:
+    filesystem: [read_file, write_file, list_directory]
+    command_execution: [execute_command]  # Code execution MCP tool
+
+  # Attach EVERY MCP server (200+ tools, zero context cost)
+  available_mcp_servers:
+    # === Productivity & Communication (12 servers) ===
+    - google-drive
+    - gmail
+    - google-calendar
+    - google-docs
+    - notion
+    - confluence
+    - slack
+    - discord
+    - teams
+    - zoom
+    - dropbox
+    - box
+
+    # === Development & Code (15 servers) ===
+    - github
+    - gitlab
+    - bitbucket
+    - linear
+    - jira
+    - asana
+    - trello
+    - jenkins
+    - circleci
+    - vercel
+    - netlify
+    - heroku
+    - aws
+    - gcp
+    - azure
+
+    # === Databases (8 servers) ===
+    - postgres
+    - mysql
+    - mongodb
+    - redis
+    - elasticsearch
+    - neo4j
+    - dynamodb
+    - cassandra
+
+    # === Sales & Business (10 servers) ===
+    - salesforce
+    - hubspot
+    - stripe
+    - shopify
+    - quickbooks
+    - zendesk
+    - intercom
+    - mailchimp
+    - sendgrid
+    - twilio
+
+    # === Research & Data (7 servers) ===
+    - arxiv
+    - pubmed
+    - wikipedia
+    - wolfram
+    - kaggle
+    - youtube
+    - twitter
+
+  # All custom tools available
+  available_custom_tools:
+    # Web
+    - web.playwright_navigate
+    - web.screenshot
+    - web.extract_content
+
+    # Multimodal
+    - multimodal.vision_understanding
+    - multimodal.video_analysis
+    - multimodal.audio_transcription
+
+    # Data processing
+    - data.csv_analysis
+    - data.json_transform
+    - data.api_request
+
+    # ... and 20+ more
+
+  code_execution:
+    enabled: true
+    mode: "docker"
+
+  search_tools:
+    enable_ripgrep: true
+    enable_ast_grep: true
+
+# Single agent that adapts to any task
+agents:
+  - id: "universal_agent"
+    backend:
+      type: "openai"
+      model: "gpt-4o"
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"
+      command_line_docker_image: "massgen/filesystem-first:latest"
+      command_line_docker_network_mode: "host"  # Allow MCP server access
+
+orchestrator:
+  display: true
+
+ui:
+  display_type: "rich_terminal"
+
+# ==============================================================================
+# Example Usage:
+# ==============================================================================
+#
+# User: "Analyze our Q4 sales and send summary to #sales channel"
+#
+# Agent workflow:
+# 1. $ rg "sales|revenue" servers/ -i -l
+#    → Discovers: servers/salesforce/, servers/stripe/, servers/hubspot/
+#
+# 2. $ rg "send|message|slack" servers/ -i -l
+#    → Discovers: servers/slack/post_message.py
+#
+# 3. Reads only the 2-3 needed tool files (out of 200+ available)
+#
+# 4. Writes code:
+#    from servers.salesforce import query_records
+#    from servers.slack import post_message
+#
+#    data = await query_records(...)  # Fetch Q4 data
+#    summary = analyze(data)           # Process
+#    await post_message("#sales", summary)  # Send
+#
+# Result: Task completed using only 2 tools out of 200+, with 3K token context!

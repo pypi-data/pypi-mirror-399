@@ -1,0 +1,54 @@
+# MassGen Configuration: Understand Video Example
+#
+# Use Case: Analyze a specific video file using the understand_video tool
+#
+# This demonstrates direct video analysis without needing to download.
+# The video file is provided as a context path for agents to analyze.
+#
+# Run with:
+#   uv run massgen --config massgen/configs/tools/custom_tools/multimodal_tools/understand_video_example.yaml "What is shown in this video?"
+
+agents:
+  - id: "agent_a"
+    backend:
+      type: "openai"
+      model: "gpt-5-mini"
+      text:
+        verbosity: "medium"
+      reasoning:
+        effort: "medium"
+        summary: "auto"
+      custom_tools:
+        - name: ["understand_video"]
+          category: "multimodal"
+          path: "massgen/tool/_multimodal_tools/understand_video.py"
+          function: ["understand_video"]
+      cwd: "workspace1"
+
+  - id: "agent_b"
+    backend:
+      type: "gemini"
+      model: "gemini-2.5-pro"
+      custom_tools:
+        - name: ["understand_video"]
+          category: "multimodal"
+          path: "massgen/tool/_multimodal_tools/understand_video.py"
+          function: ["understand_video"]
+      cwd: "workspace2"
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+  context_paths:
+    - path: "massgen/configs/resources/v0.1.3-example/case-study-videos/Dp2oldJJImw.mp4"
+      permission: "read"
+
+ui:
+  display_type: "rich_terminal"
+  logging_enabled: true
+
+# What happens:
+# 1. Agents have read access to the video file
+# 2. They can use understand_video tool to analyze it
+# 3. Tool extracts 8 frames and analyzes with GPT-4.1
+# 4. Agents collaborate to provide comprehensive insights

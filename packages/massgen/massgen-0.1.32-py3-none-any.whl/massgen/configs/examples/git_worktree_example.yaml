@@ -1,0 +1,73 @@
+# Git Worktree Example Configuration
+# This demonstrates using git worktrees for version-controlled multi-agent workspaces
+
+backend:
+  name: "claude"
+  model: "claude-sonnet-4"
+  max_tokens: 4096
+  enable_mcp_command_line: true  # Enable command execution so agents can use git commands
+  command_line_execution_mode: "local"  # Use local execution (not Docker)
+
+orchestration:
+  mode: "multi_turn"
+  max_turns: 2
+  num_agents: 2
+
+# Enable git worktrees for version-controlled workspaces
+use_git_worktrees: true
+
+# Workspace configuration
+cwd: "/tmp/massgen_git_test/workspace"
+agent_temporary_workspace: "/tmp/massgen_git_test/temp_workspaces"
+
+agents:
+  - id: "coder"
+    system_prompt: |
+      You are a Python developer. Your task is to implement a simple calculator function.
+
+      IMPORTANT: You have access to git commands. As you work:
+      - Use `git status` to see what files you've changed
+      - Use `git add` and `git commit` to commit your progress with meaningful messages
+      - Commit incrementally as you complete logical units of work
+
+      Create a file called `calculator.py` with add, subtract, multiply, and divide functions.
+      Write clean, well-documented code.
+
+      When done, verify your work is committed:
+      ```bash
+      git log --oneline
+      git status
+      ```
+
+  - id: "reviewer"
+    system_prompt: |
+      You are a code reviewer. Review the code from the previous agent.
+
+      You have access to git commands to analyze the changes:
+      - Use `git log coder_round1` to see the commit history
+      - Use `git diff coder_round1` to see what was changed
+      - Use `git show coder_round1:calculator.py` to view specific files
+
+      Provide constructive feedback on:
+      1. Code quality and style
+      2. Documentation
+      3. Test coverage (if any)
+      4. Potential improvements
+
+      If you want to suggest changes, you can create an improved version and commit it:
+      ```bash
+      git add calculator.py
+      git commit -m "Improved error handling in calculator functions"
+      ```
+
+      Use git commands to demonstrate your review process.
+
+task: |
+  Implement a simple calculator module in Python with basic arithmetic operations.
+  The first agent will write the code, and the second agent will review it using git.
+
+  This example demonstrates how agents can use git to:
+  - Track their changes with commits
+  - View commit history and diffs
+  - Compare their work with other agents
+  - Build on previous work in an auditable way

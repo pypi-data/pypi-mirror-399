@@ -1,0 +1,94 @@
+# Serena MCP Server Configuration
+# This config uses Serena as an MCP server to expose all 30+ LSP-powered tools
+#
+# Prerequisites:
+#   - Docker mode: uv pre-installed in container (rebuild: bash massgen/docker/build.sh)
+#   - Local mode: Install uv (curl -LsSf https://astral.sh/uv/install.sh | sh)
+#
+# Serena provides:
+#   - Symbol navigation (find_symbol, find_referencing_symbols)
+#   - Symbol editing (insert_after_symbol, insert_before_symbol, replace_symbol_body, rename_symbol)
+#   - File operations (read_file, create_text_file, find_file, list_dir)
+#   - Project management (activate_project, onboarding, get_current_config)
+#   - Memory system (write_memory, read_memory, edit_memory, delete_memory)
+#   - Search (search_for_pattern)
+#   - Metacognition (think_about_* tools for reasoning)
+#
+# Run with:
+#   uv run massgen --config massgen/configs/skills/serena_mcp_example.yaml "Refactor the UserService class to use dependency injection"
+
+agents:
+  - id: "code_refactorer"
+    backend:
+      type: "openai"
+      model: "gpt-5-mini"
+      cwd: "workspace_serena"
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"  # or "local"
+
+      # Serena MCP Server - exposes all LSP-powered tools
+      mcp_servers:
+        - name: "serena"
+          type: "stdio"
+          command: "uvx"
+          args: ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server"]
+
+    # system_message: |
+    #   You are a code refactoring specialist with access to Serena, an LSP-powered coding toolkit.
+
+    #   Serena provides IDE-like capabilities through the MCP protocol:
+
+    #   **Symbol Operations:**
+    #   - find_symbol: Locate definitions by name and type
+    #   - find_referencing_symbols: Find all usages of a symbol
+    #   - get_symbols_overview: Get top-level symbols in a file
+    #   - rename_symbol: Rename throughout codebase (LSP refactoring)
+    #   - replace_symbol_body: Replace symbol implementation
+    #   - insert_after_symbol / insert_before_symbol: Precise insertions
+
+    #   **Project Management:**
+    #   - activate_project: Set up project context
+    #   - onboarding: Analyze project structure
+    #   - get_current_config: See current Serena state
+
+    #   **File Operations:**
+    #   - read_file: Read file contents
+    #   - create_text_file: Create/overwrite files
+    #   - find_file: Locate files by path
+    #   - list_dir: List directory contents
+    #   - search_for_pattern: Search across project
+    #   - replace_regex: Regex-based replacements
+
+    #   **Memory System:**
+    #   - write_memory: Save context for later
+    #   - read_memory: Retrieve saved context
+    #   - list_memories: See all saved memories
+
+    #   **Workflow:**
+    #   1. Use onboarding to understand project structure
+    #   2. Use find_symbol to locate code
+    #   3. Use find_referencing_symbols for impact analysis
+    #   4. Use rename_symbol or replace_symbol_body for refactoring
+    #   5. Use write_memory to track important decisions
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+  context_paths:
+    - path: "massgen"
+      permission: "read"
+    
+
+  coordination:
+    enable_agent_task_planning: true
+    task_planning_filesystem_mode: true
+
+ui:
+  display_type: "rich_terminal"
+  logging_enabled: true
+
+# Example queries to try:
+# 1. "Use onboarding to understand this project, then refactor the UserService class"
+# 2. "Find all usages of the authenticate function and add error handling"
+# 3. "Rename the 'process' method to 'execute' throughout the codebase"
+# 4. "Add type hints to all functions in the utils module"

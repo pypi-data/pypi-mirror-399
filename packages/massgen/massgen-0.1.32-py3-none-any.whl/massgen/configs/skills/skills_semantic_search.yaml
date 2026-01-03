@@ -1,0 +1,84 @@
+# Semantic Search Skills Configuration
+# This example shows how to enable semantic search capabilities using serena and semtools skills
+#
+# Prerequisites:
+#   - Docker mode: Tools pre-installed (rebuild with: bash massgen/docker/build.sh)
+#   - Local mode:
+#     - Serena: Available via uvx (install uv: curl -LsSf https://astral.sh/uv/install.sh | sh)
+#     - Semtools: npm install -g @llamaindex/semtools (or cargo install semtools)
+#     - Optional for document parsing: export LLAMA_CLOUD_API_KEY="your-key"
+#
+# Run with:
+#   uv run massgen --config massgen/configs/skills/skills_semantic_search.yaml "Find all authentication-related code and explain how it works"
+
+agents:
+  - id: "semantic_navigator"
+    backend:
+      type: "claude"
+      model: "claude-sonnet-4-20250514"
+      cwd: "workspace_semantic"
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"  # or "local"
+    system_message: |
+      You are a code navigation specialist with semantic search capabilities.
+
+      You have access to three complementary search tools through skills:
+      1. file-search (ripgrep/ast-grep): Fast exact keyword and structural search
+      2. serena: Symbol-level code understanding using LSP
+      3. semtools: Semantic meaning-based search using embeddings
+
+      Use these skills strategically:
+      - Start with semantic search (semtools) when exploring concepts
+      - Use symbol search (serena) for precise definitions and references
+      - Use text search (file-search) for exact keywords and patterns
+
+      To access skill guidance, use: execute_command("openskills read <skill-name>")
+
+  - id: "code_analyst"
+    backend:
+      type: "openai"
+      model: "gpt-5-nano"
+      cwd: "workspace_analyst"
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"
+    system_message: |
+      You are a code analysis expert focusing on deep code understanding.
+
+      You have access to semantic search skills that complement traditional search:
+      - serena: For finding symbol definitions and tracking references
+      - semtools: For discovering related code by meaning
+      - file-search: For fast keyword searches
+
+      Combine these approaches for comprehensive analysis.
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  coordination:
+    # Enable skills system
+    use_skills: true
+
+    # Include built-in MassGen skills
+    # Available optional skills: serena, semtools
+    massgen_skills:
+      - "file-search"    # Always useful (ripgrep/ast-grep)
+      - "serena"         # Symbol-level code understanding (LSP)
+      - "semtools"       # Semantic search (embeddings)
+
+    # Skills discovery directory (for external/community skills)
+    skills_directory: ".agent/skills"
+
+    # Enable planning for complex search workflows
+    enable_agent_task_planning: true
+    task_planning_filesystem_mode: true
+
+ui:
+  display_type: "simple"
+  logging_enabled: true
+
+# Example queries to try:
+# 1. "Find all authentication logic in the codebase"
+# 2. "Show me error handling patterns across different modules"
+# 3. "Find code similar to how UserService processes requests"
+# 4. "What symbols reference the DatabaseManager class?"
