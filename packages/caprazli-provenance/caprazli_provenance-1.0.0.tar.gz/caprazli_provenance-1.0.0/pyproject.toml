@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "caprazli-provenance"
+version = "1.0.0"
+description = "Cryptographic priority claims for independent researchers via Bitcoin timestamps"
+readme = "README.md"
+license = {text = "CC-BY-4.0"}
+requires-python = ">=3.8"
+authors = [
+    {name = "Kafkas M. Caprazli", email = "caprazli@gmail.com"}
+]
+keywords = [
+    "provenance",
+    "timestamping",
+    "bitcoin",
+    "opentimestamps",
+    "independent-research",
+    "priority-claims"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "requests>=2.25.0",
+]
+
+[project.optional-dependencies]
+full = ["opentimestamps-client>=0.7.0"]
+
+[project.urls]
+Homepage = "https://github.com/capraCoder/caprazli-provenance"
+Documentation = "https://github.com/capraCoder/caprazli-provenance#readme"
+Repository = "https://github.com/capraCoder/caprazli-provenance"
+Issues = "https://github.com/capraCoder/caprazli-provenance/issues"
+DOI = "https://doi.org/10.5281/zenodo.18115235"
+
+[project.scripts]
+caprazli-provenance = "caprazli_provenance:main"
+
+[tool.setuptools]
+py-modules = ["caprazli_provenance", "ots_stamp"]
