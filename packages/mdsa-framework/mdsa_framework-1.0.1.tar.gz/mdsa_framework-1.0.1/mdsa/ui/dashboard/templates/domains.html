@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MDSA Dashboard - Domains</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Domain Management</h1>
+        <p>Specialized domains across all MDSA applications</p>
+    </div>
+
+    <div class="container">
+        <div class="nav">
+            <a href="/welcome">🏠 Home</a>
+            <a href="/admin/rag">📤 RAG Management</a>
+            <a href="/admin/models">🔧 Model Configuration</a>
+            <a href="/admin/tools">🛠️ Tools</a>
+            <a href="/domains" class="active">🎯 Domains</a>
+            <a href="/admin/monitor">📊 Monitor</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>{{ count }}</h3>
+                <p>Total Domains</p>
+            </div>
+        </div>
+
+        <h2 style="color: #4CAF50; margin-top: 40px;">All Registered Domains</h2>
+
+        {% if domains %}
+        <div class="domain-list">
+            {% for domain in domains %}
+            <div class="domain-item">
+                <h3>{{ domain.description or domain.domain_id }}</h3>
+                <p><strong>Domain ID:</strong> {{ domain.domain_id }}</p>
+                <p><strong>Model:</strong> {{ domain.model_name }}</p>
+                <p><strong>Device:</strong> {{ domain.device or 'cpu' }}</p>
+                <p><strong>Status:</strong> <span style="color: #4CAF50;">{{ domain.status or 'active' }}</span></p>
+                {% if domain.app_name %}
+                <p><strong>Application:</strong> {{ domain.app_name }}</p>
+                {% endif %}
+                {% if domain.keywords %}
+                <div class="keywords">
+                    <strong>Keywords:</strong>
+                    {% for keyword in domain.keywords[:10] %}
+                    <span class="keyword">{{ keyword }}</span>
+                    {% endfor %}
+                    {% if domain.keywords|length > 10 %}
+                    <span class="keyword">+{{ domain.keywords|length - 10 }} more</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No domains registered yet. Start a chatbot or application using MDSA to see domains here.</p>
+            <p style="margin-top: 20px; color: #666;">
+                Medical Chatbot: <code>python chatbot_app/medical_app/enhanced_medical_chatbot_fixed.py</code>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <style>
+        .empty-state {
+            background: #f5f5f5;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .empty-state code {
+            background: #e8e8e8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</body>
+</html>

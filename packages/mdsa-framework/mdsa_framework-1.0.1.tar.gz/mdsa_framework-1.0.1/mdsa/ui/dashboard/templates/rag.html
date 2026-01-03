@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MDSA Dashboard - RAG</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="header">
+        <h1>📚 RAG Management</h1>
+        <p>Retrieval-Augmented Generation knowledge base</p>
+    </div>
+
+    <div class="container">
+        <div class="nav">
+            <a href="/welcome">🏠 Home</a>
+            <a href="/domains">🎯 Domains</a>
+            <a href="/models">🤖 Models</a>
+            <a href="/monitor">📊 Monitor</a>
+        </div>
+
+        <!-- Admin Section -->
+        <div class="nav" style="margin-top: 20px; border-top: 2px solid #e0e0e0; padding-top: 15px;">
+            <h3 style="color: #9C27B0; margin-bottom: 10px; margin-top: 0;">⚙️ Administration</h3>
+            <a href="/admin/rag" style="color: #9C27B0;">📤 RAG Upload & Management</a>
+            <a href="/admin/models" style="color: #9C27B0;">🔧 Model Configuration</a>
+            <a href="/admin/tools" style="color: #9C27B0;">🛠️ Tool Management</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card purple">
+                <h3>{{ total_documents }}</h3>
+                <p>Total Documents</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ global_documents }}</h3>
+                <p>Global RAG</p>
+            </div>
+            <div class="stat-card blue">
+                <h3>{{ local_documents }}</h3>
+                <p>Local RAG</p>
+            </div>
+        </div>
+
+        <h2 style="color: #9C27B0; margin-top: 40px;">RAG Status</h2>
+
+        {% if rag_enabled %}
+        <div class="info-box success">
+            <h3>✅ RAG System Active</h3>
+            <p>Dual RAG system is running with {{ total_documents }} documents across all applications.</p>
+        </div>
+
+        {% if domains_with_rag %}
+        <h3 style="margin-top: 30px;">Domains with RAG</h3>
+        <div class="domain-list">
+            {% for item in domains_with_rag %}
+            <div class="domain-item">
+                <h4>{{ item.domain }}</h4>
+                <p><strong>Application:</strong> {{ item.app }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="info-box" style="margin-top: 40px;">
+            <h3>About Dual RAG</h3>
+            <ul>
+                <li><strong>Global RAG:</strong> Shared knowledge base across all domains</li>
+                <li><strong>Local RAG:</strong> Domain-specific knowledge for specialized queries</li>
+                <li><strong>Hybrid Retrieval:</strong> Queries search both global and local RAG</li>
+                <li><strong>Vector Store:</strong> ChromaDB with sentence-transformers embeddings</li>
+            </ul>
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+            <h3>RAG System Not Active</h3>
+            <p>No RAG documents found. Start a chatbot or application with RAG enabled to see documents here.</p>
+            <p style="margin-top: 20px; color: #666;">
+                Medical Chatbot (with RAG): <code>python chatbot_app/medical_app/enhanced_medical_chatbot_fixed.py</code>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <style>
+        .empty-state {
+            background: #f5f5f5;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .empty-state h3 {
+            color: #666;
+        }
+        .empty-state code {
+            background: #e8e8e8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .info-box {
+            background: #f3e5f5;
+            border-left: 4px solid #9C27B0;
+            padding: 20px;
+            border-radius: 4px;
+        }
+        .info-box.success {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #7B1FA2;
+        }
+        .info-box.success h3 {
+            color: #2E7D32;
+        }
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+    </style>
+</body>
+</html>

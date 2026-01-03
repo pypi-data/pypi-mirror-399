@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MDSA Dashboard - Models</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 Model Management</h1>
+        <p>AI models deployed across all MDSA applications</p>
+    </div>
+
+    <div class="container">
+        <div class="nav">
+            <a href="/welcome">🏠 Home</a>
+            <a href="/domains">🎯 Domains</a>
+            <a href="/rag">📚 RAG</a>
+            <a href="/monitor">📊 Monitor</a>
+        </div>
+
+        <!-- Admin Section -->
+        <div class="nav" style="margin-top: 20px; border-top: 2px solid #e0e0e0; padding-top: 15px;">
+            <h3 style="color: #9C27B0; margin-bottom: 10px; margin-top: 0;">⚙️ Administration</h3>
+            <a href="/admin/rag" style="color: #9C27B0;">📤 RAG Upload & Management</a>
+            <a href="/admin/models" style="color: #9C27B0;">🔧 Model Configuration</a>
+            <a href="/admin/tools" style="color: #9C27B0;">🛠️ Tool Management</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card orange">
+                <h3>{{ count }}</h3>
+                <p>Total Models</p>
+            </div>
+        </div>
+
+        <h2 style="color: #FF9800; margin-top: 40px;">All Loaded Models</h2>
+
+        {% if models %}
+        <div class="domain-list">
+            {% for model in models %}
+            <div class="domain-item">
+                <h3>{{ model.model_name }}</h3>
+                <p><strong>Device:</strong> <span style="color: {% if 'cuda' in model.device %}#4CAF50{% else %}#666{% endif %};">{{ model.device }}</span></p>
+                {% if model.apps_using %}
+                <p><strong>Applications:</strong> {{ model.apps_using|join(', ') }}</p>
+                {% endif %}
+                {% if model.domains_using %}
+                <div class="keywords">
+                    <strong>Domains:</strong>
+                    {% for domain in model.domains_using[:10] %}
+                    <span class="keyword">{{ domain }}</span>
+                    {% endfor %}
+                    {% if model.domains_using|length > 10 %}
+                    <span class="keyword">+{{ model.domains_using|length - 10 }} more</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No models loaded yet. Start a chatbot or application using MDSA to see models here.</p>
+            <p style="margin-top: 20px; color: #666;">
+                Medical Chatbot: <code>python chatbot_app/medical_app/enhanced_medical_chatbot_fixed.py</code>
+            </p>
+        </div>
+        {% endif %}
+
+        <div class="info-box" style="margin-top: 40px;">
+            <h3>Model Types</h3>
+            <ul>
+                <li><strong>Tier 1 (Orchestrator):</strong> TinyBERT - Fast intent classification</li>
+                <li><strong>Tier 2 (Reasoning):</strong> Phi-2 - Complex query validation</li>
+                <li><strong>Tier 3 (Domain SLMs):</strong> Ollama Cloud - Specialized medical models</li>
+            </ul>
+        </div>
+    </div>
+
+    <style>
+        .empty-state {
+            background: #f5f5f5;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .empty-state code {
+            background: #e8e8e8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #1976D2;
+        }
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+    </style>
+</body>
+</html>
