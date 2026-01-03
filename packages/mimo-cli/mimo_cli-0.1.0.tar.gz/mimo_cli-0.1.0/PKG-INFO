@@ -1,0 +1,57 @@
+Metadata-Version: 2.3
+Name: mimo-cli
+Version: 0.1.0
+Summary: A general assistant that appears in your terminal
+Author: Linghao Zhang
+Author-email: Linghao Zhang <zhanglinghao@xiaomi.com>
+Requires-Dist: litellm>=1.0.0
+Requires-Dist: rich>=13.0.0
+Requires-Dist: click>=8.0.0
+Requires-Dist: prompt-toolkit>=3.0.0
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+
+# MiMo CLI 🤖
+
+Your terminal AI assistant with tools to edit files and run commands.
+
+## ⚡ Quick Setup
+
+**Config file:** `~/.mimo/config.toml`
+
+Just run `mimo` - it will automatically create the config file if it doesn't exist.
+
+## 🔧 Configuration
+
+### Config File (`~/.mimo/config.toml`)
+```toml
+[llm]
+model = "openai/gpt-4o-mini"
+# api_base = "https://api.example.com/v1"
+# api_key = "your-key-here"
+
+[permissions]
+auto_accept_editor = false  # Auto-accept file edits in current directory
+```
+
+### Environment Variables
+```bash
+export MIMO_MODEL="openai/gpt-4o-mini"
+export MIMO_API_BASE="https://api.example.com/v1"
+export MIMO_API_KEY="your-key-here"
+```
+
+### CLI Arguments
+```bash
+mimo --model openai/gpt-4
+mimo --api-base https://custom-api.com/v1
+```
+
+## 🚀 Usage
+```bash
+mimo                    # Start chatting (creates config if missing)
+mimo --model gpt-4      # Use specific model
+```
+
+---
+*Created by MiMo* 🎯
