@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NanoPy Scan</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <a href="/" class="logo" onclick="navigate('home'); return false;">
+                <div class="logo-icon">N</div>
+                NanoPy Scan
+            </a>
+            <nav>
+                <a href="/" onclick="navigate('home'); return false;" id="nav-home">Dashboard</a>
+                <a href="/blocks" onclick="navigate('blocks'); return false;" id="nav-blocks">Blocks</a>
+                <a href="/transactions" onclick="navigate('transactions'); return false;" id="nav-transactions">Transactions</a>
+                <a href="/validators" onclick="navigate('validators'); return false;" id="nav-validators">Validators</a>
+                <a href="/network" onclick="navigate('network'); return false;" id="nav-network">Network</a>
+            </nav>
+            <div class="network-badge">
+                <div class="network-dot"></div>
+                <span id="networkName">Loading...</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="search-container">
+        <div class="container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by Address / Tx Hash / Block Number">
+                <button onclick="doSearch()">Search</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- Home / Dashboard View -->
+        <div id="view-home" class="view active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Latest Block</h3>
+                    <div class="value" id="statBlockHeight">--</div>
+                    <div class="sub" id="statSyncStatus">Syncing...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Transactions</h3>
+                    <div class="value" id="statTxCount">--</div>
+                    <div class="sub">Total indexed</div>
+                </div>
+                <div class="stat-card">
+                    <h3>TPS</h3>
+                    <div class="value" id="statTps">--</div>
+                    <div class="sub">Last 60 seconds</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Addresses</h3>
+                    <div class="value" id="statAddresses">--</div>
+                    <div class="sub">Unique addresses</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Latest Blocks</h2>
+                        <a href="/blocks" onclick="navigate('blocks'); return false;">View all</a>
+                    </div>
+                    <div class="card-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Block</th>
+                                    <th class="hide-mobile">Validator</th>
+                                    <th>Txs</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="latestBlocks">
+                                <tr><td colspan="4" class="loading"><div class="spinner"></div>Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Latest Transactions</h2>
+                        <a href="/transactions" onclick="navigate('transactions'); return false;">View all</a>
+                    </div>
+                    <div class="card-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tx Hash</th>
+                                    <th class="hide-mobile">From</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="latestTxs">
+                                <tr><td colspan="3" class="loading"><div class="spinner"></div>Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blocks List View -->
+        <div id="view-blocks" class="view">
+            <div class="card">
+                <div class="card-header">
+                    <h2>All Blocks</h2>
+                    <span class="badge badge-muted" id="blocksTotal">0 blocks</span>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Block</th>
+                                <th>Hash</th>
+                                <th class="hide-mobile">Validator</th>
+                                <th>Txs</th>
+                                <th>Gas Used</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="blocksList">
+                            <tr><td colspan="6" class="loading"><div class="spinner"></div>Loading...</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination" id="blocksPagination"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions List View -->
+        <div id="view-transactions" class="view">
+            <div class="card">
+                <div class="card-header">
+                    <h2>All Transactions</h2>
+                    <span class="badge badge-muted" id="txsTotal">0 transactions</span>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tx Hash</th>
+                                <th>Block</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Value</th>
+                                <th class="hide-mobile">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="txsList">
+                            <tr><td colspan="6" class="loading"><div class="spinner"></div>Loading...</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination" id="txsPagination"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validators List View -->
+        <div id="view-validators" class="view">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Validators</h2>
+                    <span class="badge badge-info">PoS Consensus</span>
+                </div>
+                <div class="card-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Address</th>
+                                <th>Blocks Produced</th>
+                                <th>Last Block</th>
+                            </tr>
+                        </thead>
+                        <tbody id="validatorsList">
+                            <tr><td colspan="4" class="loading"><div class="spinner"></div>Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Status View -->
+        <div id="view-network" class="view">
+            <div class="detail-page">
+                <div class="detail-header">
+                    <h1><span class="badge badge-info">Network</span> Status</h1>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom: 1.5rem;">
+                    <div class="stat-card">
+                        <h3>Network Health</h3>
+                        <div class="value" id="networkHealthStatus">--</div>
+                        <div class="sub" id="networkHealthSub">Checking...</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Node Status</h3>
+                        <div class="value" id="nodeStatus">--</div>
+                        <div class="sub" id="nodeUrl">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Peers</h3>
+                        <div class="value" id="networkPeers">--</div>
+                        <div class="sub">Connected peers</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Last Block</h3>
+                        <div class="value" id="networkLastBlock">--</div>
+                        <div class="sub" id="networkLastBlockTime">--</div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Node Information</h2>
+                        </div>
+                        <div class="card-content" style="padding: 1rem;">
+                            <div class="detail-grid" id="nodeDetails">
+                                <div class="loading"><div class="spinner"></div>Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Indexer Status</h2>
+                        </div>
+                        <div class="card-content" style="padding: 1rem;">
+                            <div class="detail-grid" id="indexerDetails">
+                                <div class="loading"><div class="spinner"></div>Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block Detail View -->
+        <div id="view-block" class="view">
+            <div class="detail-page">
+                <div class="detail-header">
+                    <h1><span class="badge badge-info">Block</span> #<span id="blockDetailNumber">--</span></h1>
+                </div>
+                <div class="detail-grid" id="blockDetails">
+                    <div class="loading"><div class="spinner"></div>Loading...</div>
+                </div>
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-header">
+                        <h2>Block Transactions</h2>
+                    </div>
+                    <div class="card-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tx Hash</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Value</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="blockTxsList">
+                                <tr><td colspan="5" class="loading"><div class="spinner"></div>Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Detail View -->
+        <div id="view-tx" class="view">
+            <div class="detail-page">
+                <div class="detail-header">
+                    <h1><span class="badge badge-info">Transaction</span></h1>
+                </div>
+                <div class="detail-grid" id="txDetails">
+                    <div class="loading"><div class="spinner"></div>Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Detail View -->
+        <div id="view-address" class="view">
+            <div class="detail-page">
+                <div class="detail-header">
+                    <h1><span class="badge badge-info">Address</span></h1>
+                </div>
+                <div class="stats-grid" id="addressStats" style="margin-bottom: 1.5rem;"></div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Transactions</h2>
+                    </div>
+                    <div class="card-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tx Hash</th>
+                                    <th>Block</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="addressTxsList">
+                                <tr><td colspan="5" class="loading"><div class="spinner"></div>Loading...</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="pagination" id="addressPagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            NanoPy Scan | <a href="https://pypi.org/project/nanopy-scan/">pip install nanopy-scan</a> |
+            <a href="https://pypi.org/project/nanopy-chain/">nanopy-chain</a>
+        </div>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
