@@ -1,0 +1,203 @@
+[project]
+name = "applab"
+version = "0.0.2dev20251230153900"
+# dynamic = ["version"] # todo 后面用 dynamic 替换掉 version 字段
+license = { text = "MIT" }
+
+description = "Aggregator package for all applab subpackages"
+readme = "README.md"
+authors = [{ name = "Chen Peng" }]
+urls = { "homepage" = "https://github.com/chen56/applab" }
+
+requires-python = ">=3.12"
+# Aggregator package for all applab subpackages
+# 统一依赖所有子包
+dependencies = [
+    "applab-core",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.1",
+    "ruff>=0.14.10",
+    "ty>=0.0.7",
+    "pyrefly>=0.46.2",
+    "keyring>=25.7.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.15,<0.10.0"]
+# uv_build默认就使用 src/ 布局，不需要额外配置
+build-backend = "uv_build"
+
+
+#################################################################################
+# uv
+#################################################################################
+
+[tool.uv.build-backend]
+namespace = true
+module-name=["applab"]
+module-root = "src"
+
+
+[tool.uv.workspace]
+# `uv workspace metadata` 看效果
+members = [
+    "pkgs/*",
+]
+
+
+[tool.uv.sources]
+# 确保src目录被安装为可编辑模式，让import正常工作，避免使用PYTHONPATH
+# 效果:
+#   - uv.lock： source = { editable = "pkgs/applab-core" }
+#   - 类似：uv pip install -e .
+# 需重启vscode
+applab-core = { workspace = true }
+
+[tool.uv]
+# workspace 根虽然没代码，但作为聚合包
+package = true
+
+# `uv python install`的不是官网文件，而是这个项目打包的便携版: https://github.com/astral-sh/python-build-standalone/
+# 镜像较少，参考: https://github.com/tuna/issues/issues/2125
+# 已知镜像站点：
+# - https://mirror.nju.edu.cn/github-release/astral-sh/python-build-standalone/
+# - https://registry.npmmirror.com/-/binary/python-build-standalone/
+# - https://gh-proxy.com/github.com/indygreg/python-build-standalone/releases/download
+# 镜像下载示例：
+# - uv python install --mirror https://registry.npmmirror.com/-/binary/python-build-standalone/ 3.12
+# - UV_PYTHON_INSTALL_MIRROR=https://mirror.nju.edu.cn/github-release/astral-sh/python-build-standalone/ uv python install 3.12
+# pyproject.toml config ref: https://docs.astral.sh/uv/reference/settings/#python-install-mirror
+python-install-mirror = "https://registry.npmmirror.com/-/binary/python-build-standalone/"
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
+[[tool.uv.index]]
+url = "https://mirrors.aliyun.com/pypi/simple/"
+
+#################################################################################
+# --- Ruff 配置（更新为 NumPy 风格） ---
+#################################################################################
+
+[tool.ruff]
+src = ["."]
+exclude = [".git", "__pycache__", "build", "dist", ".venv"]
+line-length = 120
+
+[tool.ruff.lint]
+ignore = [
+    "D100", # Missing docstring in a public module
+    "D101", # Missing docstring in a public class
+    "D102", # Missing docstring in a public method
+    "D103", # Missing docstring in a public function
+    "D104", # Missing docstring in a public package
+    "D107", # Missing docstring in a public nested class
+    "D205", # 1 blank line required after the summary line
+    "D401", # The first line should be imperative
+    "E501", # Line too long
+    "W293", # Blank line contains whitespace
+]
+
+select = [
+    "E", # pycodestyle Errors
+    "W", # pycodestyle Warnings
+    "F", # Pyflakes
+    "B", # Bugbear
+]
+extend-select = [
+    "UP", # pyupgrade
+    "D", # pydocstyle
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/{tests,docs,tools}/**" = [
+    "D102", # Missing docstring in a public method
+    "D106", # Missing docstring in a public nested class
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy" # 使用 NumPy 风格的 docstring 约定
+
+#################################################################################
+# pyright
+#################################################################################
+# [tool.pyright]
+# include = [
+#     # "src", # 根项目暂时无代码
+#     # "tests",
+#     "pkgs/*/src", #Mono 子项目
+#     "pkgs/*/tests",
+# ]
+# exclude = ["**/node_modules", "**/__pycache__"]
+# ignore = ["src/oldstuff"]
+# defineConstant = { DEBUG = true }
+# # stubPath = "src/stubs"
+
+# reportMissingImports = "error"
+# reportMissingTypeStubs = false
+
+# pythonVersion = "3.12" # 根环境默认用最新版本，兼容多平台特性
+
+# 根环境默认平台（可任选，子环境覆盖），不配置按照当前运行平台
+# 目前pyright无法配置检查多个平台，可用用uv run pyright --pythonplatform Darwin 参数多次检查
+# pythonPlatform = "Darwin"
+
+# 可用executionEnvironments 对特定目录指定特定平台
+
+
+
+
+#################################################################################
+# ty ty的vscode插件不行，会扰乱vscode
+#################################################################################
+
+
+[tool.ty.environment]
+# Tailor type stubs and conditionalized type definitions to windows.
+python-platform = "all"
+python-version = "3.12"
+# Multiple directories (priority order)
+#root = ["./src", "./tests"]
+
+[[tool.ty.overrides]]
+#include = ["src"]
+exclude = [".venv"]
+
+[tool.ty.overrides.rules]
+possibly-unresolved-reference = "error"
+
+#################################################################################
+# pyrefly
+#################################################################################
+
+# Pyrefly header
+[tool.pyrefly]
+
+#### configuring what to type check and where to import from
+
+project-includes = ["**/*.py*"]
+
+#project-excludes = ["**/node_modules", "**/__pycache__", "**/*venv/**", "**/.[!/.]*/**"]
+source_roots = ["."]
+
+search-path = ["."]
+site-package-path = ["venv/lib/python3.12/site-packages"]
+
+#### configuring your python environment
+# python-platform = "linux"
+python-version = "3.12"
+# python-interpreter-path = "venv/bin/python3"
+
+#### configuring your type check settings
+replace-imports-with-any = [
+#   "sympy.*",  
+#   "*.series",
+]
+
+ignore-errors-in-generated-code = true
+
+[tool.pyrefly.errors]
+# bad-assignment = false
+# invalid-argument = false
