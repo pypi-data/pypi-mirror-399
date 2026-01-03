@@ -1,0 +1,675 @@
+"""Wizard-specific pickers with three-state navigation support.
+
+This module provides picker functions for the interactive start wizard,
+with proper navigation support for nested screens. All pickers follow
+a three-state return contract:
+
+- Success: Returns the selected value (WorkspaceSource, str path, etc.)
+- Back: Returns BACK sentinel (Esc pressed - go to previous screen)
+- Quit: Returns None (q pressed - exit app entirely)
+
+The BACK sentinel provides type-safe back navigation that callers can
+check with identity comparison: `if result is BACK`.
+
+Top-level vs Sub-screen behavior:
+- Top-level (pick_workspace_source with allow_back=False): Esc returns None
+- Sub-screens (pick_recent_workspace, pick_team_repo): Esc returns BACK, q returns None
+
+Example:
+    >>> from scc_cli.ui.wizard import (
+    ...     BACK, WorkspaceSource,
+    ...     pick_workspace_source, pick_recent_workspace
+    ... )
+    >>>
+    >>> while True:
+    ...     source = pick_workspace_source(team="platform")
+    ...     if source is None:
+    ...         break  # User pressed q or Esc at top level - quit
+    ...
+    ...     if source == WorkspaceSource.RECENT:
+    ...         workspace = pick_recent_workspace(recent_sessions)
+    ...         if workspace is None:
+    ...             break  # User pressed q - quit app
+    ...         if workspace is BACK:
+    ...             continue  # User pressed Esc - go back to source picker
+    ...         return workspace  # Got a valid path
+"""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from enum import Enum
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, TypeVar
+
+from .keys import BACK, _BackSentinel
+from .list_screen import ListItem
+from .picker import _run_single_select_picker
+
+if TYPE_CHECKING:
+    pass
+
+# Type variable for generic picker return types
+T = TypeVar("T")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Workspace Source Enum
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class WorkspaceSource(Enum):
+    """Options for where to get the workspace from."""
+
+    CURRENT_DIR = "current_dir"  # Use current working directory
+    RECENT = "recent"
+    TEAM_REPOS = "team_repos"
+    CUSTOM = "custom"
+    CLONE = "clone"
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Local Helpers
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def _normalize_path(path: str) -> str:
+    """Collapse HOME to ~ and truncate keeping last 2 segments.
+
+    Uses Path.parts for cross-platform robustness.
+
+    Examples:
+        /Users/dev/projects/api → ~/projects/api
+        /Users/dev/very/long/path/to/project → ~/…/to/project
+        /opt/data/files → /opt/data/files (no home prefix)
+    """
+    p = Path(path)
+    home = Path.home()
+
+    # Try to make path relative to home
+    try:
+        relative = p.relative_to(home)
+        display = "~/" + str(relative)
+        starts_with_home = True
+    except ValueError:
+        display = str(p)
+        starts_with_home = False
+
+    # Truncate if too long, keeping last 2 segments for context
+    if len(display) > 50:
+        parts = p.parts
+        if len(parts) >= 2:
+            tail = "/".join(parts[-2:])
+        elif parts:
+            tail = parts[-1]
+        else:
+            tail = ""
+
+        prefix = "~" if starts_with_home else ""
+        display = f"{prefix}/…/{tail}"
+
+    return display
+
+
+def _format_relative_time(iso_timestamp: str) -> str:
+    """Format an ISO timestamp as relative time.
+
+    Examples:
+        2 minutes ago → "2m ago"
+        3 hours ago → "3h ago"
+        yesterday → "yesterday"
+        5 days ago → "5d ago"
+        older → "Dec 20" (month day format)
+    """
+    try:
+        # Handle Z suffix for UTC
+        if iso_timestamp.endswith("Z"):
+            iso_timestamp = iso_timestamp[:-1] + "+00:00"
+
+        timestamp = datetime.fromisoformat(iso_timestamp)
+
+        # Ensure timezone-aware comparison
+        now = datetime.now(timezone.utc)
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=timezone.utc)
+
+        delta = now - timestamp
+        seconds = delta.total_seconds()
+
+        if seconds < 60:
+            return "just now"
+        elif seconds < 3600:
+            minutes = int(seconds / 60)
+            return f"{minutes}m ago"
+        elif seconds < 86400:
+            hours = int(seconds / 3600)
+            return f"{hours}h ago"
+        elif seconds < 172800:  # 2 days
+            return "yesterday"
+        elif seconds < 604800:  # 7 days
+            days = int(seconds / 86400)
+            return f"{days}d ago"
+        else:
+            # Older than a week - show month day
+            return timestamp.strftime("%b %d")
+
+    except (ValueError, AttributeError):
+        return ""
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Sub-screen Picker Wrapper
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def _run_subscreen_picker(
+    items: list[ListItem[T]],
+    title: str,
+    subtitle: str | None = None,
+    *,
+    standalone: bool = False,
+    context_label: str | None = None,
+) -> T | _BackSentinel | None:
+    """Run picker for sub-screens with three-state return contract.
+
+    Sub-screen pickers distinguish between:
+    - Esc (go back to previous screen) → BACK sentinel
+    - q (quit app entirely) → None
+
+    Args:
+        items: List items to display (first item should be "← Back").
+        title: Title for chrome header.
+        subtitle: Optional subtitle.
+        standalone: If True, dim the "t teams" hint (not available without org).
+
+    Returns:
+        Selected item value, BACK if Esc pressed, or None if q pressed (quit).
+    """
+    # Pass allow_back=True so picker distinguishes Esc (BACK) from q (None)
+    result = _run_single_select_picker(
+        items,
+        title=title,
+        subtitle=subtitle,
+        standalone=standalone,
+        allow_back=True,
+        context_label=context_label,
+    )
+    # Three-state contract:
+    # - T value: user selected an item
+    # - BACK: user pressed Esc (go back)
+    # - None: user pressed q (quit app)
+    return result
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Top-Level Picker: Workspace Source
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+# Common project markers across languages/frameworks
+# Split into direct checks (fast) and glob patterns (slower, checked only if needed)
+_PROJECT_MARKERS_DIRECT = (
+    ".git",  # Git repository (directory or file for worktrees)
+    ".scc.yaml",  # SCC config
+    ".gitignore",  # Often at project root
+    "package.json",  # Node.js / JavaScript
+    "tsconfig.json",  # TypeScript
+    "pyproject.toml",  # Python (modern)
+    "setup.py",  # Python (legacy)
+    "requirements.txt",  # Python dependencies
+    "Pipfile",  # Pipenv
+    "Cargo.toml",  # Rust
+    "go.mod",  # Go
+    "pom.xml",  # Java Maven
+    "build.gradle",  # Java/Kotlin Gradle
+    "gradlew",  # Gradle wrapper (strong signal)
+    "Gemfile",  # Ruby
+    "composer.json",  # PHP
+    "mix.exs",  # Elixir
+    "Makefile",  # Make-based projects
+    "CMakeLists.txt",  # CMake C/C++
+    ".project",  # Eclipse
+    "Dockerfile",  # Docker projects
+    "docker-compose.yml",  # Docker Compose
+    "compose.yaml",  # Docker Compose (new name)
+)
+
+# Glob patterns for project markers (checked only if direct checks fail)
+_PROJECT_MARKERS_GLOB = (
+    "*.sln",  # .NET solution
+    "*.csproj",  # .NET C# project
+)
+
+# Unix directories that should NOT be used as workspace
+_SUSPICIOUS_DIRS_UNIX = {
+    "/",
+    "/tmp",
+    "/var",
+    "/usr",
+    "/etc",
+    "/opt",
+    "/proc",
+    "/dev",
+    "/sys",
+    "/run",
+    "/Applications",  # macOS
+    "/Library",  # macOS
+    "/System",  # macOS
+    "/Volumes",  # macOS mount points
+    "/mnt",  # Linux mount points
+    "/home",  # Parent of all user homes
+    "/Users",  # macOS parent of all user homes
+}
+
+# Windows directories that should NOT be used as workspace
+_SUSPICIOUS_DIRS_WINDOWS = {
+    "C:\\",
+    "C:\\Windows",
+    "C:\\Program Files",
+    "C:\\Program Files (x86)",
+    "C:\\ProgramData",
+    "C:\\Users",
+    "D:\\",
+}
+
+
+def _safe_resolve(path: Path) -> Path:
+    """Safely resolve a path, falling back to absolute() on errors.
+
+    Args:
+        path: Path to resolve.
+
+    Returns:
+        Resolved path, or absolute path if resolution fails.
+    """
+    try:
+        return path.resolve(strict=False)
+    except (OSError, RuntimeError):
+        try:
+            return path.absolute()
+        except (OSError, RuntimeError):
+            return path
+
+
+def _is_suspicious_directory(path: Path) -> bool:
+    """Check if directory is suspicious (should not be used as workspace).
+
+    Cross-platform detection of directories that are likely not project roots:
+    - System directories (/, /tmp, C:\\Windows, etc.)
+    - User home directory itself
+    - Common non-project locations (Downloads, Desktop)
+
+    Args:
+        path: Directory to check.
+
+    Returns:
+        True if this is a suspicious directory.
+    """
+    resolved = _safe_resolve(path)
+    home = _safe_resolve(Path.home())
+
+    # User's home directory itself is suspicious
+    if resolved == home:
+        return True
+
+    str_path = str(resolved)
+
+    # Check platform-specific suspicious directories
+    import sys
+
+    if sys.platform == "win32":
+        # Windows: case-insensitive comparison
+        str_path_lower = str_path.lower()
+        for suspicious in _SUSPICIOUS_DIRS_WINDOWS:
+            if str_path_lower == suspicious.lower():
+                return True
+            # Also check if it's a drive root (e.g., "D:\")
+            if len(str_path) <= 3 and str_path[1:3] == ":\\":
+                return True
+    else:
+        # Unix-like systems
+        for suspicious in _SUSPICIOUS_DIRS_UNIX:
+            if str_path == suspicious:
+                return True
+
+    # Common non-project locations under home
+    suspicious_home_subdirs = ("Downloads", "Desktop", "Documents", "Library")
+    for subdir in suspicious_home_subdirs:
+        if resolved == home / subdir:
+            return True
+
+    return False
+
+
+def _has_project_markers(path: Path) -> bool:
+    """Check if a directory has common project markers.
+
+    Uses a two-phase approach for performance:
+    1. Fast direct existence checks for common markers
+    2. Slower glob patterns only if direct checks fail
+
+    Args:
+        path: Directory to check.
+
+    Returns:
+        True if directory has any recognizable project markers.
+    """
+    if not path.is_dir():
+        return False
+
+    # Phase 1: Fast direct checks
+    for marker in _PROJECT_MARKERS_DIRECT:
+        if (path / marker).exists():
+            return True
+
+    # Phase 2: Slower glob checks (only if no direct markers found)
+    for pattern in _PROJECT_MARKERS_GLOB:
+        try:
+            if next(path.glob(pattern), None) is not None:
+                return True
+        except (OSError, StopIteration):
+            continue
+
+    return False
+
+
+def _is_valid_workspace(path: Path) -> bool:
+    """Check if a directory looks like a valid workspace.
+
+    A valid workspace must have at least one of:
+    - .git directory or file (for worktrees)
+    - .scc.yaml config file
+    - Common project markers (package.json, pyproject.toml, etc.)
+
+    Random directories (like $HOME) are NOT valid workspaces.
+
+    Args:
+        path: Directory to check.
+
+    Returns:
+        True if directory exists and has workspace markers.
+    """
+    return _has_project_markers(path)
+
+
+def pick_workspace_source(
+    has_team_repos: bool = False,
+    team: str | None = None,
+    *,
+    standalone: bool = False,
+    allow_back: bool = False,
+    context_label: str | None = None,
+) -> WorkspaceSource | _BackSentinel | None:
+    """Show picker for workspace source selection.
+
+    Three-state return contract:
+    - Success: Returns WorkspaceSource (user selected an option)
+    - Back: Returns BACK sentinel (user pressed Esc, only if allow_back=True)
+    - Quit: Returns None (user pressed q)
+
+    Args:
+        has_team_repos: Whether team repositories are available.
+        team: Current team name (used for context label if not provided).
+        standalone: If True, dim the "t teams" hint (not available without org).
+        allow_back: If True, Esc returns BACK (for sub-screen context like Dashboard).
+            If False, Esc returns None (for top-level CLI context).
+        context_label: Optional context label (e.g., "Team: platform") shown in header.
+
+    Returns:
+        Selected WorkspaceSource, BACK if allow_back and Esc pressed, or None if quit.
+    """
+    # Build subtitle based on context
+    subtitle = "Pick a project source"
+    resolved_context_label = context_label
+    if resolved_context_label is None and team:
+        resolved_context_label = f"Team: {team}"
+
+    # Build items list - start with CWD option if appropriate
+    items: list[ListItem[WorkspaceSource]] = []
+
+    # Check current directory for project markers and git status
+    # Import here to avoid circular dependencies
+    from scc_cli import git
+
+    cwd = Path.cwd()
+    cwd_name = cwd.name or str(cwd)
+    is_git = git.is_git_repo(cwd)
+
+    # Three-tier logic with git awareness:
+    # 1. Suspicious directory (home, /, tmp) → don't show
+    # 2. Has project markers + git → show folder name (confident)
+    # 3. Has project markers, no git → show "folder (no git)"
+    # 4. No markers, not suspicious → show "folder (no git)"
+    if not _is_suspicious_directory(cwd):
+        if _has_project_markers(cwd):
+            if is_git:
+                # Valid project with git - show with confidence
+                items.append(
+                    ListItem(
+                        label="📍 Current directory",
+                        description=cwd_name,
+                        value=WorkspaceSource.CURRENT_DIR,
+                    )
+                )
+            else:
+                # Has project markers but no git
+                items.append(
+                    ListItem(
+                        label="📍 Current directory",
+                        description=f"{cwd_name} (no git)",
+                        value=WorkspaceSource.CURRENT_DIR,
+                    )
+                )
+        else:
+            # Not a project but still allow - show with hint about git
+            items.append(
+                ListItem(
+                    label="📍 Current directory",
+                    description=f"{cwd_name} (no git)",
+                    value=WorkspaceSource.CURRENT_DIR,
+                )
+            )
+
+    # Add standard options
+    items.append(
+        ListItem(
+            label="📂 Recent workspaces",
+            description="Continue working on previous project",
+            value=WorkspaceSource.RECENT,
+        )
+    )
+
+    if has_team_repos:
+        items.append(
+            ListItem(
+                label="🏢 Team repositories",
+                description="Choose from team's common repos",
+                value=WorkspaceSource.TEAM_REPOS,
+            )
+        )
+
+    items.extend(
+        [
+            ListItem(
+                label="📁 Enter path",
+                description="Specify a local directory path",
+                value=WorkspaceSource.CUSTOM,
+            ),
+            ListItem(
+                label="🔗 Clone repository",
+                description="Clone a Git repository",
+                value=WorkspaceSource.CLONE,
+            ),
+        ]
+    )
+
+    return _run_single_select_picker(
+        items=items,
+        title="Where is your project?",
+        subtitle=subtitle,
+        standalone=standalone,
+        allow_back=allow_back,
+        context_label=resolved_context_label,
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Sub-Screen Picker: Recent Workspaces
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def pick_recent_workspace(
+    recent: list[dict[str, Any]],
+    *,
+    standalone: bool = False,
+    context_label: str | None = None,
+) -> str | _BackSentinel | None:
+    """Show picker for recent workspace selection.
+
+    This is a sub-screen picker with three-state return contract:
+    - str: User selected a workspace path
+    - BACK: User pressed Esc (go back to previous screen)
+    - None: User pressed q (quit app entirely)
+
+    Args:
+        recent: List of recent session dicts with 'workspace' and 'last_used' keys.
+        standalone: If True, dim the "t teams" hint (not available without org).
+        context_label: Optional context label (e.g., "Team: platform") shown in header.
+
+    Returns:
+        Selected workspace path, BACK if Esc pressed, or None if q pressed (quit).
+    """
+    # Build items with "← Back" first
+    items: list[ListItem[str | _BackSentinel]] = [
+        ListItem(
+            label="← Back",
+            description="",
+            value=BACK,
+        ),
+    ]
+
+    # Add recent workspaces
+    for session in recent:
+        workspace = session.get("workspace", "")
+        last_used = session.get("last_used", "")
+
+        items.append(
+            ListItem(
+                label=_normalize_path(workspace),
+                description=_format_relative_time(last_used),
+                value=workspace,  # Full path as value
+            )
+        )
+
+    # Empty state hint in subtitle
+    if len(items) == 1:  # Only "← Back"
+        subtitle = "No recent workspaces found"
+    else:
+        subtitle = None
+
+    return _run_subscreen_picker(
+        items=items,
+        title="Recent Workspaces",
+        subtitle=subtitle,
+        standalone=standalone,
+        context_label=context_label,
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Sub-Screen Picker: Team Repositories (Phase 3)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def pick_team_repo(
+    repos: list[dict[str, Any]],
+    workspace_base: str = "~/projects",
+    *,
+    standalone: bool = False,
+    context_label: str | None = None,
+) -> str | _BackSentinel | None:
+    """Show picker for team repository selection.
+
+    This is a sub-screen picker with three-state return contract:
+    - str: User selected a repo (returns existing local_path or newly cloned path)
+    - BACK: User pressed Esc (go back to previous screen)
+    - None: User pressed q (quit app entirely)
+
+    If the selected repo has a local_path that exists, returns that path.
+    Otherwise, clones the repository and returns the new path.
+
+    Args:
+        repos: List of repo dicts with 'name', 'url', optional 'description', 'local_path'.
+        workspace_base: Base directory for cloning new repos.
+        standalone: If True, dim the "t teams" hint (not available without org).
+        context_label: Optional context label (e.g., "Team: platform") shown in header.
+
+    Returns:
+        Workspace path (existing or newly cloned), BACK if Esc pressed, or None if q pressed.
+    """
+    # Build items with "← Back" first
+    items: list[ListItem[dict[str, Any] | _BackSentinel]] = [
+        ListItem(
+            label="← Back",
+            description="",
+            value=BACK,
+        ),
+    ]
+
+    # Add team repos
+    for repo in repos:
+        name = repo.get("name", repo.get("url", "Unknown"))
+        description = repo.get("description", "")
+
+        items.append(
+            ListItem(
+                label=name,
+                description=description,
+                value=repo,  # Full repo dict as value
+            )
+        )
+
+    # Empty state hint
+    if len(items) == 1:  # Only "← Back"
+        subtitle = "No team repositories configured"
+    else:
+        subtitle = None
+
+    result = _run_subscreen_picker(
+        items=items,
+        title="Team Repositories",
+        subtitle=subtitle,
+        standalone=standalone,
+        context_label=context_label,
+    )
+
+    # Handle quit (q pressed)
+    if result is None:
+        return None
+
+    # Handle BACK (Esc pressed)
+    if result is BACK:
+        return BACK
+
+    # Handle repo selection - check for existing local path or clone
+    if isinstance(result, dict):
+        local_path = result.get("local_path")
+        if local_path:
+            expanded = Path(local_path).expanduser()
+            if expanded.exists():
+                return str(expanded)
+
+        # Need to clone - import git module here to avoid circular imports
+        from .. import git
+
+        repo_url = result.get("url", "")
+        if repo_url:
+            cloned_path = git.clone_repo(repo_url, workspace_base)
+            if cloned_path:
+                return cloned_path
+
+        # Cloning failed or no URL - return BACK to let user try again
+        return BACK
+
+    # Shouldn't happen, but handle gracefully
+    return BACK
