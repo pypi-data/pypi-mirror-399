@@ -1,0 +1,75 @@
+default:
+  version: "1987"
+  encoding: "ascii"
+  timeout: 30
+
+networks:
+  visa:
+    required_fields: [2, 3, 4, 11, 14, 22, 24, 25]
+    optional_fields: [44, 105]
+    field_formats:
+      44: "^[0-9A-F]+$"
+      105: "^[A-Za-z0-9\\s]+$"
+
+  mastercard:
+    required_fields: [2, 3, 4, 11, 22, 24, 25]
+    optional_fields: [48, 104]
+    field_formats:
+      48: "^MC[0-9]+$"
+      104: "^MC\\s.*$"
+
+  amex:
+    required_fields: [2, 3, 4, 11, 22, 25]
+    optional_fields: [44, 47, 112, 124]
+    field_formats:
+      44: "^[0-9A-F]+$"
+      112: "^AX.*$"
+
+field_validations:
+  field_lengths:
+    fixed:
+      41: 8   # Terminal ID must be exactly 8 chars
+      42: 15  # Card Acceptor ID must be exactly 15 chars
+    variable:
+      2: 19   # PAN maximum length
+      55: 999 # EMV data maximum length
+      48: 999 # Additional data maximum length
+
+  pan_ranges:
+    visa: ["4"]
+    mastercard: ["51", "52", "53", "54", "55"]
+    amex: ["34", "37"]
+    discover: ["6011", "644", "645", "646", "647", "648", "649", "65"]
+    jcb: ["35"]
+    unionpay: ["62"]
+
+  response_codes:
+    "00": "Approved"
+    "01": "Refer to card issuer"
+    "05": "Do not honor"
+    "13": "Invalid amount"
+    "14": "Invalid card number"
+    "51": "Insufficient funds"
+    "54": "Expired card"
+    "55": "Invalid PIN"
+    "75": "PIN tries exceeded"
+    "91": "Issuer unavailable"
+
+  merchant_categories:
+    "5411": "Grocery Stores"
+    "5812": "Restaurants"
+    "5399": "Misc. General Merchandise"
+    "4511": "Airlines"
+    "7011": "Hotels"
+    "4814": "Telecom Services"
+
+  padding:
+    right_pad:
+      - 41  # Terminal ID
+      - 42  # Card Acceptor ID
+      - 43  # Card Acceptor Name/Location
+    left_pad:
+      - 3   # Processing Code
+      - 4   # Amount, Transaction
+      - 11  # STAN
+      - 12  # Time, Local Transaction
