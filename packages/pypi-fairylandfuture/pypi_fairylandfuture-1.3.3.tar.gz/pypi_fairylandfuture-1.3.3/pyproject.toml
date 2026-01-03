@@ -1,0 +1,154 @@
+[project]
+name = "pypi-fairylandfuture"
+version = "1.3.3"
+description = "A comprehensive Python package for FairylandFuture project"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [
+    { name = "FairylandTech", email = "fairylandfuture@protonmail.com" }
+]
+keywords = ["fairylandfuture", "fairyland", "toolkit"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: Django",
+]
+
+dependencies = [
+    # FairylandTech Internal Packages
+    "pypi-fairylandlogger",
+    # Core Tools
+    "loguru",
+    "python-dateutil",
+    "python-dotenv",
+    "requests",
+    "pyyaml",
+    "cryptography",
+    "netifaces",
+    "pydantic",
+    "ua-parser",
+    "user-agents",
+    # Database
+    "pymysql",
+    "psycopg2-binary",
+    "mysql-connector-python",
+    "sqlalchemy",
+    "DBUtils",
+    "aiomysql",
+    "psycopg[binary,async]",
+    # Message Queue & Search
+    "kafka-python",
+    "elasticsearch[async]",
+    "opensearch-py",
+    # Utilities
+    "faker",
+    "pypinyin",
+    # Django Framework
+    "django",
+    "djangorestframework",
+    "django-redis",
+    "django-filter",
+    "django-cors-headers",
+    "django-simpleui",
+    "django-tenant-schemas",
+    "django-tenants",
+    "django-extensions",
+    "django-celery-results",
+    # API Documentation
+    "drf-yasg",
+    "drf-spectacular",
+    "coreapi",
+    "pygments",
+    "markdown",
+    "uritemplate",
+    # Web Automation
+    "selenium",
+    "webdriver-manager",
+    "beautifulsoup4",
+    # Stubs for Type Checking
+    "types-requests",
+    "types-python-dateutil",
+    "types-PyYAML",
+    "django-stubs",
+    "django-stubs-ext",
+    "djangorestframework-stubs",
+    "types-cryptography",
+    "pandas-stubs",
+    ### dev
+    # Python Build Tools
+    "pip-tools",
+    "pipreqs",
+    "pipdeptree",
+    "pip-review",
+    "pip-autoremove",
+    "pigar",
+    "setuptools",
+    "wheel",
+    "pip",
+    # Code Quality
+    "black",
+    "flake8",
+    "isort",
+    "mypy",
+    "pydocstyle",
+    "pylint",
+    "autopep8",
+    "pytest",
+    "pytest-django",
+    "pytest-cov",
+    "ruff",
+    "pyright",
+    "importlab",
+]
+
+[project.urls]
+Homepage = "https://github.com/FairylandTech/pypi-fairylandfuture"
+Repository = "https://github.com/FairylandTech/pypi-fairylandfuture"
+Documentation = "https://github.com/FairylandTech/pypi-fairylandfuture#readme"
+Issues = "https://github.com/FairylandTech/pypi-fairylandfuture/issues"
+
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["fairylandfuture*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+fairylandfuture = ["py.typed"]
+
+[tool.black]
+line-length = 170
+target-version = ["py312"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 170
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+filterwarnings = [
+    "ignore:pkg_resources is deprecated as an API:UserWarning",
+    "ignore::UserWarning:pkg_resources",
+    "ignore::DeprecationWarning:pkg_resources",
+    "ignore::UserWarning:pylama"
+]
