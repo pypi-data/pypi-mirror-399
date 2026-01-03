@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coil_python"
+version = "0.1.4"
+description = "COIL – Compact Object Intermediate Language for LLM-efficient data encoding"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name="Muthukumaran S", email="muthukumarandeveloper@gmail.com" }
+]
+
+keywords = [
+    "llm",
+    "compression",
+    "tokenization",
+    "ai",
+    "serialization",
+    "encoding"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+
+dependencies = [
+    "tiktoken>=0.5.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/MuthuKumaran-Dev-10000/COIL"
+Repository = "https://github.com/MuthuKumaran-Dev-10000/COIL"
+
+[tool.setuptools]
+packages = ["coil_python"]
+
+[project.scripts]
+coil = "coil_python.__main__:main"
