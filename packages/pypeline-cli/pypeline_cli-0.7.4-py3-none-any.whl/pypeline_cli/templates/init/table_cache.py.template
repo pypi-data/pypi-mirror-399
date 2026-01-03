@@ -1,0 +1,170 @@
+"""
+Module: pipelines/queries/table_cache.py
+
+Shared table cache for reusing loaded DataFrames across processors.
+"""
+from typing import Dict, Final
+from snowflake.snowpark import DataFrame
+
+from .etl import ETL
+from .logger import Logger
+from .tables import TableConfig
+
+MODULE_NAME: Final[str] = "utils/table_cache.py"
+
+
+class TableCache:
+    """
+    Cache for loaded source tables.
+    
+    Pass the same instance to multiple processors to share cached tables
+    and reduce redundant queries.
+    """
+    
+    def __init__(self):
+        """
+        Initialize the table cache.
+        
+        Example:
+            >>> cache = TableCache()
+        """
+        self.logger = Logger()
+        self.etl = ETL()
+        self._cache: Dict[str, DataFrame] = {}
+    
+    def get_table(self, table_key: str, table_configs: Dict[str, TableConfig]) -> DataFrame:
+        """
+        Get a table DataFrame, loading it if not already cached.
+        
+        Args:
+            table_key: Key from table_configs
+            table_configs: Dictionary mapping table keys to TableConfig objects
+            
+        Returns:
+            DataFrame for the requested table
+            
+        Example:
+            >>> cache = TableCache()
+            >>> pta_fact = cache.get_table("CCW_PTA_FACT", TABLE_CONFIGS)
+        """
+        if table_key not in self._cache:
+            self._load_table(table_key, table_configs)
+        
+        return self._cache[table_key]
+    
+    def preload_tables(self, table_keys: list[str], table_configs: Dict[str, TableConfig]) -> None:
+        """
+        Preload multiple tables into cache.
+        
+        Useful for loading commonly used tables at pipeline startup.
+        
+        Args:
+            table_keys: List of keys from table_configs to preload
+            table_configs: Dictionary mapping table keys to TableConfig objects
+            
+        Example:
+            >>> cache = TableCache()
+            >>> cache.preload_tables(["CCW_PTA_FACT", "CCW_ALL_CLM_PRFL", "CCW_MBR_DIM"], TABLE_CONFIGS)
+            >>> # Or preload all non-output tables:
+            >>> cache.preload_tables(
+            ...     [k for k, config in TABLE_CONFIGS.items() if not config.is_output],
+            ...     TABLE_CONFIGS
+            ... )
+        """
+        pre_loaded_cache_length = len(self._cache)
+        self.logger.info(
+            message=f"Attempting to load {len(table_keys)} tables into cache",
+            context=MODULE_NAME
+        )
+        
+        for table_key in table_keys:
+            if table_key not in self._cache:
+                self._load_table(table_key, table_configs)
+        
+        self.logger.info(
+            message=f"Preloaded {len(self._cache) - pre_loaded_cache_length} tables successfully",
+            context=MODULE_NAME
+        )
+    
+    def clear_cache(self) -> None:
+        """
+        Clear all cached tables.
+        
+        Example:
+            >>> cache = TableCache()
+            >>> cache.preload_tables(["CCW_PTA_FACT", "CCW_ALL_CLM_PRFL"], TABLE_CONFIGS)
+            >>> cache.clear_cache()  # Removes all cached tables
+        """
+        self.logger.info(
+            message="Clearing table cache",
+            context=MODULE_NAME,
+            cached_count=len(self._cache)
+        )
+        self._cache.clear()
+    
+    def get_cache_info(self) -> Dict[str, int | list[str]]:
+        """
+        Get information about the cache state.
+        
+        Returns:
+            Dictionary with cache statistics and table keys
+            
+        Example:
+            >>> cache = TableCache()
+            >>> cache.preload_tables(["CCW_PTA_FACT", "CCW_ALL_CLM_PRFL"], TABLE_CONFIGS)
+            >>> info = cache.get_cache_info()
+            >>> print(info)
+            {'cached_tables': 2, 'table_keys': ['CCW_PTA_FACT', 'CCW_ALL_CLM_PRFL']}
+        """
+        return {
+            "cached_tables": len(self._cache),
+            "table_keys": list(self._cache.keys())
+        }
+    
+    def _load_table(self, table_key: str, table_configs: Dict[str, TableConfig]) -> None:
+        """
+        Load a table and add it to the cache.
+        
+        Args:
+            table_key: Key from table_configs
+            table_configs: Dictionary mapping table keys to TableConfig objects
+            
+        Example:
+            >>> cache = TableCache()
+            >>> cache._load_table("CCW_PTA_FACT", TABLE_CONFIGS)  # Internal use only
+        """
+        if table_key not in table_configs.keys():
+            raise ValueError(f"Table key '{table_key}' not found in table_configs")
+        
+        if table_configs[table_key].is_output:
+            self.logger.info(
+                message=f"Skipping {table_key} since it is an output table",
+                context=MODULE_NAME
+            )
+            return
+        
+        table_config = table_configs[table_key]
+        table_name = table_config.generate_table_name()
+        
+        self.logger.info(
+            message=f"Loading table into cache: {table_name}",
+            context=MODULE_NAME,
+            table_key=table_key
+        )
+        
+        try:
+            self._cache[table_key] = self.etl.session.table(table_name)
+            
+            self.logger.debug(
+                message=f"Successfully cached table: {table_name}",
+                context=MODULE_NAME,
+                table_key=table_key
+            )
+        except Exception as e:
+            self.logger.error(
+                message=f"Failed to load table: {table_name}",
+                context=MODULE_NAME,
+                table_key=table_key,
+                error=str(e)
+            )
+            raise
