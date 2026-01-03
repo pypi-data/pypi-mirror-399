@@ -1,0 +1,124 @@
+import os
+import sys
+import platform
+import subprocess
+import stat
+import shutil
+import tempfile
+
+def load_paths():
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+    os_sys = platform.system()
+    machine = platform.machine().lower()
+
+    # Xác định thư mục chứa binary
+    if os_sys == "Windows":
+        arch = "x64" if "64" in machine else "x86"
+        folder_name = os.path.join("win", arch)
+    elif os_sys == "Linux":
+        
+        if "aarch64" in machine or "arm64" in machine:
+            folder_name = os.path.join("linux", "arm64")
+        else:
+            folder_name = os.path.join("linux", "x64")
+    else:
+        return
+
+    binary_path = os.path.join(current_directory, "bin", folder_name)
+
+    if os_sys == "Linux" and os.path.exists(binary_path):
+        bin_dir = os.path.join(binary_path, "bin")
+        lib_dir = os.path.join(binary_path, "lib")
+
+     
+        if os.path.exists(bin_dir):
+            for file in os.listdir(bin_dir):
+                f_path = os.path.join(bin_dir, file)
+                if os.path.isfile(f_path):
+                    st = os.stat(f_path)
+                    os.chmod(f_path, st.st_mode | stat.S_IEXEC)
+
+       
+            os.environ["LD_LIBRARY_PATH"] = lib_dir + os.pathsep + os.environ.get("LD_LIBRARY_PATH", "")
+
+           
+            plugin_path = os.path.join(lib_dir, "graphviz")
+            if os.path.exists(plugin_path):
+                os.environ["GV_LIB_PATH"] = plugin_path
+
+     
+        try:
+            dot_exe = os.path.join(bin_dir, "dot")
+            subprocess.run([dot_exe, "-c"], check=True, capture_output=True)
+        except Exception:
+            pass
+
+def ensure_installed():
+   
+    dot_path = shutil.which("dot")
+    if dot_path:
+        return dot_path
+
+    if platform.system() == "Linux":
+        print("cant find the bin, installing by terminal")
+        try:
+           
+            subprocess.run(["sudo", "apt-get", "update"], check=True)
+            subprocess.run(["sudo", "apt-get", "install", "-y", "graphviz"], check=True)
+            return shutil.which("dot")
+        except Exception as e:
+            print(f"ERROR: {e}. maybe try manualy install 'sudo apt install graphviz' ")
+    return None
+
+def get_dot_path():
+    return shutil.which("dot")
+
+def render_to_bytes(dot_content, file_type="png", dpi=300):
+    temp_fd = None
+    temp_path = None
+    try:
+        temp_fd, temp_path = tempfile.mkstemp(suffix='.dot', text=True)
+        with os.fdopen(temp_fd, 'w', encoding='utf-8') as tf:
+            tf.write(dot_content)
+            temp_fd = None
+
+        dot_cmd = "dot.exe" if platform.system() == "Windows" else "dot"
+        command = [dot_cmd, f"-T{file_type}", f"-Gdpi={dpi}", temp_path]
+        result = subprocess.run(command, check=True, capture_output=True)
+        return result.stdout
+    finally:
+        if temp_fd is not None:
+            try:
+                os.close(temp_fd)
+            except OSError:
+                pass
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
+
+def export_to_image(dot_content, file_type="png", file_name="output", dpi=300):
+    if os.path.isfile(str(dot_content)):
+        try:
+            with open(dot_content, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except IOError as e:
+            raise IOError(f"ERROR: Failed to read DOT file '{dot_content}': {e}")
+    elif isinstance(dot_content, str) and dot_content.strip():
+        content = dot_content
+    else:
+        raise ValueError("ERROR: dot_content must be a non-empty string or a valid file path")
+
+    data = render_to_bytes(content, file_type, dpi)
+    if not data:
+        raise RuntimeError("ERROR: Failed to generate image data from DOT content")
+
+    output_file = f"{file_name}.{file_type}"
+    try:
+        with open(output_file, "wb") as f:
+            f.write(data)
+    except IOError as e:
+        raise IOError(f"ERROR: Failed to write output file '{output_file}': {e}")
+
+    return os.path.abspath(output_file)
