@@ -1,0 +1,52 @@
+Metadata-Version: 2.4
+Name: cheapchocolate
+Version: 0.4.2
+Summary: CheapChocolate is an simple imap client to receive you daily email.
+Author: Cesar Cardoso
+Author-email: Cesar Cardoso <hello@cesarcardoso.cc>
+License-Expression: MIT
+Requires-Dist: dotenv>=0.9.9
+Requires-Dist: pyyaml>=6.0.3
+Requires-Python: >=3.11
+Project-URL: Changelog, https://github.com/bouli/cheapchocolate/releases/latest
+Project-URL: Repository, https://github.com/bouli/cheapchocolate
+Description-Content-Type: text/markdown
+
+# 🍫 cheapchocolate v0.4.2
+
+CheapChocolate is an simple imap client to receive you daily email.
+
+
+## Installation
+
+You can install directly in your `pip`:
+```shell
+pip install cheapchocolate
+```
+
+I recomend to use the [uv](https://docs.astral.sh/uv/getting-started/installation/#standalone-installer), so you can just use the command bellow and everything is installed:
+```shell
+uv add cheapchocolate
+uv run cheapchocolate --version
+```
+
+But you can use everything as a tool, for example:
+```shell
+uvx cheapchocolate --version
+```
+
+## How to use
+
+Set up your information in the `.env` file for your imap server, your user and password.
+```shell
+cheapchocolate start
+```
+> You can run `cheapchocolate start`, and it will create the file for you.
+
+## See Also
+
+- Github: https://github.com/bouli/cheapchocolate
+- PyPI: https://pypi.org/project/cheapchocolate/
+
+## License
+This package is distributed under the [MIT license](https://opensource.org/license/MIT).
