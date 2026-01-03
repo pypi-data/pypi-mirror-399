@@ -1,0 +1,25 @@
+[tool.black]
+line-length = 79
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | \.eggs
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+[tool.ruff]
+line-length = 79
+extend-exclude = ["tests", "xbus/*_nrpc.py*", "xbus/*_pb2.py*"]
+
+[tool.ty.src]
+exclude = ["tests", "xbus/*_pb2.py", "setup.py"]
