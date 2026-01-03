@@ -1,0 +1,53 @@
+Metadata-Version: 2.4
+Name: musika
+Version: 1.2.4
+Summary: Minimal command-line music player written in Python
+Author: Julynx
+License: GPL-2.0-only
+Project-URL: Homepage, https://github.com/Julynx/musika
+Project-URL: Repository, https://github.com/Julynx/musika
+Requires-Python: <3.14,>=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: cursor>=1.3.5
+Requires-Dist: mutagen>=1.47.0
+Requires-Dist: pygame>=2.6.1
+Requires-Dist: pynput>=1.8.1
+Dynamic: license-file
+
+# musika
+
+*Minimal command-line music player written in Python.*
+
+`pip install musika`
+
+<br>
+
+[![Button Hover](https://img.shields.io/badge/Github-c9510c?style=for-the-badge)](https://github.com/Julynx/musika)
+[![Button Hover](https://img.shields.io/badge/PyPi-006dad?style=for-the-badge)](https://pypi.org/project/musika)
+
+<br>
+
+<br>
+<p align="center">
+  <img width="640" src="https://i.imgur.com/lXdISlv.png">
+</p>
+<br>
+
+## Usage
+
+```bash
+Usage:
+    musika [OPTIONS]          Play a random song from '~/Music'.
+    musika [FILE] [OPTIONS]   Play a specific song.
+    musika [DIR.] [OPTIONS]   Play a random song from a directory.
+
+OPTION:
+    --update-interval=<X>   Redraw the UI every X seconds.
+    --no-infinite-queue     Stop playback when the song ends.
+    --no-clear              Don't clear the screen between UI updates.
+                              This may help prevent flickering on
+                              some terminals.
+    -h, --help              Print this message and exit.
+    -v, --version           Print version information and exit.
+```
