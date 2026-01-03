@@ -1,0 +1,217 @@
+# Fuzzy Finder
+
+Gap-tolerant fuzzy phrase matching in documents with Jaro-Winkler similarity.
+
+## Features
+
+- **Fuzzy Matching**: Find phrases even with typos, OCR errors, or missing words
+- **Gap Tolerance**: Allows gaps between matched tokens (configurable)
+- **Batch Search**: Search multiple phrases at once with position-matched results
+- **Score Threshold**: Filter out low-quality matches automatically
+- **Exact Offsets**: Returns precise character positions in original text
+- **Multi-factor Scoring**: Combines similarity, coverage, sequence order, gaps, and transpositions
+- **Zero Dependencies**: Pure Python, uses only standard library
+
+## Installation
+
+```bash
+pip install fuzzy-finder
+```
+
+Or copy `fuzzy_finder/` directory to your project.
+
+## Quick Start
+
+```python
+from fuzzy_finder import FuzzyFinder
+
+# Initialize with document text
+document = """
+Владимир Туров рассказывает о налоговой оптимизации
+для предпринимателей. В этом посте разбираем вычеты НДС.
+"""
+
+finder = FuzzyFinder(document)
+
+# Find exact phrase
+result = finder.find("налоговой оптимизации")
+print(f"Found: {result.found}")  # True
+print(f"Position: [{result.start_offset}:{result.end_offset}]")
+
+# Find phrase with typo
+result = finder.find("налоговай оптимизацыи")  # typos!
+print(f"Found: {result.found}")  # True (fuzzy match)
+
+# Get matched text
+if result.found:
+    matched = document[result.start_offset:result.end_offset]
+    print(f"Matched: '{matched}'")
+```
+
+## Batch Search API
+
+Search multiple phrases at once. Results array positions match input positions.
+
+```python
+from fuzzy_finder import FuzzyFinder
+
+finder = FuzzyFinder(document)
+
+# Search multiple phrases
+results = finder.search(
+    phrases=["налоговой оптимизации", "вычеты НДС", "unknown phrase"],
+    options={
+        "score_threshold": 0.4,   # Filter matches below this score
+        "find_all": True,         # Find all occurrences (not just first)
+        "coefficients": {         # Optional: custom scoring weights
+            "w_similarity": 1.0,
+            "w_coverage": 0.3,
+            "w_gap_penalty": -0.01,
+        }
+    }
+)
+
+# Results structure:
+# - len(results) == len(phrases)  # Always same length!
+# - results[i] corresponds to phrases[i]
+# - Each element is:
+#   - None: not found or below threshold
+#   - SearchResult: single match
+#   - List[SearchResult]: multiple matches (when find_all=True)
+
+for i, result in enumerate(zip(phrases, results)):
+    phrase, res = result
+    if res is None:
+        print(f"[{i}] '{phrase}': NOT FOUND")
+    elif isinstance(res, list):
+        print(f"[{i}] '{phrase}': {len(res)} matches")
+        for match in res:
+            print(f"     [{match.start_offset}:{match.end_offset}] score={match.score:.3f}")
+    else:
+        print(f"[{i}] '{phrase}': found at [{res.start_offset}:{res.end_offset}]")
+```
+
+### SearchResult Fields
+
+```python
+@dataclass
+class SearchResult:
+    found: bool           # True if matched
+    start_offset: int     # First char position in raw text
+    end_offset: int       # Last char position (exclusive)
+    score: float          # Normalized score 0.0-1.0
+    raw_score: float      # Raw score before normalization
+    matched_text: str     # Actual matched text from document
+    debug_info: dict      # Detailed scoring breakdown
+```
+
+### SearchOptions
+
+```python
+options = {
+    "score_threshold": 0.0,    # Min score (0.0-1.0), below = None
+    "find_all": True,          # Find all occurrences or first only
+    "min_offset": 0,           # Start position in document
+    "direction": "forward",    # "forward" or "backward"
+    "coefficients": {...}      # Custom ScoringCoefficients (optional)
+}
+```
+
+## API Reference
+
+### FuzzyFinder (High-level)
+
+```python
+finder = FuzzyFinder(text)
+
+# Batch search (recommended for multiple phrases)
+results = finder.search(phrases, options)
+
+# Find first occurrence
+result = finder.find(phrase, min_offset=0, direction="forward")
+
+# Find all occurrences
+results = finder.find_all(phrase)
+
+# Calculate string similarity
+score = finder.similarity("word1", "word2")  # 0.0-1.0
+```
+
+### Low-level Functions
+
+```python
+from fuzzy_finder import (
+    tokenize_text,      # Tokenize document into word list with positions
+    tokenize_marker,    # Extract normalized tokens from phrase
+    find_end_marker,    # Find phrase, pick match nearest AFTER reference
+    find_start_marker,  # Find phrase, pick match nearest BEFORE reference
+    jaro_winkler_similarity,  # String similarity (0.0-1.0)
+)
+
+# Tokenize once, search many times
+word_list = tokenize_text(document)
+
+result = find_end_marker(
+    marker="искомая фраза",
+    text=document,
+    word_list=word_list,
+    min_char_offset=0
+)
+```
+
+### MarkerMatch Result
+
+```python
+@dataclass
+class MarkerMatch:
+    found: bool           # Whether match was found
+    marker: str           # Original search phrase
+    start_offset: int     # First char position in raw text
+    end_offset: int       # Last char position in raw text
+    debug_info: dict      # Scoring details, gaps, etc.
+```
+
+## Matching Algorithm
+
+1. **Tokenize** phrase into normalized words/numbers
+2. **Find** all positions of first token (exact + fuzzy)
+3. **Extend** each candidate by matching subsequent tokens with gap constraints
+4. **Score** candidates using weighted formula
+5. **Disambiguate** by proximity to reference position
+
+### Scoring Formula
+
+```
+score = W_SIMILARITY × Σ(token_scores) +
+        W_COVERAGE × tokens_found +
+        W_SEQUENTIAL × sequential_bonus +
+        W_GAP_PENALTY × avg_gap +
+        W_SKIP_PENALTY × skips +
+        W_TRANSPOSITION × transpositions
+```
+
+### Configuration
+
+```python
+from fuzzy_finder import MatchConfig
+
+# Default values
+config = MatchConfig(
+    max_single_gap=50,       # Max chars between consecutive tokens
+    max_total_skips=2,       # Max tokens that can be skipped
+    max_consecutive_skips=1, # Max tokens skipped in a row
+    min_tokens_required=3    # Minimum tokens that must match
+)
+```
+
+## Use Cases
+
+- **Document Search**: Find sections in long documents
+- **OCR Post-processing**: Match text despite recognition errors
+- **Plagiarism Detection**: Find similar passages
+- **Data Extraction**: Locate markers in structured documents
+- **Log Analysis**: Find patterns with variations
+
+## License
+
+MIT
