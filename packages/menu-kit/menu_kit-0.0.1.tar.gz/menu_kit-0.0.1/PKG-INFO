@@ -1,0 +1,112 @@
+Metadata-Version: 2.4
+Name: menu-kit
+Version: 0.0.1
+Summary: A modular, menu-agnostic launcher for Linux
+Project-URL: Homepage, https://github.com/markhedleyjones/menu-kit
+Project-URL: Repository, https://github.com/markhedleyjones/menu-kit
+Project-URL: Issues, https://github.com/markhedleyjones/menu-kit/issues
+Author-email: Mark Hedley Jones <mark@markhedleyjones.com>
+License-Expression: MIT
+License-File: LICENSE
+Keywords: dmenu,fuzzel,launcher,linux,menu,rofi
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: X11 Applications
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Desktop Environment
+Requires-Python: >=3.11
+Provides-Extra: dev
+Requires-Dist: mypy>=1.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.0; extra == 'dev'
+Requires-Dist: pytest>=8.0; extra == 'dev'
+Requires-Dist: ruff>=0.1.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# menu-kit
+
+A modular, menu-agnostic launcher for Linux with plugin-first architecture.
+
+## Overview
+
+menu-kit is a launcher/menu system that works with multiple menu backends (rofi, fuzzel, dmenu, fzf) while providing a unified plugin system. Everything is a plugin - file browsing, app launching, settings, search.
+
+**Status:** Early development - architecture defined, implementation starting.
+
+## Features (Planned)
+
+- **Menu-agnostic** - Works with rofi, fuzzel, dmenu, wofi, bemenu, fzf
+- **Plugin-first** - Core features implemented as plugins
+- **Smart indexing** - .gitignore aware file scanning
+- **SQLite backend** - Fast queries, frequency tracking, incremental updates
+- **TOML config** - Human-readable configuration
+- **Systemd integration** - Background index rebuilding
+
+## Architecture
+
+```
+┌─────────────────────────────────────┐
+│         Core (Python 3.11+)         │
+│  - Config (TOML)                    │
+│  - Database (SQLite)                │
+│  - Plugin loader                    │
+└──────────────┬──────────────────────┘
+               │
+┌──────────────▼──────────────────────┐
+│      Menu Abstraction Layer         │
+│   (stdin/stdout dmenu protocol)     │
+└──────────────┬──────────────────────┘
+               │
+     ┌─────────┼─────────┐
+     ▼         ▼         ▼
+   rofi     fuzzel     dmenu
+```
+
+## Built-in Plugins
+
+| Plugin | Description |
+|--------|-------------|
+| `apps` | Application launcher (.desktop files) |
+| `files` | File browser with contextual navigation |
+| `settings` | In-menu configuration |
+| `calculator` | Evaluate expressions |
+| `websearch` | Configurable search engines |
+
+## Requirements
+
+- Python 3.11+
+- One of: rofi, fuzzel, dmenu, fzf
+
+## Configuration
+
+Config lives at `~/.config/menu-kit/config.toml`:
+
+```toml
+[menu]
+backend = "auto"  # auto-detect, or: rofi, fuzzel, dmenu, fzf
+prompt = ">"
+lines = 15
+
+[indexing]
+watch_folders = ["~/"]
+ignore_patterns = [".git", "node_modules", "__pycache__"]
+respect_gitignore = true
+
+[plugins]
+enabled = ["files", "apps", "settings", "calculator"]
+```
+
+## Background
+
+menu-kit is the spiritual successor to [dmenu-extended](https://github.com/markhedleyjones/dmenu-extended), redesigned with:
+- Menu-agnostic architecture (not tied to dmenu)
+- Plugin-first design (everything is a plugin)
+- Modern Python practices (type hints, dataclasses, SQLite)
+- Better separation of concerns
+
+## Licence
+
+MIT
