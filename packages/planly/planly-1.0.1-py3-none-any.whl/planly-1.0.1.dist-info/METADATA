@@ -1,0 +1,102 @@
+Metadata-Version: 2.4
+Name: planly
+Version: 1.0.1
+Summary: Official Python SDK for Planly subscription validation
+Home-page: https://github.com/planly-dev/planly-python
+Author: Planly.dev
+License: MIT
+Project-URL: Homepage, https://planly.dev
+Project-URL: Documentation, https://docs.planly.dev
+Project-URL: Repository, https://github.com/planly-dev/planly-python
+Project-URL: Issues, https://github.com/planly-dev/planly-python/issues
+Keywords: planly,subscription,validation,saas,billing
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.25.0
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
+# Planly Python SDK
+
+Official Python SDK for [Planly](https://planly.dev) subscription validation.
+
+## Installation
+
+```bash
+pip install planly
+```
+
+## Quick Start
+
+```python
+from planly import Planly
+
+# Initialize the client
+client = Planly("pln_your_api_key")
+
+# Check subscription
+result = client.check("user@example.com")
+
+if result.valid:
+    print(f"Active subscription: {result.plan_name}")
+else:
+    print("No active subscription")
+```
+
+## Features
+
+- **Built-in Caching**: Configurable TTL to reduce API calls
+- **Auto Retries**: Exponential backoff for reliability  
+- **Type Hints**: Full IDE support with type annotations
+- **Thread-Safe**: Safe for multi-threaded applications
+
+## Configuration
+
+```python
+client = Planly(
+    api_key="pln_your_api_key",
+    cache_ttl=300,      # Cache for 5 minutes (default)
+    max_retries=3,      # Retry attempts (default)
+    timeout=10,         # Request timeout in seconds (default)
+)
+```
+
+## API Reference
+
+### `check(customer_email, use_cache=True, force_refresh=False)`
+
+Returns a `SubscriptionResult` with:
+- `valid`: bool - Whether subscription is active
+- `status`: str - 'active', 'trial', 'grace_period', 'expired', 'canceled'
+- `plan_name`: str - Name of the subscription plan
+- `current_period_end`: str - When the current period ends
+- `days_remaining`: int - Days until expiration
+
+### `is_valid(customer_email)`
+
+Quick boolean check. Returns `True` if subscription is valid.
+
+### `invalidate(customer_email)`
+
+Remove a specific email from the cache.
+
+### `clear_cache()`
+
+Clear all cached results.
+
+## License
+
+MIT
