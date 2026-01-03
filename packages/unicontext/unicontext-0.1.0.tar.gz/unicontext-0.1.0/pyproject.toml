@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68,<77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unicontext"
+version = "0.1.0"
+description = "Universal Python SDK for AI memory/context providers with HTTP-first architecture"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "MetacognitionAI", email = "hello.metacognitionlabs@gmail.com" }
+]
+keywords = ["ai", "memory", "context", "sdk", "mem0", "zep", "letta", "supermemory"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+dependencies = [
+  "httpx>=0.25,<1.0",
+]
+
+[project.optional-dependencies]
+mem0 = ["mem0ai>=0.1"]
+supermemory = ["supermemory>=0.1"]
+zep = ["zep-cloud>=0.1"]
+letta = ["letta-client>=0.1"]
+all = [
+    "mem0ai>=0.1",
+    "supermemory>=0.1",
+    "zep-cloud>=0.1",
+    "letta-client>=0.1",
+]
+dev = [
+    "pytest>=7,<9",
+    "pytest-asyncio>=0.23,<1.0",
+    "ruff>=0.4,<1.0",
+    "mypy>=1.0,<2.0",
+    "build>=1.0",
+    "twine>=5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/metacoglabs/unicontext"
+Documentation = "https://github.com/metacoglabs/unicontext#readme"
+Repository = "https://github.com/metacoglabs/unicontext"
+Issues = "https://github.com/metacoglabs/unicontext/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
