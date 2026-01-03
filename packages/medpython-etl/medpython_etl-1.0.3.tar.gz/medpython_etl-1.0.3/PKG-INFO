@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: medpython-etl
+Version: 1.0.3
+Summary: Medial EarlySign ETL Library
+Author: Alon Lanyado
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/Medial-EarlySign/MR_Tools
+Project-URL: Repository, https://github.com/Medial-EarlySign/MR_Tools
+Project-URL: Documentation, https://medial-earlysign.github.io/MR_Wiki/
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENCE
+Requires-Dist: numpy>=1.21.0
+Requires-Dist: pandas
+Requires-Dist: plotly
+Provides-Extra: interactive
+Requires-Dist: ipython; extra == "interactive"
+Provides-Extra: sql
+Requires-Dist: sqlalchemy; extra == "sql"
+Dynamic: license-file
+
+# Medial EarlySign ETL Library
+
+This is only pure python code for ETL for [MedPython](https://pypi.org/project/medpython/) package.
+This includes testing and comparing input signals to a reference to have a unified signals and units.
