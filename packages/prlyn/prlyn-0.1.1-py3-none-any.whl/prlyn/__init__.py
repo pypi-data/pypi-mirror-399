@@ -1,0 +1,3 @@
+"""
+Plint package initialization.
+"""
