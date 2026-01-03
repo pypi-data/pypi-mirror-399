@@ -1,0 +1,38 @@
+"""
+AUTO GENERATED FILE
+DO NOT TOUCH
+"""
+
+from dataclasses import dataclass
+from typing import Optional
+
+import calendar
+
+@dataclass
+class MonthlyColumnConfig:
+    """Configuration for a single monthly column type"""
+    prefix: str
+    length: int
+    format_type: str
+    label_template: str
+    _output_prefix: Optional[str] = None
+
+    def __post_init__(self):
+        if self._output_prefix is None:
+            self._output_prefix = self.prefix
+    
+    @property
+    def output_prefix(self) -> str:
+        """Enforces string type output_prefix even if Any is provided."""
+        assert self._output_prefix is not None
+        return self._output_prefix
+        
+    def generate_column_name(self, month: int) -> str:
+        return f"{self.prefix}{month:02d}"
+    
+    def generate_output_column_name(self, month: int) -> str:
+        return f"{self.output_prefix}{month:02d}"
+    
+    def generate_column_label_from_template(self, month: int) -> str:
+        month_name = calendar.month_name[month]
+        return self.label_template.format(month=month_name)

@@ -1,0 +1,62 @@
+"""
+Database and Schema Constants
+
+This file defines database and schema constants for your ETL pipeline.
+It is safe and encouraged to manually edit this file.
+
+These constants are used with TableConfig to generate fully qualified table names.
+
+Example Usage:
+    from databases import Database, Schema
+    from table_config import TableConfig
+    
+    # Define a table configuration
+    config = TableConfig(
+        database=Database.ANALYTICS,
+        schema=Schema.RAW,
+        table_name_template="sales_{YYYY}",
+        type="YEARLY"
+    )
+    
+    # Generate table name
+    table_name = config.generate_table_name(year=2025)
+    # Result: "ANALYTICS.RAW.sales_2025"
+
+Instructions:
+    1. Add your database names as class attributes in the Database class
+    2. Add your schema names as class attributes in the Schema class
+    3. Use uppercase with underscores for constant names (e.g., MY_DATABASE)
+    4. These constants can be referenced throughout your ETL pipeline
+"""
+
+
+class Database:
+    """
+    Database name constants.
+    
+    Add your database names here as class attributes.
+    Example:
+        PRODUCTION = "PROD_DB"
+        STAGING = "STAGE_DB"
+        ANALYTICS = "ANALYTICS_DB"
+    """
+    # Add your databases here
+    PRODUCTION = "PRODUCTION"
+    STAGING = "STAGING"
+    ANALYTICS = "ANALYTICS"
+
+
+class Schema:
+    """
+    Schema name constants.
+    
+    Add your schema names here as class attributes.
+    Example:
+        RAW = "RAW_DATA"
+        PROCESSED = "PROCESSED_DATA"
+        REPORTING = "REPORTING"
+    """
+    # Add your schemas here
+    RAW = "RAW"
+    PROCESSED = "PROCESSED"
+    REPORTING = "REPORTING"

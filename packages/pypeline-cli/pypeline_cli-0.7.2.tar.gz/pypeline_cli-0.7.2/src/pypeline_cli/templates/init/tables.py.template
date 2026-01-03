@@ -1,0 +1,199 @@
+"""
+Table Configuration
+
+This file defines the TableConfig class for managing dynamic table names in your ETL pipeline.
+It is safe and encouraged to manually edit this file to add your own table configurations.
+
+The TableConfig class supports three table types:
+    - YEARLY: Tables partitioned by year (e.g., sales_2025, sales_2024)
+    - MONTHLY: Tables partitioned by month (e.g., transactions_01, transactions_02)
+    - STABLE: Tables with static names (e.g., dim_customers, reference_data)
+
+Example Usage:
+    from databases import Database, Schema
+    from tables import TableConfig
+    
+    # Define yearly sales table
+    sales_config = TableConfig(
+        database=Database.ANALYTICS,
+        schema=Schema.RAW,
+        table_name_template="sales_{YYYY}",
+        type="YEARLY"
+    )
+    
+    # Generate table name for 2025
+    table_name = sales_config.generate_table_name(year=2025)
+    # Result: "ANALYTICS.RAW.sales_2025"
+    
+    # Define monthly transactions table
+    transactions_config = TableConfig(
+        database=Database.PRODUCTION,
+        schema=Schema.PROCESSED,
+        table_name_template="transactions_{MM}",
+        type="MONTHLY",
+        month=3
+    )
+    
+    # Generate table name
+    table_name = transactions_config.generate_table_name()
+    # Result: "PRODUCTION.PROCESSED.transactions_03"
+    
+    # Define stable dimension table
+    customer_config = TableConfig(
+        database=Database.ANALYTICS,
+        schema=Schema.REPORTING,
+        table_name_template="dim_customers",
+        type="STABLE"
+    )
+    
+    # Generate table name
+    table_name = customer_config.generate_table_name()
+    # Result: "ANALYTICS.REPORTING.dim_customers"
+
+Template Placeholders:
+    - {YYYY}: 4-digit year (e.g., 2025)
+    - {YY}: 2-digit year (e.g., 25)
+    - {MM}: 2-digit month with leading zero (e.g., 01, 12)
+
+Instructions:
+    1. Import Database and Schema constants from databases.py
+    2. Create TableConfig instances for your tables at the bottom of this file
+    3. Reference these configs throughout your ETL pipeline
+    4. Use the generate_table_name() method to get fully qualified table names
+"""
+
+from dataclasses import dataclass
+from typing import Optional, Literal, Union
+
+
+@dataclass
+class TableConfig:
+    """
+    Configuration for dynamically named database tables.
+    
+    This class manages table name generation based on temporal patterns,
+    supporting yearly, monthly, and stable table naming conventions.
+    
+    Attributes:
+        database: Database name (use constants from Database class)
+        schema: Schema name (use constants from Schema class)
+        table_name_template: Template string with placeholders for dynamic parts
+        type: Table partitioning type - "YEARLY", "MONTHLY", or "STABLE"
+        month: Required for MONTHLY tables (1-12 or "01"-"12")
+    
+    Examples:
+        >>> # Yearly table
+        >>> config = TableConfig(
+        ...     database="ANALYTICS",
+        ...     schema="RAW",
+        ...     table_name_template="sales_{YYYY}",
+        ...     type="YEARLY"
+        ... )
+        >>> config.generate_table_name(year=2025)
+        'ANALYTICS.RAW.sales_2025'
+        
+        >>> # Monthly table
+        >>> config = TableConfig(
+        ...     database="PRODUCTION",
+        ...     schema="STAGING",
+        ...     table_name_template="events_{MM}",
+        ...     type="MONTHLY",
+        ...     month=3
+        ... )
+        >>> config.generate_table_name()
+        'PRODUCTION.STAGING.events_03'
+        
+        >>> # Stable table
+        >>> config = TableConfig(
+        ...     database="ANALYTICS",
+        ...     schema="REPORTING",
+        ...     table_name_template="dim_products",
+        ...     type="STABLE"
+        ... )
+        >>> config.generate_table_name()
+        'ANALYTICS.REPORTING.dim_products'
+    """
+    database: str
+    schema: str
+    table_name_template: str
+    type: Literal["YEARLY", "MONTHLY", "STABLE"]
+    month: Optional[Union[int, str]] = None
+    is_output: bool
+
+    def generate_table_name(self, year: Optional[int] = None) -> str:
+        """
+        Generate fully qualified table name from configuration.
+        
+        Args:
+            year: Required for YEARLY tables. 4-digit year (e.g., 2025)
+        
+        Returns:
+            Fully qualified table name in format: database.schema.table_name
+        
+        Raises:
+            ValueError: If required parameters are missing for table type
+        
+        Template Placeholders:
+            - {YYYY}: 4-digit year (e.g., 2025)
+            - {YY}: 2-digit year (e.g., 25)
+            - {MM}: 2-digit month with leading zero (e.g., 01, 12)
+        
+        Examples:
+            >>> # YEARLY table
+            >>> config.generate_table_name(year=2025)
+            'DATABASE.SCHEMA.table_2025'
+            
+            >>> # MONTHLY table (month set in __init__)
+            >>> config.generate_table_name()
+            'DATABASE.SCHEMA.table_03'
+            
+            >>> # STABLE table
+            >>> config.generate_table_name()
+            'DATABASE.SCHEMA.table_name'
+        """
+        if self.type == "YEARLY":
+            if year is None:
+                raise ValueError("Year required for YEARLY table type")
+            return f"{self.database}.{self.schema}.{self.table_name_template.format(YYYY=year, YY=str(year)[-2:])}"
+        elif self.type == "MONTHLY":
+            if self.month is None:
+                raise ValueError("Month required for MONTHLY table type")
+            return f"{self.database}.{self.schema}.{self.table_name_template.format(MM=f'{self.month:02d}')}"
+        else:  # "STABLE"
+            return f"{self.database}.{self.schema}.{self.table_name_template}"
+
+
+# ============================================================================
+# Define Your Table Configurations Below
+# ============================================================================
+# 
+# Example table configurations:
+# 
+# from databases import Database, Schema
+# 
+# # Yearly partitioned tables
+# SALES_TABLE = TableConfig(
+#     database=Database.ANALYTICS,
+#     schema=Schema.RAW,
+#     table_name_template="sales_{YYYY}",
+#     type="YEARLY"
+# )
+# 
+# # Monthly partitioned tables
+# TRANSACTIONS_TABLE = TableConfig(
+#     database=Database.PRODUCTION,
+#     schema=Schema.PROCESSED,
+#     table_name_template="transactions_{MM}",
+#     type="MONTHLY",
+#     month=1  # Can be updated dynamically in your pipeline
+# )
+# 
+# # Stable tables
+# CUSTOMER_DIM = TableConfig(
+#     database=Database.ANALYTICS,
+#     schema=Schema.REPORTING,
+#     table_name_template="dim_customers",
+#     type="STABLE"
+# )
+# 
+# ============================================================================
