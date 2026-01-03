@@ -1,0 +1,208 @@
+[build-system]
+requires = [
+    "setuptools>=68.0",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "krl-frameworks"
+version = "0.1.0"
+description = "Enterprise-grade meta-framework orchestration for socioeconomic analysis with deterministic CBSS pipelines"
+readme = "README.md"
+authors = [
+    { name = "Khipu Research Labs", email = "engineering@krlabs.dev" },
+]
+maintainers = [
+    { name = "KRL Engineering", email = "engineering@krlabs.dev" },
+]
+keywords = [
+    "socioeconomic-analysis",
+    "policy-evaluation",
+    "causal-inference",
+    "meta-framework",
+    "cbss",
+    "cohort-simulation",
+    "dag-orchestration",
+    "mpi",
+    "hdi",
+    "remsom",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Typing :: Typed",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26.0",
+    "pandas>=2.1.0",
+    "pydantic>=2.5.0",
+    "networkx>=3.2.0",
+    "krl-open-core>=0.2.0",
+    "krl-types~=0.2.0",
+]
+
+[project.license]
+text = "Apache-2.0"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+docs = [
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=2.0.0",
+    "myst-parser>=2.0.0",
+]
+causal = [
+    "krl-causal-policy-toolkit>=1.0.0",
+]
+geospatial = [
+    "krl-geospatial-tools>=0.2.0",
+]
+network = [
+    "krl-network-analysis>=0.2.0",
+]
+connectors = [
+    "krl-data-connectors>=1.0.0",
+]
+all = [
+    "krl-frameworks[dev,docs,causal,geospatial,network,connectors]",
+]
+
+[project.urls]
+Homepage = "https://github.com/KR-Labs/krl-frameworks"
+Documentation = "https://docs.krlabs.dev/frameworks"
+Repository = "https://github.com/KR-Labs/krl-frameworks"
+Changelog = "https://github.com/KR-Labs/krl-frameworks/blob/main/CHANGELOG.md"
+
+[project.scripts]
+krl-frameworks = "krl_frameworks.__main__:main"
+
+[tool.setuptools.packages.find]
+where = [
+    "src",
+]
+
+[tool.setuptools.package-data]
+krl_frameworks = [
+    "py.typed",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+src = [
+    "src",
+    "tests",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+    "ARG",
+    "SIM",
+]
+ignore = [
+    "E501",
+    "B008",
+    "B905",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "krl_frameworks",
+    "krl_core",
+    "krl_types",
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "silent"
+ignore_missing_imports = true
+overrides = [
+    { module = "tests.*", disallow_untyped_defs = false },
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = [
+    "tests",
+]
+python_files = [
+    "test_*.py",
+]
+python_classes = [
+    "Test*",
+]
+python_functions = [
+    "test_*",
+]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+    "-ra",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow tests",
+    "enterprise: Enterprise-tier tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.coverage.run]
+source = [
+    "src/krl_frameworks",
+]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "@abstractmethod",
+]
+show_missing = true
