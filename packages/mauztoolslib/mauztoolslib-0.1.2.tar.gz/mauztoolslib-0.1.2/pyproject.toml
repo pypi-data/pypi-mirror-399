@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mauztoolslib"
+version = "0.1.2"
+description = "Tools for Python projects"
+readme = "README.md"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+license = "MIT"
+
+authors = [
+    { name = "Fetelker", email = "fetelkernils@gmail.com" }
+]
+
+dependencies = [
+    "pandas>=2.0.0",
+    "openpyxl>=3.1.0",
+    "pillow>=10.0.0"
+]
+
+[project.optional-dependencies]
+test = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mauztoolslib*"]
+
+[tool.setuptools.package-dir]
+mauztoolslib = "mauztoolslib"
