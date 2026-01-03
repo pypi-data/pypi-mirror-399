@@ -1,0 +1,28 @@
+Metadata-Version: 2.4
+Name: find-anything
+Version: 1.2.0
+Author: Maciej Kmieć
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pillow==12.0.0
+Requires-Dist: ultralytics==8.0.120
+Requires-Dist: ultralytics-thop==2.0.14
+Requires-Dist: xformers==0.0.33.post2
+Requires-Dist: numpy==2.2.6
+Requires-Dist: segment-anything-fast==0.1.2
+Provides-Extra: cuda128
+Requires-Dist: torch==2.9.1+cu128; extra == "cuda128"
+Requires-Dist: torchvision==0.24.1+cu128; extra == "cuda128"
+Provides-Extra: cpu
+Requires-Dist: torch==2.9.1; extra == "cpu"
+Requires-Dist: torchvision==0.24.1; extra == "cpu"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.4.1; extra == "dev"
+Requires-Dist: pytest-cov>=6.2.1; extra == "dev"
+Requires-Dist: ruff>=0.12.8; extra == "dev"
+Requires-Dist: mypy>=1.17.1; extra == "dev"
+Requires-Dist: pip-tools>=7.5.0; extra == "dev"
+Dynamic: license-file
+
+# Find Anything
