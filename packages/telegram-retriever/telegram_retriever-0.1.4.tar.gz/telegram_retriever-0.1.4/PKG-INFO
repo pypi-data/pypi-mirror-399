@@ -1,0 +1,119 @@
+Metadata-Version: 2.4
+Name: telegram-retriever
+Version: 0.1.4
+Summary: A Human-in-the-Loop retriever for LangChain that pauses execution to wait for a Telegram reply.
+Project-URL: Documentation, https://github.com/l3onlau/telegram-retriever#readme
+Project-URL: Issues, https://github.com/l3onlau/telegram-retriever/issues
+Project-URL: Source, https://github.com/l3onlau/telegram-retriever
+Author: l3onlau
+License: Copyright (c) 2025 l3onlau
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+License-File: LICENSE
+Keywords: agent,human-in-the-loop,langchain,retriever,telegram
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.9
+Requires-Dist: httpx>=0.24.0
+Requires-Dist: langchain-core>=0.1.0
+Requires-Dist: pydantic>=2.0.0
+Provides-Extra: test
+Requires-Dist: pytest; extra == 'test'
+Requires-Dist: pytest-asyncio; extra == 'test'
+Requires-Dist: pytest-mock; extra == 'test'
+Description-Content-Type: text/markdown
+
+# telegram-retriever
+
+**telegram-retriever** is a functional, human-in-the-loop extension for LangChain. It allows an LLM agent to pause execution, send a query to a specific Telegram user, and synchronously wait for a text-based reply.
+
+## 🧠 The Functional Pipeline
+
+The retriever follows a strict data-flow architecture:
+
+* **Dispatch**: Sends the AI's question to the target chat via the Telegram Bot API.
+* **Poll**: Enters a stateless polling loop to fetch updates.
+* **Filter**: Validates incoming data to ensure it is a text-based "Reply-To" message from the correct user.
+* **Transform**: Converts the validated Telegram message into a LangChain `Document`.
+
+## 🚀 Installation
+
+```bash
+pip install telegram-retriever
+
+```
+
+## 🛠 Usage
+
+### Synchronous (Blocking)
+
+Perfect for scripts where the process should wait for human intervention.
+
+```python
+import os
+from telegram_retriever import TelegramRetriever
+
+retriever = TelegramRetriever(
+    bot_token=os.getenv("TELEGRAM_BOT_TOKEN"),
+    chat_id=os.getenv("TELEGRAM_CHAT_ID")
+)
+
+# Execution pauses here until the human replies on Telegram
+docs = retriever.invoke("Do you approve the budget for Q3?")
+print(f"Human response: {docs[0].page_content}")
+
+```
+
+### Asynchronous (Non-blocking)
+
+Recommended for FastAPI or LangServe applications to keep the event loop free.
+
+```python
+docs = await retriever.ainvoke("Should I trigger the deployment?")
+
+```
+
+## ⚙️ Configuration
+
+| Parameter | Type | Default | Description |
+| --- | --- | --- | --- |
+| `bot_token` | `SecretStr` | **Required** | Your Telegram Bot API Token. |
+| `chat_id` | `str` | **Required** | The target User ID or Group ID. |
+| `polling_timeout` | `float` | `600.0` | Seconds to wait before timing out. |
+| `polling_interval` | `float` | `2.0` | Seconds between update checks. |
+
+## 🧪 Development
+
+The project is built on pure functions, making testing simple and reliable.
+
+```bash
+# Install test dependencies
+pip install .[test]
+
+# Run the functional test suite
+pytest
+
+```
+
+## 🎮 Demo: Human-in-the-Loop Workflow
+
+This demo uses the script located at [`examples/chatbot.py`](./examples/chatbot.py) to showcase how the AI agent (via DSPy) intelligently decides when human intervention is necessary.
+
+### How it Works:
+1. **Direct AI Response (Autonomous):** When the user asks a straightforward math question (*"What's 127 x 23?"*), the AI handles it locally using its internal knowledge. It does **not** trigger a Telegram notification because the task is simple and clear.
+2. **Human-in-the-Loop (Triggered):** When the user asks a subjective or context-heavy question (*"What's so special about 67?"*), the AI recognizes its own limitations.
+3. **Telegram Integration:** The AI pauses, sends the query to the human expert via Telegram, and waits for a reply. 
+4. **Synthesis:** Once the human replies (*"It's an internet meme"*), the AI synthesizes this "expert context" into a comprehensive final answer for the user.
+
+![Human-in-the-Loop Demo Screenshot](./examples/chatbot-demo.jpg)
+*(Note: Sensitive Telegram identifiers have been safely redacted in this image.)*
