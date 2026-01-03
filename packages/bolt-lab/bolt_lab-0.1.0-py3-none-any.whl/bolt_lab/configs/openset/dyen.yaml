@@ -1,0 +1,35 @@
+seed: 0
+gpu_id: "3"
+
+dataset: "banking"       
+data_dir: "./data"
+known_cls_ratio: 0.25  
+labeled_ratio: 0.1     
+fold_idx: 0            
+fold_num: 5            
+max_seq_length: 128    
+
+bert_model: "./pretrained_models/bert-base-uncased"
+
+supcont_pre_epoches: 10
+per_device_train_batch_size: 32
+per_device_eval_batch_size: 32
+learning_rate: !!float 2e-5
+
+loss_type: "ce_and_div"
+diversity_loss_weight: 0.1
+scale: 1.0
+scale_ood: 1.0
+
+adv_k: 0
+adv_lr: 0.03
+adv_init_mag: 0.05
+adv_max_norm: 0.0
+
+output_dir: "./outputs/openset/dyen"
+save_results_path: "results/openset/dyen"
+
+overwrite_output_dir: true
+do_train: true
+do_eval: true
+do_predict: true

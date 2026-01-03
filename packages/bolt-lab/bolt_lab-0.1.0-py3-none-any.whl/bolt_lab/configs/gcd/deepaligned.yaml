@@ -1,0 +1,75 @@
+dataset: "banking"
+known_cls_ratio: 0.25
+
+seed: 0
+gpu_id: "3"
+data_dir: "data"
+save_results_path: "results/gcd/deepaligned"
+pretrain_dir: "outputs/gcd/deepaligned/premodels"
+bert_model: "./pretrained_models/bert-base-uncased"
+result_dir: "./results/gcd/deepaligned"
+
+labeled_ratio: 0.1
+fold_idx: 0
+
+train_batch_size: 128
+eval_batch_size: 64
+num_pretrain_epochs: 100
+num_train_epochs: 100
+lr_pre: !!float 5e-5
+lr: !!float 5e-5
+warmup_proportion: 0.1
+wait_patient: 20
+
+method: "DeepAligned"
+cluster_num_factor: 1.0
+feat_dim: 768
+
+dataset_specific_configs:
+  clinc:
+    max_seq_length: 30
+  stackoverflow:
+    max_seq_length: 45
+  banking:
+    max_seq_length: 55
+  hwu:
+    max_seq_length: 55
+  mcid:
+    max_seq_length: 55
+  ecdt:
+    max_seq_length: 55
+  TREC:
+    max_seq_length: 40
+  AGNews:
+    max_seq_length: 128
+  Yahoo: 
+    max_seq_length: 128
+  ele:
+    max_seq_length: 200
+  DBPedia:
+    max_seq_length: 256
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  medical:
+    max_seq_length: 256
+  news:
+    max_seq_length: 500
+    train_batch_size: 8
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  thucnews:
+    max_seq_length: 500
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  20NG: 
+    max_seq_length: 512
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  XTopic:
+    max_seq_length: 128
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
