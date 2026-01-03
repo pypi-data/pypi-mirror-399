@@ -1,0 +1,52 @@
+Metadata-Version: 2.4
+Name: speedlogger-speedtools
+Version: 6.3.1
+Summary: Fast advanced CLI logger with gradients and custom statuses
+Author: Filip
+License: MIT
+Keywords: logger,cli,logging,terminal
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+
+# SpeedLogger
+
+Fast, colorful Python logger with gradients, inputs, visualizations, and full customization.
+
+---
+
+## Features
+
+- Colorful logs with custom symbols and prefixes  
+- Rate-limited logging  
+- Input prompts: standard, password, confirm, choice  
+- Visualizations: progress bars, loading, spinner, countdown  
+- Data display: tables, lists, key-value pairs  
+- Centered or normal terminal output  
+
+---
+
+## Installation
+
+pip install speedlogger-speedtools
+
+---
+
+## Quick Example
+
+from speedlogger import info, success, inp, progress_bar
+
+info("SYSTEM", "Starting application")
+username = inp("Enter your username")
+success("AUTH", f"User {username} logged in")
+
+for i in range(101):
+    progress_bar(i, 100)
+
+---
+
+## License
+
+MIT License © 2024 SpeedLogger Team
