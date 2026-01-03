@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDSA Framework - Welcome</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>MDSA Framework</h1>
+                <span class="version">v{{ version }}</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/welcome" class="active">Welcome</a></li>
+                <li><a href="/monitor">Monitor</a></li>
+                <li><a href="/api/metrics" target="_blank">API</a></li>
+                {% if user and user.is_authenticated %}
+                <li class="user-menu">
+                    <span class="user-name">👤 {{ user.id }}</span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1 class="hero-title">Welcome to MDSA Framework</h1>
+            <p class="hero-subtitle">Multi-Domain Small Language Model Agentic Orchestration Framework</p>
+            <div class="hero-badge">
+                <span class="badge-success">Installation Successful</span>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-section">
+            <h2>Framework Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Multi-Domain Routing</h3>
+                    <p>Automatically detect and route queries to specialized domains based on keywords and context.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>LRU Model Caching</h3>
+                    <p>Intelligent model management with automatic eviction based on Least Recently Used (LRU) policy.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Real-Time Monitoring</h3>
+                    <p>Comprehensive metrics and performance tracking with built-in dashboard.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Tool Integration</h3>
+                    <p>Extensible tool registry for function calling and external integrations.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>RAG Support</h3>
+                    <p>Built-in Retrieval-Augmented Generation with vector database integration.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>High Performance</h3>
+                    <p>Optimized for speed with hardware detection and automatic GPU acceleration.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Start -->
+        <div class="quick-start-section">
+            <h2>Quick Start</h2>
+            <div class="code-blocks">
+                <div class="code-block">
+                    <h3>1. Basic Usage</h3>
+                    <pre><code>from mdsa import ModelManager, DomainExecutor, DomainConfig
+
+# Create model manager
+manager = ModelManager(max_models=2)
+executor = DomainExecutor(manager)
+
+# Create domain
+domain = DomainConfig(
+    domain_id="general",
+    name="General Assistant",
+    description="General purpose assistant",
+    keywords=["help", "question"],
+    model_name="gpt2",  # Any HuggingFace model
+    system_prompt="You are a helpful assistant"
+)
+
+# Execute query
+result = executor.execute("What is AI?", domain)
+print(result['response'])</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <h3>2. With Monitoring</h3>
+                    <pre><code>from mdsa import RequestLogger, MetricsCollector
+
+# Create monitors
+logger = RequestLogger(max_logs=10000)
+metrics = MetricsCollector(window_size=1000)
+
+# Log requests
+logger.log_request(
+    request_id="req_001",
+    query="User query",
+    domain="general",
+    model="gpt2",
+    response="Model response",
+    status="success",
+    latency_ms=150.5,
+    tokens_generated=50,
+    confidence=0.95
+)
+
+# Get statistics
+stats = logger.get_stats()
+summary = metrics.get_summary()
+print(f"Total requests: {stats['total_requests']}")
+print(f"Avg latency: {summary['avg_latency_ms']}ms")</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <h3>3. Run Built-in Dashboard</h3>
+                    <pre><code>from mdsa.ui.dashboard import DashboardServer
+
+# Create dashboard with your components
+server = DashboardServer(
+    model_manager=manager,
+    request_logger=logger,
+    metrics_collector=metrics
+)
+
+# Run dashboard on http://127.0.0.1:5000
+server.run()
+
+# Or use CLI
+# python -m mdsa.ui.dashboard</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Info -->
+        <div class="system-info-section">
+            <h2>System Information</h2>
+            <div class="info-grid" id="systemInfo">
+                <div class="info-card">
+                    <div class="info-label">Framework Version</div>
+                    <div class="info-value">{{ version }}</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Dashboard Status</div>
+                    <div class="info-value"><span class="status-online">Online</span></div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">API Endpoint</div>
+                    <div class="info-value">/api/metrics</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Documentation</div>
+                    <div class="info-value"><a href="https://github.com/yourusername/mdsa" target="_blank">GitHub</a></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="next-steps-section">
+            <h2>Next Steps</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Explore the Monitor</h3>
+                    <p>Visit the <a href="/monitor">Monitor page</a> to see real-time metrics, model performance, and request statistics.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Test the Framework</h3>
+                    <p>Create your own domains and execute queries to see the framework in action.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Integrate into Projects</h3>
+                    <p>Add MDSA to your applications for intelligent multi-domain LLM orchestration.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 MDSA Framework v{{ version }} | Multi-Domain SLM Agentic Orchestration</p>
+            <p>Built with ❤️ for the AI community | Free & Open Source</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+</body>
+</html>
