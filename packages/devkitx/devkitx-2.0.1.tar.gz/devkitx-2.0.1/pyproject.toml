@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "devkitx"
+version = "2.0.1"
+description = "Security-first Python utilities for government, healthcare, and financial applications."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "LadyCami" }]
+keywords = [
+    "security",
+    "compliance",
+    "audit",
+    "nist",
+    "fedramp",
+    "hipaa",
+    "soc2",
+    "pii",
+    "secrets",
+    "utilities",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "asyncbridge>=1.0.0",
+    "httpx-defaults>=1.0.0",
+    "configmerge>=1.0.0",
+]
+
+[project.optional-dependencies]
+cli = ["typer>=0.9.0", "rich>=13.0.0"]
+audit = ["structlog>=23.0.0"]
+all = ["devkitx[cli,audit]"]
+dev = [
+    "devkitx[all]",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+devkitx = "devkitx.cli.main:main"
+
+[project.urls]
+Homepage = "https://github.com/SerityOps/devkitx"
+Documentation = "https://devkitx.readthedocs.io"
+Repository = "https://github.com/SerityOps/devkitx"
+Issues = "https://github.com/SerityOps/devkitx/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/devkitx"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=devkitx --cov-report=term-missing"
