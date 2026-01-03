@@ -1,0 +1,150 @@
+Qurango 📖
+
+Qurango is a Python library that provides easy access to Quran translations and Hadith books in multiple languages.
+It is designed for researchers, students, developers, and NLP practitioners who want structured Islamic textual data in JSON and Pandas DataFrame formats.
+
+✨ Features
+
+📘 Access major Hadith books (e.g. Sahih Bukhari, Sahih Muslim, etc.)
+
+📖 Quran with multiple translations
+
+🌍 Multi-language support
+
+🔍 Search Hadith by:
+
+Hadith number
+
+Book name
+
+Narrator
+
+Keywords
+
+📊 Convert Hadith and Quran data into Pandas DataFrames
+
+🤖 Useful for NLP, Machine Learning, and Data Analysis
+
+🧩 Clean and beginner-friendly API
+
+📦 Installation
+
+Install directly from PyPI:
+
+pip install qurango
+
+🚀 Quick Start
+Importing the Library
+from qurango import Hadith, Quran
+
+📘 Hadith Usage
+Initialize Hadith Object
+hadith = Hadith()
+
+Get Available Books
+hadith.list_books()
+
+Search Hadith by Number
+result = hadith.search_by_number(
+    book="Sahih Bukhari",
+    hadith_number=1
+)
+
+print(result)
+
+Search Hadith by Narrator
+result = hadith.search_by_narrator("Abu Huraira")
+
+print(result)
+
+Convert Hadith Book to DataFrame
+df = hadith.to_dataframe(book="Sahih Muslim")
+print(df.head())
+
+📖 Quran Usage
+Initialize Quran Object
+quran = Quran()
+
+Get Available Translations
+quran.list_translations()
+
+Get a Specific Ayah
+ayah = quran.get_ayah(
+    surah=1,
+    ayah=1,
+    language="en"
+)
+
+print(ayah)
+
+Convert Quran to DataFrame
+df = quran.to_dataframe(language="en")
+print(df.head())
+
+📊 Output Formats
+
+Qurango supports:
+
+✅ JSON output
+
+✅ Pandas DataFrame
+
+✅ Easy integration with NLTK, spaCy, Transformers
+
+🧠 Use Cases
+
+Islamic research
+
+NLP on religious texts
+
+Machine learning datasets
+
+Chatbots & AI assistants
+
+Educational tools
+
+🗂 Project Structure
+qurango/
+│
+├── hadith/
+│   ├── hadith_loader.py
+│   └── hadith_search.py
+│
+├── quran/
+│   ├── quran_loader.py
+│   └── translations.py
+│
+├── utils/
+│   └── text_normalizer.py
+│
+├── __init__.py
+└── data/
+
+🛠 Requirements
+
+Python 3.8+
+
+pandas
+
+json
+
+🤝 Contributing
+
+Contributions are welcome!
+If you’d like to improve this project:
+
+Fork the repository
+
+Create a feature branch
+
+Commit your changes
+
+Submit a pull request
+
+📜 License
+
+This project is licensed under the MIT License.
+
+🙏 Acknowledgment
+
+This library is developed to make Islamic knowledge more accessible for developers and researchers worldwide.
