@@ -1,0 +1,53 @@
+[project]
+name = "docseer"
+version = "0.3.1"
+description = "DocSeer: Summarize and understand your documents at a glance."
+authors = [
+    {name = "Mohammed Fellaji", email = "fellajimohammed@gmail.com"},
+]
+dependencies = [
+    "transformers>=4.52.1",
+    "rich>=14.0.0",
+    "PyMuPDF>=1.25.5",
+    "types-requests>=2.32.0.20250515",
+    "langchain>=0.3.25",
+    "langchain-ollama>=0.3.6",
+    "langchain-chroma>=0.2.5",
+    "sentence-transformers>=4.1.0",
+    "faiss-cpu>=1.11.0",
+    "hf-xet>=1.1.2",
+    "docling>=2.46.0",
+    "flashrank>=0.2.10",
+    "langchain-community>=0.3.27",
+    "pydantic-ai>=0.8.1",
+    "pydantic>=2.11.7",
+    "langchain-text-splitters>=1.0.0",
+]
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+docseer = "docseer.__main__:run"
+
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "fastapi>=0.124.2",
+    "honcho>=2.0.0",
+    "textual>=6.10.0",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+follow_untyped_imports = true
+show_error_codes = true
+warn_unused_ignores = true
