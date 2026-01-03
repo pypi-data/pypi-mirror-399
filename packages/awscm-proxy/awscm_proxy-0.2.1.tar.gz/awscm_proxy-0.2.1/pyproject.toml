@@ -1,0 +1,70 @@
+[project]
+name = "awscm-proxy"
+dynamic = ["version"]
+description = "A cheap, secure, and straightforward serverless localhost proxy"
+readme = "README.rst"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE.txt", "AUTHORS.rst"]
+dependencies = [
+    "boto3>=1.40.23",
+    "mitmproxy>=12.2.0",
+    "requests>=2.32.5",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Internet :: Proxy Servers",
+]
+authors = [
+    {name="Aryeh Leib Taurog"},
+]
+
+[project.urls]
+documentation = "https://awscm-proxy.readthedocs.io"
+repository = "https://github.com/causematch/awscm-proxy"
+issues = "https://github.com/causematch/awscm-proxy/issues"
+
+[project.scripts]
+awscm-proxy = "awscm_proxy.proxy:entrypoint"
+
+[build-system]
+requires = ["flit_core >=3.11,<5"]
+build-backend = "flit_core.buildapi"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "httpie>=3.2.4",
+    "ipython>=9.5.0",
+    "isort>=6.0.1",
+    "pylint>=3.3.8",
+    "pytest>=8.4.1",
+]
+docs = [
+    "sphinx>=9.0.4",
+    "sphinxcontrib-autoprogram~=0.1.9",
+]
+
+[tool.pylint.main]
+jobs = 2
+
+[tool.pylint.format]
+indent-after-paren = 2
+
+[tool.pylint."messages control"]
+disable = [
+    "too-few-public-methods",
+    "invalid-name",
+    "inconsistent-return-statements",
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "unnecessary-lambda-assignment",
+]
+
+[tool.pylint.miscellaneous]
+notes = ["FIXME", "XXX", "DEBUG"]
