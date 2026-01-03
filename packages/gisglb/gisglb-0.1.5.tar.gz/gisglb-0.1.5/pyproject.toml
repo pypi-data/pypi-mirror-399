@@ -1,0 +1,36 @@
+[project]
+name = "gisglb"
+version = "0.1.5"
+description = "Create GLB 3D model file from GIS data"
+readme = "README.md"
+requires-python = ">=3.13"
+
+license="GPL-3.0"
+
+authors = [
+    { name = "Nicklas Bystedt", email = "ybin64@gmail.com" }
+]
+
+keywords = ["gis", "glb", "gltf", "3d", "dem", "terrain", "geotiff", "rasterio", "trimesh"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",  # or "4 - Beta", "5 - Production/Stable"
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Multimedia :: Graphics :: 3D Modeling",
+]
+
+dependencies = [
+    "fast-simplification>=0.1.13",
+    "geopandas>=1.1.2",
+    "mapbox-earcut>=1.0.2",
+    "pillow>=12.0.0",
+    "rasterio>=1.4.4",
+    "scipy>=1.16.3",
+    "trimesh>=4.10.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
