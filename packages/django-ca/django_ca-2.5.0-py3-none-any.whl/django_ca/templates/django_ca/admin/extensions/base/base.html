@@ -1,0 +1,17 @@
+{% load i18n %}
+<span class="django-ca-extension">
+  {% if warning %}
+  <div class="django-ca-extension-warning">
+    <img src="/static/admin/img/icon-alert.svg" alt="{% trans 'Critical' %}">
+    {{ warning }}
+  </div>
+  {% endif %}
+  {% if extension.critical %}
+  <div class="django-ca-extension-critical">
+    <img src="/static/admin/img/icon-yes.svg" alt="{% trans 'Critical' %}"> {% trans 'Critical' %}
+  </div>
+  {% endif %}
+  <div class="django-ca-extension-value">
+    {% with value=extension.value %}{% block content %}{{ value }}{% endblock content %}{% endwith %}
+  </div>
+</span>

@@ -1,0 +1,5 @@
+{% extends "django_ca/admin/extensions/base/base.html" %}
+{% load i18n django_ca %}
+
+{# SubjectKeyIdentifier extension #}
+{% block content %}{{ value.digest|as_hex }}{% endblock content %}
