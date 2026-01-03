@@ -1,0 +1,621 @@
+#ifndef ORCA_REGISTERS_H
+#define ORCA_REGISTERS_H
+
+#include <stdint.h>
+
+/* Beginning of Register Addresses */
+const uint16_t CTRL_REG_0               = 0;
+const uint16_t CTRL_REG_1               = 1;
+const uint16_t CTRL_REG_2               = 2;
+const uint16_t CTRL_REG_3               = 3;
+const uint16_t CTRL_REG_4               = 4;
+const uint16_t KIN_SW_TRIGGER           = 9;
+const uint16_t FORCE_CMD                = 28;
+const uint16_t FORCE_CMD_H              = 29;
+const uint16_t POS_CMD                  = 30;
+const uint16_t POS_CMD_H                = 31;
+const uint16_t CC_PGAIN                 = 129;
+const uint16_t CC_IGAIN                 = 130;
+const uint16_t CC_FGAIN                 = 131;
+const uint16_t PC_PGAIN                 = 133;
+const uint16_t PC_IGAIN                 = 134;
+const uint16_t PC_DVGAIN                = 135;
+const uint16_t PC_DEGAIN                = 136;
+const uint16_t PC_FSATU                 = 137;
+const uint16_t PC_FSATU_H               = 138;
+const uint16_t USER_MAX_TEMP            = 139;
+const uint16_t USER_MAX_FORCE           = 140;
+const uint16_t USER_MAX_FORCE_H         = 141;
+const uint16_t USER_MAX_POWER           = 142;
+const uint16_t SAFETY_DGAIN             = 143;
+const uint16_t USER_MAX_COIL_TEMP       = 147;
+const uint16_t TEMP_ERR_HYSTERESIS      = 148;
+const uint16_t PC_SOFTSTART_PERIOD      = 150;
+const uint16_t FORCE_UNITS              = 151;
+const uint16_t POS_SIGN                 = 152;
+const uint16_t POS_MAX_VEL              = 153;
+const uint16_t POS_MAX_ACCEL            = 154;
+const uint16_t POS_MAX_DECEL            = 155;
+const uint16_t LOG_PERIOD               = 162;
+const uint16_t USER_COMMS_TIMEOUT       = 163;
+const uint16_t USR_MB_BAUD_LO           = 164;
+const uint16_t USR_MB_BAUD_HI           = 165;
+const uint16_t FORCE_FILT               = 166;
+const uint16_t POS_FILT                 = 167;
+const uint16_t USR_MB_DELAY             = 168;
+const uint16_t USR_MB_ADDR              = 169;
+const uint16_t ZERO_MODE                = 171;
+const uint16_t AUTO_ZERO_FORCE_N        = 172;
+const uint16_t AUTO_ZERO_EXIT_MODE      = 173;
+const uint16_t MB_RS485_MODE            = 174;
+const uint16_t MB_FORCE_FILTER          = 175;
+const uint16_t MB_POS_FILTER            = 176;
+const uint16_t AUTO_ZERO_SPEED_MMPS     = 177;
+const uint16_t PWM_TIMEOUT_MS           = 178;
+const uint16_t PWM_TIME_CONST_MS        = 179;
+const uint16_t PWM_MIN_POS              = 180;
+const uint16_t PWM_MIN_POS_H            = 181;
+const uint16_t PWM_MAX_POS              = 182;
+const uint16_t PWM_MAX_POS_H            = 183;
+const uint16_t PWM_SERVO_TYPE           = 184;
+const uint16_t MB_FREQ                  = 273;
+const uint16_t MODE_OF_OPERATION        = 317;
+const uint16_t KINEMATIC_STATUS         = 319;
+const uint16_t KIN_COMPLETE_COUNT       = 320;
+const uint16_t MOTOR_STATUS             = 321;
+const uint16_t POS_CURSOR               = 322;
+const uint16_t POS_CURSOR_H             = 323;
+const uint16_t BOARD_TEMP               = 336;
+const uint16_t VDD_FINAL                = 338;
+const uint16_t SHAFT_POS_UM             = 342;
+const uint16_t SHAFT_POSITION_H         = 343;
+const uint16_t SHAFT_SPEED_MMPS         = 344;
+const uint16_t SHAFT_SHEED_H            = 345;
+const uint16_t SHAFT_ACCEL_MMPSS        = 346;
+const uint16_t SHAFT_ACCEL_H            = 347;
+const uint16_t FORCE                    = 348;
+const uint16_t FORCE_H                  = 349;
+const uint16_t POWER                    = 350;
+const uint16_t HBA_CURRENT              = 351;
+const uint16_t HBB_CURRENT              = 352;
+const uint16_t HBC_CURRENT              = 353;
+const uint16_t HBD_CURRENT              = 354;
+const uint16_t AVG_POWER                = 355;
+const uint16_t COIL_TEMP                = 356;
+const uint16_t SERIAL_NUMBER_LOW        = 406;
+const uint16_t SERIAL_NUMBER_HIGH       = 407;
+const uint16_t MAJOR_VERSION            = 408;
+const uint16_t RELEASE_STATE            = 409;
+const uint16_t REVISION_NUMBER          = 410;
+const uint16_t COMMIT_ID_LO             = 411;
+const uint16_t COMMIT_ID_HI             = 412;
+const uint16_t STATOR_CONFIG            = 418;
+const uint16_t WARNING                  = 431;
+const uint16_t ERROR_0                  = 432;
+const uint16_t ERROR_1                  = 433;
+const uint16_t MB_CNT0                  = 464;
+const uint16_t MB_CNT1                  = 465;
+const uint16_t MB_CNT2                  = 466;
+const uint16_t MB_CNT3                  = 467;
+const uint16_t MB_CNT4                  = 468;
+const uint16_t MB_CNT5                  = 469;
+const uint16_t MB_CNT6                  = 470;
+const uint16_t MB_CNT7                  = 471;
+const uint16_t MB_CNT8                  = 472;
+const uint16_t MB_CNT9                  = 473;
+const uint16_t MB_CNT10                 = 474;
+const uint16_t MB_CNT11                 = 475;
+const uint16_t MB_CNT12                 = 476;
+const uint16_t MB_CNT13                 = 477;
+const uint16_t MB_CNT14                 = 478;
+const uint16_t MB_BAUD                  = 482;
+const uint16_t MB_BAUD_H                = 483;
+const uint16_t MB_IF_DELAY              = 484;
+const uint16_t MB_ADDRESS               = 485;
+const uint16_t HAPTIC_STATUS            = 641;
+const uint16_t CONSTANT_FORCE_MN        = 642;
+const uint16_t CONSTANT_FORCE_MN_H      = 643;
+const uint16_t S0_GAIN_N_MM             = 644;
+const uint16_t S0_CENTER_UM             = 645;
+const uint16_t S0_CENTER_UM_H           = 646;
+const uint16_t S0_COUPLING              = 647;
+const uint16_t S0_DEAD_ZONE_MM          = 648;
+const uint16_t S0_FORCE_SAT_N           = 649;
+const uint16_t S1_GAIN_N_MM             = 650;
+const uint16_t S1_CENTER_UM             = 651;
+const uint16_t S1_CENTER_UM_H           = 652;
+const uint16_t S1_COUPLING              = 653;
+const uint16_t S1_DEAD_ZONE_MM          = 654;
+const uint16_t S1_FORCE_SAT_N           = 655;
+const uint16_t S2_GAIN_N_MM             = 656;
+const uint16_t S2_CENTER_UM             = 657;
+const uint16_t S2_CENTER_UM_H           = 658;
+const uint16_t S2_COUPLING              = 659;
+const uint16_t S2_DEAD_ZONE_MM          = 660;
+const uint16_t S2_FORCE_SAT_N           = 661;
+const uint16_t D0_GAIN_NS_MM            = 662;
+const uint16_t I0_GAIN_NS2_MM           = 663;
+const uint16_t O0_GAIN_N                = 664;
+const uint16_t O0_TYPE                  = 665;
+const uint16_t O0_FREQ_DHZ              = 666;
+const uint16_t O0_DUTY                  = 667;
+const uint16_t O1_GAIN_N                = 668;
+const uint16_t O1_TYPE                  = 669;
+const uint16_t O1_FREQ_DHZ              = 670;
+const uint16_t O1_DUTY                  = 671;
+const uint16_t CONST_FORCE_FILTER       = 672;
+const uint16_t HAPTIC_SOFTSTART         = 673;
+const uint16_t ILOOP_DIN                = 756;
+const uint16_t ILOOP_OUT_CH1            = 757;
+const uint16_t ILOOP_OUT_CH2            = 758;
+const uint16_t ILOOP_IN                 = 759;
+const uint16_t ILOOP_CONFIG             = 761;
+const uint16_t ILOOP_FORCE_MIN          = 762;
+const uint16_t ILOOP_FORCE_MIN_HI       = 763;
+const uint16_t ILOOP_FORCE_MAX          = 764;
+const uint16_t ILOOP_FORCE_MAX_HI       = 765;
+const uint16_t ILOOP_POS_MIN            = 766;
+const uint16_t ILOOP_POS_MIN_HI         = 767;
+const uint16_t ILOOP_POS_MAX            = 768;
+const uint16_t ILOOP_POS_MAX_HI         = 769;
+const uint16_t ILOOP_KIN_TYPE           = 770;
+const uint16_t ILOOP_D0_HIGH_ID         = 771;
+const uint16_t ILOOP_D0_LOW_ID          = 772;
+const uint16_t ILOOP_D1_HIGH_ID         = 773;
+const uint16_t ILOOP_D1_LOW_ID          = 774;
+const uint16_t ILOOP_D2_HIGH_ID         = 775;
+const uint16_t ILOOP_D2_LOW_ID          = 776;
+const uint16_t KIN0_POSITION_TARGET     = 780;
+const uint16_t KIN0_POSITION_TARGET_H   = 781;
+const uint16_t KIN0_MOTION_TIME         = 782;
+const uint16_t KIN0_MOTION_TIME_H       = 783;
+const uint16_t KIN0_DELAY_TIME          = 784;
+const uint16_t KIN0_MOTION_CONFIG       = 785;
+const uint16_t KIN1_POSITION_TARGET     = 786;
+const uint16_t KIN1_POSITION_TARGET_H   = 787;
+const uint16_t KIN1_MOTION_TIME         = 788;
+const uint16_t KIN1_MOTION_TIME_H       = 789;
+const uint16_t KIN1_DELAY_TIME          = 790;
+const uint16_t KIN1_MOTION_CONFIG       = 791;
+const uint16_t KIN2_POSITION_TARGET     = 792;
+const uint16_t KIN2_POSITION_TARGET_H   = 793;
+const uint16_t KIN2_MOTION_TIME         = 794;
+const uint16_t KIN2_MOTION_TIME_H       = 795;
+const uint16_t KIN2_DELAY_TIME          = 796;
+const uint16_t KIN2_MOTION_CONFIG       = 797;
+const uint16_t KIN3_POSITION_TARGET     = 798;
+const uint16_t KIN3_POSITION_TARGET_H   = 799;
+const uint16_t KIN3_MOTION_TIME         = 800;
+const uint16_t KIN3_MOTION_TIME_H       = 801;
+const uint16_t KIN3_DELAY_TIME          = 802;
+const uint16_t KIN3_MOTION_CONFIG       = 803;
+const uint16_t KIN4_POSITION_TARGET     = 804;
+const uint16_t KIN4_POSITION_TARGET_H   = 805;
+const uint16_t KIN4_MOTION_TIME         = 806;
+const uint16_t KIN4_MOTION_TIME_H       = 807;
+const uint16_t KIN4_DELAY_TIME          = 808;
+const uint16_t KIN4_MOTION_CONFIG       = 809;
+const uint16_t KIN5_POSITION_TARGET     = 810;
+const uint16_t KIN5_POSITION_TARGET_H   = 811;
+const uint16_t KIN5_MOTION_TIME         = 812;
+const uint16_t KIN5_MOTION_TIME_H       = 813;
+const uint16_t KIN5_DELAY_TIME          = 814;
+const uint16_t KIN5_MOTION_CONFIG       = 815;
+const uint16_t KIN6_POSITION_TARGET     = 816;
+const uint16_t KIN6_POSITION_TARGET_H   = 817;
+const uint16_t KIN6_MOTION_TIME         = 818;
+const uint16_t KIN6_MOTION_TIME_H       = 819;
+const uint16_t KIN6_DELAY_TIME          = 820;
+const uint16_t KIN6_MOTION_CONFIG       = 821;
+const uint16_t KIN7_POSITION_TARGET     = 822;
+const uint16_t KIN7_POSITION_TARGET_H   = 823;
+const uint16_t KIN7_MOTION_TIME         = 824;
+const uint16_t KIN7_MOTION_TIME_H       = 825;
+const uint16_t KIN7_DELAY_TIME          = 826;
+const uint16_t KIN7_MOTION_CONFIG       = 827;
+const uint16_t KIN8_POSITION_TARGET     = 828;
+const uint16_t KIN8_POSITION_TARGET_H   = 829;
+const uint16_t KIN8_MOTION_TIME         = 830;
+const uint16_t KIN8_MOTION_TIME_H       = 831;
+const uint16_t KIN8_DELAY_TIME          = 832;
+const uint16_t KIN8_MOTION_CONFIG       = 833;
+const uint16_t KIN9_POSITION_TARGET     = 834;
+const uint16_t KIN9_POSITION_TARGET_H   = 835;
+const uint16_t KIN9_MOTION_TIME         = 836;
+const uint16_t KIN9_MOTION_TIME_H       = 837;
+const uint16_t KIN9_DELAY_TIME          = 838;
+const uint16_t KIN9_MOTION_CONFIG       = 839;
+const uint16_t KIN10_POSITION_TARGET    = 840;
+const uint16_t KIN10_POSITION_TARGET_H  = 841;
+const uint16_t KIN10_MOTION_TIME        = 842;
+const uint16_t KIN10_MOTION_TIME_H      = 843;
+const uint16_t KIN10_DELAY_TIME         = 844;
+const uint16_t KIN10_MOTION_CONFIG      = 845;
+const uint16_t KIN11_POSITION_TARGET    = 846;
+const uint16_t KIN11_POSITION_TARGET_H  = 847;
+const uint16_t KIN11_MOTION_TIME        = 848;
+const uint16_t KIN11_MOTION_TIME_H      = 849;
+const uint16_t KIN11_DELAY_TIME         = 850;
+const uint16_t KIN11_MOTION_CONFIG      = 851;
+const uint16_t KIN12_POSITION_TARGET    = 852;
+const uint16_t KIN12_POSITION_TARGET_H  = 853;
+const uint16_t KIN12_MOTION_TIME        = 854;
+const uint16_t KIN12_MOTION_TIME_H      = 855;
+const uint16_t KIN12_DELAY_TIME         = 856;
+const uint16_t KIN12_MOTION_CONFIG      = 857;
+const uint16_t KIN13_POSITION_TARGET    = 858;
+const uint16_t KIN13_POSITION_TARGET_H  = 859;
+const uint16_t KIN13_MOTION_TIME        = 860;
+const uint16_t KIN13_MOTION_TIME_H      = 861;
+const uint16_t KIN13_DELAY_TIME         = 862;
+const uint16_t KIN13_MOTION_CONFIG      = 863;
+const uint16_t KIN14_POSITION_TARGET    = 864;
+const uint16_t KIN14_POSITION_TARGET_H  = 865;
+const uint16_t KIN14_MOTION_TIME        = 866;
+const uint16_t KIN14_MOTION_TIME_H      = 867;
+const uint16_t KIN14_DELAY_TIME         = 868;
+const uint16_t KIN14_MOTION_CONFIG      = 869;
+const uint16_t KIN15_POSITION_TARGET    = 870;
+const uint16_t KIN15_POSITION_TARGET_H  = 871;
+const uint16_t KIN15_MOTION_TIME        = 872;
+const uint16_t KIN15_MOTION_TIME_H      = 873;
+const uint16_t KIN15_DELAY_TIME         = 874;
+const uint16_t KIN15_MOTION_CONFIG      = 875;
+const uint16_t KIN16_POSITION_TARGET    = 876;
+const uint16_t KIN16_POSITION_TARGET_H  = 877;
+const uint16_t KIN16_MOTION_TIME        = 878;
+const uint16_t KIN16_MOTION_TIME_H      = 879;
+const uint16_t KIN16_DELAY_TIME         = 880;
+const uint16_t KIN16_MOTION_CONFIG      = 881;
+const uint16_t KIN17_POSITION_TARGET    = 882;
+const uint16_t KIN17_POSITION_TARGET_H  = 883;
+const uint16_t KIN17_MOTION_TIME        = 884;
+const uint16_t KIN17_MOTION_TIME_H      = 885;
+const uint16_t KIN17_DELAY_TIME         = 886;
+const uint16_t KIN17_MOTION_CONFIG      = 887;
+const uint16_t KIN18_POSITION_TARGET    = 888;
+const uint16_t KIN18_POSITION_TARGET_H  = 889;
+const uint16_t KIN18_MOTION_TIME        = 890;
+const uint16_t KIN18_MOTION_TIME_H      = 891;
+const uint16_t KIN18_DELAY_TIME         = 892;
+const uint16_t KIN18_MOTION_CONFIG      = 893;
+const uint16_t KIN19_POSITION_TARGET    = 894;
+const uint16_t KIN19_POSITION_TARGET_H  = 895;
+const uint16_t KIN19_MOTION_TIME        = 896;
+const uint16_t KIN19_MOTION_TIME_H      = 897;
+const uint16_t KIN19_DELAY_TIME         = 898;
+const uint16_t KIN19_MOTION_CONFIG      = 899;
+const uint16_t KIN20_POSITION_TARGET    = 900;
+const uint16_t KIN20_POSITION_TARGET_H  = 901;
+const uint16_t KIN20_MOTION_TIME        = 902;
+const uint16_t KIN20_MOTION_TIME_H      = 903;
+const uint16_t KIN20_DELAY_TIME         = 904;
+const uint16_t KIN20_MOTION_CONFIG      = 905;
+const uint16_t KIN21_POSITION_TARGET    = 906;
+const uint16_t KIN21_POSITION_TARGET_H  = 907;
+const uint16_t KIN21_MOTION_TIME        = 908;
+const uint16_t KIN21_MOTION_TIME_H      = 909;
+const uint16_t KIN21_DELAY_TIME         = 910;
+const uint16_t KIN21_MOTION_CONFIG      = 911;
+const uint16_t KIN22_POSITION_TARGET    = 912;
+const uint16_t KIN22_POSITION_TARGET_H  = 913;
+const uint16_t KIN22_MOTION_TIME        = 914;
+const uint16_t KIN22_MOTION_TIME_H      = 915;
+const uint16_t KIN22_DELAY_TIME         = 916;
+const uint16_t KIN22_MOTION_CONFIG      = 917;
+const uint16_t KIN23_POSITION_TARGET    = 918;
+const uint16_t KIN23_POSITION_TARGET_H  = 919;
+const uint16_t KIN23_MOTION_TIME        = 920;
+const uint16_t KIN23_MOTION_TIME_H      = 921;
+const uint16_t KIN23_DELAY_TIME         = 922;
+const uint16_t KIN23_MOTION_CONFIG      = 923;
+const uint16_t KIN24_POSITION_TARGET    = 924;
+const uint16_t KIN24_POSITION_TARGET_H  = 925;
+const uint16_t KIN24_MOTION_TIME        = 926;
+const uint16_t KIN24_MOTION_TIME_H      = 927;
+const uint16_t KIN24_DELAY_TIME         = 928;
+const uint16_t KIN24_MOTION_CONFIG      = 929;
+const uint16_t KIN25_POSITION_TARGET    = 930;
+const uint16_t KIN25_POSITION_TARGET_H  = 931;
+const uint16_t KIN25_MOTION_TIME        = 932;
+const uint16_t KIN25_MOTION_TIME_H      = 933;
+const uint16_t KIN25_DELAY_TIME         = 934;
+const uint16_t KIN25_MOTION_CONFIG      = 935;
+const uint16_t KIN26_POSITION_TARGET    = 936;
+const uint16_t KIN26_POSITION_TARGET_H  = 937;
+const uint16_t KIN26_MOTION_TIME        = 938;
+const uint16_t KIN26_MOTION_TIME_H      = 939;
+const uint16_t KIN26_DELAY_TIME         = 940;
+const uint16_t KIN26_MOTION_CONFIG      = 941;
+const uint16_t KIN27_POSITION_TARGET    = 942;
+const uint16_t KIN27_POSITION_TARGET_H  = 943;
+const uint16_t KIN27_MOTION_TIME        = 944;
+const uint16_t KIN27_MOTION_TIME_H      = 945;
+const uint16_t KIN27_DELAY_TIME         = 946;
+const uint16_t KIN27_MOTION_CONFIG      = 947;
+const uint16_t KIN28_POSITION_TARGET    = 948;
+const uint16_t KIN28_POSITION_TARGET_H  = 949;
+const uint16_t KIN28_MOTION_TIME        = 950;
+const uint16_t KIN28_MOTION_TIME_H      = 951;
+const uint16_t KIN28_DELAY_TIME         = 952;
+const uint16_t KIN28_MOTION_CONFIG      = 953;
+const uint16_t KIN29_POSITION_TARGET    = 954;
+const uint16_t KIN29_POSITION_TARGET_H  = 955;
+const uint16_t KIN29_MOTION_TIME        = 956;
+const uint16_t KIN29_MOTION_TIME_H      = 957;
+const uint16_t KIN29_DELAY_TIME         = 958;
+const uint16_t KIN29_MOTION_CONFIG      = 959;
+const uint16_t KIN30_POSITION_TARGET    = 960;
+const uint16_t KIN30_POSITION_TARGET_H  = 961;
+const uint16_t KIN30_MOTION_TIME        = 962;
+const uint16_t KIN30_MOTION_TIME_H      = 963;
+const uint16_t KIN30_DELAY_TIME         = 964;
+const uint16_t KIN30_MOTION_CONFIG      = 965;
+const uint16_t KIN31_POSITION_TARGET    = 966;
+const uint16_t KIN31_POSITION_TARGET_H  = 967;
+const uint16_t KIN31_MOTION_TIME        = 968;
+const uint16_t KIN31_MOTION_TIME_H      = 969;
+const uint16_t KIN31_DELAY_TIME         = 970;
+const uint16_t KIN31_MOTION_CONFIG      = 971;
+const uint16_t KIN_HOME_ID              = 972;
+
+/* Beginning of Register Value Definitions */
+
+// CTRL_REG_0 Definitions
+const uint16_t CTRL_REG_0_RESET_ORCA_Mask = 0x1;
+const uint16_t CTRL_REG_0_RESET_ORCA_Shift= 0;
+const uint16_t CTRL_REG_0_CLEAR_ERR_Mask  = 0x2;
+const uint16_t CTRL_REG_0_CLEAR_ERR_Shift = 1;
+const uint16_t CTRL_REG_0_ZERO_POS_Mask   = 0x4;
+const uint16_t CTRL_REG_0_ZERO_POS_Shift  = 2;
+const uint16_t CTRL_REG_0_INVERT_POS_Mask = 0x8;
+const uint16_t CTRL_REG_0_INVERT_POS_Shift= 3;
+
+// CTRL_REG_1 Definitions
+const uint16_t CTRL_REG_1_HALL_GAIN_SET_Mask     = 0x8;
+const uint16_t CTRL_REG_1_HALL_GAIN_SET_Shift    = 3;
+const uint16_t CTRL_REG_1_CURRENT_GAIN_SET_Mask  = 0x10;
+const uint16_t CTRL_REG_1_CURRENT_GAIN_SET_Shift = 4;
+const uint16_t CTRL_REG_1_HALL_ZERO_FLAG_Mask    = 0x20;
+const uint16_t CTRL_REG_1_HALL_ZERO_FLAG_Shift   = 5;
+const uint16_t CTRL_REG_1_CURRENT_ZERO_FLAG_Mask = 0x40;
+const uint16_t CTRL_REG_1_CURRENT_ZERO_FLAG_Shift= 6;
+const uint16_t CTRL_REG_1_PC_GAIN_APPLY_Mask     = 0x400;
+const uint16_t CTRL_REG_1_PC_GAIN_APPLY_Shift    = 10;
+const uint16_t CTRL_REG_1_CC_GAIN_APPLY_Mask     = 0x800;
+const uint16_t CTRL_REG_1_CC_GAIN_APPLY_Shift    = 11;
+
+// CTRL_REG_2 Definitions
+const uint16_t CTRL_REG_2_STATOR_CAL_SAVE_Mask  = 0x4;
+const uint16_t CTRL_REG_2_STATOR_CAL_SAVE_Shift = 2;
+const uint16_t CTRL_REG_2_SHAFT_CAL_SAVE_Mask   = 0x8;
+const uint16_t CTRL_REG_2_SHAFT_CAL_SAVE_Shift  = 3;
+const uint16_t CTRL_REG_2_FORCE_CAL_SAVE_Mask   = 0x10;
+const uint16_t CTRL_REG_2_FORCE_CAL_SAVE_Shift  = 4;
+const uint16_t CTRL_REG_2_TUNING_SAVE_Mask      = 0x20;
+const uint16_t CTRL_REG_2_TUNING_SAVE_Shift     = 5;
+const uint16_t CTRL_REG_2_USER_OPTION_SAVE_Mask = 0x40;
+const uint16_t CTRL_REG_2_USER_OPTION_SAVE_Shift= 6;
+const uint16_t CTRL_REG_2_KINEMATIC_SAVE_Mask   = 0x80;
+const uint16_t CTRL_REG_2_KINEMATIC_SAVE_Shift  = 7;
+const uint16_t CTRL_REG_2_IOSH_SAVE_Mask        = 0x100;
+const uint16_t CTRL_REG_2_IOSH_SAVE_Shift       = 8;
+const uint16_t CTRL_REG_2_HAPTIC_SAVE_Mask      = 0x200;
+const uint16_t CTRL_REG_2_HAPTIC_SAVE_Shift     = 9;
+const uint16_t CTRL_REG_2_TRIM_SAVE_Mask        = 0x400;
+const uint16_t CTRL_REG_2_TRIM_SAVE_Shift       = 10;
+
+// CTRL_REG_3 Definitions
+const uint16_t CTRL_REG_3_SLEEP_MODE         = 1;
+const uint16_t CTRL_REG_3_FORCE_MODE         = 2;
+const uint16_t CTRL_REG_3_POSITION_MODE      = 3;
+const uint16_t CTRL_REG_3_HAPTIC_MODE        = 4;
+const uint16_t CTRL_REG_3_KINEMATIC_MODE     = 5;
+const uint16_t CTRL_REG_3_VOLTAGE_MODE       = 6;
+const uint16_t CTRL_REG_3_CURRENT_MODE       = 7;
+const uint16_t CTRL_REG_3_IOSH_FORCE_MODE    = 8;
+const uint16_t CTRL_REG_3_IOSH_POSITION_MODE = 9;
+const uint16_t CTRL_REG_3_IOSH_KINEMATIC_MODE= 10;
+const uint16_t CTRL_REG_3_PULSE_WIDTH_MODE   = 11;
+const uint16_t CTRL_REG_3_STATOR_CAL_MODE    = 50;
+const uint16_t CTRL_REG_3_FORCE_CAL_MODE     = 51;
+const uint16_t CTRL_REG_3_SHAFT_CAL_MODE     = 52;
+const uint16_t CTRL_REG_3_ADC_CAL_MODE       = 53;
+const uint16_t CTRL_REG_3_STEP_TEST_MODE     = 54;
+const uint16_t CTRL_REG_3_AUTO_ZERO_MODE     = 55;
+
+// CTRL_REG_4 Definitions
+const uint16_t CTRL_REG_4_TUNING_DEFAULTS_Mask        = 0x2;
+const uint16_t CTRL_REG_4_TUNING_DEFAULTS_Shift       = 1;
+const uint16_t CTRL_REG_4_MOTOR_OPTIONS_DEFAULTS_Mask = 0x4;
+const uint16_t CTRL_REG_4_MOTOR_OPTIONS_DEFAULTS_Shift= 2;
+const uint16_t CTRL_REG_4_MODBUS_DEFAULTS_Mask        = 0x8;
+const uint16_t CTRL_REG_4_MODBUS_DEFAULTS_Shift       = 3;
+const uint16_t CTRL_REG_4_KINEMATIC_DEFAULTS_Mask     = 0x10;
+const uint16_t CTRL_REG_4_KINEMATIC_DEFAULTS_Shift    = 4;
+const uint16_t CTRL_REG_4_HAPTIC_DEFAULTS_Mask        = 0x20;
+const uint16_t CTRL_REG_4_HAPTIC_DEFAULTS_Shift       = 5;
+const uint16_t CTRL_REG_4_IOSH_DEFAULTS_Mask          = 0x40;
+const uint16_t CTRL_REG_4_IOSH_DEFAULTS_Shift         = 6;
+const uint16_t CTRL_REG_4_PULSE_WIDTH_DEFAULTS_Mask   = 0x80;
+const uint16_t CTRL_REG_4_PULSE_WIDTH_DEFAULTS_Shift  = 7;
+
+// FORCE_UNITS Definitions
+const uint16_t FORCE_UNITS_FORCEUNITS_Mask = 0x1;
+const uint16_t FORCE_UNITS_FORCEUNITS_Shift= 0;
+
+// POS_SIGN Definitions
+const uint16_t POS_SIGN_POSSIGN_Mask = 0x1;
+const uint16_t POS_SIGN_POSSIGN_Shift= 0;
+
+// ZERO_MODE Definitions
+const uint16_t ZERO_MODE_NEGATIVE_ZEROING = 0;
+const uint16_t ZERO_MODE_MANUAL_ZEROING   = 1;
+const uint16_t ZERO_MODE_AUTO_ZERO_ENABLED= 2;
+const uint16_t ZERO_MODE_AUTO_ZERO_ON_BOOT= 3;
+const uint16_t ZERO_MODE_IOSH_AUTO_ZEROING= 4;
+
+// AUTO_ZERO_EXIT_MODE Definitions
+const uint16_t AUTO_ZERO_EXIT_MODE_SLEEP_MODE      = 1;
+const uint16_t AUTO_ZERO_EXIT_MODE_FORCE_MODE      = 2;
+const uint16_t AUTO_ZERO_EXIT_MODE_POSITION_MODE   = 3;
+const uint16_t AUTO_ZERO_EXIT_MODE_HAPTIC_MODE     = 4;
+const uint16_t AUTO_ZERO_EXIT_MODE_KINEMATIC_MODE  = 5;
+const uint16_t AUTO_ZERO_EXIT_MODE_PULSE_WIDTH_MODE= 11;
+
+// MB_RS485_MODE Definitions
+const uint16_t MB_RS485_MODE_RS485MODE_Mask = 0x1;
+const uint16_t MB_RS485_MODE_RS485MODE_Shift= 0;
+
+// PWM_SERVO_TYPE Definitions
+const uint16_t PWM_SERVO_TYPE_PWM_180_DEG= 0;
+const uint16_t PWM_SERVO_TYPE_PWM_270_DEG= 1;
+
+// MODE_OF_OPERATION Definitions
+const uint16_t MODE_OF_OPERATION_SLEEP_MODE         = 1;
+const uint16_t MODE_OF_OPERATION_FORCE_MODE         = 2;
+const uint16_t MODE_OF_OPERATION_POSITION_MODE      = 3;
+const uint16_t MODE_OF_OPERATION_HAPTIC_MODE        = 4;
+const uint16_t MODE_OF_OPERATION_KINEMATIC_MODE     = 5;
+const uint16_t MODE_OF_OPERATION_VOLTAGE_MODE       = 6;
+const uint16_t MODE_OF_OPERATION_CURRENT_MODE       = 7;
+const uint16_t MODE_OF_OPERATION_IOSH_FORCE_MODE    = 8;
+const uint16_t MODE_OF_OPERATION_IOSH_POSITION_MODE = 9;
+const uint16_t MODE_OF_OPERATION_IOSH_KINEMATIC_MODE= 10;
+const uint16_t MODE_OF_OPERATION_PULSE_WIDTH_MODE   = 11;
+const uint16_t MODE_OF_OPERATION_STATOR_CAL_MODE    = 50;
+const uint16_t MODE_OF_OPERATION_FORCE_CAL_MODE     = 51;
+const uint16_t MODE_OF_OPERATION_SHAFT_CAL_MODE     = 52;
+const uint16_t MODE_OF_OPERATION_ADC_CAL_MODE       = 53;
+const uint16_t MODE_OF_OPERATION_STEP_TEST_MODE     = 54;
+const uint16_t MODE_OF_OPERATION_AUTO_ZERO_MODE     = 55;
+
+// KINEMATIC_STATUS Definitions
+const uint16_t KINEMATIC_STATUS_MOTIONID_Mask = 0x7FFF;
+const uint16_t KINEMATIC_STATUS_MOTIONID_Shift= 0;
+const uint16_t KINEMATIC_STATUS_RUNNING_Mask  = 0x8000;
+const uint16_t KINEMATIC_STATUS_RUNNING_Shift = 15;
+
+// MOTOR_STATUS Definitions
+const uint16_t MOTOR_STATUS_AUTO_ZERO_COMPLETE_Mask = 0x1;
+const uint16_t MOTOR_STATUS_AUTO_ZERO_COMPLETE_Shift= 0;
+const uint16_t MOTOR_STATUS_AUTO_ZERO_RUNNING_Mask  = 0x2;
+const uint16_t MOTOR_STATUS_AUTO_ZERO_RUNNING_Shift = 1;
+const uint16_t MOTOR_STATUS_POS_MODE_MOVING_Mask    = 0x4;
+const uint16_t MOTOR_STATUS_POS_MODE_MOVING_Shift   = 2;
+
+// STATOR_CONFIG Definitions
+const uint16_t STATOR_CONFIG_ORCA_6_24 = 0;
+const uint16_t STATOR_CONFIG_ORCA_6_48 = 1;
+const uint16_t STATOR_CONFIG_ORCA_15_48= 2;
+const uint16_t STATOR_CONFIG_ORCA_3_12 = 3;
+const uint16_t STATOR_CONFIG_ORCA_3_36 = 4;
+
+// WARNING Definitions
+const uint16_t WARNING_IOSH_AUTO_ZERO_Mask = 0x1;
+const uint16_t WARNING_IOSH_AUTO_ZERO_Shift= 0;
+
+// ERROR_0 Definitions
+const uint16_t ERROR_0_CONFIG_INVALID_Mask         = 0x1;
+const uint16_t ERROR_0_CONFIG_INVALID_Shift        = 0;
+const uint16_t ERROR_0_FORCE_CONTROL_CLIPPING_Mask = 0x20;
+const uint16_t ERROR_0_FORCE_CONTROL_CLIPPING_Shift= 5;
+const uint16_t ERROR_0_MAX_TEMP_EXCEEDED_Mask      = 0x40;
+const uint16_t ERROR_0_MAX_TEMP_EXCEEDED_Shift     = 6;
+const uint16_t ERROR_0_MAX_FORCE_EXCEEDED_Mask     = 0x80;
+const uint16_t ERROR_0_MAX_FORCE_EXCEEDED_Shift    = 7;
+const uint16_t ERROR_0_MAX_POWER_EXCEEDED_Mask     = 0x100;
+const uint16_t ERROR_0_MAX_POWER_EXCEEDED_Shift    = 8;
+const uint16_t ERROR_0_SHAFT_IMAGE_FAILED_Mask     = 0x200;
+const uint16_t ERROR_0_SHAFT_IMAGE_FAILED_Shift    = 9;
+const uint16_t ERROR_0_VOLTAGE_INVALID_Mask        = 0x400;
+const uint16_t ERROR_0_VOLTAGE_INVALID_Shift       = 10;
+const uint16_t ERROR_0_COMMS_TIMEOUT_Mask          = 0x800;
+const uint16_t ERROR_0_COMMS_TIMEOUT_Shift         = 11;
+const uint16_t ERROR_0_AUTO_ZERO_FAILED_Mask       = 0x2000;
+const uint16_t ERROR_0_AUTO_ZERO_FAILED_Shift      = 13;
+
+// ERROR_1 Definitions
+const uint16_t ERROR_1_CONFIG_INVALID_Mask         = 0x1;
+const uint16_t ERROR_1_CONFIG_INVALID_Shift        = 0;
+const uint16_t ERROR_1_FORCE_CONTROL_CLIPPING_Mask = 0x20;
+const uint16_t ERROR_1_FORCE_CONTROL_CLIPPING_Shift= 5;
+const uint16_t ERROR_1_MAX_TEMP_EXCEEDED_Mask      = 0x40;
+const uint16_t ERROR_1_MAX_TEMP_EXCEEDED_Shift     = 6;
+const uint16_t ERROR_1_MAX_FORCE_EXCEEDED_Mask     = 0x80;
+const uint16_t ERROR_1_MAX_FORCE_EXCEEDED_Shift    = 7;
+const uint16_t ERROR_1_MAX_POWER_EXCEEDED_Mask     = 0x100;
+const uint16_t ERROR_1_MAX_POWER_EXCEEDED_Shift    = 8;
+const uint16_t ERROR_1_SHAFT_IMAGE_FAILED_Mask     = 0x200;
+const uint16_t ERROR_1_SHAFT_IMAGE_FAILED_Shift    = 9;
+const uint16_t ERROR_1_VOLTAGE_INVALID_Mask        = 0x400;
+const uint16_t ERROR_1_VOLTAGE_INVALID_Shift       = 10;
+const uint16_t ERROR_1_COMMS_TIMEOUT_Mask          = 0x800;
+const uint16_t ERROR_1_COMMS_TIMEOUT_Shift         = 11;
+const uint16_t ERROR_1_AUTO_ZERO_FAILED_Mask       = 0x2000;
+const uint16_t ERROR_1_AUTO_ZERO_FAILED_Shift      = 13;
+
+// HAPTIC_STATUS Definitions
+const uint16_t HAPTIC_STATUS_CONSTANT_Mask     = 0x1;
+const uint16_t HAPTIC_STATUS_CONSTANT_Shift    = 0;
+const uint16_t HAPTIC_STATUS_SPRING_0_Mask     = 0x2;
+const uint16_t HAPTIC_STATUS_SPRING_0_Shift    = 1;
+const uint16_t HAPTIC_STATUS_SPRING_1_Mask     = 0x4;
+const uint16_t HAPTIC_STATUS_SPRING_1_Shift    = 2;
+const uint16_t HAPTIC_STATUS_SPRING_2_Mask     = 0x8;
+const uint16_t HAPTIC_STATUS_SPRING_2_Shift    = 3;
+const uint16_t HAPTIC_STATUS_DAMPER_Mask       = 0x10;
+const uint16_t HAPTIC_STATUS_DAMPER_Shift      = 4;
+const uint16_t HAPTIC_STATUS_INERTIA_Mask      = 0x20;
+const uint16_t HAPTIC_STATUS_INERTIA_Shift     = 5;
+const uint16_t HAPTIC_STATUS_OSCILLATOR_0_Mask = 0x40;
+const uint16_t HAPTIC_STATUS_OSCILLATOR_0_Shift= 6;
+const uint16_t HAPTIC_STATUS_OSCILLATOR_1_Mask = 0x80;
+const uint16_t HAPTIC_STATUS_OSCILLATOR_1_Shift= 7;
+
+// Sn_COUPLING Definitions
+const uint16_t Sn_COUPLING_BOTH    = 0;
+const uint16_t Sn_COUPLING_POSITIVE= 1;
+const uint16_t Sn_COUPLING_NEGATIVE= 2;
+
+// On_TYPE Definitions
+const uint16_t On_TYPE_SQUARE  = 0;
+const uint16_t On_TYPE_SINE    = 1;
+const uint16_t On_TYPE_TRIANGLE= 2;
+const uint16_t On_TYPE_SAWTOOTH= 3;
+
+// ILOOP_DIN Definitions
+const uint16_t ILOOP_DIN_DIN0_Mask = 0x1;
+const uint16_t ILOOP_DIN_DIN0_Shift= 0;
+const uint16_t ILOOP_DIN_DIN1_Mask = 0x2;
+const uint16_t ILOOP_DIN_DIN1_Shift= 1;
+const uint16_t ILOOP_DIN_DIN2_Mask = 0x4;
+const uint16_t ILOOP_DIN_DIN2_Shift= 2;
+const uint16_t ILOOP_DIN_DIN3_Mask = 0x8;
+const uint16_t ILOOP_DIN_DIN3_Shift= 3;
+
+// ILOOP_CONFIG Definitions
+const uint16_t ILOOP_CONFIG_CH1_Mask     = 0x3;
+const uint16_t ILOOP_CONFIG_CH1_Shift    = 0;
+const uint16_t ILOOP_CONFIG_CH2_Mask     = 0xC;
+const uint16_t ILOOP_CONFIG_CH2_Shift    = 2;
+const uint16_t ILOOP_CONFIG_IN_MODE_Mask = 0x30;
+const uint16_t ILOOP_CONFIG_IN_MODE_Shift= 4;
+const uint16_t ILOOP_CONFIG_RANGE_Mask   = 0x40;
+const uint16_t ILOOP_CONFIG_RANGE_Shift  = 6;
+
+// ILOOP_KIN_TYPE Definitions
+const uint16_t ILOOP_KIN_TYPE_RISING_EDGE= 0;
+const uint16_t ILOOP_KIN_TYPE_BOTH_EDGES = 1;
+
+// KINn_MOTION_CONFIG Definitions
+const uint16_t KINn_MOTION_CONFIG_CHAIN_Mask   = 0x1;
+const uint16_t KINn_MOTION_CONFIG_CHAIN_Shift  = 0;
+const uint16_t KINn_MOTION_CONFIG_TYPE_Mask    = 0x6;
+const uint16_t KINn_MOTION_CONFIG_TYPE_Shift   = 1;
+const uint16_t KINn_MOTION_CONFIG_CHAINID_Mask = 0xF8;
+const uint16_t KINn_MOTION_CONFIG_CHAINID_Shift= 3;
+
+const uint16_t ORCA_REG_SIZE = 973;
+
+#endif // ORCA_REGISTERS_H
