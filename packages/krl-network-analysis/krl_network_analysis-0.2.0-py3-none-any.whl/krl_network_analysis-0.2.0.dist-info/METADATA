@@ -1,0 +1,178 @@
+Metadata-Version: 2.4
+Name: krl-network-analysis
+Version: 0.2.0
+Summary: Economic network analysis tools for the Khipu Intelligence Suite
+Author-email: KR-Labs Foundation <dev@krlabs.org>
+Maintainer-email: KR-Labs Foundation <support@krlabs.dev>
+License: Apache-2.0
+Project-URL: Homepage, https://krlabs.dev
+Project-URL: Documentation, https://docs.krlabs.dev/network-analysis
+Project-URL: Repository, https://github.com/kr-labs/krl-network-analysis
+Project-URL: Changelog, https://github.com/kr-labs/krl-network-analysis/blob/main/CHANGELOG.md
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: networkx>=3.2.0
+Requires-Dist: pandas>=2.1.0
+Requires-Dist: numpy>=1.26.0
+Requires-Dist: scipy>=1.11.0
+Requires-Dist: krl-open-core>=0.2.0
+Requires-Dist: krl-types~=0.2.0
+Provides-Extra: dev
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: mypy>=1.5.0; extra == "dev"
+Provides-Extra: test
+Requires-Dist: pytest>=7.4.0; extra == "test"
+Requires-Dist: pytest-cov>=4.1.0; extra == "test"
+Requires-Dist: pytest-mock>=3.11.0; extra == "test"
+Provides-Extra: visualization
+Requires-Dist: plotly>=5.17.0; extra == "visualization"
+Requires-Dist: pyvis>=0.3.0; extra == "visualization"
+Requires-Dist: matplotlib>=3.7.0; extra == "visualization"
+Provides-Extra: performance
+Requires-Dist: python-igraph>=0.10.0; extra == "performance"
+Requires-Dist: graph-tool>=2.45; extra == "performance"
+Dynamic: license-file
+
+# KRL Network Analysis
+
+> **Version:** 1.0.0  
+> **License:** Apache-2.0  
+> **Python:** ≥3.9  
+> **Status:** Production ✅
+
+---
+
+## SECTION A — Executive & Strategic Overview
+
+### What This Repository Does
+
+KRL Network Analysis provides **economic network analysis** tools. It implements:
+
+1. **Network Construction** — Build networks from economic data
+2. **Centrality Analysis** — Identify key actors and bottlenecks
+3. **Community Detection** — Discover economic clusters
+4. **Shock Propagation** — Model cascading effects
+5. **Supply Chain Risk** — Identify vulnerabilities
+
+### Current Maturity Level: **PRODUCTION** ✅
+
+| Criterion | Status |
+|-----------|--------|
+| Core network methods | ✅ Yes |
+| Centrality analysis | ✅ Yes |
+| Test coverage | ✅ **79.7%** (2166/2718 lines) |
+| Branch coverage | ✅ **73.5%** (929/1264 branches) |
+| Documentation | ✅ Yes |
+
+**This is the best-tested repository in the KRL suite.**
+
+### Strategic Dependencies
+
+- **Upstream:** krl-premium-backend (API access)
+- **Downstream:** None
+- **Peer:** krl-geospatial-tools (network + spatial overlap)
+
+### Known Gaps
+
+1. **Coverage gap to 80%** — Close but not quite at target
+2. **Branch coverage 73.5%** — Good but could improve
+
+---
+
+## SECTION B — Product, Marketing & Sales Intelligence
+
+### Network Capabilities (Verified)
+
+| Capability | Status |
+|------------|--------|
+| Economic network construction | ✅ |
+| Centrality measures | ✅ |
+| Community detection | ✅ |
+| Temporal network analysis | ✅ |
+| Shock propagation modeling | ✅ |
+| Supply chain vulnerability | ✅ |
+| Network visualization | ✅ |
+
+### Capabilities Safe to Reference in Sales
+
+✅ **Can claim:**
+- "Economic network analysis"
+- "Supply chain risk assessment"
+- "Shock propagation modeling"
+- "Input-output network analysis"
+- "Trade network analysis"
+- "~80% test coverage"
+
+### Differentiators
+
+1. **Economic focus** — Designed for economic networks, not generic graphs
+2. **Supply chain analysis** — Built-in vulnerability detection
+3. **Shock modeling** — Cascade effect simulation
+4. **High quality** — Best test coverage in KRL suite
+
+---
+
+## SECTION C — Engineering & Development Brief
+
+### Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Language | Python ≥3.9 |
+| Graphs | networkx |
+| Visualization | plotly, matplotlib |
+| Data | pandas, numpy |
+| Testing | pytest |
+
+### How to Run
+
+```bash
+pip install -e ".[dev]"
+pytest tests/ -v --cov=src
+```
+
+### Key Modules
+
+| Module | Purpose |
+|--------|---------|
+| `construction/` | Build networks from data |
+| `centrality/` | Centrality measures |
+| `community/` | Community detection |
+| `dynamics/` | Temporal analysis |
+| `risk/` | Vulnerability assessment |
+| `visualization/` | Network plots |
+
+### Quality Metrics
+
+```
+Coverage: 79.7% (2166/2718 lines)
+Branch:   73.5% (929/1264 branches)
+```
+
+---
+
+## SECTION D — Operational & Governance Notes
+
+### Maintenance Risks
+
+| Risk | Severity | Mitigation |
+|------|----------|------------|
+| Coverage gap to 80% | LOW | Add edge case tests |
+| Branch coverage gap | LOW | Improve conditional coverage |
+
+### Ownership
+
+- **Team:** KR-Labs Engineering
+- **Escalation:** engineering@krlabs.dev
+
+---
+
+*Last updated: December 14, 2025 — Forensic audit verified 79.7% coverage*
