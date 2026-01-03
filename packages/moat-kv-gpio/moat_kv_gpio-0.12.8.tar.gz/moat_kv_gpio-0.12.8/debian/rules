@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=moat-kv-gpio
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+debian/moat-kv-gpio.service: moat-kv-gpio.service
+	cp $< $@
+
+override_dh_auto_install: debian/moat-kv-gpio.service
+	dh_auto_install
