@@ -1,0 +1,176 @@
+# VGD Reader
+
+A Python library for reading Thermo Scientific VGD (VG Data) binary files commonly used in X-ray Photoelectron Spectroscopy (XPS).
+
+## Features
+
+- Parse single-spectrum and multi-spectrum VGD files
+- Extract binding energy, kinetic energy, and intensity data
+- Access acquisition parameters (pass energy, dwell time, source energy, etc.)
+- Export to Excel format with metadata
+- Convert to pandas DataFrame
+- No wxPython or GUI dependencies - pure data processing
+
+## Installation
+
+```bash
+pip install vgd-reader
+```
+
+With optional dependencies for Excel export and pandas support:
+
+```bash
+pip install vgd-reader[all]
+```
+
+## Quick Start
+
+### Basic Usage
+
+```python
+from vgd_reader import read_vgd
+
+# Read a VGD file
+data = read_vgd("O1s_Scan.vgd")
+
+# Access data arrays
+print(data.binding_energy)      # BE values (numpy array)
+print(data.intensity)           # Raw intensity counts
+print(data.corrected_intensity) # Normalized intensity
+
+# Access metadata
+print(data.core_level)          # e.g., "O1s"
+print(data.acquisition.pass_energy)
+print(data.acquisition.source_energy)
+```
+
+### Working with Multi-Spectrum Files
+
+```python
+from vgd_reader import read_vgd
+
+vgd = read_vgd("multi_spectrum.vgd")
+print(f"Found {vgd.num_spectra} spectra")
+
+for spectrum in vgd.spectra:
+    print(f"{spectrum.core_level} - Index {spectrum.spectrum_index}")
+    print(f"  BE range: {spectrum.be_start:.2f} to {spectrum.be_end:.2f} eV")
+    print(f"  Pass energy: {spectrum.pass_energy} eV")
+```
+
+### Export to Excel
+
+```python
+from vgd_reader import read_vgd
+
+data = read_vgd("sample.vgd")
+data.to_excel("output.xlsx", include_metadata=True)
+```
+
+### Convert to pandas DataFrame
+
+```python
+from vgd_reader import read_vgd
+
+data = read_vgd("sample.vgd")
+df = data.to_dataframe()
+print(df.head())
+```
+
+### Low-Level API
+
+For more control, use the low-level parsing functions:
+
+```python
+from vgd_reader import parse_vgd_file, calculate_spectrum_data
+
+# Parse raw data
+parsed = parse_vgd_file("sample.vgd")
+print(parsed['source_energy'])
+print(parsed['pass_energy'])
+print(parsed['metadata'])
+
+# Calculate spectrum data for a specific index
+calc = calculate_spectrum_data(parsed, spectrum_index=0)
+be_values = calc['be_values']
+intensities = calc['intensities']
+```
+
+## API Reference
+
+### `read_vgd(filepath)`
+
+Main entry point. Returns a `VGDFile` object.
+
+### `VGDFile`
+
+- `filepath`: Path to the VGD file
+- `spectra`: List of `VGDSpectrum` objects
+- `num_spectra`: Number of spectra in file
+- `core_level`: Primary core level name from filename
+- `binding_energy`: BE array (first spectrum)
+- `intensity`: Raw intensity array (first spectrum)
+- `corrected_intensity`: Corrected intensity array (first spectrum)
+- `metadata`: `VGDMetadata` object
+- `acquisition`: `VGDAcquisitionParams` object
+- `to_dataframe()`: Convert to pandas DataFrame
+- `to_excel(path)`: Export to Excel file
+
+### `VGDSpectrum`
+
+- `binding_energy`: numpy array of BE values
+- `kinetic_energy`: numpy array of KE values
+- `intensity`: numpy array of raw counts
+- `corrected_intensity`: numpy array of normalized data
+- `core_level`: Core level name (e.g., "O1s")
+- `spectrum_index`: Index in multi-spectrum files
+- `be_start`, `be_end`, `be_step`: Energy range info
+- `source_energy`, `pass_energy`: Acquisition parameters
+- `sample_id`, `title`, `author`: Metadata
+- `to_dict()`: Convert to dictionary
+
+### `extract_core_level_name(filename)`
+
+Extract clean core level name from filename:
+- `"O1s_Scan.VGD"` → `"O1s"`
+- `"Sr3d Scan.VGD"` → `"Sr3d"`
+
+## File Format
+
+VGD files use Microsoft OLE2 Compound File format (similar to older .doc files). The library extracts:
+
+- **VGData**: Raw intensity values (64-bit floats)
+- **VGDataAxes**: Spectrum dimensions for multi-spectrum files
+- **VGSpaceAxes**: Kinetic energy start and step values
+- **Property Stream**: Acquisition parameters (source energy, pass energy, dwell time, etc.)
+
+Binding energy is calculated from kinetic energy using:
+```
+BE = Source_Energy - KE
+```
+
+## Requirements
+
+- Python ≥ 3.8
+- numpy ≥ 1.20.0
+- olefile ≥ 0.46
+- openpyxl ≥ 3.0.0 (optional, for Excel export)
+- pandas ≥ 1.3.0 (optional, for DataFrame conversion)
+
+## License
+
+MIT License
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Related Projects
+
+- [KherveFitting](https://github.com/gkerherve/KherveFitting) - Open-source XPS data analysis software
+- [LMFITXPS](https://github.com/Julian-Hochhaus/lmfitxps) - XPS peak fitting with lmfit
+- [LG4X](https://github.com/Julian-Hochhaus/LG4X) - Line shape functions for XPS
+
+## Acknowledgments
+
+This library was developed as part of the KherveFitting project for XPS data analysis.

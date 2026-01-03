@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vgd-reader"
+version = "0.1.0"
+authors = [
+    { name = "Gwilherm Kerherve", email = "g.kerherve@imperial.ac.uk" }
+]
+description = "Parse Thermo Scientific VGD files for XPS (X-ray Photoelectron Spectroscopy) analysis"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+keywords = ["xps", "spectroscopy", "thermo", "vgd", "surface-analysis", "photoelectron"]
+
+dependencies = [
+    "numpy>=1.20.0",
+    "olefile>=0.46",
+]
+
+[project.optional-dependencies]
+excel = ["openpyxl>=3.0.0"]
+pandas = ["pandas>=1.3.0"]
+all = ["openpyxl>=3.0.0", "pandas>=1.3.0"]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/gkerherve/vgd_reader"
+Documentation = "https://github.com/gkerherve/vgd_reader#readme"
+Repository = "https://github.com/gkerherve/vgd_reader"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N"]
