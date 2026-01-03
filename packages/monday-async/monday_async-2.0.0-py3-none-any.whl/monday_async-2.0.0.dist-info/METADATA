@@ -1,0 +1,72 @@
+Metadata-Version: 2.4
+Name: monday-async
+Version: 2.0.0
+Summary: An asynchronous Python client library for monday.com GraphQL API
+Project-URL: Homepage, https://github.com/denyskarmazen/monday-async
+Project-URL: Repository, https://github.com/denyskarmazen/monday-async
+Project-URL: Issues, https://github.com/denyskarmazen/monday-async/issues
+Project-URL: Changelog, https://github.com/denyskarmazen/monday-async/releases
+Project-URL: Source, https://github.com/denyskarmazen/monday-async
+Author-email: denyskarmazen <deniskarmazen@gmail.com>
+Maintainer-email: denyskarmazen <deniskarmazen@gmail.com>
+License-Expression: Apache-2.0
+License-File: LICENSE
+Keywords: API,aiohttp,async,asyncio,graphql,library,monday,monday-api-client,monday.com,project-management,python-client,wrapper
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: AsyncIO
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Internet
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Office/Business
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=3.10
+Requires-Dist: aiofiles>=25.1.0
+Requires-Dist: aiohttp>=3.13.2
+Requires-Dist: graphql-core~=3.2.7
+Description-Content-Type: text/markdown
+
+# monday-async &middot; [![Tests](https://github.com/denyskarmazen/monday-async/actions/workflows/project-tests.yml/badge.svg)](https://github.com/denyskarmazen/monday-async/actions/workflows/project-tests.yml) [![PyPI Downloads](https://static.pepy.tech/badge/monday-async)](https://pepy.tech/projects/monday-async) [![Monday.com API Version](https://img.shields.io/badge/Monday_API_Version-2025--04-green)](https://developer.monday.com/api-reference/docs/release-notes#2025-04)
+An asynchronous Python client library for monday.com
+
+Check out monday.com API [here](https://developer.monday.com/api-reference/).
+
+### Install
+#### Python Requirements:
+- Python >= 3.10
+
+To install the latest version run:
+```bash
+pip install monday-async
+```
+
+### Example
+
+```python
+import asyncio
+
+from monday_async import AsyncMondayClient
+
+
+async def main():
+    async with AsyncMondayClient(token="YOUR_API_KEY") as client:
+        boards = await client.boards.get_boards()
+
+
+asyncio.run(main())
+```
+
+### Changelog
+See [CHANGELOG.md](CHANGELOG.md) for a list of changes.
+
+### License
+This project is licensed under the [Apache-2.0 license](LICENSE).
