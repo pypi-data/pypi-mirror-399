@@ -1,0 +1,25 @@
+[project]
+name = "pdfino-cli"
+version = "0.1.0"
+description = "Convert .ino/.py files in the current directory into PDFs via Markdown + Pandoc."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "GG" }]
+keywords = ["pandoc", "pdf", "markdown", "arduino", "listing"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Environment :: Console",
+  "Topic :: Text Processing",
+]
+
+[project.scripts]
+pdfino = "pdfino.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pdfino"]
