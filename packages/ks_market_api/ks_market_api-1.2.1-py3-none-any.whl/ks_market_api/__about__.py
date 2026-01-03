@@ -1,0 +1,10 @@
+# __version__="1.1.5" # 初始化
+# __version__="1.1.6" # 修正api
+# __version__="1.1.7" # 修正api
+# __version__="1.1.8" # 修正api
+# __version__="1.1.9" # 修正api
+# __version__="1.1.10" # 修正api
+# __version__="1.1.24" # 修正api
+# __version__="1.1.27" # 使用单独线程
+# __version__="1.2.0" # 全部enum移除，修正subscribe 没有初始化的错误
+__version__="1.2.1" # 修正引入
