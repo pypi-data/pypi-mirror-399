@@ -1,0 +1,41 @@
+[project]
+name = "kition-djangodefaults"
+version = "0.5.2"
+readme = "README.md"
+description = "Default configuration and components for Django projects."
+authors = [
+    { name = "Dennis Stritzke", email = "dennis.stritzke@kition.dev" },
+]
+license = "MIT"
+requires-python = ">=3.12,<4"
+dependencies = [
+    "django (>=5.1)",
+    "psycopg (~=3.2)",
+    "django-storages[s3] (~=1.14)",
+]
+
+[project.optional-dependencies]
+worker = [
+    "django-q2 (~=1.9)",
+]
+dev = [
+    "ruff (==0.14.10)",
+    "mypy (==1.19.1)",
+    "django-stubs (==5.2.8)"
+]
+
+[project.urls]
+Source = "https://github.com/kition-dev/djangodefaults"
+Issues = "https://github.com/kition-dev/djangodefaults/issues"
+Changelog = "https://github.com/kition-dev/djangodefaults/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+requires-poetry = ">=2.0"
+
+[[tool.mypy.overrides]]
+module = "django_q.tasks"
+ignore_missing_imports = true
