@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spe-xps-reader"
+version = "1.0.0"
+authors = [
+    {name = "Gwilherm Kerherve"},
+]
+description = "A Python library for reading PHI Instruments SPE files for XPS data analysis"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+keywords = ["XPS", "spectroscopy", "PHI", "SPE", "scientific-data", "materials-science", "surface-science", "photoelectron-spectroscopy"]
+dependencies = [
+    "numpy>=1.16.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "matplotlib>=3.0.0",
+    "pytest>=6.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/gkerherve/spe-xps-reader"
+Documentation = "https://github.com/gkerherve/spe-xps-reader/blob/main/README.md"
+Repository = "https://github.com/gkerherve/spe-xps-reader"
+"Bug Tracker" = "https://github.com/gkerherve/spe-xps-reader/issues"
+Changelog = "https://github.com/gkerherve/spe-xps-reader/blob/main/CHANGELOG.md"
+
+[project.scripts]
+spe-reader = "spe_xps_reader.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+spe_xps_reader = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
