@@ -1,0 +1,279 @@
+Metadata-Version: 2.4
+Name: yz-dubbo
+Version: 0.1.3
+Summary: 有赞 Dubbo SDK - 支持 Dubbo RPC 调用
+Author-email: YouzanTech <tech@youzan.com>
+License: MIT
+Project-URL: Homepage, https://github.com/youzan/yz-dubbo
+Project-URL: Documentation, https://github.com/youzan/yz-dubbo/blob/main/README.md
+Project-URL: Repository, https://github.com/youzan/yz-dubbo.git
+Project-URL: Issues, https://github.com/youzan/yz-dubbo/issues
+Keywords: dubbo,rpc,youzan
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: httpx>=0.24.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+
+# YZ-Dubbo
+
+有赞 Dubbo SDK - 基于 Tether 网关的 Dubbo RPC 调用封装
+
+## 功能特性
+
+- 🚀 **简单易用**: 提供简洁的函数式 API
+- ⏱️ **超时控制**: 支持自定义超时时间,默认3秒
+
+## 安装
+
+```bash
+# 开发模式安装
+cd packages/yz_dubbo
+pip install -e .
+
+# 或从 requirements.txt 安装
+pip install -r requirements.txt
+```
+
+## 快速开始
+
+### 基础调用
+
+```python
+from yz_dubbo import invoke
+
+# 调用 Dubbo 服务
+result = invoke(
+    service_name="com.youzan.service.UserService",
+    method_name="getUserInfo",
+    args=[{"userId": 123}]
+)
+
+print(result)  # 直接返回响应数据
+```
+
+### 自定义 Headers
+
+```python
+result = invoke(
+    service_name="com.youzan.service.OrderService",
+    method_name="createOrder",
+    args=[{"productId": 456, "quantity": 1}],
+    headers={
+        "X-Request-Id": "req-123",
+        "X-Tenant-Id": "tenant-456"
+    }
+)
+```
+
+### 设置超时时间
+
+```python
+result = invoke(
+    service_name="com.youzan.service.PaymentService",
+    method_name="pay",
+    args=[payment_data],
+    timeout=10000  # 10秒超时
+)
+```
+
+### 代码配置
+
+```python
+from yz_dubbo import DubboConfig, DubboClient
+
+# 使用预设环境
+config = DubboConfig(env="prod")
+
+# 使用自定义配置
+client = DubboClient(config=config)
+result = client.invoke(
+    service_name="com.youzan.service.UserService",
+    method_name="getUser",
+    args=[{"userId": 123}]
+)
+client.close()
+```
+
+## 错误处理
+
+### 错误码对照表
+
+| 错误码 | 说明 | HTTP Status |
+|--------|------|-------------|
+| `ERR_CLIENT_ERROR` | 客户端错误 | 400 |
+| `ERR_TIMEOUT` | 请求超时 | 504 |
+| `ERR_PARAMS_TYPE_ERROR` | 参数类型错误 | 400 |
+| `ERR_FLOW_LIMIT` | 流量限制 | 429 |
+| `ERR_SERVICE_UNAVAILABLE` | 服务不可用 | 503 |
+| `ERR_INTERNAL_SERVER_ERROR` | 内部错误 | 500 |
+| `ERR_NETWORK_ERROR` | 网络错误 | 503 |
+
+### 异常处理示例
+
+```python
+from yz_dubbo import invoke, DubboError, ErrorCode
+
+try:
+    result = invoke(
+        service_name="com.youzan.service.UserService",
+        method_name="getUser",
+        args=[{"userId": 123}]
+    )
+    print(f"成功: {result}")
+
+except DubboError as e:
+    print(f"错误码: {e.code}")
+    print(f"错误信息: {e.message}")
+    print(f"上下文: {e.context}")
+
+    # 根据错误码处理
+    if e.code == ErrorCode.ERR_TIMEOUT:
+        print("请求超时,请稍后重试")
+    elif e.code == ErrorCode.ERR_NETWORK_ERROR:
+        print("网络错误")
+    else:
+        print("其他错误")
+```
+
+## API 参考
+
+### invoke()
+
+```python
+def invoke(
+    service_name: str,
+    method_name: str,
+    args: Optional[List[Any]] = None,
+    headers: Optional[Dict[str, str]] = None,
+    timeout: int = 3000,
+) -> Any
+```
+
+**参数**:
+- `service_name`: 服务接口名 (如 `com.youzan.service.UserService`)
+- `method_name`: 方法名
+- `args`: 参数列表 (默认为 `[]`)
+- `headers`: 自定义请求头 (默认为 `{}`)
+- `timeout`: 超时时间,单位毫秒 (默认 `3000`)
+
+**返回值**: 直接返回服务响应的 JSON 数据
+
+**异常**: 抛出 `DubboError`
+
+### DubboClient
+
+```python
+class DubboClient:
+    def __init__(self, config: Optional[DubboConfig] = None) -> None
+    def invoke(
+        self,
+        service_name: str,
+        method_name: str,
+        args: Optional[List[Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        timeout: int = 3000
+    ) -> Any
+    def close(self) -> None
+```
+
+### DubboConfig
+
+```python
+class DubboConfig:
+    def __init__(
+        self,
+        env: Optional[str] = None,
+        host: Optional[str] = None,
+        port: int = 80,
+        timeout: int = 3000,
+        from_app: Optional[str] = None
+    ) -> None
+```
+
+## 项目结构
+
+```
+yz_dubbo/
+├── __init__.py         # 对外 API 导出
+├── client.py           # 核心客户端实现
+├── config.py           # 配置管理
+├── errors.py           # 错误定义
+└── py.typed            # 类型标记
+```
+
+## 常见问题
+
+### Q: 如何切换环境?
+
+**A**: 有三种方式:
+```python
+# 1. 环境变量
+export DUBBO_ENV=prod
+
+# 2. 代码配置
+from yz_dubbo import DubboConfig
+config = DubboConfig(env="prod")
+
+```
+
+### Q: 超时时间如何设置?
+
+**A**: 可以全局设置或单次调用设置:
+```python
+# 全局设置
+config = DubboConfig(timeout=10000)
+
+# 单次调用 (推荐)
+invoke(..., timeout=5000)
+```
+
+### Q: 如何添加自定义 Headers?
+
+**A**: 通过 `headers` 参数传递:
+```python
+result = invoke(
+    service_name="com.youzan.service.UserService",
+    method_name="getUser",
+    args=[{"userId": 123}],
+    headers={
+        "X-Request-Id": "req-123",
+        "X-Custom-Header": "custom-value"
+    }
+)
+```
+
+### Q: 返回值是什么格式?
+
+**A**: 直接返回服务响应的 JSON 数据,不做额外包装:
+```python
+result = invoke(...)
+# result 就是服务返回的原始数据,可能是 dict、list 或其他 JSON 类型
+```
+
+## 许可证
+
+MIT License
+
+## 联系方式
+
+- 项目地址: `/packages/yz_dubbo`
+- 测试目录: `/tests/yz_dubbo`
+
+---
+
+**YZ-Dubbo - 让 Dubbo 调用更简单** 🚀
