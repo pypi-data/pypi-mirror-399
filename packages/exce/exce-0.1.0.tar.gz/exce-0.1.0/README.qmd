@@ -1,0 +1,17 @@
+---
+title: "EXCE"
+format: gfm
+---
+
+
+> export code from notebook cells to python source files
+
+
+The first Quatro document I created was based on some math formula's from an article (about measuring sap flux in tree stems) LaTeX formated formula's and implemented these as python code. Step by step functions were build and documented along the formula's and some example calculations. This worked like a charm but the disadvantage was that I had to copy the code from the document into a separate python file for use in our runtime environment. It worked fine but the disadvantage to this approach is that changes in one document had to be manually copied and paste into another. Such an arrangement will inevitably lead to errors.
+
+What I needed was a way to convert or export selected code cells into a python source code file automatically and I found this in NBDev. Using it worked fine for a while, NBDev exports your code, builds the documentation and, if desired, combines the code in pypi packages and uploaf them to PyPi. I build packages with it that I relied on. 
+
+And then it broke, PyPi uploading failed and I was lost as to why. I managed to fix it somewhat but ultimately had to create a new repo with the old as submodule and build the package from there. Not sure what was wrong, it appears NBDev evolved to follow PyPi but my existing project did not.
+
+So having to do the PyPi packaging myself I might as well look back at the original issue of extracting or exporting complete python sourcefiles from Quarto documents.
+
