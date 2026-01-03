@@ -1,0 +1,227 @@
+Metadata-Version: 2.4
+Name: auto-package-framework
+Version: 0.1.0
+Summary: AI驱动的自动化Python包创建、开发和发布框架
+Author-email: Auto Project <auto@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/flashpoint493/auto-package-framework
+Project-URL: Documentation, https://github.com/flashpoint493/auto-package-framework#readme
+Project-URL: Repository, https://github.com/flashpoint493/auto-package-framework
+Project-URL: Issues, https://github.com/flashpoint493/auto-package-framework/issues
+Keywords: automation,ai,package,github,pypi
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: PyGithub>=2.0.0
+Requires-Dist: GitPython>=3.1.40
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: jinja2>=3.1.2
+Requires-Dist: click>=8.1.7
+Requires-Dist: openai>=1.0.0
+Requires-Dist: anthropic>=0.18.0
+Requires-Dist: twine>=4.0.0
+Requires-Dist: build>=1.0.0
+Requires-Dist: python-dotenv>=1.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: ruff>=0.6.0; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+Requires-Dist: pre-commit>=3.0; extra == "dev"
+
+# Auto Package Framework
+
+> 自动化Python包创建、开发和发布的AI驱动框架
+
+## 🎯 功能概述
+
+这个框架能够自动化完成以下任务：
+
+1. **项目生成** - 基于模板自动创建新的Python包项目
+2. **AI开发** - 使用AI根据项目想法自动生成代码
+3. **GitHub集成** - 自动创建仓库、提交代码、设置CI/CD
+4. **PyPI发布** - 自动构建和发布包到PyPI
+
+## 🏗️ 架构设计
+
+```
+auto_package_framework/
+├── src/
+│   ├── framework/
+│   │   ├── __init__.py
+│   │   ├── core.py              # 核心工作流引擎
+│   │   ├── project_generator.py  # 项目生成器
+│   │   ├── github_client.py     # GitHub API集成
+│   │   ├── pypi_client.py       # PyPI发布集成
+│   │   ├── ai_developer.py      # AI代码生成器
+│   │   └── config.py            # 配置管理
+│   └── cli/
+│       └── __init__.py          # CLI入口
+├── templates/                    # 项目模板（引用PROJECT_TEMPLATE）
+├── config.yaml                   # 框架配置
+├── requirements.txt
+└── README.md
+```
+
+## 🔧 所需外部工具
+
+### 必需工具
+
+1. **GitHub API**
+   - 库: `PyGithub` 或 `ghapi`
+   - 用途: 创建仓库、提交代码、创建Release
+   - 认证: Personal Access Token (推荐) 或 OAuth
+
+2. **PyPI API**
+   - 库: `twine` + `build`
+   - 用途: 构建和上传包
+   - 认证: API Token (推荐) 或用户名密码
+
+3. **AI代码生成**
+   - 选项1: OpenAI API (`openai`)
+   - 选项2: Anthropic API (`anthropic`)
+   - 选项3: 本地模型 (需要额外配置)
+   - 用途: 根据PROJECT_IDEA.md生成代码
+
+4. **Git操作**
+   - 库: `GitPython`
+   - 用途: 本地Git操作、提交管理
+
+### 可选工具
+
+5. **项目管理**
+   - `pyyaml` - 配置文件解析
+   - `jinja2` - 模板渲染
+   - `click` 或 `typer` - CLI框架
+
+6. **验证和测试**
+   - `pytest` - 测试框架
+   - `ruff` - 代码检查（已在模板中）
+
+## 📋 工作流程
+
+```
+用户输入想法
+    ↓
+1. 解析项目需求 (PROJECT_IDEA.md格式)
+    ↓
+2. 从模板生成项目结构
+    ↓
+3. AI生成初始代码
+    ↓
+4. 运行测试和代码检查
+    ↓
+5. 创建GitHub仓库并推送代码
+    ↓
+6. 设置CI/CD工作流
+    ↓
+7. 构建包
+    ↓
+8. 发布到PyPI
+    ↓
+9. 创建GitHub Release
+```
+
+## 🚀 快速开始
+
+### 安装
+
+```bash
+cd auto_package_framework
+pip install -e ".[dev]"
+```
+
+### 配置
+
+创建 `config.yaml`:
+
+```yaml
+github:
+  username: your_username
+  token: your_github_token  # 或使用环境变量 GITHUB_TOKEN
+  
+pypi:
+  username: your_pypi_username
+  password: your_pypi_password  # 或使用环境变量 PYPI_PASSWORD
+  # 或使用API token:
+  # token: pypi-xxxxx
+
+ai:
+  provider: openai  # 或 anthropic
+  api_key: your_api_key  # 或使用环境变量 OPENAI_API_KEY
+  model: gpt-4  # 或 claude-3-opus
+
+template_path: ../PROJECT_TEMPLATE
+```
+
+### 使用示例
+
+```python
+from framework.core import AutoPackageFramework
+
+framework = AutoPackageFramework(config_path="config.yaml")
+
+# 创建一个新包
+result = framework.create_package(
+    project_name="my-awesome-package",
+    project_idea="一个用于自动化任务调度的Python包",
+    github_repo="my-awesome-package",
+    auto_publish=True
+)
+```
+
+## 🔒 安全建议
+
+1. **不要将凭据提交到代码库**
+   - 使用环境变量
+   - 使用 `.env` 文件（添加到.gitignore）
+   - 使用密钥管理服务
+
+2. **使用最小权限的Token**
+   - GitHub: 只授予必要的仓库权限
+   - PyPI: 使用API Token而非密码
+
+3. **代码审查**
+   - AI生成的代码需要人工审查
+   - 特别是涉及安全的部分
+
+## 📝 待实现功能
+
+- [ ] 支持批量创建多个包
+- [ ] 自动更新和维护现有包
+- [ ] 集成更多AI提供商（如本地模型）
+- [ ] 支持自定义模板
+- [ ] Web UI界面
+- [ ] 项目监控和报告
+- [ ] 自动生成文档
+- [ ] 集成CI/CD配置优化
+
+## 🧪 测试
+
+运行测试:
+
+```bash
+# 运行所有测试
+pytest
+
+# 运行特定测试
+pytest tests/test_config.py
+
+# 带覆盖率
+pytest --cov=src --cov-report=html
+```
+
+查看 [MINIMAL_PROTOTYPE.md](./MINIMAL_PROTOTYPE.md) 了解如何测试最小原型。
+
+## 🤝 贡献
+
+欢迎贡献！请查看CONTRIBUTING.md了解详情。
+
