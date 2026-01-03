@@ -1,0 +1,33 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "theme": "everforest",
+    "permission": {
+        "external_directory": "allow",
+        "bash": {
+            "scripts/check_quality.sh": "allow",
+            "bash scripts/check_quality.sh": "allow",
+            "uv run pytest *": "allow",
+            "git push": "ask",
+            "git status": "allow",
+            "git diff": "allow",
+            "ls": "allow",
+            "pwd": "allow",
+            "mkdir *": "allow",
+            "*": "ask"
+        }
+    },
+    "tools": {
+        "read": true,
+        "write": true,
+        "edit":true,
+        "grep": true,
+        "glob": true,
+        "list": true,
+        "patch": true,
+        "todoread": true,
+        "todowrite": true,
+        "skill": true,
+        "lsp": true,
+        "webfetch": true
+    }
+}
