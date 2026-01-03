@@ -1,0 +1,204 @@
+Metadata-Version: 2.4
+Name: nanopy-chain
+Version: 1.2.87
+Summary: A lightweight Ethereum-compatible blockchain fork with P2P networking
+Home-page: https://github.com/Web3-League/blockchain-python
+Author: NanoPy Team
+Author-email: dev@nanopy.chain
+Keywords: blockchain ethereum fork cryptocurrency smart-contracts
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: System :: Distributed Computing
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: eth-account>=0.8.0
+Requires-Dist: eth-keys>=0.4.0
+Requires-Dist: eth-typing>=3.0.0
+Requires-Dist: eth-utils>=2.0.0
+Requires-Dist: eth-hash[pycryptodome]>=0.5.0
+Requires-Dist: eth-bloom>=3.0.0
+Requires-Dist: eth-abi>=4.0.0
+Requires-Dist: eth-rlp>=0.3.0
+Requires-Dist: rlp>=3.0.0
+Requires-Dist: web3>=6.0.0
+Requires-Dist: aiohttp>=3.8.0
+Requires-Dist: websockets>=10.0
+Requires-Dist: py-ecc>=6.0.0
+Requires-Dist: pycryptodome>=3.15.0
+Requires-Dist: ecdsa>=0.18.0
+Requires-Dist: trie>=2.0.0
+Requires-Dist: click>=8.0.0
+Requires-Dist: rich>=12.0.0
+Requires-Dist: python-dotenv>=0.20.0
+Requires-Dist: multiaddr>=0.0.9
+Requires-Dist: protobuf>=3.20.0
+Requires-Dist: trio>=0.22.0
+Requires-Dist: trio-typing>=0.10.0
+Requires-Dist: cryptography>=3.4.0
+Requires-Dist: lru-dict>=1.1.0
+Requires-Dist: base58>=2.0.0
+Requires-Dist: pynacl>=1.5.0
+Requires-Dist: coincurve>=18.0.0
+Requires-Dist: trio-websocket>=0.10.0
+Requires-Dist: aioquic>=0.9.0
+Requires-Dist: noiseprotocol>=0.3.0
+Requires-Dist: py-multihash>=2.0.0
+Requires-Dist: zeroconf>=0.50.0
+Requires-Dist: miniupnpc>=2.2.0
+Requires-Dist: fastecdsa>=2.0.0; sys_platform != "win32"
+Requires-Dist: grpcio>=1.50.0
+Requires-Dist: varint>=1.0.0
+Requires-Dist: psutil>=5.9.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
+Requires-Dist: black>=24.0.0; extra == "dev"
+Requires-Dist: mypy>=1.8.0; extra == "dev"
+Requires-Dist: ruff>=0.2.0; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# NanoPy
+
+The first Ethereum-compatible blockchain written entirely in Python.
+
+> *"Web3 is the developer's sudoku - you solve crypto puzzles, consensus problems, smart contracts... A blockchain in Python? That's not serious! Well that's the point, who cares, it works and it's fun."*
+
+## Why Python?
+
+- **Readable**: Understand the entire blockchain in the world's #1 language
+- **Hackable**: Modify consensus, EVM, or networking without recompiling
+- **Educational**: Learn blockchain internals without C++/Rust complexity
+
+## Install
+
+```bash
+pip install nanopy-chain
+```
+
+## Quick Start
+
+```bash
+# Run a node
+nanopy-node
+
+# Run on testnet
+nanopy-node --testnet
+
+# Run a validator (earn NPY rewards)
+nanopy-validator --key YOUR_PRIVATE_KEY
+
+# Generate a wallet
+nanopy wallet
+
+# Check balance
+nanopy balance 0xYourAddress
+```
+
+## Features
+
+- **100% Python** - No C extensions, pure Python
+- **Full EVM** - Deploy Solidity contracts, use MetaMask, Hardhat, etc.
+- **Proof of Stake** - 10,000 NPY minimum stake, ~12s blocks
+- **EIP-1559** - Dynamic fee market
+- **EIP-2930** - Access lists support
+- **libp2p** - Production-grade P2P networking
+- **JSON-RPC** - HTTP + WebSocket on same port
+- **eth_subscribe** - Real-time events (newHeads, logs, pendingTx)
+
+## Networks
+
+| Network | Chain ID | RPC URL | Status |
+|---------|----------|---------|--------|
+| Mainnet | 7770 | http://51.68.125.99:8545 | Coming soon |
+| Testnet | 77777 | http://51.68.125.99:8546 | ✅ Active |
+
+### Add to MetaMask
+
+- **Network Name**: NanoPy Testnet
+- **RPC URL**: http://51.68.125.99:8546
+- **Chain ID**: 77777
+- **Symbol**: NPY
+
+## Layer 2: Turbo
+
+NanoPy Turbo is our Go-based L2 for high-throughput applications.
+
+| Network | Chain ID | RPC URL |
+|---------|----------|---------|
+| Turbo Testnet | 777702 | http://51.68.125.99:8548 |
+
+See [blockchain-L2](https://github.com/Web3-League/blockchain-L2) repo.
+
+## JSON-RPC
+
+Single port serves both HTTP and WebSocket:
+
+```bash
+# HTTP
+curl -X POST http://localhost:8545 \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+
+# WebSocket (same port)
+wscat -c ws://localhost:8545
+> {"jsonrpc":"2.0","method":"eth_subscribe","params":["newHeads"],"id":1}
+```
+
+### Supported Methods
+
+- `eth_blockNumber`, `eth_getBlockByNumber`, `eth_getBlockByHash`
+- `eth_getBalance`, `eth_getTransactionCount`
+- `eth_sendRawTransaction`, `eth_getTransactionReceipt`
+- `eth_call`, `eth_estimateGas`
+- `eth_getLogs`, `eth_subscribe`, `eth_unsubscribe`
+- `net_version`, `eth_chainId`
+
+## Deploy a Contract
+
+```python
+from web3 import Web3
+
+w3 = Web3(Web3.HTTPProvider('http://51.68.125.99:8546'))
+
+# Deploy with your favorite tool: Hardhat, Foundry, or raw Web3
+```
+
+## Architecture
+
+```
+nanopy/
+├── nanolib/          # libp2p networking (Python port)
+├── nanopy/
+│   ├── core/         # Blockchain, blocks, transactions
+│   ├── evm/          # Ethereum Virtual Machine
+│   ├── consensus/    # Proof of Stake
+│   ├── rpc/          # JSON-RPC server
+│   └── p2p/          # Peer discovery, sync
+└── contracts/        # Solidity contracts (DEX, NFT, Bridge)
+```
+
+## Links
+
+- **PyPI**: https://pypi.org/project/nanopy-chain/
+- **Webapp**: https://github.com/Web3-League/dapp-nanopy
+- **L2 Turbo**: https://github.com/Web3-League/blockchain-L2
+
+## License
+
+MIT
