@@ -1,0 +1,56 @@
+[build-system]
+requires = ["uv_build>=0.9.17,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "spoe_forge"
+module-root = ""
+
+[project]
+name = "spoe-forge"
+version = "0.0.3"
+description = "A pure Python framework for building HAProxy SPOE agents"
+authors = [
+    {name = "Mike O'Donnell", email = "mike@devferret.com"},
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+keywords = ["haproxy", "spoe", "spoa", "spop"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/mwodonnell/spoe-forge"
+Repository = "https://github.com/mwodonnell/spoe-forge"
+
+[project.scripts]
+spoe-forge = "spoe_forge.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=4.1.0",
+    "ruff==0.14.2",
+]
+test = [
+    "pytest==9.0.1",
+    "pytest-asyncio==1.3.0",
+    "coveralls==4.0.2",
+    "coverage==7.13.0",
+    "pytest-cov==7.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = [
+    "--verbose",
+    "--cov=spoe_forge",
+    "--cov-report=term-missing",
+    "--cov-report=html"
+]
