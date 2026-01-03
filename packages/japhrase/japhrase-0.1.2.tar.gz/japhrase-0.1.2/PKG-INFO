@@ -1,0 +1,366 @@
+Metadata-Version: 2.4
+Name: japhrase
+Version: 0.1.2
+Summary: Detect frequent phrases from Japanese texts
+Author-email: Takeshi SHIMIZU <shim1zu@hotmail.com>
+License: MIT License
+        
+        Copyright (c) 2023 Takeshi SHIMIZU
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Homepage, https://github.com/tshim1zu/phrase-project
+Project-URL: Repository, https://github.com/tshim1zu/phrase-project
+Project-URL: Documentation, https://github.com/tshim1zu/phrase-project#readme
+Project-URL: Bug Tracker, https://github.com/tshim1zu/phrase-project/issues
+Keywords: nlp,japanese,phrase-extraction,text-analysis
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Text Processing :: Linguistic
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: pandas>=1.3.0
+Requires-Dist: ipython>=7.0.0
+Requires-Dist: openpyxl>=3.0.0
+Requires-Dist: chardet>=4.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=6.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=2.0.0; extra == "dev"
+Requires-Dist: black>=21.0; extra == "dev"
+Requires-Dist: flake8>=3.9.0; extra == "dev"
+Requires-Dist: mypy>=0.910; extra == "dev"
+Dynamic: license-file
+
+# jphrase
+
+**日本語テキストから頻出フレーズを検出**
+
+Detect frequent phrases from Japanese texts
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+
+## 特徴
+
+- 📝 **簡単に使える**: シンプルなAPIで、数行のコードで実行可能
+- 🚀 **高速**: N-gramベースの効率的なアルゴリズム
+- 🎯 **柔軟**: 豊富なパラメータでカスタマイズ可能
+- 📊 **多様な形式**: CSV/TSV/TXT/Excel対応
+- 🔤 **エンコーディング自動検出**: UTF-8、Shift-JIS、EUC-JPなど自動判別
+- 💬 **文字列リスト対応**: ファイルだけでなく、テキストデータを直接処理可能
+- 🧪 **テスト済み**: 包括的なテストスイート
+- 🔍 **用途**: SNSトレンド分析、ニュース話題抽出、頻出キーワード発見
+
+## インストール
+
+```bash
+pip install japhrase
+```
+
+または開発モードでインストール：
+
+```bash
+pip install -e .
+```
+
+## クイックスタート
+
+### まずは試してみる（ファイル不要）
+
+```python
+from japhrase import PhraseExtracter
+
+# デモデータですぐに試せます
+df = PhraseExtracter.demo()
+print(df)
+```
+
+### ファイルから抽出
+
+```python
+from japhrase import PhraseExtracter
+
+# ファイルから直接抽出
+df = PhraseExtracter.from_file("input.txt")
+print(df)
+```
+
+### テキストリストから抽出
+
+```python
+from japhrase import PhraseExtracter
+
+sentences = [
+    "フォローありがとうございます",
+    "フォローしてください",
+    "プレゼントキャンペーン開催中"
+]
+
+extractor = PhraseExtracter()
+df = extractor.get_dfphrase(sentences)
+print(df)
+```
+
+### パラメータをカスタマイズ
+
+```python
+from japhrase import PhraseExtracter
+
+# パラメータを指定
+df = PhraseExtracter.from_file(
+    "input.txt",
+    min_count=10,      # 10回以上出現
+    max_length=20,     # 最大20文字
+    verbose=1          # 進捗表示
+)
+```
+
+### エンコーディング自動検出
+
+```python
+from japhrase import PhraseExtracter
+
+# encoding='auto'で自動検出（デフォルト）
+df = PhraseExtracter.from_file("shift_jis_file.txt")  # 自動でShift-JISを検出
+
+# エンコーディングを明示指定も可能
+df = PhraseExtracter.from_file("input.txt", encoding="utf-8")
+```
+
+### 文字列リストから直接抽出
+
+```python
+from japhrase import PhraseExtracter
+
+extractor = PhraseExtracter(min_count=2)
+
+# ファイルパスではなく、文字列リストを直接渡せる
+texts = [
+    "フォローありがとうございます",
+    "フォローしてください",
+    "プレゼントキャンペーン開催中"
+]
+df = extractor.extract(texts)  # ファイル不要！
+```
+
+### 複数ファイルから抽出
+
+```python
+from japhrase import PhraseExtracter
+
+# 複数ファイルをまとめて処理
+files = ["file1.txt", "file2.txt", "file3.txt"]
+df = PhraseExtracter.from_files(files, min_count=5)
+```
+
+### 結果をエクスポート
+
+```python
+from japhrase import PhraseExtracter
+
+extractor = PhraseExtracter()
+df = extractor.extract("input.txt")
+
+# 各種形式で出力
+extractor.export_csv(df, "output.csv")      # CSV
+extractor.export_json(df, "output.json")    # JSON
+extractor.export_excel(df, "output.xlsx")   # Excel
+```
+
+## 主要な機能
+
+### 便利なクラスメソッド
+
+- `PhraseExtracter.from_file()` - ファイルから直接抽出
+- `PhraseExtracter.from_files()` - 複数ファイルから抽出
+
+### インスタンスメソッド
+
+- `extract()` - ファイルからフレーズ抽出
+- `get_dfphrase()` - テキストリストからフレーズ抽出
+- `export_csv()` - CSV形式で出力
+- `export_json()` - JSON形式で出力
+- `export_excel()` - Excel形式で出力
+
+### 対応ファイル形式
+
+- テキストファイル (`.txt`, `.text`)
+- CSV (`.csv`)
+- TSV (`.tsv`)
+
+## パラメータ
+
+主要なパラメータ：
+
+| パラメータ | デフォルト | 説明 |
+|-----------|-----------|------|
+| `min_count` | 6 | フレーズの最小出現回数 |
+| `max_length` | 16 | フレーズの最大文字数 |
+| `min_length` | 4 | フレーズの最小文字数 |
+| `threshold_originality` | 0.5 | 類似フレーズ除去の閾値 |
+| `verbose` | 1 | 進捗表示（0:非表示, 1:表示） |
+| `knowns` | [] | 優先的に抽出したい既知語 |
+
+詳細は [USAGE.md](docs/USAGE.md) を参照してください。
+
+## 使用例
+
+### SNSテキスト分析
+
+```python
+from japhrase import PhraseExtracter
+
+extractor = PhraseExtracter(min_count=10, max_length=20)
+df = extractor.extract("tweets.csv")
+extractor.export_excel(df, "sns_phrases.xlsx")
+```
+
+### 複数ファイルからの専門用語抽出
+
+```python
+from japhrase import PhraseExtracter
+
+files = ["article1.txt", "article2.txt", "article3.txt"]
+df = PhraseExtracter.from_files(
+    files,
+    min_count=5,
+    max_length=30,
+    threshold_originality=0.7
+)
+```
+
+### ワンライナー
+
+```python
+from japhrase import PhraseExtracter
+
+# 抽出して即座にCSV出力
+extractor = PhraseExtracter()
+extractor.export_csv(
+    PhraseExtracter.from_file("input.txt", min_count=10),
+    "output.csv"
+)
+```
+
+## プロジェクト構造
+
+```
+phrase-project/
+├── jphrase/              # メインパッケージ
+│   ├── __init__.py       # パッケージ初期化
+│   ├── constants.py      # 定数定義
+│   ├── patterns.py       # 正規表現パターン
+│   ├── extracter.py      # メインクラス
+│   ├── utils.py          # ユーティリティ関数
+│   └── example.ipynb     # サンプルノートブック
+├── tests/                # テストスイート
+│   ├── test_constants.py
+│   ├── test_patterns.py
+│   ├── test_extracter.py
+│   └── test_utils.py
+├── requirements.txt      # 依存パッケージ
+├── setup.py             # セットアップスクリプト
+├── README.md            # このファイル
+├── USAGE.md             # 詳細な使用ガイド
+└── TESTING.md           # テストガイド
+```
+
+## 開発
+
+### テストの実行
+
+```bash
+# 開発依存関係のインストール
+pip install -e ".[dev]"
+
+# テストの実行
+pytest
+
+# カバレッジレポート付き
+pytest --cov=jphrase --cov-report=html
+```
+
+詳細は [TESTING.md](docs/TESTING.md) を参照してください。
+
+## ドキュメント
+
+- **[POSITIONING.md](docs/POSITIONING.md)** - ⭐ このツールの位置づけと設計思想（必読）
+- [USAGE.md](docs/USAGE.md) - 詳細な使用ガイド
+- [OPTIMIZATION.md](docs/OPTIMIZATION.md) - パラメータ最適化ガイド
+- [DATA_SOURCES.md](docs/DATA_SOURCES.md) - データ取得方法
+- [THEORY.md](docs/THEORY.md) - 理論的考察と限界
+- [TESTING.md](docs/TESTING.md) - テスト実行方法
+- [example.ipynb](examples/example.ipynb) - Jupyter Notebookサンプル
+
+## ライセンス
+
+MIT License
+
+## 作者
+
+Takeshi SHIMIZU
+
+## 貢献
+
+Issue や Pull Request は大歓迎です！
+
+## 変更履歴
+
+### v0.1.2
+- **エンコーディング自動検出**: chardetライブラリを使用した自動検出機能
+  - UTF-8、Shift-JIS、EUC-JP、CP932などを自動判別
+  - `encoding='auto'`がデフォルト（明示指定も可能）
+- **文字列リスト入力対応**: `extract()`メソッドが文字列リストを直接受け取れるように
+  - ファイルパスまたはリスト/タプルを自動判別
+  - ファイルを作成せずに直接テキストデータを処理可能
+- 依存関係に`chardet>=4.0.0`を追加
+- 包括的なテスト追加（エンコーディング検出、文字列入力対応）
+
+### v0.1.1
+- パッケージ名とモジュール名の不一致を修正
+  - モジュール名を`jphrase`から`japhrase`に変更
+  - `pip install japhrase` → `from japhrase import` で統一
+
+### v0.1.0
+- 初回リリース
+- **位置づけの明確化**: 頻出フレーズ検出ツールとして定義
+- モジュール分割（constants, patterns, extracter, utils）
+- 便利なユーティリティメソッド追加
+  - `from_file()`, `from_files()`
+  - `export_csv()`, `export_json()`, `export_excel()`
+- データソースモジュール（Wikipedia, 青空文庫対応）
+- パラメータ最適化機能（教師なし/教師あり）
+- 評価モジュール（内部指標ベース）
+- 包括的なテストスイート
+- 充実したドキュメント
+  - POSITIONING.md（位置づけと設計思想）
+  - THEORY.md（理論的考察）
+  - OPTIMIZATION.md（最適化ガイド）
+  - DATA_SOURCES.md（データ取得方法）
