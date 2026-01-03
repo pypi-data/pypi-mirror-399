@@ -1,0 +1,499 @@
+"""
+Warming Level Data Processor
+
+A simplified warming level processor that transforms time-series climate data
+to a warming level centered approach following the established template pattern.
+"""
+
+import logging
+import re
+from typing import Any, Dict, Iterable, Union
+
+import numpy as np
+import pandas as pd
+import xarray as xr
+
+from climakitae.core.constants import _NEW_ATTRS_KEY
+from climakitae.core.paths import GWL_1850_1900_FILE, GWL_1981_2010_TIMEIDX_FILE
+from climakitae.new_core.data_access.data_access import DataCatalog
+from climakitae.new_core.processors.abc_data_processor import (
+    DataProcessor,
+    register_processor,
+)
+from climakitae.new_core.processors.processor_utils import extend_time_domain
+
+# from climakitae.new_core.processors.processor_utils import _determine_is_complete_wl
+from climakitae.util.utils import _determine_is_complete_wl, read_csv_file
+
+# Module logger
+logger = logging.getLogger(__name__)
+
+
+@register_processor("warming_level", priority=10)
+class WarmingLevel(DataProcessor):
+    """
+    Transform time-series climate data into a warming-levels approach.
+
+    This processor takes data with time dimensions and transforms it to data
+    organized by warming levels, following the established warming level methodology.
+
+    Parameters
+    ----------
+    value : Dict[str, Any]
+        Configuration dictionary containing:
+        - warming_levels : list[float]
+            List of global warming levels in degrees C (e.g., [1.5, 2.0])
+        - warming_level_months : list[int], optional
+            List of months to include (1-12). Default: all months
+        - warming_level_window : int, optional
+            Number of years before and after the central year. Default: 15
+
+    Methods
+    -------
+    execute : Transform data to warming level approach
+    update_context : Update processing context with warming level information
+    set_data_accessor : Set data catalog accessor
+
+    Notes
+    -----
+    The input data must span from 1950-2100 or 1981-2100, depending on the downscaling method,
+    and include historical climate data for proper warming level calculations. Data should
+    have simulation and scenario dimensions or be properly configured for stacking.
+    """
+
+    def __init__(self, value: Dict[str, Any]):
+        """
+        Initialize the warming level processor.
+
+        Parameters
+        ----------
+        value : Dict[str, Any]
+            Configuration dictionary with warming level parameters.
+        """
+        # Validate input
+        if not isinstance(value, dict):
+            raise TypeError("Expected dictionary for warming level configuration")
+
+        # Extract configuration parameters
+        self.warming_levels = value.get("warming_levels", [2.0])
+        self.warming_level_window = value.get("warming_level_window", 15)
+
+        # Initialize instance variables
+        self.name = "warming_level_simple"
+        self.warming_level_times = read_csv_file(
+            GWL_1850_1900_FILE, index_col=[0, 1, 2], parse_dates=True
+        )
+        self.warming_level_times_idx = read_csv_file(
+            GWL_1981_2010_TIMEIDX_FILE, index_col="time", parse_dates=True
+        )
+        self.catalog = None
+        self.value = {
+            "warming_levels": self.warming_levels,
+            "warming_level_window": self.warming_level_window,
+        }
+        logger.debug(
+            "WarmingLevel initialized with warming_levels=%s window=%s",
+            self.warming_levels,
+            self.warming_level_window,
+        )
+
+    def execute(
+        self,
+        result: Union[
+            xr.Dataset, xr.DataArray, Iterable[Union[xr.Dataset, xr.DataArray]]
+        ],
+        context: Dict[str, Any],
+    ) -> Union[xr.Dataset, xr.DataArray, Iterable[Union[xr.Dataset, xr.DataArray]]]:
+        """
+        Transform time-series data to warming level approach.
+
+        The transformation process involves the following steps for each simulation:
+        1. find the first year (from precomputed values) when a given warming level
+            is reached by a simulation (GCM, run, scenario)
+        2. slice in a window of `self.warming_level_window` years around that year
+            a. if the slice has a start year earlier than the simulation data, splice
+                historical onto the slice for the requested variable
+        3. return the data
+
+        Parameters
+        ----------
+        result : xr.Dataset | xr.DataArray | Iterable[xr.Dataset | xr.DataArray]
+            The time-series climate data to transform.
+        context : dict
+            The context for the processor containing metadata and configuration.
+
+        Returns
+        -------
+        Union[xr.Dataset, xr.DataArray, Iterable[xr.Dataset | xr.DataArray]]
+            The data transformed to warming level approach with new dimensions:
+            - warming_level: The target warming levels
+            - simulation: Combined simulation identifiers
+            - time_delta: Time steps relative to warming level center year
+        """
+        # Load warming level times table if not already loaded
+        if self.warming_level_times is None:
+            try:
+                self.warming_level_times = read_csv_file(
+                    GWL_1981_2010_TIMEIDX_FILE, index_col="time", parse_dates=True
+                )
+            except (FileNotFoundError, pd.errors.ParserError) as e:
+                logger.error(
+                    "Failed to load warming level times table: %s", e, exc_info=True
+                )
+                raise RuntimeError(
+                    f"Failed to load warming level times table: {e}"
+                ) from e
+
+        # add member id as a suffix to the keys
+        # and split the data by member_id
+        ret = self.reformat_member_ids(result)
+
+        # extend the time domain of all ssp scenarios to 1980-2100
+        ret = extend_time_domain(ret)
+
+        # first, extract the member IDs from the data
+        member_ids = []
+        logger.debug(
+            "Preparing warming level transformation for %d keys", len(ret.keys())
+        )
+        for k in ret.keys():
+            mem_id = k.split(".")[-1]  # Get the last part as member_id
+            if mem_id and mem_id[0] == "r":
+                # If it starts with 'r', it's a member_id
+                member_ids.append(mem_id)
+            else:
+                # If not, assume no member_id is present
+                member_ids.append(None)
+
+        logger.debug(
+            "execute: Extracted member_ids=%s for keys=%s", member_ids, list(ret.keys())
+        )
+
+        # get center years for each key for each warming level
+        center_years = self.get_center_years(member_ids, ret.keys())
+        logger.debug(
+            "execute: Received center_years dict with %d keys",
+            len(center_years),
+        )
+
+        retkeys = list(ret.keys())
+
+        for key in retkeys:
+            if key not in center_years:
+                del ret[key]
+
+        # Build a mapping of simulation keys to their center years for proper coordinate assignment
+        sim_centered_years = {}
+
+        for key, years in center_years.items():
+            if not years:
+                continue
+
+            slices = []
+            valid_wls = []  # Track which warming levels were successfully processed
+            valid_center_years = []  # Track center years for valid warming levels
+
+            for year, wl in zip(years, self.warming_levels):
+                if year is None or pd.isna(year):
+                    msg = f"No warming level data found for {key} at {wl}C. Skipping this warming level."
+                    logger.warning(msg)
+                    continue
+
+                # Coerce center year to plain int to avoid Timestamp arithmetic errors
+                center_year = (
+                    pd.Timestamp(year).year
+                    if isinstance(year, pd.Timestamp)
+                    else int(year)
+                )
+
+                start_year = center_year - self.warming_level_window
+                end_year = center_year + self.warming_level_window - 1
+
+                is_full_wl = _determine_is_complete_wl(
+                    start_year, end_year, key, context["activity_id"], wl
+                )
+
+                if not is_full_wl:
+                    logger.warning(
+                        "\n\nIncomplete warming level for %s at %sC. "
+                        "\nSkipping this warming level.",
+                        key,
+                        wl,
+                    )
+                    continue
+
+                da_slice = ret[key].sel(time=slice(f"{start_year}", f"{end_year}"))
+
+                # Drop February 29th if it exists
+                is_feb29 = (da_slice.time.dt.month == 2) & (da_slice.time.dt.day == 29)
+                da_slice = da_slice.where(~is_feb29, drop=True)
+
+                # Create time_delta specific to this slice's length
+                # This ensures each warming level has the correct time_delta length
+                length = da_slice.sizes["time"]
+                time_delta = range(-length // 2, length // 2)
+
+                # Replace time dimension with time_delta
+                da_slice = da_slice.swap_dims({"time": "time_delta"})
+                da_slice = da_slice.drop_vars("time")
+                da_slice = da_slice.assign_coords(time_delta=time_delta)
+
+                # Expand dimensions to include warming_level as a new dimension
+                da_slice = da_slice.expand_dims({"warming_level": [wl]})
+
+                # Add simulation coordinate (but NOT centered_year yet)
+                da_slice = da_slice.assign_coords(simulation=key)
+
+                logger.debug(
+                    "execute: key=%s, wl=%s -> assigned coord simulation=%s",
+                    key,
+                    wl,
+                    key,
+                )
+
+                slices.append(da_slice)
+                valid_wls.append(wl)
+                valid_center_years.append(center_year)
+
+            # After processing all warming levels, check if we have any valid slices.
+            if not slices:
+                msg = f"No valid slices found for {key}. Ensure the warming level times table is correctly configured."
+                logger.warning(msg)
+                # Remove key if no valid slices found and continue
+                if key in ret:
+                    del ret[key]
+                continue
+
+            ret[key] = xr.concat(
+                slices, dim="warming_level", join="outer", fill_value=np.nan
+            )
+
+            # Store center years for this simulation key
+            # DO NOT assign as coordinate here - it will be broadcast incorrectly
+            # Store in sim_centered_years dict to be reconstructed in concatenate processor
+            sim_centered_years[key] = valid_center_years
+
+        # Store center years in context for reconstruction after concatenation
+        context["_sim_centered_years"] = sim_centered_years
+        logger.debug(
+            "execute: Stored %d simulation center year mappings in context",
+            len(sim_centered_years),
+        )
+
+        self.update_context(context)
+        return ret
+
+    def update_context(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Update the processing context with warming level information.
+
+        Parameters
+        ----------
+        context : dict
+            The processing context to update.
+
+        Returns
+        -------
+        dict
+            The updated processing context with warming level metadata.
+        """
+        if _NEW_ATTRS_KEY not in context:
+            context[_NEW_ATTRS_KEY] = {}
+
+        context[_NEW_ATTRS_KEY][
+            self.name
+        ] = f"""Process '{self.name}' applied to the data. Transformation was done using the following settings: {self.value}."""
+
+        return context
+
+    def set_data_accessor(self, catalog: DataCatalog):
+        """
+        Set data accessor for retrieving warming level information.
+
+        Parameters
+        ----------
+        catalog : DataCatalog
+            Data catalog for accessing warming level lookup tables
+        """
+        # Store catalog reference for potential future use
+        self.catalog = catalog
+
+    def reformat_member_ids(
+        self, result: Dict[str, Union[xr.Dataset, xr.DataArray]]
+    ) -> Dict[str, Union[xr.Dataset, xr.DataArray]]:
+        """
+        Reformat member IDs in the input data.
+
+        Parameters
+        ----------
+        result : Dict[str, Union[xr.Dataset, xr.DataArray]]
+            A dictionary containing time-series data with keys representing different scenarios.
+
+        Returns
+        -------
+        Dict[str, Union[xr.Dataset, xr.DataArray]]
+            The reformatted time-series data.
+        """
+        ret = {}
+        for key, data in result.items():
+            if "member_id" in data.dims:
+                # If member_id is present, reformat it
+                member_ids = data.member_id.values
+                for mem_id in member_ids:
+                    # Create a new key with the member_id included
+                    new_key = f"{key}.{mem_id}"
+                    ret[new_key] = data.sel(member_id=mem_id).drop_vars("member_id")
+                    ret[new_key].attrs.update(data.attrs)
+            else:
+                # If no member_id, keep the original key
+                ret[key] = data
+                msg = f"No member_id found in data for key {key}. Assuming no member_id is present for this dataset."
+                logger.warning(msg)
+        return ret
+
+    def get_center_years(
+        self, member_ids: Iterable[str], keys: Iterable[str]
+    ) -> Dict[str, list]:
+        """
+        Determine the year around which to center the warming level window for each
+        simulation for each warming level.
+
+        Parameters
+        ----------
+        member_ids : Iterable[str]
+            List of member IDs corresponding to the keys.
+        keys : Iterable[str]
+            List of keys representing different simulations or scenarios.
+
+        Returns
+        -------
+        Dict[str, list]
+            A dictionary mapping each key to a list of center years for each warming level.
+
+        Notes
+        -----
+        The center year is determined by finding the first occurrence of each
+        warming level in the precomputed warming level times table.
+        If no warming level data is found for a key, a warning is issued.
+        If the warming level table does not contain data for a key, a warning is issued.
+        The method assumes that the warming level times table is indexed by time
+        and contains columns formatted as "key.join('_')", where the values are the
+        warming levels and the index is the time dimension.
+
+        Center year can be np.nan if no warming level data is found.
+        """
+        center_years = {}
+
+        logger.debug(
+            "get_center_years: Computing center years for %d keys",
+            len(list(keys)),
+        )
+
+        # cols are key.join("_"), values are warming levels, index is time
+        for key, member_id in zip(keys, member_ids):
+            if member_id is None:
+                logger.debug(
+                    "get_center_years: Skipping key=%s (member_id is None)", key
+                )
+                continue  # Skip if member_id is None
+
+            # build the key for the warming level table
+            key_list = key.split(".")
+
+            if key not in center_years:
+                center_years[key] = []
+
+            for wl in self.warming_levels:
+                logger.debug(
+                    "get_center_years: Processing warming_level=%s for key=%s",
+                    wl,
+                    key,
+                )
+
+                if str(wl) not in self.warming_level_times.columns:
+                    logger.debug(
+                        "get_center_years: wl=%s not in warming_level_times.columns, using warming_level_times_idx",
+                        wl,
+                    )
+                    # warming level is not an integer value, so we need to try to find
+                    # the first year that the simulation crosses the given warming level
+                    wl_table_key = f"{key_list[2]}_{member_id}_{key_list[3]}"
+                    logger.debug(
+                        "get_center_years: Looking for wl_table_key=%s in warming_level_times_idx",
+                        wl_table_key,
+                    )
+
+                    if wl_table_key not in self.warming_level_times_idx.columns:
+                        logger.warning(
+                            f"\n\nWarning: Warming level table does not contain data for {wl_table_key}. "
+                            "\nEnsure the warming level times table is correctly configured. "
+                            f"Available columns: {list(self.warming_level_times_idx.columns)[:5]}..."
+                        )
+                        center_years[key].append(np.nan)
+                        continue  # exit warming levels loop
+
+                    # get the FIRST index value for this key
+                    mask = (self.warming_level_times_idx[wl_table_key] >= wl).dropna()
+                    logger.debug(
+                        "get_center_years: mask for %s >= %s has %d True values",
+                        wl_table_key,
+                        wl,
+                        mask.sum(),
+                    )
+
+                    if mask.any():
+                        center_year = (
+                            mask.idxmax()
+                        )  # Get the first occurrence of the warming level
+                        logger.debug(
+                            "get_center_years: Found center_year=%s for wl_table_key=%s, wl=%s",
+                            center_year,
+                            wl_table_key,
+                            wl,
+                        )
+                        center_years[key].append(center_year)
+                    else:
+                        max_valid_wl = (
+                            self.warming_level_times.loc[
+                                (key_list[2], member_id, key_list[3])
+                            ]
+                            .dropna()
+                            .index.max()
+                        )
+                        logger.warning(
+                            f"\n\nNo warming level data found for {wl_table_key} at {wl}C. "
+                            f"\nPlease pick a warming level less than {max_valid_wl}C."
+                        )
+                        center_years[key].append(np.nan)
+                else:
+                    logger.debug(
+                        "get_center_years: wl=%s found in warming_level_times.columns",
+                        wl,
+                    )
+                    # this is a common warming level, so we can just get the year
+                    tuple_key = (key_list[2], member_id, key_list[3])
+                    logger.debug(
+                        "get_center_years: Looking up tuple_key=%s for wl=%s",
+                        tuple_key,
+                        wl,
+                    )
+
+                    center_time = pd.to_datetime(
+                        self.warming_level_times.loc[tuple_key, str(wl)]
+                    )
+                    center_year = center_time.year
+                    logger.debug(
+                        "get_center_years: Found center_year=%s from warming_level_times for tuple_key=%s, wl=%s",
+                        center_year,
+                        tuple_key,
+                        wl,
+                    )
+                    center_years[key].append(center_year)
+
+        logger.debug(
+            "get_center_years: Returning center_years with %d keys", len(center_years)
+        )
+        for k, v in center_years.items():
+            logger.debug("get_center_years: key=%s -> center_years=%s", k, v)
+
+        return center_years
