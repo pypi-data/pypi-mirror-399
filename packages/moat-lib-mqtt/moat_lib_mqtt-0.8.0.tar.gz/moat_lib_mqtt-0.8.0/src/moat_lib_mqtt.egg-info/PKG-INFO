@@ -1,0 +1,41 @@
+Metadata-Version: 2.4
+Name: moat-lib-mqtt
+Version: 0.8.0
+Summary: Sans-io MQTT v5 client/broker with an AnyIO based I/O implementation
+Author-email: Alex Grönholm <alex.gronholm@nextday.fi>, Matthias Urlichs <matthias@urlichs.de>
+License-Expression: MIT
+Project-URL: Documentation, https://M-o-a-T.org/moat.lib.mqtt
+Project-URL: Source code, https://github.com/m-o-a-t/moat
+Project-URL: Issue tracker, https://github.com/m-o-a-t/moat/issues
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Typing :: Typed
+Classifier: Framework :: AnyIO
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Requires-Python: >=3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+License-File: LICENSE.txt
+Requires-Dist: anyio~=4.4
+Requires-Dist: attrs>=23.2.0
+Requires-Dist: stamina>=24.2.0
+Requires-Dist: typing-extensions>=4.0; python_version < "3.11"
+Provides-Extra: websockets
+Requires-Dist: httpx-ws>=0.6.0; extra == "websockets"
+Provides-Extra: test
+Requires-Dist: anyio[trio]; extra == "test"
+Requires-Dist: coverage>=7; extra == "test"
+Requires-Dist: moat-lib-mqtt[websockets]; extra == "test"
+Requires-Dist: pytest>=8.0; extra == "test"
+Provides-Extra: doc
+Requires-Dist: enum_tools[sphinx]>=0.12.0; extra == "doc"
+Requires-Dist: moat-lib-mqtt[websockets]; extra == "doc"
+Requires-Dist: packaging; extra == "doc"
+Requires-Dist: sphinx-autodoc-typehints>=2.1.1; extra == "doc"
+Requires-Dist: sphinx-tabs>=3.3.1; extra == "doc"
+Dynamic: license-file
