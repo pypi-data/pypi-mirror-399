@@ -1,0 +1,37 @@
+Metadata-Version: 2.4
+Name: openseespy-mac-arm
+Version: 3.7.1.4
+Summary: OpenSeesPy native for Apple Silicon (Mac M1/M2/M3/M4) - Lite version without MPI
+Author-email: Orlando Arroyo <odarroyo@uc.cl>
+License: GNU GPL v3
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+
+# OpenSeesPy for Apple Silicon - Lite Version
+
+Native ARM64 compilation of OpenSeesPy optimized for Apple Silicon Macs (M1/M2/M3/M4).
+
+**Lite Version:** Compiled without MPI support for maximum compatibility and smaller package size. Perfect for parametric studies using joblib or similar parallelization libraries.
+
+## Installation
+```bash
+pip install openseespy-mac-arm
+```
+
+## Usage
+```python
+import openseespy.opensees as ops
+
+ops.wipe()
+ops.model('basic', '-ndm', 2, '-ndf', 3)
+# Your analysis code here
+```
+
+## Requirements
+
+- macOS 11.0 or later
+- Apple Silicon Mac (M1, M2, M3, M4)
+- Python 3.12 or later
+
+For full documentation, visit: https://github.com/yourusername/openseespy-mac-arm
