@@ -1,0 +1,128 @@
+Metadata-Version: 2.4
+Name: envhealth
+Version: 0.1.0
+Summary: Environment health checker that validates Python runtime, OS, dependencies, variables and system readiness
+Author-email: Rohan <rohanroni2019@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/Rohan7654/envhealth
+Project-URL: Issues, https://github.com/Rohan7654/envhealth/issues
+Keywords: environment,system health,diagnostics,python tooling,debugging
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# envhealth
+
+[![Downloads](https://img.shields.io/pypi/dm/envhealth.svg)](https://pypi.org/project/envhealth/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/envhealth.svg)](https://pypi.org/project/envhealth/)
+[![License](https://img.shields.io/github/license/YOUR_USERNAME/envhealth.svg)](LICENSE)
+
+Environment Health Checker for Python Projects
+
+---
+
+## Features
+- Detects Python version issues
+- Detects dependency conflicts
+- Checks RAM, CPU, OS info
+- Detects GPU availability
+- Generates:
+  - Console Report  
+  - HTML Report  
+  - JSON Report  
+  - Markdown Report  
+- Colored terminal output  
+- Zero configuration 
+
+---
+
+## Installation
+You can install envhealth via pip:
+```python
+pip install envhealth
+```
+
+# Usage
+## CLI Usage
+- Run the environment checker in the console:
+    ```python
+        envhealth
+    ```
+- Generate HTML, JSON, or Markdown reports:
+    ```python
+        envhealth --html
+        envhealth --json
+        envhealth --markdown
+    ```
+- Combine multiple formats:
+    ```python
+        envhealth --html --json --markdown
+    ```
+## Programatic Usage
+- Use ``envhealth`` in your Python scripts:
+    ```python
+    from envhealth import EnvironmentChecker, ConsoleReporter, HTMLReporter, JSONReporter, MarkdownReporter
+
+    # Run all checks
+    checker = EnvironmentChecker()
+    results = checker.run_all()
+
+    # Console output
+    ConsoleReporter().render(results)
+
+    # Save reports
+    HTMLReporter().save(results, path="env_report.html")
+    JSONReporter().save(results, path="env_report.json")
+    MarkdownReporter().save(results, path="env_report.md")
+
+    ```
+# Sample Output
+## Console Output
+```yaml
+    === PYTHON ENVIRONMENT HEALTH REPORT ===
+    Generated: 2025-01-01 18:22:11
+    ----------------------------------------
+
+    Python:
+    current_version: 3.11.7
+    minimum_required: 3.8
+    status: OK
+
+    System:
+    os: Linux
+    os_release: 6.6.10
+    cpu_count: 12
+    ram_gb: 16.0
+
+    GPU:
+    Available: False
+
+    Dependency Conflicts:
+    None
+
+    Warnings:
+    None
+
+```
+
+# TODO
+- [ ] Roadmap
+- [ ] CUDA performance check
+- [ ] Internet & proxy diagnostics
+- [ ] PDF export
+- [ ] GUI dashboard / VS Code integration
+
+## License
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+
+
+## 🤝 Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## ⭐ Support
+If you find this useful, please star the repository.
