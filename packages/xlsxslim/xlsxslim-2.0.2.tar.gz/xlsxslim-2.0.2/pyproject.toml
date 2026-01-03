@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xlsxslim"
+version = "2.0.2"
+description = "Reduce Excel file size by removing empty rows, columns, and excess formatting"
+readme = "README.md"
+license = {text = "BSD-3-Clause"}
+authors = [
+    {name = "Vladyslav V. Prodan", email = "admin@support.od.ua"}
+]
+keywords = ["excel", "xlsx", "optimize", "compress", "slim", "reduce", "filesize"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Office Suites",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "click>=8.0.0",
+    "psutil>=5.9.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/click0/xlsxslim"
+Repository = "https://github.com/click0/xlsxslim"
+Issues = "https://github.com/click0/xlsxslim/issues"
+Documentation = "https://github.com/click0/xlsxslim#readme"
+"Documentation (Українська)" = "https://github.com/click0/xlsxslim/blob/main/README_uk.md"
+Changelog = "https://github.com/click0/xlsxslim/releases"
+
+[project.scripts]
+xlsxslim = "xlsxslim:main"
+
+[tool.setuptools]
+py-modules = ["xlsxslim"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "openpyxl>=3.1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
