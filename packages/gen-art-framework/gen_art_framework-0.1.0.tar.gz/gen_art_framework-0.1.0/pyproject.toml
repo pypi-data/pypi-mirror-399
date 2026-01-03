@@ -1,0 +1,50 @@
+[project]
+name = "gen-art-framework"
+version = "0.1.0"
+description = "A framework for creating generative art with Python"
+readme = "README.md"
+authors = [
+    { name = "josh-gree", email = "joshuadouglasgreenhalgh@gmail.com" }
+]
+license = "MIT"
+requires-python = ">=3.12"
+keywords = ["generative-art", "art", "creative-coding", "image-generation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Artistic Software",
+    "Topic :: Multimedia :: Graphics",
+]
+dependencies = [
+    "click>=8.3.1",
+    "numpy>=2.4.0",
+    "pillow>=12.0.0",
+    "pyyaml>=6.0.3",
+    "scipy>=1.16.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/josh-gree/gen-art-framework"
+Repository = "https://github.com/josh-gree/gen-art-framework"
+Issues = "https://github.com/josh-gree/gen-art-framework/issues"
+
+[project.scripts]
+gen-art = "gen_art_framework.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipython>=9.8.0",
+    "jupyterlab>=4.5.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.10",
+]
