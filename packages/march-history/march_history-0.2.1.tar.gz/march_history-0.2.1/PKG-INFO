@@ -1,0 +1,497 @@
+Metadata-Version: 2.4
+Name: march-history
+Version: 0.2.1
+Summary: Python SDK for March AI Conversation History API
+Project-URL: Homepage, https://github.com/march-us/march-lib/march-conversation-history-python-sdk
+Project-URL: Documentation, https://github.com/march-us/march-lib/march-conversation-history-python-sdk#readme
+Project-URL: Repository, https://github.com/march-us/march-lib
+Project-URL: Issues, https://github.com/march-us/march-lib/issues
+Author: March Team
+License: MIT
+License-File: LICENSE
+Keywords: ai,api,conversation,history,sdk
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Typing :: Typed
+Requires-Python: >=3.11
+Requires-Dist: httpx>=0.25.0
+Requires-Dist: pydantic>=2.0.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.5.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest>=7.4.0; extra == 'dev'
+Requires-Dist: respx>=0.20.0; extra == 'dev'
+Requires-Dist: ruff>=0.1.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# March Conversation History SDK
+
+A Python SDK for the March AI Conversation History API with full type safety, automatic retries, and pagination support.
+
+## Features
+
+✨ **Type-Safe**: Full type hints with Pydantic v2 models
+🔄 **Auto-Retry**: Exponential backoff with configurable retry logic
+📄 **Auto-Pagination**: Iterate over large result sets effortlessly
+🚀 **Sync & Async**: Support for both synchronous and asynchronous operations
+🧹 **Auto-Cleanup**: No context managers needed - automatic resource management
+🎯 **Best Practices**: Follows Python SDK design patterns used by major APIs
+
+## Installation
+
+```bash
+pip install march-history
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/march/march-history-sdk
+cd march-history-sdk
+pip install -e .
+```
+
+## Quick Start
+
+```python
+from march_history import MarchHistoryClient
+from march_history.models import MessageRole, ConversationStatus
+
+# Create client - no context manager needed!
+client = MarchHistoryClient(base_url="http://localhost:8000")
+
+# Create a conversation
+conv = client.conversations.create(
+    tenant_name="acme-corp",
+    user_id="user-123",
+    title="Customer Support Session",
+    metadata={"session_id": "sess-456"}
+)
+
+# Add messages
+msg1 = client.messages.create(
+    conversation_id=conv.id,
+    role=MessageRole.USER,
+    content="Hello, I need help with my order"
+)
+
+msg2 = client.messages.create(
+    conversation_id=conv.id,
+    role=MessageRole.ASSISTANT,
+    content="I'd be happy to help! What's your order number?"
+)
+
+# List all messages in conversation
+messages = client.messages.list(conversation_id=conv.id)
+for msg in messages:
+    print(f"{msg.role}: {msg.content}")
+
+# Auto-pagination - iterate over all conversations
+for conversation in client.conversations.list_iter(tenant_name="acme-corp"):
+    print(f"Conversation: {conversation.title}")
+
+# Search conversations
+results = client.conversations.search(
+    q="support",
+    status=ConversationStatus.ACTIVE
+)
+
+# Archive conversation when done
+client.conversations.archive(conv.id)
+
+# No need to call client.close() - automatic cleanup!
+```
+
+## Usage Guide
+
+### Creating Conversations
+
+```python
+# Basic conversation
+conv = client.conversations.create(
+    tenant_name="acme-corp",
+    user_id="user-123",
+    title="Support Chat"
+)
+
+# With full metadata
+conv = client.conversations.create(
+    tenant_name="acme-corp",
+    user_id="user-123",
+    title="Sales Inquiry",
+    agent_identifier="sales-bot-v2",
+    status=ConversationStatus.ACTIVE,
+    metadata={
+        "session_id": "sess-456",
+        "source": "web_chat",
+        "priority": "high"
+    }
+)
+```
+
+### Working with Messages
+
+```python
+# Single message
+msg = client.messages.create(
+    conversation_id=conv.id,
+    role=MessageRole.USER,
+    content="What are your business hours?",
+    metadata={"client_ip": "192.168.1.1"}
+)
+
+# Batch create messages
+msgs = client.messages.create_batch(
+    conversation_id=conv.id,
+    messages=[
+        {"role": "user", "content": "Hello"},
+        {"role": "assistant", "content": "Hi! How can I help?"},
+        {"role": "user", "content": "I need information"},
+    ]
+)
+
+# Search messages in a conversation
+results = client.messages.search(
+    conversation_id=conv.id,
+    q="business hours"
+)
+
+# Search across all conversations
+all_results = client.messages.search_global(
+    q="error",
+    role=MessageRole.ASSISTANT
+)
+```
+
+### Pagination
+
+```python
+# Manual pagination - single page
+conversations = client.conversations.list(
+    tenant_name="acme-corp",
+    offset=0,
+    limit=50
+)
+
+# Auto-pagination - iterate over all items
+for conv in client.conversations.list_iter(
+    tenant_name="acme-corp",
+    page_size=100  # Items per page
+):
+    print(conv.title)
+
+# Limit total items fetched
+for conv in client.conversations.list_iter(
+    tenant_name="acme-corp",
+    max_items=500  # Stop after 500 items
+):
+    print(conv.title)
+```
+
+### Searching
+
+```python
+# Search conversations by title
+results = client.conversations.search(q="customer support")
+
+# Search by metadata
+results = client.conversations.search(
+    metadata_key="environment",
+    metadata_value="production"
+)
+
+# Combined search with filters
+results = client.conversations.search(
+    q="order",
+    status=ConversationStatus.ACTIVE,
+    tenant_name="acme-corp",
+    agent_identifier="support-bot-v1"
+)
+
+# Search with auto-pagination
+for conv in client.conversations.search_iter(q="urgent"):
+    print(conv.title)
+```
+
+### Managing Tenants
+
+```python
+# List all tenants
+tenants = client.tenants.list()
+
+# Get tenant by ID
+tenant = client.tenants.get(tenant_id=1)
+
+# Get tenant by name
+tenant = client.tenants.get_by_name("acme-corp")
+
+# Iterate over all tenants
+for tenant in client.tenants.list_iter():
+    print(tenant.name)
+```
+
+## Configuration
+
+### Basic Configuration
+
+```python
+client = MarchHistoryClient(
+    base_url="http://localhost:8000",
+    timeout=60.0,  # Request timeout in seconds
+    max_retries=5,  # Maximum retry attempts
+)
+```
+
+### Advanced Retry Configuration
+
+```python
+from march_history.config import RetryConfig
+
+client = MarchHistoryClient(
+    base_url="http://localhost:8000",
+    retry_config=RetryConfig(
+        max_retries=5,
+        backoff_factor=2.0,  # Exponential backoff multiplier
+        retry_status_codes=(408, 429, 500, 502, 503, 504),
+        max_backoff_seconds=120.0  # Max backoff time
+    )
+)
+```
+
+### API Key Authentication
+
+```python
+# Using api_key parameter (recommended)
+client = MarchHistoryClient(
+    base_url="http://localhost:8000",
+    api_key="your-api-key-123"  # Sent as X-API-Key header
+)
+```
+
+### Custom Headers
+
+```python
+client = MarchHistoryClient(
+    base_url="http://localhost:8000",
+    api_key="your-api-key",  # API key authentication
+    custom_headers={
+        "X-Custom-Header": "value"  # Additional custom headers
+    }
+)
+```
+
+## Error Handling
+
+The SDK provides a comprehensive exception hierarchy:
+
+```python
+from march_history.exceptions import (
+    MarchHistoryError,  # Base exception
+    APIError,  # Base for API errors
+    ValidationError,  # 422 validation errors
+    NotFoundError,  # 404 not found
+    ConflictError,  # 409 conflict (e.g., duplicate sequence number)
+    BadRequestError,  # 400 bad request
+    ServerError,  # 500+ server errors
+    NetworkError,  # Network/connection errors
+    RetryError,  # Max retries exceeded
+)
+
+try:
+    conv = client.conversations.get(999)
+except NotFoundError as e:
+    print(f"Conversation not found: {e.message}")
+    print(f"Status code: {e.status_code}")
+    print(f"Error details: {e.details}")
+except ValidationError as e:
+    print(f"Validation failed: {e.message}")
+    for detail in e.details:
+        print(f"  - {detail['field']}: {detail['message']}")
+except RetryError as e:
+    print(f"Max retries exceeded: {e}")
+    print(f"Last error: {e.last_exception}")
+except APIError as e:
+    print(f"API error: {e}")
+```
+
+## Advanced Usage
+
+### Optional Context Manager
+
+While not required, you can use context managers for explicit resource control:
+
+```python
+# Guaranteed cleanup even if exceptions occur
+with MarchHistoryClient(base_url="http://localhost:8000") as client:
+    conv = client.conversations.create(
+        tenant_name="acme-corp",
+        user_id="user-123",
+        title="Chat"
+    )
+    # ... work with client ...
+# Connections automatically closed
+```
+
+### Accessing Response Metadata
+
+All models provide access to timestamps and IDs:
+
+```python
+conv = client.conversations.create(
+    tenant_name="acme-corp",
+    user_id="user-123",
+    title="Support"
+)
+
+print(f"ID: {conv.id}")
+print(f"Tenant ID: {conv.tenant_id}")
+print(f"User ID: {conv.user_id}")
+print(f"Created: {conv.created_at}")
+print(f"Updated: {conv.updated_at}")
+print(f"Metadata: {conv.metadata}")
+```
+
+### Working with Metadata
+
+Metadata fields accept arbitrary JSON:
+
+```python
+# Store custom data
+conv = client.conversations.create(
+    tenant_name="acme-corp",
+    user_id="user-123",
+    title="Support",
+    metadata={
+        "user_email": "user@example.com",
+        "session": {
+            "id": "sess-456",
+            "tier": "premium"
+        },
+        "source": "mobile_app",
+        "version": "1.2.3",
+        "tags": ["urgent", "billing"]
+    }
+)
+
+# Update metadata
+conv = client.conversations.update(
+    conv.id,
+    metadata={
+        **conv.metadata,
+        "resolved": True,
+        "resolution_time": 300
+    }
+)
+```
+
+## Type Safety
+
+The SDK is fully typed for excellent IDE support:
+
+```python
+from march_history.models import MessageRole, ConversationStatus
+
+# Type-safe enums
+role: MessageRole = MessageRole.USER
+status: ConversationStatus = ConversationStatus.ACTIVE
+
+# Pydantic models validate at runtime
+try:
+    client.messages.create(
+        conversation_id=1,
+        role="invalid_role",  # Will raise ValidationError
+        content="Hello"
+    )
+except ValidationError as e:
+    print(f"Invalid role: {e}")
+```
+
+## Examples
+
+See the [examples/](examples/) directory for more examples:
+
+- [basic_usage.py](examples/basic_usage.py) - Complete workflow example
+- [pagination_example.py](examples/pagination_example.py) - Pagination patterns
+- [error_handling.py](examples/error_handling.py) - Error handling strategies
+
+## Requirements
+
+- Python 3.11+
+- httpx >= 0.25.0
+- pydantic >= 2.0.0
+
+## Development
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run tests with coverage
+pytest --cov=march_history --cov-report=html
+
+# Run type checking
+mypy src/march_history
+
+# Run linting
+ruff check src/march_history
+
+# Format code
+ruff format src/march_history
+```
+
+## Testing
+
+The SDK includes comprehensive tests:
+
+- **Unit tests**: Models, exceptions, configuration
+- **Integration tests**: Resources, API interactions (mocked with respx)
+- **Pagination tests**: Auto-pagination, page iterators
+- **Retry tests**: Exponential backoff, retry configuration
+
+Run all tests:
+
+```bash
+pytest
+```
+
+Run specific test files:
+
+```bash
+pytest tests/test_models.py
+pytest tests/test_resources.py
+pytest tests/test_retry.py
+```
+
+Run with verbose output:
+
+```bash
+pytest -v
+```
+
+Test coverage:
+
+```bash
+pytest --cov=march_history --cov-report=term-missing
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Support
+
+For issues and questions:
+- GitHub Issues: https://github.com/march/march-history-sdk/issues
+- Documentation: https://github.com/march/march-history-sdk#readme
