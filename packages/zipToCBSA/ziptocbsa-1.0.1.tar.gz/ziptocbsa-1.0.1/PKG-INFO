@@ -1,0 +1,48 @@
+Metadata-Version: 2.4
+Name: zipToCBSA
+Version: 1.0.1
+Summary: A small package designed to help convert USPS ZIP Codes to OMB CBSA Codes
+Project-URL: Homepage, https://github.com/pypa/sampleproject
+Project-URL: Issues, https://github.com/pypa/sampleproject/issues
+Author-email: Eric Renfert <ericrenfert@hotmail.com>
+License-Expression: MIT
+License-File: LICENSE
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.9
+Requires-Dist: importlib
+Requires-Dist: pandas
+Description-Content-Type: text/markdown
+
+# USPS ZIP Code to OMB Core-Based Satistical Area (CBSA)
+
+## Background:
+For those unfamiliar, the US Office of Management and Budget (OMB) defines Core Based Statistical Areas (CBSAs) for use by a multitude of other agencies, including the US Dept of Housing and Urban Development.
+
+Meanwhile, most developers and users are not intimately acquainted with the CBSA codes, but may well be accustomed to USPS ZIP Codes.  The OMB publishes "crosswalk files" periodically to help map ZIP codes to CBSAs, and this package serves as an easy means to utilize those without needing to call an API constantly.
+
+This package just has one function, "convert", which takes in a 5-digit USPS ZIP Code and returns all of the info for matching rows in the OMB ZIP-CBSA Crosswalk File, namely CBSA code, USPS ZIP Pref City, USPS ZIP Pref State, and four different ratios of percentage of addresses in a ZIP code mapped to the given CBSA based on designation as residential, business, other, and total addresses.
+
+The return value from this function is a list of dictionaries, each dictionary corresponding to a CBSA associated to the given ZIP code.  If an invalid ZIP code is provided, or the ZIP doesn't map to any CBSA, the function instead returns "FALSE".
+
+For more info on OMB CBSAs, and on how to use the output data, please visit the US HUD portal site: https://www.huduser.gov/portal/datasets/usps_crosswalk.html
+
+## Usage:
+
+```python
+from zipToCBSA import convert
+results = convert('54499')
+
+for result in results:
+    print(result)
+
+```
+results
+```
+{'zip': '54499', 'geoid': 43020, 'res_ratio': 0.817047817047817, 'bus_ratio': 0.9032258064516128, 'oth_ratio': 0.9428571428571428, 'tot_ratio': 0.8233766233766234, 'city': 'WITTENBERG', 'state': 'WI'}
+{'zip': '54499', 'geoid': 48140, 'res_ratio': 0.167013167013167, 'bus_ratio': 0.0967741935483871, 'oth_ratio': 0.0571428571428571, 'tot_ratio': 0.1616883116883117, 'city': 'WITTENBERG', 'state': 'WI'}
+{'zip': '54499', 'geoid': 44620, 'res_ratio': 0.0138600138600138, 'bus_ratio': 0.0, 'oth_ratio': 0.0, 'tot_ratio': 0.0129870129870129, 'city': 'WITTENBERG', 'state': 'WI'}
+{'zip': '54499', 'geoid': 99999, 'res_ratio': 0.002079002079002, 'bus_ratio': 0.0, 'oth_ratio': 0.0, 'tot_ratio': 0.0019480519480519, 'city': 'WITTENBERG', 'state': 'WI'}
+```
+
+This code was inspired by the now-defunct zipcode2cbsa at https://github.com/macoj/zipcode2cbsa.
