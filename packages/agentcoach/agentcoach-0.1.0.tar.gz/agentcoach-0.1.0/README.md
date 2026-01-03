@@ -1,0 +1,425 @@
+# 🎯 AgentCoach
+
+**Agent quality analysis and repair SDK for OpenTelemetry traces**
+
+AgentCoach analyzes agent execution traces to detect quality issues, identify root causes, and provide actionable recommendations for improvement. It works with OpenTelemetry/OpenInference-style traces and supports runtime repair loops.
+
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## ✨ Features
+
+- **🔍 Trace Analysis**: Ingest and analyze OpenTelemetry/OpenInference traces
+- **🎯 7 Quality Detectors**:
+  - Output contract/schema validation
+  - Evidence grounding verification
+  - Tool-use failure detection
+  - Loop/planning failure detection
+  - State/constraint loss detection
+  - Policy/tone compliance
+  - Consistency detection (stub)
+- **📊 Rich Reporting**: JSON and HTML reports with quality scores
+- **🔧 Runtime Repair**: Automatic output repair with evidence grounding
+- **💡 Engineering Coach**: Actionable recommendations (prompt diffs, retrieval settings, etc.)
+- **🧪 Canary Tests**: Auto-generate regression test suites from failures
+- **🔗 LangGraph Integration**: Drop-in quality guard node
+- **🤖 Optional LLM Judge**: OpenAI, Anthropic, or SAP BTP AI Core
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <repo-url>
+cd agentcoach
+
+# Install in development mode
+pip install -e .
+
+# Or install with dev dependencies
+pip install -e ".[dev]"
+```
+
+### Initialize Configuration
+
+```bash
+agentcoach init
+```
+
+This creates:
+- `agentcoach.yaml` - Configuration file
+- `.env.example` - Environment variables template
+
+### Analyze a Trace
+
+```bash
+agentcoach analyze --trace examples/sample_trace.json --out results/
+```
+
+This generates:
+- `results/report.json` - Structured findings
+- `results/report.html` - Interactive HTML report
+
+### View Results
+
+Open `results/report.html` in your browser to see:
+- Quality score
+- Findings by severity and category
+- Engineering recommendations
+- Suggested fixes
+
+## 📖 Usage
+
+### CLI Commands
+
+#### 1. Initialize Project
+
+```bash
+agentcoach init
+```
+
+#### 2. Analyze Traces
+
+```bash
+# Basic analysis
+agentcoach analyze --trace path/to/trace.json --out output_dir/
+
+# With custom config
+agentcoach analyze --trace trace.json --out results/ --config agentcoach.yaml
+
+# With LLM judge (requires API keys in .env)
+agentcoach analyze --trace trace.json --out results/ --llm-judge
+```
+
+#### 3. Repair Output
+
+```bash
+# Repair with heuristics only
+agentcoach repair --trace trace.json --out repaired/
+
+# Repair with LLM provider
+agentcoach repair --trace trace.json --out repaired/ --llm-provider openai
+```
+
+#### 4. Generate Canary Tests
+
+```bash
+agentcoach canary --report results/report.json --suite canary_tests/
+```
+
+### Python SDK
+
+```python
+from agentcoach import load_trace, analyze_trace
+from agentcoach.report import generate_report
+
+# Load and analyze trace
+trace = load_trace("path/to/trace.json")
+findings = analyze_trace(trace)
+
+# Generate reports
+generate_report(trace, findings, "output_dir/")
+```
+
+### LangGraph Integration
+
+```python
+from agentcoach.langgraph import QualityGuardNode
+
+# Create quality guard node
+quality_guard = QualityGuardNode(
+    contract_schema="schemas/default_contract.json",
+    policy_pack="schemas/default_policy.json",
+    auto_repair=True,
+)
+
+# Add to your LangGraph
+from langgraph.graph import StateGraph
+
+graph = StateGraph(AgentState)
+graph.add_node("quality_guard", quality_guard)
+graph.add_edge("draft_answer", "quality_guard")
+graph.add_edge("quality_guard", END)
+
+app = graph.compile()
+```
+
+See `examples/langgraph_demo.py` for a complete example.
+
+## 🔧 Configuration
+
+### agentcoach.yaml
+
+```yaml
+# Output contract schema
+contract_schema: schemas/default_contract.json
+
+# Policy pack
+policy: schemas/default_policy.json
+
+# LLM Judge
+llm_judge:
+  enabled: false
+  provider: openai  # openai, anthropic, or sap
+
+# Detector configuration
+detectors:
+  schema:
+    enabled: true
+  grounding:
+    enabled: true
+    require_citations: true
+  tool_use:
+    enabled: true
+  loops:
+    enabled: true
+    max_repeats: 3
+  state:
+    enabled: true
+  policy_tone:
+    enabled: true
+  consistency:
+    enabled: false
+```
+
+### Environment Variables
+
+Create a `.env` file (see `.env.example`):
+
+```bash
+# OpenAI
+OPENAI_API_KEY=your_key_here
+OPENAI_MODEL=gpt-4o-mini
+
+# Anthropic
+ANTHROPIC_API_KEY=your_key_here
+ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+
+# SAP BTP AI Core
+AICORE_BASE_URL=https://api.ai.prod.eu-central-1.aws.ml.hana.ondemand.com
+AICORE_CLIENT_ID=your_client_id
+AICORE_CLIENT_SECRET=your_client_secret
+AICORE_RESOURCE_GROUP=default
+AICORE_MODEL=gpt-4
+```
+
+## 📊 Trace Format
+
+AgentCoach supports OpenTelemetry and simplified trace formats:
+
+### Simplified Format
+
+```json
+{
+  "trace_id": "trace-001",
+  "spans": [
+    {
+      "span_id": "span-1",
+      "name": "agent_run",
+      "kind": "agent",
+      "attributes": {
+        "input.value": "User query",
+        "output.value": "Agent response"
+      }
+    },
+    {
+      "span_id": "span-2",
+      "parent_span_id": "span-1",
+      "name": "retrieval",
+      "kind": "retrieval",
+      "attributes": {
+        "retrieval.query": "search query",
+        "documents": [
+          {"content": "Retrieved document text"}
+        ]
+      }
+    }
+  ]
+}
+```
+
+### Exporting from LangGraph
+
+```python
+from langchain_core.tracers import LangChainTracer
+import json
+
+tracer = LangChainTracer()
+result = graph.invoke(input, config={"callbacks": [tracer]})
+
+# Export trace
+with open("trace.json", "w") as f:
+    json.dump(tracer.runs[0].dict(), f)
+```
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=agentcoach --cov-report=html
+
+# Run specific test
+pytest tests/test_schema_detector.py -v
+```
+
+## 🎯 Quality Detectors
+
+### 1. Schema Detector
+Validates output against JSON schema contracts.
+
+**Checks:**
+- Required fields present
+- Correct data types
+- Valid JSON format
+
+### 2. Grounding Detector
+Verifies answers are grounded in evidence.
+
+**Checks:**
+- Citations present
+- Evidence referenced in answer
+- Tool outputs used
+
+### 3. Tool-Use Detector
+Detects tool execution failures.
+
+**Checks:**
+- Tool errors
+- Ignored tool outputs
+- Premature final answers
+
+### 4. Loop Detector
+Identifies infinite loops and planning failures.
+
+**Checks:**
+- Repeated tool calls
+- Repeated LLM prompts
+- Excessive iterations
+
+### 5. State Detector
+Tracks constraint loss.
+
+**Checks:**
+- User constraints maintained
+- Requirements addressed
+
+### 6. Policy/Tone Detector
+Enforces policy compliance.
+
+**Checks:**
+- Banned phrases
+- Answer length limits
+- Tone requirements
+
+### 7. Consistency Detector
+Multi-run variance analysis (MVP stub).
+
+## 💡 Engineering Recommendations
+
+AgentCoach provides actionable recommendations:
+
+### Prompt Engineering
+```diff
+--- system_prompt
++++ system_prompt
+ You are a helpful assistant.
++
++Always format your response as JSON with:
++{"answer": "...", "confidence": 0.0-1.0, "citations": [...]}
+```
+
+### Retrieval Settings
+- Increase top_k from 3 to 5-10
+- Add re-ranking step
+- Implement query rewriting
+
+### Error Handling
+```python
+def call_tool_with_retry(tool_name, args, max_retries=2):
+    for attempt in range(max_retries + 1):
+        try:
+            return execute_tool(tool_name, args)
+        except Exception as e:
+            if attempt < max_retries:
+                args = fix_tool_args(tool_name, args, error=str(e))
+            else:
+                return {"error": str(e)}
+```
+
+### Architecture
+- Add loop detection
+- Implement memory trimming
+- Add policy validation node
+
+## 🧪 Canary Tests
+
+Generate regression tests from failures:
+
+```bash
+agentcoach canary --report results/report.json --suite canary_tests/
+```
+
+This creates:
+- `canary_tests/cases.jsonl` - Test cases
+- `canary_tests/test_canary.py` - Pytest file
+
+Implement the `run_agent()` function and run:
+
+```bash
+pytest canary_tests/test_canary.py -v
+```
+
+## 📁 Project Structure
+
+```
+agentcoach/
+├── agentcoach/
+│   ├── __init__.py
+│   ├── cli.py              # CLI commands
+│   ├── models.py           # Data models
+│   ├── trace_ingest.py     # Trace parsing
+│   ├── config.py           # Configuration
+│   ├── contracts.py        # Schema validation
+│   ├── report.py           # Report generation
+│   ├── repair.py           # Runtime repair
+│   ├── judge.py            # LLM judge adapters
+│   ├── canary.py           # Test generation
+│   ├── langgraph.py        # LangGraph integration
+│   └── detectors/          # Quality detectors
+├── schemas/                # Default schemas
+├── examples/               # Example code
+├── tests/                  # Test suite
+└── README.md
+```
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new features
+4. Run `pytest` and `ruff check`
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+Built for analyzing agent quality with OpenTelemetry/OpenInference traces.
+
+## 📞 Support
+
+- Issues: [GitHub Issues](https://github.com/your-repo/agentcoach/issues)
+- Documentation: This README
+- Examples: See `examples/` directory
+
+---
+
+**Made with ❤️ for better agent quality**

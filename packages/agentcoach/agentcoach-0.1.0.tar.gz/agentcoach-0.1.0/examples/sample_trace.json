@@ -1,0 +1,70 @@
+{
+  "trace_id": "sample-trace-001",
+  "spans": [
+    {
+      "span_id": "span-1",
+      "parent_span_id": null,
+      "name": "agent_run",
+      "kind": "agent",
+      "start_time": "2025-12-30T14:00:00",
+      "end_time": "2025-12-30T14:00:10",
+      "status": "ok",
+      "attributes": {
+        "input.value": "What are the key features of Python 3.12?",
+        "output.value": "Python 3.12 has improved performance and new syntax features."
+      }
+    },
+    {
+      "span_id": "span-2",
+      "parent_span_id": "span-1",
+      "name": "retrieval",
+      "kind": "retrieval",
+      "start_time": "2025-12-30T14:00:01",
+      "end_time": "2025-12-30T14:00:03",
+      "status": "ok",
+      "attributes": {
+        "retrieval.query": "Python 3.12 features",
+        "documents": [
+          {
+            "id": "doc1",
+            "content": "Python 3.12 introduces per-interpreter GIL, improving multi-threaded performance significantly.",
+            "score": 0.95
+          },
+          {
+            "id": "doc2",
+            "content": "The new f-string syntax in Python 3.12 allows for more complex expressions and better debugging.",
+            "score": 0.89
+          }
+        ]
+      }
+    },
+    {
+      "span_id": "span-3",
+      "parent_span_id": "span-1",
+      "name": "tool_call_search",
+      "kind": "tool",
+      "start_time": "2025-12-30T14:00:04",
+      "end_time": "2025-12-30T14:00:05",
+      "status": "ok",
+      "attributes": {
+        "tool.name": "web_search",
+        "tool.args": {"query": "Python 3.12 release date"},
+        "tool.output": "Python 3.12 was released on October 2, 2023"
+      }
+    },
+    {
+      "span_id": "span-4",
+      "parent_span_id": "span-1",
+      "name": "llm_generate",
+      "kind": "llm",
+      "start_time": "2025-12-30T14:00:06",
+      "end_time": "2025-12-30T14:00:09",
+      "status": "ok",
+      "attributes": {
+        "llm.prompt": "Based on the retrieved documents and search results, answer: What are the key features of Python 3.12?",
+        "llm.response": "Python 3.12 has improved performance and new syntax features.",
+        "llm.model_name": "gpt-4"
+      }
+    }
+  ]
+}
