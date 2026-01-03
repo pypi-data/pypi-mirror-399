@@ -1,0 +1,64 @@
+[project]
+name = "nshutils"
+version = "0.38.6"
+description = ""
+authors = [{ name = "Nima Shoghi", email = "nimashoghi@gmail.com" }]
+requires-python = ">=3.10,<4.0"
+readme = "README.md"
+
+dependencies = [
+    "lazy-loader",
+    "numpy",
+    "typing-extensions",
+    "jaxtyping; python_version >= '3.10'",
+    "beartype; python_version >= '3.10'",
+    "wadler-lindig; python_version >= '3.10'",
+    "uuid7",
+]
+
+[project.optional-dependencies]
+snoop = ["pysnooper"]
+pprint = ["rich[jupyter]", "treescope; python_version >= '3.10'"]
+extra = ["pysnooper", "rich[jupyter]", "treescope; python_version >= '3.10'"]
+
+[project.urls]
+homepage = "https://github.com/nimashoghi/nshutils"
+
+[dependency-groups]
+dev = [
+    "basedpyright",
+    "ruff",
+    "ipykernel",
+    "ipywidgets",
+    "pytest",
+    "pytest-cov",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.basedpyright]
+typeCheckingMode = "standard"
+deprecateTypingAliases = true
+strictListInference = true
+strictDictionaryInference = true
+strictSetInference = true
+reportPrivateImportUsage = "none"
+reportMatchNotExhaustive = "warning"
+reportOverlappingOverload = "warning"
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportImplicitOverride = "warning"
+reportIncompatibleMethodOverride = "information"
+
+[tool.ruff.lint]
+select = ["FA102", "FA100"]
+ignore = ["F722", "F821", "E731", "E741"]
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "--cov=nshutils --cov-report=term-missing"
