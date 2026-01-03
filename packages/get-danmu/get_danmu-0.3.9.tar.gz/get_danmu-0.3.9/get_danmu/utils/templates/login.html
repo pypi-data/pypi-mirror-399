@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员登录</title>
+    <!-- Tailwind CSS -->
+    <script src="{{ url_for('static', filename='js/tailwindcss.js') }}"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome/font-awesome.min.css') }}">
+    <!-- MD5 加密库 -->
+     <script src="{{ url_for('static', filename='js/md5.min.js') }}"></script>
+     
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        accent: '#f43f5e',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .bg-gradient-primary {
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            }
+            .input-focus {
+                @apply focus:ring-2 focus:outline-none;
+            }
+            .btn-hover {
+                @apply hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <!-- 登录卡片 -->
+    <div class="w-full max-w-md">
+        <!-- 登录卡片头部 -->
+        <div class="bg-gradient-primary rounded-t-lg p-8 text-center">
+            <h1 class="text-3xl font-bold text-white text-shadow">管理员登录</h1>
+            <p class="text-blue-100 mt-2">请输入您的账号和密码</p>
+        </div>
+        
+        <!-- 登录卡片主体 -->
+        <div class="bg-white rounded-b-lg p-8 card-shadow">
+            <form id="loginForm" class="space-y-6">
+                <!-- 用户名输入 -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fa fa-user-circle text-primary mr-1"></i> 用户名
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fa fa-user"></i>
+                        </span>
+                        <input type="text" id="username" name="username" required
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg input-focus"
+                            placeholder="请输入用户名">
+                    </div>
+                </div>
+                
+                <!-- 密码输入 -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                        <i class="fa fa-lock text-primary mr-1"></i> 密码
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                            <i class="fa fa-key"></i>
+                        </span>
+                        <input type="password" id="password" name="password" required
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg input-focus"
+                            placeholder="请输入密码">
+                    </div>
+                </div>
+                
+                <!-- 错误提示 -->
+                <div id="errorMsg" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    <i class="fa fa-exclamation-circle mr-1"></i>
+                    <span id="errorText"></span>
+                </div>
+                
+                <!-- 登录按钮 -->
+                <button type="submit" id="loginBtn"
+                    class="w-full bg-gradient-primary text-white py-3 px-4 rounded-lg font-medium btn-hover flex items-center justify-center">
+                    <span id="loginText">登录</span>
+                    <span id="loginLoading" class="ml-2 hidden">
+                        <i class="fa fa-spinner fa-spin"></i>
+                    </span>
+                </button>
+            </form>
+            
+            <!-- 底部信息 -->
+            <div class="mt-6 text-center text-gray-500 text-sm">
+                <p>© 2025 数据管理系统</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const errorMsg = document.getElementById('errorMsg');
+            const errorText = document.getElementById('errorText');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginText = document.getElementById('loginText');
+            const loginLoading = document.getElementById('loginLoading');
+            
+            // 显示错误消息
+            function showError(message) {
+                errorText.textContent = message;
+                errorMsg.classList.remove('hidden');
+                // 3秒后自动隐藏错误消息
+                setTimeout(() => {
+                    errorMsg.classList.add('hidden');
+                }, 3000);
+            }
+            
+            // 表单提交处理
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // 获取表单数据
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                // 表单验证
+                if (!username) {
+                    showError('请输入用户名');
+                    usernameInput.focus();
+                    return;
+                }
+                
+                if (!password) {
+                    showError('请输入密码');
+                    passwordInput.focus();
+                    return;
+                }
+                
+                // 禁用按钮并显示加载状态
+                loginBtn.disabled = true;
+                loginText.textContent = '登录中';
+                loginLoading.classList.remove('hidden');
+                errorMsg.classList.add('hidden');
+                
+                try {
+                    // 使用MD5加密密码
+                    const encryptedPassword = md5(password);
+                    
+                    // 发送登录请求
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(encryptedPassword)}`,
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        // 登录成功，跳转到管理页面
+                        window.location.href = '/admin';
+                    } else {
+                        const data = await response.json();
+                        showError(data.error || '登录失败，请检查用户名或密码');
+                        
+                        // 重置密码输入框
+                        passwordInput.value = '';
+                        passwordInput.focus();
+                    }
+                } catch (err) {
+                    console.error('登录请求失败:', err);
+                    showError('网络错误，请稍后重试');
+                } finally {
+                    // 恢复按钮状态
+                    loginBtn.disabled = false;
+                    loginText.textContent = '登录';
+                    loginLoading.classList.add('hidden');
+                }
+            });
+            
+            // 回车键提交表单
+            [usernameInput, passwordInput].forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        loginForm.dispatchEvent(new Event('submit'));
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
