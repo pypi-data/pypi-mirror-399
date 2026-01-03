@@ -1,0 +1,33 @@
+[project]
+name = "gr8pc"
+version = "0.2.0"
+description = "gr8pc: A High-Level gRPC Wrapper for python"
+readme = "README.md"
+authors = [
+    { name = "Lucas Colombo", email = "lucasncolombo@gmail.com" }
+]
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "grpc-interceptor>=0.15.4",
+    "grpcio-tools>=1.67.1",
+    "grpcio>=1.67.1",
+    "protobuf>=5.28.3",
+    "pydantic<3",
+]
+
+[project.optional-dependencies]
+reflection = [
+    "grpcio-reflection>=1.76.0",
+]
+
+
+
+[project.urls]
+Homepage = "https://github.com/lucas-labs/gr8pc"
+Documentation = "https://github.com/lucas-labs/gr8pc"
+Repository = "https://github.com/lucas-labs/gr8pc"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
