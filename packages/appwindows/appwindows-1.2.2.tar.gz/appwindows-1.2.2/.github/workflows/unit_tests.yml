@@ -1,0 +1,110 @@
+name: unit_tests
+
+on:
+  workflow_run:
+    workflows: ["build"]
+    types: [completed]
+    branches: [main, master]
+
+jobs:
+  test_windows:
+    name: Test on Windows
+    runs-on: windows-2019
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Download wheels from build workflow
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          name: wheels-windows-2019
+          path: ./wheelhouse
+          run_id: ${{ github.event.workflow_run.id }}
+          
+      - name: Install dependencies
+        run: |
+          pip install pytest pillow numpy
+        shell: powershell
+        
+      - name: Install wheel
+        run: |
+          $wheel = Get-ChildItem -Path "./wheelhouse/*cp313*.whl" -ErrorAction SilentlyContinue | Select-Object -First 1
+          Write-Host "Found wheel: $($wheel.FullName)"
+          pip install --force-reinstall "$($wheel.FullName)"
+        shell: powershell
+        
+      - name: Run tests
+        run: |
+          pytest tests/ -v
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        shell: powershell
+        
+  test_linux:
+    runs-on: ubuntu-22.04
+    name: Test on Linux
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install X11 utilities
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            xvfb \
+            x11-utils \
+            xterm \
+            xdotool \
+            wmctrl \
+            zenity \
+            yad \
+        shell: bash
+
+      - name: Install Python dependencies
+        run: |
+          pip install pytest pillow numpy
+        shell: bash
+
+      - name: Download wheels
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+          name: wheels-ubuntu-22.04
+          path: ./wheelhouse
+          run_id: ${{ github.event.workflow_run.id }}
+
+      - name: Install wheel
+        run: |
+          wheel=$(find ./wheelhouse -name "*cp313*.whl" -print -quit)
+          pip install --force-reinstall "$wheel"
+        shell: bash
+
+      - name: Run tests with xterm windows
+        run: |
+          # Запускаем Xvfb
+          Xvfb :99 -screen 0 1024x768x24 &
+          export DISPLAY=:99
+          sleep 2
+          
+          # Запускаем тесты
+          python -m pytest tests/ -v
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DISPLAY: ":99"
+        shell: bash
