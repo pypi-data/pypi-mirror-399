@@ -1,0 +1,101 @@
+Metadata-Version: 2.4
+Name: pypolkadot
+Version: 0.2.4
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Rust
+Classifier: Topic :: Software Development :: Libraries
+Requires-Dist: pytest ; extra == 'dev'
+Provides-Extra: dev
+License-File: LICENSE
+Summary: Python light client for Polkadot/Substrate via smoldot
+Keywords: polkadot,substrate,blockchain,light-client,smoldot,web3
+License: GPL-3.0
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown; charset=UTF-8; variant=GFM
+Project-URL: Homepage, https://code.jedda.eu/pypolkadot/
+Project-URL: Documentation, https://code.jedda.eu/pypolkadot/
+Project-URL: Repository, https://code.jedda.eu/pypolkadot/
+
+# pypolkadot
+
+Experimental Python light client for Polkadot/Substrate via [smoldot](https://github.com/smol-dot/smoldot).
+
+Connect to Asset Hub (Polkadot, Kusama, Paseo) **trustlessly** - no full node, no RPC provider needed.
+
+This is a feasibility demonstrator to integrate the functionality in https://github.com/JAMdotTech/py-polkadot-sdk. 
+
+## Installation
+
+```bash
+pip install pypolkadot
+```
+
+## Quick Start
+
+```python
+from pypolkadot import LightClient
+
+# Connect to Asset Hub (default: Polkadot)
+client = LightClient()
+client = LightClient(network="kusama")   # Asset Hub Kusama
+client = LightClient(network="paseo")    # Paseo Asset Hub (testnet)
+
+# Query storage
+total = client.storage("Balances", "TotalIssuance")
+print(f"Total issuance: {total}")
+
+# Get events
+for event in client.events(pallet="System"):
+    print(f"{event.pallet}.{event.name}")
+
+# Subscribe to blocks
+for block in client.subscribe_finalized():
+    print(f"Block #{block.number}: {block.hash}")
+```
+
+## Features
+
+- Verifies proofs cryptographically, no RPC trust required
+- Light client runs in-process, no external dependencies
+- Query any storage/events without codegen
+- Simple Python API, no async/await required
+
+## API
+
+| Method | Description |
+|--------|-------------|
+| `LightClient()` | Connect to Asset Hub Polkadot |
+| `LightClient(network="kusama")` | Connect to Asset Hub Kusama |
+| `LightClient(network="paseo")` | Connect to Paseo Asset Hub (testnet) |
+| `LightClient.from_chain_spec(json)` | Connect with custom chain spec |
+| `client.get_finalized_block()` | Get latest finalized block |
+| `client.storage(pallet, entry, keys)` | Query storage |
+| `client.events(block_hash, pallet, name)` | Get/filter events |
+| `client.submit(signed_hex)` | Submit pre-signed extrinsic |
+| `client.subscribe_finalized()` | Stream finalized blocks |
+
+## Development
+
+```bash
+# Setup
+uv venv && source .venv/bin/activate
+pip install maturin
+
+# Build
+maturin develop
+
+# Test
+python tests/test_storage.py
+```
+
+## License
+
+GPL-3.0 as intended.
+
