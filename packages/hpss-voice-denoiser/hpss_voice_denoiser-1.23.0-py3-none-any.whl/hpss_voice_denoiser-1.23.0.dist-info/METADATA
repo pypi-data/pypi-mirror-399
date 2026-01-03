@@ -1,0 +1,457 @@
+Metadata-Version: 2.4
+Name: hpss-voice-denoiser
+Version: 1.23.0
+Summary: HPSS-based voice denoiser optimized for ASR preprocessing (STT, diarization, speaker embedding)
+Project-URL: Homepage, https://github.com/atomys/hpss-voice-denoiser
+Project-URL: Documentation, https://github.com/atomys/hpss-voice-denoiser#readme
+Project-URL: Repository, https://github.com/atomys/hpss-voice-denoiser
+Project-URL: Issues, https://github.com/atomys/hpss-voice-denoiser/issues
+Author-email: Atomys <contact@atomys.io>
+License: MIT
+License-File: LICENSE
+Keywords: asr,audio,denoising,diarization,hpss,preprocessing,speech,stt,voice,whisper
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Multimedia :: Sound/Audio :: Analysis
+Classifier: Topic :: Multimedia :: Sound/Audio :: Speech
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.10
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: scipy>=1.10.0
+Provides-Extra: all
+Requires-Dist: matplotlib>=3.7.0; extra == 'all'
+Requires-Dist: mypy>=1.0.0; extra == 'all'
+Requires-Dist: pytest-cov>=4.0.0; extra == 'all'
+Requires-Dist: pytest>=7.0.0; extra == 'all'
+Requires-Dist: ruff>=0.1.0; extra == 'all'
+Provides-Extra: dev
+Requires-Dist: mypy>=1.0.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.0.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.1.0; extra == 'dev'
+Provides-Extra: visualization
+Requires-Dist: matplotlib>=3.7.0; extra == 'visualization'
+Description-Content-Type: text/markdown
+
+# HPSS Voice Denoiser
+
+A production-ready audio denoising pipeline optimized for **ASR preprocessing** (Speech-to-Text, Speaker Diarization, Voice Embedding).
+
+Built on **Harmonic-Percussive Source Separation (HPSS)** with context-aware mixing to preserve voice quality while removing environmental noise.
+
+## Features
+
+- **Optimized for ASR**: Preserves voice characteristics critical for STT, diarization, and speaker embedding
+- **Stateless Processing**: Each audio chunk is processed independently (perfect for streaming)
+- **Voice-Preserving**: 99% voice band preservation, consonants intact
+- **Low Latency**: Suitable for real-time applications
+- **Simple API**: Easy to integrate as a library or use via CLI
+
+## Benchmark Results
+
+Tested on real audio (88 seconds total). Run `benchmarks/benchmark.py` for full analysis.
+
+| Metric | Value | Description |
+|--------|-------|-------------|
+| **STT Confidence** | +16% improvement | Whisper word probability increased after denoising |
+| **Speaker Embedding** | 93.5% similar | Voice identity preserved (cosine similarity before/after) |
+| **Diarization** | 98% consistent | Speaker segments unchanged by denoising |
+| **Voice Band (300-3kHz)** | 75% preserved | Mid frequencies containing voice fundamentals |
+| **High Freq (3k-8kHz)** | 48% preserved | Reduced by design (noise lives here) |
+
+## Installation
+
+### From PyPI (recommended)
+
+```bash
+pip install hpss-voice-denoiser
+```
+
+### With visualization support
+
+```bash
+pip install hpss-voice-denoiser[visualization]
+```
+
+### From source
+
+```bash
+git clone https://github.com/atomys/hpss-voice-denoiser.git
+cd hpss-voice-denoiser
+pip install -e .
+```
+
+## Quick Start
+
+### As a Library
+
+```python
+from hpss_denoiser import HPSSDenoiser
+
+# Create denoiser with default settings
+denoiser = HPSSDenoiser()
+
+# Process PCM audio (16kHz, 16-bit, mono)
+with open("input.pcm", "rb") as f:
+    pcm_data = f.read()
+
+# Denoise
+cleaned_pcm = denoiser.process(pcm_data)
+
+# Save result
+with open("output.pcm", "wb") as f:
+    f.write(cleaned_pcm)
+```
+
+### With NumPy Arrays
+
+```python
+import numpy as np
+from hpss_denoiser import HPSSDenoiser
+
+denoiser = HPSSDenoiser()
+
+# Float audio (-1.0 to 1.0)
+audio = np.random.randn(16000).astype(np.float64) * 0.1
+
+# Process
+cleaned = denoiser.process_array(audio)
+```
+
+### Custom Configuration
+
+```python
+from hpss_denoiser import HPSSDenoiser, DenoiserConfig
+
+# Adjust for your use case
+config = DenoiserConfig(
+    sample_rate=16000,
+    
+    # More aggressive noise reduction in silence
+    no_context_perc_gain=0.02,
+    
+    # Preserve more consonants
+    voice_context_perc_gain=0.25,
+)
+
+denoiser = HPSSDenoiser(config)
+```
+
+### CLI Usage
+
+```bash
+# Basic usage
+hpss-denoise input.pcm output.pcm
+
+# Process with intermediate stages (for debugging)
+hpss-denoise input.pcm output.pcm --stages
+
+# Generate analysis visualization
+hpss-denoise input.pcm --analyze --output-image analysis.png
+
+# Custom sample rate
+hpss-denoise input.pcm output.pcm --sample-rate 8000
+
+# Show all options
+hpss-denoise --help
+```
+
+## Audio Format
+
+The denoiser expects and produces:
+
+- **Format**: Raw PCM
+- **Sample Rate**: 16000 Hz (configurable)
+- **Bit Depth**: 16-bit signed integer
+- **Channels**: Mono
+
+### Converting from other formats
+
+```bash
+# WAV to PCM
+ffmpeg -i input.wav -f s16le -acodec pcm_s16le -ar 16000 -ac 1 input.pcm
+
+# MP3 to PCM
+ffmpeg -i input.mp3 -f s16le -acodec pcm_s16le -ar 16000 -ac 1 input.pcm
+
+# PCM to WAV (for playback)
+ffmpeg -f s16le -ar 16000 -ac 1 -i output.pcm output.wav
+```
+
+## How It Works
+
+### Pipeline Architecture
+
+```
+Audio Input (PCM 16kHz, 16-bit)
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  High-pass Filter (80 Hz)           │  Remove DC offset & rumble
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  STFT Analysis                      │  Time-frequency representation
+│  (25ms frames, 6ms hop)             │
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  HPSS Separation                    │  Split into harmonic (voice)
+│  (median filtering)                 │  and percussive (transients)
+└─────────────────────────────────────┘
+    │
+    ├─── Harmonic ───┐
+    │                ▼
+    │    ┌─────────────────────────────┐
+    │    │  Envelope Tightening        │  Reduce HPSS echo artifacts
+    │    │  (asymmetric follower)      │
+    │    └─────────────────────────────┘
+    │                │
+    │                ▼
+    │    ┌─────────────────────────────┐
+    ├───▶│  Context-Based Mixing       │  Detect voice activity
+    │    │  - Voice: keep 20% perc     │  Mix based on context
+    │    │  - Silence: keep 4% perc    │
+    │    └─────────────────────────────┘
+    │                │
+    └── Percussive ──┘
+                     │
+                     ▼
+┌─────────────────────────────────────┐
+│  Low-Frequency Denoising            │  Spectral subtraction <350Hz
+│  (percentile-based)                 │
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  ISTFT Synthesis                    │  Reconstruct audio
+└─────────────────────────────────────┘
+    │
+    ▼
+Audio Output (PCM 16kHz, 16-bit)
+```
+
+### Why HPSS?
+
+**Harmonic-Percussive Source Separation** uses median filtering on the spectrogram:
+
+- **Harmonic components** (voice fundamentals, vowels) appear as horizontal lines
+- **Percussive components** (transients, consonants, noise) appear as vertical lines
+
+By separating these, we can:
+1. Keep the harmonic component (clean voice)
+2. Selectively mix percussive based on voice context
+3. During speech: include percussive (consonants like 't', 's', 'k')
+4. During silence: suppress percussive (noise transients)
+
+### Key Innovation: Context-Aware Mixing
+
+The challenge with HPSS for voice is that **consonants are percussive**. Naive suppression of the percussive component removes 't', 's', 'f', etc.
+
+Our solution: **detect voice context** using harmonic energy in the 200-4000 Hz band:
+- If voice is present: mix more percussive (preserve consonants)
+- If silence: aggressively suppress percussive (remove noise)
+
+## Configuration Reference
+
+```python
+@dataclass
+class DenoiserConfig:
+    """Configuration for HPSS voice denoiser."""
+    
+    # Audio parameters
+    sample_rate: int = 16000          # Input/output sample rate
+    
+    # STFT parameters
+    frame_size_ms: int = 25           # Analysis frame size
+    hop_size_ms: int = 6              # Frame hop size
+    
+    # HPSS separation
+    harmonic_kernel: int = 9          # Median filter size (time)
+    percussive_kernel: int = 9        # Median filter size (freq)
+    hpss_margin: float = 2.5          # Separation hardness
+    
+    # Context detection
+    context_window: int = 10          # Frames to extend voice context
+    harmonic_threshold_db: float = -20.0  # Voice detection threshold
+    
+    # Percussive mixing
+    voice_context_perc_gain: float = 0.20  # Keep 20% during voice
+    no_context_perc_gain: float = 0.04     # Keep 4% during silence
+    
+    # Envelope tightening (echo reduction)
+    envelope_tightening: bool = True
+    envelope_attack_frames: int = 2
+    envelope_release_frames: int = 3
+    envelope_min_gain: float = 0.15
+    
+    # Low-frequency denoising
+    noise_reduction_strength: float = 0.8
+    noise_reduction_max_freq: float = 350.0
+```
+
+## Use Cases
+
+### Speech-to-Text (STT)
+
+```python
+from hpss_denoiser import HPSSDenoiser
+import whisper
+
+denoiser = HPSSDenoiser()
+
+# Denoise before transcription
+with open("noisy_audio.pcm", "rb") as f:
+    noisy = f.read()
+
+cleaned = denoiser.process(noisy)
+
+# Save and transcribe
+with open("cleaned.pcm", "wb") as f:
+    f.write(cleaned)
+
+# Use with Whisper
+model = whisper.load_model("base")
+result = model.transcribe("cleaned.wav")
+```
+
+### Speaker Diarization
+
+```python
+from hpss_denoiser import HPSSDenoiser
+
+# Denoising improves speaker boundary detection
+denoiser = HPSSDenoiser()
+
+# Process chunks for streaming diarization
+chunk_size = 30 * 16000 * 2  # 30 seconds
+
+with open("meeting.pcm", "rb") as f:
+    while chunk := f.read(chunk_size):
+        cleaned_chunk = denoiser.process(chunk)
+        # Send to diarization pipeline
+```
+
+### Voice Embedding
+
+```python
+from hpss_denoiser import HPSSDenoiser
+
+# Clean audio produces more stable embeddings
+denoiser = HPSSDenoiser()
+
+# Process enrollment audio
+enrollment_clean = denoiser.process(enrollment_pcm)
+
+# Process verification audio
+verification_clean = denoiser.process(verification_pcm)
+
+# Compare embeddings (using your embedding model)
+```
+
+## Performance
+
+### Processing Speed
+
+| Audio Duration | Processing Time | Real-time Factor |
+|----------------|-----------------|------------------|
+| 1 second | ~44 ms | ~23x |
+| 10 seconds | ~420 ms | ~23x |
+| 88 seconds | ~3.8 s | ~23x |
+
+*Tested on macOS (Darwin), Python 3.12, single-threaded*
+
+### Memory Usage
+
+- ~50 MB base memory
+- ~2 MB per second of audio being processed
+- Streaming-friendly: process in chunks
+
+## Troubleshooting
+
+### Muffled output
+
+Increase `voice_context_perc_gain`:
+
+```python
+config = DenoiserConfig(voice_context_perc_gain=0.30)
+```
+
+### Too much noise remaining
+
+Decrease `no_context_perc_gain`:
+
+```python
+config = DenoiserConfig(no_context_perc_gain=0.02)
+```
+
+### Echo/reverb artifacts
+
+Reduce envelope release time:
+
+```python
+config = DenoiserConfig(envelope_release_frames=2)
+```
+
+### Consonants being cut
+
+Increase context window:
+
+```python
+config = DenoiserConfig(context_window=15)
+```
+
+## Development
+
+### Setup
+
+```bash
+git clone https://github.com/atomys/hpss-voice-denoiser.git
+cd hpss-voice-denoiser
+pip install -e ".[dev]"
+```
+
+### Run tests
+
+```bash
+pytest
+```
+
+### Type checking
+
+```bash
+mypy src/hpss_denoiser
+```
+
+### Linting
+
+```bash
+ruff check src/
+ruff format src/
+```
+
+## Algorithm References
+
+- **HPSS**: Fitzgerald, D. (2010). "Harmonic/Percussive Separation using Median Filtering"
+- **Spectral Subtraction**: Boll, S. (1979). "Suppression of Acoustic Noise in Speech Using Spectral Subtraction"
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Contributing
+
+Contributions welcome! Please open an issue first to discuss what you would like to change.
+
+## Acknowledgments
+
+Developed to improve audio coming from wearable device project.
