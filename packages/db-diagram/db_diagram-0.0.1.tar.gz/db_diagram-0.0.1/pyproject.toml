@@ -1,0 +1,186 @@
+[build-system]
+requires = [
+    "hatchling",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "db-diagram"
+version = "0.0.1"
+description = "Create Database Entity Relationship Diagrams"
+readme = "README.md"
+license = "MIT"
+requires-python = "~=3.10"
+authors = [
+    { email = "david@belais.me" },
+]
+keywords = [
+    "database",
+    "diagram",
+]
+dependencies = [
+    "sqlalchemy~=2.0",
+]
+
+[project.optional-dependencies]
+databricks = [
+    "databricks-sqlalchemy~=2.0",
+]
+snowflake = [
+    "snowflake-sqlalchemy~=1.8",
+]
+postgresql = [
+    "psycopg~=3.3",
+]
+
+[project.scripts]
+db-diagram = "db_diagram.__main__:main"
+
+[project.urls]
+Documentation = "https://db-diagram.enorganic.org"
+Repository = "https://github.com/enorganic/db-diagram"
+
+[tool.hatch.build.targets.sdist]
+packages = [
+    "src/db_diagram",
+]
+sources = [
+    "src",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/db_diagram",
+]
+sources = [
+    "src",
+]
+
+[tool.hatch.envs.default]
+python = "3.10"
+dependencies = [
+    "gittable~=0.2",
+    "pytest",
+    "mypy",
+    "dependence~=1.2",
+    "python-dotenv",
+    "pyyaml~=6.0",
+]
+features = [
+    "databricks",
+    "snowflake",
+    "postgresql",
+]
+pre-install-commands = [
+    "pip install --upgrade pip",
+]
+
+[tool.hatch.envs.hatch-static-analysis]
+extra-dependencies = [
+    "pytest",
+    "mypy",
+    "dependence~=1.2",
+]
+pre-install-commands = [
+    "pip install --upgrade pip",
+]
+post-install-commands = [
+    "hatch run hatch-static-analysis:mypy --install-types --non-interactive || echo",
+]
+
+[tool.hatch.envs.docs]
+python = "3.13"
+dependencies = [
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    "black",
+    "dependence~=1.2",
+    "mkdocs-mermaid2-plugin",
+    "pyyaml~=6.0",
+]
+pre-install-commands = []
+post-install-commands = []
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+    "dependence~=1.2",
+    "python-dotenv",
+]
+extra-args = [
+    "-s",
+    "-vv",
+]
+features = [
+    "databricks",
+    "snowflake",
+]
+pre-install-commands = []
+post-install-commands = []
+randomize = true
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = [
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+]
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+ignore = [
+    "F842",
+    "INP001",
+    "ICN001",
+    "PLR2004",
+]
+extend-select = [
+    "E",
+    "F",
+    "UP",
+    "B",
+    "SIM",
+    "I",
+    "C",
+    "N",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 79
+
+[tool.black]
+line-length = 79
+target-version = [
+    "py39",
+    "py310",
+    "py311",
+    "py312",
+    "py313",
+]
+
+[tool.mypy]
+python_version = "3.10"
+files = [
+    "src",
+    "tests",
+]
+exclude = [
+    "tests/test_projects",
+]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.coverage.report]
+fail_under = 50
+show_missing = true
+
+[tool.coverage.run]
+source = [
+    "src",
+]
