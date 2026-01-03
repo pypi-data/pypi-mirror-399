@@ -1,0 +1,102 @@
+[tool.poetry]
+name = "depthviz"
+version = "0.6.2"
+description = "Visualize your depth for your freediving videos: Works with or without dive computers."
+authors = ["Noppanut Ploywong <noppanut.connect@gmail.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+packages = [{ include = "depthviz", from = "src" }]
+repository = "https://github.com/noppanut15/depthviz"
+keywords = ["freediving", "dive", "video", "overlay", "depth", "dive-computer", "dive-log", "hud"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Topic :: Multimedia",
+    "Topic :: Multimedia :: Video"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.14"
+moviepy = "2.1.1"
+garmin-fit-sdk = "^21.158.0"
+tqdm = "^4.67.1"
+colorama = "^0.4.6"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "8.3.4"
+mypy = "1.14.1"
+ruff = "^0.8.4"
+interrogate = "1.7.0"
+coverage = "7.6.10"
+pytest-cov = "^6.0.0"
+cyclonedx-bom = "5.1.1"
+types-tqdm = "^4.67.0.20241221"
+types-colorama = "^0.4.15.20240311"
+
+[tool.ruff]
+exclude = [
+    "dist",
+    "build",
+    "env",
+    "venv",
+    ".env",
+    ".venv",
+    ".tox",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    "__pycache__",
+    ".ruff",
+]
+line-length = 100
+indent-width = 4
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`), pycodestyle (`E`) checks and pydocstyle (`D`) checks
+select = ["E", "F", "D"]
+ignore = ["D104"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[[tool.mypy.overrides]]
+module = [
+    "moviepy",
+    "proglog",
+    "garmin_fit_sdk",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+testpaths = ["tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "if __name__ == .__main__.:",
+]
+
+[tool.poetry.scripts]
+depthviz = 'depthviz.main:run'
+
+[tool.poetry-dynamic-versioning]
+enable = false
+
+[tool.poetry-dynamic-versioning.substitution]
+folders = [
+  { path = "src" }
+]
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
