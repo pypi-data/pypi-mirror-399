@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "libcsound"
+version = "0.12.0"
+description = "Python bindings to the Csound API, supporting all versions of csound higher or equal to 6.18, including csound 7"
+authors = [
+    { name = "Eduardo Moguillansky", email = "eduardo.moguillansky@gmail.com" },
+]
+license = { file = "LICENSE" }
+readme = "README.rst"
+classifiers = [
+    "Topic :: Multimedia :: Sound/Audio",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+requires-python = ">=3.9"
+keywords = ["csound"]
+
+dependencies = ["numpy>=1.24"]
+
+[tool.setuptools]
+packages = ['libcsound']
+
+# Fix for error in uv plublish
+license-files = []
+
+
+[project.urls]
+"Homepage" = "https://github.com/csound-plugins/libcsound"
