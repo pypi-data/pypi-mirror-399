@@ -1,0 +1,27 @@
+[build-system]
+ requires = ["setuptools>=78.1.0"] 
+build-backend = "setuptools.build_meta" 
+[project]
+ name = "moviemanagement"
+ version = "0.0.3"
+ authors = [
+  { name = "Rene" },
+  { name = "Cybelle" },
+  { name = "Giovani" }
+]
+description = "Package for Movie Management API"
+readme= "README.md"
+ license = { file = "LICENSE" }
+ requires-python = ">=3.13"
+ classifiers = [ 
+"Development Status :: 3 - Alpha", 
+"Programming Language :: Python :: 3", 
+"License :: OSI Approved :: MIT License", 
+"Operating System :: OS Independent", 
+] 
+dependencies = [ 
+'httpx>=0.28.1', 
+'pydantic>=2.11.2', 
+'backoff>=2.2.1', 
+'python-dotenv', 
+] 
