@@ -1,0 +1,106 @@
+Metadata-Version: 2.4
+Name: scratch-sync
+Version: 0.1.0
+Summary: Sync private scratch/ folders across machines using Syncthing over Tailscale
+Project-URL: Homepage, https://scratch.tlab.sh
+Project-URL: Documentation, https://scratch.tlab.sh
+Project-URL: Repository, https://github.com/talmolab/scratch-sync
+Project-URL: Issues, https://github.com/talmolab/scratch-sync/issues
+Author-email: Talmo Pereira <talmo@salk.edu>
+License-Expression: MIT
+Keywords: file-sync,peer-to-peer,scratch,sync,syncthing,tailscale
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: System :: Filesystems
+Classifier: Topic :: Utilities
+Requires-Python: >=3.10
+Requires-Dist: click>=8.0
+Requires-Dist: httpx>=0.25
+Requires-Dist: rich-click>=1.8
+Description-Content-Type: text/markdown
+
+# scratch-sync
+
+Sync private `scratch/` folders across multiple machines using Syncthing over Tailscale.
+
+## The Problem
+
+Working across multiple machines (Linux workstation, Mac laptop, Windows desktop) with code repositories in different locations:
+
+| Machine | Example Repo Paths |
+|---------|-------------------|
+| Linux   | `~/code/sleap-io`, `~/repo1` |
+| Mac     | `~/sleap-io`, `~/code/my-repo` |
+| Windows | `D:\sleap-io`, `C:\Users\me\code\repo1` |
+
+Each repo has a `scratch/` subfolder that's `.gitignore`d — notes, experiments, temp files, WIP that shouldn't be in version control but should sync privately across machines.
+
+## Solution
+
+- Sync `scratch/` folders without git
+- Single CLI command to add folders to sync
+- Works across Linux, macOS, and Windows
+- Uses Tailscale for secure direct connections (no cloud relay)
+- Minimal ongoing maintenance
+
+## Quick Start
+
+### Prerequisites
+
+- [Tailscale](https://tailscale.com/) installed and connected on all machines
+- All machines on the same Tailnet
+
+### Install
+
+```bash
+curl -LsSf https://scratch.tlab.sh/install.sh | sh
+```
+
+### Usage
+
+```bash
+# Inside a git repo with a scratch/ folder
+scratch-sync init
+
+# Add a specific scratch folder
+scratch-sync add ~/code/myrepo/scratch
+```
+
+## How It Works
+
+Syncthing folder IDs just need to match across devices. The actual filesystem paths can be different:
+- `scratch-sleap-io` on Linux at `~/code/sleap-io/scratch`
+- Same folder ID on Windows at `D:\sleap-io\scratch`
+
+```
+┌─────────────────┐     Tailscale      ┌─────────────────┐
+│  Linux Box      │◄──────────────────►│  Mac Laptop     │
+│ ~/code/sleap-io │                    │ ~/sleap-io      │
+│   └── scratch/  │   folder-id:       │   └── scratch/  │
+│                 │  "scratch-sleap-io"│                 │
+└────────┬────────┘                    └────────┬────────┘
+         │            Tailscale                 │
+         └──────────────┬───────────────────────┘
+                        ▼
+              ┌─────────────────┐
+              │  Windows PC     │
+              │ D:\sleap-io     │
+              │   └── scratch/  │
+              └─────────────────┘
+```
+
+## Documentation
+
+Full documentation at [scratch.tlab.sh](https://scratch.tlab.sh).
+
+## License
+
+MIT
