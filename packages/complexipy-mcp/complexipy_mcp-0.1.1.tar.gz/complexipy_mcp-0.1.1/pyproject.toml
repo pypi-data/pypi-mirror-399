@@ -1,0 +1,27 @@
+[project]
+name = "complexipy-mcp"
+version = "0.1.1"
+description = "A Model Context Protocol server for cognitive complexity analysis using complexipy"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp==2.14.2",
+    "complexipy==5.1.0",
+    "pandas==2.3.3",
+    "pydantic==2.12.5",
+    "uvicorn==0.40.0",
+    "pathspec==0.12.1",
+]
+
+[project.scripts]
+complexipy-mcp = "complexipy_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = false
+
+[project.urls]
+Homepage = "https://github.com/Onenightcarnival/complexipy-mcp"
