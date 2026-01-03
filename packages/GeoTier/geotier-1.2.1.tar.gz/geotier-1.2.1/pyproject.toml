@@ -1,0 +1,123 @@
+# ==============================================================================
+# PROJECT SETTINGS
+# ==============================================================================
+[project]
+name = "GeoTier"
+description = "Assigns features to hierarchical tiers based on score and spatial separation."
+keywords = ["gis", "geospatial", "cartography", "decluttering", "classification", "ranking"]
+
+authors = [{ name = "corb" }]
+readme = "readme.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+version = "1.2.1"
+
+dependencies = [
+    "pandas~=2.2.3",
+    "geopandas",
+    "shapely~=2.1.0",
+    "YMLEditor~=1.0",
+    "numpy",
+    "rtree~=1.4.1",
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License", # Example, change to your actual license
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Repository = "https://github.com/corb555/GeoTier"
+
+# --- Define Command-Line Scripts (Entry Points) ---
+[project.scripts]
+geotier = "GeoTier.geo_tier:main"
+
+[tool.ruff.lint.isort]
+known-first-party = ["geotier"]
+# --- package structure.
+[tool.setuptools.package-dir]
+"" = "."
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+# Optional Dependencies (Extras)
+[project.optional-dependencies]
+# Dependencies needed to run the test suite and quality checks
+test = [
+    "pytest >= 6.0",
+    "pytest-mock",
+    "mypy",
+    "ruff",
+    "coverage[toml]",
+    "nox",
+]
+# Dependencies needed to build the documentation
+docs = [
+    "sphinx",
+    "furo", # A clean, modern Sphinx theme
+]
+
+# Tool Configurations
+
+# Ruff (Linter and Formatter)
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+# A great starting set of rules:
+# E/F/W: Standard flake8
+# I: isort (import sorting)
+# B: flake8-bugbear (finds likely bugs)
+# UP: pyupgrade (finds outdated syntax)
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.ruff.format]
+
+# MyPy (Static Type Checker)
+[tool.mypy]
+strict = true
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+
+# Ignore missing type hints for third-party libraries
+[[tool.mypy.overrides]]
+module = [
+    "pandas.*",
+    "geopandas.*",
+    "rtree.*",
+    "shapely.*",
+    "yaml.*",
+    "cerberus.*",
+    "pytest.*",
+    "pytest_mock.*",
+]
+ignore_missing_imports = true
+
+# Pytest (Test Runner)
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+addopts = "-ra -q --strict-config --strict-markers"
+log_cli_level = "INFO"
+xfail_strict = true
+
+# Coverage.py (Test Coverage Measurement)
+[tool.coverage.run]
+source = ["GeoTier"] # Measure coverage on your source code in the src/ directory
+omit = ["*/__main__.py"]
+
+[tool.coverage.report]
+fail_under = 90
