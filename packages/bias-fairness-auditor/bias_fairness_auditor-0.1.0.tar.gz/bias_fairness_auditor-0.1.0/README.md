@@ -1,0 +1,176 @@
+# Bias & Fairness Auditor
+
+Production-ready ML fairness auditing with bias detection, mitigation strategies, and regulatory compliance checking.
+
+## Features
+
+- **Fairness Metrics**: 16+ metrics including demographic parity, equalized odds, disparate impact
+- **Data Bias Detection**: Selection bias, representation bias, label bias, proxy detection
+- **Model Auditing**: Comprehensive fairness analysis across protected groups
+- **Bias Mitigation**: Pre-processing, in-processing, and post-processing strategies
+- **Compliance Checking**: ECOA, EEOC, GDPR fairness, EU AI Act support
+- **Intersectional Analysis**: Multi-attribute fairness evaluation
+- **Zero Dependencies Core**: Works without heavy ML libraries
+
+## Installation
+
+```bash
+pip install bias-fairness-auditor           # Core (zero deps)
+pip install bias-fairness-auditor[ml]       # With ML libraries
+pip install bias-fairness-auditor[full]     # All features
+```
+
+## Quick Start
+
+### Basic Model Audit
+
+```python
+from bias_fairness_auditor import FairnessAuditor, AuditConfig
+
+# Configure audit
+config = AuditConfig(
+    protected_attributes=["gender", "race"],
+    fairness_threshold=0.8
+)
+
+auditor = FairnessAuditor(config)
+
+# Audit model predictions
+report = auditor.audit_model(
+    predictions=[1, 0, 1, 1, 0, 1, 0, 0],
+    actuals=[1, 0, 1, 0, 0, 1, 1, 0],
+    protected_attributes={
+        "gender": ["M", "F", "M", "F", "M", "F", "M", "F"]
+    }
+)
+
+print(f"Overall fairness: {report.overall_fairness_score:.2%}")
+for score in report.fairness_scores:
+    status = "✓" if score.is_fair else "✗"
+    print(f"{status} {score.metric.value}: {score.value:.3f}")
+```
+
+### Data Bias Analysis
+
+```python
+from bias_fairness_auditor import FairnessAuditor
+
+auditor = FairnessAuditor()
+
+data = [
+    {"gender": "M", "age": 35, "income": 75000, "approved": True},
+    {"gender": "F", "age": 28, "income": 65000, "approved": False},
+    # ... more records
+]
+
+report = auditor.audit_data(
+    data=data,
+    label_column="approved",
+    protected_columns=["gender", "age"]
+)
+
+print(f"Bias instances found: {len(report.bias_instances)}")
+for bias in report.bias_instances:
+    print(f"  {bias.severity.value}: {bias.description}")
+```
+
+### Bias Mitigation
+
+```python
+from bias_fairness_auditor import FairnessAuditor, MitigationType
+
+auditor = FairnessAuditor()
+
+# Apply reweighting
+result = auditor.mitigate(
+    strategy=MitigationType.REWEIGHTING,
+    data=training_data,
+    labels=labels,
+    protected_column="gender"
+)
+
+weights = result.metadata["weights"]
+# Use weights in model training
+```
+
+### Compliance Checking
+
+```python
+from bias_fairness_auditor import (
+    FairnessAuditor, AuditConfig, ComplianceStandard
+)
+
+config = AuditConfig(
+    compliance_standards=[
+        ComplianceStandard.ECOA,
+        ComplianceStandard.EEOC
+    ]
+)
+
+auditor = FairnessAuditor(config)
+result = auditor.full_audit(data, "label", predictions, ["gender"])
+
+for compliance in result.compliance_results:
+    status = "PASS" if compliance.is_compliant else "FAIL"
+    print(f"{compliance.standard.value}: {status}")
+```
+
+## Fairness Metrics
+
+| Metric | Description | Threshold |
+|--------|-------------|-----------|
+| Demographic Parity | Equal positive rates | ≥ 0.8 |
+| Disparate Impact | 4/5 rule compliance | ≥ 0.8 |
+| Equalized Odds | Equal TPR and FPR | ≤ 0.2 diff |
+| Equal Opportunity | Equal TPR | ≤ 0.2 diff |
+| Predictive Parity | Equal precision | ≤ 0.2 diff |
+| Calibration | Probability accuracy | ECE ≤ 0.1 |
+
+## Bias Types Detected
+
+- Selection Bias
+- Sampling Bias
+- Measurement Bias
+- Label Bias
+- Historical Bias
+- Representation Bias
+- Proxy Bias
+- Algorithmic Bias
+
+## API Reference
+
+### FairnessAuditor
+
+```python
+auditor = FairnessAuditor(config: Optional[AuditConfig] = None)
+
+# Data audit
+data_report = auditor.audit_data(data, label_column, protected_columns)
+
+# Model audit  
+model_report = auditor.audit_model(predictions, actuals, protected_attributes)
+
+# Full audit
+result = auditor.full_audit(data, label_column, predictions, protected_columns)
+
+# Mitigation
+mitigation = auditor.mitigate(strategy, data, labels, protected_column)
+```
+
+### AuditConfig
+
+```python
+config = AuditConfig(
+    protected_attributes=[ProtectedAttribute.GENDER],
+    privileged_groups={ProtectedAttribute.GENDER: ["M"]},
+    unprivileged_groups={ProtectedAttribute.GENDER: ["F"]},
+    fairness_metrics=[FairnessMetric.DEMOGRAPHIC_PARITY],
+    fairness_threshold=0.8,
+    disparate_impact_threshold=0.8,
+    compliance_standards=[ComplianceStandard.ECOA]
+)
+```
+
+## License
+
+MIT License - Pranay M
