@@ -1,0 +1,136 @@
+site_name: Nexus CLI Documentation
+site_description: Knowledge workflow CLI for research, teaching, and writing
+site_author: DT
+site_url: https://data-wise.github.io/nexus-cli
+
+repo_name: Data-Wise/nexus-cli
+repo_url: https://github.com/Data-Wise/nexus-cli
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - toc.follow
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+      fallback_to_build_date: true
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_category_heading: true
+            members_order: source
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Configuration: getting-started/configuration.md
+  - 🎓 Interactive Tutorials:
+    - Tutorial System: tutorials/tutorial-system.md
+    - Quick Reference: tutorials/tutorial-quick-ref.md
+    - Tutorial Guide: tutorials/tutorial-guide.md
+  - Tutorials:
+    - First Steps: tutorials/first-steps.md
+    - Vault Setup: tutorials/vault-setup.md
+    - Zotero Integration: tutorials/zotero.md
+    - Graph Visualization: tutorials/graph-viz.md
+  - User Guide:
+    - Overview: guide/overview.md
+    - Knowledge Domain: guide/knowledge.md
+    - Research Domain: guide/research.md
+    - Teaching Domain: guide/teaching.md
+    - Writing Domain: guide/writing.md
+  - Reference:
+    - CLI Commands: reference/cli.md
+    - Python API: reference/api.md
+    - MCP Server: reference/mcp.md
+  - Development:
+    - Contributing: development/contributing.md
+    - Testing: development/testing.md
+    - Architecture: development/architecture.md
+  - Changelog: changelog.md
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Data-Wise/nexus-cli
+  analytics:
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve by
+            <a href="https://github.com/Data-Wise/nexus-cli/issues/new" target="_blank" rel="noopener">opening an issue</a>.
+
+copyright: Copyright &copy; 2024-2025 DT

@@ -1,0 +1,303 @@
+status: released
+priority: 1
+progress: 100
+next: v0.6.0 planning - additional exporters and interactive CLI
+type: dev
+checkpoint: v0.5.0 RELEASED - 302 tests passing (54% coverage), graph export & batch ops
+release_date: 2025-12-25
+release_url: https://github.com/Data-Wise/nexus-cli/releases/tag/v0.5.0
+docs_url: https://data-wise.github.io/nexus-cli/
+
+# ═══════════════════════════════════════════════════════════════════
+# Nexus CLI - Knowledge Workflow for Research, Teaching, Writing
+# ═══════════════════════════════════════════════════════════════════
+
+🔧 Nexus CLI Development Status
+────────────────────────────────────────
+
+📍 LOCATION
+~/projects/dev-tools/nexus-cli/
+
+⏰ LAST UPDATED
+2025-12-25 - v0.5.0 RELEASED - Graph Export & Batch Operations!
+
+────────────────────────────────────────
+
+🎉 RELEASE v0.5.0 - GRAPH EXPORT & BATCH OPERATIONS
+
+**Feature enhancement release with productivity improvements!**
+
+Release highlights:
+- ✅ 302 tests passing (54% coverage, +9.8% from v0.4.0)
+- ✅ Graph export formats (GraphML, D3.js, JSON)
+- ✅ Batch manuscript operations (status, progress, archive)
+- ✅ Comprehensive documentation (9,500+ lines added)
+- ✅ Manuscript module: 78% coverage (+27% improvement)
+- ✅ GitHub Pages updated
+- ✅ GitHub Release published
+- ✅ All CI/CD pipelines passing
+
+────────────────────────────────────────
+
+🎯 CURRENT STATUS
+
+**v0.5.0 SHIPPED** ✅
+
+All v0.5.0 features complete:
+- ✅ Graph Export Formats (GraphML, D3.js)
+- ✅ Batch Manuscript Operations
+- ✅ Comprehensive Documentation (tutorials, API, architecture)
+- ✅ Enhanced Test Coverage (54.35%, +4.47%)
+- ✅ Manuscript Module: 78% coverage (+27%)
+
+Release artifacts:
+- Git tag: v0.5.0
+- GitHub Release: https://github.com/Data-Wise/nexus-cli/releases/tag/v0.5.0
+- Documentation: https://data-wise.github.io/nexus-cli/
+- CI/CD: All passing ✅
+
+────────────────────────────────────────
+
+📊 PROGRESS
+
+Core Infrastructure:
+CLI Skeleton               ████████████████████ 100% ✅
+Configuration System       ████████████████████ 100% ✅
+Doctor Command             ████████████████████ 100% ✅
+Project Setup              ████████████████████ 100% ✅
+
+Domains:
+Knowledge Domain           ████████████████████ 100% ✅
+Research Domain            ████████████████████ 100% ✅
+Teaching Domain            ████████████████████ 100% ✅
+Writing Domain             ████████████████████ 100% ✅
+Claude Plugin              ████████████████████ 100% ✅
+Testing & CI/CD            ████████████████████ 100% ✅
+Documentation              ████████████████████ 100% ✅
+
+**Overall Progress**: 100% ✅ (v0.4.0 Released)
+
+────────────────────────────────────────
+
+📦 RELEASE DETAILS
+
+Version: 0.5.0
+Date: December 25, 2025
+Type: Feature Enhancement Release
+Status: ✅ Released
+
+Key improvements:
+1. **Graph Export Formats**
+   - GraphML format (Gephi, Cytoscape, yEd)
+   - D3.js format (web visualizations)
+   - Enhanced JSON format with tags/limits
+   - Proper XML escaping for special characters
+
+2. **Batch Manuscript Operations**
+   - Batch status updates for multiple manuscripts
+   - Batch progress updates
+   - Batch archiving to Archive/ directory
+   - Metadata export to JSON/CSV
+
+3. **Comprehensive Documentation** (~9,500 lines)
+   - 4 tutorial pages: first-steps, vault-setup, zotero, graph-viz
+   - API reference with code examples
+   - MCP server documentation (17 tools)
+   - Testing guide (302 tests, 54% coverage)
+   - Architecture documentation
+
+4. **Quality Improvements**
+   - 27 new tests (+9.8% increase)
+   - Coverage: 49.88% → 54.35% (+4.47%)
+   - Manuscript module: 50.99% → 78.03% (+27%)
+   - New test files: test_graph_export, test_manuscript_batch
+
+────────────────────────────────────────
+
+📊 TEST SUMMARY
+
+302 tests total (301 passing, 1 skipped) - 54.35% coverage:
+
+Core tests:
+- test_config.py           - Config loading (3 tests)
+- test_vault.py            - Vault operations (22 tests)
+- test_manuscript.py       - Manuscript management (11 tests)
+- test_bibliography.py     - Bibliography parsing (13 tests)
+- test_courses.py          - Course management (9 tests)
+- test_cli.py              - CLI commands (13 tests)
+- test_zotero.py           - Zotero item (5 tests)
+- test_pdf.py              - PDF document (3 tests)
+- test_quarto.py           - Quarto project (4 tests)
+- test_search.py           - Unified search (21 tests)
+
+Integration & validation:
+- test_validation.py       - Data model validation (28 tests)
+- test_cli_integration.py  - CLI integration (19 tests)
+- test_cli_commands.py     - CLI commands (19 tests)
+- test_edge_cases.py       - Edge cases & errors (25 tests)
+
+v0.4.0 comprehensive tests:
+- test_quarto_manager.py   - QuartoManager (29 tests) ⭐
+- test_pdf_extractor.py    - PDFExtractor (23 tests) ⭐
+- test_zotero_client.py    - ZoteroClient (28 tests) ⭐
+
+v0.5.0 new tests:
+- test_graph_export.py     - Graph export formats (11 tests) ⭐
+- test_manuscript_batch.py - Batch operations (16 tests) ⭐
+
+Coverage by module (top performers):
+- teaching/quarto.py: 91% (+4% in v0.5.0)
+- utils/config.py: 80%
+- writing/manuscript.py: 78% (+27% in v0.5.0) 🎯
+- research/pdf.py: 77%
+- research/zotero.py: 73%
+- writing/bibliography.py: 72%
+- teaching/courses.py: 70%
+- knowledge/vault.py: 59% (+6% in v0.5.0)
+- knowledge/search.py: 60%
+
+Run: `pytest --cov=nexus --cov-report=html`
+
+────────────────────────────────────────
+
+🎯 NEXT STEPS (v0.6.0 Planning)
+
+Feature enhancements:
+- [ ] Additional graph export formats (GML, Cytoscape JSON)
+- [ ] Batch operations for other domains (courses, bibliography)
+- [ ] Interactive CLI mode with prompts
+- [ ] Workflow automation commands
+- [ ] Export to graph databases (Neo4j, ArangoDB)
+
+Quality improvements:
+- [ ] Increase test coverage to 60%+
+- [ ] Performance benchmarks with pytest-benchmark
+- [ ] Improve CLI test coverage (currently 20%)
+- [ ] Additional integration tests
+- [ ] User acceptance testing
+
+Developer experience:
+- [ ] Plugin system for custom exporters
+- [ ] API client library
+- [ ] Web UI for graph visualization
+- [ ] Enhanced error messages
+
+────────────────────────────────────────
+
+🔗 RELATED PROJECTS
+
+| Project | Location | Purpose |
+|---------|----------|---------|
+| Nexus MCP Server | ~/mcp-servers/nexus/ | MCP server with 17 tools |
+| Nexus (docs) | ~/projects/dev-tools/nexus/ | Architecture & vault template |
+| Statistical Research | ~/.claude/plugins/statistical-research/ | Research MCP plugin |
+
+────────────────────────────────────────
+
+💡 ARCHITECTURE
+
+**Claude Integration (No API Needed)**
+
+Four patterns:
+1. **MCP Server**: 17 tools via Model Context Protocol
+2. **Claude calls Nexus**: Claude runs `nexus` via Bash
+3. **Piping**: `nexus search | claude -p "summarize"`
+4. **Plugin skills**: Teach Claude how to use nexus
+
+**Four Domains**:
+- 🔬 Research: Zotero (2,728 papers), PDFs (~1,800 files), literature
+- 📚 Teaching: Courses, materials, Quarto integration
+- ✍️ Writing: Manuscripts, bibliography, LaTeX
+- 🧠 Knowledge: Vault (Obsidian), unified search, graph viz
+
+────────────────────────────────────────
+
+📁 KEY FILES
+
+Core:
+- nexus/cli.py                  - Main CLI (Typer) - 1109 lines
+- nexus/utils/config.py         - Configuration - 82 lines
+- pyproject.toml                - Project metadata (v0.5.0)
+- mkdocs.yml                    - Documentation config
+- README.md                     - User documentation
+- CLAUDE.md                     - Claude Code guidance
+
+Domains:
+- nexus/knowledge/vault.py      - VaultManager - 319 lines (59% cov) ⭐ +39 lines
+- nexus/knowledge/search.py     - UnifiedSearch - 100 lines (60% cov)
+- nexus/research/zotero.py      - ZoteroClient - 193 lines (73% cov)
+- nexus/research/pdf.py         - PDFExtractor - 205 lines (77% cov)
+- nexus/teaching/courses.py     - CourseManager - 214 lines (70% cov)
+- nexus/teaching/quarto.py      - QuartoManager - 162 lines (91% cov)
+- nexus/writing/manuscript.py   - ManuscriptManager - 355 lines (78% cov) ⭐ +116 lines
+- nexus/writing/bibliography.py - BibliographyManager - 176 lines (72% cov)
+
+Testing:
+- tests/                        - 18 test modules, 302 tests
+- .github/workflows/ci.yml      - CI/CD pipeline
+- .github/workflows/docs.yml    - Documentation deployment
+
+Documentation:
+- docs/                         - MkDocs source files
+- site/                         - Built documentation (gh-pages)
+
+────────────────────────────────────────
+
+🔧 QUICK COMMANDS
+
+Development:
+```bash
+# Run tests
+pytest --cov=nexus --cov-report=html
+
+# Type check
+mypy nexus/
+
+# Lint
+ruff check nexus/ tests/
+
+# Format
+ruff format nexus/ tests/
+
+# Serve docs locally
+mkdocs serve
+
+# Deploy docs
+mkdocs gh-deploy
+```
+
+Usage:
+```bash
+# Doctor check
+nexus doctor
+
+# Search knowledge
+nexus knowledge search "mediation"
+
+# Search Zotero
+nexus research zotero search "causal inference"
+
+# Check bibliography
+nexus write bib check manuscript/
+
+# Graph visualization
+nexus knowledge vault graph --json > graph.json
+```
+
+────────────────────────────────────────
+
+📚 DOCUMENTATION
+
+- **Home**: https://data-wise.github.io/nexus-cli/
+- **Installation**: https://data-wise.github.io/nexus-cli/getting-started/installation/
+- **Quick Start**: https://data-wise.github.io/nexus-cli/getting-started/quickstart/
+- **Configuration**: https://data-wise.github.io/nexus-cli/getting-started/configuration/
+- **Tutorials**: https://data-wise.github.io/nexus-cli/tutorials/ ⭐ NEW
+- **API Reference**: https://data-wise.github.io/nexus-cli/reference/api/ ⭐ NEW
+- **Changelog**: https://data-wise.github.io/nexus-cli/changelog/
+- **GitHub**: https://github.com/Data-Wise/nexus-cli
+- **Release**: https://github.com/Data-Wise/nexus-cli/releases/tag/v0.5.0
+
+────────────────────────────────────────
+
+✅ v0.5.0 FEATURE RELEASE - RELEASED 2025-12-25
