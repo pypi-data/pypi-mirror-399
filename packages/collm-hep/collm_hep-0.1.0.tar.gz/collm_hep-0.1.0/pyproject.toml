@@ -1,0 +1,115 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "collm-hep"
+version = "0.1.0"
+description = "An Automated, End-to-End Deep Learning Toolbox for Collider Physics Analysis"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    {name = "CoLLM Authors"}
+]
+maintainers = [
+    {name = "CoLLM Authors"}
+]
+keywords = [
+    "particle-physics",
+    "LHCO",
+    "LLM",
+    "code-generation",
+    "deep-learning",
+    "HEP",
+    "collider-physics",
+    "machine-learning",
+    "automation"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "numpy<2",
+    "matplotlib",
+    "tqdm",
+    "pyyaml",
+    "transformers>=4.36.0",
+    "huggingface-hub>=0.20.0",
+    "accelerate>=0.25.0",
+    "pydantic>=2.0.0",
+    "torch>=2.0.0",
+    "streamlit>=1.28.0",
+]
+
+[project.optional-dependencies]
+langchain = [
+    "langchain>=0.1.0",
+    "langchain-huggingface>=0.0.1",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+all = [
+    "collm-hep[langchain,dev]",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/CoLLM"
+Documentation = "https://github.com/yourusername/CoLLM#readme"
+Repository = "https://github.com/yourusername/CoLLM"
+Issues = "https://github.com/yourusername/CoLLM/issues"
+
+[project.scripts]
+collm = "collm.cli:main"
+collm-hep = "collm.cli:main"
+collm-gui = "collm.cli:run_gui"
+
+[project.entry-points."console_scripts"]
+collm = "collm.cli:main"
+collm-hep = "collm.cli:main"
+
+[tool.setuptools]
+packages = ["collm", "collm.llm", "collm.gui", "collm.runs", "collm.utils"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+collm = [
+    "configs/*.txt",
+    "configs/*.md",
+    "templates/*.txt",
+    "templates/*.yml",
+    "py.typed",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=collm"

@@ -1,0 +1,19 @@
+include LICENSE
+include README.md
+include pyproject.toml
+
+# Include config files
+recursive-include collm/configs *.txt *.md
+
+# Include template files
+recursive-include collm/templates *.txt *.yml
+
+# Include type hints marker
+include collm/py.typed
+
+# Exclude development files
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *.so
+global-exclude .DS_Store
+global-exclude *.egg-info
