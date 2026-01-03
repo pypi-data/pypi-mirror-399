@@ -1,0 +1,166 @@
+"""
+monitoring/logger.py
+
+Custom logging module for Databricks and Snowflake environments.
+
+Provides a Logger class with color-coded log levels and environment-aware context.
+Uses print statements for compatibility with environments lacking standard output streams.
+"""
+
+from enum import Enum
+import datetime
+
+class LogLevel(Enum):
+    """Define log levels and parse metadata.
+
+    Uses common log levels, verbosity codes, and ANSI color schemes for terminals that support color-coding.
+
+    Attributes:
+        numeric_level (int): Numeric value of the log level.
+        label (str): String label for the log level.
+        color_code (str): ANSI color code for terminal output.
+        reset_code (str): ANSI reset code for terminal output.
+    """
+
+    DEBUG = (10, "DEBUG", "\033[37m")
+    INFO = (20, "INFO", "\033[32m")
+    WARN = (30, "WARN", "\033[33m")
+    ERROR = (40, "ERROR", "\033[31m")
+    CRITICAL = (50, "CRITICAL", "\033[35m")
+
+    def __init__(self, numeric_level, label, color_code):
+        """
+        Initialize a LogLevel enum member.
+
+        Args:
+            numeric_level (int): Numeric value of the log level.
+            label (str): String label for the log level.
+            color_code (str): ANSI color code for terminal output.
+        """
+        self.numeric_level = numeric_level
+        self.label = label
+        self.color_code = color_code
+        self.reset_code = "\033[0m"
+
+
+class Logger:
+    """Custom logger class for Databricks and Snowflake environments.
+
+    Uses print statements instead of the typical logging class since Snowflake does not have a stdout
+    and main wrappers are in Jupyter notebooks.
+
+    Attributes:
+        env (Environment): The detected environment.
+        use_colors (bool): Whether to use ANSI color codes in log output.
+        min_log_level (LogLevel): Minimum log level to display.
+    """
+
+    # env = detect_environment(verbose=False)
+    # use_colors = (
+    #     True
+    #     if (env == Environment.DATABRICKS or env != Environment.SNOWFLAKE)
+    #     else False
+    # )
+
+    use_colors = True
+
+    min_log_level = LogLevel.DEBUG
+
+    @staticmethod
+    def log(level: LogLevel, message, context=None, **kwargs):
+        """
+        Log a message at the specified log level.
+
+        Args:
+            level (LogLevel): The log level for the message.
+            message (str): The message to log.
+            context (str, optional): The context or module name for the log entry.
+            **kwargs: Additional key-value pairs to include in the log.
+        """
+        if Logger.min_log_level.numeric_level > level.numeric_level:
+            return
+
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # module_name = context or (
+        #     "databricks_module"
+        #     if detect_environment(verbose=False) == "databricks"
+        #     else (
+        #         "snowflake_module"
+        #         if detect_environment(verbose=False) == "snowflake"
+        #         else "unknown module"
+        #     )
+        # )
+
+        module_name = context or "snowflake_module"
+
+        if Logger.use_colors:
+            log_line = f"{timestamp} | {level.color_code}{level.label}{level.reset_code} | {module_name} | {message}"
+        else:
+            log_line = f"{timestamp} | {level.label} | {module_name} | {message}"
+
+        if kwargs:
+            kv_pairs = " | ".join([f"{k}={v}" for k, v in kwargs.items()])
+            log_line += f" | {kv_pairs}"
+
+        print(log_line)
+
+    @staticmethod
+    def info(message, context=None, **kwargs):
+        """
+        Log an info-level message.
+
+        Args:
+            message (str): The message to log.
+            context (str, optional): The context or module name for the log entry.
+            **kwargs: Additional key-value pairs to include in the log.
+        """
+        Logger.log(LogLevel.INFO, message, context, **kwargs)
+
+    @staticmethod
+    def error(message, context=None, **kwargs):
+        """
+        Log an error-level message.
+
+        Args:
+            message (str): The message to log.
+            context (str, optional): The context or module name for the log entry.
+            **kwargs: Additional key-value pairs to include in the log.
+        """
+        Logger.log(LogLevel.ERROR, message, context, **kwargs)
+
+    @staticmethod
+    def warning(message, context=None, **kwargs):
+        """
+        Log a warning-level message.
+
+        Args:
+            message (str): The message to log.
+            context (str, optional): The context or module name for the log entry.
+            **kwargs: Additional key-value pairs to include in the log.
+        """
+        Logger.log(LogLevel.WARN, message, context, **kwargs)
+
+    @staticmethod
+    def debug(message, context=None, **kwargs):
+        """
+        Log a debug-level message.
+
+        Args:
+            message (str): The message to log.
+            context (str, optional): The context or module name for the log entry.
+            **kwargs: Additional key-value pairs to include in the log.
+        """
+        Logger.log(LogLevel.DEBUG, message, context, **kwargs)
+
+    @staticmethod
+    def critical(message, context=None, **kwargs):
+        """
+        Log a critical-level message.
+
+        Args:
+            message (str): The message to log.
+            context (str, optional): The context or module name for the log entry.
+            **kwargs: Additional key-value pairs to include in the log.
+        """
+        Logger.log(LogLevel.CRITICAL, message, context, **kwargs)
