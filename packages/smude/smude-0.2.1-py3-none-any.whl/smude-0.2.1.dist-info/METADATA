@@ -1,0 +1,142 @@
+Metadata-Version: 2.4
+Name: smude
+Version: 0.2.1
+Summary: Sheet Music Dewarping - Binarization and rectification of sheet music images
+Project-URL: Homepage, https://github.com/sonovice/smude
+Project-URL: Repository, https://github.com/sonovice/smude
+Project-URL: Issues, https://github.com/sonovice/smude/issues
+Author: Simon Waloschek
+License-Expression: LicenseRef-Commons-Clause-AGPL-3.0
+License-File: LICENSE.md
+Keywords: binarization,dewarping,image processing,music,ocr,sheet music
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Multimedia :: Graphics :: Graphics Conversion
+Classifier: Topic :: Scientific/Engineering :: Image Processing
+Requires-Python: >=3.10
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: opencv-contrib-python>=4.7.0
+Requires-Dist: pytorch-lightning>=2.0.0
+Requires-Dist: requests>=2.28.0
+Requires-Dist: scikit-image>=0.21.0
+Requires-Dist: scipy>=1.10.0
+Requires-Dist: torch>=2.0.0
+Requires-Dist: torchvision>=0.15.0
+Requires-Dist: tqdm>=4.65.0
+Requires-Dist: typing-extensions>=4.5.0
+Description-Content-Type: text/markdown
+
+# Smude - Sheet Music Dewarping
+
+**Smude** is a library dedicated to binarization and dewarping/rectification of sheet music images taken with smartphones:
+
+<p align="center">
+    <img src="https://github.com/sonovice/smude/raw/master/images/example_input.jpg" width="49%" />
+    <img src="https://github.com/sonovice/smude/raw/master/images/example_output.jpg" width="49%" style="border:1px solid black" />
+</p>
+
+## Requirements
+
+- Python 3.10+
+- ~348 MB disk space for the Deep Learning model (downloaded on first run)
+
+## Installation
+
+### Using pip (recommended)
+
+```bash
+pip install smude
+```
+
+### Using uv
+
+[uv](https://docs.astral.sh/uv/) is a fast Python package manager:
+
+```bash
+uv pip install smude
+```
+
+### From source
+
+```bash
+git clone https://github.com/sonovice/smude.git
+cd smude
+pip install .
+```
+
+## Usage
+
+### Command Line
+
+Installing the package adds a command-line interface called `smude`:
+
+```bash
+smude input.jpg -o output.png
+```
+
+**Options:**
+
+```
+usage: smude [-h] [-o OUTFILE] [--no-binarization] [--use-gpu] infile
+
+Dewarp and binarize sheet music images.
+
+positional arguments:
+  infile                Specify the input image
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTFILE, --outfile OUTFILE
+                        Specify the output image (default: result.png)
+  --no-binarization     Deactivate binarization
+  --use-gpu             Use GPU for inference
+```
+
+### Python Library
+
+```python
+from skimage.io import imread, imsave
+from smude import Smude
+
+image = imread("images/input_fullsize.jpg")
+smude = Smude(use_gpu=False, binarize_output=True)
+result = smude.process(image)
+imsave("result.png", result)
+```
+
+> **Note:** Smude will download a ~348 MB Deep Learning model on the first run.
+
+## How It Works
+
+Rectification of sheet music pages is divided into several steps:
+
+1. **ROI Extraction** - Extract the sheet music page from the smartphone image
+2. **Adaptive Binarization** - Convert to binary image using Sauvola algorithm
+3. **U-Net Segmentation** - Pixelwise segmentation into "upper staff line", "lower staff line", and "bar line" classes
+4. **Vanishing Point Estimation** - Estimate the perspective vanishing point
+5. **Spline Interpolation** - Fit splines to detected staff lines
+6. **Dewarping** - Rectify the curved page geometry
+
+The Deep Learning model was trained on thousands of public domain scores from [musescore.com](https://www.musescore.com), augmented and rendered with [Verovio](https://www.verovio.org), and artificially warped using code from [NVlabs/ocrodeg](https://github.com/NVlabs/ocrodeg).
+
+The dewarping algorithm is based on:
+> Meng, G. et al. (2012): *Metric Rectification of Curved Document Images.*
+> IEEE Transactions on Pattern Analysis and Machine Intelligence, 34(4), p. 707-722.
+> [DOI: 10.1109/TPAMI.2011.151](https://doi.org/10.1109/TPAMI.2011.151)
+
+## Tips for Best Results
+
+- **Full page coverage** - Include the entire page plus some extra margins
+- **Even lighting** - Ensure the sheet music is evenly lit without shadows
+- **Sharp focus** - Blurry or defocused images will likely fail
+- **Book curvature** - Works best with pages that have a [cylindrical surface](https://en.wikipedia.org/wiki/Cylinder#Cylindrical_surfaces) curve (typical for bound books)
+
+## License
+
+This repository is under the "Commons Clause" License Condition v1.0 on top of GNU AGPLv3.
