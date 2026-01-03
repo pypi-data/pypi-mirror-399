@@ -1,0 +1,12 @@
+{% include "_imports.java.j2" %}
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class {{ entity }} {
+    @Id
+    @GeneratedValue(strategy = GenerationType.{{ config['entity']['primary_key']['strategy'] }})
+    private {{ config['entity']['primary_key']['type'] }} {{ config['entity']['primary_key']['name'] | default('id') }};
+}
