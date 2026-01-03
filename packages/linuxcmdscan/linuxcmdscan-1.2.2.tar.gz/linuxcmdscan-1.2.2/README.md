@@ -1,0 +1,403 @@
+![CI](https://github.com/harshind/linuxcmdscan/actions/workflows/ci.yml/badge.svg)
+![PyPI](https://img.shields.io/pypi/v/linuxcmdscan)
+![Python](https://img.shields.io/pypi/pyversions/linuxcmdscan)
+![License](https://img.shields.io/pypi/l/linuxcmdscan)
+
+# linuxcmdscan
+
+# 
+
+# Inventory and analyze all Linux commands used anywhere in a repository.
+
+# 
+
+# linuxcmdscan scans source code, infrastructure files, scripts, and configuration across any tech stack to detect Linux command usage, classify it by category and severity, and generate auditable reports.
+
+# 
+
+# It is designed for:
+
+# 
+
+# Security reviews
+
+# 
+
+# Platform audits
+
+# 
+
+# DevOps \& SRE governance
+
+# 
+
+# Compliance and risk assessment
+
+# 
+
+# Large mono-repos and infra repos
+
+# 
+
+# ✨ Key Features
+
+# 
+
+# 🔍 Language-agnostic scanning
+
+# Detects Linux commands embedded in:
+
+# 
+
+# Shell scripts
+
+# 
+
+# Terraform (local-exec)
+
+# 
+
+# YAML / CI pipelines
+
+# 
+
+# Python / JS / config files
+
+# 
+
+# Markdown \& documentation
+
+# 
+
+# 📊 Multiple report formats
+
+# 
+
+# Interactive HTML report (dark mode + summary dashboard)
+
+# 
+
+# JSON, CSV, TXT exports
+
+# 
+
+# 🚨 Severity mapping
+
+# 
+
+# critical, high, medium, low
+
+# 
+
+# Based on command risk profile (e.g. rm, terraform destroy)
+
+# 
+
+# 🧠 Command registry architecture
+
+# 
+
+# Explicit allow-listed Linux commands
+
+# 
+
+# No regex blob guessing
+
+# 
+
+# Easy to extend and audit
+
+# 
+
+# 🖥 Dual interface
+
+# 
+
+# CLI for automation \& CI
+
+# 
+
+# Desktop UI for exploratory analysis
+
+# 
+
+# 📦 Installation
+
+# pip install linuxcmdscan
+
+# 
+
+# 
+
+# Python 3.9+ required.
+
+# 
+
+# 🚀 Quick Start
+
+# CLI – Scan a repository
+
+# linuxcmdscan .
+
+# 
+
+# CLI – Scan with full exports
+
+# linuxcmdscan . --all
+
+# 
+
+# 
+
+# This generates:
+
+# 
+
+# scan\_report.html
+
+# 
+
+# scan\_results.json
+
+# 
+
+# scan\_results.csv
+
+# 
+
+# scan\_results.txt
+
+# 
+
+# CLI – JSON only (CI-friendly)
+
+# linuxcmdscan scan . --json
+
+# 
+
+# 🖥 Desktop UI
+
+# 
+
+# Launch the graphical interface:
+
+# 
+
+# linuxcmdscan --ui
+
+# 
+
+# UI capabilities
+
+# 
+
+# Folder picker
+
+# 
+
+# Sub-folder inclusion / exclusion
+
+# 
+
+# Live scan progress
+
+# 
+
+# Real-time log viewer
+
+# 
+
+# One-click Open HTML Report
+
+# 
+
+# Cross-platform (Windows / macOS / Linux)
+
+# 
+
+# 📊 HTML Report Features
+
+# 
+
+# 🌙 Dark / Light mode toggle
+
+# 
+
+# 📈 Severity summary cards
+
+# 
+
+# 📁 Clickable file paths
+
+# 
+
+# 🧾 Line-level command evidence
+
+# 
+
+# 🔍 Word-wrapped commands for readability
+
+# 
+
+# Designed for sharing with security, audit, and management teams.
+
+# 
+
+# 📁 Example Findings
+
+# File	Line	Command	Severity
+
+# terraform/main.tf	88	mkdir -p build/api	Low
+
+# .github/workflows/deploy.yml	42	terraform apply	Critical
+
+# scripts/cleanup.sh	12	rm -rf /tmp/\*	Critical
+
+# 🧠 How It Works
+
+# 
+
+# Walks the repository (build dirs excluded by default)
+
+# 
+
+# Scans only text-based files
+
+# 
+
+# Matches commands using a command registry
+
+# 
+
+# Classifies each finding by:
+
+# 
+
+# Command name
+
+# 
+
+# Category (infra / filesystem / network)
+
+# 
+
+# Severity
+
+# 
+
+# Produces reports for humans and machines
+
+# 
+
+# No shell execution. Read-only analysis.
+
+# 
+
+# 🔒 Safety \& Trust
+
+# 
+
+# ❌ No command execution
+
+# 
+
+# ❌ No network calls
+
+# 
+
+# ❌ No telemetry
+
+# 
+
+# ✅ Deterministic scanning
+
+# 
+
+# ✅ Fully offline-capable
+
+# 
+
+# Safe to run on sensitive or regulated codebases.
+
+# 
+
+# 🧩 Extending linuxcmdscan
+
+# 
+
+# Add or modify command rules by extending the command registry:
+
+# 
+
+# CommandRule(
+
+# &nbsp;   name="mount",
+
+# &nbsp;   category="filesystem",
+
+# &nbsp;   severity="high",
+
+# &nbsp;   pattern=r"(?<!\\w)mount\\s+\\S+"
+
+# )
+
+# 
+
+# 
+
+# No changes required elsewhere.
+
+# 
+
+# 🧪 CI / Automation
+
+# 
+
+# Typical CI usage:
+
+# 
+
+# linuxcmdscan . --json
+
+# jq '.\[] | select(.severity=="critical")' scan\_results.json \&\& exit 1
+
+# 
+
+# 
+
+# Fail builds on risky commands.
+
+# 
+
+# 🏷 Project Status
+
+# 
+
+# Actively developed
+
+# 
+
+# Production-ready
+
+# 
+
+# Designed for large enterprise repositories
+
+# 
+
+# 📄 License
+
+# 
+
+# MIT License
+
+# 
+
+# 👤 Author
+
+# 
+
+# Created and maintained by Harsh
+
+# Focused on secure infrastructure analysis and developer tooling.
+
