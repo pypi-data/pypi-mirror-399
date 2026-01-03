@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lincalg"
+version = "0.1.1"
+description = "A simple CLI for linear algebra calculations"
+authors = [{name = "Lex Gu", email = "lexgu314@gmail.com"}]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "sympy>=1.12",
+]
+
+[project.scripts]
+lincalg = "lincalg.lincalg:main"
