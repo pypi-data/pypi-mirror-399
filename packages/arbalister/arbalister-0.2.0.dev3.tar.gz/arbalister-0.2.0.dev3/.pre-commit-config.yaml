@@ -1,0 +1,77 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.33.0
+    hooks:
+      - id: check-github-workflows
+  - repo: local
+    hooks:
+      # Running common tools though pixi so that they are in sync with the ones used
+      # by our editors (and does not duplicate downloads).
+
+      # Formatters
+      - id: pixi-ruff-format
+        name: "Run ruff format through pixi"
+        entry: pixi run fmt-ruff
+        language: system
+        types: [python]
+        exclude: "arbalister/_version.py"
+      - id: pixi-taplo-format
+        name: "Run taplo format through pixi"
+        entry: pixi run fmt-taplo
+        language: system
+        types: [toml]
+      - id: pixi-yamlfmt-format
+        name: "Run yamfmt format through pixi"
+        entry: pixi run fmt-yamlfmt
+        language: system
+        types: [yaml]
+        pass_filenames: false
+        require_serial: true
+      - id: pixi-biome-format
+        name: "Run Biome format through pixi"
+        entry: pixi run fmt-biome""
+        language: system
+        types_or: [javascript, jsx, ts, tsx, json, css]
+
+      # Linters
+      - id: pixi-biome
+        name: Run biome check through pixi
+        entry: pixi run check-biome
+        language: system
+        types_or: [javascript, jsx, ts, tsx, json]
+      - id: pixi-typescript
+        name: Run typescript checks through pixi
+        entry: pixi run check-typescript
+        language: system
+        types_or: [ts, tsx]
+        pass_filenames: false
+        require_serial: true
+      - id: pixi-ruff
+        name: Run ruff check through pixi
+        entry: pixi run check-ruff
+        language: system
+        types: [python]
+        exclude: "^.*/jupyter_server_test_config\\.py$|^arbalister/_version.py$"
+      - id: pixi-typos
+        name: "Run typos through pixi"
+        entry: pixi run check-typos
+        language: system
+      - id: pixi-mypy
+        name: "Run mypy through pixi"
+        entry: pixi run check-mypy
+        language: system
+        types: [python]
+        pass_filenames: false
+        require_serial: true
