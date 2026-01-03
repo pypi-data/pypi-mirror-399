@@ -1,0 +1,58 @@
+site_name: Schemas for the Fediverse
+repo_url: https://codeberg.org/funfedidev/schemas
+repo_name: funfedidev/schemas
+theme:
+  name: material
+  logo: assets/FediverseLogo.svg
+  favicon: assets/FediverseLogo.svg
+  icon:
+    repo: fontawesome/brands/git-alt
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - content.code.copy
+    - content.tabs.link
+    - navigation.sections
+    - navigation.footer
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.snippets
+  - toc:
+      permalink: true
+
+plugins:
+  - codeberg-source-facts
+  - search
+  - awesome-nav
+  - mkdocstrings:
+      enable_inventory: true
+      handlers:
+        python:
+          inventories:
+            - https://docs.python.org/3/objects.inv
+            - https://docs.pydantic.dev/latest/objects.inv
+          options:
+            docstring_style: sphinx
+            heading_level: 1
+            show_root_heading: true
+            line_length: 60
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            filters:
+              - "!^_"
+              - "^__"
+              - "!^test_"
+            extensions:
+              - griffe_fieldz: { include_inherited: true }

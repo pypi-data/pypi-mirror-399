@@ -1,0 +1,10 @@
+when:
+  branch: main
+  event: [pull_request, push]
+
+steps:
+  pytest:
+    image: ghcr.io/astral-sh/uv:python3.12-alpine
+    commands:
+      - uv sync
+      - uv run pytest

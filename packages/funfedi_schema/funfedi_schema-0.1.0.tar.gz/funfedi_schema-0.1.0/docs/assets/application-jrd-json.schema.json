@@ -1,0 +1,92 @@
+{
+    "$defs": {
+        "JrdLink": {
+            "additionalProperties": true,
+            "description": "See [RFC 7033](https://www.rfc-editor.org/rfc/rfc7033.html).",
+            "properties": {
+                "rel": {
+                    "type": "string",
+                    "description": "rel",
+                    "examples": [
+                        "self"
+                    ],
+                    "title": "Rel"
+                },
+                "type": {
+                    "type": "string",
+                    "examples": [
+                        "application/activity+json"
+                    ],
+                    "title": "Type"
+                },
+                "href": {
+                    "type": "string",
+                    "description": "when used with the 'href' attribute, conveys a link relation between the host described by the document and a common target URI",
+                    "examples": [
+                        "http://test.example/actor"
+                    ],
+                    "title": "Href"
+                },
+                "titles": {
+                    "additionalProperties": true,
+                    "type": "object",
+                    "description": "titles",
+                    "title": "Titles"
+                },
+                "properties": {
+                    "additionalProperties": true,
+                    "type": "object",
+                    "description": "properties",
+                    "title": "Properties"
+                },
+                "template": {
+                    "type": "string",
+                    "description": "template attribute conveys a relation whose context is an individual resource within the host-meta document scope,",
+                    "title": "Template"
+                }
+            },
+            "title": "JrdLink",
+            "type": "object"
+        }
+    },
+    "additionalProperties": true,
+    "description": "See [RFC 6415](https://www.packetizer.com/rfc/rfc6415/)",
+    "properties": {
+        "subject": {
+            "type": "string",
+            "examples": [
+                "acct:actor@test.example"
+            ],
+            "title": "Subject"
+        },
+        "expires": {
+            "format": "date-time",
+            "type": "string",
+            "description": "expiration date time",
+            "title": "Expires"
+        },
+        "aliases": {
+            "items": {
+                "type": "string"
+            },
+            "description": "value a string array containing the values of each element in order",
+            "title": "Aliases"
+        },
+        "properties": {
+            "additionalProperties": true,
+            "type": "object",
+            "description": "value an object with each element included as a name/value pair with the value of the type attribute as name, and element value included as a string value.",
+            "title": "Properties"
+        },
+        "links": {
+            "items": {
+                "$ref": "#/$defs/JrdLink"
+            },
+            "type": "array",
+            "description": "a single name/value pair with the name 'links', and value an array with each element included as an object",
+            "title": "Links"
+        }
+    },
+    "title": "JrdData",
+    "type": "object"
+}

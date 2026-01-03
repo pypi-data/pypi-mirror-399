@@ -1,0 +1,284 @@
+{
+  "$defs": {
+    "Hashtag": {
+      "description": "Represents a hashtag\n\n```python\n>>> m = Hashtag(name=\"#cow\")\n>>> m.model_dump(exclude_none=True)\n{'type': 'Hashtag', 'name': '#cow'}\n\n```",
+      "properties": {
+        "type": {
+          "const": "Hashtag",
+          "default": "Hashtag",
+          "title": "Type",
+          "type": "string"
+        },
+        "href": {
+          "description": "A location related to the hashtag",
+          "title": "Href",
+          "type": "string"
+        },
+        "name": {
+          "description": "The actual hashtag",
+          "examples": [
+            "#cow"
+          ],
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Hashtag",
+      "type": "object"
+    },
+    "Mention": {
+      "description": "Represents a mention\n\n```python\n>>> m = Mention(href=\"http://actor.example/alice\", name=\"@alice@actor.example\")\n>>> m.model_dump()\n{'type': 'Mention',\n    'href': 'http://actor.example/alice',\n    'name': '@alice@actor.example'}\n\n```",
+      "properties": {
+        "type": {
+          "const": "Mention",
+          "default": "Mention",
+          "title": "Type",
+          "type": "string"
+        },
+        "href": {
+          "description": "The location the mentioned party can be retrieved at. In the Fediverse usually an actor URI",
+          "title": "Href",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "href"
+      ],
+      "title": "Mention",
+      "type": "object"
+    },
+    "ObjectLink": {
+      "description": "Represents a [FEP-e232: Object Link](https://fediverse.codeberg.page/fep/fep/e232/)",
+      "properties": {
+        "type": {
+          "const": "Link",
+          "default": "Link",
+          "title": "Type",
+          "type": "string"
+        },
+        "href": {
+          "description": "The location of the object",
+          "examples": [
+            "http://remote.example/object/12345"
+          ],
+          "title": "Href",
+          "type": "string"
+        },
+        "mediaType": {
+          "description": "The media type of the object",
+          "examples": [
+            "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"",
+            "application/activity+json"
+          ],
+          "title": "Mediatype",
+          "type": "string"
+        },
+        "name": {
+          "description": "The microsyntax used to represent the object",
+          "examples": [
+            "RE http://remote.example/object/12345"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "rel": {
+          "description": "Relation to the object",
+          "title": "Rel",
+          "type": "string"
+        }
+      },
+      "required": [
+        "href",
+        "mediaType"
+      ],
+      "title": "ObjectLink",
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "updated": {
+      "description": "Moment of this object being updated",
+      "format": "date-time",
+      "type": "string"
+    },
+    "summary": {
+      "description": "The summary of the object",
+      "type": "string"
+    },
+    "name": {
+      "description": "The name of the object",
+      "type": "string"
+    },
+    "inReplyTo": {
+      "description": "The object being replied to. Currently a string. Not sure if this is what I want.",
+      "type": "string"
+    },
+    "context": {
+      "description": "The context of the object",
+      "type": "string"
+    },
+    "tag": {
+      "default": [],
+      "description": "A list of objects that expand on the content of the object",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Hashtag"
+          },
+          {
+            "$ref": "#/$defs/Mention"
+          },
+          {
+            "$ref": "#/$defs/ObjectLink"
+          },
+          {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array"
+    },
+    "@context": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "items": {},
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "examples": [
+        "https://www.w3.org/ns/activitystreams",
+        [
+          "https://www.w3.org/ns/activitystreams",
+          {
+            "Hashtag": "as:Hashtag"
+          }
+        ]
+      ]
+    },
+    "id": {
+      "description": "id of the activity or object, can be assumed to be globally unique. Some activities such as a Follow request will require an id to be valid. Servers may assume an id to be required. As assigning an id is 'trivial', one should assign one.",
+      "examples": [
+        "https://actor.example/some_id"
+      ],
+      "type": "string"
+    },
+    "to": {
+      "description": "Array of actors this activity or object is addressed to. It is sane to assume that an activity is addressed to at least one person.",
+      "examples": [
+        [
+          "https://bob.example"
+        ],
+        [
+          "https://alice.example",
+          "https://bob.example"
+        ]
+      ],
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "cc": {
+      "default": [],
+      "description": "Array of actors this activity or object is carbon copied to.",
+      "examples": [
+        [
+          "https://bob.example"
+        ],
+        [
+          "https://alice.example",
+          "https://bob.example"
+        ]
+      ],
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "published": {
+      "description": "Moment of this activity or object being published",
+      "format": "date-time",
+      "type": "string"
+    },
+    "type": {
+      "description": "Type of the activity or activity. Side effects of this activity are determine by this type.",
+      "examples": [
+        "Follow",
+        "Accept",
+        "Create",
+        "Undo",
+        "Like",
+        "Note"
+      ],
+      "type": "string"
+    },
+    "attributedTo": {
+      "description": "id of the actor that authored this object",
+      "examples": [
+        "https://actor.example/"
+      ],
+      "type": "string"
+    },
+    "content": {
+      "description": "The content of the object",
+      "type": "string"
+    },
+    "contentPlain": {
+      "description": "The content of the object stripped of html",
+      "type": "string"
+    },
+    "attachment": {
+      "description": "A list of objects that are attached to the original object",
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "url": {
+      "oneOf": [
+        {
+          "default": [],
+          "description": "A list of urls that expand on the content of the object",
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "sensitive": {
+      "description": "\n    Marks the object as sensitive. Currently, used by everyone, a better way would be an element of the tag list that labels the object as sensitive due a reason\n    ",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id",
+    "to",
+    "type",
+    "attributedTo"
+  ],
+  "title": "Object",
+  "type": "object"
+}

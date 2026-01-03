@@ -1,0 +1,174 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/definitions/Audio" },
+    { "$ref": "#/definitions/Image" },
+    { "$ref": "#/definitions/Video" },
+    { "$ref": "#/definitions/AudioMultiple" },
+    { "$ref": "#/definitions/ImageMultiple" },
+    { "$ref": "#/definitions/VideoMultiple" }
+  ],
+  "definitions": {
+    "MediaBase": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "The alt text. Alternative textual description for accessibility or if the media fails to load.",
+          "examples": ["A beautiful cow"]
+        }
+      },
+      "required": ["type", "name"]
+    },
+    "MediaBaseSingle": {
+      "type": "object",
+      "allOf": [{ "$ref": "#/definitions/MediaBase" }],
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "URL the media can be downloaded from.",
+          "examples": ["https://domain.example/image.jpg"]
+        },
+        "mediaType": {
+          "type": "string",
+          "description": "MIME type of the media attachment.",
+          "examples": [
+            "image/jpg",
+            "image/png",
+            "image/gif",
+            "video/mp4",
+            "audio/mp4"
+          ]
+        },
+        "digestMultibase": {
+          "type": "string",
+          "description": "Multibase encoded digest, see https://www.multiformats.io/multihash/",
+          "examples": ["zQmaeDPzhNL32WQZnnzB1H6QJWvvFNEHdViDB71yrxyXU1t"]
+        },
+        "size": {
+          "type": "integer",
+          "description": "Size in bytes of the media attachment.",
+          "examples": [9045]
+        }
+      },
+      "required": ["url", "mediaType", "digestMultibase", "size"]
+    },
+    "Image": {
+      "allOf": [{ "$ref": "#/definitions/MediaBaseSingle" }],
+      "properties": {
+        "type": {
+          "const": "Image"
+        },
+        "width": {
+          "type": "integer",
+          "description": "Width of the image in pixels",
+          "examples": [800]
+        },
+        "height": {
+          "type": "integer",
+          "description": "Height of the image in pixels",
+          "examples": [600]
+        }
+      },
+      "required": ["width", "height"]
+    },
+    "Video": {
+      "allOf": [{ "$ref": "#/definitions/MediaBaseSingle" }],
+      "properties": {
+        "type": {
+          "const": "Video"
+        },
+        "width": {
+          "type": "integer"
+        },
+        "height": {
+          "type": "integer"
+        },
+        "duration": {
+          "type": "string"
+        }
+      },
+      "required": ["width", "height", "duration"]
+    },
+    "Audio": {
+      "allOf": [{ "$ref": "#/definitions/MediaBaseSingle" }],
+      "properties": {
+        "type": {
+          "const": "Audio"
+        },
+        "duration": {
+          "type": "string"
+        }
+      },
+      "required": ["duration"]
+    },
+    "LinkBase": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "Link" },
+        "href": { "type": "string" },
+        "size": { "type": "integer" },
+        "digest": { "type": "string" },
+        "mediaType": { "type": "string" }
+      },
+      "required": ["type", "href", "size", "digest", "mediaType"]
+    },
+    "VisualLink": {
+      "allOf": [{ "$ref": "#/definitions/LinkBase" }],
+      "properties": {
+        "width": { "type": "integer" },
+        "height": { "type": "integer" }
+      },
+      "required": ["width", "height"]
+    },
+    "VideoMultiple": {
+      "allOf": [{ "$ref": "#/definitions/MediaBase" }],
+      "properties": {
+        "type": {
+          "const": "Video"
+        },
+        "url": {
+          "type": "array",
+          "items": { "allOf": [{ "$ref": "#/definitions/VisualLink" }] }
+        },
+        "duration": {
+          "type": "string"
+        }
+      },
+      "required": ["url", "duration"]
+    },
+    "AudioMultiple": {
+      "allOf": [{ "$ref": "#/definitions/MediaBase" }],
+      "properties": {
+        "type": {
+          "const": "Audio"
+        },
+        "url": {
+          "type": "array",
+          "items": { "allOf": [{ "$ref": "#/definitions/LinkBase" }] }
+        },
+        "duration": {
+          "type": "string"
+        }
+      },
+      "required": ["url", "duration"]
+    },
+    "ImageMultiple": {
+      "allOf": [{ "$ref": "#/definitions/MediaBase" }],
+      "properties": {
+        "type": {
+          "const": "Image"
+        },
+        "url": {
+          "type": "array",
+          "items": { "allOf": [{ "$ref": "#/definitions/VisualLink" }] }
+        }
+      },
+      "required": ["url"]
+    }
+  }
+}

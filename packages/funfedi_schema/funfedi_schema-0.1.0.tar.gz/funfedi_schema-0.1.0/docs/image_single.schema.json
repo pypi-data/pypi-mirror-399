@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "SingleImageAttachment",
+  "description": "Recommended schema to use for image attachments in the Fediverse. This schema is for images containing a single URL for the image content.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "const": "Image"
+    },
+    "name": {
+      "type": "string",
+      "description": "The alt text. Alternative textual description for accessibility or if the media fails to load.",
+      "examples": ["A beautiful cow"]
+    },
+    "url": {
+      "type": "string",
+      "description": "URL the media can be downloaded from.",
+      "examples": ["https://domain.example/image.jpg"]
+    },
+    "mediaType": {
+      "type": "string",
+      "description": "MIME type of the media attachment.",
+      "examples": ["image/jpg", "image/png", "image/gif"]
+    },
+    "digestMultibase": {
+      "type": "string",
+      "description": "Multibase encoded digest, see https://www.multiformats.io/multihash/",
+      "examples": ["zQmaeDPzhNL32WQZnnzB1H6QJWvvFNEHdViDB71yrxyXU1t"]
+    },
+    "size": {
+      "type": "integer",
+      "description": "Size in bytes of the media attachment.",
+      "examples": [9045]
+    },
+    "width": {
+      "type": "integer",
+      "description": "Width of the image in pixels",
+      "examples": [800]
+    },
+    "height": {
+      "type": "integer",
+      "description": "Height of the image in pixels",
+      "examples": [600]
+    }
+  },
+  "required": ["type", "mediaType", "url", "width", "height"]
+}

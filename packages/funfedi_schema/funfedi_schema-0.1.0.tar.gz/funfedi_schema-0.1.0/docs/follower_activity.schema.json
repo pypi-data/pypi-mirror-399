@@ -1,0 +1,63 @@
+{
+  "description": "This represents a first draft of a json-schema for activities to manage follower connections.",
+  "properties": {
+    "@context": {
+      "anyOf": [
+        { "type": "string" },
+        { "items": {}, "type": "array" },
+        { "type": "null" }
+      ],
+      "default": null,
+      "examples": [
+        "https://www.w3.org/ns/activitystreams",
+        ["https://www.w3.org/ns/activitystreams", { "Hashtag": "as:Hashtag" }]
+      ],
+      "title": "@context"
+    },
+    "id": {
+      "description": "id of the activity, can be assumed to be globally unique. Some activities such as a Follow request will require an id to be valid. Servers may assume an id to be required. As assigning an id is 'trivial', one should assign one.",
+      "examples": ["https://actor.example/some_id"],
+      "title": "Id",
+      "type": "string"
+    },
+    "to": {
+      "description": "Array of actors this activity is addressed to. It is sane to assume that an activity is addressed to at least one person.",
+      "examples": [
+        ["https://bob.example"],
+        ["https://alice.example", "https://bob.example"]
+      ],
+      "items": { "type": "string" },
+      "minItems": 1,
+      "title": "To",
+      "type": "array"
+    },
+    "published": {
+      "anyOf": [{ "type": "string" }, { "type": "null" }],
+      "default": null,
+      "description": "\n    Moment of this activity or object being published\n    ",
+      "title": "Published"
+    },
+    "type": {
+      "description": "Type of the activity. Side effects of this activity are determine by this type.",
+      "enum": ["Follow", "Accept", "Reject", "Undo", "Block"],
+      "title": "Type",
+      "type": "string"
+    },
+    "actor": {
+      "description": "id of the actor performing this activity. One can assume that the activity is signed by this actor (in some form).",
+      "examples": ["https://actor.example/"],
+      "title": "Actor",
+      "type": "string"
+    },
+    "object": {
+      "type": "string",
+      "examples": [
+        "Actor being followed or blocked or Follow Activity being undone, accepted or rejected"
+      ],
+      "title": "Object"
+    }
+  },
+  "required": ["id", "to", "type", "actor", "object"],
+  "title": "Activity",
+  "type": "object"
+}
