@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyversus"
+version = "0.1.2"
+description = "Compare two relations quickly using DuckDB"
+readme = "README.md"
+authors = [{name = "versus authors"}]
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.7"
+dependencies = [
+  "duckdb>=1.0.0",
+  "typing-extensions>=4.0.0; python_version < \"3.8\""
+]
+
+[project.urls]
+Homepage = "https://github.com/eutwt/pyversus"
+Documentation = "https://eutwt.github.io/pyversus/"
+
+[project.optional-dependencies]
+docs = [
+  "sphinx>=7.2; python_version >= \"3.9\"",
+  "pydata-sphinx-theme>=0.15.4; python_version >= \"3.9\"",
+  "numpydoc>=1.6; python_version >= \"3.9\"",
+  "sphinx-copybutton>=0.5.2; python_version >= \"3.9\""
+]
+
+[tool.setuptools]
+package-dir = {"" = "python"}
+
+[tool.setuptools.packages.find]
+where = ["python"]
