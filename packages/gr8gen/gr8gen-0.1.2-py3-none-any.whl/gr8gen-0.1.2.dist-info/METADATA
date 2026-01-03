@@ -1,0 +1,64 @@
+Metadata-Version: 2.4
+Name: gr8gen
+Version: 0.1.2
+Summary: gr8gen: protobuf generator for gr8pc
+Project-URL: Homepage, https://github.com/lucas-labs/gr8pc
+Project-URL: Documentation, https://github.com/lucas-labs/gr8pc
+Project-URL: Repository, https://github.com/lucas-labs/gr8pc
+Author-email: Lucas Colombo <lucasncolombo@gmail.com>
+License-Expression: MIT
+Requires-Python: >=3.11
+Requires-Dist: jinja2>=3.1.4
+Description-Content-Type: text/markdown
+
+# gr8gen: protobuf generator for gr8pc
+
+This tool is a direct adaptation of
+[py-grpcio](https://github.com/Niche-Solutions-LLC/py-grpcio), featuring a few modifications and
+tailored customizations. Depending on your needs, you may find the original repository better suited
+to your requirements and preferred practices.
+
+---
+
+## Background and Motivation
+
+As noted before, `gr8pc` is an adaptation of the `py-grpcio` library, with a few key modifications:
+
+- **Python 3.11 Compatibility**: This library is compatible with Python 3.11 (the original library
+  demands >=3.12).
+- **Separation between Logic and Protobuf file Generation**: `gr8pc` splits into two subprojects:
+  one for the core server and client logic, and another (optional) CLI tool for `.proto` file
+  generation. This design decision was made to make the dependency on `jinja` not necessary for the
+  core library. In other words, the core library won't generate `.proto` files during runtime and
+  will raise an error if it can't find them. The `.proto` file must be generated at development time
+  using the CLI tool.
+
+## Installation
+
+```bash
+pip install gr8pc
+```
+
+To install the optional CLI:
+
+```bash
+pip install gr8gen
+```
+
+## Usage
+
+For usage documentation, please refer to the original
+[py-grpcio](https://github.com/Niche-Solutions-LLC/py-grpcio) repository.
+
+## Proto Generation Tool
+
+The gr8gen tool generates the necessary `.proto` file. Usage:
+
+```bash
+gr8gen --output /path/to/proto/folder --service path.to.service.Service path.to.another.service.AnotherService
+```
+
+## Acknowledgments
+
+This library is derived directly from the `py-grpcio` package, maintaining much of the original
+structure and functionality.
