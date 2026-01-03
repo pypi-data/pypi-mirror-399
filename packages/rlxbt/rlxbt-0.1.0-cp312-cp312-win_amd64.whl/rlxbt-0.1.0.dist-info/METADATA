@@ -1,0 +1,118 @@
+Metadata-Version: 2.4
+Name: rlxbt
+Version: 0.1.0
+Classifier: Programming Language :: Rust
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Office/Business :: Financial :: Investment
+Classifier: Operating System :: OS Independent
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scikit-learn
+Requires-Dist: stable-baselines3[extra]
+Requires-Dist: gymnasium
+Requires-Dist: matplotlib
+Requires-Dist: seaborn
+Summary: Fast trading backtester written in Rust
+Author-email: Serg <sott095@gmail.com>
+License: MIT
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown; charset=UTF-8; variant=GFM
+Project-URL: Homepage, https://rlxbt.com
+Project-URL: Repository, https://github.com/your-repo/rlx
+
+# RLXBT: High-Performance Rust-Based Backtesting SDK
+
+RLXBT is a high-performance algorithmic trading backtesting engine written in Rust with Python bindings. It provides institutional-grade tools for strategy development, portfolio management, and risk analysis.
+
+## Features
+
+- **Ultra High Performance**: Core engine written in Rust — **4.5M+ bars/sec** via Python API with zero-copy optimization.
+- **Pythonic API**: Easy-to-use Python wrapper for strategy definition.
+- **Institutional Tools**: Portfolio management, risk management (VaR, Drawdown), and optimization.
+- **Event-Driven & Vectorized**: Hybrid approach for speed and flexibility.
+
+## Licensing
+
+RLXBT is a commercial product requiring a valid license key for production use.
+
+| Plan    | Max Bars  | Price  |
+| ------- | --------- | ------ |
+| Free    | 10K       | $0/mo  |
+| Starter | 500K      | $29/mo |
+| Pro     | Unlimited | $79/mo |
+
+```bash
+# Set via environment variable (recommended)
+export RLX_LICENSE_KEY="rlx_free_yourkey_xxxx"
+```
+
+```python
+# Or pass directly to Backtester
+backtester = Backtester(license_key="rlx_free_yourkey_xxxx")
+```
+
+**Get your free license at [rlxbt.com/pricing](https://rlxbt.com/pricing)**
+
+See [docs/LICENSING.md](docs/LICENSING.md) for full documentation.
+
+## Project Structure
+
+- `rlxbt/`: The main Python package.
+  - `core.py`: Core bindings to the Rust engine.
+  - `institutional/`: Institutional-grade components (Portfolio, Risk, Optimization).
+- `src/`: Rust source code for the core engine.
+- `examples/`: Example scripts demonstrating usage.
+  - `basic/`: Simple strategy examples.
+  - `institutional/`: Complex hedge fund workflows.
+- `tests_python/`: Python test suite.
+
+## Installation
+
+Prerequisites:
+
+- Rust (cargo)
+- Python 3.8+
+- maturin (`pip install maturin`)
+
+Build and install in development mode:
+
+```bash
+maturin develop
+```
+
+## Usage
+
+### Basic Strategy
+
+```python
+from rlxbt import Strategy, Backtester
+
+class MyStrategy(Strategy):
+    def generate_signals(self, data):
+        # ... logic ...
+        return signals
+
+backtester = Backtester()
+backtester.run(MyStrategy(), data)
+
+# Optional: generate + launch dashboard directly from Backtester
+# (uses the last BacktestResult stored in backtester.last_result)
+backtester.plot(data, port=8000, auto_open=True)
+```
+
+### Institutional Workflow
+
+See `examples/institutional/hedge_fund_demo.py` for a complete example of:
+
+- Multi-strategy portfolios
+- Risk management
+- Capital allocation
+
+## Running Examples
+
+```bash
+python examples/basic/simple_test.py
+python examples/institutional/hedge_fund_demo.py
+```
+
