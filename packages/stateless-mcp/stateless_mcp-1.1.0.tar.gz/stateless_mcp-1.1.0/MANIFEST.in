@@ -1,0 +1,24 @@
+# Include documentation
+include README.md
+include LICENSE
+
+# Include configuration files
+include pyproject.toml
+include requirements.txt
+include pytest.ini
+
+# Include examples
+include example_server.py
+
+# Include Docker files
+include Dockerfile
+include docker-compose.yml
+include .dockerignore
+include Makefile
+
+# Exclude unnecessary files
+exclude .gitignore
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude tests *
+recursive-exclude .git *
