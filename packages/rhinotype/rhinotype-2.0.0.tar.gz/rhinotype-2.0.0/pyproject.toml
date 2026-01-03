@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rhinotype"
+version = "2.0.0"
+description = "A python tool used to automatically genotype rhinovirus."
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Ephantus Wambui", email = "ephywambui72@gmail.com"},
+    {name = "Daniel Okoro", email = "ugookorodaniel620@gmail.com"},
+    {name = "Andrew Acheampong", email = "acheampongandrews1999@gmail.com"},
+    {name = "Parcelli Jepchirchir", email  = "parcelmaiyo@gmail.com"},
+    {name = "Olaitan Awe", email = "laitanawe@gmail.com"}
+]
+license = {text = "MIT"}
+keywords = ["bioinformatics", "virology", "genotyping", "rhinovirus", "genotype"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+
+dependencies = [
+    "matplotlib >= 3.8",
+    "numpy >= 2.3",
+    "pandas >= 2.3",
+    "seaborn >= 0.13",
+    "scipy >= 1.16",
+    "biopython >= 1.86"
+]
+
+[project.urls]
+Homepage = "https://github.com/omicscodeathon/rhinotype"
+
+[project.scripts]
+rhinotype = "rhinotype.main:main"
+
+[tool.setuptools.package-data]
+rhinotype = ["data/*.fasta", "data/*.csv"]
