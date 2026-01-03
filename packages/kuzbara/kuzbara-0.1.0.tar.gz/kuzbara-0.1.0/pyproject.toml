@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kuzbara"
+version = "0.1.0"
+description = "Fresh, organic health checks for Python.Smooth, probiotic health checks for Python."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+  { name = "suaue", email = "suaue@users.noreply.github.com" },
+]
+# ZERO DEPENDENCIES for the core
+dependencies = []
+
+[project.optional-dependencies]
+http = ["httpx>=0.24"]
+system = ["psutil>=5.0"]
+
+dev = [
+  "pytest",
+  "pytest-asyncio",
+  "httpx",
+  "fastapi",
+  "flask",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kuzbara"]
