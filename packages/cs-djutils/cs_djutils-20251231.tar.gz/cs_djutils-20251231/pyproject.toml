@@ -1,0 +1,413 @@
+[project]
+name = "cs-djutils"
+description = "My collection of things for working with Django."
+authors = [
+    { name = "Cameron Simpson", email = "cs@cskk.id.au" },
+]
+keywords = [
+    "python3",
+]
+dependencies = [
+    "cs.cmdutils>=20250724",
+    "cs.gimmicks>=20250428",
+    "cs.lex>=20250914",
+    "django",
+    "typeguard",
+]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+]
+version = "20251231"
+
+[project.license]
+text = "GNU General Public License v3 or later (GPLv3+)"
+
+[project.urls]
+"Monorepo Hg/Mercurial Mirror" = "https://hg.sr.ht/~cameron-simpson/css"
+"Monorepo Git Mirror" = "https://github.com/cameron-simpson/css"
+"MonoRepo Commits" = "https://bitbucket.org/cameron_simpson/css/commits/branch/main"
+Source = "https://github.com/cameron-simpson/css/blob/main/lib/python/cs/djutils.py"
+
+[project.readme]
+text = """
+My collection of things for working with Django.
+
+*Latest release 20251231*:
+New IndexByPK mixin for Models, supporting Model[pk].
+
+Presently this provides:
+* `BaseCommand`: a drop in replacement for `django.core.management.base.BaseCommand`
+  which uses a `cs.cmdutils.BaseCommand` style of implementation
+* `model_batches_qs`: a generator yielding `QuerySet`s for batches of a `Model`
+
+Short summary:
+* `BaseCommand`: A drop in class for `django.core.management.base.BaseCommand` which subclasses `cs.cmdutils.BaseCommand`.
+* `DjangoSpecificSubCommand`: A subclass of `cs.cmdutils.SubCommand` with additional support for Django's `BaseCommand`.
+* `IndexByPK`: A mixin for `Model` classes which povides a `__class_getitem__` method to fetch an instance by its `pk`.
+* `model_batches_qs`: A generator yielding `QuerySet`s which produce nonoverlapping batches of `Model` instances.
+* `model_instances`: A generator yielding `Model` instances. This is a wrapper for `model_batches_qs` and accepts the same arguments, and some additional parameters.
+
+Module contents:
+- <a name=\"BaseCommand\"></a>`class BaseCommand(cs.cmdutils.BaseCommand, django.core.management.base.BaseCommand)`: A drop in class for `django.core.management.base.BaseCommand`
+  which subclasses `cs.cmdutils.BaseCommand`.
+
+  This lets me write management commands more easily, particularly
+  if there are subcommands.
+
+  This is a drop in in the sense that you still make a management command
+  in nearly the same way:
+
+      from cs.djutils import BaseCommand
+
+      class Command(BaseCommand):
+
+  and `manage.py` will find it and run it as normal.
+  But from that point on the style is as for `cs.cmdutils.BaseCommand`:
+  - no `argparse` setup
+  - direct support for subcommands as methods
+  - succinct option parsing, if you want additional command line options
+  - usage text in the subcommand method docstring
+
+  A simple command looks like this:
+
+      class Command(BaseCommand):
+
+          def main(self, argv):
+              \"\"\" Usage: {cmd} .......
+                    Do the main thing.
+              \"\"\"
+              ... do stuff based on the CLI args `argv` ...
+
+  A command with subcommands looks like this:
+
+      class Command(BaseCommand):
+
+          def cmd_this(self, argv):
+              \"\"\" Usage: {cmd} ......
+                    Do this.
+              \"\"\"
+              ... do the \"this\" subcommand ...
+
+          def cmd_that(self, argv):
+              \"\"\" Usage: {cmd} ......
+                    Do that.
+              \"\"\"
+              ... do the \"that\" subcommand ...
+
+  If want some kind of app/client specific \"overcommand\" composed
+  from other management commands you can import them and make
+  them subcommands of the overcommand:
+
+      from .other_command import Command as OtherCommand
+
+      class Command(BaseCommand):
+
+          # provide it as the \"other\" subcommand
+          cmd_other = OtherCommand
+
+  Option parsing is inline in the command. `self` comes
+  presupplied with a `.options` attribute which is an instance
+  of `cs.cmdutils.BaseCommandOptions` (or some subclass).
+
+  Parsing options is light weight and automatically updates the usage text.
+  This example adds command line switches to the default switches:
+  - `-x`: a Boolean, setting `self.options.x`
+  - `--thing-limit` *n*: an `int`, setting `self.options.thing_limit=`*n*
+  - `--mode` *blah*: a string, setting `self.options.mode=`*blah*
+
+  Code sketch:
+
+      from cs.cmdutils import popopts
+
+      class Command(BaseCommand):
+
+          @popopts(
+              x=None,
+              thing_limit_=int,
+              mode_='The run mode.',
+          )
+          def cmd_this(self, argv):
+              \"\"\" Usage: {cmd}
+                    Do this thing.
+              \"\"\"
+              options = self.options
+              ... now consult options.x or whatever
+              ... argv is now the remaining arguments after the optionsA drop in class for `django.core.management.base.BaseCommand`
+  which subclasses `cs.cmdutils.BaseCommand`.
+
+  This lets me write management commands more easily, particularly
+  if there are subcommands.
+
+  This is a drop in in the sense that you still make a management command
+  in nearly the same way:
+
+      from cs.djutils import BaseCommand
+
+      class Command(BaseCommand):
+
+  and `manage.py` will find it and run it as normal.
+  But from that point on the style is as for `cs.cmdutils.BaseCommand`:
+  - no `argparse` setup
+  - direct support for subcommands as methods
+  - succinct option parsing, if you want additional command line options
+  - usage text in the subcommand method docstring
+
+  A simple command looks like this:
+
+      class Command(BaseCommand):
+
+          def main(self, argv):
+              \"\"\" A command with subcommands looks like this:
+
+      class Command(BaseCommand):
+
+          def cmd_this(self, argv):
+              \"\"\" Usage: {cmd} ......
+                    Do this.
+              \"\"\"
+              ... do the \"this\" subcommand ...
+
+          def cmd_that(self, argv):
+              \"\"\" Usage: {cmd} ......
+                    Do that.
+              \"\"\"
+              ... do the \"that\" subcommand ...
+
+  If want some kind of app/client specific \"overcommand\" composed
+  from other management commands you can import them and make
+  them subcommands of the overcommand:
+
+      from .other_command import Command as OtherCommand
+
+      class Command(BaseCommand):
+
+          # provide it as the \"other\" subcommand
+          cmd_other = OtherCommand
+
+  Option parsing is inline in the command. `self` comes
+  presupplied with a `.options` attribute which is an instance
+  of `cs.cmdutils.BaseCommandOptions` (or some subclass).
+
+  Parsing options is light weight and automatically updates the usage text.
+  This example adds command line switches to the default switches:
+  - `-x`: a Boolean, setting `self.options.x`
+  - `--thing-limit` *n*: an `int`, setting `self.options.thing_limit=`*n*
+  - `--mode` *blah*: a string, setting `self.options.mode=`*blah*
+
+  Code sketch:
+
+      from cs.cmdutils import popopts
+
+      class Command(BaseCommand):
+
+          @popopts(
+              x=None,
+              thing_limit_=int,
+              mode_='The run mode.',
+          )
+          def cmd_this(self, argv):
+              \"\"\" Usage: {cmd}
+                    Do this thing.
+              \"\"\"
+              options = self.options
+              ... now consult options.x or whatever
+              ... argv is now the remaining arguments after the options
+
+  Usage summary:
+
+      Usage: base [common-options...] .......
+              Do the main thing.
+        \"\"\"
+        ... do stuff based on the CLI args `argv` ...
+
+*`BaseCommand.Options`*
+
+*`BaseCommand.SubCommandClass`*
+
+*`BaseCommand.add_arguments(self, parser)`*:
+Add the `Options.COMMON_OPT_SPECS` to the `argparse` parser.
+This is basicly to support the Django `call_command` function.
+
+*`BaseCommand.handle(*, argv, **options)`*:
+The Django `BaseComand.handle` method.
+This creates another instance for `argv` and runs it.
+
+*`BaseCommand.run_from_argv(argv)`*:
+Intercept `django.core.management.base.BaseCommand.run_from_argv`.
+Construct an instance of `cs.djutils.DjangoBaseCommand` and run it.
+- <a name=\"DjangoSpecificSubCommand\"></a>`class DjangoSpecificSubCommand(cs.cmdutils.SubCommand)`: A subclass of `cs.cmdutils.SubCommand` with additional support
+  for Django's `BaseCommand`.
+
+*`DjangoSpecificSubCommand.__call__(self, argv: List[str])`*:
+Run this `SubCommand` with `argv`.
+This calls Django's `BaseCommand.run_from_argv` for pure Django commands.
+
+*`DjangoSpecificSubCommand.is_pure_django_command`*:
+Whether this subcommand is a pure Django `BaseCommand`.
+
+*`DjangoSpecificSubCommand.usage_text(self, *, cmd=None, **kw)`*:
+Return the usage text for this subcommand.
+- <a name=\"IndexByPK\"></a>`class IndexByPK`: A mixin for `Model` classes which povides a `__class_getitem__`
+  method to fetch an instance by its `pk`.
+
+  Example:
+
+      book9 = BookModel[9]
+
+*`IndexByPK.__class_getitem__(pk)`*:
+Index the class by `pk`, a primary key value.
+
+This is just a shim for:
+
+    cls.objects.get(pk=pk)
+- <a name=\"model_batches_qs\"></a>`model_batches_qs(model: django.db.models.base.Model, field_name='pk', *, after=None, chunk_size=1024, desc=False, exclude=None, filter=None, only=None, yield_base_qs=False) -> Iterable[django.db.models.query.QuerySet]`: A generator yielding `QuerySet`s which produce nonoverlapping
+  batches of `Model` instances.
+
+  Efficient behaviour requires the field to be indexed.
+  Correct behaviour requires the field values to be unique.
+
+  See `model_instances` for an iterable of instances wrapper
+  of this function, where you have no need to further amend the
+  `QuerySet`s or to be aware of the batches.
+
+  Parameters:
+  * `model`: the `Model` to query
+  * `field_name`: default `'pk'`, the name of the field on which
+    to order the batches
+  * `after`: an optional field value - iteration commences
+    immediately after this value; this may also be a `Model` instance,
+    in which case the value is obtained via `getattr(after,field_name)`
+  * `chunk_size`: the maximum size of each chunk
+  * `desc`: default `False`; if true then order the batches in
+    descending order instead of ascending order
+  * `exclude`: optional mapping of Django query terms to exclude by
+  * `filter`: optional mapping of Django query terms to filter by
+  * `only`: optional sequence of field names for a Django query `.only()`
+  * `yield_base_qs`: if true (default `False`) yield the base
+    `QuerySet` ahead of the `QuerySet`s for each batch;
+    this can be useful for a count or other preanalysis
+
+  Example iteration of a `Model` would look like:
+
+      from itertools import chain
+      from cs.djutils import model_batches_qs
+      for instance in chain.from_iterable(model_batches_qs(MyModel)):
+          ... work with instance ...
+
+  By returning `QuerySet`s it is possible to further alter each query:
+
+      from cs.djutils import model_batches_qs
+      for batch_qs in model_batches_qs(MyModel):
+          for result in batch_qs.filter(
+              some_field__gt=10
+          ).select_related(.......):
+              ... work with each result in the batch ...
+
+  or:
+
+      from itertools import chain
+      from cs.djutils import model_batches_qs
+      for result in chain.from_iterable(
+          batch_qs.filter(
+              some_field__gt=10
+          ).select_related(.......)
+          for batch_qs in model_batches_qs(MyModel)
+      ):
+              ... work with each result ...
+- <a name=\"model_instances\"></a>`model_instances(model: django.db.models.base.Model, field_name='pk', prefetch_related=None, select_related=None, yield_base_qs=False, **mbqs_kw) -> Iterable[django.db.models.base.Model]`: A generator yielding `Model` instances.
+  This is a wrapper for `model_batches_qs` and accepts the same arguments,
+  and some additional parameters.
+
+  If you need to extend the `QuerySet`s beyond what the
+  `model_batches_qs` parameters support it may be better to use
+  that and extend each returned `QuerySet`.
+
+  If `yield_base_qs` is true (default `False`), yield the base
+  `QuerySet` ahead of the model instances; this can be useful
+  for a count or other preanalysis.
+
+  Additional parameters beyond those for `model_batches_qs`:
+  * `prefetch_related`: an optional list of fields to apply to
+    each query with `.prefetch_related()`
+  * `select_related`: an optional list of fields to apply to
+    each query with `.select_related()`
+
+  Efficient behaviour requires the field to be indexed.
+  Correct behaviour requires the field values to be unique.
+
+# Release Log
+
+
+
+*Release 20251231*:
+New IndexByPK mixin for Models, supporting Model[pk].
+
+*Release 20250724*:
+model_batches_qs (and therefore also model_instances): after may also be a Model instance.
+
+*Release 20250609*:
+* model_batches_qs: new yield_base_qs=False parameter to yield the base QuerySet ahead of the batch QuerySets.
+* model_instances: new yield_base_qs=False parameter to yield the base QuerySet ahead of the Model instances.
+
+*Release 20250606*:
+* model_batches_qs: new after=None parameter to indicate preiteration point.
+* model_instances: new optional parameters prefetch_related and select_related to augument the querysets before iteration.
+
+*Release 20250219*:
+* model_batches_qs: accept a nonmapping for exclude= or filter= eg a Q() function.
+* model_batches_qs: new optional only= parameter.
+
+*Release 20250213*:
+New model_instances() wrapper for model_batches_qs() returning an iterable of Model instances.
+
+*Release 20250113.2*:
+model_batches_qs: bugfix second and following QuerySet construction.
+
+*Release 20250113.1*:
+model_batches_qs: new exclude=dict and filter=dict optional parameters to filter before the slice.
+
+*Release 20250113*:
+model_batches_qs: improve the query which measures the current batch.
+
+*Release 20250111.1*:
+Documentation update.
+
+*Release 20250111*:
+New model_batches_qs() generator yielding QuerySets for batches of a Model.
+
+*Release 20241222.3*:
+Autocall settings.configure() if required because Django's settings object is a royal PITA.
+
+*Release 20241222.2*:
+BaseCommand.Options.settings: call settings.configure() on init if that has not already been done.
+
+*Release 20241222.1*:
+Placate the dataclass - upgrade BaseCommand.Options.settings to be a field() with a default_factory.
+
+*Release 20241222*:
+BaseCommand.Options: include .settings with the public django.conf.settings names, mostly for cmd_info and cmd_repl.
+
+*Release 20241119*:
+New DjangoSpecificSubCommand(CSBaseCommand.SubCommandClass) to include support for pure Django BaseCommands.
+
+*Release 20241111*:
+Rename DjangoBaseCommand to just BaseCommand so that we go `from cs.djutils import BaseCommand`. Less confusing.
+
+*Release 20241110*:
+Initial PyPI release with DjangoBaseCommand, cs.cmdutils.BaseCommand subclass suppplanting django.core.management.base.BaseCommand."""
+content-type = "text/markdown"
+
+[build-system]
+build-backend = "flit_core.buildapi"
+requires = [
+    "flit_core >=3.2,<4",
+]
+
+[tool.flit.module]
+name = "cs.djutils"
