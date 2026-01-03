@@ -1,0 +1,53 @@
+Metadata-Version: 2.4
+Name: brylic
+Version: 0.1.0
+Classifier: Intended Audience :: Science/Research
+Classifier: Development Status :: 4 - Beta
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Rust
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: Free Threading :: 4 - Resilient
+Classifier: Topic :: Artistic Software
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Classifier: Typing :: Typed
+Requires-Dist: exceptiongroup>=1.0.0 ; python_full_version < '3.11'
+Requires-Dist: numpy>=1.22.0
+Requires-Dist: typing-extensions>=4.1.0 ; python_full_version < '3.11'
+License-File: LICENSE_rlic
+License-File: LICENSE_vectorplot
+Summary: A boundary-aware Line Integral Convolution extension for NumPy, written in Rust
+Author-email: Aasmund Folkestad <asmund_sf@hotmail.com>
+License-Expression: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Project-URL: Homepage, https://github.com/afolkest/brylic
+Project-URL: Changelog, https://github.com/afolkest/brylic/blob/main/CHANGELOG.md
+
+# bryLIC
+
+This fork builds on the lovely [rLIC](https://github.com/neutrinoceros/rlic) project by @neutrinoceros.
+Kudos to him.
+
+## What is this?
+
+`bryLIC` is a rust implementation of LIC with various idosyncratic features
+useful for working on domains with inner boundaries. This repo currently
+contains various adjustments to avoid aliasing caused by boundary effects and
+further algorithmic adjustments near the boundary for dials letting you construct 
+aesthetically appealing "halos" around the boundaries. 
+
+This repo is heavily vibecoded and currently completely unstable so approach with caution.
+
+## Scripts
+
+Utility scripts live under `scripts/`. Install the minimal extras with
+`pip install -r scripts/requirements.txt`, then invoke them directly
+(e.g. `python scripts/run_compare.py`).
+
