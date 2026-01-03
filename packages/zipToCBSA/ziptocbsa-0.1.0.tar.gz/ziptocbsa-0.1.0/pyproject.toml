@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "zipToCBSA"
+version = "0.1.0"
+dependencies = [
+  "importlib",
+  "pandas"
+]
+authors = [
+  { name="Eric Renfert", email="ericrenfert@hotmail.com" },
+]
+description = "A small package designed to help convert zip codes to OMB CBSA codes"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/pypa/sampleproject"
+Issues = "https://github.com/pypa/sampleproject/issues"
+
+[project.scripts]
+convert = "convert.cli:main"
+
+[tool.setuptools.package-data]
+"zipToCBSA.data" = ["*.csv", "*.json"]
+
