@@ -1,0 +1,113 @@
+Metadata-Version: 2.4
+Name: entari_plugin_hyw
+Version: 3.4.1
+Summary: Use large language models to interpret chat messages
+Author-email: kumoSleeping <zjr2992@outlook.com>
+License: MIT
+Project-URL: Homepage, https://github.com/kumoSleeping/entari-plugin-hyw
+Project-URL: Repository, https://github.com/kumoSleeping/entari-plugin-hyw
+Project-URL: Issue Tracker, https://github.com/kumoSleeping/entari-plugin-hyw/issues
+Keywords: entari,llm,ai,bot,chat
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: arclet-entari[full]>=0.16.5
+Requires-Dist: openai
+Requires-Dist: httpx
+Requires-Dist: markdown>=3.10
+Requires-Dist: crawl4ai>=0.7.8
+Requires-Dist: jinja2>=3.0
+Requires-Dist: ddgs>=9.10.0
+Provides-Extra: dev
+Requires-Dist: entari-plugin-server>=0.5.0; extra == "dev"
+Requires-Dist: satori-python-adapter-onebot11>=0.2.5; extra == "dev"
+
+# Entari Plugin HYW
+
+[![PyPI version](https://badge.fury.io/py/entari-plugin-hyw.svg)](https://badge.fury.io/py/entari-plugin-hyw)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python Versions](https://img.shields.io/pypi/pyversions/entari-plugin-hyw.svg)](https://pypi.org/project/entari-plugin-hyw/)
+
+**English** | [简体中文](docs/README_CN.md)
+
+**Entari Plugin HYW** is an advanced agentic chat plugin for the [Entari](https://github.com/entari-org/entari) framework. It leverages Large Language Models (LLMs) to provide intelligent, context-aware, and multi-modal responses within instant messaging environments (OneBot 11, Satori).
+
+The plugin implements a three-stage pipeline (**Vision**, **Instruct**, **Agent**) to autonomously decide when to search the web, crawl pages, or analyze images to answer user queries effectively.
+
+<p align="center">
+  <img src="docs/demo_mockup.svg" width="800" />
+</p>
+
+## Features
+
+- 📖 **Agentic Workflow**  
+  Autonomous decision-making process to search, browse, and reason.
+
+- 🎑 **Multi-Modal Support**  
+  Native support for image analysis using Vision Language Models (VLMs).
+
+- 🔍 **Web Search & Crawling**  
+  Integrated **DuckDuckGo** and **Crawl4AI** for real-time information retrieval.
+
+- 🎨 **Rich Rendering**  
+  Responses are rendered as images containing Markdown, syntax-highlighted code, LaTeX math, and citation badges.
+
+- 🔌 **Protocol Support**  
+  Deep integration with OneBot 11 and Satori protocols, handling reply context and JSON cards perfectly.
+
+## Installation
+
+```bash
+pip install entari-plugin-hyw
+```
+
+## Configuration
+
+Configure the plugin in your `entari.yml`.
+
+### Minimal Configuration
+
+```yaml
+plugins:
+  entari_plugin_hyw:
+    model_name: google/gemini-3-flash-preview
+    api_key: "your-or-api-key-here"
+```
+
+## Usage
+
+### Commands
+
+- **Text Query**
+  ```text
+  /q What's the latest news on Rust 1.83?
+  ```
+
+- **Image Analysis**
+  *(Send an image with command, or reply to an image)*
+  ```text
+  /q [Image] Explain this error.
+  ```
+- **Quote Query**
+  ```text
+  [quote: User Message] /q
+  ```
+
+- **Follow-up**
+  *Reply to the bot's message to continue the conversation.*
+
+## Documentation for AI/LLMs
+
+- [Instruction Guide (English)](docs/README_LLM_EN.md)
+- [指导手册 (简体中文)](docs/README_LLM_CN.md)
+
+---
+
+## License
+
+This project is licensed under the MIT License.
