@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tonneanalyzer-ankit"
+version = "0.1.0"
+description = "Hybrid rule + ML based tone analysis library"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Ankit Ghosh" }
+]
+requires-python = ">=3.8"
+
+dependencies = [
+    "numpy",
+    "scikit-learn",
+    "joblib"
+]
+
+[tool.setuptools]
+packages = ["tone"]
