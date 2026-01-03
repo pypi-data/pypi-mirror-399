@@ -1,0 +1,553 @@
+Metadata-Version: 2.4
+Name: krl-frameworks
+Version: 0.1.0
+Summary: Enterprise-grade meta-framework orchestration for socioeconomic analysis with deterministic CBSS pipelines
+Author-email: Khipu Research Labs <engineering@krlabs.dev>
+Maintainer-email: KRL Engineering <engineering@krlabs.dev>
+License: Apache-2.0
+Project-URL: Homepage, https://github.com/KR-Labs/krl-frameworks
+Project-URL: Documentation, https://docs.krlabs.dev/frameworks
+Project-URL: Repository, https://github.com/KR-Labs/krl-frameworks
+Project-URL: Changelog, https://github.com/KR-Labs/krl-frameworks/blob/main/CHANGELOG.md
+Keywords: socioeconomic-analysis,policy-evaluation,causal-inference,meta-framework,cbss,cohort-simulation,dag-orchestration,mpi,hdi,remsom
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Classifier: Typing :: Typed
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.26.0
+Requires-Dist: pandas>=2.1.0
+Requires-Dist: pydantic>=2.5.0
+Requires-Dist: networkx>=3.2.0
+Requires-Dist: krl-open-core>=0.2.0
+Requires-Dist: krl-types~=0.2.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: pre-commit>=3.0.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=7.0.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=2.0.0; extra == "docs"
+Requires-Dist: myst-parser>=2.0.0; extra == "docs"
+Provides-Extra: causal
+Requires-Dist: krl-causal-policy-toolkit>=1.0.0; extra == "causal"
+Provides-Extra: geospatial
+Requires-Dist: krl-geospatial-tools>=0.2.0; extra == "geospatial"
+Provides-Extra: network
+Requires-Dist: krl-network-analysis>=0.2.0; extra == "network"
+Provides-Extra: connectors
+Requires-Dist: krl-data-connectors>=1.0.0; extra == "connectors"
+Provides-Extra: all
+Requires-Dist: krl-frameworks[causal,connectors,dev,docs,geospatial,network]; extra == "all"
+
+# KRL Frameworks
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+
+**Enterprise-grade meta-framework orchestration platform for socioeconomic analysis with deterministic CBSS pipelines.**
+
+## Overview
+
+KRL Frameworks provides a unified orchestration layer for **69 meta-frameworks** across 6 vertical layers:
+
+| Layer | Tier | Frameworks | Count |
+|-------|------|------------|-------|
+| **Layer 1: Socioeconomic/Academic** | Community+ | MPI, HDI, SPI, GII, IHDI, NRI, WBI, IAM, SAM-CGE, CGE-Microsim, Spatial Causal Index | 12 |
+| **Layer 2: Government/Policy** | Professional | CBO Scoring, OMB PART, GAO GPRA, Policy Diffusion, Regulatory Impact, Legislative Effectiveness, City Resilience, MPI Operational, Interagency Spatial Causal | 9 |
+| **Layer 3: Experimental/Research** | Team/Enterprise | RCT, DiD, Synthetic Control, RDD, IV, PSM, Bunching, Event Study, TWFE, DML, Bayesian Causal, ML Causal, Timeseries Causal, SD-ABM, Spatial Causal, Multilayer Network | 16 |
+| **Layer 4: Financial/Economic** | Enterprise | Basel III, CECL, Stress Testing, Systemic Risk, Credit Risk, Market Risk, Liquidity Risk, DSGE, HANK, Macro-Financial CGE, Networked Financial, Risk Indices, Composite Risk, Financial Meta Orchestrator | 13 |
+| **Layer 5: Arts/Media** | Professional+ | Cultural Impact, Media Reach, Creative Economy, Audience ABM, Content Valuation, IP Valuation, Platform Economics, Cultural Equity, Cultural CGE, Media Impact, Integrated Cultural | 11 |
+| **Layer 6: Meta/Peer** | Enterprise | REMSOM, ABM, CGE, IO Tables, IAM Policy Stack, HDI-MPI Dashboard, SPI Policy Stack | 7 |
+
+**Total: 69 frameworks** with full CBSS simulation capabilities and dashboard integration.
+
+## Key Features
+
+- **Deterministic CBSS Execution**: Cohort-Based State Simulation with vectorized NumPy pipelines
+- **DAG Orchestration**: Cross-layer causal graph composition with topological execution
+- **Peer Architecture**: All meta-frameworks operate as equal peers (no hierarchy)
+- **Tier Gating**: Community/Professional/Team/Enterprise access control
+- **Adapter Pattern**: Seamless integration with krl-causal-policy-toolkit, krl-geospatial-tools, krl-network-analysis
+- **Explicit Data Injection**: DataBundle pattern for controlled data flow via krl-data-connectors
+- **Backend Integration**: Remote execution with TCU billing via /api/v1/frameworks/*
+
+## Installation
+
+```bash
+pip install krl-frameworks
+```
+
+With optional dependencies:
+```bash
+pip install krl-frameworks[all]          # Full installation with all integrations
+pip install krl-frameworks[dev]          # Development tools
+pip install krl-frameworks[causal]       # krl-causal-policy-toolkit integration
+pip install krl-frameworks[geospatial]   # krl-geospatial-tools integration
+pip install krl-frameworks[network]      # krl-network-analysis integration
+pip install krl-frameworks[connectors]   # krl-data-connectors integration
+```
+
+## Quick Start
+
+### Basic Framework Usage
+
+```python
+from krl_frameworks import DataBundle, FrameworkConfig
+from krl_frameworks.layers.socioeconomic import MPIFramework
+
+# Create data bundle with required domains
+bundle = DataBundle.from_dataframes({
+    "health": health_df,
+    "education": education_df,
+    "income": income_df,
+})
+
+# Initialize and execute framework
+mpi = MPIFramework()
+mpi.fit(bundle)
+result = mpi.simulate(steps=10)
+
+# Access results
+print(f"MPI: {result.metrics['mpi']:.3f}")
+print(f"Final opportunity score: {result.state.opportunity_score.mean():.3f}")
+```
+
+### DAG Pipeline Orchestration
+
+```python
+from krl_frameworks import FrameworkDAG, PipelineBuilder
+from krl_frameworks.layers import MPIFramework, HDIFramework, REMSOMFramework
+
+# Build cross-framework pipeline
+builder = PipelineBuilder()
+builder.add_framework("mpi", MPIFramework())
+builder.add_framework("hdi", HDIFramework())
+builder.add_framework("remsom", REMSOMFramework())
+
+# Define data flow
+builder.connect("mpi", "remsom", mapping={"mpi_score": "input_mpi"})
+builder.connect("hdi", "remsom", mapping={"hdi_score": "input_hdi"})
+
+# Execute pipeline
+dag = builder.build()
+results = dag.execute(bundle)
+```
+
+### Advanced Transitions
+
+```python
+from krl_frameworks.simulation import (
+    MarkovTransition,
+    MarkovConfig,
+    EnsembleTransition,
+    LinearTransition,
+)
+
+# Create Markov chain transition
+P = np.array([
+    [0.8, 0.15, 0.05],
+    [0.1, 0.7, 0.2],
+    [0.05, 0.15, 0.8]
+])
+config = MarkovConfig(n_states=3, state_names=["Low", "Medium", "High"])
+markov = MarkovTransition(P, config)
+
+# Create ensemble of multiple transitions
+ensemble = EnsembleTransition([markov, LinearTransition()])
+
+# Use in CBSS engine
+engine = CBSSEngine(transition=ensemble)
+trajectory = engine.run(initial_state, steps=20)
+```
+
+## Framework Layers
+
+> **Implementation Status Legend:**
+> - 🟢 **Production** — Full domain-specific logic, complete CBSS integration
+> - 🟡 **Beta** — Working CBSS integration, generic transitions (Phase II enhancements planned)
+> - 🔴 **Planned** — Stub implementation, interface locked
+
+### Layer 1: Socioeconomic/Academic (Community+)
+
+| Framework | Status | Description | Key Methods |
+|-----------|--------|-------------|-------------|
+| `MPIFramework` | 🟢 | Multidimensional Poverty Index (Alkire-Foster) | `compute()`, `decompose()` |
+| `HDIFramework` | 🟢 | Human Development Index (UNDP methodology) | `compute()`, `project()` |
+| `SPIFramework` | 🟢 | Social Progress Index | `analyze()` |
+| `GIIFramework` | 🟡 | Gender Inequality Index | `compute()`, `decompose()` |
+| `IHDIFramework` | 🟡 | Inequality-adjusted HDI | `compute()`, `adjust()` |
+| `NRIFramework` | 🟡 | Network Readiness Index | `score()`, `benchmark()` |
+| `WBIFramework` | 🟡 | World Bank Indicators Composite | `aggregate()`, `compare()` |
+
+### Layer 2: Government/Policy (Professional)
+
+| Framework | Status | Description | Key Methods |
+|-----------|--------|-------------|-------------|
+| `CBOScoringFramework` | 🟢 | CBO Budget Scoring (PAYGO, dynamic) | `score_legislation()`, `dynamic_score()` |
+| `OMBPartFramework` | 🟢 | OMB PART Assessment | `assess_program()`, `benchmark_programs()` |
+| `GAOGpraFramework` | 🟢 | GAO GPRA Analysis | `analyze_agency()`, `assess_measure_quality()` |
+| `PolicyDiffusionFramework` | 🟡 | State Policy Diffusion Analysis | `track_adoption()`, `predict_spread()` |
+| `RegulatoryImpactFramework` | 🟡 | Regulatory Impact Assessment | `assess_costs()`, `benefit_analysis()` |
+| `LegislativeEffectivenessFramework` | 🟡 | Legislative Effectiveness Scoring | `score_legislator()`, `track_bills()` |
+
+### Layer 3: Experimental/Research (Team/Enterprise)
+
+| Framework | Status | Description | Key Methods |
+|-----------|--------|-------------|-------------|
+| `RCTFramework` | 🟢 | Randomized Controlled Trials (ITT, HTE) | `analyze()`, `analyze_heterogeneous_effects()` |
+| `DiDFramework` | 🟢 | Difference-in-Differences (Callaway-Sant'Anna) | `estimate()`, `event_study()` |
+| `SyntheticControlFramework` | 🟢 | Synthetic Control Method | `estimate()`, `placebo_test()` |
+| `RegressionDiscontinuityFramework` | 🟡 | Sharp/Fuzzy RDD | `estimate()`, `bandwidth_select()` |
+| `InstrumentalVariablesFramework` | 🟡 | IV/2SLS Estimation | `estimate()`, `weak_iv_test()` |
+| `PropensityScoreFramework` | 🟡 | PSM/IPW Methods | `match()`, `estimate_ate()` |
+| `BunchingEstimatorFramework` | 🟡 | Bunching at Kinks/Notches | `estimate_elasticity()` |
+
+### Layer 4: Financial/Economic (Enterprise)
+
+| Framework | Status | Description | Key Methods |
+|-----------|--------|-------------|-------------|
+| `BaselIIIFramework` | 🟢 | Basel III Capital Adequacy (RWA, LCR, NSFR) | `compute_ratios()`, `project_capital()` |
+| `CECLFramework` | 🟢 | CECL Credit Loss (PD/LGD) | `calculate_acl()`, `vintage_analysis()` |
+| `StressTestFramework` | 🟢 | CCAR/DFAST Stress Testing | `run_dfast()`, `run_ccar()`, `calculate_scb()` |
+| `SystemicRiskFramework` | 🟡 | Systemic Risk Metrics (CoVaR, MES) | `compute_covar()`, `network_contagion()` |
+| `CreditRiskFramework` | 🟡 | Credit Portfolio Risk | `compute_var()`, `expected_shortfall()` |
+| `MarketRiskFramework` | 🟡 | Market Risk (VaR, Greeks) | `compute_var()`, `stress_scenarios()` |
+| `LiquidityRiskFramework` | 🟡 | Liquidity Coverage Analysis | `compute_lcr()`, `runoff_analysis()` |
+
+### Layer 5: Arts/Media (Professional+)
+
+| Framework | Status | Description | Key Methods |
+|-----------|--------|-------------|-------------|
+| `CulturalImpactFramework` | 🟢 | Cultural Impact Assessment (7 dimensions) | `assess_impact()`, `compare_communities()` |
+| `MediaReachFramework` | 🟢 | Media Reach Analysis | `analyze_reach()`, `calculate_attribution()` |
+| `CreativeEconomyFramework` | 🟢 | Creative Economy Impact | `measure_impact()`, `project_growth()` |
+| `AudienceAnalyticsFramework` | 🟡 | Audience Segmentation & Analytics | `segment()`, `predict_engagement()` |
+| `ContentValuationFramework` | 🟡 | Content Library Valuation | `value_catalog()`, `forecast_revenue()` |
+| `IPPortfolioFramework` | 🟡 | IP Portfolio Analysis | `assess_portfolio()`, `licensing_potential()` |
+| `PlatformEconomicsFramework` | 🟡 | Platform/Creator Economics | `model_dynamics()`, `creator_revenue()` |
+
+### Layer 6: Meta/Peer (Enterprise)
+
+| Framework | Status | Description | Key Methods |
+|-----------|--------|-------------|-------------|
+| `REMSOMFramework` | 🟢 | Recursive Economic Micro-Simulation (flagship) | `simulate()`, `calibrate()`, `policy_shock()` |
+| `HANKFramework` | 🔴 | Heterogeneous Agent New Keynesian | `solve()`, `impulse_response()` |
+| `DSGEFramework` | 🔴 | Dynamic Stochastic General Equilibrium | `solve()`, `forecast()` |
+| `ABMFramework` | 🔴 | Agent-Based Modeling | `simulate()`, `sensitivity_analysis()` |
+| `IOTablesFramework` | 🟡 | Input-Output Tables Analysis | `compute_multipliers()`, `leontief_inverse()` |
+| `CGEFramework` | 🟡 | Computable General Equilibrium | `solve()`, `counterfactual()` |
+
+## Tier System
+
+Access to frameworks is controlled by subscription tier:
+
+| Tier | Access | Use Case |
+|------|--------|----------|
+| **Community** | Layer 1 basic methods | Academic research, learning |
+| **Professional** | Layers 1-2, Layer 5 basic | NGOs, consultants |
+| **Team** | Layers 1-3, Layer 5 | Research teams |
+| **Enterprise** | All layers, all methods | Financial institutions, government |
+
+```python
+from krl_frameworks import Tier, set_current_tier, requires_tier
+
+# Set tier context
+set_current_tier(Tier.ENTERPRISE)
+
+# Tier-gated methods will now be accessible
+framework = BaselIIIFramework()
+metrics = framework.compute_ratios(bundle)  # Requires ENTERPRISE
+```
+
+## Backend Integration
+
+For production deployments, integrate with krl-premium-backend:
+
+```python
+from krl_frameworks.integration import (
+    create_execution_service,
+    ExecutionRequest,
+)
+
+# Create service
+service = create_execution_service(
+    base_url="https://api.krlabs.dev",
+    api_key="your-api-key",
+)
+
+# Execute remotely
+request = ExecutionRequest(
+    framework_id="mpi",
+    input_data={"health": [...], "education": [...]},
+)
+result = await service.execute(request)
+
+print(f"TCU Cost: {result.tcu_cost}")
+print(f"MPI: {result.metrics['mpi']}")
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         KRL Frameworks                                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐ │
+│  │   Layer 6   │   │   Layer 5   │   │   Layer 4   │   │   Layer 3   │ │
+│  │  Meta/Peer  │◄──│ Arts/Media  │◄──│  Financial  │◄──│Experimental │ │
+│  │   REMSOM    │   │  Cultural   │   │  Basel III  │   │   RCT/DiD   │ │
+│  └──────┬──────┘   └──────┬──────┘   └──────┬──────┘   └──────┬──────┘ │
+│         │                 │                 │                 │         │
+│         └────────────┬────┴────────┬────────┴────────┬────────┘         │
+│                      │             │                 │                   │
+│              ┌───────▼─────────────▼─────────────────▼───────┐          │
+│              │           CBSS Simulation Engine               │          │
+│              │  • CohortStateVector  • Transitions            │          │
+│              │  • StateTrajectory    • Convergence            │          │
+│              └───────────────────────┬───────────────────────┘          │
+│                                      │                                   │
+│              ┌───────────────────────▼───────────────────────┐          │
+│              │           DAG Orchestration                    │          │
+│              │  • FrameworkDAG       • TopologicalExecutor    │          │
+│              │  • PipelineBuilder    • DataFlowMapper         │          │
+│              └───────────────────────┬───────────────────────┘          │
+│                                      │                                   │
+│              ┌───────────────────────▼───────────────────────┐          │
+│              │              Core Abstractions                 │          │
+│              │  • DataBundle         • FrameworkConfig        │          │
+│              │  • Tier System        • Registry               │          │
+│              └───────────────────────────────────────────────┘          │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+## Integration Patterns
+
+KRL Frameworks serves as the **orchestration layer** and delegates specialized operations
+to other KRL packages. It does NOT re-implement primitives.
+
+### Causal Estimation (via krl-causal-policy-toolkit)
+
+```python
+from krl_frameworks.adapters import get_causal_estimator
+
+# Delegate causal estimation to the specialized package
+causal = get_causal_estimator()  # Lazy loaded, cached
+result = causal.estimate(
+    method="did",  # "did", "scm", "psm", "iv", "rdd"
+    data=treatment_data,
+    treatment_col="treated",
+    outcome_col="outcome",
+    time_col="period",
+)
+
+print(f"ATT: {result['att']:.3f} ± {result['se']:.3f}")
+```
+
+### Data Injection (via krl-data-connectors)
+
+Data is injected **explicitly** via `DataBundle` - no auto-discovery:
+
+```python
+from krl_frameworks.adapters import DataBundleFactory
+
+# Build bundle from explicit connector calls
+factory = DataBundleFactory()
+factory.add_connector("census", census_connector.fetch())
+factory.add_connector("bls", bls_connector.fetch(series="employment"))
+
+bundle = factory.build()
+```
+
+### Spatial Analysis (optional, via krl-geospatial-tools)
+
+```python
+from krl_frameworks.adapters import get_spatial_adapter
+
+spatial = get_spatial_adapter()  # Optional, raises if not installed
+weights = spatial.compute_spatial_weights(gdf, method="queen")
+autocorr = spatial.spatial_autocorrelation(gdf["mpi"], weights)
+
+print(f"Moran's I: {autocorr['morans_i']:.3f}")
+```
+
+### Network Analysis (optional, via krl-network-analysis)
+
+```python
+from krl_frameworks.adapters import get_network_adapter
+
+network = get_network_adapter()  # Optional, raises if not installed
+graph = network.build_exposure_graph(exposure_matrix)
+centrality = network.compute_centrality(graph, method="eigenvector")
+
+# Identify systemically important nodes
+sifis = network.identify_systemically_important(graph, threshold=0.8)
+```
+
+### Tier Compatibility with krl-types
+
+```python
+from krl_frameworks.core.tier import Tier
+
+# Convert from krl-types API tier strings
+tier = Tier.from_api("professional")  # Returns Tier.PROFESSIONAL
+tier = Tier.from_api(api_response.tier)  # Works with any tier format
+
+# Convert to API format
+api_str = Tier.PROFESSIONAL.to_api()  # Returns "professional"
+```
+
+## CohortStateVector
+
+The core data structure representing cohort state:
+
+```python
+@dataclass
+class CohortStateVector:
+    employment_prob: np.ndarray      # Employment probability [0, 1]
+    health_burden_score: np.ndarray  # Health burden [0, 1]
+    credit_access_prob: np.ndarray   # Credit access [0, 1]
+    housing_cost_ratio: np.ndarray   # Housing costs / income
+    opportunity_score: np.ndarray    # Opportunity index [0, 1]
+    sector_output: np.ndarray        # Economic output by sector
+    deprivation_vector: np.ndarray   # MPI-style deprivation
+    step: int                        # Current time step
+```
+
+## Security
+
+KRL Frameworks includes enterprise-grade security features for production deployments:
+
+### Input Validation & Sanitization
+
+```python
+from krl_frameworks.security import (
+    validate_parameter_schema,
+    sanitize_parameters,
+    ValidationError,
+)
+
+# Define schema for framework parameters
+schema = {
+    "type": "object",
+    "properties": {
+        "health_data": {"type": "array", "items": {"type": "number"}},
+        "threshold": {"type": "number", "minimum": 0, "maximum": 1},
+    },
+    "required": ["health_data"],
+}
+
+# Validate and sanitize user inputs
+try:
+    validate_parameter_schema(user_params, schema)
+    safe_params = sanitize_parameters(user_params)
+except ValidationError as e:
+    print(f"Validation failed: {e}")
+```
+
+### Circuit Breaker Pattern
+
+```python
+from krl_frameworks.security import CircuitBreaker
+
+# Create circuit breaker for framework execution
+cb = CircuitBreaker(failure_threshold=5, recovery_timeout=30.0)
+
+async with cb.context():
+    result = await framework.execute(params)
+    
+# Check circuit state
+if cb.is_open:
+    print("Circuit open - service degraded")
+```
+
+### Tier Enforcement
+
+```python
+from krl_frameworks.security import tier_allows_access
+
+# Verify user tier before execution
+if not tier_allows_access(user_tier="professional", required_tier="team"):
+    raise PermissionError("Upgrade required for this framework")
+
+# Or use the decorator
+from krl_frameworks.security import secure_framework_execution
+
+@secure_framework_execution(required_tier="enterprise", schema=param_schema)
+async def run_basel_iii(params):
+    return framework.execute(params)
+```
+
+### Audit Logging
+
+```python
+from krl_frameworks.security import SecurityAuditEvent
+
+# Create audit events for compliance logging
+event = SecurityAuditEvent(
+    event_type="framework_execution",
+    user_id="user_123",
+    framework_id="basel_iii",
+    tier="enterprise",
+    success=True,
+    execution_time_ms=150.5,
+)
+```
+
+## Development
+
+```bash
+# Clone repository
+git clone https://github.com/khipu-labs/krl-frameworks.git
+cd krl-frameworks
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest tests/ -v
+
+# Run linting
+ruff check src/
+mypy src/
+```
+
+## Documentation
+
+- [API Reference](https://docs.krlabs.dev/frameworks/api)
+- [User Guide](https://docs.krlabs.dev/frameworks/guide)
+- [Architecture](https://docs.krlabs.dev/frameworks/architecture)
+
+## License
+
+Apache-2.0 © 2025 Khipu Research Labs - See [LICENSE](LICENSE) for details.
+
+## Citation
+
+```bibtex
+@software{krl_frameworks,
+  author = {Khipu Research Labs},
+  title = {KRL Frameworks: Enterprise Meta-Framework Orchestration Platform},
+  year = {2025},
+  url = {https://github.com/khipu-labs/krl-frameworks}
+}
+```
