@@ -1,0 +1,70 @@
+[project]
+name = "tautoolbox"
+authors = [
+  { name = "José Matos", email = "jamatos@fep.up.pt" },
+  { name = "Paulo Vasconcelos", email = "pjv@fep.up.pt" },
+]
+description = "A package that implements Lanczos' Tau method to solve differential problems"
+readme = "README.md"
+version = "0.90.0"
+license.file = "LICENSE.txt"
+requires-python = ">=3.10"
+classifiers = [
+  "Development Status :: 1 - Planning",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+  "Typing :: Typed",
+]
+dependencies = ["numpy", "matplotlib"]
+
+[project.urls]
+Homepage = "https://cmup.fc.up.pt/tautoolbox/"
+
+[build-system]
+requires = ["uv_build >= 0.9.17, <0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+source-exclude = ["**/.ruff_cache"]
+source-include = ["tests/**", "examples/**"]
+
+[tool.pytest.ini_options]
+addopts = "-ra "
+pythonpath = "src/"
+
+[tool.ruff]
+# Assume Python 3.10
+target-version = "py310"
+
+# indentation details
+line-length = 96
+indent-width = 4
+
+[tool.ruff.format]
+# Enable auto-formatting of code examples in docstrings. Markdown,
+# reStructuredText code/literal blocks and doctests are all supported.
+docstring-code-format = true
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
+docstring-code-line-length = "dynamic"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+# Ignore warnings:
+# line-too-long (E501)
+# ambiguous-variable-name (E741): Ambiguous variable name: `l`
+ignore = ["E501", "E741"]
