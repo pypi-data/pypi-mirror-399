@@ -1,0 +1,6 @@
+from .compendium import Compendium as Compendium
+from .entities import Citation as Citation, Insight as Insight, Section as Section
+from pathlib import Path
+
+def parse_xml_file(path: Path | str) -> Compendium: ...
+def parse_xml_string(content: str) -> Compendium: ...
