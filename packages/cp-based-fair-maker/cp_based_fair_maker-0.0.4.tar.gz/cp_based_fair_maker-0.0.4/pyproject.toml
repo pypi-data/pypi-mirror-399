@@ -1,0 +1,62 @@
+[project]
+name = "cp_based_fair_maker"
+version = "0.0.4"
+authors = [
+    { name = "Eden Houndonougbo", email = "eden.houndonougbo@friare.org" },
+]
+description = "A library that provides metrics and algorithms for bias assessment in datasets using CP-based methods"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["AI", "fairness", "datasets", "CP", "undersampling", "oversampling"]
+license = "BSD-3-Clause"
+license-files = ["LICEN[CS]E*"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pandas",
+    "numpy",
+    "ortools",
+    "python-dateutil",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "isort",
+    "mypy"
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "alabaster",
+    "docutils",
+    "Pygments",
+    "babel",
+    "imagesize",
+    "snowballstemmer",
+    "sphinxcontrib-applehelp",
+    "sphinxcontrib-devhelp",
+    "sphinxcontrib-htmlhelp",
+    "sphinxcontrib-jsmath",
+    "sphinxcontrib-qthelp",
+    "sphinxcontrib-serializinghtml"
+]
+excel = [
+    "openpyxl",
+    "xlrd",
+    "XlsxWriter",
+    "python-calamine",
+    "pyxlsb"
+]
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+
+[project.urls]
+Homepage = "https://github.com/fedenh/cp-based-fair-maker"
+Issues = "https://github.com/fedenh/cp-based-fair-maker/issues"
