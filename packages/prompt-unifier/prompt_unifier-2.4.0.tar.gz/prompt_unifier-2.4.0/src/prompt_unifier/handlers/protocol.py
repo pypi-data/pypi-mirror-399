@@ -1,0 +1,97 @@
+from pathlib import Path
+from typing import Any, Protocol, runtime_checkable
+
+
+@runtime_checkable
+class ToolHandler(Protocol):
+    """
+    Protocol for defining a ToolHandler.
+
+    Any class implementing this protocol must provide the specified methods and attributes.
+    """
+
+    # Directory attributes for prompts and rules
+    prompts_dir: Path
+    rules_dir: Path
+
+    def deploy(
+        self,
+        content: Any,
+        content_type: str,
+        body: str = "",
+        source_filename: str | None = None,
+        relative_path: Path | None = None,
+    ) -> None:
+        """
+        Deploys a given content (prompt or rule) to the specific AI tool.
+
+        Args:
+            content: The content object (PromptFrontmatter or RuleFrontmatter) to deploy.
+            content_type: The type of content ("prompt" or "rule").
+            body: The body content as a string.
+            source_filename: Original filename (without path) to preserve in destination.
+                           If None, uses content.title as filename.
+            relative_path: Relative path from prompts/ or rules/ directory to preserve
+                          subdirectory structure in deployment. If None, deploys to root.
+        """
+        ...
+
+    def get_status(self) -> str:
+        """
+        Returns the current status of the tool handler.
+
+        Returns:
+            A string representing the status (e.g., "active", "inactive", "error").
+        """
+        ...
+
+    def get_name(self) -> str:
+        """
+        Returns the unique name of the tool handler.
+
+        Returns:
+            A string representing the name (e.g., "continue", "cursor").
+        """
+        ...
+
+    def rollback(self) -> None:
+        """
+        Rolls back the deployment in case of failure.
+        """
+        ...
+
+    def clean_orphaned_files(self, deployed_filenames: set[str]) -> list[Any]:
+        """
+        Remove files in handler directories that are not in the deployed set.
+
+        Args:
+            deployed_filenames: Set of filenames (including extension) that were deployed.
+
+        Returns:
+            Number of files removed.
+        """
+        ...
+
+    def get_deployment_status(
+        self,
+        content_name: str,
+        content_type: str,
+        source_content: str,
+        source_filename: str | None = None,
+        relative_path: Path | None = None,
+    ) -> str:
+        """
+        Check the deployment status of a content item.
+
+        Args:
+            content_name: The name/title of the content item.
+            content_type: Type of content ("prompt" or "rule").
+            source_content: The expected content string (processed).
+            source_filename: Optional specific filename if different from title.
+            relative_path: Relative subdirectory path where the file was deployed.
+
+
+        Returns:
+            Status string: "synced", "outdated", "missing", or "error".
+        """
+        ...

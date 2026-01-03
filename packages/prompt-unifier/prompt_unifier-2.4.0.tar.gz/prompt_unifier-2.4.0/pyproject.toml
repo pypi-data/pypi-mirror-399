@@ -1,0 +1,220 @@
+[tool.poetry]
+name = "prompt-unifier"
+version = "2.4.0"
+description = "CLI tool for managing AI prompt templates with YAML frontmatter"
+authors = ["Waewoo <waewoo@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "prompt_unifier", from = "src" }]
+homepage = "https://waewoo.gitlab.io/prompt-unifier"
+repository = "https://gitlab.com/waewoo/prompt-unifier"
+documentation = "https://waewoo.gitlab.io/prompt-unifier/getting-started/"
+keywords = ["cli", "ai", "prompts", "yaml", "templates", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup",
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://gitlab.com/waewoo/prompt-unifier/-/issues"
+"Changelog" = "https://waewoo.gitlab.io/prompt-unifier/changelog/"
+"Contributing" = "https://waewoo.gitlab.io/prompt-unifier/contributing/"
+"ReleaseNotes" = "https://gitlab.com/waewoo/prompt-unifier/-/releases"
+
+[tool.poetry.scripts]
+prompt-unifier = "prompt_unifier.cli.main:main"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+typer = "^0.20.0"
+rich = "^14.2.0"
+pydantic = "^2.12.4"
+pyyaml = "^6.0.3"
+gitpython = "^3.1.45"
+litellm = "^1.80.11"
+python-dotenv = "^1.2.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.12.0"
+ruff = "^0.3.0"
+mypy = "^1.8.0"
+mypy-gitlab-code-quality = "^1.3.0"
+pre-commit = "^3.6.0"
+types-pyyaml = "^6.0.12"
+bandit = "^1.8.6"
+pip-audit = "^2.9.0"
+commitizen = "^4.10.0"
+pre-commit-hooks = "^6.0.0"
+mdformat = ">=0.7.17,<0.8.0"
+mdformat-gfm = "^1.0.0"
+mdformat-frontmatter = "^2.0.8"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs-material = "^9.5.0"
+mkdocs-git-revision-date-localized-plugin = "^1.2.0"
+mkdocs-minify-plugin = "^0.8.0"
+mkdocs-include-markdown-plugin = "^7.0.0"
+mkdocs-click = "^0.9.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# ============================================================================
+# RUFF CONFIGURATION
+# ============================================================================
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",         # pyflakes
+    "I",         # isort
+    "N",         # pep8-naming
+    "UP",        # pyupgrade
+    "B",         # flake8-bugbear
+    "C4",        # flake8-comprehensions
+    "C90",       # mccabe
+    "SIM",       # flake8-simplify
+    "ARG",       # flake8-unused-arguments
+    "ISC",       # implicit-str-concat
+    "PL",        # pylint
+    "RUF",       # Ruff-specific
+    "S",         # Bandit security
+]
+ignore = [
+    "PLR0913",  # Too many arguments (sometimes necessary)
+    "PLR2004",  # Magic value comparison (too strict for thresholds)
+    "ISC001",   # Conflicts with formatter
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15  # Cognitive complexity threshold (aligned with SonarQube)
+
+[tool.ruff.lint.pylint]
+max-args = 8          # Maximum function arguments
+max-branches = 20     # Maximum branches (stricter than default 12, lenient for CLI)
+max-statements = 80   # Maximum statements (stricter than default 50, lenient for CLI)
+max-returns = 8       # Maximum return statements
+
+[tool.ruff.lint.isort]
+known-first-party = ["prompt_unifier"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "SIM117",  # Allow nested with statements in tests for clarity
+    "ARG001",  # Unused function arguments (common for pytest fixtures)
+    "ARG002",  # Unused method arguments (common for pytest fixtures)
+    "ARG005",  # Unused lambda arguments (common in mocks)
+    "PLR0913", # Too many arguments (test functions often need many fixtures)
+    "PLR0915", # Too many statements (test functions can be long)
+    "PLR2004", # Magic value comparison (acceptable in tests)
+    "RUF012",  # Mutable class attributes (common in test classes)
+    "S101",    # Use of assert detected (Allowed in tests) - AJOUTÉ
+    "S110",    # try-except-pass (acceptable in tests for error handling)
+    "S603",    # subprocess call without shell=True (safe in tests)
+    "S607",    # subprocess with partial path (safe for git commands in tests)
+]
+
+# ============================================================================
+# MYPY CONFIGURATION
+# ============================================================================
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+check_untyped_defs = true
+strict_equality = true
+exclude = ["tests/"]
+
+# ============================================================================
+# PYTEST CONFIGURATION
+# ============================================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+filterwarnings = [
+    "ignore:.*BaseCommand.*:DeprecationWarning:typer.*",
+    "ignore:.*__version__.*:DeprecationWarning:typer.*",
+]
+addopts = """
+  --cov=src/prompt_unifier
+  --cov-report=term-missing:skip-covered
+  --cov-report=html
+  --cov-report=xml
+  --cov-fail-under=95
+  --strict-markers
+  --strict-config
+  --showlocals
+"""
+
+[tool.coverage.run]
+source = ["src/prompt_unifier"]
+branch = true
+relative_files = true
+
+[tool.coverage.paths]
+source = [
+  "src/prompt_unifier",                                # Local path (relative)
+  "/root/travail/prompt-unifier/src/prompt_unifier",  # Local path (absolute)
+  ".venv/lib/python*/site-packages/prompt_unifier",    # Venv path
+  "/builds/waewoo/prompt-unifier/src/prompt_unifier"   # GitLab CI path
+]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "\\.\\.\\.",
+]
+
+# ============================================================================
+# BANDIT CONFIGURATION (STANDALONE SECURITY)
+# ============================================================================
+[tool.bandit]
+targets = ["src"]
+exclude_dirs = ["/tests", "/agent-os"]
+skips = []
+severity = "medium"
+confidence = "medium"
+
+[tool.bandit.assert_used]
+skips = ["*/test_*.py", "*/conftest.py"]
+
+# ============================================================================
+# COMMITIZEN CONFIGURATION (RELEASE)
+# ============================================================================
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "2.4.0"
+version_files = [
+    "pyproject.toml:version",
+    "src/prompt_unifier/__init__.py:__version__",
+]
+tag_format = "v$version"
+changelog_file = "CHANGELOG.md"
+update_changelog_on_bump = true
+bump_message = "bump: version $current_version → $new_version"
