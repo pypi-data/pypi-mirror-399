@@ -1,0 +1,241 @@
+Metadata-Version: 2.4
+Name: mcp-time-server-studio
+Version: 0.1.0
+Summary: 基于 Model Context Protocol (MCP) 的时间服务器，支持通过 StreamableHTTP 传输协议提供当前时间查询服务
+Home-page: https://github.com/yourusername/mcp-time-server-studio
+Author: Your Name
+Author-email: Your Name <your.email@example.com>
+License: MIT License
+        
+        Copyright (c) 2024 Time Server Package Contributors
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Keywords: time-server,mcp,json-rpc,fastapi,timezone,streamable-http
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Framework :: FastAPI
+Classifier: Topic :: Internet :: WWW/HTTP :: HTTP Servers
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: mcp>=0.1.0
+Requires-Dist: fastapi>=0.100.0
+Requires-Dist: uvicorn>=0.22.0
+Requires-Dist: pytz>=2023.3
+Requires-Dist: anyio>=3.0.0
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
+# MCP Time Server
+
+一个基于 Model Context Protocol (MCP) 的时间服务器，支持通过 StreamableHTTP 传输协议提供当前时间查询服务。
+
+## 功能特性
+
+- 🕒 支持多时区时间查询
+- 🌐 使用 MCP StreamableHTTP 协议
+- 🎯 同时支持有状态和无状态模式
+- 📦 提供 JSON-RPC 接口
+- 🔧 支持多种运行模式（Studio、SSE、StreamableHTTP）
+
+## 安装
+
+```bash
+pip install mcp-time-server
+```
+
+## 快速开始
+
+### 启动服务器
+
+使用 StreamableHTTP 模式启动服务器（推荐生产环境使用）：
+
+```bash
+python -m mcp_time_server streamable-http
+```
+
+或者使用命令行脚本：
+
+```bash
+mcp-time-server streamable-http
+```
+
+### 支持的运行模式
+
+1. **Studio 模式**（默认）：使用 stdio 传输，适用于本地进程间通信
+   ```bash
+   python -m mcp_time_server studio
+   ```
+
+2. **SSE 模式**：使用 Server-Sent Events 传输
+   ```bash
+   python -m mcp_time_server sse
+   ```
+
+3. **StreamableHTTP 模式**：推荐的生产环境传输方式
+   ```bash
+   python -m mcp_time_server streamable-http
+   ```
+
+## API 文档
+
+### get_current_time
+
+获取指定时区的当前时间。
+
+#### 参数
+
+- `timezone` (可选): 时区字符串，例如 "Asia/Shanghai"、"America/New_York"
+
+#### 返回值
+
+格式化的当前时间字符串，格式为：`YYYY-MM-DD HH:MM:SS.ffffff TZ`
+
+#### 示例请求
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "method": "tools/call",
+  "params": {
+    "name": "get_current_time",
+    "arguments": {
+      "timezone": "Asia/Shanghai"
+    }
+  }
+}
+```
+
+#### 示例响应
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "2025-12-31 14:35:58.589092 CST"
+      }
+    ],
+    "structuredContent": {
+      "result": "2025-12-31 14:35:58.589092 CST"
+    },
+    "isError": false
+  }
+}
+```
+
+## 客户端示例
+
+### Python 客户端
+
+```python
+import requests
+import json
+
+BASE_URL = "http://localhost:8000/mcp"
+
+# 发送 JSON-RPC 请求
+def send_json_rpc(method, params):
+    request = {
+        "jsonrpc": "2.0",
+        "id": "1",
+        "method": method,
+        "params": params
+    }
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    
+    response = requests.post(BASE_URL, json=request, headers=headers)
+    return response.json()
+
+# 获取当前时间
+result = send_json_rpc("tools/call", {
+    "name": "get_current_time",
+    "arguments": {
+        "timezone": "Asia/Shanghai"
+    }
+})
+
+print(result)
+```
+
+## 配置说明
+
+服务器支持通过配置文件进行自定义设置：
+
+```python
+# mcp_server_config.py
+MODES = {
+    "streamable-http": {
+        "transport": "streamable-http",
+        "description": "StreamableHttp模式 - 推荐的生产环境传输方式",
+        "stateless_http": True,
+        "json_response": True,
+        "host": "0.0.0.0",
+        "port": 8000
+    }
+}
+```
+
+## 技术栈
+
+- Python 3.7+
+- FastAPI
+- Starlette
+- MCP Protocol
+- pytz
+
+## 开发
+
+### 安装开发依赖
+
+```bash
+pip install -e .
+```
+
+### 运行测试
+
+```bash
+python -m pytest
+```
+
+## 许可证
+
+MIT License
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## 关于 MCP
+
+Model Context Protocol (MCP) 是一个用于构建服务器的协议，允许你以安全、标准化的方式向 LLM 应用程序公开数据和功能。
+
+了解更多：[Model Context Protocol](https://modelcontextprotocol.io)
