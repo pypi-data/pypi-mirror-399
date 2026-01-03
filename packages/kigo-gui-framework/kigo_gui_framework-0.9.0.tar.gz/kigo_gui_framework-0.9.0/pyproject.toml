@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"] 
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kigo-gui-framework"
+version = "0.9.0" # Updated to reflect new feature set
+description = "A simple GUI library built on PyQt6 with advanced widgets like Markdown, DataGrids, and Dark Mode"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+    {name = "Anand Kumar", email = "swiss.armyknife@github.com"},
+]
+urls = {Homepage = "https://github.com/yourusername/kigo-gui-framework"} 
+
+dependencies = [
+    "PyQt6==6.7.0",
+    "PyQt6-WebEngine==6.7.0",
+    "PyQt6-Multimedia==6.7.0",
+]
+
+[project.optional-dependencies]
+# Extra features for extended Markdown support or plotting if needed in the future
+full = ["markdown"]
+
+[tool.setuptools.packages.find]
+include = ["kigo*"]
+namespaces = false
+
+# Configuration Notes for v0.8.0:
+# - MarkdownViewer: Utilizes PyQt6's built-in QTextBrowser for .setMarkdown() support.
+# - PasswordField: Uses standard QLineEdit with echo mode toggling.
+# - ThemeManager: Manipulates QPalette for system-wide style changes.
+# - LoadingSpinner: Custom styled QProgressBar for asynchronous task feedback.
+# - DataGrid: High-level wrapper for QTableWidget for tabular data manipulation.
