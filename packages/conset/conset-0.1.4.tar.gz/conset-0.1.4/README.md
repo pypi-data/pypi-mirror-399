@@ -1,0 +1,169 @@
+# Console Set (conset)
+
+一个控制台交互库，用于实时获取终端输入和配置控制台设置。
+
+## 系统要求
+
+### 支持的平台
+- **操作系统**：Windows 10/11（64位）
+- **终端**：Windows 终端、命令提示符（cmd）、PowerShell
+- **架构**：x64/AMD64
+- **Python**：3.14 或更高版本
+
+### 不支持的平台
+- 32位 Windows 系统
+- Linux 或 macOS
+- ARM 架构 Windows
+- Python 2.x
+
+## 安装
+
+### 从`PyPI`安装（推荐）
+```bash
+pip install conset
+```
+
+### 验证安装
+#### PowerShell
+```bash
+python -c "try:`n import conset`n print('安装成功')`nexcept:`n print('安装失败，请运行 pip install conset')"
+```
+
+#### 命令提示符（cmd）或其它
+```bash
+python -c "import conset; print('安装成功')"
+```
+如果报错提示`ModuleNotFoundError: No module named 'conset'`则代表安装失败，请运行`pip install conset`。
+
+## 快速开始
+
+### 基础示例
+```python
+import conset
+
+# 获取控制台输入事件
+events = conset.conin()
+
+if events: # 如果读取到了事件
+    latest_event = events[-1] # 列表的最后一个元素是读取到的最近的一个事件
+
+    # 处理事件
+    mouse = latest_event.get("mouse")
+    keyboard = latest_event.get("keyboard")
+    buffer = latest_event.get("buffer")
+    if mouse: # 如果是鼠标事件
+        print("鼠标位置：y = ", mouse["pos"]["y"], ", x = ", mouse["pos"]["x"])
+    elif keyboard: # 如果是键盘事件
+        if keyboard["keydown"]:
+            print("按键：", keyboard["keyname"])
+            print("键值：", keyboard["keycode"])
+    elif buffer: # 如果是缓冲区大小事件
+        print("缓冲区大小：y = ", buffer["y"], ", x = ", buffer["x"])
+    else: # 事件读取失败
+        print("事件读取失败")
+```
+
+## API 参考
+
+### `is_admin`函数
+判断当前程序是否为管理员权限。
+
+#### 参数
+- 不支持传入参数。
+
+#### 返回值
+- `True`：当前程序拥有管理员权限。
+- `False`：当前程序没有管理员权限。
+
+### `reboot_to_admin`函数
+当程序不是管理员权限时，将会以管理员权限打开新程序。此时旧程序应当直接结束运行。
+
+#### 参数
+- 不支持传入参数。
+
+#### 返回值
+- `True`：当前程序并非管理员权限，已以管理员身份重新启动原程序。推荐结束当前程序。
+- `False`：当前程序已拥有管理员权限，无需重新启动程序。
+- `None`：当前程序并非源于可用于执行的文件，无法处理。
+
+### `conset`函数
+会更改运行程序的控制台的一些设置。
+
+#### 参数
+- 可选参数`title`：仅支持以关键字方式传入字符串值，会将控制台标题更改为传入的字符串。不传入值则默认不更改标题。
+
+#### 返回值
+- `None`
+
+#### 备注
+- 当此函数传入了任意参数时，仅会更改参数对应的配置。而未传入参数时，其将对控制台进行默认配置。
+- 此函数更改的设置会在部分情况下被覆盖或失效。
+- 此函数在`import`时会自动运行。
+
+### `conin`函数
+获取在控制台下鼠标与键盘的状态和缓冲区大小。
+
+#### 参数
+- 不支持传入参数。
+
+#### 返回值
+- 控制台输入事件列表。
+
+#### 备注
+- 以下列举连续发生了三种不同事件时的返回值结构。
+```python
+[ # 返回的列表（读取到了 3 个事件）
+    { # 鼠标事件（最早发生的事件）
+        "mouse": {
+            "pos": {
+                "y": int, # 鼠标 y 轴坐标。从上到下
+                "x": int # 鼠标 x 轴坐标。从左到右
+            },
+            "button": {
+                "left": bool,
+                "right": bool,
+                "middle": bool
+            }
+            "flag": str # "default", "move", "double", "wheel", "hwheel"
+        }
+    },
+    { # 键盘事件（第二个事件）
+        "keyboard": {
+            "keyname": str, # [按键名] 或 None
+            "keycode": int, # 按键键值
+            "flag": str, # "keyup" 或 "keydown"
+            "repeat": int # 刚按下时为 1，按住时逐渐增长
+            "control": {
+                "ralt": bool, "lalt": bool,
+                "rctrl": bool, "lctrl": bool,
+                "shift": bool, "numlock": bool,
+                "scrolllock": bool, "capslock": bool,
+                "enhancedkey": bool
+            }
+        }
+    },
+    { # 缓冲区大小事件（最近一次发生的事件）
+        "buffer": {
+            "y": int, # 缓冲区 y 轴长度。从上到下
+            "x": int # 缓冲区 x 轴长度。从左到右
+        }
+    }
+]
+```
+
+## 更新日志
+### 最近版本
+- **v0.1.4** (2025-12-30)：
+- - 将函数`conin`返回值中`keyboard`事件中的键`keydown`更改为`flag`。
+- - 重构了错误处理。
+- **v0.1.3** (2025-12-30)：
+- - 更改了函数`conin`返回值中`keyboard`事件中的键的顺序。
+- **v0.1.2** (2025-12-29)：
+- - 新增了函数`conin`返回值中`keyboard`事件的`keycode`键。
+
+<!-- 完整更新记录请查看项目文件中的 CHANGELOG.md。 -->
+
+## 许可证
+
+这是专有软件。请查看 LICENSE 文件了解详细条款。  
+**重要**: 使用本软件即表示您同意遵守许可证条款。
