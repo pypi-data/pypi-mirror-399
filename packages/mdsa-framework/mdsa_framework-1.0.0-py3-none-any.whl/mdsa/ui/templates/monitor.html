@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDSA Framework - Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>MDSA Framework</h1>
+                <span class="version">v{{ version }}</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/welcome">Welcome</a></li>
+                <li><a href="/monitor" class="active">Monitor</a></li>
+                <li><a href="/api/metrics" target="_blank">API</a></li>
+                {% if user and user.is_authenticated %}
+                <li class="user-menu">
+                    <span class="user-name">👤 {{ user.id }}</span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Real-Time Monitoring Dashboard</h1>
+            <div class="header-controls">
+                <div class="refresh-info">
+                    <span id="lastUpdate">Last update: Never</span>
+                    <button id="refreshBtn" class="btn-refresh">Refresh Now</button>
+                </div>
+                <div class="auto-refresh-toggle">
+                    <label>
+                        <input type="checkbox" id="autoRefresh" checked>
+                        Auto-refresh (5s)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Overview -->
+        <div class="metrics-section">
+            <h2>System Overview</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">🖥️</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Status</div>
+                        <div class="metric-value" id="systemStatus">Loading...</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">⏱️</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Uptime</div>
+                        <div class="metric-value" id="systemUptime">Loading...</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">💻</div>
+                    <div class="metric-content">
+                        <div class="metric-label">CPU Cores</div>
+                        <div class="metric-value" id="cpuCores">Loading...</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🎮</div>
+                    <div class="metric-content">
+                        <div class="metric-label">GPU</div>
+                        <div class="metric-value" id="gpuType">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Request Statistics -->
+        <div class="metrics-section">
+            <h2>Request Statistics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Total Requests</div>
+                        <div class="metric-value" id="totalRequests">0</div>
+                    </div>
+                </div>
+                <div class="metric-card success">
+                    <div class="metric-icon">✅</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Success</div>
+                        <div class="metric-value" id="successRequests">0</div>
+                    </div>
+                </div>
+                <div class="metric-card error">
+                    <div class="metric-icon">❌</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Errors</div>
+                        <div class="metric-value" id="errorRequests">0</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">📈</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Success Rate</div>
+                        <div class="metric-value" id="successRate">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="metrics-section">
+            <h2>Performance Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">⚡</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Avg Latency</div>
+                        <div class="metric-value" id="avgLatency">0ms</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">📉</div>
+                    <div class="metric-content">
+                        <div class="metric-label">P50 Latency</div>
+                        <div class="metric-value" id="p50Latency">0ms</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-content">
+                        <div class="metric-label">P95 Latency</div>
+                        <div class="metric-value" id="p95Latency">0ms</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">🚀</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Throughput</div>
+                        <div class="metric-value" id="throughput">0 req/s</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loaded Models -->
+        <div class="models-section">
+            <h2>Loaded Models</h2>
+            <div class="section-header">
+                <div class="model-summary">
+                    <span id="modelCount">0</span> / <span id="maxModels">0</span> models loaded
+                    <span class="separator">|</span>
+                    <span id="totalMemory">0</span> MB total memory
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Model ID</th>
+                            <th>Model Name</th>
+                            <th>Memory (MB)</th>
+                            <th>Use Count</th>
+                            <th>Last Used</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modelsTable">
+                        <tr>
+                            <td colspan="5" class="empty-state">No models loaded</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- API Information -->
+        <div class="api-section">
+            <h2>API Endpoints</h2>
+            <div class="api-grid">
+                <div class="api-card">
+                    <div class="api-method">GET</div>
+                    <div class="api-content">
+                        <div class="api-endpoint">/api/metrics</div>
+                        <div class="api-description">Get all metrics data (JSON)</div>
+                    </div>
+                    <a href="/api/metrics" target="_blank" class="api-button">Try it</a>
+                </div>
+                <div class="api-card">
+                    <div class="api-method">GET</div>
+                    <div class="api-content">
+                        <div class="api-endpoint">/api/health</div>
+                        <div class="api-description">Health check endpoint</div>
+                    </div>
+                    <a href="/api/health" target="_blank" class="api-button">Try it</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Status -->
+        <div class="status-banner" id="statusBanner">
+            <div class="status-icon">🔄</div>
+            <div class="status-text">Connecting to MDSA framework...</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 MDSA Framework v{{ version }} | Real-Time Monitoring Dashboard</p>
+            <p>Last updated: <span id="footerTimestamp">Never</span></p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/monitor.js') }}"></script>
+</body>
+</html>

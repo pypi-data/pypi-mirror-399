@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MDSA Monitoring Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 MDSA Real-Time Monitoring <span id="status"></span></h1>
+        <p>Live metrics and interactive visualizations</p>
+        <div class="nav" style="margin-top: 15px;">
+            <a href="/welcome">🏠 Home</a>
+            <a href="/admin/rag">📤 RAG Management</a>
+            <a href="/admin/models">🔧 Model Configuration</a>
+            <a href="/admin/tools">🛠️ Tools</a>
+            <a href="/domains">🎯 Domains</a>
+            <a href="/admin/monitor" class="active">📊 Monitor</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Real-time Metrics Cards -->
+        <div class="stats" id="metrics"></div>
+
+        <!-- Visualizations Grid -->
+        <div class="viz-container">
+            <h2>📈 Query Routing Flow (Sankey Diagram)</h2>
+            <div id="sankey-container" style="width: 100%; height: 400px;"></div>
+        </div>
+
+        <div class="viz-grid">
+            <div class="viz-container">
+                <h2>🔥 Domain Latency Heatmap</h2>
+                <div id="heatmap-container" style="width: 100%; height: 300px;"></div>
+            </div>
+
+            <div class="viz-container">
+                <h2>📚 RAG Document Distribution</h2>
+                <div id="rag-container" style="width: 100%; height: 300px;"></div>
+            </div>
+        </div>
+
+        <div class="viz-grid">
+            <div class="viz-container">
+                <h2>⏱️ Request Timeline</h2>
+                <div id="timeline-container" style="width: 100%; height: 200px;"></div>
+            </div>
+
+            <div class="viz-container">
+                <h2>🎯 Domain Request Distribution</h2>
+                <div id="pie-container" style="width: 100%; height: 300px;"></div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="viz-container">
+            <h2>ℹ️ System Information</h2>
+            <div id="system-info" style="color: #ccc; line-height: 2;"></div>
+        </div>
+    </div>
+
+    <!-- Tooltip container -->
+    <div class="d3-tooltip"></div>
+
+    <!-- Load visualization library -->
+    <script src="/static/js/visualizations.js"></script>
+
+    <script>
+        // WebSocket connection for real-time updates from MDSA Dashboard (dynamic port)
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${protocol}//${window.location.host}/ws/metrics`);
+
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+            document.getElementById('status').style.background = '#4CAF50';
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            updateMetricsCards(data);
+        };
+
+        ws.onerror = () => {
+            document.getElementById('status').style.background = '#f44336';
+        };
+
+        ws.onclose = () => {
+            document.getElementById('status').style.background = '#FF9800';
+        };
+
+        // Update metrics cards
+        function updateMetricsCards(data) {
+            const metricsContainer = document.getElementById('metrics');
+            metricsContainer.innerHTML = `
+                <div class="stat-card">
+                    <h3>${data.domains.total}</h3>
+                    <p>Total Domains</p>
+                </div>
+                <div class="stat-card blue">
+                    <h3>${data.requests.total}</h3>
+                    <p>Total Requests</p>
+                </div>
+                <div class="stat-card orange">
+                    <h3>${data.requests.recent}</h3>
+                    <p>Recent Requests</p>
+                </div>
+                <div class="stat-card purple">
+                    <h3>${data.rag ? data.rag.total_documents || data.rag.global_documents || 0 : 0}</h3>
+                    <p>RAG Documents</p>
+                </div>
+            `;
+
+            // Update system info
+            const systemInfo = document.getElementById('system-info');
+            const orchestratorStats = data.orchestrator || {};
+            systemInfo.innerHTML = `
+                <p><strong>Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
+                <p><strong>Total Requests Processed:</strong> ${orchestratorStats.requests_total || 0}</p>
+                <p><strong>Successful Requests:</strong> ${orchestratorStats.requests_success || 0}</p>
+                <p><strong>Failed Requests:</strong> ${orchestratorStats.requests_failed || 0}</p>
+                <p><strong>Reasoning-based Requests:</strong> ${orchestratorStats.requests_reasoning || 0}</p>
+            `;
+        }
+
+        // Initial data fetch and visualization setup
+        async function initializeVisualizations() {
+            try {
+                // Fetch initial metrics
+                const metricsResponse = await fetch('/api/metrics');
+                const metricsData = await metricsResponse.json();
+                updateMetricsCards(metricsData);
+
+                // Initialize D3 visualizations
+                initializeDashboard();
+
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+            }
+        }
+
+        // Run initialization on page load
+        initializeVisualizations();
+
+        // Auto-refresh visualizations every 30 seconds
+        setInterval(initializeDashboard, 30000);
+
+        // Refresh metrics every 2 seconds
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/metrics');
+                const data = await response.json();
+                updateMetricsCards(data);
+            } catch (error) {
+                console.error('Error refreshing metrics:', error);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
