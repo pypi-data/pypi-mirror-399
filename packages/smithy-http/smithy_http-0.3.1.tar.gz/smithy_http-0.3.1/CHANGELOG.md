@@ -1,0 +1,44 @@
+# Changelog
+
+## v0.3.1
+
+### Bug fixes
+* Fixed empty error messaging for CRT-based timeout errors.
+
+### Dependencies
+* Removed strict pinning on `smithy-core` in favor of client managed versions.
+
+## v0.3.0
+
+### Features
+* Added `MockHTTPClient` for testing SDK clients without making real HTTP requests.
+
+### Enhancements
+* Added timeout error detection for HTTP clients
+
+### Dependencies
+* Bump `smithy-core` from `~=0.1.0` to `~=0.2.0`.
+
+## v0.2.1
+
+### Bug fixes
+* Add port to CRT HTTP client's host header.
+
+## v0.2.0
+
+### Breaking Changes
+* Update `AWSCRTHTTPClient` to integrate with the new AWS CRT async interfaces. ([#573](https://github.com/smithy-lang/smithy-python/pull/573)). The `AWSCRTHTTPResponse` constructor now accepts a `stream` argument of type `awscrt.aio.http.AIOHttpClientStreamUnified`. Additionally, the following classes were removed: `CRTResponseBody`, `CRTResponseFactory`, and `BufferableByteStream`.
+
+## v0.1.0
+
+### Breaking Changes
+* Removed identity and auth interfaces in favor of the transport-agnostic interfaces introduced in `smithy-core`.
+
+### Features
+* Introduced schema-based serializers and deserializers for HTTP binding protocols.
+
+## v0.0.1
+
+### Features
+* Added support for aiohttp and AWSCRT http clients.
+* Added basic HTTP primitives and interfaces for Smithy clients.
