@@ -1,0 +1,16 @@
+[ewoks.engines]
+core = ewokscore.engine:CoreWorkflowEngine
+
+[ewoks.engines.serialization.representations]
+json = ewokscore.engine:CoreWorkflowEngine
+json_dict = ewokscore.engine:CoreWorkflowEngine
+json_module = ewokscore.engine:CoreWorkflowEngine
+json_string = ewokscore.engine:CoreWorkflowEngine
+test_core = ewokscore.engine:CoreWorkflowEngine
+yaml = ewokscore.engine:CoreWorkflowEngine
+
+[ewoks.tasks.class]
+ewokscore.tests.examples.tasks.* = ewokscore
+
+[ewoks.tasks.method]
+ewokscore.tests.examples.tasks.* = ewokscore
