@@ -1,0 +1,35 @@
+{% extends "public/base.html" %}
+
+{% block title %}{{ page.title }} | {{ profile.site_title }}{% endblock %}
+
+{% block content %}
+<section class="max-w-4xl mx-auto">
+    <div class="page-header">
+        <div class="breadcrumb">
+            <a href="/">Home</a> <span class="mx-2">/</span> {{ page.title }}
+        </div>
+        <h1 class="page-title">{{ page.title }}</h1>
+    </div>
+
+    <div id="page-content" class="prose prose-invert prose-cyan max-w-none">
+        {{ page.content | safe }}
+    </div>
+</section>
+
+<script>
+    // Make all tables read-only on public pages by removing contenteditable
+    document.addEventListener('DOMContentLoaded', function () {
+        const pageContent = document.getElementById('page-content');
+        if (pageContent) {
+            // Remove contenteditable from all elements
+            pageContent.querySelectorAll('[contenteditable]').forEach(el => {
+                el.removeAttribute('contenteditable');
+            });
+            // Remove any table control buttons that might have been saved
+            pageContent.querySelectorAll('.table-controls, .add-row-btn, .add-col-btn, .delete-row-btn, .delete-col-btn').forEach(el => {
+                el.remove();
+            });
+        }
+    });
+</script>
+{% endblock %}
