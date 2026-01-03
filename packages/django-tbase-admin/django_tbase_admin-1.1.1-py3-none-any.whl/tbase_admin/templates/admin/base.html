@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block nav-global %}
+{% if user.is_staff %}
+<div class="performance-nav" style="background: #79aec8; padding: 10px 0; margin-bottom: 20px;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <a href="{% url 'tbase_admin:performance_dashboard' %}" 
+           style="color: white; text-decoration: none; font-weight: bold; font-size: 14px;">
+            🚀 性能优化管理
+        </a>
+        <span style="color: white; margin-left: 20px; font-size: 12px;">
+            实时监控数据库状态，一键清理优化
+        </span>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
