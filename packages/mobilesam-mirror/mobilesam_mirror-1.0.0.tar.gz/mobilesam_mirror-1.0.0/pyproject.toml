@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=67", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mobilesam-mirror"
+version = "1.0.0"
+description = "Packaging mirror of MobileSAM"
+readme = "README.MIRROR.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [
+  { name = "MobileSAM authors" }
+]
+maintainers = [
+  { name = "Artificial Sweetener" }
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+all = ["matplotlib", "pycocotools", "opencv-python", "onnx", "onnxruntime"]
+dev = ["flake8", "isort", "black", "mypy"]
+
+[project.urls]
+Homepage = "https://github.com/ChaoningZhang/MobileSAM"
+Mirror = "https://github.com/Artificial-Sweetener/MobileSAM-Mirror"
+
+[tool.setuptools.packages.find]
+include = ["mobile_sam", "mobile_sam.*"]
