@@ -1,0 +1,95 @@
+dataset: "banking"
+known_cls_ratio: 0.25
+labeled_ratio: 0.1
+seed: 0
+fold_idx: 0
+fold_num: 5 
+
+gpu_id: "0"
+data_dir: "./data"
+bert_model: "./pretrained_models/bert-base-uncased"
+output_base_dir: "./outputs/gcd/alup" 
+save_results_path: "./results/gcd/alup"
+
+num_pretrain_epochs: 1
+num_train_epochs: 1
+pretrain_batch_size: 16
+train_batch_size: 32
+eval_batch_size: 64
+lr: !!float 1e-5
+lr_pre: !!float 5e-5
+warmup_proportion: 0.1
+wait_patient: 20
+finish_pretrain: False 
+early_stopping_patience: 5
+early_stopping_min_delta: 0.001
+monitor_sum_metrics: true
+
+cluster_num_factor: 1.0
+embed_feat_dim: 768
+head_feat_dim: 128
+topk: 50
+rtr_prob: 0.25
+update_per_epoch: 5
+
+llm_model_name: 'deepseek-v3:671b-gw'
+api_base: 'https://uni-api.cstcloud.cn/v1'
+comparison_cluster_ratio: 0.5
+student_t_freedom: 1
+uncertainty_neighbour_num: 25
+rho: 0.1
+
+dataset_specific_configs:
+  hwu:
+    max_seq_length: 55
+  clinc:
+    max_seq_length: 30
+  banking:
+    max_seq_length: 55
+  stackoverflow:
+    max_seq_length: 45
+  mcid:
+    max_seq_length: 55
+  ecdt:
+    max_seq_length: 55
+  stackoverflow:
+    max_seq_length: 45
+  AGNews:
+    max_seq_length: 128
+  Yahoo:
+    max_seq_length: 128
+  ele:
+    max_seq_length: 200
+  DBPedia:
+    max_seq_length: 256
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  TREC:
+    max_seq_length: 256
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  medical:
+    max_seq_length: 256
+
+  news:
+    max_seq_length: 500
+    train_batch_size: 8
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  thucnews:
+    max_seq_length: 500
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  20NG:
+    max_seq_length: 512
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  XTopic:
+    max_seq_length: 128
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16

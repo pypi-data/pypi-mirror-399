@@ -1,0 +1,23 @@
+seed: 0
+gpu_id: "0"
+
+known_cls_ratio: 0.25 
+dataset: "banking"
+data_dir: "./data"
+labeled_ratio: 1.0
+fold_idx: 0
+fold_num: 5
+
+bert_model: "./pretrained_models/bert-base-uncased" 
+num_train_epochs: 100
+train_batch_size: 128
+eval_batch_size: 128
+lr: 2e-5
+lr_boundary: 0.05
+wait_patient: 10
+feat_dim: 768
+freeze_bert_parameters: True
+save_model: True
+
+output_dir: "./outputs/openset/adb" 
+save_results_path: "results/openset/adb"
