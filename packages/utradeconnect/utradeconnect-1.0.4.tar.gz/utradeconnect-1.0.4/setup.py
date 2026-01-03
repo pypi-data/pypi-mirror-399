@@ -1,0 +1,57 @@
+from setuptools import find_packages, setup
+
+setup(
+    name="utradeconnect",
+    version="1.0.4",
+    description='A comprehensive Python SDK for the uTrade Connect trading platform.',
+    package_dir={"": "src"},
+    packages=["utradeconnect"],
+    package_data={'utradeconnect': ['config.ini']},
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
+    url='https://utradesolutions.com',
+    author='uTrade Solutions Pvt Ltd',
+    author_email='info@utradesolutions.com',
+    license="MIT",
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Financial and Insurance Industry',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Office/Business :: Financial :: Investment',
+    ],
+    python_requires='>=3.8',
+    keywords='trading investment platform api rest websocket',
+    install_requires=[
+        "bidict==0.21.2",
+        "certifi==2020.12.5",
+        "chardet==4.0.0",
+        "idna==2.10",
+        "python-engineio==3.13.0",
+        "python-socketio==4.6.0",
+        "requests==2.25.1",
+        "six==1.15.0",
+        "urllib3==1.26.4",
+        "websocket-client==0.57.0",
+        "python-dotenv",
+        "Sphinx",
+        "sphinx-copybutton",
+        "sphinx-press-theme",
+        "sphinx-rtd-theme",
+        "setuptools",
+        "wheel"
+    ],
+    project_urls={
+        'Documentation': 'https://docs.utrade.solutions/',
+        'Source': 'https://github.com/utrade/utradeconnect',
+        'Tracker': 'https://github.com/utrade/utradeconnect/issues',
+    },
+
+)
+
