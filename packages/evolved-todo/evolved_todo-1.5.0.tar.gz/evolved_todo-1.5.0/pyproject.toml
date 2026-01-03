@@ -1,0 +1,53 @@
+[project]
+name = "evolved-todo"
+version = "1.5.0"
+description = "Enhanced CLI-based todo application with rich visual formatting"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Ali Askari", email = "ali@example.com"}
+]
+keywords = ["todo", "cli", "task-manager", "productivity", "rich"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Scheduling",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "rich>=13.0.0,<14.0.0",
+]
+
+[project.scripts]
+evolved-todo = "src.main:main"
+
+[project.urls]
+Homepage = "https://github.com/aliaskari/evolved-todo"
+Repository = "https://github.com/aliaskari/evolved-todo"
+Issues = "https://github.com/aliaskari/evolved-todo/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N"]
+ignore = []
