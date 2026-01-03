@@ -1,0 +1,122 @@
+Metadata-Version: 2.3
+Name: wow-pytoc
+Version: 0.7.0
+Summary: A package for reading and writing World of Warcraft addon TOC files.
+Author: Ghostopheles
+Author-email: Ghostopheles <ghost@ghst.tools>
+License: This is free and unencumbered software released into the public domain.
+         
+         Anyone is free to copy, modify, publish, use, compile, sell, or
+         distribute this software, either in source code form or as a compiled
+         binary, for any purpose, commercial or non-commercial, and by any
+         means.
+         
+         In jurisdictions that recognize copyright laws, the author or authors
+         of this software dedicate any and all copyright interest in the
+         software to the public domain. We make this dedication for the benefit
+         of the public at large and to the detriment of our heirs and
+         successors. We intend this dedication to be an overt act of
+         relinquishment in perpetuity of all present and future rights to this
+         software under copyright law.
+         
+         THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+         EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+         MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+         IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+         OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+         ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+         OTHER DEALINGS IN THE SOFTWARE.
+         
+         For more information, please refer to <https://unlicense.org>
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: Public Domain
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Requires-Python: >=3.12
+Project-URL: Changelog, https://github.com/Ghostopheles/pytoc/blob/master/CHANGELOG.md
+Project-URL: Homepage, https://github.com/Ghostopheles/pytoc
+Project-URL: Issues, https://github.com/Ghostopheles/pytoc/issues
+Project-URL: Repository, https://github.com/Ghostopheles/pytoc.git
+Description-Content-Type: text/markdown
+
+![Tests](https://github.com/Ghostopheles/pytoc/actions/workflows/tests.yml/badge.svg)
+
+# pytoc
+
+A Python package for reading and writing World of Warcraft addon [TOC](https://warcraft.wiki.gg/wiki/TOC_format) files.
+
+## Installation
+
+You can install this package via `pip`.
+
+```
+pip install wow-pytoc
+```
+
+## Usage
+
+Reading a TOC file:
+```py
+from pytoc import *
+
+file_path: str = "X:/path/to/my/addon.toc"
+toc = TOCFile(file_path)
+
+print(toc.Interface)
+print(toc.Title)
+print(toc.LocalizedTitle["frFR"])
+print(toc.AdditionalFields["X-Website"])
+
+for file in toc.Files:
+    file: TOCFileEntry
+    print(file)
+    if file.Conditions:
+        for condition in file.Conditions:
+            print(condition.export())
+
+for dep in toc.Dependencies
+    dep: TOCDependency
+    print(f"Dependency Name: {dep.Name} Required: {dep.Required}")
+```
+
+Writing a TOC file:
+```py
+from pytoc import TOCFile
+
+toc = TOCFile()
+toc.Interface = 110000
+toc.Author = "Ghost"
+toc.Title = "My Addon"
+toc.LocalizedTitle = {
+    "frFR": "Mon Addon",
+}
+toc.Files = [
+    TOCFileEntry("file1.lua"),
+    TOCFileEntry("file2.xml"),
+    TOCFileEntry("MainlineOnly.lua", [
+        TOCAllowLoadGameType({TOCGameType.Mainline})
+    ]),
+    TOCFileEntry("PlunderstormGlueOnly.lua", [
+        TOCAllowLoadGameType({TOCGameType.Plunderstorm}),
+        TOCAllowLoadEnvironment({TOCEnvironment.Glue})
+    ])
+]
+
+required = True
+toc.add_dependency("totalRP3", required)
+
+output = "path/to/dest.toc"
+overwrite = True
+toc.export(output, overwrite)
+```
+
+For some examples, take a look at the [test_toc.py](tests/test_toc.py) file.
+
+## Notes/Quirks
+> [!NOTE]
+> - All dependency fields will be added to the `TOCFile.Dependencies` list. 
+> - Non-standard directives (that don't start with `X-`) will be added directly to the `TOCFile` object, but will **not** be exported.
+> - Fields will overwrite eachother if more than one of that directive is present in the TOC file, taking the last found value.
+> - For certain fields that accept comma-delimited input, the attribute may end up being either a `list` or a `str|int`, depending on if there are multiple values or just a single one.
+> - Comments and empty lines will be ignored in the current parser and will not be preserved when exporting.
