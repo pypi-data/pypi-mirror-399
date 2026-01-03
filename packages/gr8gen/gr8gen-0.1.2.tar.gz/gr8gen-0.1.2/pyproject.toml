@@ -1,0 +1,26 @@
+[project]
+name = "gr8gen"
+version = "0.1.2"
+description = "gr8gen: protobuf generator for gr8pc"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Lucas Colombo", email = "lucasncolombo@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "jinja2>=3.1.4",
+]
+
+
+[project.urls]
+Homepage = "https://github.com/lucas-labs/gr8pc"
+Documentation = "https://github.com/lucas-labs/gr8pc"
+Repository = "https://github.com/lucas-labs/gr8pc"
+
+[project.scripts]
+gr8gen = "gr8gen:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
