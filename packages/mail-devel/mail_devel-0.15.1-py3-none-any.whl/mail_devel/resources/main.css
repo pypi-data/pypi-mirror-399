@@ -1,0 +1,410 @@
+:root {
+  --back: #333;
+  --border: gray;
+  --primary: #ccc;
+  --secondary: #999;
+  --highlight: #555;
+  --special: #469;
+  --button: lightgray;
+
+  --dark-back: #333;
+  --dark-border: gray;
+  --dark-primary: #ccc;
+  --dark-secondary: #999;
+  --dark-highlight: #555;
+  --dark-special: #469;
+  --dark-button: lightgray;
+
+  --light-back: white;
+  --light-border: gray;
+  --light-primary: black;
+  --light-secondary: #333;
+  --light-highlight: lightgray;
+  --light-button: gray;
+
+  --slider: 20pt;
+  --font-big: 11pt;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --back: var(--light-back);
+    --border: var(--light-border);
+    --primary: var(--light-primary);
+    --secondary: var(--light-secondary);
+    --highlight: var(--light-highlight);
+    --button: var(--light-button);
+  }
+}
+
+:root.light {
+  --back: var(--light-back);
+  --border: var(--light-border);
+  --primary: var(--light-primary);
+  --secondary: var(--light-secondary);
+  --highlight: var(--light-highlight);
+  --button: var(--light-button);
+}
+
+:root.dark {
+  --back: var(--dark-back);
+  --border: var(--dark-border);
+  --primary: var(--dark-primary);
+  --secondary: var(--dark-secondary);
+  --highlight: var(--dark-highlight);
+  --button: var(--dark-button);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body, input, select, textarea, table, .popup {
+  background-color: var(--back);
+  color: var(--primary);
+}
+
+button, .btn {
+  appearance: auto;
+  background-color: var(--button);
+  border-radius: 2px;
+  border: 0;
+  color: black;
+  font-family: sans-serif;
+  text-align: center;
+  text-transform: capitalize;
+  vertical-align: middle;
+}
+
+#wrapper {
+  display: grid;
+  height: 100%;
+  grid-template-areas:
+    "nav nav-drag mailbox"
+    "nav nav-drag mailbox-drag"
+    "nav nav-drag header"
+    "nav nav-drag content";
+  grid-template-columns: 250px 3px auto;
+  grid-template-rows: 30% 3px max-content auto;
+}
+
+*:focus-visible {outline: none}
+.hidden {display: none !important}
+.highlight {color: var(--special)}
+.selected {background-color: var(--highlight)}
+.unseen .subject {font-weight: bold}
+.deleted .subject {text-decoration: line-through;}
+.italic {font-style: italic}
+.no-overflow {
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#mail-content {grid-area: content}
+#mailbox {grid-area: mailbox}
+#nav {
+  display: flex;
+  flex-direction: column;
+  grid-area: nav;
+  padding: 0 15px;
+}
+#mail-header {
+  grid-area: header;
+  background-color: var(--highlight);
+  border: 2px solid var(--border);
+}
+#accounts {padding: 5pt 2pt}
+#nav-dragbar {
+  background-color: var(--primary);
+  grid-area: nav-drag;
+  cursor: ew-resize;
+}
+#mailbox-dragbar {
+  background-color: var(--primary);
+  grid-area: mailbox-drag;
+  cursor: ns-resize;
+}
+
+#accounts, #nav-options, #mailboxes {
+  margin: 10px 0;
+}
+
+#mailboxes {
+  border: 0;
+  display: block;
+  flex: 1;
+  font-size: var(--font-big);
+  margin-bottom: 0;
+  height: 80%;
+  overflow-y: auto;
+  width: 100%;
+}
+#mailboxes option {padding: 5px}
+
+#mailbox {
+  overflow: auto scroll;
+}
+#mailbox table {
+  border-collapse: collapse;
+  width: 100%;
+}
+#mailbox table.additional {
+  background-color: unset;
+}
+#mailbox table.additional td {
+  border: 0;
+}
+#mailbox td.flags {
+  text-align: left;
+}
+#mailbox td.flags div {
+  cursor: pointer;
+  margin: 2px;
+}
+#mailbox td.flags .btn {
+  padding: 0 2pt;
+}
+#mailbox td.flags input:not(:checked) + span {
+  text-decoration: 3px line-through;
+}
+#mailbox tr:hover {
+  background-color: var(--highlight)
+}
+#mailbox .date, #mailbox .flags {
+  padding: 0 4px;
+  text-align: right;
+  width: 1px;
+  white-space: nowrap;
+}
+#mailbox .ordering {
+  display: inline-block;
+  vertical-align: text-top;
+  width: 12pt;
+}
+#mailbox .ordering.asc:before {content: "\25B4"}
+#mailbox .ordering.desc:before {content: "\25BC"}
+
+#mailbox table th {
+  border: 1px solid gray;
+  background-color: var(--highlight);
+  text-align: center !important;
+}
+
+#mailbox table td {border: 1px solid var(--border)}
+
+#logo {
+  font-family: monospace;
+  font-size: 20pt;
+  padding: 5% 0;
+  text-align: center;
+}
+#version {
+  font-family: monospace;
+  font-size: 7pt;
+  text-align: right;
+  line-height: 1.0;
+  height: 1em;
+}
+
+.header {
+  background-color: var(--highlight);
+}
+.header th {
+  text-align: right;
+  width: 100px;
+}
+.header .buttons td {text-align: right}
+.header input {
+  box-sizing: border-box;
+  width: 100%;
+  width: -moz-available;
+  width: -webkit-fill-available;
+  width: fill-available;
+}
+
+.buttons button {margin-right: 5px}
+
+.container {height: 100%; overflow: hidden}
+.container textarea, .container iframe {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  resize: none;
+  width: 100%;
+}
+.container textarea {box-sizing: border-box; padding: 5px}
+
+#uploader input[type="file"] {
+  display: none;
+}
+
+.btn-main {
+  font-size: var(--font-big);
+  padding: 5pt 2pt;
+  margin: 2px 0;
+}
+#btn-dropdown button {
+  cursor: pointer;
+}
+#btn-dropdown {
+  position: relative;
+  display: inline-block;
+}
+#btn-dropdown div {
+  background-color: var(--secondary);
+  display: none;
+  min-width: 150px;
+  position: absolute;
+  right: 5px;
+}
+#btn-dropdown a {
+  display: block;
+  margin: 3px;
+  text-align: center;
+}
+#btn-dropdown:hover div {display: block}
+#btn-dropdown a:hover {background: var(--highlight)}
+
+.popup {
+  background-color: var(--highlight);
+  z-index: 1000;
+  border-radius: 10px;
+  padding: 10px;
+  border: 2px solid var(--border);
+}
+
+.popup.centered {
+  position: fixed;
+  top: 150px;
+  left: 150px;
+  bottom: 150px;
+  right: 150px;
+}
+
+#mailbox-control {
+  background-color: var(--back);
+  border-color: var(--primary);
+  border-radius: 0 10px 10px 0;
+  border-width: 3px 3px 3px 0px;
+  position: fixed;
+  width: 250px;
+}
+#btn-mailbox-manage .icon {
+  float: right;
+}
+#btn-mailbox-manage .open.icon:before {content: "<"}
+#btn-mailbox-manage .icon:before {content: ">"}
+
+#editor {
+  display: grid;
+  grid-template-rows: max-content max-content min-content auto;
+}
+
+#editor .content {
+  display: block;
+  height: 100%;
+}
+#editor .attachments {
+  border-top: 0;
+  border-bottom: 2px solid var(--border);
+}
+#editor .header {
+  display: block;
+  max-height: 200px;
+  overflow-y: scroll;
+  padding: 3px;
+  border-bottom: 0;
+}
+#editor .header th {
+  position: relative;
+  min-width: 150px;
+  max-width: 150px;
+}
+#editor .buttons button {
+  padding: 5pt 2pt;
+  width: 125px;
+}
+#mailbox-control .buttons button {
+  font-size: var(--font-big);
+  margin: 2px 0;
+  padding: 5pt 2pt;
+  width: 100%;
+}
+#mailbox-control #mailbox-name {
+  padding: 5px 0;
+  width: 100%;
+}
+#editor .header .delete {
+  content: "&#128465;";
+}
+#editor .buttons {
+  text-align: right;
+  padding: 3px;
+}
+#editor .header td {width: 100%}
+#editor .header .control {
+  min-width: 20px;
+}
+
+.switch {
+  font-size: var(--font-big);
+  height: 20px;
+  padding: 2px;
+  margin: 2px;
+  position: relative;
+}
+
+.switch label {
+  position: absolute;
+  display: inline-block;
+  width: 60px;
+  height: 20px;
+  right: 2px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--back);
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: var(--primary);
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.switch input:checked + .slider {
+  background-color: var(--special);
+}
+
+.switch input:focus + .slider {
+  box-shadow: 0 0 1px var(--special);
+}
+
+.switch input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
