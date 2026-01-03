@@ -1,0 +1,84 @@
+# Binaries
+msx-inspector
+server
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Build outputs
+*.o
+*.a
+*.out
+
+# Go
+/vendor/
+
+# Generated proto files (internal - ignored)
+# Note: proto/ directory is INCLUDED (public module)
+pkg/proto/**/*.pb.go
+
+# Proto directory is the public module - DO NOT IGNORE
+!proto/
+!proto/**
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Coverage
+*.cover
+*.coverprofile
+coverage.out
+coverage.html
+
+# Docker
+.dockerignore
+
+# Testing
+*.test
+.testcache
+
+# Generated
+/bin/
+/dist/
+
+# =============================================================================
+# TypeScript / Node.js
+# =============================================================================
+node_modules/
+ts/node_modules/
+ts/dist/
+*.tgz
+.npm
+.yarn
+
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+py/.venv/
+py/venv/
+py/dist/
+py/build/
+py/*.egg-info/
+py/src/*.egg-info/
+.eggs/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# =============================================================================
+# Proto Descriptor (binary, regenerated)
+# =============================================================================
+*.pb
+descriptor.pb
