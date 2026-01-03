@@ -1,0 +1,140 @@
+Metadata-Version: 2.4
+Name: coreason_adlc_api
+Version: 0.2.0
+Summary: Secure ADLC Middleware enforcing PII scrubbing, budget caps, and strict governance.
+License: # The Prosperity Public License 3.0.0
+         
+         Contributor: CoReason, Inc.
+         
+         Source Code: https://github.com/CoReason-AI/coreason_adlc_api
+         
+         ## Purpose
+         
+         This license allows you to use and share this software for noncommercial purposes for free and to try this software for commercial purposes for thirty days.
+         
+         ## Agreement
+         
+         In order to receive this license, you have to agree to its rules.  Those rules are both obligations under that agreement and conditions to your license.  Don't do anything with this software that triggers a rule you can't or won't follow.
+         
+         ## Notices
+         
+         Make sure everyone who gets a copy of any part of this software from you, with or without changes, also gets the text of this license and the contributor and source code lines above.
+         
+         ## Commercial Trial
+         
+         Limit your use of this software for commercial purposes to a thirty-day trial period.  If you use this software for work, your company gets one trial period for all personnel, not one trial per person.
+         
+         ## Contributions Back
+         
+         Developing feedback, changes, or additions that you contribute back to the contributor on the terms of a standardized public software license such as [the Blue Oak Model License 1.0.0](https://blueoakcouncil.org/license/1.0.0), [the Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html), [the MIT license](https://spdx.org/licenses/MIT.html), or [the two-clause BSD license](https://spdx.org/licenses/BSD-2-Clause.html) doesn't count as use for a commercial purpose.
+         
+         ## Personal Uses
+         
+         Personal use for research, experiment, and testing for the benefit of public knowledge, personal study, private entertainment, hobby projects, amateur pursuits, or religious observance, without any anticipated commercial application, doesn't count as use for a commercial purpose.
+         
+         ## Noncommercial Organizations
+         
+         Use by any charitable organization, educational institution, public research organization, public safety or health organization, environmental protection organization, or government institution doesn't count as use for a commercial purpose regardless of the source of funding or obligations resulting from the funding.
+         
+         ## Defense
+         
+         Don't make any legal claim against anyone accusing this software, with or without changes, alone or with other technology, of infringing any patent.
+         
+         ## Copyright
+         
+         The contributor licenses you to do everything with this software that would otherwise infringe their copyright in it.
+         
+         ## Patent
+         
+         The contributor licenses you to do everything with this software that would otherwise infringe any patents they can license or become able to license.
+         
+         ## Reliability
+         
+         The contributor can't revoke this license.
+         
+         ## Excuse
+         
+         You're excused for unknowingly breaking [Notices](#notices) if you take all practical steps to comply within thirty days of learning you broke the rule.
+         
+         ## No Liability
+         
+         ***As far as the law allows, this software comes as is, without any warranty or condition, and the contributor won't be liable to anyone for any damages related to this software or this license, under any kind of legal claim.***
+License-File: LICENSE
+License-File: NOTICE
+Author: Gowtham A Rao
+Author-email: gowtham.rao@coreason.ai
+Requires-Python: >=3.12, <3.15
+Classifier: License :: Other/Proprietary License
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Operating System :: OS Independent
+Requires-Dist: alembic (>=1.17.2,<2.0.0)
+Requires-Dist: asyncpg (>=0.31.0,<0.32.0)
+Requires-Dist: cryptography (>=46.0.3,<47.0.0)
+Requires-Dist: email-validator (>=2.3.0,<3.0.0)
+Requires-Dist: fastapi (>=0.127.0,<0.128.0)
+Requires-Dist: httpx (>=0.28.1,<0.29.0)
+Requires-Dist: keyring (>=24.0.0,<25.0.0)
+Requires-Dist: litellm (>=1.80.11,<2.0.0)
+Requires-Dist: loguru (>=0.7.2,<0.8.0)
+Requires-Dist: presidio-analyzer (>=2.2.360,<3.0.0) ; python_version < "3.14"
+Requires-Dist: psycopg2-binary (>=2.9.11,<3.0.0)
+Requires-Dist: pydantic-settings (>=2.12.0,<3.0.0)
+Requires-Dist: pyjwt[crypto] (>=2.10.1,<3.0.0)
+Requires-Dist: redis (>=7.1.0,<8.0.0)
+Requires-Dist: spacy (>=3.8.11,<4.0.0)
+Requires-Dist: sqlalchemy (>=2.0.45,<3.0.0)
+Requires-Dist: uvicorn[standard] (>=0.40.0,<0.41.0)
+Project-URL: Documentation, https://github.com/CoReason-AI/coreason_adlc_api
+Project-URL: Homepage, https://github.com/CoReason-AI/coreason_adlc_api
+Project-URL: Repository, https://github.com/CoReason-AI/coreason_adlc_api
+Description-Content-Type: text/markdown
+
+# Coreason ADLC API
+
+Secure ADLC Middleware enforcing PII scrubbing, budget caps, and strict governance.
+
+[![CI](https://github.com/CoReason-AI/coreason_adlc_api/actions/workflows/ci.yml/badge.svg)](https://github.com/CoReason-AI/coreason_adlc_api/actions/workflows/ci.yml)
+
+## Overview
+
+In the high-stakes environment of biopharmaceutical development, the **Coreason ADLC API** resolves the tension between rapid AI innovation and GxP compliance. It acts as a server-side "hard gate" that:
+
+*   **Enforces Budget Limits:** Prevents "Cloud Bill Shock" via atomic daily spend caps.
+*   **Scrubs PII In-Memory:** Prevents "Toxic Telemetry" by sanitizing data before it touches logs.
+*   **Guarantees Identity:** Links every AI insight to a verified human identity via OIDC.
+
+For detailed documentation, please visit our **[Documentation Site](docs/index.md)**.
+
+## Key Features
+
+*   **Asynchronous & Scalable**: Built on FastAPI and Uvicorn.
+*   **Universal LLM Proxy**: Uses `litellm` to interface with any provider.
+*   **Immutable Audit Logs**: Leveraging PostgreSQL for GxP-compliant record keeping.
+*   **Vault Architecture**: In-memory decryption of API keys.
+
+## Quick Links
+
+*   [Getting Started](docs/getting_started.md)
+*   [Architecture Philosophy](docs/architecture.md)
+*   [Security Architecture](docs/security.md)
+*   [Client SDK Guide](docs/guides/client_sdk.md)
+*   [API Reference](docs/api/auth.md)
+
+## Installation
+
+```bash
+pip install coreason-adlc-api
+```
+
+Or for development:
+
+```bash
+poetry install
+```
+
+## License
+
+This software is proprietary and dual-licensed under the **Prosperity Public License 3.0**.
+
