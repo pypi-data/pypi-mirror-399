@@ -1,0 +1,755 @@
+# Fabriq
+
+**Fabriq** is a powerful, modular framework for building quick and low code AI solutions.
+It provides a modular framework for building and deploying conversational AI Agents with minimal effort.
+
+`NOTICE:` This package is currently under active development. The API and functionality are subject to significant changes.
+
+---
+
+## Table of Contents
+1. [Features](#features)
+2. [Installation](#installation)
+   - [Prerequisites](#prerequisites)
+   - [Installation Steps](#installation-steps)
+   - [Configuration](#configuration)
+3. [Core Components](#core-components)
+   - [ConfigParser](#configparser)
+   - [LLM](#llm)
+   - [EmbeddingModel](#embeddingmodel)
+   - [VectorStore](#vectorstore)
+   - [DocumentLoader](#documentloader)
+   - [TextSplitter](#textsplitter)
+   - [DocumentIndexer](#documentindexer)
+   - [RAGPipeline](#ragpipeline)
+   - [Evaluation](#evaluation)
+   - [AgentBuilder](#agentbuilder)
+4. [Quick Start](#quick-start)
+   - [Basic RAG Pipeline](#basic-rag-pipeline)
+   - [Chat Interface](#chat-interface)
+5. [Configuration Guide](#configuration-guide)
+6. [Advanced Features](#advanced-features)
+   - [Multimodal Processing](#multimodal-processing)
+   - [Custom Tools](#custom-tools)
+7. [Examples](#examples)
+   - [Building a Research Assistant](#building-a-research-assistant)
+   - [Creating a Multi-Agent System](#creating-a-multi-agent-system)
+8. [Troubleshooting](#troubleshooting)
+9. [Contributing](#contributing)
+10. [License](#license)
+11. [Support](#support)
+12. [Author](#author)
+
+---
+
+## Features
+
+✅ **Multi-provider LLM Support**: OpenAI, Azure OpenAI, HuggingFace, Gemini, Bedrock, Ollama, Groq, Mistral, and more
+
+✅ **Comprehensive Document Processing**: PDF, Word, Excel, images, audio, and video with OCR support
+
+✅ **Advanced RAG Pipeline**: Query rewriting, small talk detection, relevance checking, and optional reranking
+
+✅ **Multiple Vector Stores**: ChromaDB, FAISS, and PGVector support
+
+✅ **Agent Framework**: Build complex agent workflows with sequential or hierarchical processing
+
+✅ **Evaluation Suite**: Metrics for answer relevancy, contextual precision, recall, faithfulness, and hallucination
+
+✅ **Modular Design**: Easy to customize and extend components
+
+✅ **Tracing Support**: MLflow integration for monitoring and debugging
+
+✅ **Low-Code Solutions**: Quick deployment with CLI and UI interfaces
+
+---
+
+## Installation
+
+### Prerequisites
+
+- Python 3.10, 3.11, or 3.12
+- pip
+- (Optional) CUDA for GPU acceleration
+
+### Installation Steps
+
+Install the package with desired features:
+```bash
+# For all features
+pip install fabriq[all]
+
+# For chatbot only
+pip install fabriq[chat]
+
+# For agents only
+pip install fabriq[agents]
+
+# For document loader only
+pip install fabriq[doc-loader]
+
+# For indexing only
+pip install fabriq[index]
+
+# For rag pipeline only
+pip install fabriq[rag]
+
+# For tools only
+pip install fabriq[tools]
+
+# For evaluations only
+pip install fabriq[evals]
+
+# For tracing only
+pip install fabriq[trace]
+```
+
+### Configuration
+
+1. Create a `.env` file in the project root.
+
+2. Edit the `.env` file with your desired API keys:
+```ini
+OPENAI_API_KEY=your-openai-key
+AZURE_OPENAI_KEY=your-azure-key
+MISTRAL_API_KEY=your-mistral-api-key
+...
+```
+
+3. Configure the `config.yaml` file (see [Configuration Guide](#configuration-guide) for details)
+
+---
+
+## Core Components
+
+### ConfigParser
+
+**Purpose**: Parses YAML configuration files and provides easy access to configuration values.
+
+**Key Features**:
+- Loads YAML configuration files
+- Supports nested configuration access
+- Automatically loads environment variables
+- Provides type-safe access to configuration values
+
+**Usage Example**:
+```python
+from fabriq.config import ConfigParser
+
+config = ConfigParser("config.yaml")
+llm_type = config.get("llm", {}).get("type")
+top_k = config.get_nested(["retriever", "params", "top_k"], 10)
+```
+
+---
+
+### LLM
+
+**Purpose**: Unified interface for various Large Language Models.
+
+**Supported Providers**:
+- OpenAI
+- Azure OpenAI
+- Azure AI
+- Gemini
+- Bedrock
+- Ollama
+- HuggingFace
+- Groq
+- Mistral
+
+**Key Features**:
+- Automatic retries for API calls
+- Batch, Synchronous, and asynchronous generation for LLM
+- Multimodal support
+- MLflow tracing integration
+
+**Usage Example**:
+```python
+from fabriq.models import LLM
+
+config = ConfigParser("config.yaml")
+llm = LLM(config)
+
+# Generate text
+response = llm.generate("Explain quantum computing in simple terms")
+
+# Async generation
+response = await llm.generate_async("What is the capital of France?")
+```
+
+---
+
+### EmbeddingModel
+
+**Purpose**: Handles text embeddings for vector representations.
+
+**Supported Providers**:
+- HuggingFace
+- OpenAI
+- Azure OpenAI
+- Azure AI
+- Gemini
+- Vertex AI
+- Bedrock
+- Ollama
+
+**Key Features**:
+- Batch, Synchronous, and asynchronous embedding
+- Similarity calculation between texts
+- Automatic device detection (CPU/GPU/MPS)
+
+**Usage Example**:
+```python
+from fabriq.models import EmbeddingModel
+
+config = ConfigParser("config.yaml")
+embeddings = EmbeddingModel(config)
+
+# Embed a single query
+query_embedding = embeddings.embed_query("What is machine learning?")
+
+# Embed multiple documents
+doc_embeddings = embeddings.embed_documents(["Doc 1", "Doc 2"])
+```
+
+---
+
+### VectorStore
+
+**Purpose**: Manages vector storage and retrieval of document embeddings.
+
+**Supported Backends**:
+- ChromaDB
+- FAISS
+- PGVector
+
+**Key Features**:
+- Document addition and retrieval
+- Metadata filtering
+- Persistence and loading
+- Collection management
+
+**Usage Example**:
+```python
+from fabriq.vector_stores import VectorStore
+
+config = ConfigParser("config.yaml")
+vector_store = VectorStore(config)
+
+# Add documents
+vector_store.add_documents(documents)
+
+# Retrieve similar documents
+results = vector_store.retrieve("What is AI?", k=5)
+```
+
+---
+
+### DocumentLoader
+
+**Purpose**: Loads and processes various document types into a standardized format.
+
+**Supported Formats**:
+- PDF (with OCR support)
+- Word (.doc, .docx)
+- Excel (.xls, .xlsx)
+- Images (via OCR)
+- Audio/Video (transcription)
+- Markdown
+
+**Key Features**:
+- Multimodal processing (text + images)
+- Table extraction
+- Page-level splitting
+- Automatic format conversion
+
+**Usage Example**:
+```python
+from fabriq.document_loaders import DocumentLoader
+
+config = ConfigParser("config.yaml")
+loader = DocumentLoader(config)
+
+# Load a document
+documents = loader.load_document("document.pdf")
+
+# Load with table extraction
+tables = loader.load_document("report.xlsx", mode="tables")
+```
+
+---
+
+### TextSplitter
+
+**Purpose**: Splits documents into smaller chunks for processing.
+
+**Supported Strategies**:
+- Recursive character splitting
+- Unstructured text chunking (by title or elements)
+- Semantic chunking
+
+**Key Features**:
+- Configurable chunk size and overlap
+- Preserves document structure
+- Handles metadata propagation
+
+**Usage Example**:
+```python
+from fabriq.text_splitters import TextSplitter
+
+config = ConfigParser("config.yaml")
+splitter = TextSplitter(config)
+
+# Split documents
+chunks = splitter.split_text(documents)
+```
+
+---
+
+### DocumentIndexer
+
+**Purpose**: Orchestrates the document indexing pipeline.
+
+**Key Features**:
+- End-to-end document processing
+- Error handling and reporting
+- Batch processing support
+
+**Usage Example**:
+```python
+from fabriq.indexers import DocumentIndexer
+
+config = ConfigParser("config.yaml")
+indexer = DocumentIndexer(config)
+
+# Index a single document
+indexer.index_document("document.pdf")
+
+# Index multiple documents
+indexer.index_documents(["doc1.pdf", "doc2.pdf"])
+```
+
+---
+
+### RAGPipeline
+
+**Purpose**: Implements the complete Retrieval-Augmented Generation workflow.
+
+**Key Features**:
+- Query rewriting for better retrieval
+- Small talk detection
+- Relevance checking
+- Optional reranking
+- Fallback responses
+
+**Usage Example**:
+```python
+from fabriq.pipelines import RAGPipeline
+
+config = ConfigParser("config.yaml")
+rag = RAGPipeline(config)
+
+# Get response
+response = rag.get_response("What are the key features of Fabriq?")
+
+# With streaming
+for chunk in rag.get_response("Explain RAG", stream=True):
+    print(chunk, end="", flush=True)
+```
+
+---
+
+### Evaluation
+
+**Purpose**: Evaluates RAG pipeline performance using various metrics.
+
+**Supported Metrics**:
+- Answer Relevancy
+- Contextual Precision
+- Contextual Recall
+- Contextual Relevancy
+- Faithfulness
+- Hallucination
+- Custom metrics
+
+**Usage Example**:
+```python
+from fabriq.evaluation import Evaluation
+
+config = ConfigParser("config.yaml")
+evaluator = Evaluation(config)
+
+# Evaluate a single test case
+results = evaluator.rag_evaluation(
+    retrieved_docs=["doc1", "doc2"],
+    query="What is AI?",
+    answer="Artificial Intelligence is...",
+    expected_answer="AI refers to..."
+)
+```
+
+---
+
+### AgentBuilder
+
+**Purpose**: Creates and manages AI agents with complex workflows.
+
+**Key Features**:
+- Multiple agent creation
+- Task definition and assignment
+- Sequential or hierarchical processing
+- Tool integration
+- MLflow tracing
+
+**Usage Example**:
+```python
+from fabriq.agents import AgentBuilder
+
+config = ConfigParser("config.yaml")
+agent_builder = AgentBuilder(config)
+
+# Agents are automatically created from config
+# Execute the workflow
+result = agent_builder.run(inputs={"<input_placeholder_key>":"<input_placeholder_value>"})
+print(result)
+```
+
+---
+
+## Quick Start
+
+### Basic RAG Pipeline
+
+```python
+from fabriq.config import ConfigParser
+from fabriq.pipelines import RAGPipeline
+
+# Initialize config and RAG pipeline
+config = ConfigParser("config.yaml")
+rag = RAGPipeline(config)
+
+# Get response
+response = rag.get_response("What are the main components of Fabriq?")
+print(response["text"])
+
+# Get sources
+for chunk in response["chunks"]:
+    print(f"Source: {chunk.metadata['source']}")
+```
+
+### Chat Interface
+
+Fabriq provides two chat interfaces:
+
+**Terminal-based CLI**:
+```bash
+fabriq-chat-cli
+```
+- Chat Commands:
+  - `/help`: Show help
+  - `/clear`: Clear conversation history
+  - `/history`: Show conversation history
+  - `/upload <directory>`: Upload documents from a directory
+  - `/exit` or `/quit`: Exit chatbot
+
+
+**Web-based UI** (requires Streamlit):
+```bash
+fabriq-chat-ui
+```
+
+---
+
+## Configuration Guide
+
+Fabriq uses a YAML configuration file (`config.yaml`) to define all settings. Here's a comprehensive example:
+
+```yaml
+# Environment file
+env_file: .env
+
+# LLM Configuration
+llm:
+  type: openai  # or azure_openai, gemini, bedrock, etc.
+  params:
+    model_name: gpt-4o
+    temperature: 0.7
+    max_tokens: 1000
+  kwargs:
+    api_key: ${OPENAI_API_KEY}
+
+# Embeddings Configuration
+embeddings:
+  type: huggingface  # or openai, azure_openai, etc.
+  params:
+    model_name: all-MiniLM-L6-v2
+    device: auto  # auto, cpu, cuda, mps
+
+# Vector Store Configuration
+vector_store:
+  type: chromadb  # or faiss, pgvector
+  params:
+    collection_name: fabriq_docs
+    store_path: ./assets/vector_store
+
+# Document Loader Configuration
+document_loader:
+  type: default  # or ocr
+  params:
+    multimodal: true
+    artifacts_path: ./assets/models
+
+# Text Splitter Configuration
+text_splitter:
+  type: unstructured  # or recursive, semantic
+  params:
+    chunking_strategy: by_title
+    chunk_size: 1000
+    chunk_overlap: 200
+
+# RAG Pipeline Configuration
+retriever:
+  params:
+    top_k: 15
+    search_type: similarity
+
+reranker:
+  type: none  # cross_encoder or cohere
+  params:
+    model_name: cross-encoder/ms-marco-MiniLM-L-6-v2
+
+prompts:
+  params:
+    system_prompt: "You are a helpful AI assistant..."
+    rag_prompt: |
+      Answer the question based on the following context:
+      {context}
+
+      Question: {query}
+    fallback_response: "I couldn't find relevant information to answer your question."
+
+# Agent Builder Configuration
+agent_builder:
+  process: sequential  # or hierarchical
+  params:
+    agents:
+      - name: researcher
+        role: Research Specialist
+        goal: Find relevant information
+        backstory: You are an expert researcher...
+        tools: [WebSearchTool]
+      - name: writer
+        role: Content Writer
+        goal: Write comprehensive answers
+        backstory: You are a skilled technical writer...
+    tasks:
+      - name: research_task
+        description: Research the topic
+        expected_output: Detailed research notes
+        agent: researcher
+      - name: writing_task
+        description: Write the final answer
+        expected_output: Well-written response
+        agent: writer
+        context: [research_task]
+```
+
+_For list of available tools, use "list_available_tools" method from fabriq_tools_
+
+---
+
+## Advanced Features
+
+### Multimodal Processing
+
+The document loader can process images, tables, audio etc. within documents:
+```yaml
+# Enable in config.yaml
+document_loader:
+  params:
+    multimodal: true
+```
+
+### Custom Tools
+
+Create custom tools for agents:
+```python
+class CustomTool:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.description = "Detailed Tool Description"
+
+    def run(self, query):
+        # Implement tool logic
+        return "Tool result"
+```
+
+---
+
+## Examples
+
+### Building a Research Assistant
+
+```python
+from fabriq.config import ConfigParser
+from fabriq.pipelines import RAGPipeline
+from fabriq.indexers import DocumentIndexer
+
+# Initialize components
+config = ConfigParser("config.yaml")
+indexer = DocumentIndexer(config)
+rag = RAGPipeline(config)
+
+# Index research papers
+indexer.index_documents([
+    "paper1.pdf",
+    "paper2.pdf",
+    "report.docx"
+])
+
+# Ask questions
+response = rag.get_response("What are the latest advancements in NLP?")
+print(response["text"])
+
+# Get sources
+for chunk in response["chunks"]:
+    print(f"Source: {chunk.metadata['source']}")
+```
+
+### Creating a Multi-Agent System
+
+```yaml
+# config.yaml
+agent_builder:
+  process: hierarchical
+  params:
+    agents:
+      - name: researcher
+        role: Research Analyst
+        goal: Find relevant information
+        backstory: Expert in information retrieval
+        tools: [WebSearchTool]
+      - name: analyst
+        role: Data Analyst
+        goal: Analyze information
+        backstory: Skilled in data interpretation
+      - name: writer
+        role: Technical Writer
+        goal: Create comprehensive reports
+        backstory: Experienced technical communicator
+    tasks:
+      - name: research
+        description: >
+          Research the topic: {topic_name}
+        expected_output: Research notes
+        agent: researcher
+      - name: analyze
+        description: Analyze research findings
+        expected_output: Analysis report
+        agent: analyst
+        context: [research]
+      - name: write
+        description: Write final report
+        expected_output: Complete report
+        agent: writer
+        context: [analyze]
+```
+
+```python
+from fabriq.config import ConfigParser
+from fabriq.agents import AgentBuilder
+
+config = ConfigParser("config.yaml")
+agent_builder = AgentBuilder(config)
+
+# Execute the workflow
+result = agent_builder.run(inputs={"topic_name":"Artificial Intelligence"})
+print(result)
+```
+
+_For more details, see the wardrobe directory and example notebooks in the config folder._
+
+---
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+**1. Configuration Errors**
+- *Symptom*: `ValueError: Unsupported LLM model type`
+- *Solution*: Verify `config.yaml` contains valid model types and all required parameters.
+
+**2. Document Loading Failures**
+- *Symptom*: OCR errors when loading documents
+- *Solution*:
+  - Ensure Tesseract OCR is installed
+  - Check file permissions
+  - Verify document integrity
+
+**3. Vector Store Connection Issues**
+- *Symptom*: Connection errors with PGVector
+- *Solution*:
+  - Verify PostgreSQL is running
+  - Check connection string in config
+  - Ensure pgvector extension is installed
+
+**4. LLM API Errors**
+- *Symptom*: Rate limit exceeded errors
+- *Solution*:
+  - Add retry logic in `model_kwargs`
+  - Reduce batch size
+  - Verify API key validity
+
+**5. Memory Issues**
+- *Symptom*: Out of memory errors with large documents
+- *Solution*:
+  - Reduce `chunk_size` in text splitter
+  - Process documents in smaller batches
+  - Use smaller embedding models
+
+### Debugging Tips
+
+1. Enable verbose logging:
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+2. Test components individually:
+```python
+# Test LLM
+llm = LLM(config)
+print(llm.generate("Test prompt"))
+
+# Test embeddings
+embeddings = EmbeddingModel(config)
+print(embeddings.embed_query("Test query"))
+```
+
+3. Use MLflow tracing:
+```yaml
+# config.yaml
+llm:
+  params:
+    tracing_enabled: true
+    tracing_uri: "http://localhost:5000"
+```
+
+---
+
+## License
+
+Fabriq is released under the [MIT License](LICENSE).
+
+---
+
+## Support
+
+For questions and support:
+- Open an issue on GitHub
+---
+
+## Author
+
+[Aaryan Verma](https://linkedin.com/in/aaryanverma)
