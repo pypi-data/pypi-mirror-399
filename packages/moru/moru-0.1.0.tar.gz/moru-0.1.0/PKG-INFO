@@ -1,0 +1,63 @@
+Metadata-Version: 2.4
+Name: moru
+Version: 0.1.0
+Summary: Moru SDK that gives agents cloud environments
+License: MIT
+License-File: LICENSE
+Author: Moru AI
+Author-email: hello@moru.ai
+Requires-Python: >=3.9,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Requires-Dist: attrs (>=23.2.0)
+Requires-Dist: dockerfile-parse (>=2.0.1,<3.0.0)
+Requires-Dist: httpcore (>=1.0.5,<2.0.0)
+Requires-Dist: httpx (>=0.27.0,<1.0.0)
+Requires-Dist: packaging (>=24.1)
+Requires-Dist: protobuf (>=4.21.0)
+Requires-Dist: python-dateutil (>=2.8.2)
+Requires-Dist: rich (>=14.0.0)
+Requires-Dist: typing-extensions (>=4.1.0)
+Requires-Dist: wcmatch (>=10.1,<11.0)
+Project-URL: Bug Tracker, https://github.com/moru-ai/sdks/issues
+Project-URL: Homepage, https://github.com/moru-ai/sdks
+Project-URL: Repository, https://github.com/moru-ai/sdks/tree/main/packages/python-sdk
+Description-Content-Type: text/markdown
+
+# Moru Python SDK
+
+Moru SDK for Python provides cloud environments for AI agents.
+
+## Installation
+
+```bash
+pip install moru
+```
+
+## Quick Start
+
+### 1. Set your API key
+
+```bash
+export MORU_API_KEY=your_api_key
+```
+
+### 2. Create a sandbox
+
+```python
+from moru import Sandbox
+
+with Sandbox() as sandbox:
+    sandbox.run_code('print("Hello from Moru!")')
+```
+
+## Acknowledgement
+
+This project is a fork of [E2B](https://github.com/e2b-dev/E2B).
+
