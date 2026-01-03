@@ -1,0 +1,1350 @@
+"""
+Progress Tracking Module
+
+This module provides comprehensive progress tracking with visual indicators (emojis)
+for file, module, and submodule processing across console, log files, and Jupyter notebooks.
+
+Key Features:
+    - Automatic module/submodule detection via introspection
+    - Real-time progress updates with percentages and item counts
+    - Dynamic update intervals based on dataset size for performance
+    - Consolidated display for concurrent tasks to prevent scrolling
+    - Console, Jupyter notebook, and log file support
+    - Zero configuration required - works automatically
+    - Final summary display
+
+Main Classes:
+    - ProgressTracker: Main tracking coordinator
+    - ProgressDisplay: Abstract base class for displays
+    - ConsoleProgressDisplay: Real-time console output
+    - JupyterProgressDisplay: IPython/Jupyter notebook display
+    - FileProgressDisplay: Log file progress tracking
+    - track_progress: Decorator for automatic progress tracking
+
+Example Usage:
+    >>> from semantica.utils import track_progress
+    >>> 
+    >>> @track_progress
+    >>> def process_file(file_path):
+    ...     # Processing code - progress tracked automatically
+    ...     pass
+
+Author: Semantica Contributors
+License: MIT
+"""
+
+import inspect
+import sys
+import threading
+import time
+from abc import ABC, abstractmethod
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+from .logging import get_logger
+
+# Try to import IPython for Jupyter support
+try:
+    from IPython import get_ipython
+    from IPython.display import HTML, clear_output, display
+
+    IPYTHON_AVAILABLE = True
+except ImportError:
+    IPYTHON_AVAILABLE = False
+
+
+@dataclass
+class ProgressItem:
+    """Progress tracking item."""
+
+    file: Optional[str] = None
+    module: Optional[str] = None
+    submodule: Optional[str] = None
+    status: str = "pending"  # pending, running, completed, failed
+    start_time: Optional[float] = None
+    end_time: Optional[float] = None
+    message: str = ""
+    emoji: str = "⏳"
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    progress_percentage: Optional[float] = None  # Progress percentage (0-100)
+    total_items: Optional[int] = None  # Total items to process
+    processed_items: Optional[int] = None  # Items processed so far
+    estimated_remaining: Optional[float] = None  # Estimated remaining time in seconds
+
+
+class ProgressDisplay(ABC):
+    """Abstract base class for progress displays."""
+
+    @abstractmethod
+    def update(self, item: ProgressItem) -> None:
+        """Update progress display."""
+        pass
+
+    @abstractmethod
+    def show_summary(self, items: List[ProgressItem]) -> None:
+        """Show final summary."""
+        pass
+
+    @abstractmethod
+    def clear(self) -> None:
+        """Clear display."""
+        pass
+
+
+class ConsoleProgressDisplay(ProgressDisplay):
+    """Console progress display with real-time updates."""
+
+    def __init__(self, use_emoji: bool = True, update_interval: float = 0.1):
+        self.use_emoji = use_emoji
+        
+        # Check if stdout supports emojis (especially on Windows)
+        if self.use_emoji:
+            try:
+                # Try encoding a test emoji with stdout's encoding
+                encoding = getattr(sys.stdout, "encoding", None)
+                if encoding:
+                    "🧠".encode(encoding)
+            except (UnicodeEncodeError, LookupError, AttributeError):
+                self.use_emoji = False
+
+        self.update_interval = update_interval
+        self.last_update = 0.0
+        self.current_lines: Dict[str, str] = {}
+        self.lock = threading.Lock()
+
+    def _should_update(self) -> bool:
+        """Check if enough time has passed for update."""
+        now = time.time()
+        # If last_update is 0.0 or very old, always update (forced update)
+        if self.last_update <= 0.0 or (now - self.last_update) >= self.update_interval:
+            self.last_update = now
+            return True
+        return False
+
+    def _get_emoji_for_module(self, module: str) -> str:
+        """Get emoji for module type."""
+        if not self.use_emoji:
+            return ""
+
+        emoji_map = {
+            "ingest": "📥",
+            "parse": "🔍",
+            "kg": "🧠",
+            "embeddings": "💾",
+            "normalize": "🔧",
+            "ontology": "📚",
+            "semantic_extract": "🎯",
+            "seed": "🌱",
+            "split": "✂️",
+            "triplet_store": "🗄️",
+            "vector_store": "📊",
+            "export": "💾",
+            "reasoning": "🤔",
+            "kg_qa": "✅",
+            "visualization": "📈",
+            "context": "🔗",
+            "conflicts": "⚠️",
+            "deduplication": "🔄",
+            "pipeline": "⚙️",
+        }
+
+        # Check if module name contains any key
+        module_lower = module.lower()
+        for key, emoji in emoji_map.items():
+            if key in module_lower:
+                return emoji
+
+        return "⏳"
+
+    def _get_status_emoji(self, status: str) -> str:
+        """Get emoji for status."""
+        if not self.use_emoji:
+            return ""
+
+        status_map = {
+            "pending": "⏳",
+            "running": "🔄",
+            "completed": "✅",
+            "failed": "❌",
+        }
+        return status_map.get(status, "⏳")
+
+    def _get_action_message(self, module: Optional[str], message: str) -> str:
+        """Get action message based on module."""
+        # Map modules to actions
+        action_map = {
+            "ingest": "is ingesting",
+            "parse": "is parsing",
+            "kg": "is building",
+            "embeddings": "is embedding",
+            "normalize": "is normalizing",
+            "ontology": "is generating",
+            "semantic_extract": "is extracting",
+            "seed": "is seeding",
+            "split": "is splitting",
+            "triplet_store": "is storing",
+            "vector_store": "is indexing",
+            "export": "is exporting",
+            "reasoning": "is reasoning",
+            "kg_qa": "is validating",
+            "visualization": "is visualizing",
+            "context": "is processing",
+            "conflicts": "is resolving",
+            "deduplication": "is deduplicating",
+            "pipeline": "is executing",
+            "core": "is processing",
+        }
+
+        action = action_map.get(module or "", "is processing")
+        base_msg = f"Semantica {action}"
+
+        if not message:
+            return base_msg
+            
+        # If message already contains Semantica format, use it
+        if "Semantica:" in message:
+            return message.split("Semantica:")[-1].strip()
+            
+        # Otherwise combine them
+        return f"{base_msg}: {message}"
+
+    def _safe_write(self, text: str) -> None:
+        """Safely write text to stdout handling encoding errors."""
+        try:
+            sys.stdout.write(text)
+        except UnicodeEncodeError:
+            # Fallback: encode with replacement and write decoded
+            # Use ascii as safe fallback if encoding is unknown or caused error
+            encoding = getattr(sys.stdout, "encoding", None) or "ascii"
+            safe_text = text.encode(encoding, errors="replace").decode(encoding)
+            sys.stdout.write(safe_text)
+
+    def update(self, item: ProgressItem) -> None:
+        """Update console progress display."""
+        if not self._should_update():
+            return
+
+        with self.lock:
+            # Create unique key for this item
+            key = f"{item.module}:{item.submodule}"
+            if item.file:
+                key = f"{item.file}:{key}"
+
+            # Build progress line
+            parts = []
+
+            # Semantica branding with action
+            if self.use_emoji:
+                parts.append("🧠")
+
+            # Create action message based on module (now includes custom message)
+            action_msg = self._get_action_message(item.module, item.message)
+            parts.append(action_msg)
+
+            # Progress bar and percentage
+            if item.progress_percentage is not None:
+                pct = item.progress_percentage
+                bar_width = 15
+                filled = int(bar_width * pct / 100)
+                bar = "█" * filled + "░" * (bar_width - filled)
+                parts.append(f"|{bar}| {pct:.1f}%")
+
+            # Count information [done/total]
+            if item.processed_items is not None and item.total_items is not None:
+                parts.append(f"[{item.processed_items}/{item.total_items}]")
+
+            # Status and Module emojis
+            if self.use_emoji:
+                status_emoji = self._get_status_emoji(item.status)
+                module_emoji = self._get_emoji_for_module(item.module or "")
+                parts.append(f"{status_emoji}{module_emoji}")
+
+            # ETA and Rate
+            metrics = []
+            if item.estimated_remaining is not None and item.estimated_remaining > 0:
+                if item.estimated_remaining < 60:
+                    metrics.append(f"ETA: {item.estimated_remaining:.1f}s")
+                elif item.estimated_remaining < 3600:
+                    metrics.append(f"ETA: {item.estimated_remaining/60:.1f}m")
+                else:
+                    metrics.append(f"ETA: {item.estimated_remaining/3600:.1f}h")
+            
+            if item.start_time and item.processed_items is not None and item.processed_items > 0:
+                elapsed = time.time() - item.start_time
+                if elapsed > 0:
+                    rate = item.processed_items / elapsed
+                    metrics.append(f"{rate:.1f}/s")
+            
+            if metrics:
+                parts.append(f"({' | '.join(metrics)})")
+            
+            # Elapsed time if no progress info
+            if item.start_time and item.progress_percentage is None:
+                elapsed = time.time() - item.start_time
+                parts.append(f"({elapsed:.1f}s)")
+
+            line = " ".join(parts)
+            self.current_lines[key] = line
+
+            # Print all current lines
+            # For multiple lines, we combine them to avoid console scrolling issues
+            sys.stdout.write("\r" + " " * 120 + "\r")
+            if len(self.current_lines) == 1:
+                sys.stdout.write(line)
+            else:
+                # Combine multiple active lines onto one or two lines to be safe
+                lines_list = list(self.current_lines.values())
+                sys.stdout.write(" | ".join(lines_list[-2:]))
+            
+            sys.stdout.flush()
+
+    def show_summary(self, items: List[ProgressItem]) -> None:
+        """Show final summary."""
+        with self.lock:
+            # Clear current display
+            self._safe_write("\n" + "=" * 80 + "\n")
+
+            # Summary header
+            if self.use_emoji:
+                self._safe_write("🧠 Semantica - 📊 Progress Summary\n")
+            else:
+                self._safe_write("Semantica - Progress Summary\n")
+            self._safe_write("=" * 80 + "\n")
+
+            # Group by module
+            by_module: Dict[str, List[ProgressItem]] = {}
+            for item in items:
+                module = item.module or "unknown"
+                if module not in by_module:
+                    by_module[module] = []
+                by_module[module].append(item)
+
+            # Show summary by module
+            total_time = 0.0
+            completed = 0
+            failed = 0
+
+            for module, module_items in by_module.items():
+                if self.use_emoji:
+                    emoji = self._get_emoji_for_module(module)
+                    self._safe_write(f"\n{emoji} {module.upper()}\n")
+                else:
+                    self._safe_write(f"\n{module.upper()}\n")
+                self._safe_write("-" * 80 + "\n")
+
+                for item in module_items:
+                    status_emoji = self._get_status_emoji(item.status)
+                    duration = ""
+                    if item.start_time and item.end_time:
+                        duration = f" ({item.end_time - item.start_time:.2f}s)"
+                    elif item.start_time:
+                        duration = f" (running...)"
+
+                    line = f"  {status_emoji} {item.submodule or 'N/A'}"
+                    if item.file:
+                        line += f" - {Path(item.file).name}"
+                    line += duration
+
+                    self._safe_write(line + "\n")
+
+                    if item.status == "completed":
+                        completed += 1
+                    elif item.status == "failed":
+                        failed += 1
+
+                    if item.start_time and item.end_time:
+                        total_time += item.end_time - item.start_time
+
+            # Final stats
+            self._safe_write("\n" + "=" * 80 + "\n")
+            if self.use_emoji:
+                self._safe_write(
+                    f"✅ Completed: {completed} | ❌ Failed: {failed} | ⏱️  Total Time: {total_time:.2f}s\n"
+                )
+            else:
+                self._safe_write(
+                    f"Completed: {completed} | Failed: {failed} | Total Time: {total_time:.2f}s\n"
+                )
+            self._safe_write("=" * 80 + "\n")
+            sys.stdout.flush()
+
+    def clear(self) -> None:
+        """Clear console display."""
+        with self.lock:
+            self._safe_write("\r" + " " * 100 + "\r")
+            sys.stdout.flush()
+            self.current_lines.clear()
+
+
+class JupyterProgressDisplay(ProgressDisplay):
+    """Jupyter notebook progress display."""
+
+    def __init__(self, use_emoji: bool = True):
+        self.use_emoji = use_emoji
+        self.display_handle = None
+        self.items: List[ProgressItem] = []
+
+    def _get_emoji_for_module(self, module: str) -> str:
+        """Get emoji for module type."""
+        if not self.use_emoji:
+            return ""
+
+        emoji_map = {
+            "ingest": "📥",
+            "parse": "🔍",
+            "kg": "🧠",
+            "embeddings": "💾",
+            "normalize": "🔧",
+            "ontology": "📚",
+            "semantic_extract": "🎯",
+            "seed": "🌱",
+            "split": "✂️",
+            "triplet_store": "🗄️",
+            "vector_store": "📊",
+            "export": "💾",
+            "reasoning": "🤔",
+            "kg_qa": "✅",
+            "visualization": "📈",
+            "context": "🔗",
+            "conflicts": "⚠️",
+            "deduplication": "🔄",
+            "pipeline": "⚙️",
+        }
+
+        module_lower = module.lower()
+        for key, emoji in emoji_map.items():
+            if key in module_lower:
+                return emoji
+        return "⏳"
+
+    def _get_status_emoji(self, status: str) -> str:
+        """Get emoji for status."""
+        if not self.use_emoji:
+            return ""
+
+        status_map = {
+            "pending": "⏳",
+            "running": "🔄",
+            "completed": "✅",
+            "failed": "❌",
+        }
+        return status_map.get(status, "⏳")
+
+    def _get_action_message(self, module: Optional[str], message: str) -> str:
+        """Get action message based on module."""
+        # Extract action from message if it contains "Semantica:"
+        if message and "Semantica:" in message:
+            # Use the message as-is if it already has Semantica format
+            return (
+                message.split("Semantica:")[-1].strip()
+                if "Semantica:" in message
+                else message
+            )
+
+        # Map modules to actions
+        action_map = {
+            "ingest": "is ingesting",
+            "parse": "is parsing",
+            "kg": "is building",
+            "embeddings": "is embedding",
+            "normalize": "is normalizing",
+            "ontology": "is generating",
+            "semantic_extract": "is extracting",
+            "seed": "is seeding",
+            "split": "is splitting",
+            "triplet_store": "is storing",
+            "vector_store": "is indexing",
+            "export": "is exporting",
+            "reasoning": "is reasoning",
+            "kg_qa": "is validating",
+            "visualization": "is visualizing",
+            "context": "is processing",
+            "conflicts": "is resolving",
+            "deduplication": "is deduplicating",
+            "pipeline": "is executing",
+            "core": "is processing",
+        }
+
+        action = action_map.get(module or "", "is processing")
+        return f"Semantica {action}"
+
+    def _build_html(self, items: List[ProgressItem]) -> str:
+        """Build HTML for display."""
+        html_parts = ["<div style='font-family: monospace;'>"]
+
+        # Current status
+        html_parts.append("<h4>🧠 Semantica - 📊 Current Progress</h4>")
+        html_parts.append("<table style='width: 100%; border-collapse: collapse;'>")
+        html_parts.append(
+            "<tr><th>Status</th><th>Action</th><th>Module</th><th>Submodule</th><th>Progress</th><th>ETA</th><th>Rate</th><th>Time</th></tr>"
+        )
+
+        # Show last 10 items
+        for item in items[-10:]:
+            status_emoji = self._get_status_emoji(item.status)
+            module_emoji = self._get_emoji_for_module(item.module or "")
+            action_msg = self._get_action_message(item.module, item.message)
+
+            # Progress information
+            progress_str = "-"
+            if item.progress_percentage is not None:
+                progress_str = f"{item.progress_percentage:.1f}%"
+                if item.processed_items is not None and item.total_items is not None:
+                    progress_str += f" ({item.processed_items}/{item.total_items})"
+            
+            # ETA information
+            eta_str = "-"
+            if item.estimated_remaining is not None and item.estimated_remaining > 0:
+                if item.estimated_remaining < 60:
+                    eta_str = f"{item.estimated_remaining:.1f}s"
+                elif item.estimated_remaining < 3600:
+                    eta_str = f"{item.estimated_remaining/60:.1f}m"
+                else:
+                    eta_str = f"{item.estimated_remaining/3600:.1f}h"
+            
+            # Processing rate
+            rate_str = "-"
+            if item.start_time and item.processed_items is not None and item.processed_items > 0:
+                elapsed = time.time() - item.start_time
+                if elapsed > 0:
+                    rate = item.processed_items / elapsed
+                    rate_str = f"{rate:.1f}/s"
+
+            elapsed = ""
+            if item.start_time:
+                if item.end_time:
+                    elapsed = f"{(item.end_time - item.start_time):.2f}s"
+                else:
+                    elapsed = f"{(time.time() - item.start_time):.2f}s"
+
+            file_name = Path(item.file).name if item.file else "-"
+
+            html_parts.append(
+                f"<tr>"
+                f"<td>{status_emoji}</td>"
+                f"<td>{action_msg}</td>"
+                f"<td>{module_emoji} {item.module or 'N/A'}</td>"
+                f"<td>{item.submodule or 'N/A'}</td>"
+                f"<td>{progress_str}</td>"
+                f"<td>{eta_str}</td>"
+                f"<td>{rate_str}</td>"
+                f"<td>{elapsed}</td>"
+                f"</tr>"
+            )
+
+        html_parts.append("</table>")
+        html_parts.append("</div>")
+
+        return "".join(html_parts)
+
+    def update(self, item: ProgressItem) -> None:
+        """Update Jupyter progress display (works in Jupyter and Google Colab)."""
+        # Add or update item
+        existing = None
+        for i, existing_item in enumerate(self.items):
+            if (
+                existing_item.module == item.module
+                and existing_item.submodule == item.submodule
+                and existing_item.file == item.file
+            ):
+                existing = i
+                break
+
+        if existing is not None:
+            self.items[existing] = item
+        else:
+            self.items.append(item)
+
+        # Update display - always update immediately in Jupyter/Colab
+        if IPYTHON_AVAILABLE:
+            html = self._build_html(self.items)
+            try:
+                # Check if we're in Google Colab (Colab sometimes needs fresh displays)
+                is_colab = False
+                try:
+                    import sys
+                    import os
+                    is_colab = ('google.colab' in sys.modules or 
+                               os.environ.get("COLAB_GPU") is not None)
+                except Exception:
+                    pass
+                
+                if self.display_handle is None:
+                    # First time - create display
+                    self.display_handle = display(HTML(html), display_id=True)
+                else:
+                    # Try to update existing display
+                    try:
+                        # In Colab, sometimes update() doesn't work, so we recreate
+                        if is_colab:
+                            # Clear and recreate for Colab compatibility
+                            try:
+                                clear_output(wait=False)
+                            except Exception:
+                                pass
+                            self.display_handle = display(HTML(html), display_id=True)
+                        else:
+                            # Regular Jupyter - try update first
+                            self.display_handle.update(HTML(html))
+                    except (AttributeError, TypeError, Exception):
+                        # If update fails, create new display (works in both Jupyter and Colab)
+                        try:
+                            clear_output(wait=False)
+                        except Exception:
+                            pass
+                        self.display_handle = display(HTML(html), display_id=True)
+            except Exception:
+                # Fallback: always create new display if update fails
+                try:
+                    clear_output(wait=False)
+                except Exception:
+                    pass
+                self.display_handle = display(HTML(html), display_id=True)
+
+    def show_summary(self, items: List[ProgressItem]) -> None:
+        """Show final summary in Jupyter."""
+        if not IPYTHON_AVAILABLE:
+            return
+
+        html_parts = ["<div style='font-family: monospace;'>"]
+        html_parts.append("<h3>🧠 Semantica - 📊 Progress Summary</h3>")
+
+        # Group by module
+        by_module: Dict[str, List[ProgressItem]] = {}
+        for item in items:
+            module = item.module or "unknown"
+            if module not in by_module:
+                by_module[module] = []
+            by_module[module].append(item)
+
+        # Summary table
+        html_parts.append(
+            "<table style='width: 100%; border-collapse: collapse; border: 1px solid #ddd;'>"
+        )
+        html_parts.append(
+            "<tr style='background-color: #f2f2f2;'>"
+            "<th>Module</th><th>Submodule</th><th>File</th><th>Status</th><th>Time</th>"
+            "</tr>"
+        )
+
+        completed = 0
+        failed = 0
+        total_time = 0.0
+
+        for module, module_items in by_module.items():
+            module_emoji = self._get_emoji_for_module(module)
+            for item in module_items:
+                status_emoji = self._get_status_emoji(item.status)
+                duration = ""
+                if item.start_time and item.end_time:
+                    duration = f"{(item.end_time - item.start_time):.2f}s"
+                    total_time += item.end_time - item.start_time
+                elif item.start_time:
+                    duration = "running..."
+
+                file_name = Path(item.file).name if item.file else "-"
+
+                html_parts.append(
+                    f"<tr>"
+                    f"<td>{module_emoji} {module}</td>"
+                    f"<td>{item.submodule or 'N/A'}</td>"
+                    f"<td>{file_name}</td>"
+                    f"<td>{status_emoji}</td>"
+                    f"<td>{duration}</td>"
+                    f"</tr>"
+                )
+
+                if item.status == "completed":
+                    completed += 1
+                elif item.status == "failed":
+                    failed += 1
+
+        html_parts.append("</table>")
+
+        # Stats
+        html_parts.append(
+            f"<p><strong>✅ Completed:</strong> {completed} | <strong>❌ Failed:</strong> {failed} | <strong>⏱️ Total Time:</strong> {total_time:.2f}s</p>"
+        )
+        html_parts.append("</div>")
+
+        html = "".join(html_parts)
+        display(HTML(html))
+
+    def clear(self) -> None:
+        """Clear Jupyter display."""
+        if IPYTHON_AVAILABLE and self.display_handle:
+            clear_output(wait=True)
+            self.display_handle = None
+        self.items.clear()
+
+
+class FileProgressDisplay(ProgressDisplay):
+    """File-based progress display (logs)."""
+
+    def __init__(self, logger=None):
+        self.logger = logger or get_logger("progress")
+        self.items: List[ProgressItem] = []
+
+    def update(self, item: ProgressItem) -> None:
+        """Update file progress display."""
+        # Add or update item
+        existing = None
+        for i, existing_item in enumerate(self.items):
+            if (
+                existing_item.module == item.module
+                and existing_item.submodule == item.submodule
+                and existing_item.file == item.file
+            ):
+                existing = i
+                break
+
+        if existing is not None:
+            self.items[existing] = item
+        else:
+            self.items.append(item)
+
+        # Log progress
+        parts = [f"[{item.status.upper()}]"]
+        if item.module:
+            parts.append(f"Module: {item.module}")
+        if item.submodule:
+            parts.append(f"Submodule: {item.submodule}")
+        if item.file:
+            parts.append(f"File: {Path(item.file).name}")
+        if item.message:
+            parts.append(f"Message: {item.message}")
+
+        self.logger.info(" | ".join(parts))
+
+    def show_summary(self, items: List[ProgressItem]) -> None:
+        """Show final summary in log file."""
+        self.logger.info("=" * 80)
+        self.logger.info("SEMANTICA - PROGRESS SUMMARY")
+        self.logger.info("=" * 80)
+
+        # Group by module
+        by_module: Dict[str, List[ProgressItem]] = {}
+        for item in items:
+            module = item.module or "unknown"
+            if module not in by_module:
+                by_module[module] = []
+            by_module[module].append(item)
+
+        completed = 0
+        failed = 0
+        total_time = 0.0
+
+        for module, module_items in by_module.items():
+            self.logger.info(f"\n{module.upper()}:")
+            for item in module_items:
+                duration = ""
+                if item.start_time and item.end_time:
+                    duration = f" ({(item.end_time - item.start_time):.2f}s)"
+                    total_time += item.end_time - item.start_time
+
+                file_name = Path(item.file).name if item.file else "N/A"
+                self.logger.info(
+                    f"  [{item.status.upper()}] {item.submodule or 'N/A'} - {file_name}{duration}"
+                )
+
+                if item.status == "completed":
+                    completed += 1
+                elif item.status == "failed":
+                    failed += 1
+
+        self.logger.info("=" * 80)
+        self.logger.info(
+            f"Completed: {completed} | Failed: {failed} | Total Time: {total_time:.2f}s"
+        )
+        self.logger.info("=" * 80)
+
+    def clear(self) -> None:
+        """Clear file display (no-op for logs)."""
+        pass
+
+
+class ModuleDetector:
+    """Utility for automatic module/submodule detection."""
+
+    @staticmethod
+    def detect_from_frame(frame) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Detect module and submodule from frame.
+
+        Returns:
+            Tuple of (module_name, submodule_name)
+        """
+        try:
+            # Get the frame's module
+            module_name = frame.f_globals.get("__name__", "")
+
+            # Extract module name (e.g., 'semantica.ingest.file_ingestor' -> 'ingest')
+            if "semantica." in module_name:
+                parts = module_name.split(".")
+                if len(parts) >= 2:
+                    module_name = parts[1]  # Get 'ingest', 'parse', etc.
+                else:
+                    module_name = None
+            else:
+                module_name = None
+
+            # Get class name from 'self' if available
+            submodule_name = None
+            if "self" in frame.f_locals:
+                self_obj = frame.f_locals["self"]
+                if hasattr(self_obj, "__class__"):
+                    submodule_name = self_obj.__class__.__name__
+            elif "cls" in frame.f_locals:
+                cls_obj = frame.f_locals["cls"]
+                if isinstance(cls_obj, type):
+                    submodule_name = cls_obj.__name__
+
+            # Fallback: try to get from frame code
+            if not submodule_name:
+                code = frame.f_code
+                # Try to extract class name from qualified name
+                if hasattr(code, "co_qualname"):
+                    qualname = code.co_qualname
+                    if "." in qualname:
+                        submodule_name = qualname.split(".")[0]
+
+            return module_name, submodule_name
+
+        except Exception:
+            return None, None
+
+    @staticmethod
+    def detect_from_call_stack(depth: int = 2) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Detect module and submodule from call stack.
+
+        Args:
+            depth: Stack depth to check (default: 2, meaning caller's caller)
+
+        Returns:
+            Tuple of (module_name, submodule_name)
+        """
+        try:
+            frame = inspect.currentframe()
+            if frame is None:
+                return None, None
+
+            # Go up the stack to find the actual caller
+            for _ in range(depth):
+                frame = frame.f_back
+                if frame is None:
+                    return None, None
+
+            return ModuleDetector.detect_from_frame(frame)
+        except Exception:
+            return None, None
+
+
+class ProgressTracker:
+    """Main progress tracking coordinator."""
+
+    _instance: Optional["ProgressTracker"] = None
+    _lock = threading.Lock()
+
+    def __init__(
+        self, enabled: bool = True, use_emoji: bool = True, update_interval: float = 0.1
+    ):
+        """
+        Initialize progress tracker.
+
+        Args:
+            enabled: Enable progress tracking (default: True, always enabled)
+            use_emoji: Use emoji indicators
+            update_interval: Minimum time between updates (seconds)
+        """
+        # Always enable progress tracking by default - cannot be disabled via constructor
+        # This ensures progress is always shown automatically
+        self.enabled = True  # Force enabled, ignore parameter
+        self.use_emoji = use_emoji
+        self.update_interval = update_interval
+
+        # Detect environment - will be checked dynamically
+        self.is_jupyter = self._detect_jupyter()
+
+        # Create displays
+        self.displays: List[ProgressDisplay] = []
+
+        # Always try Jupyter first if available, fallback to console
+        if IPYTHON_AVAILABLE:
+            # Try to detect Jupyter - if available, use it
+            if self.is_jupyter:
+                self.displays.append(JupyterProgressDisplay(use_emoji=use_emoji))
+            # Also add console as fallback for immediate feedback
+            self.displays.append(
+                ConsoleProgressDisplay(
+                    use_emoji=use_emoji, update_interval=update_interval
+                )
+            )
+        else:
+            self.displays.append(
+                ConsoleProgressDisplay(
+                    use_emoji=use_emoji, update_interval=update_interval
+                )
+            )
+
+        # Always add file display
+        self.displays.append(FileProgressDisplay())
+
+        # Track items
+        self.items: List[ProgressItem] = []
+        self.active_items: Dict[str, ProgressItem] = {}
+        self.lock = threading.Lock()
+
+    def _detect_jupyter(self) -> bool:
+        """Detect if running in Jupyter notebook or Google Colab."""
+        if not IPYTHON_AVAILABLE:
+            return False
+        try:
+            ipython = get_ipython()
+            if ipython is None:
+                return False
+            
+            # Method 1: Check for Google Colab
+            # Colab has 'google.colab' in sys.modules or environment variables
+            try:
+                import sys
+                import os
+                if 'google.colab' in sys.modules:
+                    return True
+                # Check environment variables (Colab sets these)
+                if os.environ.get("COLAB_GPU") is not None or os.environ.get("COLAB_JUPYTER_TRANSPORT") is not None:
+                    return True
+                # Check IPython config for Colab
+                if hasattr(ipython, 'config') and hasattr(ipython.config, 'IPKernelApp'):
+                    config_str = str(ipython.config.IPKernelApp)
+                    if 'google.colab' in config_str or 'colab' in config_str.lower():
+                        return True
+            except Exception:
+                pass
+            
+            # Method 2: Check for kernel attribute (Jupyter/Colab)
+            if hasattr(ipython, "kernel"):
+                return True
+            
+            # Method 3: Check for IPython shell class name
+            if hasattr(ipython, "__class__"):
+                class_name = ipython.__class__.__name__
+                # Check for Jupyter, Colab, or ZMQ shell types
+                if any(name in class_name for name in ["ZMQInteractiveShell", "Jupyter", "Colab", "InteractiveShell"]):
+                    return True
+            
+            # Method 4: Check for IPython display capability
+            if hasattr(ipython, "display_pub"):
+                return True
+            
+            return False
+        except Exception:
+            return False
+
+    @classmethod
+    def get_instance(cls) -> "ProgressTracker":
+        """Get singleton instance."""
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = cls()
+                    # Ensure it's always enabled
+                    cls._instance.enabled = True
+        else:
+            # Always ensure enabled when getting instance
+            cls._instance.enabled = True
+        return cls._instance
+
+    def start_tracking(
+        self,
+        file: Optional[str] = None,
+        module: Optional[str] = None,
+        submodule: Optional[str] = None,
+        message: str = "",
+    ) -> str:
+        """
+        Start tracking a progress item.
+
+        Args:
+            file: File being processed
+            module: Module name
+            submodule: Submodule/class name
+            message: Progress message
+
+        Returns:
+            Tracking ID
+        """
+        if not self.enabled:
+            return ""
+
+        # Re-detect Jupyter environment in case it wasn't detected at init
+        # This helps if the tracker was created before Jupyter was fully initialized
+        if IPYTHON_AVAILABLE and not self.is_jupyter:
+            self.is_jupyter = self._detect_jupyter()
+            # If Jupyter is now detected and we don't have a Jupyter display, add it
+            if self.is_jupyter and not any(isinstance(d, JupyterProgressDisplay) for d in self.displays):
+                # Insert Jupyter display at the beginning for priority
+                self.displays.insert(0, JupyterProgressDisplay(use_emoji=self.use_emoji))
+
+        # Auto-detect if not provided
+        if not module or not submodule:
+            detected_module, detected_submodule = ModuleDetector.detect_from_call_stack(
+                depth=3
+            )
+            module = module or detected_module
+            submodule = submodule or detected_submodule
+
+        # Create tracking ID
+        tracking_id = f"{module}:{submodule}:{file or ''}"
+
+        with self.lock:
+            item = ProgressItem(
+                file=file,
+                module=module,
+                submodule=submodule,
+                status="running",
+                start_time=time.time(),
+                message=message,
+                emoji=self._get_emoji_for_module(module or ""),
+            )
+
+            self.active_items[tracking_id] = item
+
+            # Update displays
+            for display in self.displays:
+                display.update(item)
+
+        return tracking_id
+
+    def update_tracking(
+        self, tracking_id: str, status: str = "running", message: str = ""
+    ) -> None:
+        """
+        Update tracking status.
+
+        Args:
+            tracking_id: Tracking ID from start_tracking
+            status: New status (running, completed, failed)
+            message: Progress message
+        """
+        if not self.enabled or not tracking_id:
+            return
+
+        with self.lock:
+            if tracking_id in self.active_items:
+                item = self.active_items[tracking_id]
+                item.status = status
+                item.message = message
+
+                # Calculate ETA if progress information is available
+                if item.processed_items is not None and item.total_items is not None:
+                    item.progress_percentage = (
+                        (item.processed_items / item.total_items * 100)
+                        if item.total_items > 0
+                        else 0.0
+                    )
+                    item.estimated_remaining = self._calculate_eta(item)
+
+                if status in ("completed", "failed"):
+                    item.end_time = time.time()
+                    # Reset progress fields on completion
+                    item.progress_percentage = 100.0 if status == "completed" else None
+                    item.estimated_remaining = 0.0 if status == "completed" else None
+                    # Move to completed items
+                    self.items.append(item)
+                    del self.active_items[tracking_id]
+
+                # Update displays
+                for display in self.displays:
+                    display.update(item)
+
+    def update_progress(
+        self,
+        tracking_id: str,
+        processed: int,
+        total: int,
+        message: str = "",
+    ) -> None:
+        """
+        Update progress with item counts and calculate ETA.
+
+        Args:
+            tracking_id: Tracking ID from start_tracking
+            processed: Number of items processed so far
+            total: Total number of items to process
+            message: Optional progress message
+        """
+        if not self.enabled or not tracking_id:
+            return
+
+        # Re-detect Jupyter environment in case it wasn't detected at init
+        if IPYTHON_AVAILABLE and not self.is_jupyter:
+            self.is_jupyter = self._detect_jupyter()
+            # If Jupyter is now detected and we don't have a Jupyter display, add it
+            if self.is_jupyter and not any(isinstance(d, JupyterProgressDisplay) for d in self.displays):
+                # Insert Jupyter display at the beginning for priority
+                self.displays.insert(0, JupyterProgressDisplay(use_emoji=self.use_emoji))
+
+        with self.lock:
+            if tracking_id in self.active_items:
+                item = self.active_items[tracking_id]
+                item.processed_items = processed
+                item.total_items = total
+                item.progress_percentage = (
+                    (processed / total * 100) if total > 0 else 0.0
+                )
+                item.estimated_remaining = self._calculate_eta(item)
+                if message:
+                    item.message = message
+
+                # Update displays - force immediate update for progress
+                for display in self.displays:
+                    # For Jupyter, always update immediately
+                    if isinstance(display, JupyterProgressDisplay):
+                        display.update(item)
+                    # For console, force update by temporarily bypassing interval check
+                    elif isinstance(display, ConsoleProgressDisplay):
+                        # Force update by setting last_update far in the past
+                        original_last_update = display.last_update
+                        display.last_update = 0.0  # This will make _should_update return True
+                        display.update(item)
+                        # Restore original value (update() will set it to current time anyway)
+                        display.last_update = original_last_update
+                    else:
+                        display.update(item)
+
+    def _calculate_eta(self, item: ProgressItem) -> Optional[float]:
+        """
+        Calculate estimated time remaining based on progress.
+
+        Args:
+            item: ProgressItem with progress information
+
+        Returns:
+            Estimated remaining time in seconds, or None if cannot calculate
+        """
+        if (
+            item.start_time is None
+            or item.processed_items is None
+            or item.total_items is None
+            or item.processed_items <= 0
+        ):
+            return None
+
+        elapsed = time.time() - item.start_time
+        if elapsed <= 0:
+            return None
+
+        # Calculate processing rate (items per second)
+        rate = item.processed_items / elapsed
+        if rate <= 0:
+            return None
+
+        # Calculate remaining items
+        remaining_items = item.total_items - item.processed_items
+        if remaining_items <= 0:
+            return 0.0
+
+        # Calculate ETA
+        eta_seconds = remaining_items / rate
+        return max(0.0, eta_seconds)
+
+    def stop_tracking(
+        self, tracking_id: str, status: str = "completed", message: str = ""
+    ) -> None:
+        """
+        Stop tracking an item.
+
+        Args:
+            tracking_id: Tracking ID from start_tracking
+            status: Final status (completed, failed)
+            message: Final message
+        """
+        self.update_tracking(tracking_id, status=status, message=message)
+
+    def _get_emoji_for_module(self, module: str) -> str:
+        """Get emoji for module."""
+        if not self.use_emoji or not module:
+            return ""
+
+        emoji_map = {
+            "ingest": "📥",
+            "parse": "🔍",
+            "kg": "🧠",
+            "embeddings": "💾",
+            "normalize": "🔧",
+            "ontology": "📚",
+            "semantic_extract": "🎯",
+            "seed": "🌱",
+            "split": "✂️",
+            "triplet_store": "🗄️",
+            "vector_store": "📊",
+            "export": "💾",
+            "reasoning": "🤔",
+            "kg_qa": "✅",
+            "visualization": "📈",
+            "context": "🔗",
+            "conflicts": "⚠️",
+            "deduplication": "🔄",
+            "pipeline": "⚙️",
+        }
+
+        module_lower = module.lower()
+        for key, emoji in emoji_map.items():
+            if key in module_lower:
+                return emoji
+        return "⏳"
+
+    def show_summary(self) -> None:
+        """Show final progress summary."""
+        if not self.enabled:
+            return
+
+        with self.lock:
+            # Add any remaining active items
+            all_items = self.items + list(self.active_items.values())
+
+            # Show summary on all displays
+            for display in self.displays:
+                display.show_summary(all_items)
+
+    @contextmanager
+    def track(
+        self,
+        file: Optional[str] = None,
+        module: Optional[str] = None,
+        submodule: Optional[str] = None,
+        message: str = "",
+    ):
+        """
+        Context manager for automatic tracking.
+
+        Usage:
+            with progress_tracker.track(file="doc.pdf", message="Processing"):
+                # code here
+        """
+        tracking_id = self.start_tracking(
+            file=file, module=module, submodule=submodule, message=message
+        )
+        try:
+            yield tracking_id
+            self.stop_tracking(tracking_id, status="completed")
+        except Exception as e:
+            self.stop_tracking(tracking_id, status="failed", message=str(e))
+            raise
+
+
+# Global singleton instance
+_global_tracker: Optional[ProgressTracker] = None
+
+
+def get_progress_tracker() -> ProgressTracker:
+    """Get global progress tracker instance."""
+    global _global_tracker
+    if _global_tracker is None:
+        _global_tracker = ProgressTracker.get_instance()
+    
+    # Always ensure progress tracker is enabled automatically
+    _global_tracker.enabled = True
+    
+    # Re-detect Jupyter environment dynamically (in case it wasn't ready at init)
+    if IPYTHON_AVAILABLE and not _global_tracker.is_jupyter:
+        _global_tracker.is_jupyter = _global_tracker._detect_jupyter()
+        # If Jupyter is now detected and we don't have a Jupyter display, add it
+        if _global_tracker.is_jupyter and not any(isinstance(d, JupyterProgressDisplay) for d in _global_tracker.displays):
+            # Insert Jupyter display at the beginning for priority
+            _global_tracker.displays.insert(0, JupyterProgressDisplay(use_emoji=_global_tracker.use_emoji))
+    
+    return _global_tracker
+
+
+def track_progress(
+    file: Optional[str] = None,
+    module: Optional[str] = None,
+    submodule: Optional[str] = None,
+):
+    """
+    Decorator for automatic progress tracking.
+
+    Usage:
+        @track_progress
+        def my_function():
+            # Automatically tracked
+            pass
+
+        @track_progress(file="doc.pdf")
+        def process_file():
+            # Tracked with file context
+            pass
+    """
+
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args, **kwargs):
+            tracker = get_progress_tracker()
+
+            # Try to extract file from args/kwargs
+            detected_file = file
+            if not detected_file:
+                # Look for common file parameter names
+                for arg_name in ["file", "file_path", "path", "source", "filename"]:
+                    if arg_name in kwargs:
+                        detected_file = str(kwargs[arg_name])
+                        break
+                    elif args and isinstance(args[0], (str, Path)):
+                        detected_file = str(args[0])
+                        break
+
+            # Auto-detect module/submodule if not provided
+            detected_module = module
+            detected_submodule = submodule
+            if not detected_module or not detected_submodule:
+                frame_module, frame_submodule = ModuleDetector.detect_from_call_stack(
+                    depth=2
+                )
+                detected_module = detected_module or frame_module
+                detected_submodule = detected_submodule or frame_submodule
+
+            # Use function name as fallback for submodule
+            if not detected_submodule:
+                detected_submodule = func.__name__
+
+            # Start tracking
+            tracking_id = tracker.start_tracking(
+                file=detected_file,
+                module=detected_module,
+                submodule=detected_submodule,
+                message=f"Running {func.__name__}",
+            )
+
+            try:
+                result = func(*args, **kwargs)
+                tracker.stop_tracking(
+                    tracking_id,
+                    status="completed",
+                    message=f"Completed {func.__name__}",
+                )
+                return result
+            except Exception as e:
+                tracker.stop_tracking(
+                    tracking_id,
+                    status="failed",
+                    message=f"Failed {func.__name__}: {str(e)}",
+                )
+                raise
+
+        wrapper.__name__ = func.__name__
+        wrapper.__doc__ = func.__doc__
+        return wrapper
+
+    # Handle both @track_progress and @track_progress(...) usage
+    if callable(file):
+        # Used as @track_progress without parentheses
+        func = file
+        file = None
+        return decorator(func)
+    else:
+        # Used as @track_progress(...) with arguments
+        return decorator
