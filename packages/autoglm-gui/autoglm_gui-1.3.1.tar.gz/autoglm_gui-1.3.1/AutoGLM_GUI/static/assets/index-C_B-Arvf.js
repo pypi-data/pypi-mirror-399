@@ -1,0 +1,1 @@
+import{a9 as o,r as s,j as t}from"./index-CxJQuE4y.js";function n(){const e=o();return s.useEffect(()=>{e({to:"/chat"})},[e]),t.jsx("div",{className:"p-2",children:t.jsx("h3",{children:"Welcome Home!"})})}export{n as component};
