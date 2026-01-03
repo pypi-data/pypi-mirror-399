@@ -1,0 +1,150 @@
+[project]
+name = "qolmat"
+version = "0.2.0"
+description = "A Python library for optimal data imputation."
+authors = [
+    { name = "Julien ROUSSEL", email = "julien.roussel@capgemini.com" },
+    { name = "Anh Khoa NGO HO", email = "anh-khoa.ngo-ho@capgemini.com" },
+    { name = "Hong-Lan BOTTERMAN", email = "hong-lan.botterman@capgemini.com" },
+    { name = "Guillaume SAËS", email = "guillaume.saes@capgemini.com" },
+]
+license = { text = "BSD-3-Clause" }
+readme = "README.rst"
+requires-python = ">=3.9,<3.13"
+keywords = ["imputation"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "scikit-optimize>=0.9",
+    "numpy>=1.24",
+    "pandas>=2.0.1",
+    "scipy",
+    "scikit-learn>=1.6",
+    "statsmodels>=0.14.0",
+    "category-encoders>=2.6.3,<3",
+    "dcor>=0.6",
+    "numba>=0.59",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+torch = ["torch<2.5"]
+docs = [
+    "sphinx-markdown-tables",
+    "numpydoc==1.1.0",
+    "sphinx>=5.0",
+    "sphinx-gallery>=0.15",
+    "sphinx-rtd-theme==1.0.0",
+]
+dev = [
+    "bump2version==1.0.1",
+    "ipykernel>=6.29.5",
+    "jupyter==1.0.0",
+    "jupyterlab==1.2.6",
+    "jupytext==1.14.4",
+    "matplotlib",
+    "packaging==23.1",
+    "pre-commit==2.21.0",
+    "twine==3.7.1",
+    "wheel==0.37.1",
+]
+checkers = [
+    "bandit>=1.7.9",
+    "mypy==1.1.1",
+    "ruff>=0.6.3",
+    "pytest==7.2.0",
+    "pytest-cov==4.0.0",
+    "pytest-mock==3.10.0",
+]
+ci = ["codecov>=2.1.13"]
+
+[project.urls]
+Homepage = "https://github.com/Quantmetry/qolmat"
+Documentation = "https://qolmat.readthedocs.io/en/latest/"
+Repository = "https://github.com/Quantmetry/qolmat"
+"Bug Tracker" = "https://github.com/Quantmetry/qolmat/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# PyTorch CPU source
+[[tool.uv.index]]
+name = "pytorch_cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+# CONFIGURATION
+[tool.bandit]
+targets = ["qolmat"]
+skips = ["B310"]
+
+[tool.mypy]
+pretty = true
+strict = false
+python_version = "3.10"
+ignore_missing_imports = true
+disable_error_code = ["union-attr"]
+exclude = "docs"
+
+[[tool.mypy.overrides]]
+module = "sklearn.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "matplotlib.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "numpy.*"
+ignore_missing_imports = true
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "--cov=qolmat --doctest-glob=*.rst --doctest-modules"
+testpaths = ["tests"]
+norecursedirs = ["_build"]
+
+[tool.ruff]
+line-length = 99
+fix = true
+indent-width = 4
+target-version = "py310"
+exclude = ["examples/", "docs/"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["C", "D", "E", "F", "I", "Q", "W"]
+ignore = [
+    "C901",
+    "D107",
+    "D203",
+    "D213",
+    "N803",
+    "N806",
+    "N816",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["qolmat"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["D100", "D103"]
+"__init__.py" = ["D104"]

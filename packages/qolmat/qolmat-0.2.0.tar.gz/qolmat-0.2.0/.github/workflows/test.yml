@@ -1,0 +1,54 @@
+name: Unit tests and docs generation
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+jobs:
+  check:
+    if: github.event.pull_request.draft == false
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # Full matrix only for PRs to main
+        os: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && fromJSON('["ubuntu-latest", "windows-latest"]') || fromJSON('["ubuntu-latest"]') }}
+        python-version: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && fromJSON('["3.9", "3.11", "3.12"]') || fromJSON('["3.12"]') }}
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Check with ruff
+        run: make check-quality
+
+      - name: Test with pytest
+        run: make check-tests
+
+      - name: Check types
+        run: make check-types
+
+      - name: Build and test docs
+        if: matrix.python-version == '3.12' && matrix.os == 'ubuntu-latest'
+        run: |
+          make doc
+          make doctest
