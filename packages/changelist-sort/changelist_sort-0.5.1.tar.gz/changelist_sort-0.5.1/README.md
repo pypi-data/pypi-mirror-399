@@ -1,0 +1,110 @@
+# Changelist Sort
+Making Sorting Changelist Files Easy!
+
+### Requirements
+- Python 3.10 or higher.
+- pip (or similar package manager).
+- cli or bash capabilities.
+
+## Changelist Packages Overview
+To make proper use of the sort tool, consider the data pipeline in the Changelist workflow.
+
+### Changelist Data Pipeline
+1. Changelist-Init
+2. Changelist-Sort
+3. Changelist-FOCI
+
+In the __Changelist Data Pipeline__, information is obtained from **git** by the `changelist-init` package.
+ - This information is inserted into the default changelist.
+ - Changelist data is saved to `.changelists/data.xml`, or a `workspace.xml` file.
+
+The Sort process runs after Init.
+ - Loads the `changelist-data` storage access object.
+ - Checks **InputData** for sorting configuration.
+ - Applies sorting algorithm.
+
+The FOCI process has sorted changelist data to format.
+
+Underlying the whole data pipeline is the `changelist-data` package:
+ - Simplifying access to storage options.
+ - Minimizing duplication with reusable data containers and validation methods.
+ - Maximizing efficiency (and focus while working) in other Changelist packages.
+
+**Note:** Add alias/shell funcs to your environment to maximize your efficiency!
+```
+alias sort-src='changelist-sort --sourceset-sort --remove-empty'
+```
+
+### Workspace Data Pipeline
+This data pipeline integrates with the workspace file in project config. It is an alternative to the Changelist Data Pipeline, storing data in a different location.
+ - One should use the Changelist Data Pipeline by default.
+ - Consider Workspace Data Pipeline experimental. To be used carefully.
+
+To disable Workspace Overwrite Protection, add one of the following arguments to the command:
+ - `-w` or `--enable_workspace_overwrite`
+ - `--workspace_file` <path-to-file>
+
+## Project Sorting Configuration
+To configure a changelist sorting patterns for your project:
+1. Run: `cl-sort --generate_sort_xml` to create `.changelists/sort.xml`
+2. Edit Changelist Sorting Patterns
+
+### File Pattern Attributes
+For each `<files />` tag, apply ONE of the following attributes:
+- file_ext : Match the file extension of the file. Do not include the dot.
+- first_dir : The first directory in the path. Use empty string to match root directory.
+- filename_prefix : The filename startswith this prefix.
+- filename_suffix : The filename endswith this prefix.
+- path_start : The beginning of the parent directory path. It's usually better to exclude unnecessary slash characters. 
+- path_end : The end of the parent directory path. It's usually better to exclude unnecessary slash characters. 
+
+### Sorting Keys
+The `key` attribute inside changelists is integrated directly with sorting. When defining your sorting configuration, prefer the `name` attribute, only use key when necessary.
+- Sorting Keys are short, simple strings that identify a changelist.
+- More than one Sorting Key can map to one Changelist.
+- Every File pattern is associated with a Sorting Key.
+
+## Sorting Modes
+There are two built-in sorting modes in addition to the sorting configuration.
+ - When `.changelists/sort.xml` is present, it takes precedence with fallback to Module Mode.
+ - SourceSet Mode is activated by `-s`.
+
+### Sorting By Module (default)
+Files are sorted by the name of the top level directory they are located in.
+- In Android-Gradle projects, each directory in the project root is a module, with a few exception cases.
+- Often, projects contain support tools and frameworks in top level dirs.
+  - These get their own changelist if not gitignored.
+
+### Sorting By Source Set (Gradle, Android)
+A specialized SortMode that splits Gradle Modules by their Source Sets.
+ - Add the `-s` flag or `--sourceset-sort` to use this mode.
+ - This mode is not compatible with SortXML Config.
+   - It is a quick and useful default for Gradle projects (beyond the Module).
+
+### Special Changelists & Directories
+There are special Changelists, and special Directories that are handled differently.
+- Build Updates Changelist
+- Root Directory
+- Gradle Directory
+
+**Build Updates Changelist:**
+This is a changelist that is used to collect all of the files that affect the project build.
+This includes all files in the gradle directory, and any file that ends with the `.gradle` file extension. There are also Gradle files that end in `.properties`, which are also sorted into the **Build Updates** Changelist.
+
+**Root Directory:**
+The Root directory is special because the file paths are really short and do not contain a module name. Often, Root directory contains `.gradle` files which are sorted into the Build Updates Changelist. Any non-Gradle files in the Root directory are sorted into a special Changelist that may be called `Root` or `Project Root`.
+
+**Gradle Directory:**
+The Gradle Directory is a direct descendant of the Root directory, and may contain `toml`, `gradle`, or `properties` files. These are all sorted into the **Build Updates** Changelist.
+
+### Module Names and Sorting Comparisons
+
+**Changelist Names**
+The name of the changelist must match the module, ignoring letter case and removing spaces.
+
+Otherwise, a new Changelist will be created that matches the module name.
+- Underscores are replaced with spaces.
+- Each Word in the Name will start with an uppercase letter.
+
+## Remove Empty Changelists
+You can remove all empty changelists after a sort has completed by adding the `-r` flag, or `--remove-empty` argument.
