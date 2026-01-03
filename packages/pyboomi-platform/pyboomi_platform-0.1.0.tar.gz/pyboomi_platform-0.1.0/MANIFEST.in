@@ -1,0 +1,36 @@
+# Include documentation files
+include README.md
+include CHANGELOG.md
+include LICENSE
+include config.yaml.example
+
+# Include configuration files
+include pyproject.toml
+include setup.cfg
+include requirements.txt
+
+# Include test files
+recursive-include tests *.py
+
+# Include examples
+recursive-include examples *.py *.md
+
+# Include documentation
+recursive-include docs *.rst *.md *.py
+
+# Exclude development and cache files
+exclude diary.md
+exclude DIARY_TODO_STATUS.md
+exclude TODO_STATUS_ANALYSIS.md
+exclude _request_analysis.md
+exclude PYPI_REVIEW.md
+exclude REQUIREMENTS_DEV_EXCLUSION.md
+exclude test_manifest.py
+exclude requirements-dev.txt
+exclude .header_template.py
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude .pytest_cache
+global-exclude *.egg-info

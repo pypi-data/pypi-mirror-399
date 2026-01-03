@@ -1,0 +1,686 @@
+# PyBoomi Platform
+
+A Python SDK for interacting with the Boomi Platform API.
+
+## Overview
+
+PyBoomi Platform provides a comprehensive Python interface for Boomi's integration platform, enabling developers to programmatically manage processes, connections, and other platform resources.
+
+## Features
+
+- Authentication and session management
+- Process execution and monitoring
+- Connection management
+- Error handling and logging utilities
+- Comprehensive test coverage
+
+## Installation
+
+```bash
+pip install pyboomi-platform
+```
+
+## Quick Start
+
+### Using Direct Parameters
+
+```python
+from pyboomi_platform import BoomiPlatformClient
+
+# Initialize with direct parameters
+client = BoomiPlatformClient(
+    account_id="your-account-id",
+    username="your-username@company.com",
+    api_token="your-api-token"
+)
+
+# Query API services for C4 diagram generation
+api_services = client.query_component_metadata({
+    "QueryFilter": {
+        "expression": {
+            "operator": "and",
+            "nestedExpression": [
+                {
+                    "argument": ["webservice"],
+                    "operator": "EQUALS",
+                    "property": "type"
+                },
+                {
+                    "argument": ["true"],
+                    "operator": "EQUALS",
+                    "property": "currentVersion"
+                },
+                {
+                    "argument": ["false"],
+                    "operator": "EQUALS",
+                    "property": "deleted"
+                }
+            ]
+        }
+    }
+})
+```
+
+### Using Configuration File
+
+Create a `config.yaml` file:
+
+```yaml
+boomi:
+  username: "your-username@company.com"
+  api_token: "your-api-token"
+  account_id: "your-account-id"
+  timeout: 30
+  max_retries: 3
+  backoff_factor: 1.5
+```
+
+```python
+from pyboomi_platform import BoomiPlatformClient
+
+# Initialize using config file (looks for config.yaml in current directory)
+client = BoomiPlatformClient()
+
+# Or specify config file path
+client = BoomiPlatformClient(config_path="path/to/your/config.yaml")
+```
+
+### Using Environment Variables
+
+Set environment variables:
+```bash
+export BOOMI_USERNAME="your-username@company.com"
+export BOOMI_API_TOKEN="your-api-token"
+export BOOMI_ACCOUNT_ID="your-account-id"
+```
+
+```python
+from pyboomi_platform import BoomiPlatformClient
+
+# Initialize using environment variables
+client = BoomiPlatformClient()
+```
+
+### Configuration Priority
+
+Configuration values are resolved in this order (highest to lowest priority):
+1. Direct parameters passed to constructor
+2. Environment variables
+3. Configuration file values
+4. Default values
+
+## API Usage Examples
+
+### Enhanced Retry Behavior
+
+The `BoomiPlatformClient` includes robust retry logic with Retry-After header support for rate limiting scenarios:
+
+```python
+from pyboomi_platform import BoomiPlatformClient
+
+client = BoomiPlatformClient(
+    account_id="your-account-id",
+    username="your-username@company.com",
+    api_token="your-api-token",
+    max_retries=3,  # Maximum retry attempts (default: 3)
+    backoff_factor=1.5  # Exponential backoff factor (default: 1.5)
+)
+
+# The client automatically handles:
+# - Rate limiting (429, 503) with Retry-After header support
+# - Server errors (500, 502, 504) with automatic retries
+# - Exponential backoff when Retry-After header is not present
+# - Connection errors and timeouts
+```
+
+**Retry Behavior:**
+- **Rate Limiting (429, 503)**: The client respects the `Retry-After` header when present, otherwise uses exponential backoff
+- **Server Errors (500, 502, 504)**: Automatically retried using urllib3's retry mechanism
+- **Connection Errors**: Retried with exponential backoff
+- **Timeouts**: Raised immediately as `BoomiAPIError`
+
+### Folder Management
+
+#### Create a Folder
+
+```python
+# Create a folder in the root
+folder = client.create_folder("MyNewFolder")
+print(f"Created folder: {folder['id']}")
+
+# Create a folder in a specific parent folder
+subfolder = client.create_folder("SubFolder", parent_id="parent-folder-id")
+print(f"Created subfolder: {subfolder['id']}")
+```
+
+#### Get Folder Information
+
+```python
+# Get a folder by ID
+folder = client.get_folder("folder-id-123")
+print(f"Folder name: {folder['name']}")
+print(f"Parent ID: {folder.get('parentId')}")
+
+# Get multiple folders by IDs
+folders = client.get_folder_bulk(["folder-id-1", "folder-id-2", "folder-id-3"])
+for folder in folders["result"]:
+    print(f"Folder: {folder['name']}")
+```
+
+#### Query Folders
+
+```python
+# Query folders by name
+results = client.query_folder({"name": "MyFolder"})
+for folder in results.get("result", []):
+    print(f"Found folder: {folder['name']} (ID: {folder['id']})")
+
+# Query all folders (no filters)
+all_folders = client.query_folder()
+
+# Get next page of results
+if "queryToken" in results:
+    next_page = client.query_more_folders(results["queryToken"])
+```
+
+#### Update a Folder
+
+```python
+# Update folder name
+updated = client.update_folder("folder-id-123", name="RenamedFolder")
+
+# Update folder parent
+moved = client.update_folder("folder-id-123", parent_id="new-parent-id")
+
+# Update both name and parent
+updated = client.update_folder(
+    "folder-id-123",
+    name="NewName",
+    parent_id="new-parent-id"
+)
+```
+
+#### Delete a Folder
+
+```python
+# Delete a folder
+deleted = client.delete_folder("folder-id-123")
+print(f"Deleted folder: {deleted['id']}")
+```
+
+### Component Management
+
+#### Create a Component
+
+Components are created using XML content. The client handles the XML formatting and headers automatically:
+
+```python
+# Create a Process component
+process_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Process>
+    <name>MyNewProcess</name>
+    <type>process</type>
+    <version>1.0.0</version>
+</Process>"""
+
+# Create in default location
+component = client.create_component(process_xml)
+print(f"Created component: {component}")
+
+# Create in a specific folder
+component = client.create_component(process_xml, folder_id="folder-id-123")
+```
+
+**Example: Create a Connection Component**
+
+```python
+connection_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<Connection>
+    <name>DatabaseConnection</name>
+    <type>connection</type>
+    <connectionType>database</connectionType>
+</Connection>"""
+
+connection = client.create_component(connection_xml, folder_id="connections-folder-id")
+```
+
+**Note:** The `create_component` method requires valid Boomi component XML. The XML structure must match Boomi's component schema for the specific component type (Process, Connection, etc.).
+
+### Branch Management
+
+#### Create a Branch
+
+Branches can be created from a parent branch or from a packaged component/deployment:
+
+```python
+# Create a branch from another branch (default)
+branch = client.create_branch(
+    parent_branch_id="main-branch-id",
+    branch_name="feature-branch"
+)
+print(f"Created branch: {branch['id']} (ready: {branch.get('ready', False)})")
+
+# Create a branch from a packaged component
+branch = client.create_branch(
+    parent_branch_id="main-branch-id",
+    branch_name="release-branch",
+    package_id="package-id-12345"
+)
+```
+
+**Important Notes:**
+- New branches have `ready` set to `false` until creation completes
+- When creating from a package, the `package_id` can reference either a packaged component or a deployment
+- The branch creation process is asynchronous; check the `ready` flag to determine when the branch is ready for use
+
+#### Update a Branch
+
+Update branch metadata and readiness status:
+
+```python
+# Update branch name
+updated = client.update_branch("branch-id-123", name="UpdatedBranchName")
+
+# Update branch description
+updated = client.update_branch("branch-id-123", description="New description")
+
+# Mark branch as ready (after creation completes)
+updated = client.update_branch("branch-id-123", ready=True)
+
+# Update multiple fields at once
+updated = client.update_branch(
+    "branch-id-123",
+    name="NewName",
+    description="New description",
+    ready=True
+)
+```
+
+**Ready Flag Semantics:**
+- When a branch is first created, `ready` is `false`
+- The branch creation process runs asynchronously
+- Once creation completes, set `ready=True` to mark the branch as ready for use
+- Only update `ready` to `True` after verifying the branch creation has completed successfully
+
+#### Query Branches
+
+```python
+# Query branches by name
+results = client.query_branches({"name": "feature-branch"})
+
+# Get next page of results
+if "queryToken" in results:
+    next_page = client.query_more_branches(results["queryToken"])
+
+# Get branch details
+branch = client.get_branch("branch-id-123")
+print(f"Branch: {branch['name']}, Ready: {branch.get('ready', False)}")
+```
+
+#### Delete a Branch
+
+```python
+deleted = client.delete_branch("branch-id-123")
+print(f"Deleted branch: {deleted['id']}")
+```
+
+### Execution Artifacts and Logs
+
+#### Query Execution Records
+
+```python
+# Query execution records for a specific execution ID
+execution_id = "execution-12345"
+records = client.query_execution_record(execution_id)
+
+for record in records.get("result", []):
+    print(f"Record ID: {record['id']}")
+    print(f"Status: {record.get('status')}")
+
+# Get next page of execution records
+if "queryToken" in records:
+    next_page = client.query_more_execution_record(records["queryToken"])
+```
+
+#### Request Execution Artifacts
+
+```python
+# Create an execution artifacts request
+execution_id = "execution-12345"
+artifacts_response = client.create_execution_artifacts_request(execution_id)
+
+# The response contains a download URL
+download_url = artifacts_response["url"]
+print(f"Download URL: {download_url}")
+
+# Download the artifacts using the download helper
+output_path = client.download_to_path(download_url, "/tmp/artifacts.zip")
+print(f"Artifacts saved to: {output_path}")
+```
+
+#### Request Process Logs
+
+```python
+# Request process log with default log level (INFO)
+execution_id = "execution-12345"
+log_response = client.create_process_log_request(execution_id)
+
+# Request process log with specific log level
+log_response = client.create_process_log_request(execution_id, log_level="ALL")
+
+# Download the log file
+download_url = log_response["url"]
+output_path = client.download_to_path(download_url, "/tmp/process-log.zip")
+```
+
+#### Query Execution Connectors
+
+```python
+# Query connectors for an execution
+execution_id = "execution-12345"
+connectors = client.query_execution_connector(execution_id)
+
+for connector in connectors.get("result", []):
+    print(f"Connector: {connector.get('name')}")
+
+# Get next page
+if "queryToken" in connectors:
+    next_page = client.query_more_execution_connector(connectors["queryToken"])
+```
+
+#### Query Generic Connector Records
+
+```python
+# Query generic connector records
+execution_id = "execution-12345"
+connector_id = "connector-123"
+records = client.query_generic_connector_record(execution_id, connector_id)
+
+for record in records.get("result", []):
+    print(f"Record ID: {record['id']}")
+
+# Get next page
+if "queryToken" in records:
+    next_page = client.query_more_generic_connector_record(records["queryToken"])
+```
+
+#### Get Connector Document URL
+
+```python
+# Request a connector document download URL
+record_id = "generic-connector-record-123"
+doc_response = client.get_connector_document_url(record_id)
+
+# Download the document
+download_url = doc_response["url"]
+output_path = client.download_to_path(download_url, "/tmp/connector-doc.zip")
+```
+
+### Complete Example: Gathering Execution Artifacts
+
+Here's a complete example of gathering all execution artifacts for a given execution:
+
+```python
+from pyboomi_platform import BoomiPlatformClient
+import os
+
+client = BoomiPlatformClient(
+    account_id="your-account-id",
+    username="your-username@company.com",
+    api_token="your-api-token"
+)
+
+execution_id = "execution-12345"
+output_dir = "/tmp/execution-artifacts"
+
+# Create output directory
+os.makedirs(output_dir, exist_ok=True)
+
+# 1. Query execution records
+records = client.query_execution_record(execution_id)
+print(f"Found {len(records.get('result', []))} execution records")
+
+# 2. Request execution artifacts
+artifacts_response = client.create_execution_artifacts_request(execution_id)
+artifacts_path = client.download_to_path(
+    artifacts_response["url"],
+    os.path.join(output_dir, "artifacts.zip")
+)
+print(f"Downloaded artifacts to: {artifacts_path}")
+
+# 3. Request process log
+log_response = client.create_process_log_request(execution_id, log_level="ALL")
+log_path = client.download_to_path(
+    log_response["url"],
+    os.path.join(output_dir, "process-log.zip")
+)
+print(f"Downloaded process log to: {log_path}")
+
+# 4. Query and download connector documents
+connectors = client.query_execution_connector(execution_id)
+for connector in connectors.get("result", []):
+    connector_id = connector["id"]
+
+    # Query generic connector records
+    records = client.query_generic_connector_record(execution_id, connector_id)
+    for record in records.get("result", []):
+        record_id = record["id"]
+
+        # Get connector document URL and download
+        doc_response = client.get_connector_document_url(record_id)
+        doc_path = client.download_to_path(
+            doc_response["url"],
+            os.path.join(output_dir, f"connector-{record_id}.zip")
+        )
+        print(f"Downloaded connector document: {doc_path}")
+
+print(f"All artifacts saved to: {output_dir}")
+```
+
+## Development
+
+### Setup Development Environment
+
+```bash
+# Clone the repository
+git clone https://github.com/iesoftwaredeveloper/pyboomi-platform.git
+cd pyboomi-platform
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install development dependencies
+pip install -r requirements-dev.txt
+pip install -e .
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=pyboomi_platform --cov-report=html
+```
+
+### Quality Assurance
+
+PyBoomi Platform uses a comprehensive quality assurance process with automated checks and manual validation tools. The QA process follows a two-tier approach:
+
+1. **Pre-commit Hooks**: Automatic checks that run before each commit to catch issues early
+2. **Comprehensive Quality Check**: Full validation script for thorough testing before pull requests or releases
+
+#### Pre-commit Hooks
+
+Pre-commit hooks automatically run code quality checks before each commit. This ensures code meets quality standards before it enters the repository.
+
+**Setup:**
+```bash
+# Install pre-commit hooks (one-time setup)
+pre-commit install
+```
+
+**What's Checked:**
+- **Code Formatting** (black): Ensures consistent code style
+- **Import Sorting** (isort): Organizes imports according to project standards
+- **Linting** (flake8): Detects code quality issues and style violations
+- **Type Checking** (mypy): Validates type hints on the main package
+- **Security Scanning** (bandit): Identifies common security vulnerabilities
+- **General Checks**: Trailing whitespace, end-of-file formatting, YAML validation, large files, merge conflicts, debug statements, and docstring placement
+
+Pre-commit hooks run automatically on `git commit`. If any check fails, the commit is blocked until issues are resolved.
+
+**Manual Execution:**
+```bash
+# Run pre-commit hooks on all files
+pre-commit run --all-files
+```
+
+#### Comprehensive Quality Check
+
+For thorough validation (recommended before pull requests or releases), use the comprehensive quality check script:
+
+```bash
+# Run all quality checks
+./scripts/quality_check.sh
+```
+
+This script performs a complete quality audit including:
+
+1. **Code Formatting Check** (black): Verifies code formatting without making changes
+2. **Import Sorting Check** (isort): Validates import organization
+3. **Linting** (flake8): Comprehensive code quality analysis
+4. **Type Checking** (mypy): Full type validation
+5. **Security Scanning** (bandit): Security vulnerability detection
+6. **Dependency Vulnerability Scanning** (pip-audit): Checks for known vulnerabilities in dependencies
+7. **Dead Code Detection** (vulture): Identifies unused code (min confidence 80%)
+8. **Complexity Analysis** (radon): Measures code complexity and maintainability
+   - Cyclomatic complexity
+   - Maintainability index
+   - Raw metrics
+9. **Test Execution with Coverage**: Runs full test suite and generates coverage reports
+
+The script generates:
+- Terminal coverage report
+- HTML coverage report in `htmlcov/index.html`
+
+**Note:** The script uses `set -e`, so it will stop on the first failure. Fix issues and re-run until all checks pass.
+
+#### Individual Tool Commands
+
+For quick fixes or targeted checks, you can run individual tools:
+
+**Formatting:**
+```bash
+# Format code (auto-fix)
+black pyboomi_platform tests
+
+# Check formatting without changes
+black --check pyboomi_platform tests
+```
+
+**Import Sorting:**
+```bash
+# Sort imports (auto-fix)
+isort pyboomi_platform tests
+
+# Check import sorting without changes
+isort --check-only pyboomi_platform tests
+```
+
+**Linting:**
+```bash
+# Lint code
+flake8 pyboomi_platform tests
+```
+
+**Type Checking:**
+```bash
+# Type check the main package
+mypy pyboomi_platform
+```
+
+**Security Scanning:**
+```bash
+# Security scan
+bandit -r pyboomi_platform
+```
+
+**Dependency Vulnerability Check:**
+```bash
+# Check for vulnerable dependencies
+pip-audit -r requirements.txt
+```
+
+**Dead Code Detection:**
+```bash
+# Find unused code
+vulture pyboomi_platform --min-confidence 80
+```
+
+**Complexity Analysis:**
+```bash
+# Cyclomatic complexity
+radon cc pyboomi_platform --min B
+
+# Maintainability index
+radon mi pyboomi_platform --min B
+
+# Raw metrics
+radon raw pyboomi_platform
+```
+
+#### QA Workflow
+
+Follow this workflow to ensure code quality:
+
+1. **During Development:**
+   - Pre-commit hooks automatically check code on each commit
+   - Fix any issues flagged by hooks before committing
+
+2. **Before Creating a Pull Request:**
+   - Run the comprehensive quality check: `./scripts/quality_check.sh`
+   - Ensure all checks pass, including test coverage
+   - Review the HTML coverage report to identify any gaps
+
+3. **Before Release:**
+   - Run the comprehensive quality check
+   - Verify test coverage meets project standards
+   - Ensure all security scans pass
+   - Review complexity metrics for any concerning areas
+
+4. **Quick Fixes:**
+   - Use individual tool commands for targeted fixes
+   - Format code: `black pyboomi_platform tests`
+   - Sort imports: `isort pyboomi_platform tests`
+   - Re-run specific checks as needed
+
+**Best Practices:**
+- Let pre-commit hooks catch issues early - don't skip them
+- Run the comprehensive check before significant commits
+- Address security vulnerabilities immediately
+- Maintain test coverage above project thresholds
+- Review complexity metrics periodically to identify refactoring opportunities
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## Author
+
+Robert Little
+
+## Development Notes
+
+This codebase was developed with AI assistance but has been thoroughly reviewed, tested, and modified by the author. All design decisions, architecture choices, and final implementation remain under the creative control and responsibility of the author.

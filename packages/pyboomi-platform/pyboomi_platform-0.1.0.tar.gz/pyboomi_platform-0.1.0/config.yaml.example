@@ -1,0 +1,23 @@
+# PyBoomi Platform SDK Configuration Example
+# Copy this file to config.yaml and update with your values
+
+boomi:
+  # Boomi account credentials
+  username: "your-username@company.com"  # Also accepts client_id
+  api_token: "your-api-token-here"       # Also accepts client_secret
+  account_id: "your-account-id-here"
+
+  # API configuration
+  base_url: "https://api.boomi.com/api/rest/v1"  # Optional, uses default if not specified
+  timeout: 30                                    # Request timeout in seconds
+  max_retries: 3                                 # Maximum retry attempts
+  backoff_factor: 1.5                           # Exponential backoff factor
+
+# Environment variables take precedence over config file values:
+# BOOMI_USERNAME or BOOMI_CLIENT_ID
+# BOOMI_API_TOKEN or BOOMI_CLIENT_SECRET
+# BOOMI_ACCOUNT_ID
+# BOOMI_API_BASE_URL
+# BOOMI_TIMEOUT
+# BOOMI_MAX_RETRIES
+# BOOMI_BACKOFF_FACTOR
