@@ -1,0 +1,139 @@
+Metadata-Version: 2.4
+Name: ImgTkinter
+Version: 1.0.3
+Summary: A powerful image classification and management tool
+Home-page: https://github.com/peng0928/ImgTkinter
+Author: Penr
+Author-email: 1944542244@qq.com
+Project-URL: Bug Reports, https://github.com/peng0928/ImgTkinter/issues
+Project-URL: Source, https://github.com/peng0928/ImgTkinter
+Keywords: image,classification,management,PyQt5,desktop
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Topic :: Multimedia :: Graphics
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: PyQt5>=5.15.0
+Requires-Dist: pypinyin>=0.44.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# ImgTkinter - 现代化图片分类管理器
+
+![Python](https://img.shields.io/badge/Python-3.6+-blue)
+![PyQt5](https://img.shields.io/badge/PyQt5-5.15+-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Platform](https://img.shields.io/badge/Platform-Windows/Linux/macOS-lightgrey)
+
+## 📖 概述
+`ImgTkinter.py` 是一个基于 **PyQt5** 开发的桌面端图片分类管理工具。它通过直观的图形用户界面（GUI），帮助用户高效地批量处理、分类和管理本地图片文件。
+
+## ✨ 主要功能
+
+### 1. 📂 源图片管理
+- **文件夹选择**：支持选择包含待分类图片的源文件夹。
+- **历史记录**：自动保存最近使用的源文件夹路径，通过下拉框快速切换。
+- **刷新加载**：提供一键刷新功能，实时更新源文件夹中的图片列表。
+- **分页显示**：
+  - 为了防止大量图片导致界面卡顿，采用分页机制（默认每页 200 张）。
+  - 提供翻页控件（上一页、下一页）和页码显示。
+- **统计信息**：实时显示当前文件夹中的图片总数量。
+
+### 2. 🗂️ 目标文件夹管理
+- **分类目标**：指定图片分类后的存放目录。
+- **新建文件夹**：在目标目录下直接创建新的子文件夹，用于分类。
+- **智能搜索**：
+  - 支持按文件夹名称搜索。
+  - 支持拼音搜索（包括全拼和首字母缩写），方便快速定位。
+- **自动排序**：
+  - 支持按文件夹内的文件数量进行升序或降序排列。
+  - 文件夹卡片带有颜色标识，根据文件数量显示不同颜色的标签。
+
+### 3. 🖼️ 图片操作
+- **可视化网格**：以网格形式展示图片缩略图，包含文件名预览。
+- **多选机制**：
+  - 支持通过 **Shift + 鼠标左键** 单击来选中或取消选中多张图片。
+  - 提供工具栏显示当前已选中的图片数量。
+  - 支持“全选当前页”和“清空选择”功能。
+- **拖拽分类**：
+  - 支持将单张或多张选中的图片直接拖拽到目标文件夹中。
+  - 拖拽过程中显示带有数量标记的预览图。
+  - **后台线程处理**：文件移动操作在后台线程执行，不会阻塞界面。
+- **右键菜单**：
+  - **删除图片**：右键可直接删除图片（无确认弹窗）。
+  - **重命名**：支持对图片进行重命名。
+  - **查看大图**：弹出独立窗口查看高清大图。
+  - **复制路径**：将图片的绝对路径复制到剪贴板。
+- **图片信息**：鼠标悬停在图片上时，会有视觉反馈（边框高亮）。
+
+### 4. 🔍 大图查看器
+- **独立窗口**：双击图片或选择查看选项时，打开置顶的独立窗口。
+- **缩放控制**：
+  - 提供放大、缩小、重置按钮。
+  - 支持 **鼠标滚轮** 缩放。
+  - 支持 **键盘快捷键**（`+` 放大, `-` 缩小, `0` 重置, `Esc` 关闭）。
+- **自适应显示**：窗口大小改变时自动适配图片尺寸。
+- **详细信息**：底部显示文件名、分辨率和文件大小。
+
+### 5. ⚙️ 辅助功能
+- **快捷键支持**：
+  - 按下 **空格键** 可快速聚焦到搜索框并清空内容，方便快速搜索。
+- **设置保存**：使用 `QSettings` 自动保存用户的文件夹历史记录和配置，下次启动自动加载。
+- **进度反馈**：底部状态栏和进度条实时显示操作进度（如加载图片、移动文件）。
+- **异步加载**：
+  - 图片缩略图加载采用分页同步加载，配合事件循环处理，保持界面流畅。
+  - 文件夹图标加载使用后台线程，避免阻塞主线程。
+
+## 🛠️ 技术特点
+- **多线程处理**：使用 `QThread` 处理耗时的文件移动和图标加载任务。
+- **拖放技术**：基于 `QDrag` 和 `QMimeData` 实现跨区域文件拖拽。
+- **自定义控件**：实现了 `ModernButton`（现代风格按钮）、`SortButton`（排序组件）、`ImageItem`（图片卡片）、`FolderItem`（文件夹卡片）等自定义 UI 组件。
+- **样式美化**：使用 QSS (Qt Style Sheets) 实现现代化的扁平风格设计，主要配色为蓝紫色（#8B5CF6）。
+
+## 📋 依赖库
+- `PyQt5`: 用于构建图形界面。
+- `pypinyin`: 用于文件夹名称的拼音搜索功能。
+
+
+## 🚀 快速开始
+
+### 安装方法
+
+#### 方法一：从源代码安装
+```bash
+# 克隆仓库
+git clone https://github.com/peng0928/ImgTkinter.git
+
+cd ImgTkinter
+
+# 安装依赖
+pip install PyQt5 pypinyin
+
+# 运行程序
+python ImgTkinter.py
+
+```
+# 通过PyPI安装（包名为imgtkinter）
+```bash
+pip install ImgTkinter
+# 运行程序
+Primg
+```
