@@ -1,0 +1,225 @@
+# GNO.SYS ☀️🌏💗🌐
+
+**Guardian Nexus OmniSanc Engineering Suite for Starting Yearround Sanctuary**
+
+Compound Intelligence Ecosystem Meta-Package - Install everything you need to run Isaac's compound intelligence system.
+
+## What is GNO.SYS?
+
+GNO.SYS is a meta-package that installs and configures the complete compound intelligence ecosystem, including:
+
+- **Knowledge & Memory**: CartON (knowledge graph), TOOT (context continuity), Brain Agent (distributed cognition)
+- **Navigation & Workflow**: STARSHIP (flight configs), STARLOG (project tracking), Waypoint (learning journeys)
+- **Intelligence & Learning**: GIINT (multi-fire intelligence), Opera (pattern learning), Canopy (execution tracking)
+- **Identity & Publishing**: SEED (identity unification & publishing platform)
+- **Orchestration**: STARSYSTEM (mission management), Metastack (structured outputs)
+- **Infrastructure**: HEAVEN Framework, Emergence Engine, FlightSim
+
+## Installation
+
+### 1. Install GNO.SYS
+
+```bash
+pip install gnosys
+```
+
+### 2. Install TWI Plugin (hooks/skills/commands)
+
+```bash
+# Manual installation
+cp -r twi ~/.claude/plugins/
+
+# Or if gnosys provides the plugin:
+gnosys install-plugin  # (future feature)
+```
+
+### 3. Initialize Configuration
+
+```bash
+gnosys init
+```
+
+This creates:
+- `~/.gnosys/.env.example` - Environment variable template
+- `~/.config/strata/servers.json.template` - Strata MCP config template
+
+### 4. Configure Environment
+
+```bash
+# Copy and edit environment variables
+cp ~/.gnosys/.env.example ~/.gnosys/.env
+nano ~/.gnosys/.env
+```
+
+Fill out required variables:
+
+```bash
+# GitHub
+GITHUB_PAT=your_github_pat_here
+REPO_URL=https://github.com/yourusername/private_wiki
+
+# Neo4j
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=password
+
+# OpenAI
+OPENAI_API_KEY=sk-proj-...
+
+# Directories
+HEAVEN_DATA_DIR=/tmp/heaven_data
+LLM_INTELLIGENCE_DIR=/tmp/llm_intelligence_responses
+CHROMA_PERSIST_DIR=/tmp/carton_chroma_db
+
+# SEED Publishing
+SEED_MEMBERSHIP_SITE_URL=https://your-seed-site.replit.app
+SEED_MEMBERSHIP_SITE_API_KEY=your_api_key
+SEED_MEMBERSHIP_SITE_ADMIN_EMAIL=admin@example.com
+SEED_MEMBERSHIP_SITE_ADMIN_PASSWORD=your_password
+
+# GIINT
+GIINT_TREEKANBAN_BOARD=your_board_name
+```
+
+### 5. Start Neo4j (if not running)
+
+```bash
+docker run -d \
+  -p 7687:7687 \
+  -e NEO4J_AUTH=neo4j/password \
+  neo4j:latest
+```
+
+### 6. Configure Strata MCPs
+
+```bash
+gnosys configure-strata
+```
+
+This reads your `.env` file and generates `~/.config/strata/servers.json` with all MCP configurations.
+
+### 7. Add Strata to Claude Code Config
+
+Manually add the Strata MCP server to your Claude Code configuration. Strata will orchestrate all other MCPs.
+
+### 8. Restart Claude Code
+
+Restart Claude Code to load all MCPs through Strata.
+
+## Verify Installation
+
+```bash
+gnosys status
+```
+
+Shows configuration status and Neo4j connection health.
+
+## Architecture
+
+GNO.SYS follows a layered architecture:
+
+```
+User
+  ↓
+Claude Code + TWI Plugin (hooks/skills/commands)
+  ↓
+Strata (MCP Orchestrator)
+  ↓
+21 MCP Servers (CartON, STARSHIP, STARLOG, SEED, etc.)
+  ↓
+Supporting Libraries (pydantic-stack-core, payload-discovery, etc.)
+  ↓
+Infrastructure (Neo4j, ChromaDB, filesystem storage)
+```
+
+## Component Overview
+
+### Core MCPs
+
+- **carton**: Neo4j knowledge graph with wiki+ontology layers
+- **starlog**: Project tracking and session management
+- **starship**: Flight configs and navigation system
+- **waypoint**: Progressive disclosure learning journeys
+- **STARSYSTEM**: Mission management with fitness scoring
+- **seed**: Identity unification and publishing platform
+- **giint-llm-intelligence**: Multi-fire intelligence with response editing
+- **brain-agent**: Distributed cognition for large contexts
+- **emergence-engine**: 3-pass methodology (Conceptualize → Generally Reify → Specifically Reify)
+- **opera**: Pattern learning and workflow capture
+- **canopy**: Execution tracking
+- **toot**: Context continuity breadcrumbs
+- **flightsim**: Flight execution engine
+- **metastack**: Renderable Pydantic models for structured outputs
+- **llm2hyperon**: Hyperon/MeTTa integration for computational metagraphs
+- **heaven-framework-toolbox**: Registry, OmniTool, NetworkEditTool
+
+### Supporting Libraries
+
+- **pydantic-stack-core**: Stackable, renderable Pydantic models
+- **payload-discovery**: Systematic agent learning framework
+
+## Troubleshooting
+
+### Neo4j Connection Failed
+
+```bash
+# Start Neo4j container
+docker run -d -p 7687:7687 -e NEO4J_AUTH=neo4j/password neo4j:latest
+
+# Check connection
+gnosys status
+```
+
+### MCPs Not Loading
+
+1. Verify Strata config: `cat ~/.config/strata/servers.json`
+2. Check .env values: `cat ~/.gnosys/.env`
+3. Restart Claude Code
+4. Check Claude Code logs
+
+### Missing Environment Variables
+
+```bash
+gnosys configure-strata
+# Will show which variables are missing
+```
+
+## Development
+
+### Installing from Source
+
+```bash
+git clone https://github.com/yourusername/gnosys
+cd gnosys
+pip install -e .
+```
+
+### Running Tests
+
+```bash
+pip install -e ".[dev]"
+pytest
+```
+
+## Philosophy
+
+GNO.SYS embodies the compound intelligence philosophy:
+
+- **Compounding Value**: Each system interaction creates incremental, sustainable value
+- **Cognitive Separation**: Internal thinking vs external communication (GIINT)
+- **Systematic Learning**: Structured curricula and progress tracking (Payload Discovery)
+- **Knowledge Publishing**: Transform private work into public knowledge (SEED)
+- **Anti-Hallucination**: Complete context understanding before modifications (Context Alignment)
+
+## License
+
+MIT
+
+## Support
+
+- Issues: https://github.com/yourusername/gnosys/issues
+- Docs: https://docs.sanctuary.systems (future)
+
+---
+
+**☀️🌏💗🌐** - The World Incorporated, a Sanctuary Bastion
