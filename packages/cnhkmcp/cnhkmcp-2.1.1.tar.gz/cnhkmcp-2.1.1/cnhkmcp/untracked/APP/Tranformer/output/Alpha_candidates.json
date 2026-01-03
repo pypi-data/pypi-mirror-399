@@ -1,0 +1,2421 @@
+{
+    "group_zscore(ts_delta(ts_decay_exp_window(winsorize(ts_backfill(<insider_field/>, 63), std=4), 60, factor=0.94), 5), sector)": {
+        "template_explanation": "Detects early-stage insider selling pressure by tracking the *first derivative* of insider holdings; buys when insiders reduce at a decelerating rate and shorts when outflows accelerate, industry-neutralized to isolate firm-specific flow signals.",
+        "seed_alpha_settings": {
+            "instrumentType": "EQUITY",
+            "region": "EUR",
+            "universe": "TOP400",
+            "delay": 1,
+            "decay": 5,
+            "neutralization": "SLOW_AND_FAST",
+            "truncation": 0.01,
+            "pasteurization": "ON",
+            "unitHandling": "VERIFY",
+            "nanHandling": "ON",
+            "maxTrade": "OFF",
+            "language": "FASTEXPR",
+            "visualization": false,
+            "startDate": "2013-01-20",
+            "endDate": "2023-01-20"
+        },
+        "placeholder_candidates": {
+            "<insider_field/>": {
+                "type": "data_field",
+                "candidates": [
+                    {
+                        "id": "rp_ess_insider",
+                        "description": "Event sentiment score of insider trading news"
+                    },
+                    {
+                        "id": "rp_css_insider",
+                        "description": "Composite sentiment score of insider trading news"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_market",
+                        "description": "Market Market Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_profit",
+                        "description": "Profit Style Factor Loading"
+                    },
+                    {
+                        "id": "nws7_eur_newsfreq_qerf",
+                        "description": "Number of news without insider\" keywords\""
+                    },
+                    {
+                        "id": "nws7_eur_newsfreq_all_delay_qerf",
+                        "description": "Number of news without insider\" key words (extra delay)\""
+                    },
+                    {
+                        "id": "hedge_fund_ownership_percent_europe",
+                        "description": "Percentage of shares owned by hedge funds in European companies."
+                    },
+                    {
+                        "id": "short_interest_europe_factor_score",
+                        "description": "Exposure to the short interest factor within the European universe, reflecting short selling activity."
+                    },
+                    {
+                        "id": "european_hedge_fund_ownership_count",
+                        "description": "Number of hedge funds holding a position in the security within the European universe."
+                    },
+                    {
+                        "id": "current_market_cap_usd",
+                        "description": "The current market capitalization of the company in US dollars."
+                    },
+                    {
+                        "id": "country_exposure_nld",
+                        "description": "Exposure or weight to companies domiciled in the Netherlands."
+                    },
+                    {
+                        "id": "country_exposure_gbr",
+                        "description": "Exposure or weight to companies domiciled in the United Kingdom."
+                    },
+                    {
+                        "id": "country_exposure_bel",
+                        "description": "Exposure or weight to companies domiciled in Belgium."
+                    },
+                    {
+                        "id": "country_exposure_irl",
+                        "description": "Exposure or weight to companies domiciled in Ireland."
+                    },
+                    {
+                        "id": "capital_goods_sector_exposure",
+                        "description": "Exposure or weight to the capital goods industry sector within the model."
+                    },
+                    {
+                        "id": "mdl77_bpemtt",
+                        "description": "The company's performance in trailing 1-year before taking into account non-recurring gain or loss, divided by its month-end trading price."
+                    },
+                    {
+                        "id": "mdl177_global_ttmepb",
+                        "description": "The company's performance in trailing 1-year before taking into account of non-recurring gain or loss.stock divided by its month-end trading price."
+                    },
+                    {
+                        "id": "mdl50_bk_average_vol",
+                        "description": "Average daily trading volume"
+                    },
+                    {
+                        "id": "mdl219_1_covol",
+                        "description": "60-month trading volume trend."
+                    },
+                    {
+                        "id": "mdl219_1_volto",
+                        "description": "Trading turnover ratio calculated as monthly trading volume divided by shares outstanding."
+                    },
+                    {
+                        "id": "mdl177_global_visiratio",
+                        "description": "The Visibility Ratio : It equals to a stock's most recent daily trading volume divided by the average daily trading volume in previous 50 trading days."
+                    },
+                    {
+                        "id": "mdl77_visiratio",
+                        "description": "The Visibility Ratio: It equals a stock's most recent daily trading volume divided by the average daily trading volume in the previous 50 trading days."
+                    },
+                    {
+                        "id": "mdl219_1_chgvolpre4y",
+                        "description": "4-year change in average trading volume."
+                    },
+                    {
+                        "id": "mdl219_1_liqcoeff",
+                        "description": "Liquidity coefficient measuring the relationship between trading turnover and price returns."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_primaryindustry",
+                        "description": "Industry factor loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_srtindcnt",
+                        "description": "Industry factor loading"
+                    },
+                    {
+                        "id": "previous_sales_statement_date",
+                        "description": "The date of the most recent prior sales or trading statement release."
+                    },
+                    {
+                        "id": "rsk70_gse_drteue_2mfm",
+                        "description": "ESG Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_beta",
+                        "description": "Beta Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_growth",
+                        "description": "Growth Style Factor Loading"
+                    },
+                    {
+                        "id": "country_exposure_esp",
+                        "description": "Exposure or weight to companies domiciled in Spain."
+                    },
+                    {
+                        "id": "country_exposure_deu",
+                        "description": "Exposure or weight to companies domiciled in Germany."
+                    },
+                    {
+                        "id": "country_exposure_dnk",
+                        "description": "Exposure or weight to companies domiciled in Denmark."
+                    },
+                    {
+                        "id": "industry_count_short",
+                        "description": "The number of distinct industry sectors represented in the short leg of the portfolio or model."
+                    },
+                    {
+                        "id": "diversified_financials_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the diversified financials sector factor within the European universe."
+                    },
+                    {
+                        "id": "airlines_sector_exposure",
+                        "description": "Exposure or weight to the airlines industry sector within the model."
+                    },
+                    {
+                        "id": "banking_sector_exposure",
+                        "description": "Exposure or weight to the banking industry sector within the model."
+                    },
+                    {
+                        "id": "rsk70_ytlqsvni_drteue_2mfm",
+                        "description": "Investment Quality Style Factor Loading"
+                    },
+                    {
+                        "id": "pharmaceuticals_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the pharmaceuticals sector factor within the European universe."
+                    },
+                    {
+                        "id": "media_sector_exposure",
+                        "description": "Exposure or weight to the media industry sector within the model."
+                    },
+                    {
+                        "id": "construction_sector_exposure",
+                        "description": "Exposure or weight to the construction industry sector within the model."
+                    },
+                    {
+                        "id": "country_austria_exposure_score",
+                        "description": "Exposure or sensitivity to the Austria country factor."
+                    },
+                    {
+                        "id": "energy_sector_exposure_score_2",
+                        "description": "Exposure or sensitivity to the energy sector factor."
+                    },
+                    {
+                        "id": "healthcare_sector_exposure_score_2",
+                        "description": "Exposure or sensitivity to the healthcare sector factor."
+                    },
+                    {
+                        "id": "real_estate_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the real estate sector factor within the European universe."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_upgrades_14d",
+                        "description": "Number of analyst recommendation upgrades over the past 14 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_upgrades_7d",
+                        "description": "Number of analyst recommendation upgrades in the last 7 days."
+                    },
+                    {
+                        "id": "analyst_recommendation_upgrades_count_30d",
+                        "description": "Number of analyst recommendation upgrades over the past 30 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_upgrades_60d",
+                        "description": "Number of analyst recommendation upgrades over the past 60 days."
+                    },
+                    {
+                        "id": "mdl26_traded_volume",
+                        "description": "traded volume (in 1000s)"
+                    },
+                    {
+                        "id": "star_arm_rec_days_since_newsell",
+                        "description": "days since new sell recommendation"
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_7d",
+                        "description": "Average change in analyst recommendations over the past 7 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_upgrades_90d",
+                        "description": "Number of analyst recommendation upgrades over the past 90 days."
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_14d",
+                        "description": "Average change in analyst recommendations over the past 14 days."
+                    },
+                    {
+                        "id": "mdl26_arm_revenue",
+                        "description": "revenue"
+                    },
+                    {
+                        "id": "mdl26_revenue",
+                        "description": "revenue"
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_60d",
+                        "description": "Average change in analyst recommendations over the past 60 days."
+                    },
+                    {
+                        "id": "count_analysts_raise_revenue_est_next_qtr_14d",
+                        "description": "Number of analysts who increased revenue estimates for the next quarter in the past 14 days."
+                    },
+                    {
+                        "id": "recommendation_change_score",
+                        "description": "Score reflecting changes in analyst buy/sell/hold recommendations."
+                    },
+                    {
+                        "id": "mdl26_traded_volume_u",
+                        "description": "traded volume (in 1000s)-USD"
+                    },
+                    {
+                        "id": "count_analyst_recommendation_downgrades_14d",
+                        "description": "Number of analyst recommendation downgrades in the last 14 days."
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_30d",
+                        "description": "Average change in analyst recommendations over the past 30 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_downgrades_7d",
+                        "description": "Number of analyst recommendation downgrades in the last 7 days."
+                    },
+                    {
+                        "id": "count_analyst_upward_revision_quarter_revenue_14d",
+                        "description": "Number of analysts who increased their revenue estimates for the current quarter over the past 14 days."
+                    },
+                    {
+                        "id": "count_analysts_raise_revenue_est_next_qtr_7d_d1",
+                        "description": "Number of analysts who increased revenue estimates for the next quarter in the past 7 days (daily version)."
+                    },
+                    {
+                        "id": "count_analysts_raise_revenue_est_next_qtr_14d_d1",
+                        "description": "Number of analysts who increased revenue estimates for the next quarter in the past 14 days (daily version)."
+                    },
+                    {
+                        "id": "count_analyst_upward_revision_quarter_revenue_7d",
+                        "description": "Number of analysts who increased their revenue estimates for the current quarter over the past 7 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_downgrades_60d",
+                        "description": "Number of analyst recommendation downgrades over the past 60 days."
+                    },
+                    {
+                        "id": "suspect_data_indicator_any_earnings",
+                        "description": "Flag indicating suspect data in any earnings-related field."
+                    },
+                    {
+                        "id": "snt21_3pos_conf_low",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_3pos_conf_low_56",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_5pos_conf_up_9",
+                        "description": "Upper confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_2pos_conf_low",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_4pos_conf_low_23",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_pos_conf_up",
+                        "description": "Upper confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_2pos_conf_up_88",
+                        "description": "Upper confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_4pos_conf_up",
+                        "description": "Upper confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_4pos_conf_up_25",
+                        "description": "Upper confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_2pos_conf_low_85",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_pos_conf_low",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_2pos_mean",
+                        "description": "Mean value of positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_2pos_mean_96",
+                        "description": "Mean value of positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_3pos_conf_up_54",
+                        "description": "Upper confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21pos_conf_up_73",
+                        "description": "Upper confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_3neg_conf_up_49",
+                        "description": "Upper confidence bound for negative sentiment scores."
+                    },
+                    {
+                        "id": "snt21_2neut_conf_up",
+                        "description": "Upper confidence bound for neutral sentiment scores."
+                    },
+                    {
+                        "id": "snt21_3neut_conf_up_44",
+                        "description": "Upper confidence bound for neutral sentiment scores."
+                    },
+                    {
+                        "id": "snt21_4neut_conf_up",
+                        "description": "Upper confidence bound for neutral sentiment scores."
+                    },
+                    {
+                        "id": "snt21_3pos_mean",
+                        "description": "Mean value of positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_4pos_mean_42",
+                        "description": "Mean value of positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_pos_mean",
+                        "description": "Mean value of positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_2neg_conf_low",
+                        "description": "Lower confidence bound for negative sentiment scores."
+                    },
+                    {
+                        "id": "snt21_neg_conf_low",
+                        "description": "Lower confidence bound for negative sentiment scores."
+                    },
+                    {
+                        "id": "snt21_4pos_conf_low",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_5pos_conf_low",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_5pos_conf_low_16",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21pos_conf_low_64",
+                        "description": "Lower confidence bound for positive sentiment scores."
+                    },
+                    {
+                        "id": "snt21_4neg_conf_up",
+                        "description": "Upper confidence bound for negative sentiment scores."
+                    },
+                    {
+                        "id": "snt21_4neg_conf_up_33",
+                        "description": "Upper confidence bound for negative sentiment scores."
+                    },
+                    {
+                        "id": "star_arm_rec_mean_prior7",
+                        "description": "recommendation mean prior 7"
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_90d",
+                        "description": "Average change in analyst recommendations over the last 90 days."
+                    },
+                    {
+                        "id": "mdl26_nm_mn_nlysts_prr_fq1_rnngs_7",
+                        "description": "number of mean analysts prior FQTR1 earnings: 7 days"
+                    },
+                    {
+                        "id": "mdl219_1_pfgmtt",
+                        "description": "Trailing 12-month growth flow-to-price ratio calculated as growth flow per share divided by price."
+                    }
+                ]
+            }
+        }
+    },
+    "-group_rank(ts_zscore(ts_regression(ts_decay_exp_window(winsorize(ts_backfill(<fund_aum_field/>, 63), std=4), 60, factor=0.94), close, 252, rettype=0), bucket(rank(cap), range='0.1,1,0.1'))": {
+        "template_explanation": "Captures fund-flow induced mispricing: regresses smoothed fund AUM on price to isolate the component of price not explained by flows; shorts positive residuals (over-bought) and longs negative residuals (over-sold), cap-neutralized.",
+        "seed_alpha_settings": {
+            "instrumentType": "EQUITY",
+            "region": "EUR",
+            "universe": "TOP400",
+            "delay": 1,
+            "decay": 5,
+            "neutralization": "SLOW_AND_FAST",
+            "truncation": 0.01,
+            "pasteurization": "ON",
+            "unitHandling": "VERIFY",
+            "nanHandling": "ON",
+            "maxTrade": "OFF",
+            "language": "FASTEXPR",
+            "visualization": false,
+            "startDate": "2013-01-20",
+            "endDate": "2023-01-20"
+        },
+        "placeholder_candidates": {
+            "<fund_aum_field/>": {
+                "type": "data_field",
+                "candidates": [
+                    {
+                        "id": "hedge_fund_ownership_percent_europe",
+                        "description": "Percentage of shares owned by hedge funds in European companies."
+                    },
+                    {
+                        "id": "european_hedge_fund_ownership_count",
+                        "description": "Number of hedge funds holding a position in the security within the European universe."
+                    },
+                    {
+                        "id": "mdl77_ceroe",
+                        "description": "The trailing 12-month funds from operations divided by the average of the current and previous year"
+                    },
+                    {
+                        "id": "mdl177_rvm_ttmgfp_alt",
+                        "description": "TTM Growth Flow-to-Price : It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl77_rvm_pfgmtt",
+                        "description": "TTM Growth Flow-to-Price: It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl77_vmm_pfgmtt",
+                        "description": "TTM Growth Flow-to-Price: It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl177_dvm_ttmgfp_alt",
+                        "description": "TTM Growth Flow-to-Price : It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl177_vmm_ttmgfp_alt",
+                        "description": "TTM Growth Flow-to-Price : It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl77_eur_dvm_pfgmtt",
+                        "description": "TTM Growth Flow-to-Price: It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl77_eur_global_pfgmtt",
+                        "description": "TTM Growth Flow-to-Price: It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl177_global_ttmgfp",
+                        "description": "TTM Growth Flow-to-Price : It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl77_dvm_pfgmtt",
+                        "description": "TTM Growth Flow-to-Price: It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl77_eur_rvm_pfgmtt",
+                        "description": "TTM Growth Flow-to-Price: It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl177_dvm_ttmgfp",
+                        "description": "TTM Growth Flow-to-Price : It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl177_rvm_ttmgfp",
+                        "description": "TTM Growth Flow-to-Price : It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl177_vmm_ttmgfp",
+                        "description": "TTM Growth Flow-to-Price : It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "mdl77_eur_vmm_pfgmtt",
+                        "description": "TTM Growth Flow-to-Price: It is defined as the sum of trailing 12-month growth flow value per share for a stock divided by its month-end trading price. Growth flow is the sum of Research & Development expenses and reported net income."
+                    },
+                    {
+                        "id": "rsk70_ytlqsvni_drteue_2mfm",
+                        "description": "Investment Quality Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_profit",
+                        "description": "Profit Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_srisku",
+                        "description": "Unadjusted initial specific risk annualized in units of %-squared"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_divyild",
+                        "description": "Dividend Yield Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_earnvar",
+                        "description": "Earnings Variability Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_trsd_drteue_2mfm",
+                        "description": "Specific returns"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_market",
+                        "description": "Market Market Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_earnyild",
+                        "description": "Earnings Yield Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_srisk",
+                        "description": "Final specific risk annualized in units of %-squared"
+                    },
+                    {
+                        "id": "banking_sector_exposure",
+                        "description": "Exposure or weight to the banking industry sector within the model."
+                    },
+                    {
+                        "id": "diversified_financials_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the diversified financials sector factor within the European universe."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_shortint",
+                        "description": "Short Interest Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_earnqlty",
+                        "description": "Earnings Quality Style Factor Loading"
+                    },
+                    {
+                        "id": "mdl313_iai",
+                        "description": "Intangible Asset Intensity Score"
+                    },
+                    {
+                        "id": "mdl219_1_astcomp",
+                        "description": "Asset composition ratio representing current assets divided by total assets."
+                    },
+                    {
+                        "id": "mdl219_1_iqa",
+                        "description": "Asset quality index measuring changes in the ratio of non-current assets to total assets."
+                    },
+                    {
+                        "id": "mdl219_2_astcomp",
+                        "description": "Asset composition ratio representing current assets divided by total assets for the second module."
+                    },
+                    {
+                        "id": "mdl31_ass_tvr_last_qtr",
+                        "description": "The amount of revenue generated for each unit of assets. Also known as TAT.  Asset Turnover = Net Revenue/Total Assets"
+                    },
+                    {
+                        "id": "mdl31_ass_tvr_last_y",
+                        "description": "The amount of revenue generated for each unit of assets. Also known as TAT.  Asset Turnover = Net Revenue/Total Assets"
+                    },
+                    {
+                        "id": "mdl31_ass_tvr_t4q",
+                        "description": "The amount of revenue generated for each unit of assets. Also known as TAT.  Asset Turnover = Net Revenue/Total Assets"
+                    },
+                    {
+                        "id": "mdl31_ass_tvr_prior_y",
+                        "description": "The amount of revenue generated for each unit of assets. Also known as TAT.  Asset Turnover = Net Revenue/Total Assets"
+                    },
+                    {
+                        "id": "mdl31_ass_tvr_prior_qtr",
+                        "description": "The amount of revenue generated for each unit of assets. Also known as TAT.  Asset Turnover = Net Revenue/Total Assets"
+                    },
+                    {
+                        "id": "mdl313_companyname",
+                        "description": "Company Name"
+                    },
+                    {
+                        "id": "mdl219_2_iqa",
+                        "description": "Asset quality index measuring changes in the ratio of non-current assets to total assets for the second module."
+                    },
+                    {
+                        "id": "mdl219_1_astto",
+                        "description": "Asset turnover ratio calculated as sales divided by total assets."
+                    },
+                    {
+                        "id": "mdl219_1_nfaldebt",
+                        "description": "Net fixed assets-to-long-term debt ratio measuring asset coverage."
+                    },
+                    {
+                        "id": "mdl313_sub_industry",
+                        "description": "Sub Industry"
+                    },
+                    {
+                        "id": "mdl313_ico",
+                        "description": "Organizational Capital Intensity Score"
+                    },
+                    {
+                        "id": "mdl219_1_fixastto",
+                        "description": "Fixed asset turnover ratio calculated as sales divided by fixed assets."
+                    },
+                    {
+                        "id": "mdl313_sector",
+                        "description": "Sector"
+                    },
+                    {
+                        "id": "mdl313_atlas_unit_name",
+                        "description": "Atlas unit name"
+                    },
+                    {
+                        "id": "mdl219_1_noato",
+                        "description": "Net operating asset turnover calculated as sales divided by average net operating assets."
+                    },
+                    {
+                        "id": "mdl25_bsv421_5v",
+                        "description": "Total Assets - Last Qtr"
+                    },
+                    {
+                        "id": "mdl219_2_astto",
+                        "description": "Asset turnover ratio calculated as sales divided by total assets for the second module."
+                    },
+                    {
+                        "id": "mdl219_2_nfaldebt",
+                        "description": "Net fixed assets-to-long-term debt ratio measuring asset coverage for the second module."
+                    },
+                    {
+                        "id": "mdl219_1_chgnoa",
+                        "description": "Change in net operating assets scaled by total assets."
+                    },
+                    {
+                        "id": "mdl219_2_fixastto",
+                        "description": "Fixed asset turnover ratio calculated as sales divided by fixed assets for the second module."
+                    },
+                    {
+                        "id": "mdl219_2_noato",
+                        "description": "Net operating asset turnover calculated as sales divided by average net operating assets for the second module."
+                    },
+                    {
+                        "id": "mdl25_rlevv421_5v",
+                        "description": "Assets to Equity - Last Qtr"
+                    },
+                    {
+                        "id": "mdl25_bsv421_7v",
+                        "description": "Average Net Operating Assets - Last Qtr"
+                    },
+                    {
+                        "id": "mdl219_1_pvan",
+                        "description": "Net asset value-to-price ratio calculated as book value of net assets divided by price."
+                    },
+                    {
+                        "id": "mdl25_bsv421_8v",
+                        "description": "Adjusted Average Net Operating Assets - Last Qtr"
+                    },
+                    {
+                        "id": "mdl219_1_invast",
+                        "description": "Inventory-to-total assets ratio calculated as inventory divided by total assets."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_size",
+                        "description": "Size Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk68_weight_dadv",
+                        "description": "Dollar average daily volume"
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_ceroe",
+                        "description": "It is defined as the trailing 12-month funds from operations divided by the average of current and previous year equity value."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_ceroe",
+                        "description": "It is defined as the trailing 12-month funds from operations divided by the average of current and previous year equity value."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_ceroe",
+                        "description": "It is defined as the trailing 12-month funds from operations divided by the average of current and previous year equity value."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_ceroe",
+                        "description": "It is defined as the trailing 12-month funds from operations divided by the average of current and previous year equity value."
+                    },
+                    {
+                        "id": "current_market_cap_usd",
+                        "description": "The current market capitalization of the company in US dollars."
+                    },
+                    {
+                        "id": "industry_count_short",
+                        "description": "The number of distinct industry sectors represented in the short leg of the portfolio or model."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_growth",
+                        "description": "Growth Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_indadj",
+                        "description": "Industrial adjustment factor loading"
+                    },
+                    {
+                        "id": "short_interest_europe_factor_score",
+                        "description": "Exposure to the short interest factor within the European universe, reflecting short selling activity."
+                    },
+                    {
+                        "id": "mdl219_1_m42rav",
+                        "description": "24-month value at risk calculated as the minimum monthly price return over the last 20 months."
+                    },
+                    {
+                        "id": "mdl219_2_m42rav",
+                        "description": "24-month value at risk calculated as the minimum monthly price return over the last 20 months for the second module."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_varresirtn",
+                        "description": "It is defined as the variance of a stock's monthly residual return in the last 24 months. The monthly residual return equals the stock's monthly return minus the product of a stock's proprietary 60-month Beta multiplied by the S&P 500 index monthly return."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_varresirtn",
+                        "description": "It is defined as the variance of a stock's monthly residual return in the last 24 months. The monthly residual return equals the stock's monthly return minus the product of a stock's proprietary 60-month Beta multiplied by the S&P 500 index monthly return."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_varresirtn",
+                        "description": "It is defined as the variance of a stock's monthly residual return in the last 24 months. The monthly residual return equals the stock's monthly return minus the product of the multiplication of a stock's proprietary 60-month beta by the S&P 500 index monthly return."
+                    },
+                    {
+                        "id": "mdl219_1_volpre6m",
+                        "description": "Average trading volume over the preceding 6 months calculated as the moving average of monthly turnover."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_varresirtn",
+                        "description": "It is defined as the variance of a stock's monthly residual return in the last 24 months. The monthly residual return equals the stock's monthly return minus the product of the multiplication of a stock's proprietary 60-month beta by the S&P 500 index monthly return."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_chgvolpre4y",
+                        "description": "It is defined as the change in the most recent 6-month moving average of monthly turnover ratio (average monthly trading volume/total shares outstanding) as compared to the 12-month moving average of monthly turnover ratio 4 years ago."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_chgvolpre4y",
+                        "description": "It is defined as the change in the most recent 6-month moving average of monthly turnover ratio (average monthly trading volume/total shares outstanding) as compared to the 12-month moving average of monthly turnover ratio 4 years ago."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_chgvolpre4y",
+                        "description": "It is defined as the change in the most recent 6-month moving average of monthly turnover ratio (average monthly trading volume/total shares outstanding) as compared to the 12-month moving average of monthly turnover ratio 4 years ago."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_chgvolpre4y",
+                        "description": "It is defined as the change in the most recent 6-month moving average of monthly turnover ratio (average monthly trading volume/total shares outstanding) as compared to the 12-month moving average of monthly turnover ratio 4 years ago."
+                    },
+                    {
+                        "id": "mdl219_1_varresirtn",
+                        "description": "24-month residual return variance calculated as the variance of monthly residual returns."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_52whigh",
+                        "description": "It is defined as the month-end price divided by the highest monthly closing price in the past 12-month."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_52whigh",
+                        "description": "It is defined as the month-end price divided by the highest monthly closing price in the past 12-month."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_52whigh",
+                        "description": "It is defined as the month-end price divided by the highest monthly closing price in the past 12-month."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_52whigh",
+                        "description": "It is defined as the month-end price divided by the highest monthly closing price in the past 12-month."
+                    },
+                    {
+                        "id": "mdl33_smartestimate_f12m_revenue",
+                        "description": "Analyst predicted revenue forward 12 months"
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_ratrev6m",
+                        "description": "It is defined as the 6-month average of the monthly change in the average analyst recommendation."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_ratrev6m",
+                        "description": "It is defined as the 6-month average of the monthly change in the average analyst recommendation."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_ratrev6m",
+                        "description": "It is defined as the 6-month average of the monthly change in the average analyst recommendation."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_ratrev6m",
+                        "description": "It is defined as the 6-month average of the monthly change in the average analyst recommendation."
+                    },
+                    {
+                        "id": "mdl219_2_volpre6m",
+                        "description": "Average trading volume over the preceding 6 months calculated as the moving average of monthly turnover for the second module."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_nlvolcap",
+                        "description": "It is defined as the natural logarithm of the quotient of the trailing 12-month average of the monthly trading volume to the trailing 12-month average of monthly market capitalization."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_nlvolcap",
+                        "description": "It is defined as the natural logarithm of the quotient of the trailing 12-month average of the monthly trading volume to the trailing 12-month average of monthly market capitalization."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_nlvolcap",
+                        "description": "It is defined as the natural logarithm of the quotient of the trailing 12-month average of the monthly trading volume to the trailing 12-month average of monthly market capitalization."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_nlvolcap",
+                        "description": "It is defined as the natural logarithm of the quotient of the trailing 12-month average of the monthly trading volume to the trailing 12-month average of monthly market capitalization."
+                    },
+                    {
+                        "id": "star_rev_surprise_prediction_12m_d1",
+                        "description": "Revenue predicted surprise pct - forward 12 months"
+                    },
+                    {
+                        "id": "star_rev_surprise_prediction_12m",
+                        "description": "Revenue predicted surprise pct - forward 12 months"
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_chgalpha12m",
+                        "description": "It is defined as the 6-month change in a stock's 12-month alpha, which equals the intercept from the regression of a stock price's monthly return against the S&P 500 index monthly return over last 12-month period."
+                    },
+                    {
+                        "id": "mdl219_1_sigma",
+                        "description": "Stock return volatility calculated as the standard deviation of monthly returns over the last 60 months."
+                    },
+                    {
+                        "id": "mdl50_bk_profitability",
+                        "description": "Higher value indicates higher cash flow ROI"
+                    },
+                    {
+                        "id": "profitability_level_score",
+                        "description": "Score based on cash flow return on investment."
+                    },
+                    {
+                        "id": "mdl50_bk_fcf_valu",
+                        "description": "Higher value indicates higher free cash flow yields"
+                    },
+                    {
+                        "id": "profitability_consistency_score",
+                        "description": "Score for stability of cash flow return on assets."
+                    },
+                    {
+                        "id": "count_positive_cashflow_question",
+                        "description": "Number of positive sentiment instances for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_polarity_cashflow_summary",
+                        "description": "Average sentiment polarity for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mdl25_history_31v",
+                        "description": "Cash Flow Component Current"
+                    },
+                    {
+                        "id": "mean_polarity_cashflow_answer",
+                        "description": "Average sentiment polarity for cash flow in answer segments."
+                    },
+                    {
+                        "id": "country_free_cash_flow_yield_score",
+                        "description": "Score for free cash flow yield within the country."
+                    },
+                    {
+                        "id": "count_positive_cashflow_answer",
+                        "description": "Number of positive sentiment instances for cash flow in answer segments."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_answer",
+                        "description": "Average positive sentiment score for cash flow in answer segments."
+                    },
+                    {
+                        "id": "count_negative_cashflow_question",
+                        "description": "Number of negative sentiment instances for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_question",
+                        "description": "Average positive sentiment score for cash flow in the question section."
+                    },
+                    {
+                        "id": "count_neutral_cashflow_question",
+                        "description": "Number of neutral sentiment instances for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_question",
+                        "description": "Average negative sentiment score for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_neutral_cashflow_question",
+                        "description": "Average neutral sentiment score for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_neutral_cashflow_answer",
+                        "description": "Average neutral sentiment score for cash flow in answer segments."
+                    },
+                    {
+                        "id": "mdl25_cfsv421_9v",
+                        "description": "Cash Flow from Investing - Last Qtr"
+                    },
+                    {
+                        "id": "mdl219_1_cfleverage",
+                        "description": "Cash flow leverage calculated as total liabilities divided by operating cash flow."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_answer",
+                        "description": "Average negative sentiment score for cash flow in answer segments."
+                    },
+                    {
+                        "id": "mean_neutral_cashflow_presentation",
+                        "description": "Average neutral sentiment score for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "count_positive_cashflow_presentation",
+                        "description": "Number of positive sentiment instances for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "count_neutral_cashflow_answer",
+                        "description": "Number of neutral sentiment instances for cash flow in answer segments."
+                    },
+                    {
+                        "id": "count_negative_cashflow_answer",
+                        "description": "Number of negative sentiment instances for cash flow in answer segments."
+                    },
+                    {
+                        "id": "count_positive_cashflow_summary",
+                        "description": "Number of positive sentiment instances for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_summary",
+                        "description": "Average positive sentiment score for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_presentation",
+                        "description": "Average negative sentiment score for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_presentation",
+                        "description": "Average positive sentiment score for cash flow in the presentation section."
+                    }
+                ]
+            }
+        }
+    },
+    "trade_when(ts_rank(ts_delta(ts_decay_exp_window(winsorize(ts_backfill(<analyst_net_buy_field/>, 63), std=4), 30, factor=0.9), 5), 252) > 0.8, -ts_zscore(ts_delta(close, 5), 252), 0)": {
+        "template_explanation": "Event-driven reversal: only trades when the second derivative of analyst net-buy reaches the top quintile, then shorts (or covers) the subsequent 5-day price momentum, betting that flow extremes trigger short-term mean reversion.",
+        "seed_alpha_settings": {
+            "instrumentType": "EQUITY",
+            "region": "EUR",
+            "universe": "TOP400",
+            "delay": 1,
+            "decay": 5,
+            "neutralization": "SLOW_AND_FAST",
+            "truncation": 0.01,
+            "pasteurization": "ON",
+            "unitHandling": "VERIFY",
+            "nanHandling": "ON",
+            "maxTrade": "OFF",
+            "language": "FASTEXPR",
+            "visualization": false,
+            "startDate": "2013-01-20",
+            "endDate": "2023-01-20"
+        },
+        "placeholder_candidates": {
+            "<analyst_net_buy_field/>": {
+                "type": "data_field",
+                "candidates": [
+                    {
+                        "id": "mdl219_1_stockrating",
+                        "description": "Street consensus rating calculated as the average analyst recommendation."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_downgrades_60d",
+                        "description": "Number of analyst recommendation downgrades over the past 60 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_downgrades_90d",
+                        "description": "Number of analyst recommendation downgrades in the last 90 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_upgrades_60d",
+                        "description": "Number of analyst recommendation upgrades over the past 60 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_upgrades_90d",
+                        "description": "Number of analyst recommendation upgrades over the past 90 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_upgrades_14d",
+                        "description": "Number of analyst recommendation upgrades over the past 14 days."
+                    },
+                    {
+                        "id": "analyst_recommendation_upgrades_count_30d",
+                        "description": "Number of analyst recommendation upgrades over the past 30 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_downgrades_7d",
+                        "description": "Number of analyst recommendation downgrades in the last 7 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_downgrades_14d",
+                        "description": "Number of analyst recommendation downgrades in the last 14 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_upgrades_7d",
+                        "description": "Number of analyst recommendation upgrades in the last 7 days."
+                    },
+                    {
+                        "id": "count_analyst_recommendation_downgrades_30d",
+                        "description": "Number of analyst recommendation downgrades over the past 30 days."
+                    },
+                    {
+                        "id": "mdl219_2_stockrating",
+                        "description": "Street consensus rating calculated as the average analyst recommendation for the second module."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_ratrev6m",
+                        "description": "It is defined as the 6-month average of the monthly change in the average analyst recommendation."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_ratrev6m",
+                        "description": "It is defined as the 6-month average of the monthly change in the average analyst recommendation."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_ratrev6m",
+                        "description": "It is defined as the 6-month average of the monthly change in the average analyst recommendation."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_ratrev6m",
+                        "description": "It is defined as the 6-month average of the monthly change in the average analyst recommendation."
+                    },
+                    {
+                        "id": "mdl77_ratrev6m",
+                        "description": "Street Rating Revision: It is defined as the 6-month average of the change in the average analyst recommendation tracked by"
+                    },
+                    {
+                        "id": "mdl177_global_ratrev6m",
+                        "description": "Street Rating Revision : It is defined as the 6-month average of the change in the average analyst recommendation tracked by"
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_60d",
+                        "description": "Average change in analyst recommendations over the past 60 days."
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_90d",
+                        "description": "Average change in analyst recommendations over the last 90 days."
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_30d",
+                        "description": "Average change in analyst recommendations over the past 30 days."
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_14d",
+                        "description": "Average change in analyst recommendations over the past 14 days."
+                    },
+                    {
+                        "id": "avg_change_analyst_recommendation_7d",
+                        "description": "Average change in analyst recommendations over the past 7 days."
+                    },
+                    {
+                        "id": "mdl50_bk_cn_analyst_revisn",
+                        "description": "Analyst revision score relative to country"
+                    },
+                    {
+                        "id": "mdl26_rm_nlyst_rvsns_scr",
+                        "description": "analyst revisions score"
+                    },
+                    {
+                        "id": "mdl26_sm_nlyst_rvsns_scr",
+                        "description": "Analyst Revisions Score"
+                    },
+                    {
+                        "id": "star_arm_score",
+                        "description": "analyst revisions score"
+                    },
+                    {
+                        "id": "mdl26_rm_nlyst_rvsns_scr_2",
+                        "description": "analyst revisions score"
+                    },
+                    {
+                        "id": "analyst_revision_revenue_score",
+                        "description": "Score component reflecting analyst revisions and surprises in company revenue."
+                    },
+                    {
+                        "id": "analyst_revision_primary_earnings_score",
+                        "description": "Score component reflecting analyst revisions and surprises in the primary earnings measure."
+                    },
+                    {
+                        "id": "analyst_revision_revenue_score_d1",
+                        "description": "Score component reflecting analyst revisions and surprises in company revenue (daily version)."
+                    },
+                    {
+                        "id": "analyst_revision_secondary_earnings_score",
+                        "description": "Score component reflecting analyst revisions and surprises in the secondary earnings measure."
+                    },
+                    {
+                        "id": "analyst_revision_rank_derivative",
+                        "description": "Change in ranking for analyst revisions and momentum compared to previous period."
+                    },
+                    {
+                        "id": "fscore_bfl_momentum",
+                        "description": "The purpose of this metric is to identify stocks which are currently undergoing either up or downward analyst revisions."
+                    },
+                    {
+                        "id": "fscore_momentum",
+                        "description": "The purpose of this metric is to identify stocks which are currently undergoing either up or downward analyst revisions."
+                    },
+                    {
+                        "id": "revenue_revision_score_3",
+                        "description": "Score component based on analyst revenue revisions."
+                    },
+                    {
+                        "id": "mdl30_new_numnly_fq1_eps",
+                        "description": "Number of SmartEstimate Analysts FQ1 EPS"
+                    },
+                    {
+                        "id": "star_eps_analyst_number_fq1_d1",
+                        "description": "Number of SmartEstimate Analysts FQ1 EPS"
+                    },
+                    {
+                        "id": "star_new_eps_analyst_number_fq1",
+                        "description": "Number of SmartEstimate Analysts FQ1 EPS"
+                    },
+                    {
+                        "id": "star_new_eps_analyst_number_fy1",
+                        "description": "Number of SmartEstimate Analysts FY1 EPS"
+                    },
+                    {
+                        "id": "star_eps_analyst_number_fq1",
+                        "description": "Number of SmartEstimate Analysts FQ1 EPS"
+                    },
+                    {
+                        "id": "mdl30_new_numnly_fy1_eps",
+                        "description": "Number of SmartEstimate Analysts FY1 EPS"
+                    },
+                    {
+                        "id": "mdl30_numnly_fy1_eps",
+                        "description": "Number of SmartEstimate Analysts FY1 EPS"
+                    },
+                    {
+                        "id": "star_eps_analyst_number_fy1",
+                        "description": "Number of SmartEstimate Analysts FY1 EPS"
+                    },
+                    {
+                        "id": "mdl30_numnly_fq1_eps",
+                        "description": "Number of SmartEstimate Analysts FQ1 EPS"
+                    },
+                    {
+                        "id": "star_eps_analyst_number_fq2",
+                        "description": "Number of SmartEstimate Analysts FQ2 EPS"
+                    },
+                    {
+                        "id": "star_eps_analyst_number_fy2",
+                        "description": "Number of SmartEstimate Analysts FY2 EPS"
+                    },
+                    {
+                        "id": "star_eps_analyst_number_fy1_d1",
+                        "description": "Number of SmartEstimate Analysts FY1 EPS"
+                    },
+                    {
+                        "id": "star_eps_analyst_number_fq2_d1",
+                        "description": "Number of SmartEstimate Analysts FQ2 EPS"
+                    },
+                    {
+                        "id": "star_eps_analyst_number_fy2_d1",
+                        "description": "Number of SmartEstimate Analysts FY2 EPS"
+                    },
+                    {
+                        "id": "mdl30_numnly_fq2_eps",
+                        "description": "Number of SmartEstimate Analysts FQ2 EPS"
+                    },
+                    {
+                        "id": "mdl30_new_numnly_fy2_eps",
+                        "description": "Number of SmartEstimate Analysts FY2 EPS"
+                    },
+                    {
+                        "id": "mdl30_new_numnly_fq2_eps",
+                        "description": "Number of SmartEstimate Analysts FQ2 EPS"
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_ydp_cf",
+                        "description": "It is defined as an assumed payout ratio multiplied by the next 4-quarter consensus earnings estimate divided by trading price. The payout ratio assumption is 10%+84%*Payout Ratio in last Year - 38%*consensus long-term earnings growth rate."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_ydp_cf",
+                        "description": "It is defined as an assumed payout ratio multiplied by the next 4-quarter consensus earnings estimate divided by trading price. The payout ratio assumption is 10%+84%*Payout Ratio in last Year - 38%*consensus long-term earnings growth rate."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_ydp_cf",
+                        "description": "It is defined as an assumed payout ratio multiplied by the next 4-quarter consensus earnings estimate divided by trading price. The payout ratio assumption is 10%+84%*Payout Ratio in last Year - 38%*consensus long-term earnings growth rate."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_ydp_cf",
+                        "description": "It is defined as an assumed payout ratio multiplied by the next 4-quarter consensus earnings estimate divided by trading price. The payout ratio assumption is 10%+84%*Payout Ratio in last Year - 38%*consensus long-term earnings growth rate."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_mpnghc",
+                        "description": "It is defined as the most recent quarterly net profit margin (NPM) minus the NPM 4 quarters ago. Net profit margin is net income divided by total sales."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_mpnghc",
+                        "description": "It is defined as the most recent quarterly net profit margin (NPM) minus the NPM 4 quarters ago. Net profit margin is net income divided by total sales."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_mpnghc",
+                        "description": "It is defined as the most recent quarterly net profit margin (NPM) minus the NPM 4 quarters ago. Net profit margin is net income divided by total sales."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_mpnghc",
+                        "description": "It is defined as the most recent quarterly net profit margin (NPM) minus the NPM 4 quarters ago. Net profit margin is net income divided by total sales."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_fc_estep",
+                        "description": "It is defined as the next fiscal year median consensus earnings estimate divided by trading price."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_fc_estep",
+                        "description": "It is defined as the next fiscal year median consensus earnings estimate divided by trading price."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_fc_estep",
+                        "description": "It is defined as the next fiscal year median consensus earnings estimate divided by trading price."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_fc_estep",
+                        "description": "It is defined as the next fiscal year median consensus earnings estimate divided by trading price."
+                    },
+                    {
+                        "id": "credit_model_structural_letter_grade_float",
+                        "description": "Credit rating grade inferred from the structural risk model, as a floating point value."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_netdebtebitda",
+                        "description": "It is defined as the net debt divided by EBITDA. Net debt equals the long-term debt plus short-term debt minus cash and equivalents."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_netdebtebitda",
+                        "description": "It is defined as the net debt divided by EBITDA. Net debt equals the long-term debt plus short-term debt minus cash and equivalents."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_netdebtebitda",
+                        "description": "It is defined as the net debt divided by EBITDA, where net debt equals the long-term debt plus short-term debt minus cash and equivalents."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_netdebtebitda",
+                        "description": "It is defined as the net debt divided by EBITDA, where net debt equals the long-term debt plus short-term debt minus cash and equivalents."
+                    },
+                    {
+                        "id": "mdl37_structural_rating",
+                        "description": "rating indicating probability of default based on structural leverage, asset volatility, and asset drift"
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_pvan",
+                        "description": "It is defined as the most recent book value of net assets per share (NAV) divided by the closing price. NAV is calculated by taking the total assets of a company and subtracting the value of the company's intangible assets (goodwill, patents, etc.) minus current and long-term liabilities."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_pvan",
+                        "description": "It is defined as the most recent book value of net assets per share (NAV) divided by the closing price. NAV is calculated by taking the total assets of a company and subtracting the value of the company's intangible assets (goodwill, patents, etc.) minus current and long-term liabilities."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_netdebt",
+                        "description": "It is defined as the net debt divided by the sum of the net debt, preferred stock, and common stock, where net debt equals the long-term debt plus short-term debt minus cash & equivalents. All items are from the most recent quarter."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_netdebt",
+                        "description": "It is defined as the net debt divided by the sum of the net debt, preferred stock, and common stock, where net debt equals the long-term debt plus short-term debt minus cash & equivalents. All items are from the most recent quarter."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_netdebt",
+                        "description": "It is defined as the net debt divided by the sum of the net debt, preferred stock, and common stock, where net debt equals the long-term debt plus short-term debt minus cash & equivalents. All items are from the most recent quarter."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_netdebt",
+                        "description": "It is defined as the net debt divided by the sum of the net debt, preferred stock, and common stock, where net debt equals the long-term debt plus short-term debt minus cash & equivalents. All items are from the most recent quarter."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_pge_cf",
+                        "description": "It is defined as a company's next 4-quarter mean earnings estimate multiplied by the mean long-term growth rate forecast, scaled by its trading price."
+                    },
+                    {
+                        "id": "fnd65_allcap_sedol_pge_cf",
+                        "description": "It is defined as a company's next 4-quarter mean earnings estimate multiplied by the mean long-term growth rate forecast, scaled by its trading price."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_pge_cf",
+                        "description": "It is defined as a company's next 4-quarter mean earnings estimate multiplied by the mean long-term growth rate forecast, scaled by its trading price."
+                    },
+                    {
+                        "id": "mdl230_allcap_sedol_pge_cf",
+                        "description": "It is defined as a company's next 4-quarter mean earnings estimate multiplied by the mean long-term growth rate forecast, scaled by its trading price."
+                    },
+                    {
+                        "id": "mdl230_dev_sedol_pvan",
+                        "description": "It is defined as the most recent book value of net assets per share (NAV) divided by the closing price. NAV is calculated in general form by taking the total assets of a company and subtracting the value of the company's intangible assets (goodwill, patents, etc.) minus current and long-term liabilities."
+                    },
+                    {
+                        "id": "fnd65_dev_sedol_pvan",
+                        "description": "It is defined as the most recent book value of net assets per share (NAV) divided by the closing price. NAV is calculated in general form by taking the total assets of a company and subtracting the value of the company's intangible assets (goodwill, patents, etc.) minus current and long-term liabilities."
+                    },
+                    {
+                        "id": "mdl140_qes_sinc_neut",
+                        "description": "Sensitivity to Expected Inflation Adjusted for Interest Rate Change"
+                    },
+                    {
+                        "id": "mdl140_qes_sinc_sensitivity",
+                        "description": "Sensitivity to Expected Inflation Proxied by Breakeven Rate Change"
+                    },
+                    {
+                        "id": "mdl140_qes_sinc_comp",
+                        "description": "QES SINC (Sensitive to Inflation Change) COMP model is the composite stock-level sensitivity to market-based inflation. It consists of a purified breakeven rate sensitivity (\"Pure\" SINC) and interest rate sensitivity (QES SIRC model) two component. Pure SINC is the stock-level sensitivity to changes in the residual of breakeven rates after adjusting for the change in interest rates. This inflation signal can therefore be used together with SIRC as an orthogonal inflation sensitivity factor."
+                    },
+                    {
+                        "id": "mdl25_pcv421_5v",
+                        "description": "Price Change (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_92v",
+                        "description": "Change Relative to Russell 2000 (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_01v",
+                        "description": "Change Relative to Industry Benchmark (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_52v",
+                        "description": "Change Relative to MSCI World (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_32v",
+                        "description": "Change Relative to MSCI Europe (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_11v",
+                        "description": "Change Relative to Country Benchmark (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_82v",
+                        "description": "Change Relative to Russell 1000 (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_61v",
+                        "description": "Change Relative to CAC 40 (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_12v",
+                        "description": "Change Relative to MSCI EAFE (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_22v",
+                        "description": "Change Relative to MSCI EMF (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_03v",
+                        "description": "Change Relative to Russell Midcap (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_53v",
+                        "description": "Change Relative to TSX Composite (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_33v",
+                        "description": "Change Relative to S&P 600 (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_13v",
+                        "description": "Change Relative to S&P 400 (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_62v",
+                        "description": "Change Relative to R1000 Growth (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_42v",
+                        "description": "Change Relative to MSCI Pac ex JP (%)"
+                    },
+                    {
+                        "id": "mdl25_pcv421_23v",
+                        "description": "Change Relative to S&P 500 (%)"
+                    },
+                    {
+                        "id": "mdl219_1_fc_rev6",
+                        "description": "Average of prior 6-month changes in FY1 consensus earnings forecasts."
+                    },
+                    {
+                        "id": "mdl219_2_fc_rev6",
+                        "description": "Average of prior 6-month changes in FY1 consensus earnings forecasts for the second module."
+                    },
+                    {
+                        "id": "mdl219_1_pb",
+                        "description": "Book-to-market ratio calculated as book value divided by market price."
+                    },
+                    {
+                        "id": "market_implied_5yr_eps_growth",
+                        "description": "Compound annual EPS growth rate implied by market price over 5 years."
+                    },
+                    {
+                        "id": "market_implied_10yr_eps_growth",
+                        "description": "Compound annual EPS growth rate implied by market price over 10 years."
+                    },
+                    {
+                        "id": "mdl219_2_pb",
+                        "description": "Book-to-market ratio calculated as book value divided by market price for the second module."
+                    },
+                    {
+                        "id": "mdl219_2_netcashp",
+                        "description": "Net cash-to-price ratio calculated as cash minus debt divided by market price for the second module."
+                    },
+                    {
+                        "id": "star_val_piv_ratio",
+                        "description": "Price / Intrinsic Value : The ratio of the previous day's market close price to the Intrinsic Value calculated by the StarMine valuation model"
+                    },
+                    {
+                        "id": "mdl219_2_past",
+                        "description": "Price-to-total assets ratio calculated as market price divided by total assets per share for the second module."
+                    },
+                    {
+                        "id": "mdl39_d1_price_mo_industry_component",
+                        "description": "Global 1-100 ranking of the Industry Price Momentum Component of the Price Mo model"
+                    },
+                    {
+                        "id": "mdl219_1_fc_rev3y2",
+                        "description": "3-month revision in FY2 EPS forecasts scaled by price."
+                    },
+                    {
+                        "id": "mdl219_1_fc_rev3y1",
+                        "description": "3-month revision in FY1 EPS forecasts scaled by price."
+                    },
+                    {
+                        "id": "mdl219_1_chg3yepsp",
+                        "description": "3-year change in EPS scaled by price."
+                    },
+                    {
+                        "id": "mdl219_1_pspeghc",
+                        "description": "1-year change in EPS scaled by price."
+                    },
+                    {
+                        "id": "mdl39_d1_price_mo_mid_term_component",
+                        "description": "Global 1-100 ranking of the Mid-Term Price Momentum Component of the Price Mo model"
+                    },
+                    {
+                        "id": "mdl39_d1_price_mo_short_term_component",
+                        "description": "Global 1-100 ranking of the Short-Term Price Momentum Component of the Price Mo model"
+                    },
+                    {
+                        "id": "mdl39_d1_price_mo_long_term_component",
+                        "description": "Global 1-100 ranking of the Long-Term Price Momentum Component of the Price Mo model"
+                    },
+                    {
+                        "id": "mdl219_1_w57w03_rp",
+                        "description": "30-week moving average price divided by 75-week moving average price."
+                    },
+                    {
+                        "id": "mdl219_1_6351_rp",
+                        "description": "15-week moving average price divided by 36-week moving average price."
+                    },
+                    {
+                        "id": "mdl25_vrv421_11v",
+                        "description": "Price/CFO"
+                    },
+                    {
+                        "id": "mdl219_1_w62isr",
+                        "description": "26-week relative price strength calculated as the most recent weekly closing price divided by the price 26 weeks ago."
+                    },
+                    {
+                        "id": "mdl25_vrv421_8v",
+                        "description": "Price/Sales"
+                    },
+                    {
+                        "id": "mdl219_1_apemtt",
+                        "description": "Trailing 12-month EPS after extraordinary items-to-price ratio calculated as EPS divided by price."
+                    },
+                    {
+                        "id": "mdl219_2_w57w03_rp",
+                        "description": "30-week moving average price divided by 75-week moving average price for the second module."
+                    },
+                    {
+                        "id": "mdl219_1_p50_200ratio",
+                        "description": "50-day moving average price divided by the 200-day moving average price."
+                    },
+                    {
+                        "id": "mdl219_2_6351_rp",
+                        "description": "15-week moving average price divided by 36-week moving average price for the second module."
+                    },
+                    {
+                        "id": "mdl39_d1_price_mo_global_rank",
+                        "description": "Global-relative 1-100 ranking of the Price Mo model"
+                    },
+                    {
+                        "id": "mdl219_2_w62isr",
+                        "description": "26-week relative price strength calculated as the most recent weekly closing price divided by the price 26 weeks ago for the second module."
+                    },
+                    {
+                        "id": "mdl219_2_fc_rev3y1",
+                        "description": "3-month revision in FY1 EPS forecasts scaled by price for the second module."
+                    },
+                    {
+                        "id": "mdl219_2_fc_rev3y2",
+                        "description": "3-month revision in FY2 EPS forecasts scaled by price for the second module."
+                    },
+                    {
+                        "id": "pb_ratio_relative_score",
+                        "description": "Relative ranking score for the price-to-book ratio component."
+                    }
+                ]
+            }
+        }
+    },
+    "group_neutralize(-ts_ir(ts_delta(ts_decay_linear(winsorize(ts_backfill(<family_office_field/>, 63), std=4), 30), 5), 126), subindustry)": {
+        "template_explanation": "Harvests slow-moving family-office flow acceleration; ranks the 5-day change in 30-day linear-decayed holdings, selects the bottom decile (outflow acceleration) to short, subindustry-neutral to avoid sector bets.",
+        "seed_alpha_settings": {
+            "instrumentType": "EQUITY",
+            "region": "EUR",
+            "universe": "TOP400",
+            "delay": 1,
+            "decay": 5,
+            "neutralization": "SLOW_AND_FAST",
+            "truncation": 0.01,
+            "pasteurization": "ON",
+            "unitHandling": "VERIFY",
+            "nanHandling": "ON",
+            "maxTrade": "OFF",
+            "language": "FASTEXPR",
+            "visualization": false,
+            "startDate": "2013-01-20",
+            "endDate": "2023-01-20"
+        },
+        "placeholder_candidates": {
+            "<family_office_field/>": {
+                "type": "data_field",
+                "candidates": [
+                    {
+                        "id": "european_hedge_fund_ownership_count",
+                        "description": "Number of hedge funds holding a position in the security within the European universe."
+                    },
+                    {
+                        "id": "country_exposure_irl",
+                        "description": "Exposure or weight to companies domiciled in Ireland."
+                    },
+                    {
+                        "id": "country_exposure_nld",
+                        "description": "Exposure or weight to companies domiciled in the Netherlands."
+                    },
+                    {
+                        "id": "country_exposure_gbr",
+                        "description": "Exposure or weight to companies domiciled in the United Kingdom."
+                    },
+                    {
+                        "id": "country_exposure_dnk",
+                        "description": "Exposure or weight to companies domiciled in Denmark."
+                    },
+                    {
+                        "id": "country_exposure_esp",
+                        "description": "Exposure or weight to companies domiciled in Spain."
+                    },
+                    {
+                        "id": "country_exposure_bel",
+                        "description": "Exposure or weight to companies domiciled in Belgium."
+                    },
+                    {
+                        "id": "country_exposure_deu",
+                        "description": "Exposure or weight to companies domiciled in Germany."
+                    },
+                    {
+                        "id": "current_market_cap_usd",
+                        "description": "The current market capitalization of the company in US dollars."
+                    },
+                    {
+                        "id": "household_products_exposure_score",
+                        "description": "Exposure or sensitivity to the household products sector factor."
+                    },
+                    {
+                        "id": "real_estate_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the real estate sector factor within the European universe."
+                    },
+                    {
+                        "id": "hedge_fund_ownership_percent_europe",
+                        "description": "Percentage of shares owned by hedge funds in European companies."
+                    },
+                    {
+                        "id": "telecom_services_exposure_score",
+                        "description": "Exposure or sensitivity to the telecom services sector factor."
+                    },
+                    {
+                        "id": "diversified_financials_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the diversified financials sector factor within the European universe."
+                    },
+                    {
+                        "id": "healthcare_sector_exposure_score_2",
+                        "description": "Exposure or sensitivity to the healthcare sector factor."
+                    },
+                    {
+                        "id": "primary_industry_classification",
+                        "description": "The main industry classification assigned to the company or security."
+                    },
+                    {
+                        "id": "banking_sector_exposure",
+                        "description": "Exposure or weight to the banking industry sector within the model."
+                    },
+                    {
+                        "id": "pharmaceuticals_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the pharmaceuticals sector factor within the European universe."
+                    },
+                    {
+                        "id": "capital_goods_sector_exposure",
+                        "description": "Exposure or weight to the capital goods industry sector within the model."
+                    },
+                    {
+                        "id": "consumer_durables_exposure_score",
+                        "description": "Exposure or sensitivity to the consumer durables sector factor."
+                    },
+                    {
+                        "id": "country_norway_exposure_score",
+                        "description": "Exposure or sensitivity to the Norway country factor."
+                    },
+                    {
+                        "id": "food_products_sector_exposure",
+                        "description": "Exposure or weight to the food products industry sector within the model."
+                    },
+                    {
+                        "id": "food_retail_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the food retail sector factor within the European universe."
+                    },
+                    {
+                        "id": "machinery_sector_exposure_score",
+                        "description": "Exposure or sensitivity to the machinery sector factor."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_anlystsn",
+                        "description": "Analysts' Sentiment Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_earnqlty",
+                        "description": "Earnings Quality Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_exeurexp",
+                        "description": "Europe Exposure Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_leverage",
+                        "description": "Leverage Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_ltrevrsl",
+                        "description": "Long-Term Reversal Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_midcap",
+                        "description": "Midcap Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_profit",
+                        "description": "Profit Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_resvol",
+                        "description": "Residual Volatility Style Factor Loading"
+                    },
+                    {
+                        "id": "mdl37_t12m_filings_count_d1",
+                        "description": "The number of filing documents within the trailing 12 months before the Data-Through Date."
+                    },
+                    {
+                        "id": "mdl37_t12m_filings_count",
+                        "description": "The number of filing documents within the trailing 12 months before the Data-Through Date."
+                    },
+                    {
+                        "id": "recent_filings_document_count",
+                        "description": "Number of company filings analyzed in the past month."
+                    },
+                    {
+                        "id": "yearly_filings_document_count",
+                        "description": "Number of company filings analyzed in the past twelve months."
+                    },
+                    {
+                        "id": "mdl37_t1m_filings_count_d1",
+                        "description": "The number of filing documents within the trailing 30 days before the Data-Through Date."
+                    },
+                    {
+                        "id": "mdl37_t1m_filings_count",
+                        "description": "The number of filing documents within the trailing 30 days before the Data-Through Date."
+                    },
+                    {
+                        "id": "mdl37_index_rating",
+                        "description": "probability of default by quantitatively analyzing textual content including transcripts, news, filings, and research"
+                    },
+                    {
+                        "id": "mdl25_cbv421_22v",
+                        "description": "Company Filing Date - Last Qtr"
+                    },
+                    {
+                        "id": "mdl25_cbv421_32v",
+                        "description": "New Filing Received Date - Last Qtr"
+                    },
+                    {
+                        "id": "rsk70_gse_drteue_2mfm",
+                        "description": "ESG Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_growth",
+                        "description": "Growth Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_indmom",
+                        "description": "Industrial Momentum Style Factor Loading"
+                    },
+                    {
+                        "id": "mdl37_t12m_tr_cnt_d1",
+                        "description": "The number of transcript documents within the trailing 12 months before the Data-Through Date."
+                    },
+                    {
+                        "id": "mdl37_t12m_tr_cnt",
+                        "description": "The number of transcript documents within the trailing 12 months before the Data-Through Date."
+                    },
+                    {
+                        "id": "oth553_tncrecnu_p",
+                        "description": "Data field for financial opinion mining."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_momentum",
+                        "description": "Momentum Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_primaryindustry",
+                        "description": "Industry factor loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_srtindcnt",
+                        "description": "Industry factor loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_earnvar",
+                        "description": "Earnings Variability Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_earnyild",
+                        "description": "Earnings Yield Style Factor Loading"
+                    },
+                    {
+                        "id": "oth553_tncrecnu_a",
+                        "description": "Data field for financial opinion mining."
+                    },
+                    {
+                        "id": "oth553_tncrecnu_q",
+                        "description": "Data field for financial opinion mining."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_indadj",
+                        "description": "Industrial adjustment factor loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_divyild",
+                        "description": "Dividend Yield Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_shortint",
+                        "description": "Short Interest Style Factor Loading"
+                    },
+                    {
+                        "id": "country_free_cash_flow_yield_score",
+                        "description": "Score for free cash flow yield within the country."
+                    },
+                    {
+                        "id": "profitability_consistency_score",
+                        "description": "Score for stability of cash flow return on assets."
+                    },
+                    {
+                        "id": "mdl31_dty_mm_fcf",
+                        "description": "\"Free Cash Flow. The cash generated (used) from operations after subtracting Capital Expenditures, which are investments made back into the business to support operations. FCF = CFO - Capex. Unit: million\""
+                    },
+                    {
+                        "id": "mdl31_fcf_mm_last_qtr",
+                        "description": "\"Free Cash Flow. The cash generated (used) from operations after subtracting Capital Expenditures, which are investments made back into the business to support operations. FCF = CFO - Capex. Unit: million\""
+                    },
+                    {
+                        "id": "mdl31_fcf_mm_last_y",
+                        "description": "\"Free Cash Flow. The cash generated (used) from operations after subtracting Capital Expenditures, which are investments made back into the business to support operations. FCF = CFO - Capex. Unit: million\""
+                    },
+                    {
+                        "id": "mdl31_q4t_mm_fcf",
+                        "description": "\"Free Cash Flow. The cash generated (used) from operations after subtracting Capital Expenditures, which are investments made back into the business to support operations. FCF = CFO - Capex. Unit: million\""
+                    },
+                    {
+                        "id": "mdl50_bk_fcf_valu",
+                        "description": "Higher value indicates higher free cash flow yields"
+                    },
+                    {
+                        "id": "country_profitability_level_score",
+                        "description": "Score for cash flow return on investment within the country."
+                    },
+                    {
+                        "id": "profitability_level_score",
+                        "description": "Score based on cash flow return on investment."
+                    },
+                    {
+                        "id": "free_cash_flow_yield_score",
+                        "description": "Score based on free cash flow yield compared to peers."
+                    },
+                    {
+                        "id": "profitability_consistency_score_backfill",
+                        "description": "Score for stability of cash flow return on assets (backfill data)."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_summary",
+                        "description": "Average negative sentiment score for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_presentation",
+                        "description": "Average negative sentiment score for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_summary",
+                        "description": "Average positive sentiment score for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_presentation",
+                        "description": "Average positive sentiment score for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "country_profitability_consistency_score",
+                        "description": "Score for stability of cash flow return on assets within the country."
+                    },
+                    {
+                        "id": "mean_neutral_cashflow_presentation",
+                        "description": "Average neutral sentiment score for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_answer",
+                        "description": "Average positive sentiment score for cash flow in answer segments."
+                    },
+                    {
+                        "id": "mdl25_history_31v",
+                        "description": "Cash Flow Component Current"
+                    },
+                    {
+                        "id": "mean_neutral_cashflow_summary",
+                        "description": "Average neutral sentiment score for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_answer",
+                        "description": "Average negative sentiment score for cash flow in answer segments."
+                    },
+                    {
+                        "id": "free_cash_flow_yield_score_backfill",
+                        "description": "Score based on free cash flow yield compared to peers (backfill data)."
+                    },
+                    {
+                        "id": "mdl219_1_cfleverage",
+                        "description": "Cash flow leverage calculated as total liabilities divided by operating cash flow."
+                    },
+                    {
+                        "id": "count_positive_cashflow_presentation",
+                        "description": "Number of positive sentiment instances for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "mean_polarity_cashflow_presentation",
+                        "description": "Average polarity score for cash flow sentiment in the presentation section."
+                    },
+                    {
+                        "id": "count_positive_cashflow_summary",
+                        "description": "Number of positive sentiment instances for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_question",
+                        "description": "Average negative sentiment score for cash flow in the question section."
+                    },
+                    {
+                        "id": "count_positive_cashflow_answer",
+                        "description": "Number of positive sentiment instances for cash flow in answer segments."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_question",
+                        "description": "Average positive sentiment score for cash flow in the question section."
+                    },
+                    {
+                        "id": "count_negative_cashflow_presentation",
+                        "description": "Number of negative sentiment instances for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "oth553_p_avgnumericpos",
+                        "description": "Average numerical position in financial text."
+                    },
+                    {
+                        "id": "oth553_q_avgnumericpos",
+                        "description": "Average numerical position in financial text."
+                    },
+                    {
+                        "id": "oth553_a_avgnumericpos",
+                        "description": "Average numerical position in financial text."
+                    },
+                    {
+                        "id": "short_interest_europe_factor_score",
+                        "description": "Exposure to the short interest factor within the European universe, reflecting short selling activity."
+                    },
+                    {
+                        "id": "momentum_factor_exposure",
+                        "description": "Exposure or sensitivity to the momentum style factor in the risk model."
+                    },
+                    {
+                        "id": "rsk70_ytlqsvni_drteue_2mfm",
+                        "description": "Investment Quality Style Factor Loading"
+                    }
+                ]
+            }
+        }
+    },
+    "ts_zscore(ts_decay_exp_window(ts_corr(ts_delta(winsorize(ts_backfill(<institutional_field/>, 63), std=4), 5), returns, 66), 60, factor=0.94), 252)": {
+        "template_explanation": "Flow-to-price lead-lag alpha: measures how tightly 5-day changes in institutional holdings co-move with subsequent returns; high positive correlation flags crowded selling that has not yet fully impacted price, providing a tactical short signal, exponentially smoothed and cross-sectionally normalized.",
+        "seed_alpha_settings": {
+            "instrumentType": "EQUITY",
+            "region": "EUR",
+            "universe": "TOP400",
+            "delay": 1,
+            "decay": 5,
+            "neutralization": "SLOW_AND_FAST",
+            "truncation": 0.01,
+            "pasteurization": "ON",
+            "unitHandling": "VERIFY",
+            "nanHandling": "ON",
+            "maxTrade": "OFF",
+            "language": "FASTEXPR",
+            "visualization": false,
+            "startDate": "2013-01-20",
+            "endDate": "2023-01-20"
+        },
+        "placeholder_candidates": {
+            "<institutional_field/>": {
+                "type": "data_field",
+                "candidates": [
+                    {
+                        "id": "hedge_fund_ownership_percent_europe",
+                        "description": "Percentage of shares owned by hedge funds in European companies."
+                    },
+                    {
+                        "id": "european_hedge_fund_ownership_count",
+                        "description": "Number of hedge funds holding a position in the security within the European universe."
+                    },
+                    {
+                        "id": "country_exposure_nld",
+                        "description": "Exposure or weight to companies domiciled in the Netherlands."
+                    },
+                    {
+                        "id": "country_exposure_gbr",
+                        "description": "Exposure or weight to companies domiciled in the United Kingdom."
+                    },
+                    {
+                        "id": "country_exposure_irl",
+                        "description": "Exposure or weight to companies domiciled in Ireland."
+                    },
+                    {
+                        "id": "banking_sector_exposure",
+                        "description": "Exposure or weight to the banking industry sector within the model."
+                    },
+                    {
+                        "id": "country_exposure_bel",
+                        "description": "Exposure or weight to companies domiciled in Belgium."
+                    },
+                    {
+                        "id": "current_market_cap_usd",
+                        "description": "The current market capitalization of the company in US dollars."
+                    },
+                    {
+                        "id": "country_exposure_dnk",
+                        "description": "Exposure or weight to companies domiciled in Denmark."
+                    },
+                    {
+                        "id": "primary_industry_classification",
+                        "description": "The main industry classification assigned to the company or security."
+                    },
+                    {
+                        "id": "capital_goods_sector_exposure",
+                        "description": "Exposure or weight to the capital goods industry sector within the model."
+                    },
+                    {
+                        "id": "diversified_financials_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the diversified financials sector factor within the European universe."
+                    },
+                    {
+                        "id": "industry_count_short",
+                        "description": "The number of distinct industry sectors represented in the short leg of the portfolio or model."
+                    },
+                    {
+                        "id": "telecom_services_exposure_score",
+                        "description": "Exposure or sensitivity to the telecom services sector factor."
+                    },
+                    {
+                        "id": "country_exposure_esp",
+                        "description": "Exposure or weight to companies domiciled in Spain."
+                    },
+                    {
+                        "id": "pharmaceuticals_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the pharmaceuticals sector factor within the European universe."
+                    },
+                    {
+                        "id": "healthcare_sector_exposure_score_2",
+                        "description": "Exposure or sensitivity to the healthcare sector factor."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_primaryindustry",
+                        "description": "Industry factor loading"
+                    },
+                    {
+                        "id": "software_sector_exposure_score",
+                        "description": "Exposure or sensitivity to the software sector factor."
+                    },
+                    {
+                        "id": "rsk70_ytlqsvni_drteue_2mfm",
+                        "description": "Investment Quality Style Factor Loading"
+                    },
+                    {
+                        "id": "real_estate_europe_exposure_score",
+                        "description": "Exposure or sensitivity to the real estate sector factor within the European universe."
+                    },
+                    {
+                        "id": "oil_gas_sector_exposure_score",
+                        "description": "Exposure or sensitivity to the oil and gas sector factor."
+                    },
+                    {
+                        "id": "country_exposure_deu",
+                        "description": "Exposure or weight to companies domiciled in Germany."
+                    },
+                    {
+                        "id": "hardware_sector_exposure",
+                        "description": "Exposure or weight to the hardware industry sector within the model."
+                    },
+                    {
+                        "id": "short_interest_europe_factor_score",
+                        "description": "Exposure to the short interest factor within the European universe, reflecting short selling activity."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_market",
+                        "description": "Market Market Factor Loading"
+                    },
+                    {
+                        "id": "other_materials_sector_exposure",
+                        "description": "Exposure or weight to the other materials industry sector within the model."
+                    },
+                    {
+                        "id": "retail_sector_exposure",
+                        "description": "Exposure or weight to the retail industry sector within the model."
+                    },
+                    {
+                        "id": "airlines_sector_exposure",
+                        "description": "Exposure or weight to the airlines industry sector within the model."
+                    },
+                    {
+                        "id": "media_sector_exposure",
+                        "description": "Exposure or weight to the media industry sector within the model."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_srtindcnt",
+                        "description": "Industry factor loading"
+                    },
+                    {
+                        "id": "transportation_sector_exposure",
+                        "description": "Exposure or weight to the transportation industry sector within the model."
+                    },
+                    {
+                        "id": "insurance_sector_exposure",
+                        "description": "Exposure or weight to the insurance industry sector within the model."
+                    },
+                    {
+                        "id": "construction_sector_exposure",
+                        "description": "Exposure or weight to the construction industry sector within the model."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_profit",
+                        "description": "Profit Style Factor Loading"
+                    },
+                    {
+                        "id": "semiconductor_sector_exposure",
+                        "description": "Exposure or weight to the semiconductor industry sector within the model."
+                    },
+                    {
+                        "id": "utilities_sector_exposure_score_2",
+                        "description": "Exposure or sensitivity to the utilities sector factor."
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_earnvar",
+                        "description": "Earnings Variability Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_cntadj",
+                        "description": "Country adjusted factor loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_momentum",
+                        "description": "Momentum Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_leverage",
+                        "description": "Leverage Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_midcap",
+                        "description": "Midcap Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_season",
+                        "description": "Season Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_size",
+                        "description": "Size Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_gse_drteue_2mfm",
+                        "description": "ESG Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_beta",
+                        "description": "Beta Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_indadj",
+                        "description": "Industrial adjustment factor loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_growth",
+                        "description": "Growth Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_earnyild",
+                        "description": "Earnings Yield Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_newssent",
+                        "description": "News Sentiment Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_shortint",
+                        "description": "Short Interest Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_anlystsn",
+                        "description": "Analysts' Sentiment Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_earnqlty",
+                        "description": "Earnings Quality Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_exeurexp",
+                        "description": "Europe Exposure Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_resvol",
+                        "description": "Residual Volatility Style Factor Loading"
+                    },
+                    {
+                        "id": "rsk70_mfm2_euetrd_divyild",
+                        "description": "Dividend Yield Style Factor Loading"
+                    },
+                    {
+                        "id": "mdl50_bk_profitability",
+                        "description": "Higher value indicates higher cash flow ROI"
+                    },
+                    {
+                        "id": "profitability_level_score",
+                        "description": "Score based on cash flow return on investment."
+                    },
+                    {
+                        "id": "mdl50_bk_fcf_valu",
+                        "description": "Higher value indicates higher free cash flow yields"
+                    },
+                    {
+                        "id": "profitability_consistency_score",
+                        "description": "Score for stability of cash flow return on assets."
+                    },
+                    {
+                        "id": "count_positive_cashflow_question",
+                        "description": "Number of positive sentiment instances for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_polarity_cashflow_summary",
+                        "description": "Average sentiment polarity for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mdl25_history_31v",
+                        "description": "Cash Flow Component Current"
+                    },
+                    {
+                        "id": "mean_polarity_cashflow_answer",
+                        "description": "Average sentiment polarity for cash flow in answer segments."
+                    },
+                    {
+                        "id": "country_free_cash_flow_yield_score",
+                        "description": "Score for free cash flow yield within the country."
+                    },
+                    {
+                        "id": "count_positive_cashflow_answer",
+                        "description": "Number of positive sentiment instances for cash flow in answer segments."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_answer",
+                        "description": "Average positive sentiment score for cash flow in answer segments."
+                    },
+                    {
+                        "id": "count_negative_cashflow_question",
+                        "description": "Number of negative sentiment instances for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_question",
+                        "description": "Average positive sentiment score for cash flow in the question section."
+                    },
+                    {
+                        "id": "count_neutral_cashflow_question",
+                        "description": "Number of neutral sentiment instances for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_question",
+                        "description": "Average negative sentiment score for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_neutral_cashflow_question",
+                        "description": "Average neutral sentiment score for cash flow in the question section."
+                    },
+                    {
+                        "id": "mean_neutral_cashflow_answer",
+                        "description": "Average neutral sentiment score for cash flow in answer segments."
+                    },
+                    {
+                        "id": "mdl25_cfsv421_9v",
+                        "description": "Cash Flow from Investing - Last Qtr"
+                    },
+                    {
+                        "id": "mdl219_1_cfleverage",
+                        "description": "Cash flow leverage calculated as total liabilities divided by operating cash flow."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_answer",
+                        "description": "Average negative sentiment score for cash flow in answer segments."
+                    },
+                    {
+                        "id": "mean_neutral_cashflow_presentation",
+                        "description": "Average neutral sentiment score for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "count_positive_cashflow_presentation",
+                        "description": "Number of positive sentiment instances for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "count_neutral_cashflow_answer",
+                        "description": "Number of neutral sentiment instances for cash flow in answer segments."
+                    },
+                    {
+                        "id": "count_negative_cashflow_answer",
+                        "description": "Number of negative sentiment instances for cash flow in answer segments."
+                    },
+                    {
+                        "id": "count_positive_cashflow_summary",
+                        "description": "Number of positive sentiment instances for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_summary",
+                        "description": "Average positive sentiment score for cash flow in summary segments."
+                    },
+                    {
+                        "id": "mean_negative_cashflow_presentation",
+                        "description": "Average negative sentiment score for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "mean_positive_cashflow_presentation",
+                        "description": "Average positive sentiment score for cash flow in the presentation section."
+                    },
+                    {
+                        "id": "mdl177_qvm_qma_eur",
+                        "description": "Momentum Analyst"
+                    },
+                    {
+                        "id": "mdl177_qvm_qma_eur_alt",
+                        "description": "Momentum Analyst"
+                    },
+                    {
+                        "id": "mdl242_factor_momentum_component",
+                        "description": "Price momentum."
+                    },
+                    {
+                        "id": "oth54_factor_momentum_component",
+                        "description": "Price momentum."
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_fy1",
+                        "description": "FY1 SmartEstimate"
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_fy1_d1",
+                        "description": "FY1 SmartEstimate"
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_fq1",
+                        "description": "FQ1 SmartEstimate"
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_fq1_d1",
+                        "description": "FQ1 SmartEstimate"
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_fy2",
+                        "description": "FY2 SmartEstimate"
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_fy2_d1",
+                        "description": "FY2 SmartEstimate"
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_fq2",
+                        "description": "FQ2 SmartEstimate"
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_fq2_d1",
+                        "description": "FQ2 SmartEstimate"
+                    },
+                    {
+                        "id": "mdl177_qvm_qva_eur",
+                        "description": "Value Analyst"
+                    },
+                    {
+                        "id": "mdl177_qvm_qva_eur_alt",
+                        "description": "Value Analyst"
+                    },
+                    {
+                        "id": "mdl26_arm_revenue",
+                        "description": "revenue"
+                    },
+                    {
+                        "id": "mdl26_revenue",
+                        "description": "revenue"
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_12m",
+                        "description": "F12M SmartEstimate"
+                    },
+                    {
+                        "id": "star_rev_smart_estimate_12m_d1",
+                        "description": "F12M SmartEstimate"
+                    },
+                    {
+                        "id": "mdl26_smartestimate_fy1_revenue",
+                        "description": "SmartEstimate FY1 Revenue"
+                    },
+                    {
+                        "id": "mdl26_smartestimate_fq1_revenue",
+                        "description": "SmartEstimate FQ1 Revenue"
+                    },
+                    {
+                        "id": "mdl77_o_gsg_shortsentimentfactor_dmd_supply",
+                        "description": "Demand Supply"
+                    },
+                    {
+                        "id": "star_val_iv_projection",
+                        "description": "Intrinsic Value - In Projection Currency : The Intrinsic Value of a security calculated by the StarMine valuation model"
+                    },
+                    {
+                        "id": "mdl26_smartestimate_fy2_revenue",
+                        "description": "SmartEstimate FY2 Revenue"
+                    },
+                    {
+                        "id": "mdl26_smartestimate_f12m_revenue",
+                        "description": "SmartEstimate F12M Revenue"
+                    },
+                    {
+                        "id": "mdl242_reversal_component",
+                        "description": "Price reversion."
+                    },
+                    {
+                        "id": "oth54_reversal_component",
+                        "description": "Price reversion."
+                    },
+                    {
+                        "id": "mdl26_smartestimate_fq2_revenue",
+                        "description": "SmartEstimate FQ2 Revenue"
+                    },
+                    {
+                        "id": "oth335_combined_all_region_mktcap",
+                        "description": "Market Cap"
+                    }
+                ]
+            }
+        }
+    }
+}
