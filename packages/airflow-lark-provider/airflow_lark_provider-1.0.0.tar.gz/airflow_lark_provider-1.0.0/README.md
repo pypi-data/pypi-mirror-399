@@ -1,0 +1,261 @@
+# Lark Provider for Apache Airflow
+
+This package provides Apache Airflow integration with Lark (Feishu) bot webhooks, allowing you to send messages to Lark groups from your Airflow DAGs.
+
+## Features
+
+- Send text messages to Lark groups via custom bot webhooks
+- Support for rich text messages with titles
+- @ mention users or @ all functionality
+- Connection management for different Lark bots
+- Comprehensive error handling and retry logic
+
+## Installation
+
+```bash
+pip install airflow-lark-provider
+```
+
+Or install from source:
+
+```bash
+git clone <repository-url>
+cd airflow-lark-provider
+pip install -e .
+```
+
+## Configuration
+
+### Create a Lark Bot
+
+1. Open Lark/Feishu, go to the group where you want to add the bot
+2. Click on the group settings -\u003e Add Bot -\u003e Custom Bot
+3. Give it a name and select features you need
+4. Copy the webhook URL (it starts with `https://open.larksuite.com/open-apis/bot/v2/hook/`)
+
+### Configure Airflow Connection
+
+Create a new connection in Airflow UI or CLI:
+
+```bash
+airflow connections add 'lark_default' \
+    --conn-type 'lark_webhook' \
+    --conn-password 'YOUR_WEBHOOK_URL'
+```
+
+Or in Airflow UI:
+1. Go to Admin -\u003e Connections
+2. Click "Create" button
+3. Set **Connection Id**: `lark_default` (or any name you prefer)
+4. Set **Connection Type**: `lark_webhook`
+5. Set **Password**: Your full webhook URL
+
+### Alternative Connection Configuration
+
+You can also configure the connection with different components:
+
+```bash
+airflow connections add 'lark_default' \
+    --conn-type 'lark_webhook' \
+    --conn-host 'open.larksuite.com' \
+    --conn-schema 'https'
+```
+
+And add the webhook path in the **Extra** field:
+```json
+{"path": "/open-apis/bot/v2/hook/YOUR_WEBHOOK_ID"}
+```
+
+## Usage Examples
+
+### Simple Text Message
+
+```python
+from airflow import DAG
+from airflow.utils.dates import days_ago
+from airflow_lark_provider import LarkWebhookOperator
+
+dag = DAG(
+    'lark_example',
+    start_date=days_ago(1),
+    schedule_interval=None,
+)
+
+send_message = LarkWebhookOperator(
+    task_id='send_lark_message',
+    dag=dag,
+    lark_conn_id='lark_default',
+    message='Hello from Airflow!',
+    message_type='text',
+)
+```
+
+### Rich Text Message
+
+```python
+send_rich_message = LarkWebhookOperator(
+    task_id='send_rich_message',
+    dag=dag,
+    lark_conn_id='lark_default',
+    title='DAG Status Report',
+    message='\n• Task1: Success ✅\n• Task2: Success ✅\n• Task3: Failed ❌\n\nTotal tasks: 3\nFailed: 1',
+    message_type='post',
+)
+```
+
+### @ Mention Users
+
+```python
+mention_task = LarkWebhookOperator(
+    task_id='mention_users',
+    dag=dag,
+    lark_conn_id='lark_default',
+    message='This is urgent!',
+    at_user_ids=['user1@example.com', 'user2@example.com'],
+)
+```
+
+### @ All Users
+
+```python
+announce_task = LarkWebhookOperator(
+    task_id='announce_to_all',
+    dag=dag,
+    lark_conn_id='lark_default',
+    message='This is an important announcement!',
+    at_all=True,
+)
+```
+
+### Using Multiple Bots
+
+You can configure multiple connections for different bots:
+
+```python
+# Development environment
+dev_message = LarkWebhookOperator(
+    task_id='send_to_dev',
+    dag=dag,
+    lark_conn_id='lark_dev_bot',
+    message='Development pipeline notification',
+)
+
+# Production environment
+prod_message = LarkWebhookOperator(
+    task_id='send_to_prod',
+    dag=dag,
+    lark_conn_id='lark_prod_bot',
+    message='Production pipeline notification',
+)
+```
+
+## Operator Parameters
+
+### LarkWebhookOperator
+
+- **lark_conn_id** (str) - The connection ID for the Lark webhook (default: 'lark_default')
+- **message** (str) - The message content to send
+- **title** (str) - The title for rich text messages (optional)
+- **message_type** (str) - The type of message: 'text', 'post' (default: 'text')
+  - `text`: Simple text message
+  - `post`: Rich text message with title
+- **at_user_ids** (list) - List of user IDs to @ mention (optional)
+- **at_all** (bool) - Whether to @ all users (default: False)
+- **timeout** (int) - The timeout for the webhook request (default: 30)
+- **retry_limit** (int) - The number of retries (default: 3)
+
+### LarkWebhookSentimentAnalysisOperator
+
+- **text** (str) - The text to analyze sentiment for
+- **lark_conn_id** (str) - The connection ID for the Lark webhook (default: 'lark_default')
+- **positive_threshold** (float) - Threshold for positive sentiment (default: 0.7)
+
+## Message Formats
+
+### Text Message
+```json
+{
+  "msg_type": "text",
+  "content": {
+    "text": "Hello from Airflow!"
+  }
+}
+```
+
+### Post (Rich Text) Message
+```json
+{
+  "msg_type": "post",
+  "content": {
+    "post": {
+      "zh_cn": {
+        "title": "DAG Status Report",
+        "content": [
+          [{
+            "tag": "text",
+            "text": "Your message content here"
+          }]
+        ]
+      }
+    }
+  }
+}
+```
+
+## Error Handling
+
+The provider includes comprehensive error handling:
+- Validates webhook URL format
+- Retries failed requests with exponential backoff
+- Provides detailed error messages
+- Returns API response codes
+
+## Development
+
+### Running Tests
+
+```bash
+# Install development dependencies
+pip install -e .[dev]
+
+# Run tests
+pytest tests/
+
+# Run with coverage
+pytest --cov=airflow_lark_provider tests/
+```
+
+### Code Quality
+
+```bash
+# Format code
+black airflow_lark_provider/ tests/
+
+# Linting
+flake8 airflow_lark_provider/ tests/
+
+# Type checking
+mypy airflow_lark_provider/
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Run tests and ensure they pass
+6. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Links
+
+- [Lark Open Platform Documentation](https://open.larksuite.com/document/client-docs/bot-v3/add-custom-bot)
+- [Lark Bot API Reference](https://open.larksuite.com/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/message/create)
+
+## Support
+
+For issues and questions, please open an issue on the GitHub repository.
