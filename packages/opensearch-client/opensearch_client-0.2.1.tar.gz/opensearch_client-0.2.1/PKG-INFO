@@ -1,0 +1,496 @@
+Metadata-Version: 2.4
+Name: opensearch-client
+Version: 0.2.1
+Summary: OpenSearch client with hybrid search support for Korean text
+Project-URL: Homepage, https://github.com/namyoungkim/opensearch-client
+Project-URL: Repository, https://github.com/namyoungkim/opensearch-client
+Author-email: leo <liniarq@gmail.com>
+License: MIT
+Keywords: hybrid,korean,nori,opensearch,search,vector
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Requires-Dist: opensearch-py>=3.0.0
+Provides-Extra: all
+Requires-Dist: aiohttp>=3.0; extra == 'all'
+Requires-Dist: fastembed>=0.4; extra == 'all'
+Requires-Dist: openai>=1.0; extra == 'all'
+Provides-Extra: async
+Requires-Dist: aiohttp>=3.0; extra == 'async'
+Provides-Extra: local
+Requires-Dist: fastembed>=0.4; extra == 'local'
+Provides-Extra: openai
+Requires-Dist: openai>=1.0; extra == 'openai'
+Description-Content-Type: text/markdown
+
+# OpenSearch Client
+
+[![PyPI version](https://badge.fury.io/py/opensearch-client.svg)](https://pypi.org/project/opensearch-client/)
+[![CI](https://github.com/namyoungkim/opensearch-client/actions/workflows/ci.yml/badge.svg)](https://github.com/namyoungkim/opensearch-client/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/namyoungkim/opensearch-client/graph/badge.svg)](https://codecov.io/gh/namyoungkim/opensearch-client)
+
+OpenSearch client with hybrid search support for Korean text.
+
+## Features
+
+- **Text Search**: Multi-match queries with Korean (Nori) analyzer
+- **Semantic Search**: Vector embeddings with k-NN search
+- **Hybrid Search**: Combined text + vector search with Search Pipeline (OpenSearch 2.10+)
+- **VectorStore**: Simple high-level API for vector storage and retrieval
+- **Async Support**: Full async/await support with `AsyncOpenSearchClient`
+
+## Prerequisites
+
+This is a **client library** for OpenSearch. You need a running OpenSearch server to use this package.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Your Application                                           │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  from opensearch_client import OpenSearchClient       │  │
+│  │  client = OpenSearchClient(host="...", port=9200)     │  │
+│  │  client.search(...)                                   │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                            │                                │
+│                   opensearch-client (this package)          │
+└────────────────────────────┼────────────────────────────────┘
+                             │ HTTP/HTTPS
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│  OpenSearch Server (separate process)                       │
+│  - Docker container (local development)                     │
+│  - AWS OpenSearch Service (production)                      │
+│  - Self-hosted cluster                                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Running OpenSearch Locally
+
+```bash
+# Using Docker (recommended for development with Korean support)
+cp .env.example .env  # Set your password
+docker compose -f docker-compose.dev.yml up -d
+
+# Or using pre-built image from Docker Hub
+docker run -d -p 9200:9200 \
+  -e "discovery.type=single-node" \
+  -e "plugins.security.disabled=true" \
+  -e "OPENSEARCH_INITIAL_ADMIN_PASSWORD=YourStr0ngP@ss!" \
+  a1rtisan/opensearch-nori:latest
+```
+
+### Cloud Options
+
+- **AWS OpenSearch Service**: Managed OpenSearch in AWS
+- **Self-hosted cluster**: Deploy on your own infrastructure
+
+For detailed setup instructions including production deployment and environment management, see [Server Setup Guide](docs/SERVER_SETUP.md).
+
+## Installation
+
+```bash
+# Basic installation
+uv add opensearch-client
+
+# With OpenAI embeddings
+uv add opensearch-client[openai]
+
+# With local embeddings (FastEmbed)
+uv add opensearch-client[local]
+
+# With async support
+uv add opensearch-client[async]
+
+# All features
+uv add opensearch-client[all]
+```
+
+## Quick Start
+
+```python
+from opensearch_client import OpenSearchClient
+
+# Initialize client
+client = OpenSearchClient(
+    host="localhost",
+    port=9200,
+    user="admin",
+    password="admin"
+)
+
+# Check connection
+print(client.ping())
+```
+
+## Usage Examples
+
+### 1. Text Search
+
+```python
+from opensearch_client import OpenSearchClient, TextQueryBuilder, IndexManager
+
+client = OpenSearchClient(host="localhost", port=9200, use_ssl=False)
+
+# Create text index with Korean analyzer
+body = IndexManager.create_text_index_body(
+    text_field="content",
+    use_korean_analyzer=True
+)
+client.create_index("my-docs", body)
+
+# Index documents
+client.bulk_index("my-docs", [
+    {"title": "OpenSearch", "content": "OpenSearch는 검색 엔진입니다."},
+    {"title": "Python", "content": "Python은 프로그래밍 언어입니다."},
+])
+client.refresh("my-docs")
+
+# Multi-match search
+query = TextQueryBuilder.multi_match(
+    query="검색 엔진",
+    fields=["title", "content"],
+    boost_map={"title": 2.0, "content": 1.0}
+)
+body = TextQueryBuilder.build_search_body(query, size=10)
+results = client.search("my-docs", body)
+```
+
+### 2. Semantic Search (k-NN)
+
+```python
+from opensearch_client import OpenSearchClient, IndexManager
+from opensearch_client.semantic_search.knn_search import KNNSearch
+from opensearch_client.semantic_search.embeddings import FastEmbedEmbedding
+
+# Initialize embedder
+embedder = FastEmbedEmbedding(model_name="BAAI/bge-small-en-v1.5")
+
+# Create vector index
+body = IndexManager.create_vector_index_body(
+    vector_field="embedding",
+    vector_dimension=embedder.dimension
+)
+client.create_index("semantic-docs", body)
+
+# Index with embeddings
+text = "OpenSearch is a search engine"
+client.index_document("semantic-docs", {
+    "text": text,
+    "embedding": embedder.embed(text)
+})
+client.refresh("semantic-docs")
+
+# k-NN search
+query_vector = embedder.embed("search engine")
+query = KNNSearch.knn_query(
+    field="embedding",
+    vector=query_vector,
+    k=10
+)
+body = KNNSearch.build_search_body(query, size=10)
+results = client.search("semantic-docs", body)
+```
+
+### 3. Hybrid Search (Recommended)
+
+```python
+from opensearch_client import OpenSearchClient, IndexManager, HybridQueryBuilder
+from opensearch_client.semantic_search.embeddings import OpenAIEmbedding
+
+# Initialize
+client = OpenSearchClient(host="localhost", port=9200, use_ssl=False)
+embedder = OpenAIEmbedding()  # Uses OPENAI_API_KEY env var
+
+# Create hybrid index (text + vector)
+body = IndexManager.create_hybrid_index_body(
+    text_field="content",
+    vector_field="embedding",
+    vector_dimension=embedder.dimension,
+    use_korean_analyzer=True
+)
+client.create_index("hybrid-docs", body)
+
+# Setup Search Pipeline (required for hybrid search)
+client.setup_hybrid_pipeline(
+    pipeline_id="my-pipeline",
+    text_weight=0.3,   # 30% text score
+    vector_weight=0.7  # 70% vector score
+)
+
+# Index documents
+text = "OpenSearch는 텍스트와 벡터 검색을 지원합니다."
+client.index_document("hybrid-docs", {
+    "content": text,
+    "embedding": embedder.embed(text)
+})
+client.refresh("hybrid-docs")
+
+# Hybrid search
+search_text = "벡터 검색"
+results = client.hybrid_search(
+    index_name="hybrid-docs",
+    query=search_text,
+    query_vector=embedder.embed(search_text),
+    pipeline="my-pipeline",
+    text_fields=["content"],
+    vector_field="embedding",
+    k=10
+)
+```
+
+### 4. VectorStore (Simplified API)
+
+```python
+from opensearch_client import OpenSearchClient, VectorStore
+from opensearch_client.semantic_search.embeddings import FastEmbedEmbedding
+
+# Initialize
+client = OpenSearchClient(host="localhost", port=9200, use_ssl=False)
+embedder = FastEmbedEmbedding()  # or OpenAIEmbedding()
+
+# Create store (auto-creates index and pipeline)
+store = VectorStore("my-store", embedder, client)
+
+# Add documents (auto-embeds text)
+store.add([
+    "OpenSearch는 검색 엔진입니다.",
+    "Python은 프로그래밍 언어입니다.",
+    "벡터 검색은 유사도 기반 검색입니다.",
+])
+
+# Add with metadata
+store.add(
+    ["FastEmbed는 빠른 임베딩 라이브러리입니다."],
+    metadata=[{"category": "tech", "source": "docs"}]
+)
+
+# Search
+results = store.search("검색 엔진이 뭐야?", k=3)
+for r in results:
+    print(f"{r.score:.3f}: {r.text}")
+
+# Other operations
+store.count()              # Get document count
+store.delete(["doc-id"])   # Delete by ID
+store.clear()              # Delete all documents
+```
+
+### 5. Async Client
+
+```python
+import asyncio
+from opensearch_client import AsyncOpenSearchClient
+
+async def main():
+    # Initialize async client
+    async with AsyncOpenSearchClient(
+        host="localhost",
+        port=9200,
+        use_ssl=False
+    ) as client:
+        # Check connection
+        print(await client.ping())
+
+        # Create index
+        await client.create_index("async-docs", {
+            "settings": {"index": {"knn": True}},
+            "mappings": {"properties": {"text": {"type": "text"}}}
+        })
+
+        # Index documents
+        await client.bulk_index("async-docs", [
+            {"text": "First document"},
+            {"text": "Second document"},
+        ])
+        await client.refresh("async-docs")
+
+        # Search
+        results = await client.search("async-docs", {
+            "query": {"match": {"text": "document"}}
+        })
+        print(results["hits"]["hits"])
+
+        # Hybrid search (requires pipeline setup)
+        await client.setup_hybrid_pipeline(
+            pipeline_id="async-pipeline",
+            text_weight=0.3,
+            vector_weight=0.7
+        )
+
+        results = await client.hybrid_search(
+            index_name="async-docs",
+            query="document",
+            query_vector=[0.1] * 384,  # Your embedding here
+            pipeline="async-pipeline",
+            text_fields=["text"],
+            vector_field="embedding"
+        )
+
+# Run
+asyncio.run(main())
+```
+
+**Note:** Async support requires the `async` extra: `uv add opensearch-client[async]`
+
+## Development
+
+### Setup
+
+```bash
+# Clone repository
+git clone https://github.com/namyoungkim/opensearch-client.git
+cd opensearch-client
+
+# Install dependencies (requires uv)
+uv sync --all-extras
+
+# Setup pre-commit hooks
+uv run pre-commit install
+```
+
+### Code Quality
+
+```bash
+# Lint check
+uv run ruff check .
+
+# Lint with auto-fix
+uv run ruff check --fix .
+
+# Format code
+uv run ruff format .
+
+# Type check
+uv run ty check
+
+# Run all checks (via pre-commit)
+uv run pre-commit run --all-files
+```
+
+### Testing
+
+```bash
+# Run unit tests
+uv run pytest tests/unit -v
+
+# Run integration tests (requires OpenSearch on port 9201)
+docker compose -f docker-compose.test.yml up -d
+uv run pytest tests/integration -v
+
+# Run all tests with coverage (requires 70% minimum)
+uv run pytest --cov=opensearch_client --cov-report=html
+```
+
+**Note:** Integration tests use port 9201 to avoid conflicts with production OpenSearch (default 9200).
+
+## Troubleshooting
+
+### Connection Issues
+
+**Port conflicts:**
+```bash
+# Integration tests use port 9201, not 9200
+# Override with environment variable if needed
+OPENSEARCH_TEST_PORT=9201 uv run pytest tests/integration -v
+```
+
+**SSL/TLS errors:**
+```python
+# Development only (not recommended for production)
+client = OpenSearchClient(use_ssl=False, verify_certs=False)
+
+# Production (recommended)
+client = OpenSearchClient(
+    use_ssl=True,
+    verify_certs=True,
+    ca_certs="/path/to/ca.pem"
+)
+```
+
+### Docker Issues
+
+**Container not starting:**
+```bash
+# Check logs
+docker compose -f docker-compose.test.yml logs
+
+# Reset and restart
+docker compose -f docker-compose.test.yml down -v
+docker compose -f docker-compose.test.yml up -d
+```
+
+**Memory errors:**
+```bash
+# Increase Docker memory limit (recommended: 4GB+)
+# Or adjust in docker-compose.test.yml:
+# environment:
+#   - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+```
+
+## Performance Tuning
+
+### Vector Search (k-NN)
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `ef_search` | 100 | Higher = better accuracy, slower search |
+| `ef_construction` | 128 | Higher = better index quality, slower build |
+| `m` | 16 | Number of connections per node |
+
+```python
+# High accuracy configuration
+body = IndexManager.create_vector_index_body(
+    vector_dimension=384,
+    ef_construction=256,
+    m=32
+)
+client.create_index("high-accuracy-index", body)
+```
+
+### Hybrid Search Weights
+
+| Use Case | Text Weight | Vector Weight |
+|----------|-------------|---------------|
+| Keyword-focused | 0.7 | 0.3 |
+| Semantic-focused | 0.3 | 0.7 |
+| Balanced | 0.5 | 0.5 |
+
+```python
+client.setup_hybrid_pipeline(
+    pipeline_id="balanced-pipeline",
+    text_weight=0.5,
+    vector_weight=0.5
+)
+```
+
+### Batch Operations
+
+```python
+# Efficient bulk embedding and indexing
+embeddings = embedder.embed_batch(texts)  # Batch embedding
+client.bulk_index("my-index", documents)   # Bulk indexing
+```
+
+## Tech Stack
+
+| Category | Choice | Version |
+|----------|--------|---------|
+| Package Manager | uv | latest |
+| Linter/Formatter | ruff | 0.14+ |
+| Type Checker | ty | 0.0.7+ |
+| OpenSearch | OpenSearch | 3.1.0 |
+| Korean Analyzer | Nori | 3.3.0 |
+| Python Client | opensearch-py | 3.1.0 |
+| Embeddings (Local) | FastEmbed | 0.4+ |
+| Embeddings (API) | OpenAI | 1.0+ |
+| Search Method | Hybrid Search | - |
+
+## License
+
+MIT

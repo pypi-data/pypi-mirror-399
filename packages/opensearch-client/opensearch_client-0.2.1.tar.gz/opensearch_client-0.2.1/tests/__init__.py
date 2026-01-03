@@ -1,0 +1,1 @@
+"""OpenSearch Client Tests"""
