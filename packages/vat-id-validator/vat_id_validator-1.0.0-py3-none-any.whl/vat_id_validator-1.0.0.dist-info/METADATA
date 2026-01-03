@@ -1,0 +1,385 @@
+Metadata-Version: 2.4
+Name: vat-id-validator
+Version: 1.0.0
+Summary: Python client for VAT ID Validator API - Validate EU VAT numbers using VIES
+Project-URL: Homepage, https://github.com/robrace82/VAT-ID-Validator-API
+Project-URL: Repository, https://github.com/robrace82/VAT-ID-Validator-API
+Project-URL: Issues, https://github.com/robrace82/VAT-ID-Validator-API/issues
+Author: API Magik Team
+License: MIT
+Keywords: eu,rapidapi,tax,validation,vat,vat-number,vat-validator,vies
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=3.8
+Requires-Dist: requests>=2.31.0
+Provides-Extra: dev
+Requires-Dist: black>=23.0.0; extra == 'dev'
+Requires-Dist: mypy>=1.0.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Requires-Dist: types-requests>=2.31.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# VAT ID Validator - Python Client
+
+Official Python client for the VAT ID Validator API. Validate EU VAT numbers using the VIES (VAT Information Exchange System) database.
+
+## Installation
+
+```bash
+pip install vat-id-validator
+```
+
+## Quick Start
+
+```python
+from vat_id_validator import VatValidatorClient
+
+# Initialize with API key
+client = VatValidatorClient(api_key="your-rapidapi-key")
+
+# Validate a VAT number
+result = client.validate_vat(
+    country_code="IT",
+    vat_number="00743110157"
+)
+
+if result["valid"]:
+    print(f"Valid VAT for: {result['name']}")
+    print(f"Address: {result['address']}")
+else:
+    print("Invalid VAT number")
+```
+
+## Features
+
+✅ **Type Hints** - Full type annotations for better IDE support  
+✅ **Environment Variables** - API key via `RAPIDAPI_KEY` env var  
+✅ **Configurable Endpoint** - Change base URL for testing or custom deployments  
+✅ **Error Handling** - Comprehensive error handling with custom exceptions  
+✅ **Context Manager** - Proper resource management with `with` statement  
+✅ **Session Pooling** - HTTP connection pooling for better performance  
+
+## Configuration
+
+### Constructor Options
+
+```python
+client = VatValidatorClient(
+    api_key="your-rapidapi-key",        # RapidAPI key (or use RAPIDAPI_KEY env var)
+    base_url="https://custom-url.com",  # Optional: Override API endpoint
+    timeout=15.0                        # Optional: Request timeout in seconds (default: 10.0)
+)
+```
+
+### Environment Variable
+
+Instead of passing the API key in the constructor, you can set it via environment variable:
+
+```bash
+export RAPIDAPI_KEY=your-rapidapi-key
+```
+
+```python
+# API key will be read from environment
+client = VatValidatorClient()
+```
+
+### Runtime Configuration
+
+You can update the API key or base URL at runtime:
+
+```python
+client.set_api_key("new-api-key")
+client.set_base_url("https://new-endpoint.com")
+```
+
+### Context Manager
+
+Use context manager for automatic resource cleanup:
+
+```python
+with VatValidatorClient(api_key="your-key") as client:
+    result = client.validate_vat(country_code="IT", vat_number="00743110157")
+    print(result)
+# Session is automatically closed
+```
+
+## API Reference
+
+### `validate_vat(country_code, vat_number)`
+
+Validate a VAT number (basic validation).
+
+**Parameters:**
+- `country_code` (str) - 2-letter ISO country code (e.g., 'DE', 'IT', 'FR')
+- `vat_number` (str) - VAT number without country prefix
+
+**Returns:** `ValidateVatResponse` (TypedDict)
+
+```python
+result = client.validate_vat(
+    country_code="DE",
+    vat_number="169838187"
+)
+
+print(result)
+# {
+#     "countryCode": "DE",
+#     "vatNumber": "169838187",
+#     "requestDate": "2025-12-31T10:00:00.000Z",
+#     "valid": True,
+#     "name": "Google Germany GmbH",
+#     "address": "ABC Street 123, Berlin"
+# }
+```
+
+### `validate_vat_approx(country_code, vat_number, **kwargs)`
+
+Validate a VAT number with approximate matching (advanced validation with trader details).
+
+**Parameters:**
+- `country_code` (str) - 2-letter ISO country code
+- `vat_number` (str) - VAT number without country prefix
+- `trader_name` (str, optional) - Company name for matching
+- `trader_street` (str, optional) - Street address for matching
+- `trader_postal_code` (str, optional) - Postal code for matching
+- `trader_city` (str, optional) - City for matching
+- `requester_country_code` (str, optional) - Your company's country code
+- `requester_vat_number` (str, optional) - Your company's VAT number
+
+**Returns:** `ValidateVatApproxResponse` (TypedDict)
+
+```python
+result = client.validate_vat_approx(
+    country_code="DE",
+    vat_number="169838187",
+    trader_name="Google Germany",
+    trader_city="Berlin"
+)
+
+print(result)
+# {
+#     "countryCode": "DE",
+#     "vatNumber": "169838187",
+#     "requestDate": "2025-12-31T10:00:00.000Z",
+#     "valid": True,
+#     "traderName": "Google Germany GmbH",
+#     "traderStreet": "ABC Street 123",
+#     "traderPostalCode": "10115",
+#     "traderCity": "Berlin"
+# }
+```
+
+### `health()`
+
+Check API health status (no authentication required).
+
+**Returns:** `HealthResponse` (TypedDict)
+
+```python
+health = client.health()
+print(health)  # {"status": "healthy"}
+```
+
+### `get_config()`
+
+Get current configuration (API key is masked for security).
+
+**Returns:** `dict`
+
+```python
+config = client.get_config()
+print(config)
+# {
+#     "api_key": "***abc123",
+#     "base_url": "https://vies-vat-validator.p.rapidapi.com",
+#     "timeout": 10.0
+# }
+```
+
+## Error Handling
+
+The client raises `VatValidatorError` for API errors:
+
+```python
+from vat_id_validator import VatValidatorError
+
+try:
+    result = client.validate_vat(
+        country_code="DE",
+        vat_number="123456789"
+    )
+except VatValidatorError as e:
+    print(f"Status: {e.status_code}")
+    print(f"Message: {e}")
+    print(f"Response: {e.response}")
+```
+
+### Common Errors
+
+- **ValueError** - Missing API key (no parameter or environment variable)
+- **VatValidatorError (401)** - Invalid or missing API key
+- **VatValidatorError (500)** - VIES service error or network issue
+- **VatValidatorError (0)** - Network error (connection timeout, no response)
+
+## Type Hints
+
+Full type hint support with TypedDict:
+
+```python
+from vat_id_validator import (
+    VatValidatorClient,
+    ValidateVatResponse,
+    VatValidatorError
+)
+
+client: VatValidatorClient = VatValidatorClient(api_key="your-key")
+
+result: ValidateVatResponse = client.validate_vat(
+    country_code="IT",
+    vat_number="00743110157"
+)
+
+# IDE will provide autocomplete for result keys
+print(result["valid"])
+print(result["name"])
+```
+
+## Examples
+
+### Basic Usage
+
+```python
+from vat_id_validator import VatValidatorClient
+import os
+
+client = VatValidatorClient(api_key=os.environ["RAPIDAPI_KEY"])
+
+# Validate Italian VAT
+result = client.validate_vat(
+    country_code="IT",
+    vat_number="00743110157"
+)
+
+print(f"Valid: {result['valid']}")
+print(f"Company: {result.get('name')}")
+```
+
+### With Trader Details
+
+```python
+# Validate with approximate matching
+result = client.validate_vat_approx(
+    country_code="DE",
+    vat_number="169838187",
+    trader_name="Google Germany GmbH",
+    trader_city="Berlin",
+    requester_country_code="IT",
+    requester_vat_number="00743110157"
+)
+```
+
+### Batch Validation
+
+```python
+vat_numbers = [
+    {"country_code": "IT", "vat_number": "00743110157"},
+    {"country_code": "DE", "vat_number": "169838187"},
+    {"country_code": "FR", "vat_number": "123456789"},
+]
+
+with VatValidatorClient(api_key="your-key") as client:
+    for vat in vat_numbers:
+        result = client.validate_vat(**vat)
+        status = "✓" if result["valid"] else "✗"
+        print(f"{vat['country_code']}{vat['vat_number']}: {status}")
+```
+
+### Custom Endpoint for Testing
+
+```python
+# Use a custom endpoint (e.g., for local testing)
+client = VatValidatorClient(
+    api_key="test-key",
+    base_url="http://localhost:8787"
+)
+```
+
+### Async Usage (with asyncio)
+
+For concurrent requests, use `concurrent.futures`:
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def validate(vat):
+    with VatValidatorClient(api_key="your-key") as client:
+        return client.validate_vat(**vat)
+
+vat_numbers = [
+    {"country_code": "IT", "vat_number": "00743110157"},
+    {"country_code": "DE", "vat_number": "169838187"},
+]
+
+with ThreadPoolExecutor(max_workers=5) as executor:
+    results = list(executor.map(validate, vat_numbers))
+
+for result in results:
+    print(f"{result['countryCode']}{result['vatNumber']}: {result['valid']}")
+```
+
+## Supported Countries
+
+All EU member states are supported:
+- AT (Austria), BE (Belgium), BG (Bulgaria), CY (Cyprus)
+- CZ (Czech Republic), DE (Germany), DK (Denmark), EE (Estonia)
+- ES (Spain), FI (Finland), FR (France), GR (Greece)
+- HR (Croatia), HU (Hungary), IE (Ireland), IT (Italy)
+- LT (Lithuania), LU (Luxembourg), LV (Latvia), MT (Malta)
+- NL (Netherlands), PL (Poland), PT (Portugal), RO (Romania)
+- SE (Sweden), SI (Slovenia), SK (Slovakia)
+
+## Development
+
+### Install Development Dependencies
+
+```bash
+pip install -e ".[dev]"
+```
+
+### Run Tests
+
+```bash
+pytest
+```
+
+### Format Code
+
+```bash
+black src/
+```
+
+### Type Checking
+
+```bash
+mypy src/
+```
+
+## License
+
+MIT
+
+## Support
+
+- **API Documentation**: [Full API Docs](https://github.com/robrace82/VAT-ID-Validator-API)
+- **Issues**: [GitHub Issues](https://github.com/robrace82/VAT-ID-Validator-API/issues)
+- **RapidAPI**: Get your API key at [RapidAPI](https://rapidapi.com/)
