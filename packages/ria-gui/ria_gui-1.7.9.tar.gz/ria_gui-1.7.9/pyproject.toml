@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ria-gui"                  # PyPI上的名字 (横杠)
+version = "1.7.9"                 # 初始版本
+authors = [
+  { name="Kui Wang", email="k@cns.ac.cn" },
+]
+description = "RIA: Ratio Imaging Analyzer for biological quantification"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "tifffile",
+    "opencv-python",
+    "requests",  
+
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Epivitae/RatioImagingAnalyzer"
+"Bug Tracker" = "https://github.com/Epivitae/RatioImagingAnalyzer/issues"
+
+# 【这一步很关键】让用户安装后，在终端输入 'ria' 就能启动软件
+[project.scripts]
+ria = "ria_gui.main:main"  
+# 含义：当用户输入 ria 时，运行 ria_gui 文件夹下 main.py 里的 main() 函数
+# 请确保您的 main.py 里有一个 def main(): ... 函数
