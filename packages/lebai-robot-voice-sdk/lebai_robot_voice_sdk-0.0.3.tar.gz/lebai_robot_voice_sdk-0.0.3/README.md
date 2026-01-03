@@ -1,0 +1,78 @@
+# Lebai Robot Voice SDK
+
+乐白机器人语音播报Python SDK。
+
+## 安装
+
+pip install lebai-robot-voice-sdk
+
+from lebai_robot_voice_sdk import LebaiRobotVoice, LebaiAudioError
+
+# 创建语音播报实例
+voice = LebaiRobotVoice()
+
+try:
+    # 播放循环播报
+    voice.play_loop_audio()
+    
+    # 播放机器人急停播报
+    voice.play_robot_estop()
+    
+    # 播放碗被拿走播报（index: 0-4）
+    voice.play_bowl_was_token_available(0)
+    
+    # 播放缺料语音播报（index: 0-3）
+    voice.play_cabinet_lack_index(0)
+    
+    # 播放所有面柜缺料播报
+    voice.play_all_cabinet_lack()
+    
+    # 清理料筐播报
+    voice.play_clean_basket()
+    
+    # 汤面请等待加汤播报
+    voice.play_wait_add_soup()
+    
+    # 放碗下单时的提醒（index: 0-4）
+    voice.play_put_bowl_remind(0)
+    
+    # 制作完成提醒（id: 0-4）
+    voice.play_make_complete_remind(0)
+    
+except LebaiAudioError as e:
+    print(f"语音播报错误: {e}")## API 文档
+
+### LebaiRobotVoice
+
+主要的语音播报类。
+
+#### 方法
+
+- `play_robot_estop()` - 机器人急停播报
+- `play_bowl_was_token_available(index: int)` - 碗被拿走播报（index: 0-4）
+- `play_cabinet_lack_index(index: int)` - 缺料语音播报（index: 0-3）
+- `play_all_cabinet_lack()` - 所有面柜缺料播报
+- `play_clean_basket()` - 清理料筐播报
+- `play_wait_add_soup()` - 汤面请等待加汤播报
+- `play_put_bowl_remind(index: int)` - 放碗下单时的提醒（index: 0-4）
+- `play_make_complete_remind(id: int)` - 制作完成提醒（id: 0-4）
+- `play_loop_audio()` - 循环播报
+- `stop()` - 停止当前播放
+- `close_audio_device()` - 关闭音频设备
+
+#### 属性
+
+- `playing` - 是否正在播放音频
+- `play_back_device` - 播放设备对象
+
+## 错误处理
+
+所有错误都会抛出 `LebaiAudioError` 异常。
+
+## 依赖
+
+- miniaudio >= 1.61
+
+## 许可证
+
+MIT License
