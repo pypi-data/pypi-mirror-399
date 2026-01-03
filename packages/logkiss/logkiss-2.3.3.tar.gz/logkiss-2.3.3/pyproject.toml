@@ -1,0 +1,151 @@
+[project]
+name = "logkiss"
+version = "2.3.3"
+description = "A simple, colorful, and drop-in replacement for Python's standard logging module. 彩色ログ・彩色日志・カラー対応・颜色日志・多言語対応のシンプルなPythonログライブラリ。Supports colorful/colourful/カラー/彩色/颜色 log output for Python logging, ログ, 日志, ロギング, logger, logging, simple, easy."
+authors = [
+    { name = "Taka Suzuki", email = "tkykszk@gmail.com" },
+]
+dependencies = [
+    "pyyaml>=6.0",
+]
+requires-python = ">=3.7"
+readme = "README.md"
+keywords = [
+    "logging",
+    "color",
+    "colour",
+    "colorful",
+    "colourful",
+    "console",
+    "terminal",
+    "logger",
+    "python",
+    "simple",
+    "easy",
+    "カラー",
+    "コンソール",
+    "彩色日志",
+    "色付き",
+    "ログ",
+    "ロギング",
+    "ログ出力",
+    "日志",
+    "颜色",
+    "日志输出",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Logging",
+]
+
+[project.license]
+text = "MIT"
+
+[project.urls]
+Homepage = "https://github.com/tkykszk/logkiss"
+Repository = "https://github.com/tkykszk/logkiss"
+Documentation = "https://github.com/tkykszk/logkiss/blob/main/README.md"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+    "matplotlib>=3.7.0",
+    "logging_tree>=1.9",
+    "boto3>=1.34.0",
+    "google-cloud-logging>=3.9.0",
+]
+cloud = [
+    "google-cloud-logging>=3.9.0",
+    "boto3>=1.34.0",
+]
+
+[build-system]
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+package-type = "library"
+src-layout = false
+
+[tool.pdm.build]
+includes = [
+    "logkiss",
+]
+excludes = [
+    "tests",
+]
+package-dir = "."
+
+[tool.pdm.dev-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "tox>=4.0",
+    "logging_tree>=1.9",
+    "boto3>=1.34.0",
+    "google-cloud-logging>=3.9.0",
+]
+lint = [
+    "black>=23.0",
+    "isort>=5.0",
+    "mypy>=1.0",
+    "flake8>=6.0",
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.4.0",
+    "mkdocstrings>=0.23.0",
+    "mkdocstrings-python>=1.7.0",
+    "mkdocs-autorefs>=0.5.0",
+]
+
+[tool.pdm.scripts.docs-serve]
+cmd = "mkdocs serve"
+
+[tool.pdm.scripts.docs-build]
+cmd = "mkdocs build"
+
+[tool.pdm.scripts.docs-deploy]
+cmd = "mkdocs gh-deploy --force"
+
+[tool.black]
+line-length = 88
+target-version = [
+    "py37",
+]
+include = "\\.pyi?$"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+python_files = [
+    "test_*.py",
+]
+addopts = "--cov=logkiss --cov-report=html --cov-report=term-missing -v"
