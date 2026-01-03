@@ -1,0 +1,92 @@
+Metadata-Version: 2.4
+Name: hubview
+Version: 0.8
+Summary: GitHub-like local file viewer built with Flask
+Author-email: Grey Liedtke <grey.liedtke@gmail.com>
+License: MIT
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: flask>=3.0
+Requires-Dist: markdown>=3.6
+Requires-Dist: pymdown-extensions>=10.8
+Requires-Dist: beautifulsoup4>=4.12
+Requires-Dist: pandas==2.3.2
+Requires-Dist: MarkupSafe==3.0.2
+Requires-Dist: Werkzeug==3.1.3
+Dynamic: license-file
+
+# HubView — Scripting file viewer
+
+A clean, fast, local file viewer with a GitHub‑style UI. Browse folders, preview code with syntax highlighting, render Markdown (tables, task lists, admonitions), show images/video/audio/PDF, and even draw Mermaid diagrams via fenced blocks.
+
+## Example Run Code
+
+1. Create python Script to run hubview
+
+```python
+
+# Example Hubview Run
+
+from hubview import app
+
+
+scripts = {
+    "Python": {
+        "python": ".venv/bin/python3",
+        "path": "library/pylibs/hubview/example_script.py",
+        "args": ["--foo", "bar"],
+        "log": "hubview_demo.log",
+    },
+    "Shell": {
+
+    }
+    "Streamlit": {
+        "cmd": ["bash", "run_gpc.sh", "--dry-run"],
+        "path": "run_gpc.sh",
+        "log": "cleanup.log",
+    },
+}
+
+app.create_hub(root="./", host="0.0.0.0", port=3000, scripts=scripts)
+
+```
+
+
+2. Create shell script to run python
+
+```shell
+
+# navigate to control directory
+cd '/home/pi/Desktop/Code'
+py_exec="venv/bin/python3"
+py_script="can_hub.py"
+echo "============= RUNNING CAN Hub =================="
+$py_exec $py_script
+/bin/bash
+$SHELL
+
+```
+
+Or
+
+1. Run hubview from shell script
+
+```shell
+
+#!/bin/sh
+# ------------------------------------
+cd '/home/pi/Desktop/Code'
+py_exec=".venv/bin/activate"
+. $py_exec
+echo "============= RUNNING Hubview =================="
+hubview --host=0.0.0.0
+/bin/bash
+$SHELL
+
+```
+
+## Quick start
+
+1. pip install hubview
+2. hubview --root 'your directory'
+3. open **http://127.0.0.1:5000** in your browser.
