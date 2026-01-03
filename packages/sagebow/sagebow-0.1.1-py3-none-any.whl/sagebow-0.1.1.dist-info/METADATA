@@ -1,0 +1,40 @@
+Metadata-Version: 2.4
+Name: sagebow
+Version: 0.1.1
+Summary: API that deploys autonomous agents directly into your Python environment
+Author-email: SageBow <mail@sagebow.com>
+License: Proprietary
+Project-URL: Homepage, https://sagebow.com
+Project-URL: Documentation, https://sagebow.com/docs
+Keywords: ai,notebook,data science,data engineering,multi agent systems,automation,computational,prompting
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: License :: Other/Proprietary License
+Classifier: Operating System :: OS Independent
+Classifier: Framework :: Jupyter
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: ipython>=8
+Requires-Dist: ipywidgets>=8
+Requires-Dist: requests>=2.31
+Requires-Dist: keyring>=24
+
+# SageBow
+
+SageBow is a tool that deploys autonomous agents directly into your Python environment. The only requirement is to run the commands inside a .ipynb file.
+
+## Installation
+
+```bash
+pip install sagebow
+```
+
+### In a .ipynb file
+
+```python
+import sagebow
+
+sagebow.run()
+```
