@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="focuscript.xslt" type="text/xsl"?>
+<focus version="1.3" xmlns="http://diggy.i2p/focus">
+  <configuration>
+    <condition>//xpath:string[@key='version']/text() = 'https://jsonfeed.org/version/1.1'</condition>
+    <!-- Scripts to execute -->
+    <execute moment="end"
+             name=""/>
+    <execute moment="load"
+             name=""/>
+    <execute moment="start"
+             name=""/>
+    <interval unit="hour">48</interval>
+    <!-- Domains to apply -->
+    <match>*://*/*</match>
+  </configuration>
+  <metadata>
+    <author>Mysteriously Unknown</author>
+    <contributor>Atom Advisory Board</contributor>
+    <contributor>XSLT Advisory Council</contributor>
+    <description>Transform JSON Feed 1.1 documents into standard Atom 1.0 documents.</description>
+    <icon>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=icon.svg&amp;xl=1128</icon>
+    <identifier>i2p.diggy.jsonfeed11atom1</identifier>
+    <image>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=image.svg&amp;xl=1128</image>
+    <license code="public-domain">Public Domain</license>
+    <link href="http://diggy.i2p/focuscript/jsonfeed11atom1"
+          rel="homesite"
+          title="JSON Feed 1.1 to Atom"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/support"
+          rel="support"
+          title="Help and support (The Focus)"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/focuscript/jsonfeed11atom1.focus"
+          rel="install"
+          type="application/focus+xml"/>
+    <link href="http://diggy.i2p/focuscript/jsonfeed11atom1.focus.meta"
+          rel="update"
+          type="application/xml"/>
+    <logo>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=logo.svg&amp;xl=1128</logo>
+    <mimetype>application/feed+json</mimetype>
+    <revision>1.0</revision>
+    <rights license="pd">This document is at the Public Domain.</rights>
+    <subject>The purpose of this Focuscript is to convert JSON Feed 1.1 documents to standard Atom 1.0 documents, to facilitate and further accessibility of documents and information to syndication software such as Liferea, NetNewsWire, QuiteRSS, RSSOwl, et cetera.</subject>
+    <title>JSON Feed 1.1 to Atom 1.0</title>
+    <version>JSON Feed 1.1</version>
+  </metadata>
+  <stylesheet>
+
+    <xsl:transform version="1.0"
+                   xmlns="http://www.w3.org/2005/Atom"
+                   xmlns:xpath="http://www.w3.org/2005/xpath-functions"
+                   xmlns:xml="http://www.w3.org/XML/1998/namespace"
+                   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+      <xsl:output encoding="UTF-8"
+                  indent="yes"
+                  media-type="application/atom+xml"
+                  method="xml"
+                  version="1.0"/>
+
+      <xsl:template match="/">
+        <feed>
+          <!-- atom:generator -->
+          <generator uri="https://git.xmpp-it.net/sch/Focus"
+                    version="1.0">The Focus</generator>
+          <xsl:apply-templates/>
+        </feed>
+      </xsl:template>
+
+      <xsl:template match="authors|xpath:map/xpath:array[@key='authors']/xpath:map">
+        <!-- atom:author -->
+        <author>
+          <name>
+            <xsl:copy-of select="xpath:string[@key='name']/text()"/>
+          </name>
+          <uri>
+            <xsl:copy-of select="xpath:string[@key='url']/text()"/>
+          </uri>
+        </author>
+        <!-- atom:link -->
+        <link rel="avatar">
+          <xsl:attribute name="href">
+            <xsl:copy-of select="xpath:string[@key='avatar']/text()"/>
+          </xsl:attribute>
+        </link>
+      </xsl:template>
+
+      <!-- atom:icon -->
+      <xsl:template match="favicon|xpath:map/xpath:string[@key='favicon']">
+        <icon>
+          <xsl:copy-of select="text()"/>
+        </icon>
+      </xsl:template>
+
+      <!-- atom:logo -->
+      <xsl:template match="icon|xpath:map/xpath:string[@key='icon']">
+        <logo>
+          <xsl:copy-of select="text()"/>
+        </logo>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <xsl:template match="feed_url|xpath:map/xpath:string[@key='feed_url']">
+        <link rel="self">
+          <xsl:attribute name="href">
+            <xsl:copy-of select="text()"/>
+          </xsl:attribute>
+        </link>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <xsl:template match="home_page_url|xpath:map/xpath:string[@key='home_page_url']">
+        <link rel="alternate">
+          <xsl:attribute name="href">
+            <xsl:copy-of select="text()"/>
+          </xsl:attribute>
+        </link>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <!-- xsl:template match="next_url|xpath:map/xpath:string[@key='next_url']">
+        <link rel="next">
+          <xsl:attribute name="href">
+            <xsl:copy-of select="text()"/>
+          </xsl:attribute>
+        </link>
+      </xsl:template -->
+
+      <!-- atom:subtitle -->
+      <xsl:template match="description|xpath:map/xpath:string[@key='description']">
+        <subtitle>
+          <xsl:copy-of select="text()"/>
+        </subtitle>
+      </xsl:template>
+
+      <!-- atom:title -->
+      <xsl:template match="title|xpath:map/xpath:string[@key='title']">
+        <title>
+          <xsl:copy-of select="text()"/>
+        </title>
+      </xsl:template>
+
+      <!-- atom:entry -->
+      <xsl:template match="items|xpath:array[@key='items']/xpath:map">
+        <entry>
+          <xsl:apply-templates select="attachments|xpath:array[@key='attachments']/xpath:map"/>
+          <xsl:apply-templates select="authors|xpath:array[@key='authors']/xpath:map"/>
+          <xsl:apply-templates select="banner_image|xpath:string[@key='banner_image']"/>
+          <xsl:apply-templates select="content_html|xpath:string[@key='content_html']"/>
+          <xsl:apply-templates select="content_text|xpath:string[@key='content_text']"/>
+          <xsl:apply-templates select="date_modified|xpath:string[@key='date_modified']"/>
+          <xsl:apply-templates select="date_published|xpath:string[@key='date_published']"/>
+          <xsl:apply-templates select="external_url|xpath:string[@key='external_url']"/>
+          <xsl:apply-templates select="id|xpath:string[@key='id']"/>
+          <xsl:apply-templates select="image|xpath:string[@key='image']"/>
+          <xsl:apply-templates select="summary|xpath:string[@key='summary']"/>
+          <xsl:apply-templates select="tags|xpath:array[@key='tags']/xpath:map"/>
+          <xsl:apply-templates select="title|xpath:string[@key='title']"/>
+          <xsl:apply-templates select="url|xpath:string[@key='url']"/>
+        </entry>
+      </xsl:template>
+
+      <xsl:template match="authors|xpath:array[@key='authors']/xpath:map">
+        <!-- atom:author -->
+        <author>
+          <name>
+            <xsl:copy-of select="xpath:string[@key='name']/text()"/>
+          </name>
+          <uri>
+            <xsl:copy-of select="xpath:string[@key='url']/text()"/>
+          </uri>
+        </author>
+        <!-- atom:link -->
+        <link rel="avatar">
+          <xsl:attribute name="href">
+            <xsl:copy-of select="xpath:string[@key='avatar']/text()"/>
+          </xsl:attribute>
+        </link>
+      </xsl:template>
+
+      <!-- TODO Test -->
+      <!-- atom:category -->
+      <xsl:template match="tags|xpath:array[@key='tags']/xpath:map">
+        <category>
+          <xsl:attribute name="term">
+            <xsl:copy-of select="text()"/>
+          </xsl:attribute>
+        </category>
+      </xsl:template>
+
+      <!-- atom:content -->
+      <xsl:template match="content_html|xpath:string[@key='content_html']">
+        <content type="html">
+          <xsl:copy-of select="text()"/>
+        </content>
+      </xsl:template>
+
+      <!-- atom:content -->
+      <xsl:template match="content_text|xpath:string[@key='content_text']">
+        <content type="text">
+          <xsl:copy-of select="text()"/>
+        </content>
+      </xsl:template>
+
+      <!-- atom:id -->
+      <xsl:template match="id|xpath:string[@key='id']">
+        <id>
+          <xsl:copy-of select="text()"/>
+        </id>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <xsl:template match="attachments|xpath:array[@key='attachments']/xpath:map">
+        <xsl:if test="string-length(xpath:url/text()) &gt; 0">
+          <link rel="enclosure">
+            <xsl:attribute name="duration">
+              <xsl:copy-of select="xpath:number[@key='duration_in_seconds']/text()"/>
+            </xsl:attribute>
+            <xsl:attribute name="href">
+              <xsl:copy-of select="xpath:string[@key='url']/text()"/>
+            </xsl:attribute>
+            <xsl:attribute name="length">
+              <xsl:copy-of select="xpath:number[@key='size_in_bytes']/text()"/>
+            </xsl:attribute>
+            <xsl:attribute name="title">
+              <xsl:copy-of select="xpath:string[@key='title']/text()"/>
+            </xsl:attribute>
+            <xsl:attribute name="type">
+              <xsl:copy-of select="xpath:string[@key='mime_type']/text()"/>
+            </xsl:attribute>
+          </link>
+        </xsl:if>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <xsl:template match="banner_image|xpath:string[@key='banner_image']">
+        <xsl:if test="string-length(text()) &gt; 0">
+          <link rel="banner">
+            <xsl:attribute name="href">
+              <xsl:copy-of select="text()"/>
+            </xsl:attribute>
+          </link>
+        </xsl:if>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <xsl:template match="image|xpath:string[@key='image']">
+        <xsl:if test="string-length(text()) &gt; 0">
+          <link rel="image">
+            <xsl:attribute name="href">
+              <xsl:copy-of select="text()"/>
+            </xsl:attribute>
+          </link>
+        </xsl:if>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <xsl:template match="url|xpath:string[@key='url']">
+        <xsl:if test="string-length(text()) &gt; 0">
+          <link rel="alternate">
+            <xsl:attribute name="href">
+              <xsl:copy-of select="text()"/>
+            </xsl:attribute>
+          </link>
+        </xsl:if>
+      </xsl:template>
+
+      <!-- NOTE atom:source -->
+      <!-- atom:link -->
+      <!-- xsl:template match="external_url|xpath:string[@key='external_url']">
+        <xsl:if test="string-length(text()) &gt; 0">
+          <link rel="alternate">
+            <xsl:attribute name="href">
+              <xsl:copy-of select="text()"/>
+            </xsl:attribute>
+          </link>
+        </xsl:if>
+      </xsl:template -->
+
+      <!-- atom:published -->
+      <xsl:template match="date_published|xpath:string[@key='date_published']">
+        <published>
+          <xsl:copy-of select="text()"/>
+        </published>
+      </xsl:template>
+
+      <!-- atom:summary -->
+      <xsl:template match="summary|xpath:string[@key='summary']">
+        <content type="text">
+          <xsl:copy-of select="text()"/>
+        </content>
+      </xsl:template>
+
+      <!-- atom:title -->
+      <xsl:template match="title|xpath:string[@key='title']">
+        <title>
+          <xsl:copy-of select="text()"/>
+        </title>
+      </xsl:template>
+
+      <!-- atom:updated -->
+      <xsl:template match="date_modified|xpath:string[@key='date_modified']">
+        <updated>
+          <xsl:copy-of select="text()"/>
+        </updated>
+      </xsl:template>
+
+    </xsl:transform>
+
+  </stylesheet>
+</focus>

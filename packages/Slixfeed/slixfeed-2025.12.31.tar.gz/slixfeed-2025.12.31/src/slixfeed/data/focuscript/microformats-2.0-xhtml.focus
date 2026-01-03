@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="focuscript.xslt" type="text/xsl"?>
+<focus version="1.3" xmlns="http://diggy.i2p/focus">
+  <configuration>
+    <condition>//xhtml:*[contains(@class,'e-content')] or //xhtml:*[contains(@class,'h-entry')] or //xhtml:*[contains(@class,'p-author')] or //xhtml:*[contains(@class,'p-category')] or //xhtml:*[contains(@class,'p-name')] or //xhtml:*[contains(@class,'p-summary')] or //xhtml:*[contains(@class,'u-url')] or //xhtml:*[contains(@class,'u-uid')]</condition>
+    <!-- Scripts to execute -->
+    <execute moment="end"
+             name=""/>
+    <execute moment="load"
+             name=""/>
+    <execute moment="start"
+             name=""/>
+    <interval unit="hour">48</interval>
+    <!-- Domains to apply -->
+    <match>*://*/*</match>
+  </configuration>
+  <metadata>
+    <author>Mysteriously Unknown</author>
+    <contributor>Atom Advisory Board</contributor>
+    <contributor>XSLT Advisory Council</contributor>
+    <description>Transform Microformats2 documents into standard Atom 1.0 documents.</description>
+    <icon>magnet:?xt=urn:md5:17ff7474d9df45d0a83352ef15e2d49a&amp;dn=icon.svg&amp;xl=471</icon>
+    <identifier>i2p.diggy.xmf2atom1</identifier>
+    <image>magnet:?xt=urn:md5:17ff7474d9df45d0a83352ef15e2d49a&amp;dn=image.svg&amp;xl=471</image>
+    <license code="public-domain">Public Domain</license>
+    <link href="http://diggy.i2p/focuscript/xmf2atom1"
+          rel="homesite"
+          title="Microformats2 to Atom"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/support"
+          rel="support"
+          title="Help and support (The Focus)"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/focuscript/xmf2atom1.focus"
+          rel="install"
+          type="application/focus+xml"/>
+    <link href="http://diggy.i2p/focuscript/xmf2atom1.focus.meta"
+          rel="update"
+          type="application/xml"/>
+    <logo>magnet:?xt=urn:md5:17ff7474d9df45d0a83352ef15e2d49a&amp;dn=logo.svg&amp;xl=471</logo>
+    <mimetype>application/mf2+xml</mimetype>
+    <!-- mimetype>application/xhtml+xml</mimetype -->
+    <!-- mimetype>text/mf2+html</mimetype -->
+    <revision>1.0</revision>
+    <rights license="pd">This document is at the Public Domain.</rights>
+    <subject>The purpose of this Focuscript is to convert Microformats2 documents to standard Atom 1.0 documents, to facilitate and further accessibility of documents and information to syndication software such as Liferea, NetNewsWire, QuiteRSS, RSSOwl, et cetera.</subject>
+    <title>Microformats2 to Atom 1.0</title>
+    <version>Microformats2</version>
+  </metadata>
+  <stylesheet>
+
+    <xsl:transform version="1.0"
+                   xmlns="http://www.w3.org/2005/Atom"
+                   xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                   xmlns:xml="http://www.w3.org/XML/1998/namespace"
+                   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+      <xsl:output encoding="UTF-8"
+                  indent="yes"
+                  media-type="application/atom+xml"
+                  method="xml"
+                  version="1.0"/>
+
+      <xsl:strip-space elements="*"/>
+
+      <xsl:template match="/">
+        <feed>
+          <!-- atom:feed -->
+          <xsl:if test="string-length(xhtml:html/@xml:base) &gt; 0">
+            <xsl:attribute name="xml:base">
+              <xsl:value-of select="xhtml:html/@xml:base|xhtml:html/xhtml:head/xhtml:base/@href"/>
+            </xsl:attribute>
+          </xsl:if>
+          <xsl:if test="string-length(xhtml:html/@xml:lang) &gt; 0">
+            <xsl:attribute name="xml:lang">
+              <xsl:value-of select="xhtml:html/@xml:lang|xhtml:html/@lang"/>
+            </xsl:attribute>
+          </xsl:if>
+          <!-- atom:generator -->
+          <generator uri="https://git.xmpp-it.net/sch/Focus"
+                     version="1.3">The Focus</generator>
+          <xsl:apply-templates/>
+          <xsl:for-each select=".//xhtml:*[contains(@class,'h-entry')]">
+            <entry>
+              <!-- atom:author -->
+              <xsl:if test=".//xhtml:*[contains(@class,'p-author')]">
+                <author>
+                  <name>
+                    <xsl:value-of select="normalize-space(.//xhtml:*[contains(@class,'p-author')]/text())"/>
+                  </name>
+                  <uri>
+                    <xsl:value-of select="normalize-space(.//xhtml:*[contains(@class,'p-author')]/@href)"/>
+                  </uri>
+                </author>
+              </xsl:if>
+              <!-- atom:category -->
+              <xsl:for-each select=".//xhtml:*[contains(@class,'p-category')]">
+                <category scheme="">
+                  <xsl:attribute name="term">
+                    <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz'"/>
+                    <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+                    <xsl:value-of select="translate(translate(normalize-space(text()), ' ', '-'), $uppercase, $smallcase)"/>
+                  </xsl:attribute>
+                  <xsl:attribute name="label">
+                    <xsl:value-of select="normalize-space(text())"/>
+                  </xsl:attribute>
+                </category>
+              </xsl:for-each>
+              <!-- atom:content -->
+              <xsl:if test=".//xhtml:*[contains(@class,'e-content')]">
+                <content type="html">
+                  <xsl:copy-of select=".//xhtml:*[contains(@class,'e-content')]/text()"/>
+                </content>
+              </xsl:if>
+              <!-- atom:id -->
+              <xsl:if test=".//xhtml:*[contains(@class,'u-uid')]">
+                <id>
+                  <xsl:value-of select="normalize-space(.//xhtml:*[contains(@class,'u-uid')]/@href)"/>
+                </id>
+              </xsl:if>
+              <!-- atom:link -->
+              <xsl:if test=".//xhtml:*[contains(@class,'u-url')]">
+                <xsl:if test="string-length(@href) &gt; 0">
+                  <link rel="alternate" type="text/mf2+html">
+                    <xsl:attribute name="href">
+                      <xsl:value-of select="normalize-space(.//xhtml:*[contains(@class,'u-url')]/@href)"/>
+                    </xsl:attribute>
+                    <xsl:attribute name="title">
+                      <xsl:copy-of select="normalize-space(.//xhtml:*[contains(@class,'u-url')]/text())"/>
+                    </xsl:attribute>
+                  </link>
+                </xsl:if>
+              </xsl:if>
+              <!-- atom:published -->
+              <xsl:if test=".//xhtml:*[contains(@class,'dt-published')]">
+                <published>
+                  <xsl:value-of select="normalize-space(.//xhtml:*[contains(@class,'dt-published')]/@datetime)"/>
+                </published>
+              </xsl:if>
+              <!-- atom:summary -->
+              <xsl:if test=".//xhtml:*[contains(@class,'p-summary')]">
+                <summary type="html">
+                  <xsl:value-of select="normalize-space(.//xhtml:*[contains(@class,'p-summary')]/text())"/>
+                </summary>
+              </xsl:if>
+              <!-- atom:title -->
+              <xsl:if test=".//xhtml:*[contains(@class,'p-name')]">
+                <title>
+                  <xsl:value-of select="normalize-space(.//xhtml:*[contains(@class,'p-name')]/text())"/>
+                </title>
+              </xsl:if>
+              <!-- atom:updated -->
+              <xsl:if test=".//xhtml:*[contains(@class,'dt-updated')]">
+                <updated>
+                  <xsl:copy-of select=".//xhtml:*[contains(@class,'dt-updated')]/@datetime"/>
+                </updated>
+              </xsl:if>
+            </entry>
+          </xsl:for-each>
+        </feed>
+      </xsl:template>
+
+      <!-- atom:link>
+      <xsl:template match="atom:feed/atom:link">
+        <link>
+          <xsl:attribute name="href">
+            <xsl:value-of select="@href"/>
+          </xsl:attribute>
+          <xsl:attribute name="rel">
+            <xsl:value-of select="@rel"/>
+          </xsl:attribute>
+          <xsl:attribute name="type">
+            <xsl:value-of select="@type"/>
+          </xsl:attribute>
+        </link>
+      </xsl:template -->
+
+      <!-- atom:icon -->
+      <xsl:template match="xhtml:head/xhtml:link[@rel='icon']">
+        <icon>
+          <xsl:value-of select="@href"/>
+        </icon>
+      </xsl:template>
+
+      <!-- atom:logo -->
+      <xsl:template match="xhtml:head/xhtml:link[@rel='logo']">
+        <logo>
+          <xsl:value-of select="@href"/>
+        </logo>
+      </xsl:template>
+
+      <!-- atom:published -->
+      <xsl:template match="xhtml:*[contains(@class,'dt-published')]">
+        <published>
+          <xsl:value-of select="@datetime"/>
+        </published>
+      </xsl:template>
+
+      <!-- atom:subtitle>
+      <xsl:template match="atom:subtitle">
+        <subtitle>
+          <xsl:copy-of select="text()"/>
+        </subtitle>
+      </xsl:template -->
+
+      <!-- atom:title -->
+      <xsl:template match="xhtml:body//xhtml:*[contains(@class,'h-feed')]//xhtml:*[contains(@class,'name')]|xhtml:head/xhtml:title">
+        <title>
+          <xsl:copy-of select="normalize-space(text())"/>
+        </title>
+      </xsl:template>
+
+      <!-- atom:updated -->
+      <xsl:template match="xhtml:*[contains(@class,'dt-updated')]">
+        <updated>
+          <xsl:value-of select="@datetime"/>
+        </updated>
+      </xsl:template>
+
+      <!-- Remove scripts -->
+      <xsl:template match="xhtml:script"/>
+      <xsl:template match="xhtml:style"/>
+
+    </xsl:transform>
+
+  </stylesheet>
+</focus>

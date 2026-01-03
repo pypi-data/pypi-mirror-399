@@ -1,0 +1,246 @@
+# SPDX-FileCopyrightText: 2025 Schimon Jehudah <https://schapps.woodpeckersnest.eu/slixfeed/>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+hostname-deny = [
+"10.0.0.*",
+"192.168.0.*",
+"192.168.1.*",
+"192.168.2.*",
+]
+
+tld-deny = [
+"lgbt",
+"sex",
+"xxx"
+]
+
+keywords-allow = [
+"akkoma",
+"censorship",
+"christ",
+"christian",
+"christianity",
+"earthing",
+"firefish",
+"friendica",
+"free speech",
+"funkwhale",
+"gaddafi",
+"gadhafi",
+"hitler",
+"hubzilla",
+"jabber",
+"jesus",
+"kbin",
+"lxmf",
+"marijuana",
+"mastodon",
+"mbin",
+"misskey",
+"movim",
+"nostr",
+"peertube",
+"pixelfed",
+"plebbit",
+"pleroma",
+"qaddafi",
+"qadhafi",
+"risc v",
+"risc-v",
+"sadam",
+"saddam",
+"searx",
+"searxng",
+"soapbox",
+"war crime",
+"xmpp",
+"yacy",
+]
+
+keywords-deny = [
+"airbnb",
+"android",
+"at&t",
+"bing",
+"booking",
+"cloudflare",
+"digg",
+"discord",
+"disqus",
+"dropbox",
+"facebook",
+"firefox",
+"github",
+"gmail",
+"google",
+"gsoc",
+"instagram",
+"ipad",
+"iphone",
+"ipod",
+"linkedin",
+"microsoft",
+"mozilla",
+"my space",
+"myspace",
+"netflix",
+"office 365",
+"openai",
+"pinterest",
+"pokemon",
+"reddit",
+"robinhood",
+"snapchat",
+"spotify",
+"tiktok",
+"tumblr",
+"twitter",
+"verizon",
+"walmart",
+"waze",
+"whatsapp",
+"wii",
+"wikimedia",
+"wikipedia",
+"wix",
+"xbox",
+"xitter",
+"yahoo",
+"youtube",
+# consumerism
+"black friday",
+"coupon",
+"gambl",
+# death
+"apocalyp",
+"corona",
+"covid",
+"crime",
+"criminal",
+"dead",
+"death",
+"die",
+"disaster",
+"doomsday",
+"murder",
+"vaccin",
+"vax",
+"war",
+# degeneracy
+"gay",
+"gender fluid",
+"gender identity",
+"homosexul",
+"homosexulism",
+"homosexulity",
+"homosex",
+"lesbian",
+"lgbt",
+"lgbtq",
+"lgbtq+",
+"nonbinary",
+"nude",
+"nudity",
+"onlyfans",
+"porn",
+"pr0n",
+"prostitut",
+"queen",
+"queer",
+"tranny",
+"trans",
+"transgender",
+"transexual",
+"whore",
+# distraction of the moment
+"clinton",
+"gaza",
+"gazza",
+"hamas",
+"hammas",
+"holocaust",
+"idf",
+"israel",
+"jerusalem",
+"musk",
+"palestine",
+"tel aviv",
+"tel-aviv",
+"shapiro",
+"trump",
+"west bank",
+# fiction
+"astronaut",
+"climate",
+"meteor",
+"nasa",
+"space",
+# names
+"boomer",
+"gen z",
+# substances
+"🚬",
+"alcohol",
+"cigar",
+"drug",
+]
+
+[keywords-replace]
+"fetus murdering (baby killing)" = [ "abortion",]
+"Chat Service Platform" = [ "discord", "whatsapp",]
+# We are all using 4chan; yet you have got to wonder how is it still
+# allowed online in a centralized DNS system.
+# If 4chan was served only in I2P, IPFS, Nostr, Plebbit or Yggdrasil
+# then I would not think so.
+"CIA controlled riot group" = [ "4chan", "al qaeda", "al-qaeda", "antifa", "black lives matter", "da'ish", "daish", "isil", "isis", "ku klux klan",]
+"government controlled publishing agency" = [ "abc", "abc7", "abc13", "cbn", "cnbc", "fox news", "foxnews", "msn news", "sky news", "skynews",]
+"Email Service Provider" = [ "gmail", "ymail",]
+"Map Service Provider" = [ "google maps", "waze", "yahoo maps",]
+"Hospitality Directory" = [ "airbnb", "booking",]
+"dystopian" = [ "orwellian",]
+"Earth is Horizontal" = [ "earth is flat",]
+"Horizontal Earth" = [ "flatearth", "flat earth",]
+"electro magnetic death antenna" = [ "5g",]
+"electro magnetic water shaker antenna" = [ "2.4ghz",]
+"electro magnetic air shaker antenna" = [ "5ghz", "5.0ghz",]
+"Federal Government of USA" = [ "biden administration", "biden admin", "biden government", "bush administration", "bush admin", "bush government", "obama administration", "obama admin", "obama government", "trump administration", "trump admin", "trump government",]
+"fictional weapon" = [ "atom bomb", "atomic bomb", "nukes", "nuclear bomb",]
+"file hosting service" = [ "dropbox", "rapidshare",]
+"firmament" = [ "atmosphere", "ozone",]
+# People who have been made to believe that earth, moon and sun are 
+# flying rocks traveling in an impossible vacuum of nothingness.
+"globe believer" = [ "globtard",]
+"Government Weather Change Scam" = [ "climate change", "climate summit", "global warming",]
+"hazardous" = [ "gmo",]
+"Human Trafficking Group" = [ "prostitution ring",]
+"Human Trafficking Industry" = [ "porn industry", "pornographic industry", "pornography industry", "sex industry",]
+"impossible war" = [ "atomic war", "nuclear war",]
+# People who observe that earth is plane, and is enclosed by a firmament
+# that separates earth from water, not space.
+"People who know that the earth is horizontal" = [ "flatearther", "flat earther", "globe sceptic",]
+"internationalism" = [ "globalism",]
+"internationalist" = [ "globalist",]
+# Better options might be Freenet, Mixnet
+"Meshnet" = [ "darknet", "dark net",]
+"MI5 controlled publishing agency" = [ "bbc news", "the guardian",]
+"Misleading Digital Coin" = [ "oecd", "shit coin",]
+"NSDAP" = [ "nazi",]
+"online content publishing platform" = [ "facebook", "github", "gitlab", "instagram", "myspace", "pinterest", "tumblr", "twitter", "wix", "xitter",] # mastodon wordpress
+"petroleum" = [ "fossil fuel", "fossil oil",]
+"is a plane" = [ "is a planet",]
+"poison" = [ "flouride", "fluoride",]
+"poisoned" = [ "flouridated", "fluoridated",]
+"poisoning" = [ "flouridation", "fluoridation",]
+"Scam Currency Trading" = [ "forex",]
+"financier" = [ "money donor", "sponsor",]
+"Mobile OS" = [ "android", "ipad", "iphone", "ipod",]
+"Multimedia Streaming Platform" = [ "spotify",]
+"Search Provider" = [ "bing", "google", "yahoo",]
+"Collaborative Publishing Service" = [ "digg", "facebook", "github", "instagram", "linkedin", "myspace", "pinterest", "snapchat", "reddit", "tiktok", "tumblr", "twitter",]
+"Software Organization" = [ "apple computers", "apple inc.", "microsoft",]
+"Telecommunication Organization" = [ "at&t", "telekom", "verizon",]
+"Video Streaming Platform" = [ "hulu", "netflix", "youtube",]
+"water above and below the firmament" = [ "outerspace", "outer space",]
+"World" = [ "globe", "planet",]
+"Worldwide" = [ "around the globe", "global", "globally",]

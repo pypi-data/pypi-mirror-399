@@ -1,0 +1,131 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+classifiers = [
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Communications :: Chat",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary",
+    "Topic :: Internet :: XMPP",
+    "Topic :: Office/Business :: News/Diary",
+]
+dependencies = [
+    "Agunua",
+    "aiofiles",
+    "aiohttp",
+    "bleach",
+    "chardet",
+#    "daemonize",
+    "deltabot-cli",
+    "jetforce",
+    "lxml",
+    "markdown",
+#    "minimal-activitypub",
+    "python-dateutil",
+    "pythonvCard4",
+    "readability-lxml",
+    "reportlab",
+    "slixmpp",
+    "tomli", # Python 3.10
+    "tomli_w",
+]
+description = "News aggregation service for XMPP."
+dynamic = ["version"]
+keywords = [
+    "activitypub",
+    "activitystream",
+    "atom",
+    "atomsub",
+    "bot",
+    "chat",
+    "deltachat",
+    "email",
+    "foaf",
+    "focus",
+    "gemini",
+    "im",
+    "jabber",
+    "json",
+    "news",
+    "pubsub",
+    "rdf",
+    "rss",
+    "service",
+    "syndication",
+    "twtxt",
+    "xml",
+    "xmpp",
+]
+name = "Slixfeed"
+readme = "README.md"
+
+[[project.authors]]
+name = "Schimon Zachary"
+email = "sch@fedora.email"
+
+[project.license]
+text = "MIT"
+
+[project.optional-dependencies]
+omemo = ["slixmpp-omemo"]
+proxy = ["pysocks"]
+
+[project.scripts]
+slixfeed-focuscript = "slixfeed.script.focuscript:start"
+slixfeed-install = "slixfeed.script.install:start"
+slixfeed-instantiate = "slixfeed.script.instantiate:start"
+slixfeed-remote = "slixfeed.script.remote:start"
+slixfeed-server = "slixfeed.script.server:start"
+slixfeed-setup = "slixfeed.script.setup:start"
+
+[project.urls]
+Homepage = "https://schapps.woodpeckersnest.eu/slixfeed/"
+Issues = "https://git.xmpp-it.net/sch/Slixfeed/issues"
+Repository = "https://git.xmpp-it.net/sch/Slixfeed"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["slixfeed"]
+platforms = ["any"]
+
+[tool.setuptools.dynamic]
+version = {attr = "slixfeed.__version__"}
+
+[tool.setuptools.package-data]
+"*" = ["*.md", "*.toml", "*.svg"]
+#"*" = ["*.md", "*.toml", "*.svg", "LICENSES"]
+#"*" = ["*.md", "*.toml", "*.svg", "LICENSES/*"]
+#"LICENSES" = ["*"]
+slixfeed = ["*/**"]
+#slixfeed = ["py.typed"]
+"slixfeed.data" = ["**/*"]
+
+#[tool.setuptools.packages.find]
+#include = ["slixfeed*"]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]

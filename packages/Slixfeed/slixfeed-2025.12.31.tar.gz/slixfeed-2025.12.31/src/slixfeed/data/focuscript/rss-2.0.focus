@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="focuscript.xslt" type="text/xsl"?>
+<focus version="1.3" xmlns="http://diggy.i2p/focus">
+  <configuration>
+    <condition>//rss/@version = '2.0'</condition>
+    <!-- Scripts to execute -->
+    <execute moment="end"
+             name=""/>
+    <execute moment="load"
+             name=""/>
+    <execute moment="start"
+             name=""/>
+    <interval unit="hour">48</interval>
+    <!-- Domains to apply -->
+    <match>*://*/*</match>
+  </configuration>
+  <metadata>
+    <author>Mysteriously Unknown</author>
+    <contributor>Atom Advisory Board</contributor>
+    <contributor>XSLT Advisory Council</contributor>
+    <description>Transform RSS 2.0 documents into standard Atom 1.0 documents.</description>
+    <icon>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=icon.svg&amp;xl=1128</icon>
+    <identifier>i2p.diggy.rss2atom</identifier>
+    <image>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=image.svg&amp;xl=1128</image>
+    <license code="public-domain">Public Domain</license>
+    <link href="http://diggy.i2p/focuscript/rss2atom"
+          rel="homesite"
+          title="RSS to Atom"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/support"
+          rel="support"
+          title="Help and support (The Focus)"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/focuscript/rss2atom.focus"
+          rel="install"
+          type="application/focus+xml"/>
+    <link href="http://diggy.i2p/focuscript/rss2atom.focus.meta"
+          rel="update"
+          type="application/xml"/>
+    <logo>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=logo.svg&amp;xl=1128</logo>
+    <mimetype>application/rss+xml</mimetype>
+    <revision>1.0</revision>
+    <rights license="pd">This document is at the Public Domain.</rights>
+    <subject>The purpose of this Focuscript is to convert RSS 2.0 documents to standard Atom 1.0 documents, to facilitate and further accessibility of documents and information to syndication software such as Liferea, NetNewsWire, QuiteRSS, RSSOwl, et cetera.</subject>
+    <title>RSS 2.0 to Atom 1.0</title>
+    <version>RSS 2.0</version>
+  </metadata>
+  <stylesheet>
+
+    <xsl:transform version="1.0"
+                   xmlns="http://www.w3.org/2005/Atom"
+                   xmlns:xml="http://www.w3.org/XML/1998/namespace"
+                   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+      <xsl:output encoding="UTF-8"
+                  indent="yes"
+                  media-type="application/atom+xml"
+                  method="xml"
+                  version="1.0"/>
+
+      <xsl:template match="/">
+        <feed>
+          <!-- atom:feed -->
+          <xsl:if test="string-length(rss/channel/language) &gt; 0">
+            <xsl:attribute name="xml:lang">
+              <xsl:copy-of select="rss/channel/language"/>
+            </xsl:attribute>
+          </xsl:if>
+          <!-- atom:generator -->
+          <generator uri="https://git.xmpp-it.net/sch/Focus"
+                    version="1.0">The Focus</generator>
+          <xsl:apply-templates/>
+        </feed>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <xsl:template match="rss/channel/link">
+        <link rel="alternate">
+          <xsl:attribute name="href">
+            <xsl:copy-of select="text()"/>
+          </xsl:attribute>
+        </link>
+      </xsl:template>
+
+      <!-- atom:logo -->
+      <xsl:template match="rss/channel/image/url">
+        <logo>
+          <xsl:copy-of select="text()"/>
+        </logo>
+      </xsl:template>
+
+      <!-- atom:published -->
+      <xsl:template match="rss/channel/pubDate">
+        <published>
+          <xsl:copy-of select="text()"/>
+        </published>
+      </xsl:template>
+
+      <!-- atom:rights -->
+      <xsl:template match="rss/channel/copyright">
+        <rights>
+          <xsl:copy-of select="text()"/>
+        </rights>
+      </xsl:template>
+
+      <!-- atom:subtitle -->
+      <xsl:template match="rss/channel/description">
+        <subtitle>
+          <xsl:copy-of select="text()"/>
+        </subtitle>
+      </xsl:template>
+
+      <!-- atom:title -->
+      <xsl:template match="rss/channel/title">
+        <title>
+          <xsl:copy-of select="text()"/>
+        </title>
+      </xsl:template>
+
+      <!-- atom:updated -->
+      <xsl:template match="rss/channel/lastBuildDate">
+        <updated>
+          <xsl:copy-of select="text()"/>
+        </updated>
+      </xsl:template>
+
+      <!-- atom:entry -->
+      <xsl:template match="rss/channel/item">
+        <entry>
+          <xsl:apply-templates select="author"/>
+          <xsl:apply-templates select="category"/>
+          <xsl:apply-templates select="description"/>
+          <xsl:apply-templates select="enclosure"/>
+          <xsl:apply-templates select="guid"/>
+          <xsl:apply-templates select="link"/>
+          <xsl:apply-templates select="pubDate"/>
+          <xsl:apply-templates select="title"/>
+        </entry>
+      </xsl:template>
+
+      <!-- atom:author -->
+      <xsl:template match="author">
+        <author>
+          <name>
+            <xsl:copy-of select="text()"/>
+          </name>
+        </author>
+      </xsl:template>
+
+      <!-- atom:category -->
+      <xsl:template match="category">
+        <category scheme="category">
+          <xsl:attribute name="label">
+            <xsl:copy-of select="text()"/>
+          </xsl:attribute>
+          <xsl:attribute name="term">
+            <xsl:variable name="smallcase" select="'abcdefghijklmnopqrstuvwxyz'"/>
+            <xsl:variable name="uppercase" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+            <xsl:copy-of select="translate(translate(text(), ' ', '-'), $uppercase, $smallcase)"/>
+          </xsl:attribute>
+        </category>
+      </xsl:template>
+
+      <!-- atom:id -->
+      <xsl:template match="guid">
+        <id>
+          <xsl:copy-of select="text()"/>
+        </id>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <xsl:template match="link">
+        <xsl:if test="string-length(text()) &gt; 0">
+          <link rel="alternate">
+            <xsl:attribute name="href">
+              <xsl:copy-of select="text()"/>
+            </xsl:attribute>
+          </link>
+        </xsl:if>
+      </xsl:template>
+
+      <!-- atom:link -->
+      <xsl:template match="enclosure">
+        <xsl:if test="string-length(@url) &gt; 0">
+          <link rel="enclosure">
+            <xsl:attribute name="href">
+              <xsl:value-of select="@url"/>
+            </xsl:attribute>
+            <xsl:attribute name="type">
+              <xsl:value-of select="@type"/>
+            </xsl:attribute>
+            <xsl:attribute name="length">
+              <xsl:value-of select="@length"/>
+            </xsl:attribute>
+          </link>
+        </xsl:if>
+      </xsl:template>
+
+      <!-- atom:published -->
+      <xsl:template match="pubDate">
+        <published>
+          <xsl:copy-of select="text()"/>
+        </published>
+      </xsl:template>
+
+      <!-- atom:content -->
+      <xsl:template match="description">
+        <content type="html">
+          <xsl:copy-of select="text()"/>
+        </content>
+      </xsl:template>
+
+      <!-- atom:title -->
+      <xsl:template match="title">
+        <title>
+          <xsl:copy-of select="text()"/>
+        </title>
+      </xsl:template>
+
+    </xsl:transform>
+
+  </stylesheet>
+</focus>

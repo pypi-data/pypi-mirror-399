@@ -1,0 +1,95 @@
+# SPDX-FileCopyrightText: 2025 Schimon Jehudah <https://schapps.woodpeckersnest.eu/slixfeed/>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# On occasion when given web page has no auto-discovery setup, the following
+# list is engaged into action to scan for possible paths (i.e. pathname) at
+# which web feed might be discovered.
+
+pathnames = [
+".atom",
+".json",
+".rss",
+".tw.txt",
+".twtxt",
+".xml",
+"/.atom",
+"/.json",
+"/.rss",
+"/.xml",
+# wordpress
+"/?feed=atom",
+"/?feed=rdf",
+"/?feed=rss",
+"/?feed=xml",
+# phpbb
+"/?format=atom",
+"/?format=rdf",
+"/?format=rss",
+"/?format=xml",
+"/app.php/feed",
+"/atom",
+"/atom.cgi",
+"/atom.php",
+"/atom.xml",
+"/blog/feed/",
+"/content-feeds/",
+"/external.php?type=RSS2",
+"/en/feed/",
+# common practice
+"/feed",
+"/feed.atom",
+"/feed.cgi",
+"/feed.json",
+"/feed.php",
+"/feed.rdf",
+"/feed.rss",
+"/feed.xml",
+"/feed/article",
+"/feed/atom/",
+"/feeds/news_feed",
+"/feeds/posts/default",
+"/feeds/posts/default?alt=atom",
+"/feeds/posts/default?alt=rss",
+"/feeds/rss/news.xml.php",
+"/forum_rss.php",
+"/index.atom",
+"/index.php/feed",
+# simple machine forum
+"/index.php?type=atom;action=.xml",
+"/index.php?type=rss;action=.xml",
+"/index.rss",
+"/jekyll/feed.xml",
+# discourse
+"/latest.rss",
+"/news",
+"/news.cgi",
+"/news.php",
+"/news.xml",
+"/news.xml.php",
+"/news/feed",
+# discourse
+"/posts.rss",
+"/rdf",
+"/rdf.cgi",
+"/rdf.php",
+"/rdf.xml",
+"/rss",
+"/rss.cgi",
+"/rss.json",
+"/rss.php",
+"/rss.xml",
+# mybb
+"/syndication.php?type=atom1.0",
+"/syndication.php?type=rss2.0",
+# statusnet
+"/timeline.rss",
+"/tw.txt",
+# peertube
+"/videos.atom",
+"/videos.json",
+"/videos.xml",
+"/xml/feed.atom",
+"/xml/feed.rdf",
+"/xml/feed.rss",
+]

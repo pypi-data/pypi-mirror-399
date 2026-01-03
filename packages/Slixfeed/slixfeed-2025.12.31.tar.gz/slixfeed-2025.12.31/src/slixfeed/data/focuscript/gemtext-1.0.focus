@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="focuscript.xslt" type="text/xsl"?>
+<focus version="1.3" xmlns="http://diggy.i2p/focus">
+  <configuration>
+    <condition>//gemini:*</condition>
+    <!-- Scripts to execute -->
+    <execute moment="end"
+             name=""/>
+    <execute moment="load"
+             name=""/>
+    <execute moment="start"
+             name=""/>
+    <interval unit="hour">48</interval>
+    <!-- Domains to apply -->
+    <match>gemini://*/*</match>
+  </configuration>
+  <metadata>
+    <author>Mysteriously Unknown</author>
+    <contributor>Atom Advisory Board</contributor>
+    <contributor>XSLT Advisory Council</contributor>
+    <description>Transform Gemini documents into standard Atom 1.0 documents.</description>
+    <icon>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=icon.svg&amp;xl=1128</icon>
+    <identifier>i2p.diggy.gemini2atom</identifier>
+    <image>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=image.svg&amp;xl=1128</image>
+    <license code="public-domain">Public Domain</license>
+    <link href="http://diggy.i2p/focuscript/gemini2atom"
+          rel="homesite"
+          title="Gemini to Atom"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/support"
+          rel="support"
+          title="Help and support (The Focus)"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/focuscript/gemini2atom.focus"
+          rel="install"
+          type="application/focus+xml"/>
+    <link href="http://diggy.i2p/focuscript/gemini2atom.focus.meta"
+          rel="update"
+          type="application/xml"/>
+    <logo>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=logo.svg&amp;xl=1128</logo>
+    <mimetype>text/gemini</mimetype>
+    <revision>1.0</revision>
+    <rights license="pd">This document is at the Public Domain.</rights>
+    <subject>The purpose of this Focuscript is to convert Gemini documents to standard Atom 1.0 documents, to facilitate and further accessibility of documents and information to syndication software such as Liferea, NetNewsWire, QuiteRSS, RSSOwl, et cetera.</subject>
+    <title>Gemini 1.0 to Atom 1.0</title>
+    <version>Gemini 1.0</version>
+  </metadata>
+  <stylesheet>
+
+    <xsl:transform version="1.0"
+                   xmlns="http://www.w3.org/2005/Atom"
+                   xmlns:gemini="gemini://geminiprotocol.net/"
+                   xmlns:xml="http://www.w3.org/XML/1998/namespace"
+                   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+      <xsl:output encoding="UTF-8"
+                  indent="yes"
+                  media-type="application/atom+xml"
+                  method="xml"
+                  version="1.0"/>
+
+      <xsl:template match="/">
+        <feed>
+          <!-- atom:generator -->
+          <generator uri="https://git.xmpp-it.net/sch/Focus"
+                    version="1.0">The Focus</generator>
+          <xsl:apply-templates/>
+        </feed>
+      </xsl:template>
+
+      <!-- atom:subtitle -->
+      <xsl:template match="gemini:paragraph[1]">
+        <subtitle>
+          <xsl:copy-of select="text()"/>
+        </subtitle>
+      </xsl:template>
+
+      <!-- atom:title -->
+      <xsl:template match="gemini:h1[1]">
+        <title>
+          <xsl:copy-of select="text()"/>
+        </title>
+      </xsl:template>
+
+      <!-- atom:entry -->
+      <xsl:template match="gemini:link[@date]">
+        <entry>
+          <title type="text">
+            <xsl:value-of select="@title"/>
+          </title>
+          <published>
+            <xsl:value-of select="@date"/>
+          </published>
+          <link rel="related">
+            <xsl:value-of select="@href"/>
+          </link>
+        </entry>
+      </xsl:template>
+
+    </xsl:transform>
+
+  </stylesheet>
+</focus>
