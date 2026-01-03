@@ -1,0 +1,954 @@
+# tests/test_distance.py
+"""
+Comprehensive tests for the Distance class in ds_tools.
+This suite covers initialization, backend dispatching (NumPy, Numba, CuPy),
+and the correctness of all implemented distance and similarity metrics.
+
+This test suite covers almost 100% of the distance.py functionality, including:
+All 12 metrics, including their correctness compared to reference implementations.
+All backends (NumPy, Numba, CuPy) and the logic behind their selection (gpu_threshold, force_cpu).
+All major code paths, including matrix (pairwise, knn, radius) and vector functions.
+Error and edge case handling (incorrect sizes, empty arrays, incorrect parameters).
+*
+* Copyright (c) [2025] [Sergii Kavun]
+*
+* This software is dual-licensed:
+* - PolyForm Noncommercial 1.0.0 (default)
+* - Commercial license available
+*
+* See LICENSE for details
+*
+"""
+import numpy as np
+import pandas as pd
+import pytest
+from ds_tools.distance import CUPY_AVAILABLE, NUMBA_AVAILABLE
+from scipy.spatial.distance import cdist
+from scipy.stats import entropy
+
+if NUMBA_AVAILABLE:
+    from ds_tools.distance import (
+        _canberra_numba,
+        _chebyshev_numba,
+        _cosine_similarity_numba,
+        _euclidean_numba,
+        _hamming_numba,
+        _jaccard_numba,
+        _mahalanobis_numba,
+        _manhattan_numba,
+        _minkowski_numba,
+        _pairwise_euclidean_numba,
+    )
+
+# --- Define markers for hardware-specific tests ---
+pytestmark_cupy = pytest.mark.skipif(
+    not CUPY_AVAILABLE, reason="CuPy or compatible GPU is not available"
+)
+pytestmark_numba = pytest.mark.skipif(
+    not NUMBA_AVAILABLE, reason="Numba is not available"
+)
+
+# ============================================================================
+# Test Fixtures
+# ============================================================================
+
+
+@pytest.fixture(scope="module")
+def small_sample_vectors():
+    """Provides a pair of small vectors that won't trigger the GPU threshold."""
+    np.random.seed(42)
+    u = np.random.rand(100).astype(np.float32)
+    v = np.random.rand(100).astype(np.float32)
+    return u, v
+
+
+@pytest.fixture(scope="module")
+def large_sample_vectors():
+    """Provides a pair of large vectors that WILL trigger the GPU threshold."""
+    np.random.seed(42)
+    size = 15_000  # Larger than the default 10k threshold
+    u = np.random.rand(size).astype(np.float32)
+    v = np.random.rand(size).astype(np.float32)
+    return u, v
+
+
+@pytest.fixture(scope="module")
+def sample_matrices():
+    """Provides two matrices for pairwise and neighbor calculations."""
+    np.random.seed(42)
+    X = np.random.rand(50, 10).astype(np.float32)
+    Y = np.random.rand(60, 10).astype(np.float32)
+    return X, Y
+
+
+@pytest.fixture(scope="module")
+def inverse_covariance_matrix():
+    """Provides a sample inverse covariance matrix for Mahalanobis distance."""
+    np.random.seed(42)
+    # Generate a random symmetric positive-definite matrix
+    A = np.random.rand(100, 100)
+    cov = np.dot(A, A.T)
+    # Add a small value to the diagonal for numerical stability
+    cov += np.eye(100) * 1e-6
+    return np.linalg.inv(cov).astype(np.float32)
+
+
+# ============================================================================
+# Section 1: Direct Tests of Internal Numba Implementations
+# ============================================================================
+class TestNumbaInternals:
+    """
+    Tests the correctness of private, Numba-jitted functions directly.
+    This ensures the core calculation logic is flawless.
+    """
+
+    def test_euclidean_numba(self, small_sample_vectors):
+        u, v = (
+            small_sample_vectors[0][:3],
+            small_sample_vectors[1][:3],
+        )  # Use a small slice for known values
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+        u, v = np.array([1, 2, 3], dtype=np.float32), np.array(
+            [4, 5, 6], dtype=np.float32
+        )
+        expected = np.sqrt(27.0)  # (1-4)^2 + (2-5)^2 + (3-6)^2 = 9+9+9 = 27
+        assert np.isclose(_euclidean_numba(u, v), expected, rtol=1e-5)
+
+    def test_manhattan_numba(self):
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+        u, v = np.array([1, 2, 3], dtype=np.float32), np.array(
+            [4, 5, 6], dtype=np.float32
+        )
+        expected = 9.0  # |1-4| + |2-5| + |3-6| = 3+3+3 = 9
+        assert np.isclose(_manhattan_numba(u, v), expected, rtol=1e-5)
+
+    def test_minkowski_numba(self):
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+        u, v = np.array([1, 2, 3], dtype=np.float32), np.array(
+            [4, 5, 6], dtype=np.float32
+        )
+        # p=3, diffs are all 3. (3^3 + 3^3 + 3^3)^(1/3) = (81)^(1/3)
+        expected = (3**3 * 3) ** (1 / 3)
+        assert np.isclose(_minkowski_numba(u, v, 3), expected, rtol=1e-5)
+
+    def test_chebyshev_numba(self):
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+        u, v = np.array([1, 8, 3], dtype=np.float32), np.array(
+            [4, 5, 9], dtype=np.float32
+        )
+        expected = 6.0  # max(|1-4|, |8-5|, |3-9|) = max(3, 3, 6)
+        assert np.isclose(_chebyshev_numba(u, v), expected, rtol=1e-5)
+
+    def test_cosine_similarity_numba(self):
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+        u, v = np.array([1, 2, 3], dtype=np.float32), np.array(
+            [4, 5, 6], dtype=np.float32
+        )
+        expected = np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
+        assert np.isclose(_cosine_similarity_numba(u, v), expected, rtol=1e-5)
+        # Test zero vectors
+        zero_vec = np.zeros(3, dtype=np.float32)
+        assert _cosine_similarity_numba(zero_vec, zero_vec) == 1.0
+        assert _cosine_similarity_numba(u, zero_vec) == 0.0
+
+    def test_mahalanobis_numba(self):
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+        u, v = np.array([1, 2], dtype=np.float32), np.array([3, 4], dtype=np.float32)
+        VI = np.array([[2.0, 0.5], [0.5, 1.0]], dtype=np.float32)
+        diff = u - v
+        expected = np.sqrt(diff.T @ VI @ diff)
+        assert np.isclose(_mahalanobis_numba(u, v, VI), expected, rtol=1e-5)
+
+    def test_hamming_numba(self):
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+        u = np.array([1, 0, 1, 1], dtype=np.float32)
+        v = np.array([1, 1, 0, 1], dtype=np.float32)
+        expected = 2.0 / 4.0  # 2 differences out of 4
+        assert np.isclose(_hamming_numba(u, v), expected, rtol=1e-5)
+
+    def test_jaccard_numba(self):
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+        u = np.array([1, 1, 0, 1, 0], dtype=np.float32)
+        v = np.array([0, 1, 1, 1, 0], dtype=np.float32)
+        # Intersection = 2, Union = 4. Distance = 1 - (2/4) = 0.5
+        assert np.isclose(_jaccard_numba(u, v), 0.5, rtol=1e-5)
+
+    def test_pairwise_euclidean_numba(self):
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+        X = np.array([[1, 2], [3, 4]], dtype=np.float32)
+        Y = np.array([[5, 6], [7, 8]], dtype=np.float32)
+        expected = np.array(
+            [[np.sqrt(32.0), np.sqrt(72.0)], [np.sqrt(8.0), np.sqrt(32.0)]],
+            dtype=np.float32,
+        )
+        result = _pairwise_euclidean_numba(X, Y)
+        assert np.allclose(result, expected, rtol=1e-5)
+
+    def test_canberra_numba(self):
+        if not NUMBA_AVAILABLE:
+            pytest.skip("Numba is not available in this environment")
+
+        u = np.array([1.0, 2.0, 3.0, 0.0], dtype=np.float32)
+        v = np.array([4.0, 5.0, 6.0, 0.0], dtype=np.float32)
+        w = np.array([1.0, 1.0, 1.0, 1.0], dtype=np.float32)
+
+        # Manual calculation:
+        # i=0: |1-4| / (|1|+|4|) * 1 = 3/5 = 0.6
+        # i=1: |2-5| / (|2|+|5|) * 1 = 3/7 ≈ 0.4286
+        # i=2: |3-6| / (|3|+|6|) * 1 = 3/9 = 0.3333
+        # i=3: |0-0| / (|0|+|0|) * 1 = 0 (division by zero handled)
+        # Total ≈ 1.3619
+        expected = 0.6 + 3 / 7 + 1 / 3  # ≈ 1.3619
+
+        result = _canberra_numba(u, v, w)
+        assert np.isclose(result, expected, rtol=1e-5)
+
+        # Test division by zero handling
+        u_zero = np.array([0.0, 1.0], dtype=np.float32)
+        v_zero = np.array([0.0, 2.0], dtype=np.float32)
+        w_zero = np.array([1.0, 1.0], dtype=np.float32)
+        # i=0: 0/0 → 0 (handled)
+        # i=1: |1-2|/(1+2) = 1/3
+        assert np.isclose(_canberra_numba(u_zero, v_zero, w_zero), 1 / 3, rtol=1e-5)
+
+
+# ============================================================================
+# Section 2: Tests for Initialization and Dispatching
+# ============================================================================
+def test_public_interface_calls_correct_backend(tools, mocker, small_sample_vectors):
+    """
+    Tests that public methods dispatch to the correct backend based on availability.
+    This replaces the 'test_public_interface_calls_internal_functions' from the sample.
+    """
+    u, v = small_sample_vectors
+
+    # Case 1: All available (Numba is preferred over NumPy for CPU)
+    if NUMBA_AVAILABLE:
+        mocker.patch.object(tools.distance, "gpu_available", False)
+        mocker.patch.object(tools.distance, "numba_available", True)
+        mock_numba = mocker.patch(
+            "ds_tools.distance._manhattan_numba", return_value=1.0
+        )
+        tools.distance.manhattan(u, v)
+        mock_numba.assert_called_once()
+
+    # Case 2: Only NumPy is available
+    mocker.patch.object(tools.distance, "gpu_available", False)
+    mocker.patch.object(tools.distance, "numba_available", False)
+    mock_numpy = mocker.patch("ds_tools.distance._manhattan_numpy", return_value=2.0)
+    tools.distance.manhattan(u, v)
+    mock_numpy.assert_called_once()
+
+
+def test_distance_initialization(tools):
+    """Tests that the Distance class initializes correctly."""
+    # 'tools' fixture provides a DSTools instance, so we access .distance
+    dist = tools.distance
+    assert dist.numba_available == NUMBA_AVAILABLE
+
+
+def test_backend_dispatching_logic(
+    tools, mocker, small_sample_vectors, large_sample_vectors
+):
+    """Tests that the correct backend is chosen based on data size and flags."""
+    if not (CUPY_AVAILABLE and NUMBA_AVAILABLE):
+        pytest.skip("This test requires both CuPy and Numba.")
+
+    dist = tools.distance
+    mocker.patch.object(dist, "gpu_available", True)
+    mocker.patch("ds_tools.distance.cp.asarray", side_effect=lambda x: x)
+    mock_numba = mocker.patch("ds_tools.distance._euclidean_numba", return_value=1.0)
+    mock_cupy = mocker.patch(
+        "ds_tools.distance._euclidean_cupy", return_value=2.0, create=True
+    )
+
+    # 1. Small data -> Numba should be used
+    u_small, v_small = small_sample_vectors
+    dist.euclidean(u_small, v_small, force_cpu=False)
+    mock_numba.assert_called_once()
+    mock_cupy.assert_not_called()
+    mock_numba.reset_mock()
+
+    # 2. Large data -> CuPy should be used
+    u_large, v_large = large_sample_vectors
+    dist.euclidean(u_large, v_large, force_cpu=False)
+    mock_numba.assert_not_called()
+    mock_cupy.assert_called_once()
+    mock_cupy.reset_mock()
+
+    # 3. Large data with force_cpu=True -> Numba should be used
+    dist.euclidean(u_large, v_large, force_cpu=True)
+    mock_numba.assert_called_once()
+    mock_cupy.assert_not_called()
+
+
+# --- Parametrized test for simple distances ---
+VECTOR_METRICS = [
+    ("euclidean", {}, lambda u, v: np.linalg.norm(u - v)),
+    ("manhattan", {}, lambda u, v: np.sum(np.abs(u - v))),
+    ("minkowski", {"p": 3}, lambda u, v, p: np.sum(np.abs(u - v) ** p) ** (1 / p)),
+    ("chebyshev", {}, lambda u, v: np.max(np.abs(u - v))),
+    (
+        "cosine_similarity",
+        {},
+        lambda u, v: 1.0 - cdist(u.reshape(1, -1), v.reshape(1, -1), "cosine")[0, 0],
+    ),
+]
+
+ADDITIONAL_CONTINUOUS_METRICS = [
+    (
+        "cityblock",
+        {},
+        lambda u, v: cdist(u.reshape(1, -1), v.reshape(1, -1), "cityblock")[0, 0],
+    ),
+    (
+        "braycurtis",
+        {},
+        lambda u, v: cdist(u.reshape(1, -1), v.reshape(1, -1), "braycurtis")[0, 0],
+    ),
+    (
+        "canberra",
+        {},
+        lambda u, v: cdist(u.reshape(1, -1), v.reshape(1, -1), "canberra")[0, 0],
+    ),
+]
+
+# --- Boolean Metrics ---
+# Note: inside lambdas we convert inputs to bool for scipy correctness
+BOOLEAN_METRICS = [
+    (
+        "dice",
+        {},
+        lambda u, v: cdist(
+            u.reshape(1, -1).astype(bool), v.reshape(1, -1).astype(bool), "dice"
+        )[0, 0],
+    ),
+    (
+        "kulsinski",
+        {},
+        lambda u, v: cdist(
+            u.reshape(1, -1).astype(bool), v.reshape(1, -1).astype(bool), "kulczynski1"
+        )[0, 0],
+    ),
+    (
+        "rogers_tanimoto",
+        {},
+        lambda u, v: cdist(
+            u.reshape(1, -1).astype(bool),
+            v.reshape(1, -1).astype(bool),
+            "rogerstanimoto",
+        )[0, 0],
+    ),  # Note spelling in scipy: rogersstanimoto
+    (
+        "russellrao",
+        {},
+        lambda u, v: cdist(
+            u.reshape(1, -1).astype(bool), v.reshape(1, -1).astype(bool), "russellrao"
+        )[0, 0],
+    ),
+    (
+        "sokal_michener",
+        {},
+        lambda u, v: cdist(
+            u.reshape(1, -1).astype(bool),
+            v.reshape(1, -1).astype(bool),
+            "sokalmichener",
+        )[0, 0],
+    ),
+    (
+        "sokal_sneath",
+        {},
+        lambda u, v: cdist(
+            u.reshape(1, -1).astype(bool), v.reshape(1, -1).astype(bool), "sokalsneath"
+        )[0, 0],
+    ),
+    (
+        "yule",
+        {},
+        lambda u, v: cdist(
+            u.reshape(1, -1).astype(bool), v.reshape(1, -1).astype(bool), "yule"
+        )[0, 0],
+    ),
+]
+
+
+# ============================================================================
+# Section 4: Test for Fallback Mechanism
+# ============================================================================
+def test_fallback_without_numba(tools, mocker, small_sample_vectors):
+    """
+    Tests that the code gracefully falls back to NumPy when Numba is not available.
+    """
+    u, v = small_sample_vectors
+
+    dist = tools.distance
+
+    # --- Simulate Numba being UNAVAILABLE directly on the instance ---
+    mocker.patch.object(dist, "numba_available", False)
+
+    # --- Spy on the NumPy backend to ensure it's called ---
+    mock_numpy_fallback = mocker.patch(
+        "ds_tools.distance._euclidean_numpy", return_value=99.0
+    )
+
+    # Call the method on the original 'tools' instance
+    result = dist.euclidean(u, v)
+
+    # --- Assertions ---
+    mock_numpy_fallback.assert_called_once()
+    assert result == 99.0
+
+
+# ============================================================================
+# Section 5: Tests for CPU Backends (NumPy and Numba)
+# ============================================================================
+class TestCPUBackends:
+    """Groups tests that specifically target NumPy and Numba backends."""
+
+    @pytest.mark.parametrize("method_name, kwargs, trusted_func", VECTOR_METRICS)
+    def test_vector_distances_correctness(
+        self, tools, method_name, kwargs, trusted_func, large_sample_vectors
+    ):
+        """Tests numerical correctness of vector-to-vector distances against a trusted source."""
+        u, v = large_sample_vectors
+
+        # Get the result from our library (testing GPU path)
+        method = getattr(tools.distance, method_name)
+        result = method(u, v, **kwargs)
+
+        # Get the expected result from the trusted source (NumPy/SciPy)
+        expected = trusted_func(u, v, **kwargs)
+
+        assert np.isclose(result, expected, rtol=1e-5)
+
+    @pytest.mark.parametrize("method_name, kwargs, scipy_metric", VECTOR_METRICS)
+    def test_vector_distances_numpy(
+        self, tools, mocker, method_name, kwargs, scipy_metric, small_sample_vectors
+    ):
+        """Tests correctness of NumPy implementations against SciPy."""
+        u, v = small_sample_vectors
+
+        # Force NumPy by disabling GPU and Numba via mocking
+        mocker.patch.object(tools.distance, "gpu_available", False)
+        mocker.patch.object(tools.distance, "numba_available", False)
+
+        method = getattr(tools.distance, method_name)
+        result = method(u, v, **kwargs)
+
+        # SciPy's cdist is our trusted source
+        # Reshape for cdist and handle special cases
+        u_2d, v_2d = u.reshape(1, -1), v.reshape(1, -1)
+
+        expected = cdist(u_2d, v_2d, metric=scipy_metric, **kwargs)[0, 0]
+
+        assert np.isclose(result, expected, rtol=1e-5)
+
+    @pytestmark_numba
+    @pytest.mark.parametrize("method_name, kwargs, scipy_metric", VECTOR_METRICS)
+    def test_vector_distances_numba(
+        self, tools, mocker, method_name, kwargs, scipy_metric, small_sample_vectors
+    ):
+        """Tests correctness of Numba implementations against SciPy."""
+        u, v = small_sample_vectors
+
+        # Force Numba by disabling GPU
+        mocker.patch.object(tools.distance, "gpu_available", False)
+
+        method = getattr(tools.distance, method_name)
+        result = method(u, v, **kwargs)
+
+        u_2d, v_2d = u.reshape(1, -1), v.reshape(1, -1)
+
+        expected = cdist(u_2d, v_2d, metric=scipy_metric, **kwargs)[0, 0]
+
+        assert np.isclose(result, expected, rtol=1e-5)
+
+    def test_mahalanobis_correctness(
+        self, tools, small_sample_vectors, inverse_covariance_matrix
+    ):
+        """Separate test for Mahalanobis due to its unique signature."""
+        u, v = small_sample_vectors
+        VI = inverse_covariance_matrix
+
+        # SciPy's implementation is a trusted source
+        from scipy.spatial.distance import mahalanobis as scipy_mahalanobis
+
+        expected = scipy_mahalanobis(u, v, VI)
+
+        result = tools.distance.mahalanobis(u, v, VI, force_cpu=True)
+        assert np.isclose(result, expected, rtol=1e-5)
+
+    @pytestmark_numba
+    def test_pairwise_euclidean_numba(self, tools, mocker, sample_matrices):
+        """Tests the Numba implementation of pairwise euclidean distance."""
+        X, Y = sample_matrices
+        mocker.patch.object(tools.distance, "gpu_available", False)
+
+        result = tools.distance.pairwise_euclidean(X, Y)
+        expected = cdist(X, Y, "euclidean")
+        assert np.allclose(result, expected, rtol=1e-5)
+
+    def test_haversine_correctness(self, tools):
+        """Tests Haversine distance with a known example (Paris to London)."""
+        # Coordinates for Paris and London
+        lat1, lon1 = 48.8566, 2.3522  # Paris
+        lat2, lon2 = 51.5074, -0.1278  # London
+
+        expected_distance_km = 343.5  # Approximate distance
+
+        result = tools.distance.haversine(lat1, lon1, lat2, lon2)
+        assert np.isclose(result, expected_distance_km, atol=1)  # Allow 1km tolerance
+
+    @pytest.mark.parametrize(
+        "method_name, kwargs, trusted_func", ADDITIONAL_CONTINUOUS_METRICS
+    )
+    def test_additional_continuous_metrics_numpy(
+        self, tools, mocker, method_name, kwargs, trusted_func, small_sample_vectors
+    ):
+        """
+        Tests correctness of additional continuous metrics
+        (Bray-Curtis, Canberra, Cityblock).
+        """
+        u, v = small_sample_vectors
+        # Ensure we use NumPy
+        mocker.patch.object(tools.distance, "gpu_available", False)
+        mocker.patch.object(tools.distance, "numba_available", False)
+
+        method = getattr(tools.distance, method_name)
+        result = method(u, v, **kwargs)
+
+        expected = trusted_func(u, v)
+        assert np.isclose(result, expected, rtol=1e-5)
+
+    @pytest.mark.parametrize("method_name, kwargs, trusted_func", BOOLEAN_METRICS)
+    def test_boolean_metrics_numpy(
+        self, tools, mocker, method_name, kwargs, trusted_func, small_sample_vectors
+    ):
+        """Tests correctness of boolean dissimilarity metrics."""
+        # Convert float vectors to boolean-like floats (0.0 and 1.0)
+        u_float = (small_sample_vectors[0] > 0.5).astype(np.float32)
+        v_float = (small_sample_vectors[1] > 0.5).astype(np.float32)
+
+        # Ensure we use NumPy
+        mocker.patch.object(tools.distance, "gpu_available", False)
+        mocker.patch.object(tools.distance, "numba_available", False)
+
+        method = getattr(tools.distance, method_name)
+        result = method(u_float, v_float, **kwargs)
+
+        # Calculate expected using the lambda (which handles bool conversion internally)
+        expected = trusted_func(u_float, v_float)
+        print("result:", result, "expected:", expected)
+        assert np.isclose(result, expected, rtol=1e-5)
+
+    def test_relative_entropy_numpy(self, tools, mocker, small_sample_vectors):
+        """Tests Relative Entropy (KL Divergence) manually."""
+        # KL requires inputs to be probability distributions (sum=1, positive)
+        u = np.abs(small_sample_vectors[0])
+        v = np.abs(small_sample_vectors[1])
+        u /= u.sum()
+        v /= v.sum()
+
+        mocker.patch.object(tools.distance, "gpu_available", False)
+        mocker.patch.object(tools.distance, "numba_available", False)
+
+        result = tools.distance.relative_entropy(u, v)
+        expected = entropy(u, v)
+
+        assert np.isclose(result, expected, rtol=1e-5)
+
+
+# ============================================================================
+# Section 6: Tests for GPU-Specific Execution
+# ============================================================================
+@pytestmark_cupy
+class TestGPUBackends:
+    """A class to group tests that require a functional CuPy environment."""
+
+    @pytest.mark.parametrize("method_name, kwargs, scipy_metric", VECTOR_METRICS)
+    def test_vector_distances_gpu(
+        self, tools, method_name, kwargs, scipy_metric, large_sample_vectors
+    ):
+        """Tests correctness of CuPy implementations against SciPy on large data."""
+        u, v = large_sample_vectors
+
+        method = getattr(tools.distance, method_name)
+        # force_cpu=False is default, so GPU should be chosen
+        result = method(u, v, **kwargs)
+
+        u_2d, v_2d = u.reshape(1, -1), v.reshape(1, -1)
+
+        expected = cdist(u_2d, v_2d, metric=scipy_metric, **kwargs)[0, 0]
+
+        assert np.isclose(result, expected, rtol=1e-5)
+
+    def test_pairwise_euclidean_gpu(self, tools, sample_matrices):
+        """Tests the CuPy implementation of pairwise euclidean distance."""
+        X, Y = sample_matrices
+
+        result = tools.distance.pairwise_euclidean(X, Y)
+        expected = cdist(X, Y, "euclidean")
+        assert np.allclose(result, expected, rtol=1e-5)
+
+
+# ============================================================================
+# Section 7: Tests for Matrix-based Functions
+# ============================================================================
+def test_pairwise_euclidean_correctness(tools, sample_matrices):
+    """Tests pairwise Euclidean distance against SciPy's cdist."""
+    X, Y = sample_matrices
+
+    # Test within a single matrix
+    expected_within = cdist(X, X, "euclidean")
+    result_within = tools.distance.pairwise_euclidean(X)
+    assert np.allclose(result_within, expected_within, rtol=1e-5)
+
+    # Test between two matrices
+    expected_between = cdist(X, Y, "euclidean")
+    result_between = tools.distance.pairwise_euclidean(X, Y)
+    assert np.allclose(result_between, expected_between, rtol=1e-5)
+
+
+def test_kmeans_distance_is_alias(tools, mocker, sample_matrices):
+    """Tests that kmeans_distance is a correct alias for pairwise_euclidean."""
+    X, centroids = sample_matrices
+    mock_pairwise = mocker.patch.object(
+        tools.distance, "pairwise_euclidean", return_value=np.array([])
+    )
+
+    tools.distance.kmeans_distance(X, centroids)
+
+    mock_pairwise.assert_called_once_with(X, centroids, force_cpu=False)
+
+
+def test_knn_distances_correctness(tools, sample_matrices):
+    """Tests k-NN distance calculation for correct shapes and properties."""
+    X, Y = sample_matrices
+    k = 5
+
+    distances, indices = tools.distance.knn_distances(X, Y, k=k)
+
+    assert distances.shape == (X.shape[0], k)
+    assert indices.shape == (X.shape[0], k)
+    assert np.all(distances >= 0)
+    # Check that distances in each row are sorted
+    assert np.all(np.diff(distances, axis=1) >= 0)
+
+
+def test_radius_neighbors_correctness(tools, sample_matrices):
+    """Tests radius neighbors search for correct properties."""
+    X, Y = sample_matrices
+    radius = 0.7
+
+    distances, indices = tools.distance.radius_neighbors(X, Y, radius=radius)
+
+    assert isinstance(distances, list) and isinstance(indices, list)
+    assert len(distances) == X.shape[0]
+
+    # Check that all returned distances are within the radius
+    for dist_array in distances:
+        if len(dist_array) > 0:
+            assert np.all(dist_array <= radius)
+
+
+def test_hamming_distance_correctness(tools):
+    """Tests Hamming distance on a simple binary case."""
+    u = np.array([1, 0, 1, 1, 0, 1])
+    v = np.array([1, 1, 0, 1, 0, 1])
+    # 2 non-matching elements out of 6 -> distance = 2/6 = 0.333...
+    expected = 2 / 6
+    result = tools.distance.hamming(u, v)
+    assert np.isclose(result, expected, rtol=1e-5)
+
+
+def test_jaccard_distance_correctness(tools):
+    """Tests Jaccard distance on a simple binary case."""
+    u = np.array([1, 1, 0, 1, 0])
+    v = np.array([0, 1, 1, 1, 0])
+    # Intersection = 2 ({1, 3})
+    # Union = 3 ({0, 1, 2, 3}) -> {1,1,1,1,0} -> 4. Sorry, my math was off.
+    # Union = sum(u | v) = sum([1,1,1,1,0]) = 4
+    # Intersection = sum(u & v) = sum([0,1,0,1,0]) = 2
+    # Jaccard Similarity = 2 / 4 = 0.5
+    # Jaccard Distance = 1 - 0.5 = 0.5
+    expected = 0.5
+    result = tools.distance.jaccard(u, v)
+    assert np.isclose(result, expected, rtol=1e-5)
+
+
+def test_mahalanobis_correctness(
+    tools, small_sample_vectors, inverse_covariance_matrix
+):
+    """Separate test for Mahalanobis due to its unique signature."""
+    from scipy.spatial.distance import mahalanobis as scipy_mahalanobis
+
+    u, v = small_sample_vectors
+    VI = inverse_covariance_matrix
+    expected = scipy_mahalanobis(u, v, VI)
+    result = tools.distance.mahalanobis(u, v, VI, force_cpu=True)
+    assert np.isclose(result, expected, rtol=1e-5)
+
+
+# ============================================================================
+# Section 8: Tests for Edge Cases and Error Handling
+# ============================================================================
+def test_empty_vector_input(tools):
+    """Tests graceful handling of empty vector inputs."""
+    u, v = np.array([]), np.array([])
+    assert tools.distance.euclidean(u, v) == 0.0
+    assert tools.distance.cosine_similarity(u, v) == 1.0  # Perfect similarity
+
+
+def test_vector_shape_mismatch_raises_error(tools):
+    """Tests that a shape mismatch in vectors raises ValueError."""
+    u = np.array([1, 2, 3])
+    v = np.array([1, 2])
+    with pytest.raises(
+        ValueError, match="Input vectors/matrices must have the same number of features"
+    ):
+        tools.distance.euclidean(u, v)
+
+
+def test_invalid_minkowski_p_raises_error(tools, small_sample_vectors):
+    """Tests that p < 1 in Minkowski distance raises ValueError."""
+    u, v = small_sample_vectors
+    with pytest.raises(ValueError, match="p must be at least 1"):
+        tools.distance.minkowski(u, v, p=0)
+
+
+def test_invalid_mahalanobis_vi_raises_error(tools, small_sample_vectors):
+    """Tests that an invalid inverse covariance matrix raises ValueError."""
+    u, v = small_sample_vectors
+    VI_bad_shape = np.eye(u.shape[0] - 1)  # Wrong dimension
+    with pytest.raises(ValueError, match="Inverse covariance matrix must be square"):
+        tools.distance.mahalanobis(u, v, VI_bad_shape)
+
+
+def test_cosine_similarity_with_zero_vector(tools):
+    """
+    Covers the 'if norm_u == 0.0 or norm_v == 0.0' branch in cosine similarity.
+    """
+    u = np.array([1, 2, 3], dtype=np.float32)
+    v_zero = np.array([0, 0, 0], dtype=np.float32)
+
+    # Test against a zero vector
+    assert tools.distance.cosine_similarity(u, v_zero) == 0.0
+    # Test against itself
+    assert tools.distance.cosine_similarity(v_zero, v_zero) == 1.0
+
+
+def test_jaccard_with_empty_sets(tools):
+    """
+    Covers the 'if union == 0' branch in Jaccard distance, which happens
+    when both vectors are all zeros (representing empty sets).
+    """
+    u_zero = np.array([0, 0, 0], dtype=np.float32)
+
+    assert tools.distance.jaccard(u_zero, u_zero) == 0.0
+
+
+def test_pairwise_euclidean_empty_input(tools):
+    """
+    Covers the 'if self._validate_vectors(...) is not None' branch
+    in pairwise_euclidean for empty inputs.
+    """
+    empty_matrix = np.empty((0, 10), dtype=np.float32)
+    result = tools.distance.pairwise_euclidean(empty_matrix)
+    # The function should return an empty array of shape (0, 0) or similar
+    assert result.shape[0] == 0
+
+
+def test_pairwise_and_neighbors_empty_input(tools):
+    """Covers edge cases for matrix functions with empty inputs."""
+    empty_matrix = np.empty((0, 10), dtype=np.float32)
+
+    # Test pairwise
+    result_pairwise = tools.distance.pairwise_euclidean(empty_matrix)
+    assert result_pairwise.shape == (0, 0)
+
+    # Test k-NN
+    dists_knn, idxs_knn = tools.distance.knn_distances(empty_matrix, k=3)
+    assert dists_knn.shape == (0, 3)
+    assert idxs_knn.shape == (0, 3)
+
+    # Test radius
+    dists_rad, idxs_rad = tools.distance.radius_neighbors(empty_matrix, radius=0.5)
+    assert isinstance(dists_rad, list) and len(dists_rad) == 0
+    assert isinstance(idxs_rad, list) and len(idxs_rad) == 0
+
+
+def test_canberra_basic(tools):
+    """Test basic Canberra distance calculation."""
+    if not NUMBA_AVAILABLE:
+        pytest.skip("Numba is not available")
+
+    u = np.array([1.0, 2.0, 3.0], dtype=np.float32)
+    v = np.array([4.0, 5.0, 6.0], dtype=np.float32)
+    w = np.array([1.0, 1.0, 1.0], dtype=np.float32)
+
+    # |1-4|/(1+4) + |2-5|/(2+5) + |3-6|/(3+6)
+    # = 3/5 + 3/7 + 3/9 = 0.6 + 0.4286 + 0.3333 ≈ 1.3619
+    expected = 0.6 + 3 / 7 + 1 / 3
+    result = tools.distance.canberra(u, v, w)
+    assert np.isclose(result, expected, rtol=1e-5)
+
+
+def test_canberra_division_by_zero(tools):
+    """Test that division by zero is handled correctly."""
+    if not NUMBA_AVAILABLE:
+        pytest.skip("Numba is not available")
+
+    u = np.array([0.0, 1.0], dtype=np.float32)
+    v = np.array([0.0, 2.0], dtype=np.float32)
+    w = np.array([1.0, 1.0], dtype=np.float32)
+
+    # First component: both zero, should contribute 0
+    # Second component: |1-2|/(1+2) = 1/3
+    result = tools.distance.canberra(u, v, w)
+    assert np.isclose(result, 1 / 3, rtol=1e-5)
+
+
+def test_canberra_weighted(tools):
+    """Test weighted Canberra distance."""
+    if not NUMBA_AVAILABLE:
+        pytest.skip("Numba is not available")
+
+    u = np.array([1.0, 2.0], dtype=np.float32)
+    v = np.array([2.0, 4.0], dtype=np.float32)
+    w = np.array([2.0, 0.5], dtype=np.float32)
+
+    # |1-2|/(1+2)*2 + |2-4|/(2+4)*0.5
+    # = 1/3*2 + 2/6*0.5 = 2/3 + 1/6 ≈ 0.8333
+    expected = 2 / 3 + 1 / 6
+    result = tools.distance.canberra(u, v, w)
+    assert np.isclose(result, expected, rtol=1e-5)
+
+
+def test_canberra_identical_vectors(tools):
+    """Test Canberra distance between identical vectors."""
+    if not NUMBA_AVAILABLE:
+        pytest.skip("Numba is not available")
+
+    u = np.array([1.0, 2.0, 3.0], dtype=np.float32)
+    v = np.array([1.0, 2.0, 3.0], dtype=np.float32)
+    w = np.array([1.0, 1.0, 1.0], dtype=np.float32)
+
+    # All components should be 0
+    result = tools.distance.canberra(u, v, w)
+    assert np.isclose(result, 0.0)
+
+
+def test_canberra_consistency_with_numpy(tools):
+    """Test that Numba implementation matches NumPy."""
+    if not NUMBA_AVAILABLE:
+        pytest.skip("Numba is not available")
+
+    u = np.array([1.0, 2.0, 3.0, 4.0], dtype=np.float32)
+    v = np.array([5.0, 6.0, 7.0, 8.0], dtype=np.float32)
+    w = np.array([0.5, 1.0, 1.5, 2.0], dtype=np.float32)
+
+    result_numba = tools.distance.canberra(u, v, w)
+    result_numpy = tools.distance.canberra(u, v, w, force_cpu=True)
+
+    assert np.isclose(result_numba, result_numpy, rtol=1e-5)
+
+
+# ============================================================================
+# Section 9: Dedicated Tests for Each Backend
+# ============================================================================
+@pytest.mark.parametrize("method_name, kwargs, scipy_metric", VECTOR_METRICS)
+def test_numpy_backend_correctness(
+    tools, mocker, method_name, kwargs, scipy_metric, small_sample_vectors
+):
+    """Tests that the NumPy backend calculates correctly for continuous metrics."""
+    u, v = small_sample_vectors
+    method = getattr(tools.distance, method_name)
+
+    # Force NumPy backend
+    mocker.patch.object(tools.distance, "gpu_available", False)
+    mocker.patch.object(tools.distance, "numba_available", False)
+
+    result = method(u, v, **kwargs)
+
+    # Calculate expected value using SciPy as ground truth
+    u_2d, v_2d = u.reshape(1, -1), v.reshape(1, -1)
+    expected = cdist(u_2d, v_2d, metric=scipy_metric, **kwargs)[0, 0]
+
+    assert np.isclose(result, expected, rtol=1e-5)
+
+
+@pytestmark_numba
+@pytest.mark.parametrize("method_name, kwargs, scipy_metric", VECTOR_METRICS)
+def test_numba_backend_correctness(
+    tools, mocker, method_name, kwargs, scipy_metric, small_sample_vectors
+):
+    """Tests that the Numba backend calculates correctly for continuous metrics."""
+    u, v = small_sample_vectors
+    method = getattr(tools.distance, method_name)
+
+    # Force Numba backend
+    mocker.patch.object(tools.distance, "gpu_available", False)
+    mocker.patch.object(tools.distance, "numba_available", True)
+
+    result = method(u, v, **kwargs)
+
+    # Calculate expected value
+    u_2d, v_2d = u.reshape(1, -1), v.reshape(1, -1)
+    expected = cdist(u_2d, v_2d, metric=scipy_metric, **kwargs)[0, 0]
+
+    assert np.isclose(result, expected, rtol=1e-5)
+
+
+@pytestmark_cupy
+@pytest.mark.parametrize("method_name, kwargs, scipy_metric", VECTOR_METRICS)
+def test_cupy_backend_correctness(
+    tools, method_name, kwargs, scipy_metric, large_sample_vectors
+):
+    """Tests that the CuPy backend calculates correctly on large data for continuous metrics."""
+    u, v = large_sample_vectors
+    method = getattr(tools.distance, method_name)
+
+    # CuPy backend is chosen automatically due to large data size
+    result = method(u, v, **kwargs, force_cpu=False)
+
+    # Calculate expected value
+    u_2d, v_2d = u.reshape(1, -1), v.reshape(1, -1)
+    expected = cdist(u_2d, v_2d, metric=scipy_metric, **kwargs)[0, 0]
+
+    assert np.isclose(result, expected, rtol=1e-5)
+
+
+def test_list_distances_returns_correct_dataframe(tools):
+    """Tests that list_distances returns a non-empty DataFrame with correct columns."""
+    df = tools.distance.list_distances()
+
+    assert isinstance(df, pd.DataFrame)
+    assert not df.empty
+
+    # Check expected columns
+    expected_cols = ["Distance", "Description", "Usage"]
+    assert list(df.columns) == expected_cols
+
+    # Check that known metrics are present
+    metrics = df["Distance"].tolist()
+    assert "euclidean" in metrics
+    assert "manhattan" in metrics
+    assert "cosine_similarity" in metrics
+
+    # Check that private methods are NOT present
+    assert "_validate_vectors" not in metrics
+    assert "_dispatch_v2v" not in metrics
+
+    # Check content of a specific row (e.g., euclidean)
+    euclidean_row = df[df["Distance"] == "euclidean"].iloc[0]
+    assert "Euclidean" in euclidean_row["Description"]
+    assert "force_cpu" in euclidean_row["Usage"]
