@@ -1,0 +1,82 @@
+[project]
+name = "monetary-correction"
+version = "0.1.0"
+authors = [
+  { name="Alexsander Lopes Camargos", email="alexcamargos@gmail.com" },
+]
+description = "A simple, robust Python library to deflate nominal Brazilian Reais using official price indexes from the Brazilian Central Bank's SGS (Sistema Gerenciador de Séries Temporais) API."
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Financial and Insurance Industry",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: Portuguese (Brazilian)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Office/Business :: Financial",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Utilities",
+]
+keywords = [
+  "finance",
+  "economics",
+  "inflation",
+  "brazil",
+  "bcb",
+  "sgs",
+  "ipca",
+  "igp-m",
+  "inpc",
+  "monetary-correction",
+  "deflation",
+]
+dependencies = [
+    "grab-harvester>=0.0.1",
+    "polars>=0.20.0",
+    "requests>=2.31.0",
+    "typer>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-mock>=3.12.0",
+    "pytest-cov>=4.1.0",
+    "pre-commit>=3.5.0",
+]
+
+[project.urls]
+Repository = "https://github.com/alexcamargos/monetary-correction"
+Issues = "https://github.com/alexcamargos/monetary-correction/issues"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages]
+find = { where = ["src"], include = ["monetary_correction*"] }
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.black]
+line-length = 120
+
+[tool.coverage.run]
+source = ["monetary_correction"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+]
