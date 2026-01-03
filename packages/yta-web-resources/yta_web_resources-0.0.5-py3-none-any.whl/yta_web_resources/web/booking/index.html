@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Booking Review Renderer</title>
+
+  <style>
+    :root {
+      --scale: 1.5; /* Ajusta tamaño general */
+    }
+
+    /* =========================
+      RESET / BASE
+      ========================= */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background: transparent; /* Fondo real transparente */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                  Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      padding: calc(24px * var(--scale));
+    }
+
+    /* =========================
+      LAYOUT
+      ========================= */
+    .layout {
+      display: flex;
+      gap: calc(32px * var(--scale));
+      align-items: flex-start;
+    }
+
+    /* =========================
+      FORM
+      ========================= */
+    .form {
+      width: calc(320px * var(--scale));
+      padding: calc(16px * var(--scale));
+      background: #f5f5f5;
+      border-radius: calc(8px * var(--scale));
+    }
+
+    .form h2 {
+      font-size: calc(16px * var(--scale));
+      margin-bottom: calc(12px * var(--scale));
+      color: #333;
+    }
+
+    .field {
+      margin-bottom: calc(12px * var(--scale));
+    }
+
+    .field label {
+      display: block;
+      font-size: calc(12px * var(--scale));
+      font-weight: 600;
+      color: #555;
+      margin-bottom: calc(4px * var(--scale));
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      font-size: calc(13px * var(--scale));
+      padding: calc(6px * var(--scale)) calc(8px * var(--scale));
+      border-radius: calc(4px * var(--scale));
+      border: 1px solid #ccc;
+      font-family: inherit;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: calc(80px * var(--scale));
+    }
+
+    /* =========================
+      REVIEW CARD
+      ========================= */
+    #review-card {
+      width: calc(640px * var(--scale));
+      padding: calc(20px * var(--scale));
+      border-radius: calc(12px * var(--scale));
+      background: rgba(255,255,255,1); /* visual blanco */
+      /*box-shadow: 0 calc(8px * var(--scale)) calc(24px * var(--scale)) rgba(0,0,0,0.12);*/
+
+      /* Para la captura, el scraper ve transparencia si se captura solo el nodo */
+    }
+
+    /* Contenedor para mostrar fondo blanco en pantalla pero transparente al capturar */
+    #review-card-inner {
+      background: white; /* solo visual */
+      border-radius: inherit;
+      padding: inherit;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: calc(16px * var(--scale));
+    }
+
+    .avatar {
+      width: calc(48px * var(--scale));
+      height: calc(48px * var(--scale));
+      border-radius: 50%;
+      background: #003580;
+      color: #fff;
+      font-weight: 700;
+      font-size: calc(20px * var(--scale));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .user {
+      margin-left: calc(12px * var(--scale));
+      flex: 1;
+    }
+
+    .name {
+      font-size: calc(15px * var(--scale));
+      font-weight: 600;
+      color: #333;
+    }
+
+    .country {
+      font-size: calc(13px * var(--scale));
+      color: #6b6b6b;
+    }
+
+    .score {
+      text-align: right;
+    }
+
+    .score-box {
+      background: #003580;
+      color: #fff;
+      font-weight: 700;
+      font-size: calc(16px * var(--scale));
+      padding: calc(6px * var(--scale)) calc(10px * var(--scale));
+      border-radius: calc(6px * var(--scale));
+      display: inline-block;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* extra sombra visible */
+    }
+
+    .score-label {
+      font-size: calc(12px * var(--scale));
+      color: #003580;
+      margin-top: calc(4px * var(--scale));
+    }
+
+    .content {
+      margin-top: calc(12px * var(--scale));
+    }
+
+    .title {
+      font-size: calc(14px * var(--scale));
+      font-weight: 700;
+      margin-bottom: calc(6px * var(--scale));
+      color: #333;
+    }
+
+    .text {
+      font-size: calc(14px * var(--scale));
+      line-height: calc(1 * var(--scale));
+      color: #444;
+    }
+
+    .footer {
+      margin-top: calc(16px * var(--scale));
+      font-size: calc(12px * var(--scale));
+      color: #6b6b6b;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="layout">
+
+    <!-- =========================
+         FORMULARIO (OPCIONAL)
+         ========================= -->
+    <div class="form" id="form">
+      <h2>Parámetros</h2>
+
+      <div class="field">
+        <label>Nombre</label>
+        <input id="f-name">
+      </div>
+
+      <div class="field">
+        <label>País</label>
+        <input id="f-country">
+      </div>
+
+      <div class="field">
+        <label>Puntuación</label>
+        <input id="f-score">
+      </div>
+
+      <div class="field">
+        <label>Etiqueta</label>
+        <input id="f-score-label">
+      </div>
+
+      <div class="field">
+        <label>Texto</label>
+        <textarea id="f-text"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Fecha</label>
+        <input id="f-date">
+      </div>
+    </div>
+
+    <!-- =========================
+         REVIEW CARD
+         ========================= -->
+    <div id="review-card">
+      <div class="header">
+        <div class="avatar" id="avatar">?</div>
+
+        <div class="user">
+          <div class="name" id="user-name"></div>
+          <div class="country" id="user-country"></div>
+        </div>
+
+        <div class="score">
+          <div class="score-box" id="score"></div>
+          <div class="score-label" id="score-label"></div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="title">Lo mejor</div>
+        <div class="text" id="review-text"></div>
+      </div>
+
+      <div class="footer">
+        <span id="date"></span>
+      </div>
+    </div>
+    
+
+  </div>
+
+  <!-- =========================
+       JS: QUERY → DOM
+       ========================= -->
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    const fields = {
+      name: ["f-name", "user-name", v => v],
+      country: ["f-country", "user-country", v => v],
+      score: ["f-score", "score", v => v],
+      scoreLabel: ["f-score-label", "score-label", v => v],
+      text: ["f-text", "review-text", v => v],
+      date: ["f-date", "date", v => v]
+    };
+
+    function setValue(key, value) {
+      const [inputId, targetId, transform] = fields[key];
+      if (inputId) document.getElementById(inputId).value = value;
+      document.getElementById(targetId).textContent = transform(value);
+
+      if (key === "name" && value) {
+        document.getElementById("avatar").textContent =
+          value.charAt(0).toUpperCase();
+      }
+    }
+
+    // Inicializar desde query
+    for (const key in fields) {
+      if (params.has(key)) {
+        setValue(key, params.get(key));
+      }
+    }
+
+    // Binding en tiempo real
+    for (const key in fields) {
+      const [inputId] = fields[key];
+      const input = document.getElementById(inputId);
+
+      input.addEventListener("input", () => {
+        setValue(key, input.value);
+      });
+    }
+
+    // Valores por defecto si no hay query
+    if (!params.toString()) {
+      setValue("name", "María López");
+      setValue("country", "México");
+      setValue("score", "9,6");
+      setValue("scoreLabel", "Excepcional");
+      setValue(
+        "text",
+        "Hotel excelente, muy cómodo y perfectamente ubicado. El personal fue muy atento en todo momento."
+      );
+      setValue("date", "Estancia de febrero de 2025");
+    }
+  </script>
+
+</body>
+</html>
