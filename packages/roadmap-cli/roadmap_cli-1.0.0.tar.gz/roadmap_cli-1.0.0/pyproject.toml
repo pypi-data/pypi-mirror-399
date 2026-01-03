@@ -1,0 +1,199 @@
+[tool.poetry]
+# ============================================================================
+# ROADMAP CLI - Enterprise Project Management Tool
+# ============================================================================
+# PRODUCTION INSTALLATION: poetry install --no-dev
+#   Installs only runtime dependencies (0 known CVEs)
+#
+# DEVELOPMENT INSTALLATION: poetry install
+#   Includes testing, linting, and documentation tools
+# ============================================================================
+name = "roadmap-cli"
+
+version = "1.0.0"
+
+description = "Enterprise-grade command line tool for project roadmap management with GitHub integration, data visualization, and advanced analytics"
+authors = ["Roadmap CLI Team <contact@roadmap-cli.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://roadmap-cli.readthedocs.io"
+repository = "https://github.com/roadmap-cli/roadmap"
+documentation = "https://roadmap-cli.readthedocs.io"
+keywords = [
+    "cli",
+    "roadmap",
+    "planning",
+    "project-management",
+    "github",
+    "agile",
+    "scrum",
+    "milestone",
+    "issue-tracking",
+    "analytics",
+    "visualization",
+    "productivity"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Bug Tracking",
+    "Topic :: Software Development :: Version Control :: Git",
+    "Topic :: Office/Business :: Scheduling",
+    "Topic :: Utilities",
+    "Environment :: Console",
+    "Operating System :: OS Independent"
+]
+packages = [{include = "roadmap"}]
+include = [
+    "LICENSE.md",
+    "CHANGELOG.md",
+    "docs/**/*.md",
+    "demos/*.py"
+]
+exclude = [
+    "tests/",
+    "htmlcov/",
+    "site/",
+    ".roadmap/",
+    "scripts/"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+click = ">=8.0.0,<9.0.0"
+rich = ">=13.0.0,<15.0.0"
+pydantic = ">=2.0.0,<3.0.0"
+pyyaml = ">=6.0.0,<7.0.0"
+requests = ">=2.28.0,<3.0.0"
+aiohttp = ">=3.8.0,<4.0.0"
+python-dotenv = ">=1.0.0,<2.0.0"
+keyring = ">=23.0.0,<26.0.0"
+pandas = ">=2.0.0,<3.0.0"
+openpyxl = ">=3.1.0,<4.0.0"
+matplotlib = ">=3.6.0,<4.0.0"
+plotly = ">=5.15.0,<6.0.0"
+seaborn = ">=0.12.0,<1.0.0"
+toml = ">=0.10.0,<1.0.0"
+# Phase 1 dependencies for v1.0 architecture
+structlog = ">=23.0.0,<24.0.0"
+GitPython = ">=3.1.40,<4.0.0"
+dynaconf = ">=3.2.0,<4.0.0"
+diskcache = ">=5.6.0,<6.0.0"
+asyncclick = ">=8.1.0,<9.0.0"
+tabulate = ">=0.9.0,<1.0.0"
+# OpenTelemetry for distributed tracing
+opentelemetry-api = ">=1.20.0,<2.0.0"
+opentelemetry-sdk = ">=1.20.0,<2.0.0"
+opentelemetry-exporter-jaeger = ">=1.20.0,<2.0.0"
+deprecated = ">=1.2.0,<2.0.0"  # Required by opentelemetry-exporter-jaeger
+
+# ============================================================================
+# DEVELOPMENT DEPENDENCIES
+# NOTE: Production installations should use: poetry install --no-dev
+#       This excludes all development and testing dependencies, resulting in
+#       a minimal, secure package with zero known vulnerabilities.
+#       Verified: pip-audit shows 0 CVEs in production-only installs.
+# ============================================================================
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
+pytest-asyncio = "^0.23.0"
+pytest-aiohttp = "^1.0.0"
+ruff = "^0.6.9"
+pre-commit = "^4.3.0"
+vulture = "^2.14"
+bandit = {version = "^1.9.2", extras = ["toml"]}
+pydocstyle = "^6.3.0"
+radon = "^6.0.1"
+pytest-xdist = "^3.5.0"
+pytest-benchmark = "^4.0.0"
+pyright = "^1.1.350"
+pylint = "^3.0.0"
+# Documentation dependencies
+sphinx = "^8.0.0"
+sphinx-rtd-theme = "^3.0.0"
+sphinx-click = "^6.0.0"
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.0"
+mkdocs-click = "^0.8.0"
+myst-parser = "^4.0.0"
+
+[tool.poetry.scripts]
+roadmap = "roadmap.adapters.cli:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = [
+    "roadmap/cli_backup_original.py",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by formatter
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# Security configuration for Bandit
+[tool.bandit]
+exclude_dirs = ["tests"]
+# Skip assert_used: we use asserts in tests (B101)
+# Skip try_except_pass: intentional in cleanup/cleanup handlers (B110)
+skips = ["B101", "B110"]
+
+# Type checking is now handled by Pyright
+# Configuration is in pyrightconfig.json
+# Pyright provides superior type inference and VSCode integration
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = """
+    --cov=roadmap
+    --cov-report=term-missing
+    --cov-report=html
+    --strict-markers
+    --strict-config
+    --disable-warnings
+    -ra
+"""
+markers = [
+    "unit: Unit tests (fast, no filesystem operations)",
+    "integration: Integration tests (slower, with filesystem operations)",
+    "filesystem: Tests that require real filesystem operations",
+    "slow: Tests that are known to be slow",
+    "parallel: Tests that can run in parallel"
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
