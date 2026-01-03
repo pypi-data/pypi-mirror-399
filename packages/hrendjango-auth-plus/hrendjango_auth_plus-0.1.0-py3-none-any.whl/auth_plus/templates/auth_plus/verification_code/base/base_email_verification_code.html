@@ -1,0 +1,9 @@
+{% extends 'auth_plus/verification_code/base/base_verification_code.html' %}
+
+{% block action %}подтверждения электронной почты{% endblock %}
+
+{% block form_extra_content %}
+    {% if skip_url %}
+        <a href="{{ skip_url }}" class="btn btn-hren">Пока пропустить</a>
+    {% endif %}
+{% endblock %}

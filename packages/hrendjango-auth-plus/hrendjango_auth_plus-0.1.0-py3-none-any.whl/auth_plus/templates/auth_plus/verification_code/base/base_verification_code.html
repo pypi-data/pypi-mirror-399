@@ -1,0 +1,20 @@
+{% extends base_template_name %}
+{% load hrenpack.html %}
+
+{% block content %}
+    {% var form.code as code_input %}
+    {% block pre_extra_content %}{% endblock %}
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-error">{{ form.non_field_errors }}</div>
+        <p>Мы отправили вам код и ссылку подтверждения для {% block action %}{{ action }}{% endblock %}</p>
+        <p>
+            <label for="id_code">Код подтверждения:</label><br>
+            <input type="text" name="code" required id="id_code" class="form-control-unline">
+        </p>
+        <div class="form-error">{{ form.code.errors }}</div>
+        <input type="submit" class="btn btn-hren" value="Подтвердить">
+        {% block form_extra_content %}{% endblock %}
+    </form>
+    {% block extra_content %}{% endblock %}
+{% endblock %}
