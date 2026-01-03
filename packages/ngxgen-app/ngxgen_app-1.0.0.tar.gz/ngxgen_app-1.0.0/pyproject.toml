@@ -1,0 +1,24 @@
+[project]
+name = "ngxgen-app"
+dynamic = [
+    "description",
+    "version",
+]
+authors = [
+    {name = "Maciej Barć", email = "xgqt@xgqt.org"},
+]
+classifiers = [
+    "Environment :: Console",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3 :: Only",
+]
+requires-python = ">=3.13"
+
+[project.scripts]
+ngxgen = "ngxgen_app.App.Program:Program.main"
+
+[build-system]
+build-backend = "flit_core.buildapi"
+requires = [
+    "flit_core >=3.2,<4",
+]
