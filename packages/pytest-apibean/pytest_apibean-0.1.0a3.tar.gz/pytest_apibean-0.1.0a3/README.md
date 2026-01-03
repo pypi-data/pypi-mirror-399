@@ -1,0 +1,84 @@
+# pytest-apibean
+
+`pytest-apibean` is a **pytest plugin** that provides a unified, reusable testing foundation for projects built on the **apibean ecosystem**.
+
+It is designed to work **hand-in-hand with `apibean-client`** to test API-driven services such as:
+
+* **apibean-rest** – RESTful API layers
+* **apibean-datacore** – backend data services and gateways
+* Other apibean-based microservices and integrations
+
+### Why pytest-apibean?
+
+Testing API-centric systems often leads to repeated boilerplate:
+creating HTTP clients, handling authentication, managing tokens, configuring base URLs, and wiring environment-specific settings.
+
+`pytest-apibean` solves this by providing:
+
+* A **preconfigured httpx client** for async API testing
+* **Authentication and token management fixtures**
+* **Autouse setup hooks** for consistent test environments
+* Centralized configuration via `pyproject.toml`
+* Seamless integration with **apibean-client abstractions**
+
+All without forcing application-specific logic into your test suite.
+
+### apibean-client as the testing backbone
+
+Rather than testing APIs using raw HTTP calls alone, `pytest-apibean` encourages a **client-oriented testing model**:
+
+* Business logic is exercised through `apibean-client`
+* Transport details remain encapsulated
+* Tests become **more stable, expressive, and future-proof**
+
+This approach aligns unit tests, integration tests, and contract tests around the same client interface used by real consumers.
+
+### Configuration-first design
+
+`pytest-apibean` follows a **pyproject-first philosophy**.
+
+All test-related options can be configured via:
+
+```toml
+[tool.pytest.apibean.options]
+base_url = "http://localhost:8080/api/v1"
+login_path = "/auth/login"
+timeout = 10.0
+auto_login = true
+```
+
+Configuration precedence is explicit and predictable:
+
+1. Test fixtures
+2. `pyproject.toml`
+3. Environment variables
+4. Built-in defaults
+
+### Designed for real-world testing
+
+`pytest-apibean` is built for:
+
+* Async-first APIs
+* Token-based authentication
+* Multi-service environments
+* CI-friendly workflows
+* Long-lived OSS projects
+
+It avoids global state, supports namespace packaging, and integrates cleanly with modern tooling such as `uv`, `httpx`, and `pytest >= 7`.
+
+### Typical use cases
+
+* Integration testing for **apibean-rest**
+* Contract testing between services and **apibean-datacore**
+* End-to-end testing via `apibean-client`
+* Shared testing infrastructure across multiple apibean projects
+
+### Philosophy
+
+`pytest-apibean` is intentionally **minimal and opinionated**:
+
+* It provides **infrastructure**, not test logic
+* It favors **explicit configuration** over magic
+* It scales from a single service to a multi-repo ecosystem
+
+If you are building APIs with apibean, `pytest-apibean` lets you test them consistently, correctly, and with confidence.

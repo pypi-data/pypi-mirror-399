@@ -1,0 +1,35 @@
+[project]
+name = "pytest-apibean"
+version = "0.1.0a3"
+description = "Pytest plugin providing apibean-based API testing fixtures integrated with apibean-client, designed for testing apibean REST services and datacore backends."
+readme = "README.md"
+license = 'GPL-3.0'
+license-files = [ "LICENSE.txt" ]
+dependencies = [
+    "anyio>=4.8.0",
+    "dependency-injector>=4.48.3",
+    "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+    "nox",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+python_files = "test_*.py"
+
+[project.entry-points.pytest11]
+pytest_apibean = "apibean.pytest.plugin"
