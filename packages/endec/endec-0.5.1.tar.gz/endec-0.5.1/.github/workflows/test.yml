@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: "Python ${{ matrix.python-version }} on ${{ matrix.platform }}"
+    runs-on: "${{ matrix.platform }}"
+    strategy:
+      matrix:
+        platform: ["ubuntu-24.04", "windows-2025", "macos-15"]
+        python-version: ["3.14", "3.13", "3.12", "3.11", "3.10", "3.9", "3.8"]
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: "${{ matrix.python-version }}"
+          allow-prereleases: true
+
+      - name: Install dependencies
+        run: |
+          python -VV
+          python -m site
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade virtualenv tox tox-gh-actions
+
+      - name: Run tox targets for ${{ matrix.python-version }}
+        run: python -m tox
