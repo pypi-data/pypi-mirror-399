@@ -1,0 +1,64 @@
+Metadata-Version: 2.4
+Name: py-sandbox
+Version: 0.2.6
+Summary: Secure sandbox for code execution with remote module loading
+Author: Phanes
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/phanes19122025-cmyk/phi-linux
+Keywords: sandbox,security,remote,module,loader
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+
+# py-sandbox
+
+[![PyPI version](https://badge.fury.io/py/py-sandbox.svg)](https://pypi.org/project/py-sandbox/)
+
+Secure sandbox for symbolic computation and numerical experiments.
+
+## Installation
+
+```bash
+pip install py-sandbox
+```
+
+## Features
+
+- **Symbolic computation sandbox** — Safe evaluation of mathematical expressions
+- **Numerical experiment isolation** — Controlled environment for computational mathematics
+- **Remote module loading** — Dynamic capability extension
+- **Secure execution** — Sandboxed Python evaluation
+
+## Quick Start
+
+```python
+from py_sandbox import sandbox, remote
+
+# Initialize sandbox
+sb = sandbox.Sandbox()
+
+# Load remote mathematical modules
+remote.load_module("advanced_math")
+
+# Execute computations safely
+result = sb.execute("integrate(x**2, x)")
+```
+
+## Use Cases
+
+- Mathematical modeling experiments
+- Symbolic algebra computations
+- Numerical analysis in isolated environments
+- Educational math sandboxes
+
+## Requirements
+
+- Python ≥3.8
+
+## License
+
+MIT
+
+---
+*Part of the Φ mathematical infrastructure*
