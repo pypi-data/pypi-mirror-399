@@ -1,0 +1,126 @@
+Metadata-Version: 2.4
+Name: amochka
+Version: 0.3.0
+Summary: Python library for working with amoCRM API with ETL capabilities
+Author-email: Timur <timurdt@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/yourusername/amochka
+Project-URL: Documentation, https://github.com/yourusername/amochka
+Project-URL: Repository, https://github.com/yourusername/amochka
+Project-URL: Bug Tracker, https://github.com/yourusername/amochka/issues
+Keywords: amocrm,crm,api,client,automation,etl
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Internet :: WWW/HTTP
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.25.0
+Requires-Dist: ratelimit>=2.2.0
+Requires-Dist: psycopg2-binary>=2.9.0
+Requires-Dist: python-dotenv>=1.0.0
+
+# amochka
+
+Официальная документация API amocrm - https://www.amocrm.ru/developers/content/crm_platform/api-reference
+
+**amochka** — библиотека для работы с API amoCRM на Python. Она поддерживает:
+- Получение данных сделок с вложенными сущностями (контакты, компании, теги, и т.д.)
+- Редактирование сделок, включая обновление стандартных и кастомных полей
+- Поддержку нескольких amoCRM-аккаунтов с персистентным кэшированием кастомных полей для каждого аккаунта отдельно
+- Ограничение запросов (7 запросов в секунду) с использованием декораторов из библиотеки `ratelimit`
+
+### Основные функции
+
+- `get_deal_by_id(deal_id)` — получение детальной информации по сделке
+- `get_pipelines()` — список воронок и статусов
+- `fetch_updated_leads_raw(pipeline_id, updated_from, ...)` — выгрузка необработанных сделок за период
+
+## Требования к окружению
+
+Python 3.8 или новее. Потребуются пакеты `requests` и `ratelimit`.
+
+## Установка
+
+Установите зависимости командой:
+
+```bash
+pip install requests ratelimit
+```
+
+Затем скопируйте репозиторий или установите пакет из PyPI (после публикации):
+
+```bash
+pip install amochka
+```
+
+## Кэширование кастомных полей
+
+Для уменьшения количества запросов к API кастомные поля кэшируются персистентно. Если параметр cache_file не указан, имя файла кэша генерируется автоматически на основе домена amoCRM-аккаунта. Вы можете обновлять кэш принудительно, передавая параметр force_update=True в метод get_custom_fields_mapping() или настроить время жизни кэша (по умолчанию — 24 часа).
+
+## Выгрузка обновленных сделок
+
+Метод `fetch_updated_leads_raw()` позволяет получить все сделки из указанной воронки, которые были изменены в заданный промежуток времени. Результат можно сохранить в JSON-файл без какой‑либо обработки:
+
+```python
+from datetime import datetime, timedelta
+from amochka import AmoCRMClient, CacheConfig
+
+client = AmoCRMClient(
+    base_url="https://bneginskogo.amocrm.ru",
+    token_file="/path/to/token.json",
+    cache_config=CacheConfig.disabled(),
+    disable_logging=True
+)
+
+three_hours_ago = datetime.utcnow() - timedelta(hours=3)
+client.fetch_updated_leads_raw(6241334, updated_from=three_hours_ago, save_to_file="leads.json")
+```
+
+Пример получаемого JSON (укороченный):
+
+```json
+[
+  {
+    "id": 26282337,
+    "name": "Автосделка: Заявка от (Максим Брокер Дубай Бюро Негинского)",
+    "custom_fields_values": [
+      {
+        "field_name": "roistat",
+        "values": [{"value": "2026"}]
+      }
+    ],
+    "_embedded": {
+      "tags": [
+        {"id": 179813, "name": "WZ (Федор 971568113315)"}
+      ]
+    }
+  }
+]
+```
+
+Для подключения к реальному аккаунту сохраните JSON с OAuth‑токеном и укажите его путь в параметре `token_file` при создании клиента. Базовый URL можно взять из переменной окружения `AMO_BASE_URL`.
+
+## Тесты
+
+Файл `tests/test_client.py` содержит небольшой набор автоматических тестов, написанных на [pytest](https://docs.pytest.org/). Они запускают методы клиента на подставном классе `DummyClient` и проверяют, что функции работают так, как ожидается. Запустить тесты можно командой:
+
+```bash
+pytest -q
+```
+
+Эти тесты помогают убедиться, что изменения в коде не ломают основную функциональность.
+
+## Пример использования `fetch_updated_leads_raw`
+
+Кроме примера в разделе выше, код из `example_fetch.py` демонстрирует полный процесс получения сделок и сохранения их в файл.
