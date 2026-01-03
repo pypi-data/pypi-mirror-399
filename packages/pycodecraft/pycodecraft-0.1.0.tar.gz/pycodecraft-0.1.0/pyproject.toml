@@ -1,0 +1,87 @@
+[project]
+name = "pycodecraft"
+version = "0.1.0"
+description = "A Pythonic library for programmatic code generation using elegant context managers"
+authors = [
+    { name = "Victor Gabriel Deon", email = "victorgabrieldeon@gmail.com" },
+]
+dependencies = [
+    "typing-extensions>=4.0.0",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+keywords = [
+    "code-generation",
+    "codegen",
+    "ast",
+    "python",
+    "metaprogramming",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+[project.license]
+text = "MIT"
+
+[project.urls]
+Homepage = "https://github.com/victorgabrieldeon/code-craft"
+Repository = "https://github.com/victorgabrieldeon/code-craft"
+Documentation = "https://github.com/victorgabrieldeon/code-craft#readme"
+"Bug Tracker" = "https://github.com/victorgabrieldeon/code-craft/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+format = [
+    "black>=23.0.0",
+]
+
+[build-system]
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+python_files = [
+    "test_*.py",
+]
+python_classes = [
+    "Test*",
+]
+python_functions = [
+    "test_*",
+]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
