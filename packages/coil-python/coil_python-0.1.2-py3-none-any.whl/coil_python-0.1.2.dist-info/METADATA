@@ -1,0 +1,50 @@
+Metadata-Version: 2.4
+Name: coil_python
+Version: 0.1.2
+Summary: COIL – Compact Object Intermediate Language for LLM-efficient data encoding
+Author-email: Muthukumaran S <muthukumarandeveloper@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/MuthuKumaran-Dev-10000/COIL
+Project-URL: Repository, https://github.com/MuthuKumaran-Dev-10000/COIL
+Keywords: llm,compression,tokenization,ai,serialization,encoding
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: tiktoken>=0.5.0
+
+# COIL – Compact Object Intermediate Language
+
+COIL is a token-optimized, LLM-friendly encoding format designed to reduce
+JSON token cost while preserving semantic structure.
+
+## Installation
+```bash
+pip install coil
+
+```
+
+
+
+```Usage
+import COIL as C
+
+C.debugMode(True)
+
+encoded = C.encode(data)
+decoded = C.decode(encoded)
+
+```
+Features
+
+Token-efficient encoding
+
+Schema-aware decoding
+
+LLM-friendly structure
+
+Zero external dependencies (except optional tokenizer)
+
+
+
