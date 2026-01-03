@@ -1,0 +1,23 @@
+from someip_py.codec import *
+
+
+class OTASignatureCertificateRespStructKls(SomeIpPayload):
+
+    Status: SomeIpDynamicSizeString
+
+    RetVal: Uint8
+
+    def __init__(self):
+
+        self.Status = SomeIpDynamicSizeString()
+
+        self.RetVal = Uint8()
+
+
+class OTASignatureCertificateRespStruct(SomeIpPayload):
+
+    OTASignatureCertificateRespStruct: OTASignatureCertificateRespStructKls
+
+    def __init__(self):
+
+        self.OTASignatureCertificateRespStruct = OTASignatureCertificateRespStructKls()
