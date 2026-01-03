@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=80.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imgmkr"
+version = "0.1.0"
+description = "图片标注工具"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+license-files=[]
+
+authors = [
+    {name = "Red Elephant", email = "redelephant@foxmail.com"}
+]  
+keywords = ["image", "annotation", "labeling", "gui"]
+
+dependencies = [
+    "PySide6>=6.9.0",
+    "sqlalchemy>=2.0.0",
+    "numpy>=1.2.6",
+    "opencv-python>=4.10.0"
+]
+
+[project.scripts]
+imgmkr = "imgmkr.main:main"
+
+[project.optional-dependencies]
+dev = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py313"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
