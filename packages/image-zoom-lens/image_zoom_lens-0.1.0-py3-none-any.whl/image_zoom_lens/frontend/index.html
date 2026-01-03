@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #container {
+            position: relative;
+            display: inline-block;
+            user-select: none;
+        }
+
+        #mainImage {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        #zoomLens {
+            position: absolute;
+            border: 3px solid #000;
+            cursor: none;
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: none;
+        }
+
+        #zoomLens.circle {
+            border-radius: 50%;
+        }
+
+        #zoomLens.square {
+            border-radius: 0;
+        }
+
+        #zoomLensImage {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        #controls {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        #controls label {
+            display: inline-block;
+            margin-right: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        #controls input[type="range"] {
+            width: 150px;
+            vertical-align: middle;
+        }
+
+        #controls span {
+            display: inline-block;
+            min-width: 40px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .control-group {
+            display: inline-block;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <div class="control-group">
+            <label for="lensSize">Lens Size:</label>
+            <input type="range" id="lensSize" min="50" max="500" value="150" step="10">
+            <span id="lensSizeValue">150px</span>
+        </div>
+        <div class="control-group">
+            <label for="zoomLevel">Zoom Level:</label>
+            <input type="range" id="zoomLevel" min="1" max="20" value="2" step="0.1">
+            <span id="zoomLevelValue">2x</span>
+        </div>
+    </div>
+
+    <div id="container">
+        <img id="mainImage" src="" alt="Zoomable Image">
+        <div id="zoomLens">
+            <img id="zoomLensImage" src="" alt="">
+        </div>
+    </div>
+
+    <script>
+        // Communication with Streamlit
+        let imageUrl = '';
+        let currentZoomLevel = 2;
+        let lensSize = 150;
+        let downloadFormat = 'jpg';
+        let lensShape = 'circle';
+
+        const container = document.getElementById('container');
+        const mainImage = document.getElementById('mainImage');
+        const zoomLens = document.getElementById('zoomLens');
+        const zoomLensImage = document.getElementById('zoomLensImage');
+        const lensSizeSlider = document.getElementById('lensSize');
+        const zoomLevelSlider = document.getElementById('zoomLevel');
+        const lensSizeValue = document.getElementById('lensSizeValue');
+        const zoomLevelValue = document.getElementById('zoomLevelValue');
+
+        // Receive data from Streamlit
+        function onRender(event) {
+            const data = event.detail;
+
+            if (data.args.image_url) {
+                imageUrl = data.args.image_url;
+                mainImage.src = imageUrl;
+                zoomLensImage.src = imageUrl;
+            }
+
+            if (data.args.lens_size) {
+                lensSize = data.args.lens_size;
+                lensSizeSlider.value = lensSize;
+                lensSizeValue.textContent = lensSize + 'px';
+                updateLensSize();
+            }
+
+            if (data.args.zoom_level) {
+                currentZoomLevel = data.args.zoom_level;
+                zoomLevelSlider.value = currentZoomLevel;
+                zoomLevelValue.textContent = currentZoomLevel.toFixed(1) + 'x';
+            }
+
+            // Notify Streamlit of frame height
+            Streamlit.setFrameHeight(container.offsetHeight + 100);
+        }
+
+        // Update lens size and shape
+        function updateLensSize() {
+            zoomLens.style.width = lensSize + 'px';
+            zoomLens.style.height = lensSize + 'px';
+            zoomLens.className = lensShape;
+        }
+
+        // Mouse move handler
+        container.addEventListener('mousemove', function(e) {
+            const rect = mainImage.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Check if mouse is within image bounds
+            if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                zoomLens.style.display = 'block';
+
+                // Position the lens
+                const lensX = x - lensSize / 2;
+                const lensY = y - lensSize / 2;
+
+                zoomLens.style.left = lensX + 'px';
+                zoomLens.style.top = lensY + 'px';
+
+                // Calculate zoom position
+                const zoomX = -x * currentZoomLevel + lensSize / 2;
+                const zoomY = -y * currentZoomLevel + lensSize / 2;
+
+                zoomLensImage.style.width = (mainImage.width * currentZoomLevel) + 'px';
+                zoomLensImage.style.height = (mainImage.height * currentZoomLevel) + 'px';
+                zoomLensImage.style.left = zoomX + 'px';
+                zoomLensImage.style.top = zoomY + 'px';
+            } else {
+                zoomLens.style.display = 'none';
+            }
+        });
+
+        // Mouse leave handler
+        container.addEventListener('mouseleave', function() {
+            zoomLens.style.display = 'none';
+        });
+
+        // Mouse wheel handler for zoom
+        container.addEventListener('wheel', function(e) {
+            e.preventDefault();
+
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            currentZoomLevel = Math.max(1, Math.min(20, currentZoomLevel + delta));
+
+            zoomLevelSlider.value = currentZoomLevel;
+            zoomLevelValue.textContent = currentZoomLevel.toFixed(1) + 'x';
+
+            // Trigger mousemove to update lens
+            const event = new MouseEvent('mousemove', {
+                clientX: e.clientX,
+                clientY: e.clientY,
+                bubbles: true
+            });
+            container.dispatchEvent(event);
+        });
+
+        // Right click handler for download
+        container.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+
+            const rect = mainImage.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Check if mouse is within image bounds
+            if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                downloadImageWithLens(x, y);
+            }
+        });
+
+        // Lens size slider handler
+        lensSizeSlider.addEventListener('input', function(e) {
+            lensSize = parseInt(e.target.value);
+            lensSizeValue.textContent = lensSize + 'px';
+            updateLensSize();
+        });
+
+        // Zoom level slider handler
+        zoomLevelSlider.addEventListener('input', function(e) {
+            currentZoomLevel = parseFloat(e.target.value);
+            zoomLevelValue.textContent = currentZoomLevel.toFixed(1) + 'x';
+        });
+
+        // Download image with lens overlay
+        function downloadImageWithLens(mouseX, mouseY) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size to match image
+            canvas.width = mainImage.naturalWidth;
+            canvas.height = mainImage.naturalHeight;
+
+            // Scale mouse position to natural image coordinates
+            const scaleX = mainImage.naturalWidth / mainImage.width;
+            const scaleY = mainImage.naturalHeight / mainImage.height;
+            const scaledMouseX = mouseX * scaleX;
+            const scaledMouseY = mouseY * scaleY;
+            const scaledLensSize = lensSize * scaleX;
+
+            // Draw main image
+            ctx.drawImage(mainImage, 0, 0);
+
+            // Save context state
+            ctx.save();
+
+            // Create clipping path for lens
+            const lensX = scaledMouseX;
+            const lensY = scaledMouseY;
+            const lensRadius = scaledLensSize / 2;
+
+            ctx.beginPath();
+            if (lensShape === 'circle') {
+                ctx.arc(lensX, lensY, lensRadius, 0, Math.PI * 2);
+            } else {
+                // Square
+                ctx.rect(lensX - lensRadius, lensY - lensRadius, scaledLensSize, scaledLensSize);
+            }
+            ctx.closePath();
+            ctx.clip();
+
+            // Draw zoomed portion
+            const sourceX = scaledMouseX - (scaledLensSize / (2 * currentZoomLevel));
+            const sourceY = scaledMouseY - (scaledLensSize / (2 * currentZoomLevel));
+            const sourceWidth = scaledLensSize / currentZoomLevel;
+            const sourceHeight = scaledLensSize / currentZoomLevel;
+
+            const destX = lensX - lensRadius;
+            const destY = lensY - lensRadius;
+
+            ctx.drawImage(
+                mainImage,
+                sourceX, sourceY, sourceWidth, sourceHeight,
+                destX, destY, scaledLensSize, scaledLensSize
+            );
+
+            // Restore context
+            ctx.restore();
+
+            // Draw lens border
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            if (lensShape === 'circle') {
+                ctx.arc(lensX, lensY, lensRadius, 0, Math.PI * 2);
+            } else {
+                // Square
+                ctx.rect(lensX - lensRadius, lensY - lensRadius, scaledLensSize, scaledLensSize);
+            }
+            ctx.stroke();
+
+            // Download the canvas as image
+            const mimeType = downloadFormat === 'png' ? 'image/png' : 'image/jpeg';
+            const quality = downloadFormat === 'png' ? undefined : 0.95;
+            const extension = downloadFormat === 'png' ? 'png' : 'jpg';
+
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'zoomed_image_' + Date.now() + '.' + extension;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, mimeType, quality);
+        }
+
+        // Wait for image to load
+        mainImage.addEventListener('load', function() {
+            // No action needed for standalone mode
+        });
+
+        // Parse arguments from URL parameters (simpler approach)
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                image_url: params.get('image_url') || imageUrl,
+                lens_size: parseInt(params.get('lens_size')) || lensSize,
+                zoom_level: parseFloat(params.get('zoom_level')) || currentZoomLevel
+            };
+        }
+
+        // Initialize with URL parameters if available
+        const urlParams = getUrlParams();
+        if (urlParams.image_url) {
+            imageUrl = decodeURIComponent(urlParams.image_url);
+            mainImage.src = imageUrl;
+            zoomLensImage.src = imageUrl;
+        }
+        if (urlParams.lens_size) {
+            lensSize = urlParams.lens_size;
+            lensSizeSlider.value = lensSize;
+            lensSizeValue.textContent = lensSize + 'px';
+        }
+        if (urlParams.zoom_level) {
+            currentZoomLevel = urlParams.zoom_level;
+            zoomLevelSlider.value = currentZoomLevel;
+            zoomLevelValue.textContent = currentZoomLevel.toFixed(1) + 'x';
+        }
+
+        // Initial setup
+        updateLensSize();
+    </script>
+</body>
+</html>
