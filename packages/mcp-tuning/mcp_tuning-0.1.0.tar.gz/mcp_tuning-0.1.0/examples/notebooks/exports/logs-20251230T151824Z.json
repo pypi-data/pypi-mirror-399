@@ -1,0 +1,325 @@
+[
+  {
+    "ts": "2025-12-30T15:07:52.512203+00:00",
+    "direction": "send",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "initialize",
+      "params": {
+        "protocolVersion": "2024-11-05",
+        "clientInfo": {
+          "name": "mcp-tuning",
+          "version": "0.1.0"
+        },
+        "capabilities": {}
+      }
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:07:53.531769+00:00",
+    "direction": "recv",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "protocolVersion": "2024-11-05",
+        "capabilities": {
+          "experimental": {},
+          "prompts": {
+            "listChanged": false
+          },
+          "resources": {
+            "subscribe": false,
+            "listChanged": false
+          },
+          "tools": {
+            "listChanged": false
+          }
+        },
+        "serverInfo": {
+          "name": "simple-stdio-server",
+          "version": "1.25.0"
+        }
+      }
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:07:53.531769+00:00",
+    "direction": "recv",
+    "message": {
+      "id": 1,
+      "method": "initialize"
+    },
+    "meta": {
+      "duration_ms": 1015.0
+    }
+  },
+  {
+    "ts": "2025-12-30T15:07:53.531769+00:00",
+    "direction": "send",
+    "message": {
+      "jsonrpc": "2.0",
+      "method": "initialized"
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:18:04.469618+00:00",
+    "direction": "send",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "tools/list",
+      "params": {}
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:18:04.473059+00:00",
+    "direction": "recv",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "tools": [
+          {
+            "name": "echo",
+            "description": "Echo a message back.",
+            "inputSchema": {
+              "properties": {
+                "message": {
+                  "title": "Message",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message"
+              ],
+              "title": "echoArguments",
+              "type": "object"
+            },
+            "outputSchema": {
+              "additionalProperties": true,
+              "title": "echoDictOutput",
+              "type": "object"
+            }
+          },
+          {
+            "name": "echo_json",
+            "description": "Echo a JSON object back.",
+            "inputSchema": {
+              "properties": {
+                "payload": {
+                  "additionalProperties": true,
+                  "title": "Payload",
+                  "type": "object"
+                }
+              },
+              "required": [
+                "payload"
+              ],
+              "title": "echo_jsonArguments",
+              "type": "object"
+            },
+            "outputSchema": {
+              "additionalProperties": true,
+              "title": "echo_jsonDictOutput",
+              "type": "object"
+            }
+          },
+          {
+            "name": "add",
+            "description": "Add two numbers.",
+            "inputSchema": {
+              "properties": {
+                "a": {
+                  "title": "A",
+                  "type": "number"
+                },
+                "b": {
+                  "title": "B",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "a",
+                "b"
+              ],
+              "title": "addArguments",
+              "type": "object"
+            },
+            "outputSchema": {
+              "additionalProperties": true,
+              "title": "addDictOutput",
+              "type": "object"
+            }
+          },
+          {
+            "name": "now_utc",
+            "description": "Return current UTC timestamp.",
+            "inputSchema": {
+              "properties": {},
+              "title": "now_utcArguments",
+              "type": "object"
+            },
+            "outputSchema": {
+              "additionalProperties": true,
+              "title": "now_utcDictOutput",
+              "type": "object"
+            }
+          }
+        ]
+      }
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:18:04.473059+00:00",
+    "direction": "recv",
+    "message": {
+      "id": 2,
+      "method": "tools/list"
+    },
+    "meta": {
+      "duration_ms": 0.0
+    }
+  },
+  {
+    "ts": "2025-12-30T15:18:11.375941+00:00",
+    "direction": "send",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "method": "resources/list",
+      "params": {}
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:18:11.377906+00:00",
+    "direction": "recv",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "resources": [
+          {
+            "name": "readme",
+            "uri": "simple://readme",
+            "description": "A tiny example resource.",
+            "mimeType": "text/plain"
+          }
+        ]
+      }
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:18:11.377906+00:00",
+    "direction": "recv",
+    "message": {
+      "id": 3,
+      "method": "resources/list"
+    },
+    "meta": {
+      "duration_ms": 0.0
+    }
+  },
+  {
+    "ts": "2025-12-30T15:18:13.558630+00:00",
+    "direction": "send",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "method": "prompts/list",
+      "params": {}
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:18:13.560669+00:00",
+    "direction": "recv",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": {
+        "prompts": [
+          {
+            "name": "hello",
+            "description": "A tiny example prompt.",
+            "arguments": [
+              {
+                "name": "name",
+                "required": false
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:18:13.560669+00:00",
+    "direction": "recv",
+    "message": {
+      "id": 4,
+      "method": "prompts/list"
+    },
+    "meta": {
+      "duration_ms": 0.0
+    }
+  },
+  {
+    "ts": "2025-12-30T15:18:16.125535+00:00",
+    "direction": "send",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "method": "tools/call",
+      "params": {
+        "name": "add",
+        "arguments": {
+          "a": 1,
+          "b": 2
+        }
+      }
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:18:16.128463+00:00",
+    "direction": "recv",
+    "message": {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"sum\": 3.0\n}"
+          }
+        ],
+        "structuredContent": {
+          "sum": 3.0
+        },
+        "isError": false
+      }
+    },
+    "meta": {}
+  },
+  {
+    "ts": "2025-12-30T15:18:16.128463+00:00",
+    "direction": "recv",
+    "message": {
+      "id": 5,
+      "method": "tools/call"
+    },
+    "meta": {
+      "duration_ms": 0.0
+    }
+  }
+]
