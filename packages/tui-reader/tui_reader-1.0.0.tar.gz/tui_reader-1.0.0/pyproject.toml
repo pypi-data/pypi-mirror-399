@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tui-reader"
+version = "1.0.0"
+description = "A terminal-based reader for TXT, MD, and PDF files with themes and voice control"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Text Editors",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "textual>=0.40.0",
+    "pdfminer.six>=20221105",
+]
+
+[project.optional-dependencies]
+voice = [
+    "vosk>=0.3.45",
+    "pyaudio>=0.2.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/tui-reader"
+Repository = "https://github.com/yourusername/tui-reader"
+
+[project.scripts]
+tui-reader = "main:main"
