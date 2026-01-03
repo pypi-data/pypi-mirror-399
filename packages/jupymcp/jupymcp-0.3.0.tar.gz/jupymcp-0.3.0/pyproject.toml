@@ -1,0 +1,57 @@
+[project]
+name = "jupymcp"
+version = "0.3.0"
+description = "Jupyter + MCP with comprehensive resource support"
+readme = "README.md"
+authors = [
+    { name = "Ziya Tang (唐梓涯)", email = "tcztzy@gmail.com" },
+]
+requires-python = ">=3.11"
+dependencies = [
+    "jupyter-client>=8.7.0",
+    "jupytext>=1.18.1",
+    "mcp>=1.25.0",
+]
+classifiers = [
+    "Framework :: Jupyter",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: GraalPy",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator",
+    "Typing :: Typed",
+]
+[project.scripts]
+jupymcp = "jupymcp.main:main"
+
+[build-system]
+requires = ["uv_build>=0.8.0,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "datamodel-code-generator>=0.50.0",
+    "ipykernel>=7.1.0",
+    "matplotlib>=3.10.8",
+    "nbformat>=5.10.4",
+    "pandas>=2.3.3",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.10",
+]
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.pytest]
+testpaths = ["tests"]
+anyio_mode = "auto"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def main",
+    "def amain",
+]
