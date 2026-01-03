@@ -1,0 +1,287 @@
+Metadata-Version: 2.4
+Name: video-doc-generator
+Version: 0.1.1
+Summary: A Python package that manages video links, calls video parsing APIs to read and parse videos, and converts video content into professional documents and analysis reports.
+Author-email: Auto Project <ocarina1024@gmail.com>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/flashpoint493/video-doc-generator
+Project-URL: Documentation, https://github.com/flashpoint493/video-doc-generator#readme
+Project-URL: Repository, https://github.com/flashpoint493/video-doc-generator
+Project-URL: Issues, https://github.com/flashpoint493/video-doc-generator/issues
+Keywords: video,document,parser,api,analysis,converter
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.31.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: click>=8.0.0
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: aiohttp>=3.9.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: ruff>=0.6.0; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+Requires-Dist: pre-commit>=3.0; extra == "dev"
+Dynamic: license-file
+
+# Video Doc Generator
+
+> 一个能够管理视频链接，调用视频解析 API 读取和解析视频，并将视频内容转换为专业文档和分析说明的 Python 包。
+
+## 功能特性
+
+- **视频链接管理**: 支持添加、删除、查询和批量管理视频链接
+- **视频解析**: 调用视频解析 API 提取视频元数据和转录文本
+- **文档生成**: 将视频内容转换为专业的 Markdown 文档
+- **内容分析**: 自动生成视频分析说明和关键要点
+- **命令行工具**: 提供便捷的 CLI 接口
+
+## 安装
+
+### 基本安装
+
+```bash
+pip install video-doc-generator
+```
+
+### 从源码安装
+
+```bash
+git clone https://github.com/flashpoint493/video-doc-generator.git
+cd video-doc-generator
+pip install -e ".[dev]"
+```
+
+## 快速开始
+
+### 安装
+
+```bash
+pip install video-doc-generator
+```
+
+### 命令行使用（推荐）
+
+安装后，你可以直接使用 `video-doc` 命令：
+
+```bash
+# 查看帮助
+video-doc --help
+
+# 添加视频链接
+video-doc add "https://www.youtube.com/watch?v=example" --title "示例视频"
+
+# 列出所有视频
+video-doc list
+
+# 解析视频并生成文档（需要配置 API Key）
+export VIDEO_PARSER_API_KEY="your-bigpt-api-key"
+video-doc parse "https://www.youtube.com/watch?v=example" --output-dir docs
+
+# 处理所有已添加的视频
+video-doc process-all --output-dir docs
+```
+
+### Python 代码使用
+
+```python
+from video_doc_generator import VideoManager, VideoParser, DocumentGenerator
+
+# 1. 管理视频链接
+manager = VideoManager()
+manager.add("https://www.youtube.com/watch?v=example", title="示例视频")
+
+# 2. 解析视频（使用 BigGPT API，推荐 GET 方法）
+parser = VideoParser(api_key="your-api-key", use_get_method=True)
+result = parser.parse("https://www.youtube.com/watch?v=example")
+
+# 3. 生成文档
+generator = DocumentGenerator(output_dir="docs")
+filepath = generator.generate_markdown(result)
+print(f"文档已生成: {filepath}")
+```
+
+## 配置
+
+### API Key 配置
+
+#### 方式 1: 环境变量（推荐）
+
+```bash
+# BigGPT API Key（推荐使用 BigGPT）
+export VIDEO_PARSER_API_KEY="your-bigpt-api-key"
+
+# 或者
+export BIGGPT_API_KEY="your-bigpt-api-key"
+```
+
+#### 方式 2: 命令行参数
+
+```bash
+video-doc parse "https://www.youtube.com/watch?v=example" \
+    --api-key "your-bigpt-api-key" \
+    --output-dir docs
+```
+
+#### 方式 3: 代码中指定
+
+```python
+parser = VideoParser(api_key="your-bigpt-api-key", use_get_method=True)
+```
+
+### 获取 BigGPT API Key
+
+1. 访问 [BigGPT](https://bibigpt.co)
+2. 注册/登录账号
+3. 获取 API Token
+4. 使用 GET 方法（免费且稳定）
+
+> **注意**: 当前版本主要支持 BigGPT API。推荐使用 GET 方法，免费且稳定。
+
+## 项目结构
+
+```
+video-doc-generator/
+├── src/
+│   └── video_doc_generator/
+│       ├── __init__.py
+│       ├── manager.py      # 视频链接管理
+│       ├── parser.py        # 视频解析
+│       ├── generator.py     # 文档生成
+│       └── cli.py           # 命令行接口
+├── tests/                   # 测试文件
+├── docs/                    # 生成的文档
+├── pyproject.toml
+└── README.md
+```
+
+## 核心模块
+
+### VideoManager
+
+视频链接管理器，提供视频链接的增删改查功能。
+
+```python
+from video_doc_generator import VideoManager
+
+manager = VideoManager()
+manager.add("https://www.youtube.com/watch?v=example")
+videos = manager.list_all()
+```
+
+### VideoParser
+
+视频解析器，调用视频解析 API 获取视频元数据和转录文本。支持多个 API 提供商。
+
+```python
+from video_doc_generator import VideoParser
+
+# 使用默认提供商（BigGPT）
+parser = VideoParser(api_key="your-api-key", use_get_method=True)
+result = parser.parse("https://www.youtube.com/watch?v=example")
+
+# 指定提供商名称
+parser = VideoParser(api_key="your-api-key", provider_name="bigpt", use_get_method=True)
+result = parser.parse("https://www.bilibili.com/video/BV1xxx")
+
+# 使用自定义提供商（高级用法）
+from video_doc_generator.providers.bigpt import BigGPTProvider
+
+provider = BigGPTProvider(api_key="your-api-key", use_get_method=True)
+parser = VideoParser(provider=provider)
+result = parser.parse("https://www.youtube.com/watch?v=example")
+```
+
+### DocumentGenerator
+
+文档生成器，将视频内容转换为 Markdown 文档。
+
+```python
+from video_doc_generator import DocumentGenerator
+
+generator = DocumentGenerator(output_dir="docs")
+filepath = generator.generate_markdown(parse_result)
+```
+
+## 开发
+
+### 设置开发环境
+
+```bash
+# 克隆仓库
+git clone https://github.com/flashpoint493/video-doc-generator.git
+cd video-doc-generator
+
+# 安装开发依赖
+pip install -e ".[dev]"
+
+# 安装 pre-commit hooks
+pre-commit install
+```
+
+### 运行测试
+
+```bash
+# 运行所有测试
+pytest
+
+# 运行测试并生成覆盖率报告
+pytest --cov=src --cov-report=html
+```
+
+### 代码质量
+
+```bash
+# 格式化代码
+ruff format .
+
+# 检查代码
+ruff check .
+
+# 类型检查
+mypy .
+```
+
+## 详细文档
+
+- [使用指南](USAGE.md) - 详细的使用文档和示例
+- [API 文档](llms.txt) - 完整的 API 参考文档（LLM 上下文）
+
+## 使用场景
+
+- **教育内容整理**: 将教学视频转换为文档，便于学习和复习
+- **会议记录转换**: 将会议视频转换为会议纪要
+- **视频内容分析**: 分析视频内容，提取关键信息
+- **知识库构建**: 批量处理视频，构建知识库
+
+## 贡献
+
+欢迎贡献！请先阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)。
+
+1. Fork 仓库
+2. 创建功能分支 (`git checkout -b feat/amazing-feature`)
+3. 提交更改 (`git commit -m 'feat: add amazing feature'`)
+4. 推送到分支 (`git push origin feat/amazing-feature`)
+5. 开启 Pull Request
+
+## 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](./LICENSE) 文件了解详情。
+
+## 联系方式
+
+- **GitHub**: [@flashpoint493](https://github.com/flashpoint493)
+- **Issues**: [GitHub Issues](https://github.com/flashpoint493/video-doc-generator/issues)
+
+---
+
+**Made with ❤️ by Auto Project Team**
