@@ -1,0 +1,26 @@
+[project]
+name = "wasr-client"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "grpc-interceptor>=0.15.4",
+    "grpcio>=1.76.0",
+    "seldon-core>=1.18.2",
+]
+
+[project.scripts]
+wasr-client = "wasr_client:main"
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+
+[build-system]
+requires = ["uv_build>=0.9.17,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.1.0",
+]

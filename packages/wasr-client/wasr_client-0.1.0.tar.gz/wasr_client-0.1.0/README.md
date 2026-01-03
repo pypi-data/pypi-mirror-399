@@ -1,0 +1,224 @@
+# WASR Client
+
+一个用于语音识别（ASR）的Python客户端，支持通过gRPC协议与Seldon Core服务进行通信。
+
+## 功能特性
+
+- 🔊 语音识别：支持音频URL和base64编码的音频数据
+- 🚀 高性能：基于gRPC协议的异步通信
+- 📦 批量处理：支持批量语音识别请求
+- 🎯 热词支持：可配置热词以提高识别准确率
+- 🔧 环境切换：支持测试环境和生产环境
+
+## 安装
+
+### 使用uv（推荐）
+
+```bash
+# 克隆项目
+git clone <repository-url>
+cd wasr-client
+
+# 安装依赖
+uv sync
+
+# 激活环境
+source .venv/bin/activate
+```
+
+### 使用pip
+
+```bash
+pip install wasr-client
+```
+
+## 快速开始
+
+### 基本使用
+
+```python
+from wasr_client import ASRClient
+
+# 创建客户端实例（生产环境）
+client = ASRClient(task_id="your_task_id", env="ol")
+
+# 使用音频URL进行识别
+result = client.predict(
+    url="http://example.com/audio.mp3",
+    mono=True  # 单声道音频
+)
+print(result)
+```
+
+### 测试环境
+
+```python
+# 测试环境
+client = ASRClient(task_id="your_task_id", env="test")
+```
+
+## API 文档
+
+### ASRClient 类
+
+#### 初始化参数
+
+- `task_id` (str): 任务ID，必填
+- `env` (str): 环境选择，可选值为 "test" 或 "ol"，默认为 "ol"
+
+#### 方法
+
+##### predict()
+
+对单个音频进行语音识别。
+
+**参数：**
+- `url` (str, optional): 音频文件的URL地址
+- `b64_str` (str, optional): base64编码的音频数据
+- `mono` (bool, optional): 是否为单声道音频
+- `hotwords` (str, optional): 热词，用逗号分隔
+
+**返回值：** str - 识别结果文本
+
+**注意：** `url` 和 `b64_str` 至少提供一个
+
+**示例：**
+
+```python
+# 使用URL
+result = client.predict(url="http://example.com/audio.mp3")
+
+# 使用base64字符串
+result = client.predict(b64_str="UklGRiQAAABXQVZFZm10...")
+
+# 使用热词
+result = client.predict(
+    url="http://example.com/audio.mp3",
+    hotwords="你好,谢谢,再见"
+)
+
+# 单声道音频
+result = client.predict(
+    url="http://example.com/audio.mp3",
+    mono=True
+)
+```
+
+##### batch_predict()
+
+批量处理多个音频识别请求。
+
+**参数：**
+- `inputs` (list[dict]): 音频输入列表，每个字典包含单个音频的参数
+
+**返回值：** list[str] - 识别结果列表
+
+**示例：**
+
+```python
+inputs = [
+    {"url": "http://example.com/audio1.mp3", "mono": True},
+    {"url": "http://example.com/audio2.mp3", "hotwords": "关键词"},
+    {"b64_str": "UklGRiQAAABXQVZFZm10...", "mono": False}
+]
+
+results = client.batch_predict(inputs)
+for result in results:
+    print(result)
+```
+
+## 配置说明
+
+### 环境配置
+
+- **test**: 测试环境，用于开发和测试
+- **ol**: 生产环境（online），用于正式使用
+
+### 网络配置
+
+客户端会自动连接到对应的环境地址：
+- 测试环境: `test-lbg-huangye.wpai.58dns.org:8866`
+- 生产环境: `ol-lbg-huangye.wpai.58dns.org:8866`
+
+## 错误处理
+
+客户端会在以下情况抛出异常：
+
+1. **参数错误**: `url` 和 `b64_str` 都为空时
+2. **网络错误**: 无法连接到服务时
+3. **超时错误**: 请求超过1000秒超时时间
+
+建议使用try-except块处理异常：
+
+```python
+try:
+    result = client.predict(url="http://example.com/audio.mp3")
+    print(f"识别结果: {result}")
+except Exception as e:
+    print(f"识别失败: {e}")
+```
+
+## 音频格式支持
+
+- **支持的URL**: HTTP/HTTPS链接的音频文件
+- **支持的编码**: base64字符串（通常用于二进制音频数据）
+- **音频格式**: 建议使用MP3、WAV等常见格式
+- **声道**: 支持单声道（mono=True）和立体声（mono=False）
+
+## 命令行使用
+
+项目提供命令行脚本（需要配置脚本入口）：
+
+```bash
+# 直接运行（如果已配置）
+wasr-client --task-id your_task_id --env ol --url http://example.com/audio.mp3
+```
+
+## 依赖项
+
+- grpcio >= 1.76.0
+- grpc-interceptor >= 0.15.4
+- seldon-core >= 1.18.2
+
+## 开发
+
+### 代码格式化
+
+项目使用ruff进行代码格式化和检查：
+
+```bash
+# 格式化代码
+ruff format .
+
+# 检查代码
+ruff check .
+```
+
+### 测试
+
+运行测试文件：
+
+```python
+# 在Jupyter notebook中运行
+# test.ipynb 包含基本使用示例
+```
+
+## 注意事项
+
+1. **Task ID**: 每个任务都需要有效的task_id，请从管理员处获取
+2. **网络连接**: 确保能够访问58DNS域名解析服务
+3. **音频质量**: 高质量音频能获得更好的识别效果
+4. **并发限制**: 建议控制并发请求数量，避免服务过载
+5. **超时时间**: 默认超时1000秒，根据音频长度适当调整
+
+## 许可证
+
+[请添加许可证信息]
+
+## 贡献
+
+欢迎提交Issue和Pull Request！
+
+## 联系方式
+
+[请添加联系方式]
