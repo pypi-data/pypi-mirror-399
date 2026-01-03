@@ -1,0 +1,89 @@
+Metadata-Version: 2.1
+Name: byzpy
+Version: 0.1.3
+Summary: A research framework for Byzantine-robust distributed ML
+Author-email: ByzPy contributors <byzpy@users.noreply.github.com>
+Maintainer-email: ByzPy contributors <byzpy@users.noreply.github.com>
+License: MIT
+Project-URL: Homepage, https://github.com/Byzpy/byzpy
+Project-URL: Documentation, https://byzpy.github.io/byzpy/
+Project-URL: Source, https://github.com/Byzpy/byzpy
+Project-URL: Issues, https://github.com/Byzpy/byzpy/issues
+Keywords: distributed-learning,byzantine,federated-learning,pytorch,robust-ml
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: torch<2.6,>=2.2
+Requires-Dist: torchvision<0.21,>=0.17
+Requires-Dist: numpy<2.1,>=1.24
+Requires-Dist: matplotlib<3.11,>=3.8
+Requires-Dist: cloudpickle<4.0,>=2.2
+Provides-Extra: dev
+Requires-Dist: pytest==8.3.3; extra == "dev"
+Requires-Dist: pytest-asyncio==0.23.7; extra == "dev"
+Requires-Dist: pytest-cov==5.0.0; extra == "dev"
+Provides-Extra: gpu
+Requires-Dist: cupy-cuda12x>=13.2.0; extra == "gpu"
+Requires-Dist: ucxx-cu12>=0.38; extra == "gpu"
+
+# ByzPy
+
+**ByzPy** is a unified Python framework for Byzantine-robust distributed machine learning. It provides a powerful actor runtime, declarative computation graphs, and batteries-included aggregators and attack simulators.
+
+## Installation
+
+Install from PyPI:
+
+```bash
+pip install byzpy              # CPU baseline
+pip install "byzpy[gpu]"       # add CUDA/UCX extras
+pip install "byzpy[dev]"       # add development tools (pytest, coverage)
+```
+
+## Quick Start
+
+```python
+from byzpy.aggregators.coordinate_wise.median import CoordinateWiseMedian
+import torch
+
+# Create aggregator
+aggregator = CoordinateWiseMedian(chunk_size=4096)
+
+# Aggregate gradients
+gradients = [torch.randn(1000) for _ in range(10)]
+result = aggregator.aggregate(gradients)
+```
+
+## Features
+
+- **Byzantine-robust aggregators** – Krum, MDA, trimmed mean, geometric median, and more
+- **Unified actor runtime** – threads, processes, GPUs, and TCP/UCX remotes share a single API
+- **Declarative computation graphs** – build heterogeneous pipelines with deterministic scheduling
+- **Complete examples** – parameter-server and peer-to-peer demos included
+
+## CLI Tools
+
+```bash
+byzpy version                # installed version
+byzpy doctor                 # environment diagnostics
+byzpy list aggregators       # discover built-ins
+```
+
+## Documentation
+
+📖 **Full documentation:** https://byzpy.github.io/byzpy/
+
+**Links:**
+- Homepage: https://github.com/Byzpy/byzpy
+- Documentation: https://byzpy.github.io/byzpy/
+- Issues: https://github.com/Byzpy/byzpy/issues
