@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "temper-pygments"
+version = "0.6.0"
+description = ""
+authors = ["Tom <tom@temper.systems>"]
+readme = "README.md"
+packages = [{include = "temper_pygments"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pygments = "^2.12.0"
+temper-core = "0.6.0"
+temper-syntax = "0.6.0"
+# temper-syntax = { path = "../temper.out/py/temper-syntax", develop = true }
+
+[tool.poetry.plugins."pygments.lexers"]
+temper = "temper_pygments:TemperLexer"
+tempermd = "temper_pygments:TemperMdLexer"
+
+[tool.poetry.scripts]
+tempyg-bundle = 'scripts:bundle'
+tempyg-test = 'scripts:test'
+
+[tool.poetry.group.dev.dependencies]
+stickytape = "^0.2.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
