@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "in4viz"
+version = "0.2.0"
+description = "ER図可視化ライブラリ - SVGとdraw.io形式での出力をサポート"
+readme = "README.md"
+license = "MIT"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/in4viz"
+Documentation = "https://github.com/yourusername/in4viz#readme"
+Repository = "https://github.com/yourusername/in4viz.git"
+"Bug Tracker" = "https://github.com/yourusername/in4viz/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["in4viz", "in4viz.core", "in4viz.backends", "in4viz.backends.svg", "in4viz.backends.drawio"]
