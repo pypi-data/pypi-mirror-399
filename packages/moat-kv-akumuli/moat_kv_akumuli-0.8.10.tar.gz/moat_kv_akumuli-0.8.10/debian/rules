@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=moat-kv-akumuli
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+debian/moat-kv-akumuli@.service: moat-kv-akumuli@.service
+	cp $< $@
+
+override_dh_auto_install: debian/moat-kv-akumuli@.service
+	dh_auto_install
