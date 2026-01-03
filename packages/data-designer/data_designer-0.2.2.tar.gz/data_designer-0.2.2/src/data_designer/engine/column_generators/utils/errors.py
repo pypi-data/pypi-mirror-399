@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+from data_designer.engine.errors import DataDesignerError
+
+
+class PromptTemplateRenderError(DataDesignerError): ...
+
+
+class ExpressionTemplateRenderError(DataDesignerError): ...
+
+
+class SeedDatasetError(DataDesignerError): ...
