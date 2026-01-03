@@ -1,0 +1,42 @@
+Metadata-Version: 2.4
+Name: dcorelib
+Version: 1.0.0
+Summary: Backend of DMFT software for correlated electrons
+Author-email: "H. Shinaoka" <h.shinaoka@gmail.com>
+Project-URL: Homepage, https://github.com/shinaoka/dcorelib
+Keywords: condensed-matter,dmft
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: h5py
+Requires-Dist: matplotlib
+Requires-Dist: mpi4py
+Requires-Dist: sparse_ir>=2.1.1
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: matplotlib; extra == "dev"
+Provides-Extra: test
+Requires-Dist: pytest; extra == "test"
+Dynamic: license-file
+
+# Backend library for DCore
+
+
+This library includes Python files originating from the following TRIQS libraries.
+
+* TRIQS https://github.com/TRIQS/triqs.git
+* TRIQS/DFTTools https://github.com/TRIQS/dft_tools.git
+* TRIQS/h5 https://github.com/TRIQS/h5.git
+* TRIQS/mpi https://github.com/TRIQS/mpi.git
+
+`dcorelib`, which depends only on standard scientific Python libraries such as numpy,
+ is intended to provide a subset of the functionalities of these libraries.
+When you publish a scientific paper on results obtained by using `dcorelib`,
+we kindly ask you to cite software papers on these TRIQS libraries.
