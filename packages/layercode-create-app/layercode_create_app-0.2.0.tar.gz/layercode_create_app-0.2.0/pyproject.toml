@@ -1,0 +1,77 @@
+[project]
+name = "layercode-create-app"
+version = "0.2.0"
+description = "Fast scaffolding for LayerCode-ready FastAPI backends"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-file = "LICENSE"
+authors = [
+    {name = "Jan Siml", email = "49557684+svilupp@users.noreply.github.com"}
+]
+dependencies = [
+    "fastapi>=0.115.0",
+    "httpx>=0.27.2",
+    "logfire[fastapi]>=4.14.2",
+    "loguru>=0.7.3",
+    "pydantic>=2.9.2",
+    "pydantic-ai>=1.9.1",
+    "pydantic-settings>=2.11.0",
+    "python-dotenv>=1.0.1",
+    "textprompts>=1.1.0",
+    "uvicorn[standard]>=0.31.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ty>=0.0.8",
+    "pytest>=8.3.2",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.6.8",
+]
+
+
+[project.scripts]
+layercode-create-app = "layercode_create_app.cli:main"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "UP",
+    "ASYNC",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.uv]
+package = true
+
+[dependency-groups]
+dev = [
+    "ty>=0.0.8",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.14.3",
+]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.26.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.7.19,<0.8.0"]
+build-backend = "uv_build"
+
+[tool.setuptools.package-data]
+layercode_create_app = ["py.typed", "agents/prompts/*.txt"]
