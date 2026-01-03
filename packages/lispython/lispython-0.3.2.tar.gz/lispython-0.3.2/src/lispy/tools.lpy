@@ -1,0 +1,226 @@
+(require lispy.macros *)
+
+(import argparse)
+(import ast)
+(import importlib)
+(import io)
+(import os)
+(import os.path as osp)
+(import runpy)
+(import sys)
+(import traceback)
+
+(import subprocess)
+(import shutil)
+(import tempfile)
+
+(= HAS_RUFF (shutil.which "ruff"))
+
+(from lispy.core.nodes *)
+(from lispy.core.parser [parse])
+(from lispy.core.macro [macroexpand-then-compile])
+
+(def detect-package-name [:path None]
+  "Detect package name from directory by checking for __init__.py"
+  (= dir-path (ife (is path None)
+                   (os.getcwd)
+                   (osp.dirname (osp.abspath path))))
+  (if (not (osp.exists (osp.join dir-path "__init__.py")))
+      (return ""))
+  ;; Walk up to find package root
+  (= parts [])
+  (= current dir-path)
+  (while (osp.exists (osp.join current "__init__.py"))
+    (parts.insert 0 (osp.basename current))
+    (= parent (osp.dirname current))
+    (if (== parent current)
+        (break))
+    (= current parent))
+  ;; Add parent of package root to sys.path if needed
+  (if (and parts (not (in current sys.path)))
+      (sys.path.insert 0 current))
+  (return (.join "." parts)))
+
+(= SCOPE {"__builtins__" __builtins__
+          "__name__" "__main__"
+          "__package__" (detect-package-name)
+          "__macro_namespace" {}})
+
+(def ast-to-python [st]
+  (return (str (ast.unparse st))))
+
+(def src-to-python-org [src :include-meta False :scope None]
+  (if (is scope None)
+      (= scope SCOPE))
+  (return (.join "\n" (map ast-to-python
+                           (macroexpand-then-compile
+                             (parse src)
+                             scope
+                             :include-meta include-meta)))))
+
+(def src-to-python [src :include-meta False :scope None]
+  (if (is scope None)
+      (= scope SCOPE))
+  (= raw-pysrc (src-to-python-org src :include-meta include-meta :scope scope))
+  (return (format-python-source raw-pysrc)))
+
+(def format-python-source [pysrc]
+  (if (not HAS_RUFF)
+      (return pysrc))
+  (try
+    (with [(tempfile.NamedTemporaryFile :mode "w" :suffix ".py" :delete False) as f]
+      (f.write pysrc)
+      (= tmppath f.name))
+    ;; Run ruff check --fix for import sorting (modifies file in place)
+    (subprocess.run ["ruff" "check" "--fix" "--select" "I" tmppath]
+                    :capture-output True)
+    ;; Run ruff format (modifies file in place)
+    (subprocess.run ["ruff" "format" tmppath]
+                    :capture-output True)
+    ;; Read back the formatted code
+    (with [(open tmppath "r") as f]
+      (= pysrc (.rstrip (f.read) "\n")))
+    (os.unlink tmppath)
+    (except [Exception as e]
+      (print f"Ruff formatting failed: {e}")))
+  (return pysrc))
+
+(= argparser (argparse.ArgumentParser))
+(argparser.add-argument "--meta"
+                        :dest "include_meta"
+                        :action "store_true")
+(argparser.add-argument "--no-lispy"
+                        :dest "no_lispy"
+                        :action "store_true")
+
+(def l2py-s [src :include-meta False :fresh-scope False :package "" :no-lispy False]
+  "Translate lispy source string to Python source string"
+  (if fresh-scope
+      (= scope {"__builtins__" __builtins__
+                "__package__" package
+                "__macro_namespace" {}})
+      (= scope SCOPE))
+  (= pysrc (src-to-python src :include-meta include_meta :scope scope))
+  (if no_lispy
+      (return pysrc))
+  (return (+ "import lispy\n\n" pysrc)))
+
+(def l2py-f [file-path :include-meta False :no-lispy False]
+  "Translate lispy file to Python source string (standalone with sys.path setup)"
+  (= script-dir (osp.dirname (osp.abspath file-path)))
+  (if (not (in script-dir sys.path))
+      (sys.path.insert 0 script-dir))
+
+  ;; Clear cached macro modules to ensure fresh reload
+  (= modules-to-remove [])
+  (for [mod-name mod] in (sys.modules.items)
+    (if (or (mod-name.startswith "lispy.macros")
+            (and mod
+                 (hasattr mod "__file__")
+                 mod.__file__
+                 (mod.__file__.endswith ".lpy")))
+        (modules-to-remove.append mod-name)))
+  (for mod-name in modules-to-remove
+    (sys.modules.pop mod-name))
+
+  (with [(open file-path "rb") as f]
+    (= src (.decode (f.read) "utf-8")))
+  (= pkg (detect-package-name :path file-path))
+  (return (+ (l2py-s src :include-meta include_meta :fresh-scope True :package pkg :no-lispy no_lispy) "\n")))
+
+(def l2py []
+  "CLI entry point: parse args and translate file"
+  (= [args more-args] (argparser.parse-known-args))
+  (= file (osp.join (os.getcwd) (sub more-args 0)))
+  (print (l2py-f file :include-meta args.include_meta :no-lispy args.no_lispy)))
+
+(def read-multiline-input [prompt_str]
+  (= paren-depth 0)
+  (= in-string False)
+  (= line (input prompt_str))
+  (= src line)
+  (while True
+    (for c in line
+      (cond in-string
+            (if (== c "\"")
+                (= in-string False)
+                (continue))
+
+            (== c "\"")
+            (= in-string True)
+            
+            (in c "([{")
+            (+= paren-depth 1)
+            
+            (in c ")]}")
+            (-= paren-depth 1)))
+    (if (== paren-depth 0)
+        (break))
+    (= line (input "...   "))
+    (+= src (+ "\n" line)))
+  (return src))
+
+(def eval-and-print [src :scope SCOPE :translate False]
+  (= parsed (parse src))
+  (= stl (macroexpand-then-compile parsed scope))
+  (if translate
+      (do ;; (print "python translation")
+        (-> (.join "\n" (list (map ast-to-python stl)))
+            (format-python-source)
+            (print))
+        ;; (print "")
+        ))
+  ;; (print "result")
+  (for st stl
+    (eval (compile (ast.Interactive :body [st]) "" "single")
+          scope))
+  ;; (print "\n")
+  )
+
+(def repl [:translate False]
+  ;; Add current directory to sys.path for local imports
+  (= cwd (os.getcwd))
+  (if (not (in cwd sys.path))
+      (sys.path.insert 0 cwd))
+  (= scope SCOPE)
+  (eval-and-print "(require lispy.macros *)
+(from pprint [pprint])" scope)
+  (while True
+    (try
+      (do
+        (= src (read-multiline-input "repl> "))
+        (eval-and-print src scope translate))
+      (except [SystemExit]
+        (print "SystemExit caught. Exiting REPL.")
+        (break))
+      (except [EOFError as e]
+        (print "Ctrl-d input. Exiting REPL.")
+        (break))
+      (except [KeyboardInterrupt]
+        (print "\nKeyboard Interrupt")
+        (continue))
+      (except [Exception as e]
+        (print "An error occurred:\n====================================")
+        (traceback.print_exc)
+        (print "====================================")))))
+
+(def run []
+  (cond (< (len sys.argv) 2)
+        (repl)
+
+        (== (sub sys.argv 1) "-m")
+        (do (sys.argv.pop 1)
+            (= mname (sys.argv.pop 1))
+            (runpy.run-module (.replace mname "-" "_") :run-name "__main__" :alter-sys True))
+
+        (== (sub sys.argv 1) "-t")
+        (repl True)
+
+        (do (= fpath (sys.argv.pop 1))
+            (= script-dir (osp.dirname (osp.abspath fpath)))
+            (if (not (in script-dir sys.path))
+                (sys.path.insert 0 script-dir))
+            (runpy.run-path fpath :run-name "__main__"))))
+
+(if (== __name__ "__main__")
+    (run))

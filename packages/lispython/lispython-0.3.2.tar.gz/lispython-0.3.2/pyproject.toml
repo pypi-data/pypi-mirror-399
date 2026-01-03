@@ -1,0 +1,52 @@
+[project]
+name = "lispython"
+version = "0.3.2"
+description = "Lisp-like Syntax for Python with Lisp-like Macros"
+authors = [{ name = "Jetack", email = "jetack23@gmail.com" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.urls]
+Homepage = "https://jetack.github.io/lispython"
+Repository = "https://github.com/jetack/lispython"
+
+[project.scripts]
+lpy = "lispy:run"
+l2py = "lispy:l2py"
+test = "pytest:main"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.6.0",
+    "pytest>=8.0.0",
+    "ruff>=0.8.0",
+    "toml>=0.10.2",
+]
+docs = [
+    "mkdocs-material>=9.6.14",
+    "mkdocs-macros-plugin>=1.3.7",
+    "mike>=2.1.3",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lispy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.ruff]
+line-length = 88
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["lispy"]

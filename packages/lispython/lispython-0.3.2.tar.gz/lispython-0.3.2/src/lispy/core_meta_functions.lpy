@@ -1,0 +1,68 @@
+;;; This is the source for core/meta_functions.py
+(= WARNING "This script should be edited in .lpy file, not translated .py file.")
+
+(require lispy.macros *)
+
+(from lispy.core.nodes *)
+
+(def defmacro-transform [sexp]
+  (= [op macroname *body] sexp.list) 
+  (= macroname (str macroname))
+  (= newname (Symbol (+ "___defmacro_temp___" macroname)))
+  (return `(do (from lispy.core.nodes *)
+               (def ~newname ~@body)
+               (= (sub (.setdefault (globals) "__macro_namespace" {})
+                       ~macroname)
+                  ~newname)
+               (del ~newname))))
+
+(def require-transform [sexp]
+  (= [op module-name *optional] sexp.list)
+  (if optional
+      (= [macro-names] optional)
+      (= macro-names None))
+  (= module-name-str (.replace (str module-name) "-" "_"))
+  (= is-relative (.startswith module-name-str "."))
+  (= import-call (ife is-relative
+                      `(importlib.import-module ~module-name-str :package __package__)
+                      `(importlib.import-module ~module-name-str)))
+  (return
+    `(do (import importlib)
+         (= ___imported-macros
+            (getattr ~import-call
+                     "__macro_namespace"
+                     {}))
+         ~(conde (not macro-names)
+                 `(for [k v] in (.items (.copy ___imported-macros))
+                    (= (sub (.setdefault (globals) "__macro_namespace" {})
+                            (+ ~(str module-name) "." k))
+                       v))
+                 (== (str macro-names) "*")
+                 `(.update (.setdefault (globals) "__macro_namespace" {}) ___imported-macros)
+                 
+                 ;; else
+                 `(for mac-name in ~[(str x) for x in macro-names]
+                    (= (sub (.setdefault (globals) "__macro_namespace" {})
+                            mac-name)
+                       (sub ___imported-macros mac-name)))
+                 )
+         ;; (del importlib)
+         (del ___imported-macros))))
+
+(when (== __name__ "__main__")
+  (import os.path as osp)
+  (from lispy.tools [l2py-s])
+
+  (= path (osp.abspath __file__))
+
+  (with [(open path "r") as f]
+    (= org (f.read)))
+
+  (= translated (l2py-s org :no-lispy True))
+
+  (with [(open (-> path
+                   (osp.dirname)
+                   (osp.join "core" "meta_functions.py"))
+               "w")
+         as f]
+    (f.write translated)))
