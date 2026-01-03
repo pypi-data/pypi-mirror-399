@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cve.cve_id }} - Security - VelocityCMDB{% endblock %}
+
+{% block head_extra %}
+<style>
+    .cve-header {
+        margin-bottom: 32px;
+    }
+
+    .severity-badge {
+        padding: 6px 12px;
+        border-radius: var(--md-shape-corner-small);
+        font: var(--md-typescale-label-medium);
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .severity-badge.critical { background: #dc3545; color: white; }
+    .severity-badge.high { background: #fd7e14; color: white; }
+    .severity-badge.medium { background: #ffc107; color: #333; }
+    .severity-badge.low { background: #28a745; color: white; }
+    .severity-badge.unknown { background: #6c757d; color: white; }
+
+    .action-link {
+        color: var(--md-primary);
+        text-decoration: none;
+        font: var(--md-typescale-label-medium);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .action-link:hover {
+        text-decoration: underline;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .detail-item {
+        padding: 16px;
+        background: var(--md-surface-container);
+        border-radius: var(--md-shape-corner-small);
+    }
+
+    .detail-label {
+        font: var(--md-typescale-label-small);
+        color: var(--md-on-surface-variant);
+        margin-bottom: 4px;
+    }
+
+    .detail-value {
+        font: var(--md-typescale-body-medium);
+        color: var(--md-on-surface);
+        font-weight: 500;
+    }
+
+    .description-box {
+        padding: 20px;
+        background: var(--md-surface-container);
+        border-radius: var(--md-shape-corner-small);
+        font: var(--md-typescale-body-medium);
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    .affected-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .affected-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--md-outline-variant);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .affected-item:last-child {
+        border-bottom: none;
+    }
+
+    .version-info {
+        font: var(--md-typescale-body-medium);
+    }
+
+    .device-count {
+        font: var(--md-typescale-label-medium);
+        padding: 4px 8px;
+        background: var(--md-surface-variant);
+        border-radius: var(--md-shape-corner-small);
+    }
+
+    .reference-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .reference-item {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--md-outline-variant);
+    }
+
+    .reference-item:last-child {
+        border-bottom: none;
+    }
+
+    .reference-link {
+        color: var(--md-primary);
+        text-decoration: none;
+        word-break: break-all;
+    }
+
+    .reference-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cve-header">
+    <nav style="margin-bottom: 16px;">
+        <a href="{{ url_for('security.dashboard') }}" class="action-link">
+            <i data-lucide="arrow-left" size="16"></i> Back to Dashboard
+        </a>
+    </nav>
+    
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 8px;">
+        <h1 class="md-headline-large md-primary" style="margin: 0;">
+            {{ cve.cve_id }}
+        </h1>
+        <span class="severity-badge {{ (cve.severity or 'unknown')|lower }}">
+            {{ cve.severity or 'N/A' }}
+        </span>
+        <a href="https://nvd.nist.gov/vuln/detail/{{ cve.cve_id }}" target="_blank" class="action-link">
+            <i data-lucide="external-link" size="16"></i> View on NVD
+        </a>
+    </div>
+</div>
+
+<!-- CVSS Scores -->
+<div class="detail-grid">
+    <div class="detail-item">
+        <div class="detail-label">CVSS v3 Score</div>
+        <div class="detail-value" style="font-size: 1.5em;">{{ cve.cvss_v3_score or 'N/A' }}</div>
+    </div>
+    {% if cve.cvss_v2_score %}
+    <div class="detail-item">
+        <div class="detail-label">CVSS v2 Score</div>
+        <div class="detail-value" style="font-size: 1.5em;">{{ cve.cvss_v2_score }}</div>
+    </div>
+    {% endif %}
+    <div class="detail-item">
+        <div class="detail-label">Published</div>
+        <div class="detail-value">{{ cve.published_date[:10] if cve.published_date else 'N/A' }}</div>
+    </div>
+    <div class="detail-item">
+        <div class="detail-label">Last Modified</div>
+        <div class="detail-value">{{ cve.last_modified[:10] if cve.last_modified else 'N/A' }}</div>
+    </div>
+</div>
+
+<!-- CVSS Vector -->
+{% if cve.cvss_v3_vector %}
+<div class="md-card outlined" style="margin-bottom: 24px;">
+    <div class="md-card-header">
+        <h2 class="md-card-title">CVSS v3 Vector</h2>
+    </div>
+    <div class="md-card-content">
+        <code style="word-break: break-all;">{{ cve.cvss_v3_vector }}</code>
+    </div>
+</div>
+{% endif %}
+
+<!-- Description -->
+<div class="md-card outlined" style="margin-bottom: 24px;">
+    <div class="md-card-header">
+        <h2 class="md-card-title md-flex md-align-center" style="gap: 12px;">
+            <i data-lucide="file-text"></i>
+            Description
+        </h2>
+    </div>
+    <div class="md-card-content">
+        <div class="description-box">
+            {{ cve.description or 'No description available.' }}
+        </div>
+    </div>
+</div>
+
+<!-- Affected Versions in Your Environment -->
+{% if affected %}
+<div class="md-card outlined" style="margin-bottom: 24px;">
+    <div class="md-card-header">
+        <h2 class="md-card-title md-flex md-align-center" style="gap: 12px;">
+            <i data-lucide="server"></i>
+            Affected Versions in Your Environment
+        </h2>
+    </div>
+    <div class="md-card-content" style="padding: 0;">
+        <ul class="affected-list">
+            {% for a in affected %}
+            <li class="affected-item">
+                <div class="version-info">
+                    <a href="{{ url_for('security.version_detail', vendor=a.cpe_vendor, product=a.cpe_product, version=a.version_exact) }}" class="action-link">
+                        {{ a.cpe_vendor|title }} {{ a.cpe_product|upper }} {{ a.version_exact }}
+                    </a>
+                </div>
+                {% if a.device_count %}
+                <span class="device-count">{{ a.device_count }} device{% if a.device_count != 1 %}s{% endif %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+<!-- CWE IDs -->
+{% set cwe_list = cve.cwe_ids|from_json if cve.cwe_ids else [] %}
+{% if cwe_list %}
+<div class="md-card outlined" style="margin-bottom: 24px;">
+    <div class="md-card-header">
+        <h2 class="md-card-title">CWE Classifications</h2>
+    </div>
+    <div class="md-card-content">
+        {% for cwe in cwe_list %}
+        <span style="display: inline-block; padding: 4px 8px; background: var(--md-surface-variant); border-radius: var(--md-shape-corner-small); margin: 4px;">
+            {{ cwe }}
+        </span>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- References -->
+{% set ref_list = cve.ref_urls|from_json if cve.ref_urls else [] %}
+{% if ref_list %}
+<div class="md-card outlined">
+    <div class="md-card-header">
+        <h2 class="md-card-title md-flex md-align-center" style="gap: 12px;">
+            <i data-lucide="link"></i>
+            References
+        </h2>
+    </div>
+    <div class="md-card-content" style="padding: 0;">
+        <ul class="reference-list" style="padding: 16px;">
+            {% for url in ref_list %}
+            <li class="reference-item">
+                <a href="{{ url }}" target="_blank" class="reference-link">
+                    <i data-lucide="external-link" size="14" style="vertical-align: middle;"></i>
+                    {{ url }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

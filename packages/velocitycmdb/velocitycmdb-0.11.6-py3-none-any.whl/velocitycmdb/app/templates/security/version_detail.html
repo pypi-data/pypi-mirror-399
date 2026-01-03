@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vendor|title }} {{ product|upper }} {{ version }} - Security - VelocityCMDB{% endblock %}
+
+{% block head_extra %}
+<style>
+    .cve-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .cve-table th,
+    .cve-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--md-outline-variant);
+        font: var(--md-typescale-body-small);
+    }
+
+    .cve-table th {
+        background: var(--md-surface-container-high);
+        font-weight: 500;
+        color: var(--md-on-surface);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .cve-table tbody tr:hover {
+        background: var(--md-surface-container);
+    }
+
+    .severity-badge {
+        padding: 4px 8px;
+        border-radius: var(--md-shape-corner-small);
+        font: var(--md-typescale-label-small);
+        font-weight: 500;
+        min-width: 60px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .severity-badge.critical { background: #dc3545; color: white; }
+    .severity-badge.high { background: #fd7e14; color: white; }
+    .severity-badge.medium { background: #ffc107; color: #333; }
+    .severity-badge.low { background: #28a745; color: white; }
+    .severity-badge.unknown { background: #6c757d; color: white; }
+
+    .action-link {
+        color: var(--md-primary);
+        text-decoration: none;
+        font: var(--md-typescale-label-medium);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .action-link:hover {
+        text-decoration: underline;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stat-value {
+        font: var(--md-typescale-title-large);
+        font-weight: 500;
+    }
+
+    .stat-label {
+        font: var(--md-typescale-body-small);
+        color: var(--md-on-surface-variant);
+    }
+
+    .device-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+    }
+
+    .device-item {
+        padding: 12px 16px;
+        background: var(--md-surface-container);
+        border-radius: var(--md-shape-corner-small);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .device-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--md-primary-container);
+        color: var(--md-on-primary-container);
+        border-radius: var(--md-shape-corner-small);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .device-info {
+        flex: 1;
+    }
+
+    .device-name {
+        font: var(--md-typescale-body-medium);
+        font-weight: 500;
+        color: var(--md-on-surface);
+    }
+
+    .device-meta {
+        font: var(--md-typescale-body-small);
+        color: var(--md-on-surface-variant);
+    }
+
+    .cve-description {
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .external-link {
+        color: var(--md-primary);
+        text-decoration: none;
+    }
+
+    .external-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 32px;">
+    <nav style="margin-bottom: 16px;">
+        <a href="{{ url_for('security.versions') }}" class="action-link">
+            <i data-lucide="arrow-left" size="16"></i> Back to Versions
+        </a>
+    </nav>
+    <h1 class="md-headline-large md-primary md-flex md-align-center" style="gap: 16px; margin: 0 0 8px 0;">
+        <i data-lucide="shield-alert"></i>
+        {{ vendor|title }} {{ product|upper }} {{ version }}
+    </h1>
+    <p class="md-body-large" style="color: var(--md-on-surface-variant); margin: 0;">
+        CVE vulnerabilities affecting this OS version
+    </p>
+</div>
+
+<!-- Summary Stats -->
+<div class="stats-row">
+    <div class="stat-item">
+        <div class="stat-value">{{ cves|length }}</div>
+        <div class="stat-label">Total CVEs</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" style="color: #dc3545;">{{ cves|selectattr('severity', 'equalto', 'CRITICAL')|list|length }}</div>
+        <div class="stat-label">Critical</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" style="color: #fd7e14;">{{ cves|selectattr('severity', 'equalto', 'HIGH')|list|length }}</div>
+        <div class="stat-label">High</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ affected_devices|length }}</div>
+        <div class="stat-label">Affected Devices</div>
+    </div>
+    {% if version_info and version_info.last_synced %}
+    <div class="stat-item">
+        <div class="stat-label">Last synced: {{ version_info.last_synced[:10] }}</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Affected Devices -->
+{% if affected_devices %}
+<div class="md-card outlined" style="margin-bottom: 24px;">
+    <div class="md-card-header">
+        <h2 class="md-card-title md-flex md-align-center" style="gap: 12px;">
+            <i data-lucide="server"></i>
+            Affected Devices ({{ affected_devices|length }})
+        </h2>
+    </div>
+    <div class="md-card-content">
+        <div class="device-list">
+            {% for device in affected_devices %}
+            <div class="device-item">
+                <div class="device-icon">
+                    <i data-lucide="server" size="16"></i>
+                </div>
+                <div class="device-info">
+                    <div class="device-name">
+                        <a href="{{ url_for('assets.device_detail', device_id=device.id) }}" class="external-link">
+                            {{ device.name }}
+                        </a>
+                    </div>
+                    <div class="device-meta">
+                        {{ device.site_code or device.site_name or 'Unknown Site' }}
+                        {% if device.model %} • {{ device.model }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- CVE List -->
+<div class="md-card outlined">
+    <div class="md-card-header">
+        <h2 class="md-card-title md-flex md-align-center" style="gap: 12px;">
+            <i data-lucide="bug"></i>
+            CVE List ({{ cves|length }})
+        </h2>
+    </div>
+    <div class="md-card-content" style="padding: 0;">
+        {% if cves %}
+        <div class="table-wrapper">
+            <table class="cve-table">
+                <thead>
+                    <tr>
+                        <th>CVE ID</th>
+                        <th>SEVERITY</th>
+                        <th style="text-align: center;">CVSS v3</th>
+                        <th>DESCRIPTION</th>
+                        <th>PUBLISHED</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cve in cves %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('security.cve_detail', cve_id=cve.cve_id) }}" class="external-link">
+                                <strong>{{ cve.cve_id }}</strong>
+                            </a>
+                        </td>
+                        <td>
+                            <span class="severity-badge {{ (cve.severity or 'unknown')|lower }}">
+                                {{ cve.severity or 'N/A' }}
+                            </span>
+                        </td>
+                        <td style="text-align: center;">
+                            <strong>{{ cve.cvss_v3_score or '-' }}</strong>
+                        </td>
+                        <td>
+                            <div class="cve-description" title="{{ cve.description }}">
+                                {{ cve.description[:80] }}{% if cve.description|length > 80 %}...{% endif %}
+                            </div>
+                        </td>
+                        <td>{{ cve.published_date[:10] if cve.published_date else '-' }}</td>
+                        <td>
+                            <a href="https://nvd.nist.gov/vuln/detail/{{ cve.cve_id }}" target="_blank" class="action-link">
+                                <i data-lucide="external-link" size="14"></i> NVD
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 48px 24px; color: var(--md-on-surface-variant);">
+            <i data-lucide="shield-check" size="48" style="opacity: 0.5;"></i>
+            <p style="margin: 16px 0 0 0;">No known CVEs for this version</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

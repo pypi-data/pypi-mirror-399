@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Vulnerable Devices - Security - VelocityCMDB{% endblock %}
+
+{% block head_extra %}
+<style>
+    .device-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .device-table th,
+    .device-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--md-outline-variant);
+        font: var(--md-typescale-body-small);
+    }
+
+    .device-table th {
+        background: var(--md-surface-container-high);
+        font-weight: 500;
+        color: var(--md-on-surface);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .device-table tbody tr:hover {
+        background: var(--md-surface-container);
+    }
+
+    .severity-indicator {
+        width: 4px;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+    }
+
+    .severity-indicator.critical { background: #dc3545; }
+    .severity-indicator.high { background: #fd7e14; }
+    .severity-indicator.medium { background: #ffc107; }
+
+    .count-badge {
+        padding: 2px 8px;
+        border-radius: var(--md-shape-corner-small);
+        font: var(--md-typescale-label-small);
+        font-weight: 500;
+        min-width: 30px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .count-badge.critical { background: var(--md-error-container); color: var(--md-on-error-container); }
+    .count-badge.high { background: var(--md-warning-container); color: var(--md-on-warning-container); }
+    .count-badge.neutral { background: var(--md-surface-variant); color: var(--md-on-surface-variant); }
+
+    .action-link {
+        color: var(--md-primary);
+        text-decoration: none;
+        font: var(--md-typescale-label-medium);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .action-link:hover {
+        text-decoration: underline;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .risk-high {
+        color: #dc3545;
+        font-weight: 500;
+    }
+
+    .risk-medium {
+        color: #fd7e14;
+        font-weight: 500;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        padding: 16px 24px;
+        background: var(--md-surface-container);
+        border-radius: var(--md-shape-corner-small);
+        text-align: center;
+        min-width: 120px;
+    }
+
+    .stat-value {
+        font: var(--md-typescale-headline-small);
+        font-weight: 500;
+    }
+
+    .stat-label {
+        font: var(--md-typescale-body-small);
+        color: var(--md-on-surface-variant);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 32px;">
+    <nav style="margin-bottom: 16px;">
+        <a href="{{ url_for('security.dashboard') }}" class="action-link">
+            <i data-lucide="arrow-left" size="16"></i> Back to Dashboard
+        </a>
+    </nav>
+    <h1 class="md-headline-large md-primary md-flex md-align-center" style="gap: 16px; margin: 0 0 8px 0;">
+        <i data-lucide="server"></i>
+        Vulnerable Devices
+    </h1>
+    <p class="md-body-large" style="color: var(--md-on-surface-variant); margin: 0;">
+        Network devices with known CVE vulnerabilities, sorted by risk
+    </p>
+</div>
+
+<!-- Summary Stats -->
+{% set critical_devices = device_vulns|selectattr('critical')|list|length %}
+{% set high_devices = device_vulns|rejectattr('critical')|selectattr('high')|list|length %}
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-value">{{ device_vulns|length }}</div>
+        <div class="stat-label">Total Vulnerable</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value risk-high">{{ critical_devices }}</div>
+        <div class="stat-label">With Critical CVEs</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value risk-medium">{{ high_devices }}</div>
+        <div class="stat-label">With High CVEs</div>
+    </div>
+</div>
+
+<div class="md-card outlined">
+    <div class="md-card-content" style="padding: 0;">
+        {% if device_vulns %}
+        <div class="table-wrapper">
+            <table class="device-table">
+                <thead>
+                    <tr>
+                        <th>DEVICE</th>
+                        <th>SITE</th>
+                        <th>VENDOR</th>
+                        <th>OS VERSION</th>
+                        <th style="text-align: center;">TOTAL CVEs</th>
+                        <th style="text-align: center;">CRITICAL</th>
+                        <th style="text-align: center;">HIGH</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dv in device_vulns %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('assets.device_detail', device_id=dv.device.id) }}" class="action-link">
+                                <strong>{{ dv.device.name }}</strong>
+                            </a>
+                        </td>
+                        <td>{{ dv.device.site_code or dv.device.site_name or '-' }}</td>
+                        <td>{{ dv.vendor }}</td>
+                        <td>{{ dv.os_version }}</td>
+                        <td style="text-align: center;">
+                            <span class="count-badge neutral">{{ dv.total_cves }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            {% if dv.critical %}
+                            <span class="count-badge critical">{{ dv.critical }}</span>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if dv.high %}
+                            <span class="count-badge high">{{ dv.high }}</span>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('security.version_detail', vendor=dv.cpe_vendor, product=dv.cpe_product, version=dv.cpe_version) }}" class="action-link">
+                                <i data-lucide="eye" size="14"></i> View CVEs
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 48px 24px; color: var(--md-on-surface-variant);">
+            <i data-lucide="shield-check" size="48" style="opacity: 0.5;"></i>
+            <p style="margin: 16px 0 0 0;">No vulnerable devices found</p>
+            <p style="margin: 8px 0 0 0; font: var(--md-typescale-body-small);">
+                Either no CVE data has been synced, or all devices are running clean versions.
+            </p>
+            <a href="{{ url_for('security.sync_versions') }}" class="action-link" style="margin-top: 16px; display: inline-block;">
+                Sync CVE Data
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

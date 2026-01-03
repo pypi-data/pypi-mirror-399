@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Tracked Versions - Security - VelocityCMDB{% endblock %}
+
+{% block head_extra %}
+<style>
+    .version-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .version-table th,
+    .version-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--md-outline-variant);
+        font: var(--md-typescale-body-small);
+    }
+
+    .version-table th {
+        background: var(--md-surface-container-high);
+        font-weight: 500;
+        color: var(--md-on-surface);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .version-table tbody tr:hover {
+        background: var(--md-surface-container);
+    }
+
+    .severity-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    .severity-dot.critical { background: #dc3545; }
+    .severity-dot.high { background: #fd7e14; }
+    .severity-dot.medium { background: #ffc107; }
+    .severity-dot.low { background: #28a745; }
+
+    .count-badge {
+        padding: 2px 8px;
+        border-radius: var(--md-shape-corner-small);
+        font: var(--md-typescale-label-small);
+        font-weight: 500;
+        min-width: 30px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .count-badge.critical { background: var(--md-error-container); color: var(--md-on-error-container); }
+    .count-badge.high { background: var(--md-warning-container); color: var(--md-on-warning-container); }
+    .count-badge.medium { background: #fff3cd; color: #856404; }
+    .count-badge.neutral { background: var(--md-surface-variant); color: var(--md-on-surface-variant); }
+
+    .action-link {
+        color: var(--md-primary);
+        text-decoration: none;
+        font: var(--md-typescale-label-medium);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .action-link:hover {
+        text-decoration: underline;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .status-ok { color: var(--md-success, #28a745); }
+    .status-warn { color: var(--md-warning, #fd7e14); }
+    .status-danger { color: var(--md-error); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 32px;">
+    <nav style="margin-bottom: 16px;">
+        <a href="{{ url_for('security.dashboard') }}" class="action-link">
+            <i data-lucide="arrow-left" size="16"></i> Back to Dashboard
+        </a>
+    </nav>
+    <h1 class="md-headline-large md-primary md-flex md-align-center" style="gap: 16px; margin: 0 0 8px 0;">
+        <i data-lucide="layers"></i>
+        Tracked Versions
+    </h1>
+    <p class="md-body-large" style="color: var(--md-on-surface-variant); margin: 0;">
+        All OS versions with CVE vulnerability data
+    </p>
+</div>
+
+<div class="md-card outlined">
+    <div class="md-card-content" style="padding: 0;">
+        {% if versions %}
+        <div class="table-wrapper">
+            <table class="version-table">
+                <thead>
+                    <tr>
+                        <th>VERSION</th>
+                        <th style="text-align: center;">DEVICES</th>
+                        <th style="text-align: center;">TOTAL CVEs</th>
+                        <th style="text-align: center;">CRITICAL</th>
+                        <th style="text-align: center;">HIGH</th>
+                        <th style="text-align: center;">MEDIUM</th>
+                        <th style="text-align: center;">LOW</th>
+                        <th>LAST SYNCED</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in versions %}
+                    <tr>
+                        <td>
+                            <span class="severity-dot {% if v.critical %}critical{% elif v.high %}high{% elif v.cve_count > 0 %}medium{% else %}low{% endif %}"></span>
+                            <strong>{{ v.vendor|title }} {{ v.product|upper }}</strong> {{ v.version }}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if v.device_count %}
+                            <span class="count-badge neutral">{{ v.device_count }}</span>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <strong>{{ v.cve_count or 0 }}</strong>
+                        </td>
+                        <td style="text-align: center;">
+                            {% if v.critical %}
+                            <span class="count-badge critical">{{ v.critical }}</span>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if v.high %}
+                            <span class="count-badge high">{{ v.high }}</span>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if v.medium %}
+                            <span class="count-badge medium">{{ v.medium }}</span>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if v.low %}{{ v.low }}{% else %}-{% endif %}
+                        </td>
+                        <td>
+                            {% if v.last_synced %}
+                            {{ v.last_synced[:10] }}
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('security.version_detail', vendor=v.vendor, product=v.product, version=v.version) }}" class="action-link">
+                                <i data-lucide="eye" size="14"></i> View CVEs
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 48px 24px; color: var(--md-on-surface-variant);">
+            <i data-lucide="database" size="48" style="opacity: 0.5;"></i>
+            <p style="margin: 16px 0 0 0;">No versions synced yet</p>
+            <a href="{{ url_for('security.sync_versions') }}" class="action-link" style="margin-top: 12px; display: inline-block;">
+                Sync CMDB Versions
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

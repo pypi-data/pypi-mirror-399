@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Sync CVE Data - Security - VelocityCMDB{% endblock %}
+
+{% block head_extra %}
+<style>
+    .sync-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .sync-table th,
+    .sync-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--md-outline-variant);
+        font: var(--md-typescale-body-small);
+    }
+
+    .sync-table th {
+        background: var(--md-surface-container-high);
+        font-weight: 500;
+        color: var(--md-on-surface);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .sync-table tbody tr:hover {
+        background: var(--md-surface-container);
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: var(--md-shape-corner-small);
+        font: var(--md-typescale-label-small);
+        font-weight: 500;
+    }
+
+    .status-badge.synced { background: var(--md-success-container, #d4edda); color: var(--md-on-success-container, #155724); }
+    .status-badge.pending { background: var(--md-warning-container); color: var(--md-on-warning-container); }
+    .status-badge.unsupported { background: var(--md-surface-variant); color: var(--md-on-surface-variant); }
+
+    .action-link {
+        color: var(--md-primary);
+        text-decoration: none;
+        font: var(--md-typescale-label-medium);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .action-link:hover {
+        text-decoration: underline;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .sync-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: var(--md-primary);
+        color: var(--md-on-primary);
+        border: none;
+        border-radius: var(--md-shape-corner-small);
+        font: var(--md-typescale-label-large);
+        cursor: pointer;
+    }
+
+    .sync-button:hover {
+        opacity: 0.9;
+    }
+
+    .sync-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .checkbox-cell {
+        width: 40px;
+        text-align: center;
+    }
+
+    .info-box {
+        padding: 16px 20px;
+        background: var(--md-primary-container);
+        color: var(--md-on-primary-container);
+        border-radius: var(--md-shape-corner-small);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .warning-box {
+        padding: 16px 20px;
+        background: var(--md-warning-container);
+        color: var(--md-on-warning-container);
+        border-radius: var(--md-shape-corner-small);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .select-controls {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        align-items: center;
+    }
+
+    .select-btn {
+        background: none;
+        border: 1px solid var(--md-outline);
+        padding: 6px 12px;
+        border-radius: var(--md-shape-corner-small);
+        cursor: pointer;
+        font: var(--md-typescale-label-medium);
+        color: var(--md-on-surface);
+    }
+
+    .select-btn:hover {
+        background: var(--md-surface-container);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 32px;">
+    <nav style="margin-bottom: 16px;">
+        <a href="{{ url_for('security.dashboard') }}" class="action-link">
+            <i data-lucide="arrow-left" size="16"></i> Back to Dashboard
+        </a>
+    </nav>
+    <h1 class="md-headline-large md-primary md-flex md-align-center" style="gap: 16px; margin: 0 0 8px 0;">
+        <i data-lucide="refresh-cw"></i>
+        Sync CVE Data
+    </h1>
+    <p class="md-body-large" style="color: var(--md-on-surface-variant); margin: 0;">
+        Synchronize vulnerability data from NIST NVD for your deployed OS versions
+    </p>
+</div>
+
+<div class="info-box">
+    <i data-lucide="info" size="20"></i>
+    <div>
+        <strong>How it works:</strong> Select the OS versions you want to sync, then click "Sync Selected". 
+        The system will query the NIST National Vulnerability Database for CVEs affecting each version.
+        Due to rate limiting, syncing takes approximately 6 seconds per version.
+    </div>
+</div>
+
+<div class="warning-box">
+    <i data-lucide="alert-triangle" size="20"></i>
+    <div>
+        <strong>Rate Limiting:</strong> NVD allows 5 requests per 30 seconds without an API key.
+        For large syncs, consider getting a free API key from 
+        <a href="https://nvd.nist.gov/developers/request-an-api-key" target="_blank" style="color: inherit;">nvd.nist.gov</a>.
+    </div>
+</div>
+
+<form method="POST" id="syncForm">
+    <div class="md-card outlined">
+        <div class="md-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <h2 class="md-card-title md-flex md-align-center" style="gap: 12px;">
+                <i data-lucide="layers"></i>
+                CMDB OS Versions
+            </h2>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <label style="display: flex; align-items: center; gap: 8px; font: var(--md-typescale-body-small);">
+                    <input type="checkbox" name="force" value="1">
+                    Force re-sync
+                </label>
+                <button type="submit" class="sync-button" id="syncBtn">
+                    <i data-lucide="download" size="18"></i>
+                    Sync Selected
+                </button>
+            </div>
+        </div>
+        <div class="md-card-content" style="padding: 0;">
+            <div class="select-controls" style="padding: 12px 16px; border-bottom: 1px solid var(--md-outline-variant);">
+                <button type="button" class="select-btn" onclick="selectAll()">Select All Pending</button>
+                <button type="button" class="select-btn" onclick="selectNone()">Select None</button>
+                <span id="selectedCount" style="color: var(--md-on-surface-variant); font: var(--md-typescale-body-small);">
+                    0 selected
+                </span>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="sync-table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell"></th>
+                            <th>CMDB VENDOR</th>
+                            <th>OS VERSION</th>
+                            <th style="text-align: center;">DEVICES</th>
+                            <th>CPE MAPPING</th>
+                            <th>STATUS</th>
+                            <th style="text-align: center;">CVEs</th>
+                            <th>LAST SYNCED</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in sync_status %}
+                        <tr>
+                            <td class="checkbox-cell">
+                                {% if v.supported %}
+                                <input type="checkbox" 
+                                       name="versions" 
+                                       value="{{ v.cpe_vendor }}|{{ v.cpe_product }}|{{ v.cpe_version }}"
+                                       class="version-checkbox"
+                                       {% if not v.synced %}checked{% endif %}
+                                       onchange="updateCount()">
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ v.vendor }}</strong></td>
+                            <td>{{ v.os_version }}</td>
+                            <td style="text-align: center;">{{ v.device_count }}</td>
+                            <td>
+                                {% if v.supported %}
+                                <code>{{ v.cpe_vendor }}:{{ v.cpe_product }}:{{ v.cpe_version }}</code>
+                                {% else %}
+                                <span style="color: var(--md-on-surface-variant);">Not mapped</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not v.supported %}
+                                <span class="status-badge unsupported">Unsupported</span>
+                                {% elif v.synced %}
+                                <span class="status-badge synced">Synced</span>
+                                {% else %}
+                                <span class="status-badge pending">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                {% if v.cve_count is not none %}
+                                {{ v.cve_count }}
+                                {% else %}-{% endif %}
+                            </td>
+                            <td>
+                                {% if v.last_synced %}
+                                {{ v.last_synced[:10] }}
+                                {% else %}-{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    lucide.createIcons();
+    
+    function updateCount() {
+        const checked = document.querySelectorAll('.version-checkbox:checked').length;
+        document.getElementById('selectedCount').textContent = checked + ' selected';
+    }
+    
+    function selectAll() {
+        document.querySelectorAll('.version-checkbox').forEach(cb => cb.checked = true);
+        updateCount();
+    }
+    
+    function selectNone() {
+        document.querySelectorAll('.version-checkbox').forEach(cb => cb.checked = false);
+        updateCount();
+    }
+    
+    // Initial count
+    updateCount();
+    
+    // Disable button during sync
+    document.getElementById('syncForm').addEventListener('submit', function() {
+        const btn = document.getElementById('syncBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader" size="18" class="spin"></i> Syncing...';
+        lucide.createIcons();
+    });
+</script>
+
+<style>
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+</style>
+{% endblock %}
