@@ -1,0 +1,106 @@
+[tool.poetry]
+name = "eggai"
+version = "0.2.9"
+description = "EggAI Multi-Agent Meta Framework` is an async-first framework for building, deploying, and scaling multi-agent systems for modern enterprise environments"
+authors = ["Stefano Tucci <stefanotucci89@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+homepage = "https://eggai-tech.github.io/EggAI/"
+packages = [
+    {include = "eggai"},
+    {include = "cli"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: System :: Networking",
+    "Topic :: System :: Clustering",
+    "Operating System :: OS Independent",
+    "Framework :: AsyncIO",
+    "Environment :: Console",
+    "Natural Language :: English",
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic = "^2.11.4"
+faststream = {extras = ["kafka", "redis"], version = "^0.6.0"}
+click = {version = "^8.0.0", optional = true}
+jinja2 = {version = "^3.1.6", optional = true}
+a2a-sdk = {version = "^0.3.0", optional = true}
+fastmcp = {version = "^2.14.0", optional = true}
+
+[tool.poetry.extras]
+cli = ["click", "jinja2"]
+a2a = ["a2a-sdk"]
+mcp = ["fastmcp"]
+
+[tool.poetry.group.dev.dependencies]
+twine = "^6.0.1"
+pytest-asyncio = "^0.24.0"
+pytest = "^8.3.4"
+pytest-cov = ">=6,<8"
+jinja2 = "^3.1.6"
+ruff = "^0.14.4"
+
+[tool.poetry.scripts]
+eggai = "cli.main:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+    "B904",   # raise without from inside except
+    "SIM108", # use ternary operator instead of if-else
+    "SIM102", # nested if statements (sometimes clearer)
+    "SIM105", # contextlib.suppress (explicit try/except often clearer)
+    "SIM401", # locals().get() edge case
+    "B023",   # loop variable binding (false positive with default args)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["eggai", "cli"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
