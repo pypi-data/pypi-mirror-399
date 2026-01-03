@@ -1,0 +1,34 @@
+[project]
+name = "js-api"
+version = "0.2.40"
+description = "Custom API written in Python using FastAPI"
+authors = [
+    {name = "Jack Stockley", email = "jack@jstockley.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13, <4.0"
+dependencies = [
+    "fastapi[standard]==0.128.0",
+    "psycopg==3.3.2",
+    "psycopg-binary==3.3.2",
+    "sqlalchemy==2.0.45",
+    "sqlmodel==0.0.31",
+    "python-dotenv==1.2.1",
+]
+license-files = ["LICENSE"]
+keywords = ["starter", "template", "python"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+[project.urls]
+Homepage = "https://github.com/jnstockley/api"
+Repository = "https://github.com/jnstockley/api.git"
+Issues = "https://github.com/jnstockley/api/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.13.2",
+    "testcontainers[postgres]>=4.9.2",
+]
