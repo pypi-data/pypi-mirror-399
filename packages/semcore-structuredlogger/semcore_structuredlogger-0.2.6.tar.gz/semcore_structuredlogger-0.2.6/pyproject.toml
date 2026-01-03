@@ -1,0 +1,30 @@
+[project]
+name = "semcore-structuredlogger"
+version = "0.2.6"
+description = "A structured logger based on structlog"
+readme = "README.md"
+authors = [
+    { name = "imeakpan", email = "the.ime.akpan@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "structlog>=25.5.0",
+]
+
+[project.scripts]
+semcore-structuredlogger = "semcore_structuredlogger:main"
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
