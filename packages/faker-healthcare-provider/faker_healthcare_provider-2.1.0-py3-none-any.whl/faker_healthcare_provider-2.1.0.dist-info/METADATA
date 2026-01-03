@@ -1,0 +1,172 @@
+Metadata-Version: 2.4
+Name: faker-healthcare-provider
+Version: 2.1.0
+Summary: Generate realistic healthcare test data in 6 languages (en, es, pt, zh, fr, de): 150+ diseases with correlated ICD-10 codes, medications, symptoms, and more
+Author-email: Rodrigo Nogueira <rodrigo.b.nogueira@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/rodrigobnogueira/faker-healthcare
+Project-URL: Repository, https://github.com/rodrigobnogueira/faker-healthcare
+Keywords: faker,healthcare,medical,icd10,fake-data,testing,multilingual,i18n,localization
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: faker>=18.0.0
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Requires-Dist: pre-commit; extra == "dev"
+Dynamic: license-file
+
+# faker-healthcare-provider
+
+Generate realistic, **medically accurate, and correlated** healthcare/medical test data in **6 languages**: English, Spanish, Portuguese, Chinese, French, and German.
+
+This provider generates **correlated clinical data** based on the **World Health Organization (WHO) ICD-10 classification**, ensuring that symptoms, medications, specialties, and diagnostic codes match the generated disease.
+
+## Installation
+
+```bash
+pip install faker-healthcare-provider
+```
+
+## Quick Start
+
+```python
+from faker import Faker
+from faker_healthcare import HealthcareProvider
+
+# English (default)
+fake = Faker()
+fake.add_provider(HealthcareProvider)
+
+# Generate a complete patient scenario
+scenario = fake.patient_scenario()
+print(scenario)
+# {
+#   'disease': 'Type 2 Diabetes',
+#   'icd10': 'E11.9',
+#   'symptoms': ['Fatigue', 'Blurred Vision', 'Frequent Urination'],
+#   'medications': ['Metformin', 'Insulin Glargine'],
+#   'specialty': 'Endocrinology'
+# }
+
+# Or generate individual data
+fake.disease()            # 'Essential Hypertension'
+fake.diagnosis()          # 'Type 2 Diabetes (E11.9)'
+fake.medical_specialty()  # 'Cardiology'
+
+# Use a different language (Spanish, Portuguese, Chinese, French, German)
+fake_es = Faker('es_ES')
+fake_es.add_provider(HealthcareProvider)
+fake_es.disease()         # 'Diabetes Tipo 2'
+fake_es.diagnosis()       # 'Diabetes Tipo 2 (E11.9)'
+```
+
+💡 **Tip**: Run `python showcase.py` to see all available features and examples!
+
+## Usage
+
+- 🇺🇸 **English** (`en_US`) - Default
+- 🇪🇸 **Spanish** (`es_ES`)
+- 🇧🇷 **Portuguese** (`pt_BR` - Brazil)
+- 🇨🇳 **Chinese** (`zh_CN` - Simplified)
+- 🇫🇷 **French** (`fr_FR`)
+- 🇩🇪 **German** (`de_DE`)
+
+## Usage
+
+### Basic Usage (English)
+
+```python
+from faker import Faker
+from faker_healthcare import HealthcareProvider
+
+fake = Faker()
+fake.add_provider(HealthcareProvider)
+
+fake.diagnosis()          # 'Type 2 Diabetes (E11.9)'
+fake.disease()            # 'Essential Hypertension'
+fake.icd10_code()         # 'I10'
+fake.generic_drug()       # 'Metformin'
+fake.medical_specialty()  # 'Cardiology'
+fake.blood_type()         # 'O+'
+```
+
+### Multi-Language Support
+
+```python
+from faker import Faker
+from faker_healthcare import HealthcareProvider
+
+# Spanish
+fake_es = Faker('es_ES')
+fake_es.add_provider(HealthcareProvider)
+fake_es.disease()  # 'Diabetes Tipo 2'
+
+# Portuguese (Brazil)
+fake_pt = Faker('pt_BR')
+fake_pt.add_provider(HealthcareProvider)
+fake_pt.disease()  # 'Diabetes Tipo 2'
+
+# Chinese (Simplified)
+fake_zh = Faker('zh_CN')
+fake_zh.add_provider(HealthcareProvider)
+fake_zh.disease()  # '2型糖尿病'
+
+# French
+fake_fr = Faker('fr_FR')
+fake_fr.add_provider(HealthcareProvider)
+fake_fr.disease()  # 'Diabète de Type 2'
+
+# German
+fake_de = Faker('de_DE')
+fake_de.add_provider(HealthcareProvider)
+fake_de.disease()  # 'Typ-2-Diabetes'
+```
+
+## Available Methods
+
+| Method | Example |
+|--------|---------|
+| `diagnosis()` | Type 2 Diabetes (E11.9) |
+| `disease()` | Essential Hypertension, Asthma |
+| `icd10_code()` | E11.9, I10, J45.909 |
+| `medical_specialty()` | Cardiology, Neurology |
+| `hospital_department()` | Emergency, ICU, Radiology |
+| `generic_drug()` | Metformin, Lisinopril |
+| `brand_drug()` | Lipitor, Prozac, Ozempic |
+| `symptom()` | Fever, Headache, Fatigue |
+| `blood_type()` | A+, O-, AB+ |
+| `allergy()` | Penicillin, Peanuts |
+| `medical_procedure()` | MRI Scan, Blood Test |
+| `insurance_plan()` | PPO, HMO, Medicare |
+| `vital_sign()` | Blood Pressure, Heart Rate |
+
+## Locale-Specific Features
+
+Each locale includes:
+- **Translated medical terminology** (diseases, symptoms, procedures)
+- **Locale-specific insurance systems**:
+  - 🇺🇸 US: Medicare, PPO, HMO
+  - 🇪🇸 Spain: Sistema Nacional de Salud, Sanitas, Adeslas
+  - 🇧🇷 Brazil: SUS, Unimed, Amil
+  - 🇨🇳 China: 城镇职工基本医疗保险, 商业医疗保险
+  - 🇫🇷 France: Sécurité Sociale, Mutuelle
+  - 🇩🇪 Germany: GKV, PKV
+
+**Universal data** (same across all languages):
+- ICD-10 codes (international standard)
+- Blood types (universal notation)
+
+## License
+
+MIT
