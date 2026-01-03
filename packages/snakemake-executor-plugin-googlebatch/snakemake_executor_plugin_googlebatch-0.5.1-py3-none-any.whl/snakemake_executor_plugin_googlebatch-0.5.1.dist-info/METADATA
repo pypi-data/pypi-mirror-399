@@ -1,0 +1,59 @@
+Metadata-Version: 2.4
+Name: snakemake-executor-plugin-googlebatch
+Version: 0.5.1
+Summary: 
+License: MIT
+License-File: LICENSE
+License-File: NOTICE
+Keywords: snakemake,plugin,executor,cloud,google-batch
+Author: Vanessa Sochat
+Author-email: sochat1@llnl.gov
+Requires-Python: >=3.11,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Requires-Dist: google-api-core (>=2.12.0,<3.0.0)
+Requires-Dist: google-cloud-batch (>=0.17.1,<0.18.0)
+Requires-Dist: google-cloud-logging (>=3.11.4,<4.0.0)
+Requires-Dist: google-cloud-storage (>=2.12.0,<3.0.0)
+Requires-Dist: jinja2 (>=3.1.2,<4.0.0)
+Requires-Dist: requests (>=2.31.0,<3.0.0)
+Requires-Dist: snakemake-interface-common (>=1.14.0,<2.0.0)
+Requires-Dist: snakemake-interface-executor-plugins (>=9.0.0,<10.0.0)
+Project-URL: Documentation, https://snakemake.github.io/snakemake-plugin-catalog/plugins/executor/googlebatch.html
+Project-URL: Repository, https://github.com/snakemake/snakemake-executor-plugin-googlebatch
+Description-Content-Type: text/markdown
+
+# Snakemake executor plugin: google-batch
+
+This is the [Google Batch](https://cloud.google.com/batch/docs/get-started) external executor plugin for snakemake.
+For documentation, see the [Snakemake plugin catalog](https://snakemake.github.io/snakemake-plugin-catalog/plugins/executor/googlebatch.html).
+
+### Notes
+
+- Conda is used to install Snakemake and dependencies.
+- The COS (container OS) uses the default Snakemake container, unless you specify differently.
+
+For examples, look into the [examples](examples) directory.
+
+## Developer
+
+The instructions for creating and scaffolding this plugin are [here](https://github.com/snakemake/poetry-snakemake-plugin#scaffolding-an-executor-plugin).
+Instructions for writing your plugin with examples are provided via the [snakemake-executor-plugin-interface](https://github.com/snakemake/snakemake-executor-plugin-interface).
+
+
+## License
+
+HPCIC DevTools is distributed under the terms of the MIT license.
+All new contributions must be made under this license.
+
+See [LICENSE](https://github.com/converged-computing/cloud-select/blob/main/LICENSE),
+[COPYRIGHT](https://github.com/converged-computing/cloud-select/blob/main/COPYRIGHT), and
+[NOTICE](https://github.com/converged-computing/cloud-select/blob/main/NOTICE) for details.
+
+SPDX-License-Identifier: (MIT)
+
+LLNL-CODE- 842614
