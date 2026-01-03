@@ -1,0 +1,2 @@
+- [ ] check if install in list
+- [ ] choose backend in settings and use only install als CMD

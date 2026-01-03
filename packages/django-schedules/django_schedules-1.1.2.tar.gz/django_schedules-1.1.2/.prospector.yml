@@ -1,0 +1,22 @@
+---
+
+strictness: veryhigh
+doc-warnings: true
+
+ignore-paths:
+  - node_modules
+
+pep8:
+  options:
+    max-line-length: 88
+
+pep257:
+  disable:
+    - D203  # conflicting rule
+    - D212  # conflicting with D213
+    - D105  # missing docstring in magic methods, like __str__
+
+uses:
+  - django
+
+...
