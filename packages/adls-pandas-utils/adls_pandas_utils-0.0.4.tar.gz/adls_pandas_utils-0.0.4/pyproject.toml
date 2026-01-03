@@ -1,0 +1,30 @@
+[project]
+name = "adls-pandas-utils"
+version = "0.0.4"
+authors = [
+  { name = "Niels Teunissen", email = "n.teunissen@datalier.nl" },
+]
+description = "Package that simplifies working with parquet files stored in Azure Data Lake Storage Gen2 in pandas."
+readme = "README.md"
+requires-python = ">=3.12"
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+
+license = { text = "Proprietary" }
+
+dependencies = [
+  "pandas",
+  "azure-storage-blob",
+  "pyarrow",
+  "azure-storage-file-datalake",
+  "fastparquet",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
