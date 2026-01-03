@@ -1,0 +1,994 @@
+########################################################################################################################
+__doc__ = """
+The main class here is `Entries``, which is a fancy list.
+It gets called for each uppercase attribute
+in the initialisation of ``Params``
+(which happens in ``_ParamsInitMixin`` __e.g.__ ``Entries.from_name('IO_STRING')``).
+    """
+
+import logging
+import re
+from collections import abc
+from dataclasses import dataclass
+from enum import Enum
+from typing import Optional, Union
+
+########################################################################################################################
+
+
+# ======================================================================================================================
+
+
+class Singletony(Enum):
+    """
+    Is the entry
+
+    1. a singleton (e.g. ``NAME``) which can have only one value
+    0. a regular multientry affair (e.g. ``ATOM``)
+    2. a singleton (e.g. ``PROPERTY``) which can accept multiple values
+    """
+
+    multiton = 0  # non-singleton
+    singleton = 1
+    list_singleton = 2
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def html_span(inner: Union[str, float], color: Optional[str] = None) -> str:
+    """
+    Simple span element for _repr_html_
+
+    '#FA8072'
+    :param inner:
+    :param color: default is #FA8072, salmon if #40e0d0
+    :return:
+    """
+    if color is not None:
+        pass
+    elif isinstance(inner, str):
+        color = "#FA8072"
+    elif isinstance(inner, float):
+        color = "#40e0d0"
+    else:
+        color = "grey"
+    return f'<span style="color:{color}">{inner}</span>'
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+class Entries(abc.MutableSequence):
+    """
+    A fancy default list, where the elements are instances of whatver is in ``entry_cls``.
+    It can be initialised via the class method ``from_name`` which accepst a string that has to be present in the class attribute ``.choices``.
+    The ``.append`` method can work with str, list, dict or instance of the actual class it wants.
+    Note that the string for the string way must be without the header to the line.
+    The entry classes requires a ``from_str`` classmethod that returns an instance for this.
+    They also require __str__ method as this is how the entries are converted into string.
+
+    ``Entries.from_name('BOND')``
+    """
+
+    choices: dict[str, tuple] = {}  # this gets filled after each class is declared.
+
+    def __init__(self, entry_cls, singleton: Singletony = Singletony.singleton):
+        """
+        The entries class is a fancy constrained list. The data is actually stored in ``.data``.
+
+        :param entry_cls: what is the allowed class of the entries
+        :param singleton: is only one entry allowed?
+        """
+        self.entry_cls = entry_cls
+        self.singleton = Singletony(singleton)
+        if self.singleton != Singletony.multiton and isinstance(self.entry_cls, GenericListEntry):
+            raise TypeError(f"{type(self.entry_cls)} is incompatible with {self.singleton}")
+        self.data: list = []
+
+    @classmethod
+    def from_name(cls, name: str):
+        if name in cls.choices:
+            cc, singleton = cls.choices[name]
+            return cls(entry_cls=cc, singleton=singleton)
+        else:
+            raise KeyError(f"Name {name} is not one of {', '.join(cls.choices.keys())}")
+
+    def __getitem__(self, index):
+        return self.data[index]
+
+    def _assign_value(self, value):
+        if isinstance(value, self.entry_cls):
+            return value
+        elif isinstance(value, str):
+            return self.entry_cls.from_str(value)
+        elif isinstance(value, (int, float)):
+            # For entries like NET_FORMAL_CHARGE that accept numeric values
+            return self.entry_cls.from_str(str(value))
+        elif isinstance(value, list):
+            return self.entry_cls(*value)
+        elif isinstance(value, dict):
+            return self.entry_cls(**value)
+        else:
+            raise ValueError(f"No idea what to do with {value}")
+
+    def __setitem__(self, index, value):
+        if self.singleton == Singletony.multiton:
+            self.data[index] = self._assign_value(value)
+        elif self.singleton == Singletony.singleton or len(self.data) == 0:
+            self.data = [self._assign_value(value)]
+        else:  # assumes it's a GenericListEntry and has a value.
+            neo = self._assign_value(value)
+            self.data[0].values.extend(neo.values)
+
+    def __delitem__(self, index):
+        if self.singleton:
+            index = 0
+        del self.data[index]
+
+    def insert(self, index, value):
+        if self.singleton == Singletony.multiton:  # non-singleton
+            self.data.insert(index, self._assign_value(value))
+        else:
+            self[0] = value
+
+    def __len__(self):
+        return len(self.data)
+
+    def __str__(self):
+        lines = []
+        for entry in self.data:
+            lines.append(str(entry))
+        return "\n".join(lines)
+
+    def _repr_html_(self):
+        lines = []
+        for entry in self.data:
+            lines.append(entry._repr_html_())
+        return "<br/>".join(lines)
+
+
+#########################################################################################################
+
+
+class GenericEntry:
+    """
+    This is meant to be inherited. ``header`` is the entry type. body is a string.
+    """
+
+    log = logging.getLogger(__name__)
+
+    def __init__(self, header: str, body: str):
+        self.header = header.strip().upper()
+        self.body = body.rstrip()
+        assert self.header, "Type is empty"
+        assert self.body, "Value is empty"
+
+    def __str__(self) -> str:
+        return f"{self.header} {self.body}"
+
+    def _repr_html_(self):
+        return f"{html_span(self.header)}: {self.body}"
+
+    @classmethod
+    def from_str(cls, text):
+        return cls(text)
+
+
+#########################################################################################################
+
+
+class GenericListEntry:
+    """
+    This is meant to be inherited. ``header`` is the entry type. ``values`` is a list of strings.
+    """
+
+    def __init__(self, header: str, *args: str):
+        self.header = header.strip().upper()
+        self.values = list(args)
+
+    def __str__(self) -> str:
+        v = " ".join(self.values)
+        return f"{self.header} {v}"
+
+    def _repr_html_(self):
+        v = " ".join(self.values)
+        return f"{html_span(self.header)}: {v}"
+
+    @classmethod
+    def from_str(cls, text):
+        return cls(*text.split())
+
+
+#########################################################################################################
+
+
+class NBR_ATOMEntry(GenericEntry):
+    def __init__(self, body: str):
+        super().__init__(header="NBR_ATOM", body=body)
+
+
+Entries.choices["NBR_ATOM"] = (NBR_ATOMEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+class NBR_RADIUSEntry(GenericEntry):
+    def __init__(self, body: str):
+        super().__init__(header="NBR_RADIUS", body=body)
+
+
+Entries.choices["NBR_RADIUS"] = (NBR_RADIUSEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+class MAINCHAIN_ATOMS(GenericListEntry):
+    def __init__(self, *args: str):
+        super().__init__("MAINCHAIN_ATOMS", *args)
+
+
+Entries.choices["MAINCHAIN_ATOMS"] = (MAINCHAIN_ATOMS, Singletony.list_singleton)
+
+
+#########################################################################################################
+
+
+class CommentEntry(GenericEntry):
+    def __init__(self, body: str):
+        super().__init__(header="#", body=body)
+
+
+Entries.choices["#"] = (CommentEntry, Singletony.multiton)
+Entries.choices["comment"] = (CommentEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+class ATOM_ALIASEntry(GenericEntry):
+    def __init__(self, body: str):
+        super().__init__(header="ATOM_ALIAS", body=body)
+
+
+Entries.choices["ATOM_ALIAS"] = (ATOM_ALIASEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class IO_STRINGEntry:
+    """
+    * ``.name3`` is three letter name. ``Params().NAME`` is actually a dynamic attribute that uses this.
+    * ``.name1`` is a one letter name.
+
+    These get checked for length.
+    """
+
+    name3: str = "LIG"
+    name1: str = "Z"
+
+    def __post_init__(self):
+        assert len(self.name1) == 1, f"{self.name1} is not 1 char long"
+        # ToDo figure out what the official standard is for non-three letter 3-letter codes
+        if len(self.name3) == 3:
+            return
+        elif len(self.name3) == 2:
+            self.name3 += " "
+        elif len(self.name3) == 1:
+            self.name3 += "  "
+        else:
+            # this will raise an error otherwise.
+            raise ValueError(f"{self.name3} is not 3 char long")
+
+    def __str__(self) -> str:
+        return f"IO_STRING {self.name3} {self.name1}"
+
+    def _repr_html_(self):
+        return f"{html_span('IO_STRING')} {self.name3} {self.name1}"
+
+    @classmethod
+    def from_str(cls, text):
+        name3, name1 = text.rstrip().split()
+        return cls(name3, name1)
+
+
+Entries.choices["IO_STRING"] = (IO_STRINGEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class CONNECTEntry:
+    """
+    This is a mess, but it guesses what you mean.
+    Deals with UPPER, LOWER and CONNECT.
+
+    """
+
+    atom_name: str
+    index: int = 1
+    connect_type: str = ""  # | 'CONNECT' | 'UPPER_CONNECT' | 'LOWER_CONNECT'
+    connect_name: str = ""  # 'CONN1' | 'UPPER' | 'LOWER'
+
+    def __post_init__(self):
+        if self.connect_type and self.connect_name:
+            pass
+        elif not self.connect_type and not self.connect_name:
+            self.connect_type = "CONNECT"
+            self.connect_name = f"CONN{self.index}"
+        elif not self.connect_type and "CONN" not in self.connect_name:
+            self.connect_type = f"{self.connect_name}_CONNECT"
+        elif not self.connect_type:
+            self.connect_type = "CONNECT"
+        elif not self.connect_name and self.connect_type == "CONNECT":
+            self.connect_name = f"CONN{self.index}"
+        elif not self.connect_name:
+            self.connect_name = self.connect_type.replace("_CONNECT", "")
+        else:
+            raise ValueError(
+                f"I missed this case ({self.connect_name}, {self.connect_type}) in this badly written method"
+            )
+
+    def __str__(self) -> str:
+        return f"{self.connect_type} {self.atom_name}"
+
+    def _repr_html_(self):
+        return f"{html_span(self.connect_type)} {self.atom_name}"
+
+    @classmethod
+    def from_str(cls, text):
+        return cls(*text.split())
+
+
+Entries.choices["CONNECT"] = (CONNECTEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class CHIEntry:
+    index: int
+    first: str
+    second: str
+    third: str
+    fourth: str
+
+    def __post_init__(self):
+        self.fourth = self.fourth.ljust(4)
+
+    def __str__(self) -> str:
+        return f"CHI {self.index} {self.first} {self.second} {self.third} {self.fourth}"
+
+    def _repr_html_(self):
+        return f"{html_span('CHI')} {html_span(self.index)} {self.first} {self.second} {self.third} {self.fourth}"
+
+    @classmethod
+    def from_str(cls, text: str):
+        # 1  C6   C5   C4   C3
+        rex = re.match(r"(\d+)\s+(\S{1,4})\s+(\S{1,4})\s+(\S{1,4})\s+(\S{1,4})", text)
+        if rex is None:
+            raise ValueError(f'CHI entry "{text}" is not formatted correctly')
+        groups = rex.groups()
+        return cls(index=int(groups[0]), first=groups[1], second=groups[2], third=groups[3], fourth=groups[4])
+
+
+Entries.choices["CHI"] = (CHIEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class ICOOR_INTERNALEntry:
+    """
+    Lines stolen from Rosetta documentation
+    >                     Child  Phi Angle    Theta        Distance   Parent  Angle  Torsion
+    >   ICOOR_INTERNAL    C14  167.536810   59.880644    1.473042   N2    C11   C12
+
+    * Child atom (A4)
+    * phi angle (torsion angle between A1, A2, A3, A4)
+    * theta angle (improper angle = (180 - (angle between A4, A3, A2)))
+    * distance (between A4 and A3)
+    * parent atom (A3)
+    * angle atom (A2)
+    * torsion atom (A4)
+    """
+
+    child: str
+    phi: float
+    theta: float
+    distance: float
+    parent: str
+    second_parent: str
+    third_parent: str
+
+    def __post_init__(self):
+        self.third_parent = self.third_parent.ljust(5)
+
+    def __str__(self) -> str:
+        return (
+            f"ICOOR_INTERNAL  {self.child: <5} {self.phi: >11.6f} {self.theta: >11.6f} {self.distance: >11.6f} "
+            + f"{self.parent: <5} {self.second_parent: <5} {self.third_parent: <5}"
+        )
+
+    def _repr_html_(self):
+        return (
+            f"{html_span('ICOOR_INTERNAL')} target:{self.child} "
+            + f"&phi;:{html_span(self.phi)} "
+            + f"&theta;:{html_span(self.theta)} "
+            + f"distance:{html_span(self.distance)} "
+            + f"parent:{self.parent} "
+            + f"2nd parent:{self.second_parent} "
+            + f"3rd parent:{self.third_parent}"
+        )
+
+    @classmethod
+    def from_str(cls, text: str):
+        # position based.
+        rex = re.match(" (.{5}) (.{11}) (.{11}) (.{11}) (.{5}) (.{5}) (.{1,5})$", text.rstrip())
+        # space based... bad.
+        rex2 = re.search(
+            r"(\w+)\s+([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)\s+(\w+)\s+(\w+)\s+(\w+)$",
+            text.rstrip(),
+        )
+        if rex:
+            groups = rex.groups()
+        elif rex2:
+            groups = rex2.groups()
+        else:
+            raise ValueError(f'ICOOR_INTERNAL Entry "{text}" is not formatted correctly')
+        return cls(
+            child=groups[0],
+            phi=float(groups[1].strip()),
+            theta=float(groups[2].strip()),
+            distance=float(groups[3].strip()),
+            parent=groups[4],
+            second_parent=groups[5],
+            third_parent=groups[6],
+        )
+
+
+Entries.choices["ICOOR_INTERNAL"] = (ICOOR_INTERNALEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class BONDEntry:
+    """
+    dataclass class for both BOND and BOND_ENTRY. The ``__str__`` method will know based on ``.order``.
+    The hash is the two atom names sorted. So BOND records with the same names will be equal.
+    """
+
+    first: str
+    second: str
+    order: int = 1  # 2,3, 4|ARO
+
+    def __post_init__(self):
+        self.second = self.second.ljust(4)
+
+    def __str__(self) -> str:
+        if self.order == 1 or not self.order:
+            return f"BOND {self.first: >4} {self.second: >4}"
+        else:
+            return f"BOND_TYPE {self.first: >4} {self.second: >4} {self.order}"
+
+    def _repr_html_(self):
+        return f"{html_span('BOND')} {self.first} {self.second} {self.order}"
+
+    def __hash__(self):
+        return hash("+".join(sorted([self.first, self.second])))
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    @classmethod
+    def from_str(cls, text: str):
+        rex = re.match(r"(?P<first>.{1,4}) (?P<second>.{2,4})\s?(?P<order>.*)", text.rstrip())
+        if rex is None:
+            raise ValueError(f'BOND entry "{text}" is not formatted correctly')
+        data = rex.groupdict()
+        order_str = data["order"].strip()
+        order: int
+        if order_str == "":
+            order = 1
+        elif order_str in ("ARO", "4"):
+            order = 4  # ARO is also acceptable.
+        else:
+            order = int(order_str)
+        return cls(first=data["first"], second=data["second"], order=order)
+
+
+Entries.choices["BOND"] = (BONDEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class ATOMEntry:
+    # PDB atom name, Rosetta AtomType, MM AtomType, and charge
+    name: str
+    rtype: str
+    mtype: str = "X"
+    partial: float = 0
+
+    def __str__(self) -> str:
+        return f"ATOM {self.name: >4} {self.rtype: >4} {self.mtype: >4} {self.partial:.7f}"
+
+    def _repr_html_(self):
+        return (
+            f"{html_span('ATOM')} atom:{self.name} "
+            + f"rosetta-type:{self.rtype} "
+            + f"m-type:{self.mtype} "
+            + f"Gasteiger:{html_span(self.partial)}"
+        )
+
+    def __eq__(self, other):
+        """
+        ``atomentry == 'CA'`` will return false because ``atomentry.name.strip() == 'CA'`` will return true.
+        """
+        if isinstance(other, self.__class__):
+            return self.name == other.name
+        else:
+            return False
+
+    def __hash__(self):
+        return hash(self.name)
+
+    @classmethod
+    def from_str(cls, text: str):
+        rex = re.match(
+            r"(?P<name>.{1,4})\s*(?P<rtype>.{1,4})\s*(?P<mtype>.{1,4})\s*(?P<partial>[-\d\.]+)",
+            text.rstrip(),
+        )
+        if rex is None:
+            raise ValueError(f'ATOM entry "{text}" is not formatted correctly')
+        data = rex.groupdict()
+        return cls(name=data["name"], rtype=data["rtype"], mtype=data["mtype"], partial=float(data["partial"]))
+
+
+Entries.choices["ATOM"] = (ATOMEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class CUT_BONDEntry:
+    """
+    No idea what CUT_BOND is for.
+    """
+
+    first: str
+    second: str
+
+    def __post_init__(self):
+        self.second = self.second.ljust(4)
+
+    def __str__(self) -> str:
+        return f"CUT_BOND {self.first: >4} {self.second: >4}"
+
+    def _repr_html_(self):
+        return f"{html_span('CUT_BOND')} {self.first} {self.second}"
+
+    @classmethod
+    def from_str(cls, text: str):
+        rex = re.match(r"\s?(?P<first>.{1,4})\s+(?P<second>.{1,4})", text.rstrip())
+        if rex is None:
+            raise ValueError(f'CUT_BOND entry "{text}" is not formatted correctly')
+        data = rex.groupdict()
+        return cls(**data)
+
+
+Entries.choices["CUT_BOND"] = (CUT_BONDEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class CHARGEEntry:
+    """
+    No idea if anything respects this.
+    """
+
+    atom: str
+    charge: str  # e.g. "+1" or "-1"
+
+    def __str__(self) -> str:
+        return f"CHARGE {self.atom} FORMAL {self.charge}"
+
+    def _repr_html_(self):
+        return f"{html_span('CHARGE')} {self.atom} {html_span(self.charge)}"
+
+    @classmethod
+    def from_str(cls, text: str):
+        rex = re.match(r"(?P<atom>\S+) FORMAL (?P<charge>\-?\+?\d)", text.rstrip())
+        if rex is None:
+            raise ValueError(f'CHARGE entry "{text}" is not formatted correctly')
+        data = rex.groupdict()
+        return cls(atom=data["atom"], charge=data["charge"])
+
+
+Entries.choices["CHARGE"] = (CHARGEEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+class PDB_ROTAMERSEntry(GenericEntry):
+    """
+    This does zero checks for fine existance.
+    """
+
+    def __init__(self, body: str):
+        super().__init__(header="PDB_ROTAMERS", body=body)
+
+
+Entries.choices["PDB_ROTAMERS"] = (PDB_ROTAMERSEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+class ROTAMER_AAEntry(GenericEntry):
+    def __init__(self, body: str):
+        super().__init__(header="ROTAMER_AA", body=body)
+
+
+Entries.choices["ROTAMER_AA"] = (ROTAMER_AAEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+class AAEntry(GenericEntry):
+    def __init__(self, body: str = "UNK"):
+        if body != "UNK":
+            self.log.info("AA should be UNK... tolerating oddity.")
+        super().__init__(header="AA", body=body)
+
+
+Entries.choices["AA"] = (AAEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+class TYPEEntry(GenericEntry):
+    """
+    LIGAND or POLYMER. No exceptions.
+    """
+
+    def __init__(self, body: str = "LIGAND"):
+        assert body in ("POLYMER", "LIGAND"), f"residue TYPE {body} is neither POLYMER or LIGAND"
+        super().__init__(header="TYPE", body=body)
+
+
+Entries.choices["TYPE"] = (TYPEEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+class ADD_RINGEntry(GenericEntry):
+    ## To be fixed. Spacing drama...
+    def __init__(self, body: str):
+        self.log.info("ADD_RING is sloppily coded. the values are stored as an unsplit string!")
+        super().__init__(header="ADD_RING", body=body)
+
+
+Entries.choices["ADD_RING"] = (ADD_RINGEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+class PROPERTIESEntry(GenericListEntry):
+    # https://graylab.jhu.edu/PyRosetta.documentation/pyrosetta.rosetta.core.chemical.html#pyrosetta.rosetta.core.chemical.ResidueProperty
+    def __init__(self, *args: str):
+        super().__init__("PROPERTIES", *args)
+
+
+Entries.choices["PROPERTIES"] = (PROPERTIESEntry, Singletony.list_singleton)
+
+
+#########################################################################################################
+
+
+class VARIANTEntry(GenericListEntry):
+    # do multiple variant entries get the same line??
+    def __init__(self, *args: str):
+        super().__init__("VARIANT", *args)
+
+
+Entries.choices["VARIANT"] = (VARIANTEntry, Singletony.list_singleton)
+
+
+#########################################################################################################
+
+
+class FIRST_SIDECHAIN_ATOMEntry(GenericEntry):
+    def __init__(self, body: str):
+        super().__init__(header="FIRST_SIDECHAIN_ATOM", body=body)
+
+
+Entries.choices["FIRST_SIDECHAIN_ATOM"] = (
+    FIRST_SIDECHAIN_ATOMEntry,
+    Singletony.singleton,
+)
+
+
+class BACKBONE_AAEntry(GenericEntry):
+    def __init__(self, body: str):
+        assert len(body) == 3, f"{body} is not 3 char long"
+        super().__init__(header="BACKBONE_AA", body=body.upper())
+
+
+Entries.choices["BACKBONE_AA"] = (BACKBONE_AAEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+class RAMA_PREPRO_FILENAMEEntry(GenericEntry):
+    def __init__(self, body: str):
+        super().__init__(header="RAMA_PREPRO_FILENAME", body=body)
+
+
+Entries.choices["RAMA_PREPRO_FILENAME"] = (
+    RAMA_PREPRO_FILENAMEEntry,
+    Singletony.singleton,
+)
+
+
+#########################################################################################################
+
+
+class METAL_BINDING_ATOMSEntry(GenericListEntry):
+    def __init__(self, *args: str):
+        super().__init__("METAL_BINDING_ATOMS", *args)
+
+
+Entries.choices["METAL_BINDING_ATOMS"] = (
+    METAL_BINDING_ATOMSEntry,
+    Singletony.singleton,
+)
+
+
+#########################################################################################################
+
+
+class ACT_COORD_ATOMSEntry(GenericListEntry):
+    def __init__(self, *args: str):
+        super().__init__("ACT_COORD_ATOMS", *args)
+
+
+Entries.choices["ACT_COORD_ATOMS"] = (ACT_COORD_ATOMSEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+class UNKNOWNEntry(GenericEntry):
+    @classmethod
+    def from_str(cls, text):
+        return cls(**re.match(r"(?P<header>\w+) (?P<body>.*)^", text.rstrip()).groupdict())
+
+
+Entries.choices["<UNKNOWN>"] = (UNKNOWNEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class NET_FORMAL_CHARGEEntry:
+    """
+    Net formal charge of the whole molecule (as opposed to CHARGE which is per-atom).
+    Value is an integer, e.g. +2 or -1.
+    """
+
+    charge: int
+
+    def __str__(self) -> str:
+        if self.charge >= 0:
+            return f"NET_FORMAL_CHARGE +{self.charge}"
+        else:
+            return f"NET_FORMAL_CHARGE {self.charge}"
+
+    def _repr_html_(self):
+        return f"{html_span('NET_FORMAL_CHARGE')} {html_span(self.charge)}"
+
+    @classmethod
+    def from_str(cls, text: str):
+        # Handle +2, -1, 2, etc.
+        charge_str = text.strip()
+        return cls(charge=int(charge_str))
+
+
+Entries.choices["NET_FORMAL_CHARGE"] = (NET_FORMAL_CHARGEEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+class ROTAMERSEntry(GenericEntry):
+    """
+    Rotamer library specification.
+    Valid values: BASIC (for ligands), DUNBRACK (for polymers), CENTR, NCAA, PDB, STORED.
+    Will warn (not error) if an unrecognized value is used.
+    """
+
+    VALID_SPECS = frozenset({"BASIC", "DUNBRACK", "CENTR", "NCAA", "PDB", "STORED"})
+
+    def __init__(self, body: str):
+        body = body.strip().upper()
+        if body not in self.VALID_SPECS:
+            self.log.warning(
+                f"ROTAMERS value '{body}' is not a recognized RotamerLibrarySpecification. "
+                f"Valid values are: {', '.join(sorted(self.VALID_SPECS))}"
+            )
+        super().__init__(header="ROTAMERS", body=body)
+
+
+Entries.choices["ROTAMERS"] = (ROTAMERSEntry, Singletony.singleton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class VIRTUAL_SHADOWEntry:
+    """
+    Maps a virtual atom to its shadow (real) atom.
+    E.g. VIRTUAL_SHADOW VO5 O5
+    """
+
+    virtual_atom: str
+    shadow_atom: str
+
+    def __str__(self) -> str:
+        return f"VIRTUAL_SHADOW {self.virtual_atom: >4} {self.shadow_atom: >4}"
+
+    def _repr_html_(self):
+        return f"{html_span('VIRTUAL_SHADOW')} virtual:{self.virtual_atom} shadow:{self.shadow_atom}"
+
+    @classmethod
+    def from_str(cls, text: str):
+        parts = text.split()
+        if len(parts) != 2:
+            raise ValueError(f'VIRTUAL_SHADOW entry "{text}" should have exactly 2 atom names')
+        return cls(virtual_atom=parts[0], shadow_atom=parts[1])
+
+
+Entries.choices["VIRTUAL_SHADOW"] = (VIRTUAL_SHADOWEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class CHI_ROTAMERSEntry:
+    """
+    Chi rotamer sampling specification.
+    E.g. CHI_ROTAMERS 3 60 0
+    """
+
+    chi_index: int
+    angle: int
+    standard_deviation: int
+
+    def __str__(self) -> str:
+        return f"CHI_ROTAMERS {self.chi_index} {self.angle} {self.standard_deviation}"
+
+    def _repr_html_(self):
+        return (
+            f"{html_span('CHI_ROTAMERS')} chi:{html_span(self.chi_index)} "
+            f"angle:{html_span(self.angle)} sd:{html_span(self.standard_deviation)}"
+        )
+
+    @classmethod
+    def from_str(cls, text: str):
+        parts = text.split()
+        if len(parts) != 3:
+            raise ValueError(f'CHI_ROTAMERS entry "{text}" should have exactly 3 integers')
+        return cls(chi_index=int(parts[0]), angle=int(parts[1]), standard_deviation=int(parts[2]))
+
+
+Entries.choices["CHI_ROTAMERS"] = (CHI_ROTAMERSEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class NUEntry:
+    """
+    Nu angle definition (like CHI but for nucleic acids or other ring systems).
+    E.g. NU 1 VO5 C1 C2 C3
+    """
+
+    index: int
+    first: str
+    second: str
+    third: str
+    fourth: str
+
+    def __post_init__(self):
+        self.fourth = self.fourth.ljust(4)
+
+    def __str__(self) -> str:
+        return f"NU {self.index} {self.first} {self.second} {self.third} {self.fourth}"
+
+    def _repr_html_(self):
+        return f"{html_span('NU')} {html_span(self.index)} {self.first} {self.second} {self.third} {self.fourth}"
+
+    @classmethod
+    def from_str(cls, text: str):
+        rex = re.match(r"(\d+)\s+(\S{1,4})\s+(\S{1,4})\s+(\S{1,4})\s+(\S{1,4})", text)
+        if rex is None:
+            raise ValueError(f'NU entry "{text}" is not formatted correctly')
+        groups = rex.groups()
+        return cls(index=int(groups[0]), first=groups[1], second=groups[2], third=groups[3], fourth=groups[4])
+
+
+Entries.choices["NU"] = (NUEntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+@dataclass
+class LOWEST_RING_CONFORMEREntry:
+    """
+    Lowest energy ring conformer specification.
+    E.g. LOWEST_RING_CONFORMER 1 4C1
+    """
+
+    ring_index: int
+    conformer: str
+
+    def __str__(self) -> str:
+        return f"LOWEST_RING_CONFORMER {self.ring_index} {self.conformer}"
+
+    def _repr_html_(self):
+        return f"{html_span('LOWEST_RING_CONFORMER')} ring:{html_span(self.ring_index)} conformer:{self.conformer}"
+
+    @classmethod
+    def from_str(cls, text: str):
+        parts = text.split()
+        if len(parts) != 2:
+            raise ValueError(f'LOWEST_RING_CONFORMER entry "{text}" should have ring index and conformer name')
+        return cls(ring_index=int(parts[0]), conformer=parts[1])
+
+
+Entries.choices["LOWEST_RING_CONFORMER"] = (LOWEST_RING_CONFORMEREntry, Singletony.multiton)
+
+
+#########################################################################################################
+
+
+class LOW_RING_CONFORMERSEntry(GenericListEntry):
+    """
+    List of low energy ring conformers.
+    E.g. LOW_RING_CONFORMERS 1 O3B 3S1 B14 5S1 25B 2SO BO3 1S3 14B 1S5 OS2 1C4
+    First element is ring index, rest are conformer names.
+    """
+
+    def __init__(self, *args: str):
+        super().__init__("LOW_RING_CONFORMERS", *args)
+
+
+Entries.choices["LOW_RING_CONFORMERS"] = (LOW_RING_CONFORMERSEntry, Singletony.multiton)
+
+
+#########################################################################################################
