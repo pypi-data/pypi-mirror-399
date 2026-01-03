@@ -1,0 +1,25 @@
+[project]
+name = "apibean-jupyter"
+version = "0.1.0a2"
+description = "Embed and manage Jupyter Server as a reusable Python component for applications and tools."
+readme = "README.md"
+license = 'MIT'
+license-files = [ "LICENSE" ]
+requires-python = ">=3.9"
+dependencies = [
+    "jupyter-server>=2.0",
+    "jupyterlab>=4.0",
+]
+
+[project.scripts]
+apibean-jupyter = "apibean.jupyter.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
