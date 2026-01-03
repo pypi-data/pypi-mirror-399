@@ -1,0 +1,52 @@
+Metadata-Version: 2.4
+Name: aep8
+Version: 0.3.0
+Summary: Calculate the flux of electrons or protons trapped in the Earth's radiation belt using the NASA AE8/AP8 model from IRBEM
+Author-Email: Leo Singer <leo.p.singer@nasa.gov>
+License-Expression: BSD-3-Clause
+Classifier: Development Status :: 1 - Planning
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Unix
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Scientific/Engineering :: Astronomy
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Typing :: Typed
+Project-URL: GitHub, https://github.com/m4opt/aep8
+Requires-Python: >=3.11
+Requires-Dist: astropy
+Provides-Extra: test
+Requires-Dist: pytest; extra == "test"
+Requires-Dist: pytest-mpl; extra == "test"
+Description-Content-Type: text/markdown
+
+# AEP8
+
+[![Python Package Index status](https://img.shields.io/pypi/v/aep8)](https://pypi.org/project/aep8/)
+[![codecov](https://codecov.io/gh/m4opt/aep8/graph/badge.svg?token=g3n8RKrekt)](https://codecov.io/gh/m4opt/aep8)
+
+![Map of integral min electron flux at 500 km and 1 MeV](https://github.com/m4opt/aep8/raw/main/test/baseline/test_plot_flux_integral-min-e.png)
+
+This Python package calculates the estimated flux of electrons or protons trapped in the Earth's radiation belt. It is a Python wrapper for the [NASA AE8/AP8 model](https://prbem.github.io/IRBEM/api/radiation_models.html#ae8-and-ap8-models) in the [IRBEM](https://prbem.github.io/IRBEM/) package. It provides an [Astropy](https://www.astropy.org)-friendly interface, allowing you to specify the location using [Astropy coordinates](https://docs.astropy.org/en/stable/coordinates/index.html), the time in [Astropy time](https://docs.astropy.org/en/stable/time/index.html), and the energy using [Astropy units](https://docs.astropy.org/en/stable/units/index.html). You can pass it a single time and location, or arrays of times and locations.
+
+## To install
+
+```
+pip install aep8
+```
+
+## Example
+
+```pycon
+>>> from astropy.coordinates import EarthLocation
+>>> from astropy.time import Time
+>>> from astropy import units as u
+>>> from aep8 import flux
+>>> loc = EarthLocation.from_geodetic(15 * u.deg, -45 * u.deg, 300 * u.km)
+>>> time = Time('2025-01-01 18:37:22')
+>>> energy = 10 * u.MeV
+>>> flux(loc, time, energy, kind='integral', solar='max', particle='p')
+<Quantity 3.04495297 1 / (s cm2)>
+```
