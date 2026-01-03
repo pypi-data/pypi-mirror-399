@@ -1,0 +1,34 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.8
+    hooks:
+      - id: ruff
+        args: [ --fix, --line-length=88 ]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        args: [
+          --strict,
+          --show-error-codes,
+          --warn-unused-ignores,
+        ]
+        files: ^src/
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: python3 -m pytest tests/
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+        require_serial: true
+
+ci:
+  autoupdate_schedule: weekly
+  skip: []
