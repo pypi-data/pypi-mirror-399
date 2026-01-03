@@ -1,0 +1,842 @@
+# Stateless MCP
+
+A **stateless**, **multi-worker compatible** JSON-RPC 2.0 server with streaming support for MCP (Model Context Protocol). This library provides a drop-in replacement for FastMCP with true stateless architecture.
+
+## Key Features
+
+- **Stateless Architecture**: No session state, works with multiple workers
+- **JSON-RPC 2.0**: Full compliance with JSON-RPC 2.0 specification
+- **In-Band Streaming**: Streaming responses over HTTP without external infrastructure
+- **Multi-Worker Safe**: Deploy with multiple Uvicorn workers
+- **Simple API**: Decorator-based tool registration
+- **No External Dependencies**: No Redis, no message queues
+- **Autogen Compatible**: Works seamlessly with Autogen agents
+
+## Version 2.0 Features (New!)
+
+Version 2.0 adds production-ready observability, security, and operational features:
+
+### Observability & Monitoring
+- **Structured Logging**: JSON and console logging with request ID tracking and sensitive data masking
+- **Prometheus Metrics**: Request counters, duration histograms, streaming metrics, and active request gauges
+- **Enhanced Health Checks**: Kubernetes-compatible liveness, readiness, and startup probes
+
+### Security
+- **API Key Authentication**: Header-based authentication with multi-key support
+- **Rate Limiting**: Sliding window rate limiter with per-client tracking
+- **Permission System**: Role-based and permission-based access control
+
+### Operational
+- **Request Tracing**: Automatic request ID generation and tracking across logs
+- **Metrics Export**: `/metrics` endpoint for Prometheus scraping
+- **Tool Introspection**: Enhanced `/tools` and `/tools/{name}` endpoints for discovery
+- **Better Error Handling**: Contextual error messages with proper JSON-RPC error codes
+
+All v2 features are **opt-in** and **backward compatible** with v1.
+
+See the [Version 2.0 Documentation](#version-20-documentation) section below for detailed usage.
+
+## Why Stateless MCP?
+
+FastMCP has fundamental limitations:
+- Stores state in worker memory
+- Cannot run with multiple workers
+- Breaks on Docker restarts
+- Incompatible with horizontal scaling
+
+Stateless MCP solves these problems by:
+- Making every request self-contained
+- Supporting unlimited concurrent workers
+- Requiring no persistent connections
+- Being truly stateless
+
+## Installation
+
+```bash
+pip install stateless-mcp
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/yourusername/stateless-mcp.git
+cd stateless-mcp
+pip install -e .
+```
+
+## Quick Start
+
+### 1. Define Tools
+
+```python
+from stateless_mcp import tool
+
+# Non-streaming tool
+@tool(name="add", streaming=False, timeout=30)
+async def add_numbers(params: dict) -> dict:
+    a = params.get("a", 0)
+    b = params.get("b", 0)
+    return {"result": a + b}
+
+# Streaming tool
+@tool(name="generate_text", streaming=True, timeout=60)
+async def generate_text(params: dict):
+    text = params.get("text", "")
+
+    # Yield progress chunks
+    for i in range(5):
+        yield {"type": "progress", "step": i + 1}
+
+    # Final result
+    yield {"type": "result", "text": f"Processed: {text}"}
+```
+
+### 2. Run Server
+
+```python
+# Import your tools (this registers them)
+from stateless_mcp.tools import example
+
+# Run the app
+from stateless_mcp import app
+import uvicorn
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000, workers=4)
+```
+
+Or use the command line:
+
+```bash
+uvicorn stateless_mcp.app:app --workers 4 --host 0.0.0.0 --port 8000
+```
+
+### 3. Call Tools
+
+#### Non-Streaming Tool
+
+```bash
+curl -X POST http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "add",
+    "params": {"a": 5, "b": 3},
+    "id": "1"
+  }'
+```
+
+Response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {"result": 8},
+  "id": "1"
+}
+```
+
+#### Streaming Tool
+
+```bash
+curl -X POST http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "generate_numbers",
+    "params": {"count": 5},
+    "id": "2"
+  }'
+```
+
+Response (streaming):
+```json
+{"type":"progress","current":1,"total":5,"percentage":20.0}
+{"type":"progress","current":2,"total":5,"percentage":40.0}
+{"type":"progress","current":3,"total":5,"percentage":60.0}
+{"type":"progress","current":4,"total":5,"percentage":80.0}
+{"type":"progress","current":5,"total":5,"percentage":100.0}
+{"type":"result","generated":5}
+{"jsonrpc":"2.0","result":{"type":"result","generated":5},"id":"2"}
+```
+
+## Architecture
+
+### Request Flow
+
+```
+Autogen Agent
+   |
+   | JSON-RPC POST /mcp
+   v
+FastAPI Endpoint
+   |
+   | Parse & Validate
+   v
+Dispatcher
+   |
+   | Lookup Tool in Registry
+   v
+Tool Execution
+   |
+   +-- Non-Streaming: Await result → JSON response
+   |
+   +-- Streaming: Iterate generator → Stream chunks + final response
+```
+
+### Streaming Model
+
+**In-Band Streaming**: Everything happens over the single HTTP request:
+1. Client POSTs JSON-RPC request
+2. Server streams intermediate chunks (newline-delimited JSON)
+3. Server sends final JSON-RPC response
+4. Connection closes
+
+No SSE endpoints, no WebSockets, no separate connections.
+
+## Tool Definition
+
+### Non-Streaming Tool
+
+```python
+@tool(name="my_tool", streaming=False, timeout=60)
+async def my_tool(params: dict) -> dict:
+    # Do work
+    result = process(params)
+    return {"result": result}
+```
+
+**Requirements:**
+- Must be `async def`
+- Takes `params: dict`
+- Returns `dict`
+
+### Streaming Tool
+
+```python
+@tool(name="my_stream", streaming=True, timeout=120)
+async def my_stream(params: dict):
+    # Yield intermediate results
+    for i in range(10):
+        yield {"progress": i}
+
+    # Final result
+    yield {"result": "done"}
+```
+
+**Requirements:**
+- Must be `async def` with `yield`
+- Takes `params: dict`
+- Yields dictionaries
+
+## Configuration
+
+Set via environment variables with `SMCP_` prefix:
+
+```bash
+export SMCP_DEFAULT_TOOL_TIMEOUT=60
+export SMCP_MAX_TOOL_TIMEOUT=300
+export SMCP_DEBUG=true
+export SMCP_HOST=0.0.0.0
+export SMCP_PORT=8000
+export SMCP_WORKERS=4
+```
+
+Or in Python:
+
+```python
+from stateless_mcp import settings
+
+settings.default_tool_timeout = 60
+settings.debug = True
+```
+
+## Multi-Worker Deployment
+
+### Development (Single Worker)
+
+```bash
+uvicorn stateless_mcp.app:app --reload
+```
+
+### Production (Multiple Workers)
+
+```bash
+uvicorn stateless_mcp.app:app --workers 4 --host 0.0.0.0 --port 8000
+```
+
+### Docker
+
+```bash
+docker run -p 8000:8000 stateless-mcp:latest
+```
+
+See `Dockerfile` for details.
+
+## Error Handling
+
+All errors are returned as JSON-RPC error responses:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32601,
+    "message": "Method not found",
+    "data": {"method": "unknown_tool"}
+  },
+  "id": "1"
+}
+```
+
+### Error Codes
+
+| Code | Meaning |
+|------|---------|
+| -32700 | Parse error (invalid JSON) |
+| -32600 | Invalid request (missing fields) |
+| -32601 | Method not found |
+| -32602 | Invalid params |
+| -32603 | Internal error |
+| -32000 | Server error (tool execution failed) |
+
+## API Endpoints
+
+### POST /mcp
+Main JSON-RPC endpoint. Accepts JSON-RPC 2.0 requests.
+
+### GET /health
+Health check endpoint.
+
+Response:
+```json
+{
+  "status": "healthy",
+  "tools": 8,
+  "locked": true
+}
+```
+
+### GET /tools
+List all registered tools.
+
+Response:
+```json
+{
+  "tools": {
+    "add": {
+      "name": "add",
+      "streaming": false,
+      "timeout": 30
+    },
+    "generate_numbers": {
+      "name": "generate_numbers",
+      "streaming": true,
+      "timeout": 60
+    }
+  }
+}
+```
+
+## Testing
+
+### Unit & Integration Tests
+
+Run the comprehensive test suite:
+
+```bash
+pytest tests/
+```
+
+Run with coverage:
+
+```bash
+pytest --cov=stateless_mcp tests/
+```
+
+**Test Results:**
+- ✅ 40 unit and integration tests
+- ✅ 100% pass rate
+- ✅ Full JSON-RPC 2.0 compliance validated
+- ✅ Streaming and non-streaming tools tested
+
+### Autogen Integration Tests
+
+The library has been extensively tested with Autogen-compatible workflows:
+
+#### End-to-End Integration Test
+
+```bash
+python test_autogen_integration.py
+```
+
+**What it tests:**
+- Tool registration and listing (7 tools)
+- Non-streaming tools (add, create_job_from_text)
+- Streaming tools (generate_numbers, generate_jd_stream)
+- Error handling (JSON-RPC errors)
+- Concurrent requests (20 parallel)
+
+**Results:** ✅ All tests passed
+
+#### Autogen Workflow Simulation
+
+```bash
+python test_with_real_autogen.py
+```
+
+**Simulates a realistic agent workflow:**
+1. Create job from text → ✅ Job created
+2. Generate detailed JD (streaming) → ✅ 9 content chunks
+3. Calculate budget → ✅ $1700 calculated
+4. Process applicants (streaming) → ✅ 5 applicants, 8 progress updates
+
+**Results:** ✅ Complete workflow successful
+
+#### Multi-Worker Stress Test
+
+```bash
+python test_multi_worker.py
+```
+
+**Tests statelessness under load (4 workers):**
+- 100 concurrent non-streaming requests → ✅ 585 req/s
+- 50 concurrent streaming requests → ✅ 19.4 req/s
+- Mixed load (30 requests) → ✅ 100% success
+
+**Results:** ✅ Zero failures, perfect isolation
+
+### Test Results Summary
+
+See [AUTOGEN_TEST_RESULTS.md](AUTOGEN_TEST_RESULTS.md) for detailed test results including:
+- Performance metrics (585 req/s throughput)
+- Multi-worker validation (4 workers tested)
+- Autogen compatibility confirmation
+- Production readiness assessment
+
+**Key Validations:**
+- ✅ True statelessness (no state corruption)
+- ✅ Multi-worker safe (4 workers, 200+ concurrent requests)
+- ✅ High performance (585 req/s non-streaming)
+- ✅ Zero failures under load
+- ✅ Autogen agent workflows functional
+
+## Migration from FastMCP
+
+1. **Replace imports:**
+   ```python
+   # Old
+   from fastmcp import tool
+
+   # New
+   from stateless_mcp import tool
+   ```
+
+2. **Update tool signatures:**
+   - Tools must be `async`
+   - Streaming tools must use `async def` with `yield`
+
+3. **No session state:**
+   - Remove any code that relies on session state
+   - Make tools pure functions of their inputs
+
+4. **Test with multiple workers:**
+   ```bash
+   uvicorn stateless_mcp.app:app --workers 4
+   ```
+
+## Limitations
+
+### Current Version (v1.0)
+
+- HTTP transport only (no WebSockets)
+- In-band streaming only (no detached SSE)
+- No Redis-backed background jobs
+- No durable execution IDs
+
+### Future Extensions
+
+These are intentionally NOT implemented in v1:
+- WebSocket transport
+- Detached SSE endpoints
+- Redis event bus
+- Background job queue
+- Tool discovery API
+
+## Development
+
+### Setup
+
+```bash
+git clone https://github.com/yourusername/stateless-mcp.git
+cd stateless-mcp
+pip install -e ".[dev]"
+```
+
+### Run Linters
+
+```bash
+black stateless_mcp/
+ruff check stateless_mcp/
+mypy stateless_mcp/
+```
+
+### Project Structure
+
+```
+stateless_mcp/
+├── app.py           # FastAPI app with optional v2 features
+├── rpc.py           # JSON-RPC parsing
+├── registry.py      # Tool registry
+├── dispatcher.py    # Execution logic
+├── streaming.py     # Streaming helpers
+├── errors.py        # Error handling
+├── models.py        # Data models
+├── config.py        # Configuration
+├── logging.py       # Structured logging
+├── metrics.py       # Prometheus metrics
+├── auth.py          # Authentication
+├── ratelimit.py     # Rate limiting
+└── tools/
+    └── example.py   # Example tools
+```
+
+## Version 2.0 Documentation
+
+### Getting Started with V2
+
+V2 features are built into the main app and enabled via configuration. Simply import and configure:
+
+```python
+from stateless_mcp.app import app
+from stateless_mcp.config import settings
+
+# Enable desired v2 features
+settings.metrics_enabled = True
+settings.auth_enabled = True
+settings.rate_limit_enabled = True
+```
+
+**No code changes needed!** All v2 features are opt-in via configuration.
+
+### Configuration
+
+Configure v2 features via environment variables or Settings:
+
+```python
+from stateless_mcp.config import settings
+
+# Logging
+settings.log_level = "INFO"  # DEBUG, INFO, WARNING, ERROR
+settings.log_format = "json"  # json or console
+
+# Metrics
+settings.metrics_enabled = True
+
+# Authentication
+settings.auth_enabled = True
+settings.api_keys = ["your-api-key-here", "another-key"]
+settings.auth_header_name = "X-API-Key"
+
+# Rate Limiting
+settings.rate_limit_enabled = True
+settings.default_rate_limit = "100/minute"  # Format: <count>/<second|minute|hour|day>
+```
+
+Or via environment variables:
+
+```bash
+export LOG_LEVEL=INFO
+export LOG_FORMAT=json
+export METRICS_ENABLED=true
+export AUTH_ENABLED=true
+export API_KEYS='["key1", "key2"]'
+export RATE_LIMIT_ENABLED=true
+export DEFAULT_RATE_LIMIT="100/minute"
+```
+
+### Structured Logging
+
+V2 includes structured logging with request ID tracking:
+
+```python
+from stateless_mcp.logging import get_logger, configure_logging
+
+# Configure logging (done automatically in app_v2)
+configure_logging(log_level="INFO", log_format="json")
+
+# Get a logger
+logger = get_logger(__name__)
+
+# Log with context
+logger.info("Processing request", tool="add", user_id=123)
+
+# Logs include automatic request ID:
+# {"event": "Processing request", "tool": "add", "user_id": 123, "request_id": "uuid", "timestamp": "..."}
+```
+
+**Sensitive Data Masking:**
+
+```python
+from stateless_mcp.logging import mask_sensitive_data
+
+data = {"username": "john", "password": "secret123"}
+masked = mask_sensitive_data(data)
+# {"username": "john", "password": "***MASKED***"}
+```
+
+### Prometheus Metrics
+
+Access metrics at `http://localhost:8000/metrics`:
+
+```bash
+curl http://localhost:8000/metrics
+```
+
+**Available Metrics:**
+
+- `mcp_requests_total`: Total requests by tool and status
+- `mcp_request_duration_seconds`: Request duration histogram
+- `mcp_request_size_bytes`: Request size histogram
+- `mcp_response_size_bytes`: Response size histogram
+- `mcp_active_requests`: Currently active requests
+- `mcp_streaming_chunks_total`: Streaming chunks sent
+- `mcp_tools_registered`: Number of registered tools
+- `mcp_server_info`: Server version and workers
+
+### Health Checks
+
+V2 provides Kubernetes-compatible health endpoints:
+
+```bash
+# Liveness probe (is the process alive?)
+curl http://localhost:8000/health/live
+# {"status": "alive"}
+
+# Readiness probe (is the server ready for traffic?)
+curl http://localhost:8000/health/ready
+# {"status": "ready", "tools": 7}
+
+# General health (detailed status)
+curl http://localhost:8000/health
+# {
+#   "status": "healthy",
+#   "version": "2.0.0",
+#   "tools": 7,
+#   "locked": true,
+#   "features": {
+#     "auth": false,
+#     "metrics": true,
+#     "rate_limiting": true
+#   }
+# }
+```
+
+### API Key Authentication
+
+Enable authentication to secure your endpoints:
+
+```python
+from stateless_mcp.config import settings
+
+settings.auth_enabled = True
+settings.api_keys = ["secret-key-123", "another-key-456"]
+```
+
+Make authenticated requests:
+
+```bash
+curl -X POST http://localhost:8000/mcp \
+  -H "X-API-Key: secret-key-123" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"add","params":{"a":5,"b":3},"id":"1"}'
+```
+
+**Generate API Keys:**
+
+```python
+from stateless_mcp.auth import generate_api_key
+
+api_key = generate_api_key()  # Returns secure random key
+```
+
+### Rate Limiting
+
+Protect your server from abuse with rate limiting:
+
+```python
+from stateless_mcp.config import settings
+
+settings.rate_limit_enabled = True
+settings.default_rate_limit = "100/minute"  # 100 requests per minute
+```
+
+**Rate Limit Formats:**
+- `10/second` - 10 requests per second
+- `100/minute` - 100 requests per minute
+- `1000/hour` - 1000 requests per hour
+- `10000/day` - 10000 requests per day
+
+When rate limit is exceeded, responses include headers:
+
+```
+HTTP/1.1 429 Too Many Requests
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1640000000
+Retry-After: 60
+```
+
+### Tool Introspection
+
+Enhanced tool discovery endpoints:
+
+```bash
+# List all tools
+curl http://localhost:8000/tools
+# {
+#   "tools": {
+#     "add": {"name": "add", "streaming": false, "timeout": 30},
+#     "generate_text": {"name": "generate_text", "streaming": true, "timeout": 60}
+#   },
+#   "count": 2
+# }
+
+# Get specific tool info
+curl http://localhost:8000/tools/add
+# {"name": "add", "streaming": false, "timeout": 30}
+```
+
+### Request Tracing
+
+Every request automatically gets a unique request ID:
+
+```bash
+curl -v http://localhost:8000/health
+
+# Response includes:
+# X-Request-ID: 550e8400-e29b-41d4-a716-446655440000
+```
+
+Request IDs are automatically included in all logs for that request.
+
+### Running V2 in Production
+
+**With Uvicorn:**
+
+```bash
+# Set environment variables to enable features
+export METRICS_ENABLED=true
+export RATE_LIMIT_ENABLED=true
+
+uvicorn stateless_mcp.app:app \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --workers 4 \
+  --log-level info
+```
+
+**With Docker:**
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+ENV LOG_LEVEL=INFO
+ENV LOG_FORMAT=json
+ENV METRICS_ENABLED=true
+ENV RATE_LIMIT_ENABLED=true
+ENV DEFAULT_RATE_LIMIT="100/minute"
+
+CMD ["uvicorn", "stateless_mcp.app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+```
+
+**Kubernetes Deployment:**
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stateless-mcp
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: app
+        image: stateless-mcp:2.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: RATE_LIMIT_ENABLED
+          value: "true"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stateless-mcp
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/path: "/metrics"
+spec:
+  selector:
+    app: stateless-mcp
+  ports:
+  - port: 8000
+    targetPort: 8000
+```
+
+### Backward Compatibility
+
+V2 is **100% backward compatible**. All v2 features are **disabled by default**:
+
+```python
+# Import the app - works exactly as v1 by default
+from stateless_mcp.app import app
+
+# Enable v2 features as needed
+from stateless_mcp.config import settings
+settings.metrics_enabled = True  # Enable only what you need
+```
+
+**No migration needed!** Existing deployments continue working without any changes.
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Submit a pull request
+
+## Support
+
+- GitHub Issues: https://github.com/yourusername/stateless-mcp/issues
+- Documentation: https://stateless-mcp.readthedocs.io
+
+## Credits
+
+Built as a stateless alternative to FastMCP, designed for production deployments with Autogen agents.

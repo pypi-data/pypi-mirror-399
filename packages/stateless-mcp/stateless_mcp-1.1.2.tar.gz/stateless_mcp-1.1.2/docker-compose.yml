@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  stateless-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - SMCP_HOST=0.0.0.0
+      - SMCP_PORT=8000
+      - SMCP_WORKERS=4
+      - SMCP_DEBUG=false
+      - SMCP_DEFAULT_TOOL_TIMEOUT=60
+      - SMCP_MAX_TOOL_TIMEOUT=300
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 512M
