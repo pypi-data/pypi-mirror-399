@@ -1,0 +1,574 @@
+"""Command-line interface for scratch-sync."""
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import rich_click as click
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+from scratch_sync import syncthing, tailscale, discovery
+
+# Rich console for styled output
+console = Console()
+
+# Configure rich-click styling
+click.rich_click.THEME = "nord-modern"
+click.rich_click.TEXT_MARKUP = "rich"
+click.rich_click.SHOW_ARGUMENTS = True
+click.rich_click.HEADER_TEXT = "[bold cyan]scratch-sync[/] - Sync scratch/ folders across machines"
+click.rich_click.STYLE_ERRORS_SUGGESTION = "magenta italic"
+click.rich_click.ERRORS_SUGGESTION = "Try running [bold]'scratch-sync --help'[/] for more information."
+
+# Group commands for better organization
+click.rich_click.COMMAND_GROUPS = {
+    "scratch-sync": [
+        {
+            "name": "Setup",
+            "commands": ["init", "pair"],
+        },
+        {
+            "name": "Monitoring",
+            "commands": ["status", "list"],
+        },
+    ]
+}
+
+STIGNORE_TEMPLATE = """\
+// Syncthing ignore patterns for scratch folders
+// This file is NOT synced between devices
+
+// Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.eggs
+*.egg
+.mypy_cache
+.pytest_cache
+.ipynb_checkpoints
+
+// Build artifacts
+*.so
+*.o
+*.a
+build/
+dist/
+
+// Editor/IDE
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-*
+
+// OS junk
+(?d).DS_Store
+(?d)Thumbs.db
+(?d)desktop.ini
+(?d)._*
+
+// Temporary files
+*.tmp
+*.temp
+*.bak
+*.log
+"""
+
+
+def get_repo_name(path: Path | None = None) -> str | None:
+    """Get the repository name from git remote or directory name."""
+    if path is None:
+        path = Path.cwd()
+
+    # Try to find .git directory
+    git_dir = path / ".git"
+    if not git_dir.exists():
+        # Walk up
+        for parent in path.parents:
+            git_dir = parent / ".git"
+            if git_dir.exists():
+                path = parent
+                break
+        else:
+            return None
+
+    # Try to get remote origin
+    try:
+        result = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            cwd=path,
+        )
+        if result.returncode == 0:
+            url = result.stdout.strip()
+            # Extract repo name from URL
+            # git@github.com:user/repo.git -> repo
+            # https://github.com/user/repo.git -> repo
+            match = re.search(r"/([^/]+?)(?:\.git)?$", url)
+            if match:
+                return match.group(1)
+    except Exception:
+        pass
+
+    # Fall back to directory name
+    return path.name
+
+
+def sanitize_folder_id(name: str) -> str:
+    """Sanitize a name for use as a Syncthing folder ID."""
+    # Replace problematic characters
+    sanitized = re.sub(r"[^a-zA-Z0-9_-]", "-", name.lower())
+    # Remove consecutive hyphens
+    sanitized = re.sub(r"-+", "-", sanitized)
+    # Remove leading/trailing hyphens
+    return sanitized.strip("-")
+
+
+@click.group()
+@click.version_option(prog_name="scratch-sync")
+def main():
+    """Sync private [bold cyan]scratch/[/] folders across machines using [bold]Syncthing[/] over [bold]Tailscale[/].
+
+    [dim]scratch-sync helps you keep your local scratch directories synchronized
+    across all your development machines on a private Tailscale network.[/]
+
+    [bold]Quick start:[/]
+      1. Run [cyan]scratch-sync init[/] in a git repository
+      2. Run [cyan]scratch-sync pair[/] to discover other devices
+      3. Repeat on your other machines
+    """
+    pass
+
+
+@main.command()
+@click.argument("path", type=click.Path(exists=True, path_type=Path), required=False, metavar="[PATH]")
+@click.option("--name", "-n", help="Custom name for the sync folder [dim](defaults to repo name)[/]")
+def init(path: Path | None, name: str | None):
+    """Initialize scratch-sync in a git repository.
+
+    Sets up a [bold cyan]scratch/[/] folder for syncing in the specified directory
+    (or current directory if not specified).
+
+    [bold]What this does:[/]
+      • Creates [cyan]scratch/[/] directory if it doesn't exist
+      • Adds the folder to Syncthing with ID [dim]scratch-<repo-name>[/]
+      • Creates a default [dim].stignore[/] file
+      • Adds [cyan]scratch/[/] to [dim].gitignore[/]
+    """
+    # Check syncthing is available
+    if not syncthing.find_syncthing():
+        console.print("[red]Error:[/] Syncthing not installed. Run the installer first:")
+        console.print("  [cyan]curl -LsSf https://scratch.tlab.sh/install.sh | sh[/]")
+        sys.exit(1)
+
+    # Determine path
+    if path is None:
+        path = Path.cwd()
+
+    # Find scratch directory
+    scratch_path = path / "scratch"
+    if not scratch_path.exists():
+        console.print(f"[cyan]Creating[/] scratch directory: [bold]{scratch_path}[/]")
+        scratch_path.mkdir(parents=True)
+
+    # Determine folder name
+    if name is None:
+        repo_name = get_repo_name(path)
+        if repo_name:
+            name = repo_name
+        else:
+            name = path.name
+
+    folder_id = f"scratch-{sanitize_folder_id(name)}"
+
+    # Check if already exists
+    if syncthing.folder_exists(folder_id):
+        console.print(f"[yellow]Warning:[/] Folder [cyan]{folder_id}[/] already exists in Syncthing config.")
+        console.print(f"[dim]To remove: syncthing cli config folders remove --id {folder_id}[/]")
+        sys.exit(1)
+
+    # Add folder
+    console.print("[bold]Adding folder to Syncthing:[/]")
+    console.print(f"  [dim]ID:[/]   [cyan]{folder_id}[/]")
+    console.print(f"  [dim]Path:[/] [cyan]{scratch_path.resolve()}[/]")
+
+    if not syncthing.add_folder(folder_id, scratch_path.resolve()):
+        console.print("[red]Failed to add folder[/]")
+        sys.exit(1)
+
+    # Add all known devices to this folder
+    local_device_id = syncthing.get_device_id()
+    for device_id in syncthing.list_devices():
+        if device_id != local_device_id:
+            syncthing.add_device_to_folder(folder_id, device_id)
+            console.print(f"  [green]Added device:[/] [dim]{device_id[:7]}...[/]")
+
+    # Create .stignore if it doesn't exist
+    stignore_path = scratch_path / ".stignore"
+    if not stignore_path.exists():
+        console.print("[cyan]Creating[/] default .stignore...")
+        stignore_path.write_text(STIGNORE_TEMPLATE)
+
+    # Ensure scratch is in .gitignore
+    gitignore_path = path / ".gitignore"
+    if gitignore_path.exists():
+        content = gitignore_path.read_text()
+        if "scratch/" not in content and "/scratch" not in content:
+            console.print("[cyan]Adding[/] scratch/ to .gitignore...")
+            with open(gitignore_path, "a") as f:
+                f.write("\n# Local scratch folder (synced via scratch-sync)\nscratch/\n")
+    else:
+        console.print("[cyan]Creating[/] .gitignore with scratch/...")
+        gitignore_path.write_text("# Local scratch folder (synced via scratch-sync)\nscratch/\n")
+
+    # Configure GUI binding for remote discovery
+    if syncthing.is_gui_localhost_only():
+        console.print()
+        console.print("[cyan]Configuring[/] Syncthing for remote discovery...")
+        if syncthing.set_gui_address("0.0.0.0:8384"):
+            console.print("  GUI binding changed to [cyan]0.0.0.0:8384[/]")
+            console.print("  [yellow]Note:[/] Restart Syncthing for this to take effect")
+        else:
+            console.print("  [yellow]Warning:[/] Could not configure GUI binding")
+            console.print("  [dim]Run manually: syncthing cli config gui raw-address set 0.0.0.0:8384[/]")
+
+    console.print()
+    console.print("[bold green]Done![/]")
+    console.print()
+    console.print("[bold]Next steps:[/]")
+    console.print("  1. Run [cyan]scratch-sync pair[/] to discover and pair with other devices")
+    console.print("  2. On other devices, run [cyan]scratch-sync init[/] in the same repo")
+
+
+@main.command()
+@click.option("--timeout", "-t", default=3.0, show_default=True, help="Discovery timeout in seconds")
+def pair(timeout: float):
+    """Discover and pair with other devices on the Tailscale network.
+
+    Scans your [bold]Tailscale[/] network for other machines running [bold]Syncthing[/]
+    and automatically pairs them for folder synchronization.
+
+    [bold]Requirements:[/]
+      • Tailscale must be running and connected
+      • Syncthing must be running on other devices
+      • Syncthing GUI must be bound to 0.0.0.0:8384 (run [cyan]scratch-sync init[/] first)
+    """
+    if not tailscale.is_tailscale_running():
+        console.print("[red]Error:[/] Tailscale is not running")
+        sys.exit(1)
+
+    if not syncthing.find_syncthing():
+        console.print("[red]Error:[/] Syncthing not installed")
+        sys.exit(1)
+
+    console.print("[bold]Discovering Syncthing peers on Tailscale network...[/]")
+    console.print()
+
+    # Find peers
+    peers = tailscale.get_online_peers()
+    if not peers:
+        console.print("[dim]No online peers found on Tailscale network[/]")
+        return
+
+    console.print(f"Found [bold]{len(peers)}[/] online peer(s)")
+    console.print()
+
+    # Try to discover Syncthing on each peer using the noauth endpoint
+    discovered = []
+    for peer in peers:
+        console.print(f"  Checking [cyan]{peer.hostname}[/] ({peer.tailscale_ip})...", end="")
+        info = discovery.discover_syncthing_peer(peer.tailscale_ip, timeout=timeout)
+        if info:
+            console.print(" [green]found![/]")
+            info["tailscale_hostname"] = peer.hostname
+            discovered.append(info)
+        else:
+            console.print(" [dim]no Syncthing[/]")
+
+    if not discovered:
+        console.print()
+        console.print("[dim]No Syncthing peers discovered.[/]")
+        console.print()
+        console.print("[bold]Troubleshooting:[/]")
+        console.print("  • Ensure Syncthing is running on other devices")
+        console.print("  • Run [cyan]scratch-sync init[/] on other devices to configure GUI binding")
+        console.print("  • Or manually: [dim]syncthing cli config gui raw-address set 0.0.0.0:8384[/]")
+        return
+
+    console.print()
+    console.print(f"[bold]Discovered {len(discovered)} Syncthing peer(s):[/]")
+
+    for info in discovered:
+        hostname = info.get("hostname") or info.get("tailscale_hostname")
+        console.print(f"  [cyan]•[/] {hostname} [dim]({info.get('tailscale_ip')})[/]")
+        device_id = info.get("syncthing_device_id", "unknown")
+        console.print(f"    [dim]Device ID: {device_id[:20]}...[/]")
+
+    console.print()
+    if not click.confirm("Pair with these devices?"):
+        return
+
+    # Pair with each
+    paired_device_ids = []
+    for info in discovered:
+        hostname = info.get("hostname") or info.get("tailscale_hostname")
+        if discovery.auto_pair_with_peer(info):
+            console.print(f"  [green]Paired with {hostname}[/]")
+            paired_device_ids.append(info.get("syncthing_device_id"))
+        else:
+            console.print(f"  [red]Failed to pair with {hostname}[/]")
+
+    # Add newly paired devices to all existing scratch folders
+    if paired_device_ids:
+        folders = syncthing.list_folders()
+        scratch_folders = [f for f in folders if f.startswith("scratch-")]
+
+        if scratch_folders:
+            console.print()
+            console.print("[bold]Adding devices to scratch folders...[/]")
+            for folder_id in scratch_folders:
+                for device_id in paired_device_ids:
+                    if device_id:
+                        syncthing.add_device_to_folder(folder_id, device_id)
+                console.print(f"  [green]Updated {folder_id}[/]")
+
+    console.print()
+    console.print("[bold green]Done![/] Devices are now paired.")
+    console.print("[dim]Folders will sync automatically when both devices have the same folder ID.[/]")
+
+
+def _get_state_style(state: str) -> str:
+    """Get rich style for a sync state."""
+    state_styles = {
+        "idle": "green",
+        "scanning": "yellow",
+        "syncing": "cyan",
+        "error": "red",
+        "unknown": "dim",
+    }
+    return state_styles.get(state, "dim")
+
+
+def _format_bytes(b: int) -> str:
+    """Format bytes to human readable."""
+    for unit in ["B", "KB", "MB", "GB", "TB"]:
+        if abs(b) < 1024.0:
+            return f"{b:.1f} {unit}"
+        b /= 1024.0
+    return f"{b:.1f} PB"
+
+
+def _format_time(iso_time: str) -> str:
+    """Format ISO time to relative."""
+    from datetime import datetime
+
+    if not iso_time or iso_time.startswith("1969") or iso_time.startswith("0001"):
+        return "never"
+    try:
+        dt = datetime.fromisoformat(iso_time.replace("Z", "+00:00"))
+        now = datetime.now(dt.tzinfo)
+        diff = now - dt
+        if diff.days > 0:
+            return f"{diff.days}d ago"
+        elif diff.seconds > 3600:
+            return f"{diff.seconds // 3600}h ago"
+        elif diff.seconds > 60:
+            return f"{diff.seconds // 60}m ago"
+        else:
+            return "just now"
+    except Exception:
+        return iso_time[:19] if len(iso_time) > 19 else iso_time
+
+
+@main.command()
+def status():
+    """Show current sync status.
+
+    Displays information about:
+      • Your device ID and Syncthing version
+      • Paired devices and their connection status
+      • All [cyan]scratch-*[/] folders and their sync state
+    """
+    if not syncthing.find_syncthing():
+        console.print("[red]Error:[/] Syncthing not installed", style="red")
+        sys.exit(1)
+
+    # Get system status from REST API
+    system_status = syncthing.get_system_status()
+
+    if system_status:
+        device_id = system_status.get("myID", "unknown")
+        version = system_status.get("version", "unknown")
+        uptime = system_status.get("uptime", 0) // 60
+
+        console.print(Panel(
+            f"[cyan]Device ID:[/] {device_id}\n"
+            f"[cyan]Version:[/]   Syncthing {version}\n"
+            f"[cyan]Uptime:[/]    {uptime} minutes",
+            title="This Device",
+            border_style="blue",
+        ))
+    else:
+        # Fall back to CLI-based device ID
+        try:
+            device_id = syncthing.get_device_id()
+            console.print(f"[bold]Device ID:[/] [dim]{device_id}[/]")
+        except Exception as e:
+            console.print(f"[red]Error getting device ID:[/] {e}")
+            device_id = None
+
+    # Get devices with full info from REST API
+    config_devices = syncthing.get_config_devices()
+    connections = syncthing.get_connections()
+    device_stats = syncthing.get_device_stats()
+
+    # Filter out self
+    my_id = system_status.get("myID", "") if system_status else (device_id or "")
+    other_devices = [d for d in config_devices if d.get("deviceID") != my_id]
+
+    console.print()
+    console.print(f"[bold]Paired Devices ({len(other_devices)})[/]")
+
+    if other_devices:
+        device_table = Table(box=None, padding=(0, 2))
+        device_table.add_column("Name")
+        device_table.add_column("Device ID", style="dim")
+        device_table.add_column("Status")
+        device_table.add_column("Last Seen")
+        device_table.add_column("Transfer")
+
+        conn_info = connections.get("connections", {})
+
+        for device in other_devices:
+            dev_id = device.get("deviceID", "")
+            name = device.get("name") or "unknown"
+
+            # Connection status
+            conn = conn_info.get(dev_id, {})
+            if conn.get("connected"):
+                status_str = "[green]connected[/]"
+            elif conn.get("paused"):
+                status_str = "[yellow]paused[/]"
+            else:
+                status_str = "[red]disconnected[/]"
+
+            # Stats
+            stats = device_stats.get(dev_id, {})
+            last_seen = _format_time(stats.get("lastSeen", ""))
+
+            # Transfer totals
+            in_bytes = conn.get("inBytesTotal", 0)
+            out_bytes = conn.get("outBytesTotal", 0)
+            if in_bytes or out_bytes:
+                transfer = f"[dim]{_format_bytes(in_bytes)}[/] / [dim]{_format_bytes(out_bytes)}[/]"
+            else:
+                transfer = "[dim]-[/]"
+
+            device_table.add_row(
+                name,
+                f"{dev_id[:15]}...",
+                status_str,
+                last_seen,
+                transfer,
+            )
+
+        console.print(device_table)
+    else:
+        console.print("[dim]No devices paired yet. Run: scratch-sync pair[/]")
+
+    # Get folders with full info
+    config_folders = syncthing.get_config_folders()
+    scratch_folders = [f for f in config_folders if f.get("id", "").startswith("scratch-")]
+
+    console.print()
+    console.print(f"[bold]Scratch Folders ({len(scratch_folders)})[/]")
+
+    if scratch_folders:
+        folder_table = Table(box=None, padding=(0, 2))
+        folder_table.add_column("Folder ID", style="cyan")
+        folder_table.add_column("Path")
+        folder_table.add_column("Status")
+        folder_table.add_column("Shared With")
+
+        for folder in scratch_folders:
+            folder_id = folder.get("id", "unknown")
+            path = folder.get("path", "")
+
+            # Get folder status
+            folder_status = syncthing.get_folder_status(folder_id)
+            if folder_status:
+                state = folder_status.get("state", "unknown")
+                style = _get_state_style(state)
+                status_str = f"[{style}]{state}[/]"
+            else:
+                status_str = "[dim]unknown[/]"
+
+            # Get devices this folder is shared with
+            shared_devices = folder.get("devices", [])
+            shared_names = []
+            for sd in shared_devices:
+                sd_id = sd.get("deviceID", "")
+                if sd_id == my_id:
+                    continue
+                # Find device name
+                for d in config_devices:
+                    if d.get("deviceID") == sd_id:
+                        shared_names.append(d.get("name") or sd_id[:8])
+                        break
+
+            # Truncate path if too long
+            display_path = path if len(path) <= 35 else "..." + path[-32:]
+
+            folder_table.add_row(
+                folder_id,
+                f"[dim]{display_path}[/]",
+                status_str,
+                ", ".join(shared_names) if shared_names else "[dim]none[/]",
+            )
+
+        console.print(folder_table)
+    else:
+        console.print("[dim]No scratch folders configured. Run: scratch-sync init[/]")
+
+    # Check for pending device requests
+    pending = syncthing.get_pending_devices()
+    if pending:
+        console.print()
+        console.print(f"[bold yellow]Pending Pair Requests ({len(pending)})[/]")
+        for dev_id, info in pending.items():
+            name = info.get("name", "unknown")
+            console.print(f"  [yellow]•[/] {name} ({dev_id[:20]}...)")
+
+
+@main.command("list")
+def list_folders():
+    """List all scratch-sync managed folders.
+
+    Shows all Syncthing folders with IDs starting with [cyan]scratch-[/].
+    """
+    if not syncthing.find_syncthing():
+        console.print("[red]Error:[/] Syncthing not installed")
+        sys.exit(1)
+
+    folders = syncthing.list_folders()
+    scratch_folders = [f for f in folders if f.startswith("scratch-")]
+
+    if not scratch_folders:
+        console.print("[dim]No scratch-sync folders configured[/]")
+        return
+
+    console.print("[bold]Scratch folders:[/]")
+    for folder_id in scratch_folders:
+        console.print(f"  [cyan]•[/] {folder_id}")
+
+
+
+if __name__ == "__main__":
+    main()
