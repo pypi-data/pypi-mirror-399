@@ -1,0 +1,246 @@
+Metadata-Version: 2.4
+Name: py-sandbox
+Version: 0.2.5
+Summary: Secure sandbox for code execution with remote module loading
+Author: Phanes
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/phanes19122025-cmyk/phi-linux
+Keywords: sandbox,security,remote,module,loader
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+
+# py-sandbox
+
+> **The Courier** - Secure code execution and remote module loading for Φ-linux
+
+[![PyPI](https://img.shields.io/pypi/v/py-sandbox)](https://pypi.org/project/py-sandbox/)
+[![Python](https://img.shields.io/pypi/pyversions/py-sandbox)](https://pypi.org/project/py-sandbox/)
+
+## Overview
+
+py-sandbox is a dual-purpose package:
+
+1. **Public Feature**: Safe execution of untrusted Python code in isolated sandboxes
+2. **Private Feature**: Remote module loading with automatic fallback for Φ-linux infrastructure
+
+## Installation
+
+```bash
+pip install py-sandbox
+```
+
+## Quick Start
+
+### Sandbox Execution (Public)
+
+```python
+from py_sandbox import run, check
+
+# Execute untrusted code safely
+result = run('x = 2 + 2')
+print(result)  # {'x': 4, 'success': True}
+
+# Check code safety before execution
+is_safe = check('import os; os.system("rm -rf /")')
+print(is_safe)  # False
+```
+
+### Remote Module Loading (Courier)
+
+```python
+from py_sandbox import remote
+
+# Configure primary endpoint
+remote.configure(
+    endpoint='https://your-endpoint.com/modules',
+    api_key='your-api-key'
+)
+
+# Load module with automatic fallback
+result = remote.load('heartbeat')
+print(result)
+# {'status': 'alive', 'timestamp': '...', 'source': 'n8n'}
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│              remote.load('module')                │
+└───────────────────────┬─────────────────────────┘
+                        │
+          ┌─────────────┴─────────────┐
+          │                           │
+          ▼                           ▼
+┌─────────────────┐         ┌─────────────────┐
+│    PRIMARY      │         │    FALLBACK     │
+│  HTTP Endpoint  │───▶     │  PyPI Package   │
+│  (n8n/custom)   │ fails   │  (always up)    │
+└─────────────────┘         └─────────────────┘
+   ↓ Live updates             ↓ Stable version
+   ↓ API key auth             ↓ Auto-install
+   ↓ Custom modules           ↓ Cached locally
+```
+
+## Modules
+
+### sandbox.py
+
+Safe code execution with restricted builtins:
+
+```python
+from py_sandbox import run
+
+# Allowed: basic operations, math, string manipulation
+result = run('''
+import math
+area = math.pi * 5**2
+''')
+
+# Blocked: file access, network, system commands
+result = run('import os')  # Raises ImportError
+```
+
+### cache.py
+
+Local caching with TTL support:
+
+```python
+from py_sandbox import cache
+
+cache.set('key', 'value', ttl=3600)
+value = cache.get('key')
+cache.delete('key')
+cache.clear()
+stats = cache.stats()
+```
+
+### verify.py
+
+Integrity verification:
+
+```python
+from py_sandbox import verify
+
+hash_value = verify.sha256('content')
+is_valid = verify.check('content', expected_hash)
+signature = verify.sign('content', 'secret')
+```
+
+### remote.py (The Courier)
+
+Remote module loading with fallback:
+
+```python
+from py_sandbox import remote
+
+# Configure
+remote.configure(
+    endpoint='https://your-server.com/modules',
+    api_key='secret-key',
+    timeout=30,
+    use_cache=True,
+    cache_ttl=3600,
+    fallback_package='phi-linux-modules'
+)
+
+# Load with auto-fallback
+result = remote.load('heartbeat', use_fallback=True)
+
+# Check status
+status = remote.status()
+print(status)
+# {
+#   'primary': {'ok': True, 'status_code': 200},
+#   'fallback': {'ok': True, 'installed': True}
+# }
+
+# Multiple endpoints
+result = remote.fallback('module', [
+    ('https://primary.com', 'key1'),
+    ('https://backup.com', 'key2'),
+])
+```
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|--------|
+| `PY_SANDBOX_ENDPOINT` | Primary HTTP endpoint | (none) |
+| `PY_SANDBOX_KEY` | API key for authentication | (none) |
+| `PY_SANDBOX_FALLBACK` | PyPI fallback package | `phi-linux-modules` |
+
+## Security
+
+### Sandbox Isolation
+
+- Restricted builtins (no `open`, `exec`, `eval`, etc.)
+- Import blocking for dangerous modules (`os`, `sys`, `subprocess`)
+- Timeout protection against infinite loops
+- Memory limits via execution constraints
+
+### Remote Loading
+
+- Bearer token authentication
+- Optional SHA256 hash verification
+- TLS/HTTPS transport encryption
+- Automatic fallback to known-good PyPI packages
+
+## Container Constraints
+
+Designed for environments with restricted network access:
+
+| Resource | Status |
+|----------|--------|
+| pypi.org | ✅ Whitelisted |
+| files.pythonhosted.org | ✅ Whitelisted |
+| github.com/* | ❌ Blocked |
+| Custom domains | ❌ Blocked (proxy required) |
+
+## Development
+
+```bash
+# Clone
+git clone https://github.com/phanes19122025-cmyk/phi-linux.git
+cd phi-linux/claude_container/py_sandbox
+
+# Install in dev mode
+pip install -e .
+
+# Run tests
+python -m pytest
+```
+
+## Publishing to PyPI
+
+### Manual
+
+```bash
+python -m build
+twine upload dist/*
+```
+
+### Automatic (GitHub Actions)
+
+Tag a release to trigger auto-publish:
+
+```bash
+git tag v0.2.1
+git push --tags
+# GitHub Actions builds and uploads to PyPI
+```
+
+## Related Packages
+
+- **phi-linux-modules**: PyPI fallback package with embedded modules
+- **@phi/modules**: npm emergency fallback (experimental)
+
+## License
+
+MIT
+
+---
+
+*Φ-linux Courier System | Built for resilience*
