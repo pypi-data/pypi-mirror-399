@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qphase-sde"
+version = "1.0.0"
+description = "Physics engine for QPhase: Stochastic Differential Equations in Phase Space"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [
+  { name = "Yu Xue-Hao", email = "yuxuehao23@mails.ucas.ac.cn" }
+]
+urls = { Homepage = "https://github.com/PolarisMegrez/qphase", Repository = "https://github.com/PolarisMegrez/qphase", Issues = "https://github.com/PolarisMegrez/qphase/issues" }
+keywords = [
+  "quantum optics", "SDE", "simulation", "stochastic", "phase-space"
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Physics",
+  "Topic :: Software Development :: Libraries"
+]
+dependencies = [
+  "numpy>=1.23",
+  "qphase>=1.0.0"
+]
+
+[project.optional-dependencies]
+accel = ["numba>=0.57"]
+config = ["pydantic>=2.4"]
+
+[project.entry-points.qphase]
+# Engine
+"engine.sde" = "qphase_sde.engine:Engine"
+# Integrator plugin
+"integrator.euler_maruyama" = "qphase_sde.integrator.euler_maruyama:EulerMaruyama"
+"integrator.milstein" = "qphase_sde.integrator.milstein:Milstein"
+"integrator.srk" = "qphase_sde.integrator.srk:GenericSRK"
+
+[tool.setuptools.packages.find]
+where = ["."]
