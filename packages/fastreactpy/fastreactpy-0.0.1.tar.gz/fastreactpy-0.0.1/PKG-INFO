@@ -1,0 +1,39 @@
+Metadata-Version: 2.4
+Name: fastreactpy
+Version: 0.0.1
+Summary: Fast, lightweight reactive state for Python
+Author-email: Malahim Haseeb <malahimhaseeb@gmail.com>
+License-Expression: MIT
+Keywords: reactive,state,python,reactivity,signals
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# fastreactpy
+
+Fast, lightweight reactive state library for Python.
+
+## Example
+
+```python
+from fastreactpy import signal, effect
+
+count = signal(0)
+
+@effect
+def print_count():
+    print("Count changed:", count())
+
+count(5)
+count(10)
+
+```
