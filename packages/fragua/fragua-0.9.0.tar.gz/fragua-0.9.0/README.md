@@ -1,0 +1,233 @@
+
+# Fragua
+
+**Fragua** is a modular Python library for modeling and orchestrating **ETL / ELT workflows**
+through explicit execution environments, unified agents, and a strongly typed domain model.
+
+Fragua is designed as an educational and experimental framework focused on
+**architectural clarity**, **predictable execution**, and **explicit responsibility separation**.
+
+---
+
+## Core Concept
+
+In Fragua, **everything happens inside an Environment**.
+
+A `FraguaEnvironment` represents an isolated execution context that owns:
+
+- Component lifecycle and resolution
+- Execution context and security boundaries
+- Runtime state and metadata
+- Data persistence and traceability
+
+Agents do not exist or operate independently.
+They are created, configured, and executed exclusively within an Environment.
+
+---
+
+## Environment Responsibilities
+
+The `FraguaEnvironment` is the central orchestrator of the system. It is responsible for:
+
+- Initializing and managing the **Warehouse**
+- Managing action contexts: `extract`, `transform`, `load`
+- Registering, resolving, and executing components
+- Managing execution credentials (tokens)
+- Providing a unified CRUD API for components
+- Exposing structured runtime summaries
+
+Multiple environments can coexist, each representing an independent pipeline,
+experiment, or workflow.
+
+---
+
+## Unified Component Management
+
+All components in Fragua are managed through a **single, unified CRUD API**
+exposed by the Environment.
+
+Components are resolved by:
+
+- **Action** (`extract`, `transform`, `load`)
+- **Component type** (`agent`, `function`, `internal_function`, `set`)
+
+This unified approach:
+
+- Eliminates duplicated logic
+- Reduces coupling between modules
+- Guarantees consistent runtime behavior
+
+---
+
+## Agents and Execution Model
+
+Fragua uses a **single unified agent model** (`FraguaAgent`).
+
+Agents:
+
+- Are instantiated exclusively by the Environment
+- Receive mandatory execution credentials
+- Can execute:
+  - Registered functions by name
+  - Callables provided at runtime
+  - Internal transform and load functions
+  - Full transform pipelines
+- Normalize inputs to `pandas.DataFrame`
+- Interact with data exclusively through the Warehouse
+- Generate execution metadata and operation records (with undo support)
+
+Agents act as controlled executors, not as owners of configuration or state.
+
+---
+
+## Execution and Configuration Flow
+
+Fragua follows an **explicit execution-context model**.
+
+- Parameters and configuration are passed explicitly through function calls
+- Transform pipelines propagate context between steps
+- Functions declare their supported configuration via metadata (`config_keys`)
+- No implicit or global parameter containers are used
+
+This model improves:
+
+- Readability
+- Debuggability
+- Contract enforcement
+- Predictability of execution
+
+---
+
+## Internal Functions and Pipelines
+
+Fragua supports **runtime registration and management of internal functions**
+for transform and load actions.
+
+Internal functions:
+
+- Can be registered as callables or metadata-based specifications
+- Expose explicit metadata (purpose, description, config keys)
+- Can be executed directly or composed into pipelines
+- Are fully managed through the Environment API
+
+---
+
+## Security Model
+
+Fragua enforces an explicit internal security model:
+
+- The **Environment** issues execution tokens
+- **Agents** consume tokens to operate
+- The **Warehouse** validates tokens for protected operations
+
+This ensures that no agent can execute or access data outside a valid
+environment context.
+
+---
+
+## Domain-Driven Typing
+
+Fragua uses a strongly typed, enum-based domain vocabulary.
+
+Enums define all core concepts, including:
+
+- Actions and component types
+- Storage and target types
+- Operations, fields, and attributes
+
+This approach:
+
+- Eliminates magic strings
+- Centralizes validation
+- Improves IDE support and static analysis
+- Provides a clear and extensible domain language
+
+Concise enum aliases are exported for ergonomic usage without sacrificing type safety.
+
+---
+
+## Component Architecture
+
+Fragua follows a layered component model:
+
+- **FraguaComponent**
+  Base abstraction for all registrable elements.
+
+- **FraguaSet**
+  Logical container for homogeneous components.
+  Responsible for:
+  - CRUD operations
+  - Validation
+  - Human-readable summaries
+
+- **FraguaRegistry**
+  Groups and manages multiple `FraguaSet` instances within an Environment.
+
+This separation ensures clarity between component definition,
+organization, and orchestration.
+
+---
+
+## Warehouse and Data Traceability
+
+Each Environment owns a **Warehouse**, which acts as the single source of truth
+for all data artifacts.
+
+The Warehouse provides:
+
+- Controlled data operations
+- Full operation logging with timestamps
+- Undo support for destructive actions
+- Metadata-based summaries and inspection
+
+---
+
+## Key Characteristics
+
+- Environment-centric orchestration
+- Unified agent model
+- Unified component lifecycle management
+- Explicit execution-context-based configuration
+- Strongly typed domain model
+- Isolated execution contexts
+- Centralized storage and traceability
+- Clear separation of responsibilities
+
+---
+
+## Project Structure
+
+```
+fragua/
+├── __init__.py
+├── core/
+├── registries/
+├── sets/
+└── utils/
+```
+
+---
+
+## Installation
+
+```bash
+python -m pip install -e .
+```
+
+> ⚠️ Fragua is published for educational and experimental purposes.
+> It is **not recommended for production use yet**.
+
+---
+
+## Author
+
+**Santiago Lanz**
+🌐 https://sagodev.github.io/Portfolio-Web-Santiago-Lanz/
+💼 https://www.linkedin.com/in/santiagolanz/
+🐙 https://github.com/SagoDev
+
+---
+
+## License
+
+MIT License
