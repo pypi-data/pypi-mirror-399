@@ -1,0 +1,27 @@
+prune docs
+prune book
+prune build
+prune dist
+prune dist_test
+prune dist_sdist
+prune demo
+prune tests
+prune docs/source/_build
+prune docs/source/_templates
+prune annolid/motion/weights
+prune docs/tutorials/Untitled.ipynb
+prune docs/tutorials/.ipynb_checkpoints
+include environment.yml
+recursive-include annolid *.yaml *.yml *.json *.txt *.md *.qrc
+recursive-include annolid *.js
+recursive-include annolid *.png *.jpg *.jpeg *.gif *.svg *.ico *.icns
+include annolid/annotation/labels_interaction
+
+# Exclude editor settings, local env files, and build artifacts (even if present locally).
+prune .vscode
+prune annolid/.vscode
+exclude .env
+exclude .webui_secret_key
+global-exclude *.py[cod]
+global-exclude __pycache__/*
+global-exclude .DS_Store
