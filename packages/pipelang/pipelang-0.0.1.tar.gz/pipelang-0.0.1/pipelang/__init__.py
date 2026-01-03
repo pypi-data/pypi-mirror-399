@@ -1,0 +1,47 @@
+"""
+pipelang: powerful pipeline syntax for IPython and Jupyter.
+Just run `%load_ext pipelang` to begin using pipe operators, placeholders, and more.
+"""
+
+from __future__ import annotations
+
+from IPython.core.interactiveshell import InteractiveShell
+
+from . import _version  # noqa: E402
+from .completion_patch import patch_completer, unpatch_completer
+
+__version__ = _version.get_versions()["version"]
+
+
+def load_ipython_extension(shell: InteractiveShell) -> None:
+    from ipyflow.shell.interactiveshell import IPyflowInteractiveShell
+
+    from pipelang.macro_tracer import MacroTracer
+    from pipelang.pipeline_tracer import PipelineTracer
+
+    if not isinstance(shell, IPyflowInteractiveShell):
+        shell.run_line_magic("load_ext", "ipyflow.shell")
+        shell.run_line_magic("flow", "deregister all")
+    assert isinstance(shell, IPyflowInteractiveShell)
+    shell.run_line_magic(
+        "flow", f"register {PipelineTracer.__module__}.{PipelineTracer.__name__}"
+    )
+    shell.run_line_magic(
+        "flow",
+        f"register {MacroTracer.__module__}.{MacroTracer.__name__}",
+    )
+    patch_completer(shell.Completer)
+
+
+def unload_ipython_extension(shell: InteractiveShell) -> None:
+    from pipelang.macro_tracer import MacroTracer
+    from pipelang.pipeline_tracer import PipelineTracer
+
+    unpatch_completer(shell.Completer)
+    shell.run_line_magic(
+        "flow",
+        f"deregister {MacroTracer.__module__}.{MacroTracer.__name__}",
+    )
+    shell.run_line_magic(
+        "flow", f"deregister {PipelineTracer.__module__}.{PipelineTracer.__name__}"
+    )
