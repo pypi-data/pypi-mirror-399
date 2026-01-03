@@ -1,0 +1,352 @@
+# LLM Workflow Orchestrator
+
+This library provides a framework for creating and executing workflows based on LLM (Large Language Model) prompting templates. 
+
+Workflows can consist of chained tasks, each defined by a task template that contains user and system prompts. 
+
+These workflows are executed using various LLM strategies, and the results are chained as context to the next task.
+
+Results can be stored, updated, and finalized using a repository for traceability.
+
+## Features (alpha)
+
+- **Template Creation**: Define templates with System and User prompty; including an inference strategy.
+
+- **Workflow Creation**: Define workflows by chaining tasks based on predefined templates.
+
+- **Task Execution**: Execute workflows using a flexible executor, leveraging LLM-based prompts.
+
+- **Result Handling**: Automatically finalize results using a customizable task finalizer.
+
+- **Storage Support**: Store and manage workflows in a MongoDB repository.
+
+- **Modular and Extendable**: Easily extend with custom prompt providers, task finalizers, custom executors (context management) and alternate storage repositories.
+
+## Key Components
+### 1. WorkflowTaskTemplate
+
+Defines a template for a task, including user and system prompts, strategy (e.g., LLM model), and model configuration.
+
+**Attributes:**
+
+- description: A short description of the task.
+
+- name: The name of the task.
+
+- priority: The priority of the task (for order of execution).
+
+- user_prompt_default: The default prompt to provide to the user.
+
+- system_prompt_default: The default prompt for the system.
+
+- strategy: The model strategy (e.g., ollama).
+
+- model: The specific model to use (e.g., llama3.2).
+
+
+### 2. WorkflowTask
+
+Represents an instance of a task in a workflow. It ties a WorkflowTaskTemplate with a specific result and status.
+
+**Attributes:**
+
+- result_module_name: The name of the module where the result is stored.
+
+- result_class_name: The name of the result class.
+
+- template: The associated WorkflowTaskTemplate.
+
+- status: The current status of the task (e.g., PENDING, COMPLETED).
+
+- result: The actual result produced by the task after execution.
+
+### 3. Workflow
+
+A collection of WorkflowTask instances that are executed in sequence.
+
+**Attributes:**
+
+- name: The name of the workflow.
+
+- description: A brief description of the workflow.
+
+- tasks: A list of tasks that make up the workflow.
+
+- status: The current status of the workflow (e.g., PENDING, COMPLETED).
+
+### 4. WorkflowExecutor
+
+Orchestrates the execution of tasks within a workflow, handling task dependencies, execution order, and result collection.
+
+**Attributes:**
+
+- llm_config: The configuration for the LLM model.
+
+- prompt_provider: The provider responsible for fetching the prompt templates.
+
+- task_finalizer: The finalizer that handles the results after the workflow is completed.
+
+### 5. MongoWorkflowRepository
+
+Provides persistence for workflows and task results using MongoDB.
+
+**Attributes:**
+
+- update_workflow(): Saves the workflow in the repository.
+
+- close(): Closes the repository connection.
+
+### Examples
+
+**Install the library**
+
+```bash
+pip install llm-unified-orchestrator
+```
+
+
+#### Example - Create templates
+
+- Template to summarize text
+- Template to enrich the text based on a summary
+
+Add the templates to a repository (mongodb)
+
+```python
+
+from pydantic import BaseModel, Field
+from llm_unified_orchestrator.data_store.repository import MongoWorkflowRepository
+from llm_unified_orchestrator.core.task import WorkflowTask, WorkflowTaskTemplate, TaskStatus
+from llm_unified_orchestrator.core.workflow import Workflow, WorkflowStatus
+
+## Summarize text
+template_summarize = WorkflowTaskTemplate(
+    description="Call Ollama for initial summarization",
+    name="llama3_summary",
+    user_prompt_id=None,
+    system_prompt_id=None,
+    user_prompt_default="Summarize the following: '{text}'",
+    system_prompt_default="You are a concise summarizer.",
+    strategy="ollama",
+    model="llama3.2",
+    mcp_tools=None,
+)
+
+## Enrich the summarized text
+template_enrich = WorkflowTaskTemplate(
+    description="Call Llama3.2 for enrichment",
+    name="llama3_enrich",
+    user_prompt_id=None,
+    system_prompt_id=None,
+    user_prompt_default="Enrich the summary. Original text: {text}",
+    system_prompt_default="You are an assistant that expands ideas.",
+    strategy="ollama",
+    model="llama3.2",
+    mcp_tools=None,
+)
+
+# Add the templates to the repository
+repo = MongoWorkflowRepository()
+
+repo.update_template(template_summarize)
+repo.update_template(template_enrich)
+```
+
+#### Example - Create a Workflow
+
+Create a workflow using the templates. 
+
+- Create tasks (attach to a template)
+- Define the expected result type for the task
+- Assign a priority for the
+
+A scheduler will execute pending workflows; based on the assigned priority and strategy.
+
+```python
+def build_example_workflow(template_summarize: WorkflowTaskTemplate, template_enrich: WorkflowTaskTemplate) -> Workflow:
+
+    # Expected summary result
+    class ResultSummary(BaseModel):
+        summary: str = Field(
+            description=(
+                "The summary of the text"
+            )
+        )
+
+    # Expected enrichment result
+    class ResultSummaryEnriched(BaseModel):
+        summary: str = Field(
+            description=(
+                "The summary of the text"
+            )
+        )
+        enriched_summary: str = Field(
+            description=(
+                "The enriched summary"
+            )
+        )
+
+    # Create a summarize task (based on the template)
+    task_summarize = WorkflowTask(
+        priority=1,
+        result_module_name="__main__",
+        result_class_name=ResultSummary.__name__,
+        template_name=template_summarize.name,
+        template=template_summarize,
+        status=TaskStatus.PENDING,
+        result=None,
+    )
+    
+    # Create an enrichment task (based on the template)
+    task_enrich = WorkflowTask(
+        priority=0,
+        result_module_name="__main__",
+        result_class_name=ResultSummaryEnriched.__name__,
+        template=template_enrich,
+        template_name=template_enrich.name,
+        status=TaskStatus.PENDING,
+        result=None,
+    )
+
+    workflow = Workflow(
+        name="example_ollama_llama3_workflow",
+        description="Example workflow demonstrating Ollama and Llama3.2 tasks",
+        tasks=[task_summarize, task_enrich],
+        status=WorkflowStatus.PENDING
+    )
+
+    return workflow
+```
+
+#### Example - Start a workflow
+```python
+
+from llm_unified_orchestrator.factories.prompt_provider_factory import PromptProviderFactory
+from llm_unified_orchestrator.factories.task_finalizer_factory import TaskFinalizerFactory
+from llm_unified_orchestrator.data_store.repository import MongoWorkflowRepository
+from llm_unified_orchestrator.executors.generic_executor import WorkflowExecutor
+from llm_unified_orchestrator.inference_api.llm_config import LlmConfig
+from llm_unified_orchestrator.core.task import WorkflowTask, WorkflowTaskTemplate, TaskStatus
+from llm_unified_orchestrator.core.workflow import Workflow, WorkflowStatus
+
+# Create or Get the workflow from the database
+repo = MongoWorkflowRepository()
+workflow = repo.get_workflow("example_ollama_llama3_workflow")
+
+# Dependencies
+prompt_factory = PromptProviderFactory(mlflow_uri="http://localhost:5000")
+prompt_provider = prompt_factory.create_mlflow_prompt_provider()
+finalizer_factory = TaskFinalizerFactory(workflow_repository=repo)
+finalizer = finalizer_factory.create()
+llm_config = LlmConfig()
+
+# Generic Workflow Executor
+executor = WorkflowExecutor(llm_config=llm_config, prompt_provider=prompt_provider, task_finlizaer=finalizer)
+
+# The text to summarize and enrich
+kwargs = {'text': 'The essence of software engineering is similar to the detachment of an analyst'}
+
+executor.execute_workflow(workflow=workflow, **kwargs)
+
+```
+
+#### Result
+
+The result contains:
+
+- snapshot of the template
+- result for each task
+- contexts assigned to tasks
+- latency
+
+```json
+{
+  "name": "example_ollama_llama3_workflow",
+  "description": "Example workflow demonstrating Ollama and Llama3.2 tasks",
+  "priority": 1,
+  "tasks": [
+    {
+      "status": "completed",
+      "context": {},
+      "result": "{\"summary\":\"This phrase highlights that in software engineering, analysis and problem-solving can be separate and distinct from creative design.\"}",
+      "result_module_name": "__main__",
+      "result_class_name": "ResultSummary",
+      "template_name": "llama3_summary",
+      "template": {
+        "name": "llama3_summary",
+        "description": "Call Ollama for initial summarization",
+        "user_prompt_default": "Summarize the following: 'The essence of software engineering is similar to the detachment of an analyst'",
+        "system_prompt_default": "You are a concise summarizer.",
+        "strategy": "ollama",
+        "model": "llama3.2"
+      },
+      "latency_ms": 2992.8982257843018
+    },
+    {
+      "status": "completed",
+      "context": {
+        "PreviousTask_1_llama3_summary_name": "llama3_summary",
+        "PreviousTask_1_llama3_summary_desription": "Call Ollama for initial summarization",
+        "PreviousTask_1_llama3_summary_result": "{\"summary\":\"This phrase highlights that in software engineering, analysis and problem-solving can be separate and distinct from creative design.\"}"
+      },
+      "result": "{\"summary\":\"The essence of software engineering can be likened to the detachment of an analyst, as both require a focus on problem-solving and analysis, rather than creative expression or design input. In this sense, software engineers can adopt a similar mindset, focusing on functionality, modularity, and scalability, rather than aesthetics or innovative design elements. This mindset is essential in ensuring that software development remains a systematic and methodical process, prioritizing the needs of users over individual creative vision. By embracing this detached analytical approach, software engineers can produce reliable, efficient, and maintainable software systems.\",\"enriched_summary\":\"The concept of detachment in software engineering draws parallels with the role of an analyst, emphasizing the importance of separating analysis from creative design elements. This dichotomy highlights the distinct nature of these professions, where analysts focus on problem-solving and analysis, whereas designers prioritize creative expression. By adopting a similar detached analytical mindset, software engineers can align their work more closely with the principles of systematic development, ensuring that the needs of users are prioritized over individual design preferences.\"}",
+      "result_module_name": "__main__",
+      "result_class_name": "ResultSummaryEnriched",
+      "template_name": "llama3_enrich",
+      "template": {
+        "name": "llama3_enrich",
+        "description": "Call Llama3.2 for enrichment",
+        "user_prompt_default": "Enrich the summary. Original text: The essence of software engineering is similar to the detachment of an analyst",
+        "system_prompt_default": "You are an assistant that expands ideas.\n            \n            ## Context\n            If relevant, use the following contextual information:\n            {'PreviousTask_1_llama3_summary_name': 'llama3_summary', 'PreviousTask_1_llama3_summary_desription': 'Call Ollama for initial summarization', 'PreviousTask_1_llama3_summary_result': '{\"summary\":\"This phrase highlights that in software engineering, analysis and problem-solving can be separate and distinct from creative design.\"}'}",
+        "strategy": "ollama",
+        "model": "llama3.2"
+      },
+      "latency_ms": 18210.546016693115
+    },
+    {
+      "status": "completed",
+      "context": {
+        "PreviousTask_1_llama3_summary_name": "llama3_summary",
+        "PreviousTask_1_llama3_summary_desription": "Call Ollama for initial summarization",
+        "PreviousTask_1_llama3_summary_result": "{\"summary\":\"This phrase highlights that in software engineering, analysis and problem-solving can be separate and distinct from creative design.\"}",
+        "PreviousTask_2_llama3_enrich_name": "llama3_enrich",
+        "PreviousTask_2_llama3_enrich_desription": "Call Llama3.2 for enrichment",
+        "PreviousTask_2_llama3_enrich_result": "{\"summary\":\"The essence of software engineering can be likened to the detachment of an analyst, as both require a focus on problem-solving and analysis, rather than creative expression or design input. In this sense, software engineers can adopt a similar mindset, focusing on functionality, modularity, and scalability, rather than aesthetics or innovative design elements. This mindset is essential in ensuring that software development remains a systematic and methodical process, prioritizing the needs of users over individual creative vision. By embracing this detached analytical approach, software engineers can produce reliable, efficient, and maintainable software systems.\",\"enriched_summary\":\"The concept of detachment in software engineering draws parallels with the role of an analyst, emphasizing the importance of separating analysis from creative design elements. This dichotomy highlights the distinct nature of these professions, where analysts focus on problem-solving and analysis, whereas designers prioritize creative expression. By adopting a similar detached analytical mindset, software engineers can align their work more closely with the principles of systematic development, ensuring that the needs of users are prioritized over individual design preferences.\"}"
+      },
+      "result": "{\"summary\":\"The essence of software engineering is highlighted to draw a parallel between detachment and analysis, similar to the role of an analyst. Analysis focuses on problem-solving and separation from creative design elements, whereas designers prioritize expression. A detached analytical mindset for software engineers aligns with systematic development principles, prioritizing user needs over individual preferences.\"}",
+      "result_module_name": "__main__",
+      "result_class_name": "ResultSummary",
+      "template_name": "llama3_context_summary",
+      "template": {
+        "name": "llama3_context_summary",
+        "description": "Call Ollama for initial summarization",
+        "user_prompt_default": "Summarize the context using all enrichments",
+        "system_prompt_default": "You are a concise summarizer.\n            \n            ## Context\n            If relevant, use the following contextual information:\n            {'PreviousTask_1_llama3_summary_name': 'llama3_summary', 'PreviousTask_1_llama3_summary_desription': 'Call Ollama for initial summarization', 'PreviousTask_1_llama3_summary_result': '{\"summary\":\"This phrase highlights that in software engineering, analysis and problem-solving can be separate and distinct from creative design.\"}', 'PreviousTask_2_llama3_enrich_name': 'llama3_enrich', 'PreviousTask_2_llama3_enrich_desription': 'Call Llama3.2 for enrichment', 'PreviousTask_2_llama3_enrich_result': '{\"summary\":\"The essence of software engineering can be likened to the detachment of an analyst, as both require a focus on problem-solving and analysis, rather than creative expression or design input. In this sense, software engineers can adopt a similar mindset, focusing on functionality, modularity, and scalability, rather than aesthetics or innovative design elements. This mindset is essential in ensuring that software development remains a systematic and methodical process, prioritizing the needs of users over individual creative vision. By embracing this detached analytical approach, software engineers can produce reliable, efficient, and maintainable software systems.\",\"enriched_summary\":\"The concept of detachment in software engineering draws parallels with the role of an analyst, emphasizing the importance of separating analysis from creative design elements. This dichotomy highlights the distinct nature of these professions, where analysts focus on problem-solving and analysis, whereas designers prioritize creative expression. By adopting a similar detached analytical mindset, software engineers can align their work more closely with the principles of systematic development, ensuring that the needs of users are prioritized over individual design preferences.\"}'}",
+        "strategy": "ollama",
+        "model": "llama3.2"
+      },
+      "latency_ms": 16248.25119972229
+    }
+  ],
+  "status": "completed",
+  "latency_ms": 37495.9077835083
+}
+
+```
+
+## License
+
+Copyright (C) 2025  Paul Eger
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+

@@ -1,0 +1,32 @@
+[project]
+name = "llm_unified_orchestrator"
+version = "1.0.3"
+description = "Orchestrate LLM tasks. Define workflows, run and track progress."
+readme = "readme.py.md"
+requires-python = ">=3.10.16"
+authors = [
+    {name = "Paul Eger"},
+]
+dependencies = [
+    "typing",
+    "pydantic",
+    "ollama",
+    "prometheus_client",
+    "psutil",
+    "pymongo",
+    "mlflow",
+    "openai",
+    "google-genai",
+    "tenacity"
+]
+
+[project.urls]
+homepage = "https://github.com/egerpaulj/LlmOrchestrator"
+repository = "https://github.com/egerpaulj/LlmOrchestrator.git"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["llm_unified_orchestrator", "*"]
+
+
+
