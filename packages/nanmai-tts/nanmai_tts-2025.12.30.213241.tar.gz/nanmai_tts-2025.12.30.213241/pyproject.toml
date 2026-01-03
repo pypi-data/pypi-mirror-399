@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nanmai-tts"
+dynamic = ["version"]
+description = "Async Python library for Nanmai TTS (DeepSeek/Kimi voices)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    {name = "SpeakUB Community", email = "speakub@example.com"},
+]
+maintainers = [
+    {name = "SpeakUB Community", email = "speakub@example.com"},
+]
+keywords = ["tts", "text-to-speech", "nanmai", "deepseek", "kimi", "chinese", "async"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "aiohttp>=3.8.0",
+]
+
+[project.scripts]
+nanmai-tts = "nanmai_tts.util:main"
+
+[tool.hatch.version]
+source = "code"
+path = "src/nanmai_tts/_version.py"
+expression = "get_version()"
+
+[tool.setuptools.packages.find]
+where = ["src"]
