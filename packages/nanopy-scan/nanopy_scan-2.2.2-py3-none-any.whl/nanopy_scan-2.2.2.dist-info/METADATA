@@ -1,0 +1,78 @@
+Metadata-Version: 2.4
+Name: nanopy-scan
+Version: 2.2.2
+Summary: Full-featured blockchain explorer for NanoPy Network with SQLite indexing
+Home-page: https://github.com/nanopy/nanopy-scan
+Author: NanoPy Team
+Author-email: dev@nanopy.chain
+Keywords: blockchain explorer nanopy ethereum sqlite indexer
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: aiohttp>=3.8.0
+Requires-Dist: click>=8.0.0
+Requires-Dist: rich>=12.0.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# NanoPy Scan
+
+Blockchain explorer for NanoPy with SQLite indexing and WebSocket sync.
+
+## Install
+
+```bash
+pip install nanopy-scan
+nanopy-scan
+```
+
+## Networks
+
+```bash
+# NanoPy L1 Mainnet (default)
+nanopy-scan --network mainnet
+
+# NanoPy L1 Testnet
+nanopy-scan --network testnet
+
+# NanoPy Turbo L2
+nanopy-scan --network turbo
+
+# NanoPy Turbo L2 Testnet
+nanopy-scan --network turbo-testnet
+```
+
+## Features
+
+- Real-time sync via WebSocket (`eth_subscribe newHeads`)
+- HTTP polling fallback
+- SQLite indexing
+- Block/Transaction/Address explorer
+- Validator tracking
+- Multi-network support (L1 + L2)
+
+## API
+
+| Endpoint | Description |
+|----------|-------------|
+| `/api/status` | Network status |
+| `/api/blocks` | List blocks |
+| `/api/block/:id` | Block details |
+| `/api/transactions` | List transactions |
+| `/api/tx/:hash` | Transaction details |
+| `/api/address/:addr` | Address info |
+| `/api/validators` | Validators |
