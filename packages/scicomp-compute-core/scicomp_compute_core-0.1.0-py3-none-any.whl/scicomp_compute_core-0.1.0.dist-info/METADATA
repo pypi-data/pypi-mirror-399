@@ -1,0 +1,22 @@
+Metadata-Version: 2.4
+Name: scicomp-compute-core
+Version: 0.1.0
+Summary: Unified computational primitives: NumPy/CuPy arrays, FFT, linear algebra
+Project-URL: Homepage, https://github.com/andylbrummer/math-mcp
+Project-URL: Documentation, https://andylbrummer.github.io/math-mcp/
+Project-URL: Repository, https://github.com/andylbrummer/math-mcp
+Author-email: Andy Brummer <andy@example.com>
+License-Expression: MIT
+Keywords: cuda,cupy,fft,gpu,linear-algebra,numpy
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering
+Requires-Python: >=3.11
+Requires-Dist: numpy>=1.26.0
+Requires-Dist: scipy>=1.11.0
+Provides-Extra: gpu
+Requires-Dist: cupy-cuda12x>=13.0.0; extra == 'gpu'
