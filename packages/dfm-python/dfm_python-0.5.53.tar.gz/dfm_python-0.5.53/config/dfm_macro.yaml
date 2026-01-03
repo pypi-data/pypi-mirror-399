@@ -1,0 +1,80 @@
+# DFM Configuration for Macroeconomic Datasets
+# Based on Korean economic indicators (KO* series)
+# Data: 101 series, weekly frequency (1985-04-05 to 2025-11-21)
+# Target: KOEQUIPTE (Investment, Equipment, Estimation, SA)
+
+# EM Algorithm Parameters
+ar_lag: 1  # Global AR lag order (applies to all blocks)
+threshold: 1.0e-05  # EM convergence threshold
+max_iter: 5000  # Maximum EM iterations
+
+# Numerical Stability Parameters
+clip_ar_coefficients: true
+ar_clip_min: -0.99
+ar_clip_max: 0.99
+use_regularization: true
+regularization_scale: 1.0e-05
+
+# Idiosyncratic Component Parameters
+augment_idio: true
+augment_idio_slow: true  # Important for mixed-frequency macro data (quarterly GDP, monthly indicators)
+idio_rho0: 0.1
+idio_min_var: 1.0e-08
+
+# Data Handling
+clock: m  # Monthly clock frequency (base frequency for latent factors)
+# target_scaler: Pass sklearn scaler object directly (e.g., StandardScaler(), RobustScaler())
+# Example in Python:
+#   from sklearn.preprocessing import StandardScaler
+#   config.target_scaler = StandardScaler()
+# Note: nan_method and nan_k are internal constants (not user-configurable)
+
+# Block Structure for Macroeconomic Data
+# 4 blocks with overlapping series (each block has at least 5 series)
+# Series can appear in multiple blocks to capture different factor structures
+blocks:
+  Block_Real:
+    num_factors: 3  # Real economy factors (GDP, production, employment, consumption, investment)
+    series:
+      - KOGDP...D  # GDP (quarterly, slower frequency)
+      - KOCONPRCF  # Production
+      - KOEMPTOTO  # Total employment
+      - KOHWRWEMP  # Hours worked
+      - KOWRCCNSE  # Consumption
+      - KOIMPCONA  # Investment
+      - KOEXPGDSA  # Exports
+      - KOIMPGDSA  # Imports
+  Block_Prices:
+    num_factors: 2  # Price and inflation factors
+    series:
+      - KOGDP...D  # GDP (overlap with Block_Real)
+      - KOCPCOREF  # Consumer prices
+      - KOCPEXFEF  # Export prices
+      - KOWRCCNSE  # Consumption (overlap with Block_Real)
+      - KOPROPRCF  # Profit
+      - KOSIAI..E  # Sales index
+  Block_Financial:
+    num_factors: 2  # Financial market factors
+    series:
+      - KOGDP...D  # GDP (overlap with other blocks)
+      - KOCREU..A  # Credit
+      - KODBLNHSA  # Debt
+      - KOLRLTHH  # Interest rates
+      - KOMPCONGG  # Money supply
+      - KOCPCOREF  # Consumer prices (overlap with Block_Prices)
+  Block_Surveys:
+    num_factors: 2  # Survey and sentiment factors
+    series:
+      - KOGDP...D  # GDP (overlap with other blocks)
+      - KOBSIHAPR  # Business survey
+      - KOBSIBNER  # Business expectations
+      - KOCNFCONR  # Confidence
+      - KOCNPER.D  # Consumer sentiment
+      - KOCONPRCF  # Production (overlap with Block_Real)
+
+# Frequency mapping for mixed-frequency macro data
+# Quarterly series (slower than monthly clock)
+# Monthly series default to clock frequency (m) if not specified
+frequency:
+  KOGDP...D: q  # Quarterly GDP (slower frequency than monthly clock)
+  # All other series default to monthly (clock frequency: m)
