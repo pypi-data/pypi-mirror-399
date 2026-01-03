@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastapi-ai-chat"
+version = "1.0.0"
+description = "Minimal FastAPI backend for streaming AI chat over SSE (token/done/error), compatible with ai-chat-kit"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Your Name" }]
+keywords = ["ai", "chat", "fastapi", "sse", "streaming"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Framework :: FastAPI",
+  "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+  "fastapi>=0.110.0",
+  "httpx>=0.27.0",
+]
+
+[project.optional-dependencies]
+server = ["uvicorn[standard]>=0.23.0"]
+
+[project.urls]
+Homepage = "https://pypi.org/project/fastapi-ai-chat/"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["fastapi_ai_chat*"]
+
+
