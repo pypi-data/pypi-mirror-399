@@ -1,0 +1,112 @@
+"""
+$class_name
+
+Processor for the $pipeline_name pipeline.
+
+TODO: Add processor description here.
+- What data does this processor handle?
+- What transformations does it perform?
+- What are its inputs and outputs?
+"""
+
+from typing import Final, Dict
+
+from snowflake.snowpark import DataFrame
+from snowflake.snowpark.functions import col
+
+from ....utils.etl import ETL
+from ....utils.logger import Logger
+from ....utils.decorators import time_function
+
+# Import pipeline-specific configuration
+# Uncomment and customize as needed:
+# from ..config import TABLE_CONFIGS, EXAMPLE_CONSTANT
+
+MODULE_NAME: Final[str] = "pipelines/$pipeline_name/processors/${processor_name}_processor.py"
+
+
+class $class_name:
+    """
+    $class_name implementation.
+
+    This processor handles data extraction in __init__ and transformations
+    in process() method following the processor pattern.
+
+    Pattern:
+        - __init__: Extract data using TableConfig from config.py
+        - process(): Orchestrate transformations, return final DataFrame
+        - Private methods: Implement atomized transformation steps
+
+    TODO: Document this processor:
+        - Purpose and business logic
+        - Input sources (tables, configs)
+        - Output schema
+        - Dependencies
+    """
+
+    def __init__(self, cache):
+        """
+        Initialize processor and extract source data.
+        """
+        self.logger = Logger()
+        self.etl = ETL()
+        self.cache: Dict[str, DataFrame] = cache
+
+        self.logger.info(
+            message=f"Initialized $class_name",
+            context=MODULE_NAME
+        )
+
+    @time_function(f"{MODULE_NAME}.process")
+    def process(self) -> DataFrame:
+        """
+        Orchestrate data transformations.
+
+        This method serves as the main entry point for the processor,
+        coordinating calls to private transformation methods.
+
+        Returns:
+            Final transformed DataFrame
+
+        TODO: Implement transformation orchestration
+        Example:
+            df = self.cache["extract"]
+            df = self._transformation_step_1()
+            df = self._transformation_step_2(df)
+            df = self._final_cleanup(df)
+            return df
+        """
+        self.logger.info(
+            message=f"Starting $class_name processing",
+            context=MODULE_NAME
+        )
+
+        # TODO: Implement transformation logic
+        # Replace with actual transformations
+        raise NotImplementedError(
+            f"{self.__class__.__name__}.process() must be implemented"
+        )
+
+    def _example_transformation(self, df: DataFrame) -> DataFrame:
+        """
+        Example private transformation method.
+
+        TODO: Replace with actual transformation methods.
+
+        Private methods should:
+        - Focus on a single transformation concern
+        - Accept and return DataFrames
+        - Use descriptive names that explain the transformation
+        - Include docstrings explaining the business logic
+
+        Args:
+            df: Input DataFrame
+
+        Returns:
+            Transformed DataFrame
+        """
+        # Example transformation
+        return df.select(
+            col("column1"),
+            col("column2")
+        )
