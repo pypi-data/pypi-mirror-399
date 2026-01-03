@@ -1,0 +1,77 @@
+{
+  "name": "User Role Routing Example", 
+  "description": "Route users to different experiences based on their subscription type",
+  "uuid": "user-role-routing-example",
+  "active": true,
+  "steps": [
+    {
+      "type": "start",
+      "config": {
+        "variables": [
+          {
+            "name": "user_type",
+            "type": "string",
+            "value": "premium",
+            "description": "User subscription type: premium, basic, or enterprise"
+          },
+          {
+            "name": "user_id",
+            "type": "string", 
+            "value": "123",
+            "description": "Unique user identifier"
+          }
+        ]
+      }
+    },
+    {
+      "type": "conditional",
+      "config": {
+        "condition": {
+          "variable": "user_type",
+          "operator": "equals",
+          "value": "premium"
+        },
+        "truePath": [
+          {
+            "type": "apiCall",
+            "config": {
+              "url": "https://jsonplaceholder.typicode.com/users/{{ $user_id }}",
+              "method": "GET",
+              "responseVariable": "premium_user_data"
+            }
+          },
+          {
+            "type": "llmInstruction",
+            "config": {
+              "provider": "openai",
+              "model": "gpt-4o-mini",
+              "instruction": "Generate a personalized premium welcome message for this user: {{ $premium_user_data.data }}. Include premium features and benefits.",
+              "temperature": 0.6,
+              "resultVariable": "welcome_message"
+            }
+          }
+        ],
+        "falsePath": [
+          {
+            "type": "apiCall",
+            "config": {
+              "url": "https://jsonplaceholder.typicode.com/posts/1",
+              "method": "GET", 
+              "responseVariable": "basic_content"
+            }
+          },
+          {
+            "type": "llmInstruction",
+            "config": {
+              "provider": "openai",
+              "model": "gpt-4o-mini",
+              "instruction": "Generate a standard welcome message using this sample content: {{ $basic_content.data }}. Include subtle upgrade prompts for premium features.",
+              "temperature": 0.5,
+              "resultVariable": "welcome_message"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
