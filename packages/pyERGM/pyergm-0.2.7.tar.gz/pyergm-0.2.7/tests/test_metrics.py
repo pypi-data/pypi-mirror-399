@@ -1,0 +1,1864 @@
+import unittest
+from unittest.mock import patch, MagicMock
+
+import numpy as np
+from pyparsing import empty
+
+from pyERGM.utils import *
+from pyERGM.metrics import *
+from pyERGM.datasets import sampson_matrix
+
+import networkx as nx
+import math
+import pandas as pd
+
+
+class TestNumberOfEdgesUndirected(unittest.TestCase):
+    def test_num_of_edges(self):
+        metric = NumberOfEdgesUndirected()
+        W = np.array([
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 0]
+        ])
+
+        result = metric.calculate(W)
+        expected_result = 3
+
+        self.assertEqual(result, expected_result)
+
+    def test_masked_num_of_edges(self):
+        metric = NumberOfEdgesUndirected()
+        W1 = np.array([
+            [0, 1, 1],
+            [1, 0, 0],
+            [1, 0, 0]
+        ])
+        W2 = 1 - W1
+        mask = np.array([
+            [False, True, False],
+            [True, False, True],
+            [False, True, False]
+        ])[np.triu_indices(3, 1)]
+
+        result = metric.calculate_for_sample(np.stack([W1, W2], axis=-1), mask)
+        expected_result = np.array([1, 1])
+        self.assertTrue(np.array_equal(result, expected_result))
+
+
+class TestNumberOfEdgesDirected(unittest.TestCase):
+    def test_num_of_edges(self):
+        metric = NumberOfEdgesDirected()
+        W = np.array([
+            [0, 1, 0],
+            [1, 0, 1],
+            [1, 0, 0]
+        ])
+
+        result = metric.calculate(W)
+        expected_result = 4
+
+        self.assertEqual(result, expected_result)
+
+    def test_num_of_edges_on_sample(self):
+        metric = NumberOfEdgesDirected()
+        n = 3
+        sample_size = 2
+        W1 = np.array([
+            [0, 1, 0],
+            [1, 0, 1],
+            [1, 0, 0]
+        ])
+        W2 = np.array([
+            [0, 0, 0],
+            [1, 0, 1],
+            [1, 0, 0]
+        ])
+
+        sample = np.zeros((n, n, sample_size))
+        sample[:, :, 0] = W1
+        sample[:, :, 1] = W2
+
+        result = metric.calculate_for_sample(sample)
+        expected_result = np.array([4, 3])
+
+        self.assertTrue(np.all(result == expected_result))
+
+        mask = flatten_square_matrix_to_edge_list(
+            np.array([
+                [False, True, False],
+                [True, False, True],
+                [False, True, False]
+            ]),
+            True
+        )
+        result = metric.calculate_for_sample(sample, mask)
+        expected_result = np.array([3, 2])
+        self.assertTrue(np.all(result == expected_result))
+
+    def test_calc_mple_regressors_masked(self):
+        n = 10
+        mask = flatten_square_matrix_to_edge_list(
+            generate_binomial_tensor(n, 0, 1).astype(bool)[..., -1],
+            True,
+        ).reshape(-1, 1)
+        m = NumberOfEdgesDirected()
+        Xs = np.zeros((mask.sum(), 1))
+        m.calculate_mple_regressors(Xs, np.array([0]), mask)
+        self.assertTrue(np.allclose(Xs, np.ones(mask.sum())))
+
+
+class TestNumberOfTriangles(unittest.TestCase):
+    def test_validation(self):
+        metric = NumberOfTriangles()
+
+        self.assertTrue(not metric.requires_graph)
+
+        W = np.array([
+            [0, 1, 0],
+            [1, 0, 1],
+            [1, 0, 0]
+        ])
+
+        with self.assertRaises(ValueError):
+            metric.calculate(W)
+
+    def test_num_of_triangles(self):
+        metric = NumberOfTriangles()
+        W = np.array([
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 0]
+        ])
+
+        result = metric.calculate(W)
+        expected_result = 1
+
+        self.assertEqual(result, expected_result)
+
+        random_graph = nx.fast_gnp_random_graph(6, 0.5, directed=False, seed=42)
+        triangles = nx.triangles(random_graph)
+        total_num_triangles = sum(triangles.values()) / 3
+
+        G_as_W = nx.to_numpy_array(random_graph)
+        calculated_number_of_triangles = metric.calculate(G_as_W)
+
+        self.assertEqual(total_num_triangles, calculated_number_of_triangles)
+
+    def test_calc_change_score(self):
+        metric = NumberOfTriangles()
+
+        W = np.array([
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 0]
+        ])
+
+        idx_to_toggle = (0, 1)
+        result = metric.calc_change_score(W, idx_to_toggle)
+        self.assertEqual(result, -1)
+
+        W = np.array([
+            [0, 0, 0, 1],
+            [0, 0, 1, 1],
+            [0, 1, 0, 1],
+            [1, 1, 1, 0]
+        ])
+
+        result = metric.calc_change_score(W, idx_to_toggle)
+        self.assertEqual(result, 1)
+
+        W = np.array([
+            [0, 1, 0, 1],
+            [1, 0, 1, 0],
+            [0, 1, 0, 1],
+            [1, 0, 1, 0]
+        ])
+
+        idx_to_toggle = (1, 3)
+        result = metric.calc_change_score(W, idx_to_toggle)
+        self.assertEqual(result, 2)
+
+    def test_calculate_for_sample(self):
+        set_seed(678)
+        sample_size = 50
+        n = 10
+        networks_sample = np.zeros((n, n, sample_size))
+        expected_triangles = np.zeros(sample_size)
+        for i in range(sample_size):
+            cur_graph = nx.fast_gnp_random_graph(n, 0.5, seed=np.random)
+            expected_triangles[i] = sum(nx.triangles(cur_graph).values()) / 3
+            networks_sample[:, :, i] = nx.to_numpy_array(cur_graph)
+
+        res = NumberOfTriangles().calculate_for_sample(networks_sample)
+        self.assertTrue(np.all(res == expected_triangles))
+
+
+class TestReciprocity(unittest.TestCase):
+    def test_calculate(self):
+        metrics = [Reciprocity()]
+        n = 3
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n)
+
+        matrices_to_test = [
+            {
+                "W": np.array([
+                    [0, 0, 1],
+                    [1, 0, 0],
+                    [0, 1, 0]
+                ]),
+                "expected_recip": np.array([0, 0, 0])
+            },
+            {
+                "W": np.array([
+                    [0, 0, 1],
+                    [1, 0, 0],
+                    [1, 1, 0]
+                ]),
+                "expected_recip": np.array([0, 1, 0])
+            },
+            {
+                "W": np.array([
+                    [0, 1, 1],
+                    [1, 0, 1],
+                    [1, 1, 0]
+                ]),
+                "expected_recip": np.array([1, 1, 1])
+            }
+        ]
+
+        for test_data in matrices_to_test:
+            W = test_data["W"]
+            expected_reciprocity_vector = test_data["expected_recip"]
+            g_y = collection.calculate_statistics(W)
+            self.assertTrue(np.array_equal(g_y, expected_reciprocity_vector))
+
+        n = 30
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n)
+        W = np.random.randint(0, 2, (n, n))
+
+        G = nx.from_numpy_array(W, create_using=nx.DiGraph)
+
+        total_edges = np.sum(W)
+
+        reciprocity_vector = collection.calculate_statistics(W)
+        total_reciprocity = np.sum(reciprocity_vector)
+
+        reciprocty_fraction = total_reciprocity / total_edges
+
+        nx_reciprocity = nx.algorithms.reciprocity(G) / 2  # nx counts each reciprocity twice
+        self.assertEqual(reciprocty_fraction, nx_reciprocity)
+
+
+class TestDegreeMetrics(unittest.TestCase):
+    def test_calculate(self):
+        W = np.array([
+            [0, 1, 0, 1],
+            [1, 0, 0, 1],
+            [1, 1, 0, 1],
+            [1, 0, 0, 0]
+        ])
+
+        G = nx.from_numpy_array(W, create_using=nx.DiGraph)
+        expected_in_degrees = list(dict(G.in_degree()).values())
+
+        receiver = InDegree()
+        indegree = receiver.calculate(W)
+
+        self.assertTrue(all(indegree == expected_in_degrees))
+
+        expected_out_degrees = list(dict(G.out_degree()).values())
+
+        sender = OutDegree()
+        outdegree = sender.calculate(W)
+
+        self.assertTrue(all(outdegree == expected_out_degrees))
+
+        undirected_degree = UndirectedDegree()
+        W = np.array([
+            [0, 1, 0, 1],
+            [1, 0, 0, 1],
+            [0, 0, 0, 1],
+            [1, 1, 1, 0]
+        ])
+
+        G = nx.from_numpy_array(W)
+
+        degrees = undirected_degree.calculate(W)
+        expected_degrees = list(dict(G.degree()).values())
+        self.assertTrue(all(degrees == expected_degrees))
+
+
+class TestNumberOfEdgesTypesDirected(unittest.TestCase):
+    def test_calc_edge_type_idx_assignment(self):
+        neuronal_types = ['A', 'B', 'A', 'B']
+        metric = NumberOfEdgesTypesDirected(neuronal_types)
+        expected_edge_type_indices = np.array([[0, 1, 0, 1],
+                                               [2, 3, 2, 3],
+                                               [0, 1, 0, 1],
+                                               [2, 3, 2, 3]])
+
+        expected_edge_type_indices += 1  # Increment because we also want a bin for nonexisting edges (which have the entry 0)
+
+        self.assertTrue(np.all(metric._edge_type_idx_assignment == expected_edge_type_indices))
+
+        neuronal_types = ['A', 'B', 'B', 'A']
+        metric = NumberOfEdgesTypesDirected(neuronal_types)
+        expected_edge_type_indices = np.array([[0, 1, 1, 0],
+                                               [2, 3, 3, 2],
+                                               [2, 3, 3, 2],
+                                               [0, 1, 1, 0]])
+
+        expected_edge_type_indices += 1  # Increment because we also want a bin for nonexisting edges (which have the entry 0)
+
+        self.assertTrue(np.all(metric._edge_type_idx_assignment == expected_edge_type_indices))
+
+    def test_calculate(self):
+        W = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 0, 1],
+            [1, 1, 0, 0],
+            [0, 0, 1, 0]
+        ])
+
+        neuronal_types = ['A', 'B', 'A', 'B']
+        expected_num_edges = np.array([1, 2, 2, 1])
+        metric = NumberOfEdgesTypesDirected(neuronal_types)
+        calculated_num_edges = metric.calculate(W)
+        self.assertTrue(np.all(expected_num_edges == calculated_num_edges))
+
+    def test_calculate_for_sample(self):
+        n = 4
+        sample_size = 2
+        W1 = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 0, 1],
+            [1, 1, 0, 0],
+            [0, 0, 1, 0]
+        ])
+        W2 = np.array([
+            [0, 1, 1, 0],
+            [0, 0, 0, 1],
+            [1, 0, 0, 0],
+            [0, 1, 1, 0]
+        ])
+
+        neuronal_types = ['A', 'B', 'A', 'B']
+        expected_num_edges = np.array([
+            [1, 2, 2, 1],
+            [2, 1, 1, 2]
+        ]).T
+
+        sample = np.zeros((n, n, sample_size))
+        sample[:, :, 0] = W1
+        sample[:, :, 1] = W2
+        metric = NumberOfEdgesTypesDirected(neuronal_types)
+        calculated_num_edges = metric.calculate_for_sample(sample)
+        self.assertTrue(np.all(expected_num_edges == calculated_num_edges))
+
+    def test_calculate_for_sample_masked(self):
+        n = 4
+        sample_size = 2
+        W1 = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 0, 1],
+            [1, 1, 0, 0],
+            [0, 0, 1, 0]
+        ])
+        W2 = np.array([
+            [0, 1, 1, 0],
+            [0, 0, 0, 1],
+            [1, 0, 0, 0],
+            [0, 1, 1, 0]
+        ])
+
+        mask = np.array([
+            [False, True, False, False],
+            [True, False, True, False],
+            [False, False, False, False],
+            [True, False, False, False]
+        ])
+
+        neuronal_types = ['A', 'B', 'A', 'B']
+        expected_num_edges = np.array([
+            [0, 1, 1, 0],
+            [0, 1, 0, 0]
+        ]).T
+
+        sample = np.zeros((n, n, sample_size))
+        sample[:, :, 0] = W1
+        sample[:, :, 1] = W2
+        metric = NumberOfEdgesTypesDirected(neuronal_types)
+        calculated_num_edges = metric.calculate_for_sample(sample,
+                                                           mask=flatten_square_matrix_to_edge_list(mask, True))
+        self.assertTrue(np.all(expected_num_edges == calculated_num_edges))
+
+    def test_calc_change_score(self):
+        W1 = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 0, 1],
+            [1, 1, 0, 0],
+            [0, 0, 1, 0]
+        ])
+        W2 = np.array([
+            [0, 1, 1, 0],
+            [0, 0, 0, 1],
+            [1, 0, 0, 0],
+            [0, 1, 1, 0]
+        ])
+
+        neuronal_types = ['A', 'B', 'A', 'B']
+        metric = NumberOfEdgesTypesDirected(neuronal_types)
+
+        calculated_change_score = metric.calc_change_score(W1, (0, 1))
+        expected_change_score = np.array([0, -1, 0, 0])
+        self.assertTrue(np.all(expected_change_score == calculated_change_score))
+
+        calculated_change_score = metric.calc_change_score(W1, (2, 3))
+        expected_change_score = np.array([0, 1, 0, 0])
+        self.assertTrue(np.all(expected_change_score == calculated_change_score))
+
+        calculated_change_score = metric.calc_change_score(W2, (0, 2))
+        expected_change_score = np.array([-1, 0, 0, 0])
+        self.assertTrue(np.all(expected_change_score == calculated_change_score))
+
+        calculated_change_score = metric.calc_change_score(W2, (1, 2))
+        expected_change_score = np.array([0, 0, 1, 0])
+        self.assertTrue(np.all(expected_change_score == calculated_change_score))
+
+    def test_calc_mple_regressors(self):
+        neuronal_types = ['A', 'B', 'A', 'B', 'C', 'C']
+        metric = NumberOfEdgesTypesDirected(neuronal_types)
+        n_nodes = len(neuronal_types)
+        empty_matrix = np.zeros((n_nodes, n_nodes))
+        num_types = len(set(neuronal_types))
+        expected_mple_regressors = np.zeros((n_nodes ** 2 - n_nodes, num_types ** 2))
+        idx = 0
+        for i in range(n_nodes):
+            for j in range(n_nodes):
+                if i == j:
+                    continue
+                expected_mple_regressors[idx] = metric.calc_change_score(empty_matrix, (i, j))
+                idx += 1
+
+        mple_regressors = np.zeros((n_nodes ** 2 - n_nodes, num_types ** 2))
+        metric.calculate_mple_regressors(
+            Xs_out=mple_regressors,
+            feature_col_indices=np.arange(mple_regressors.shape[1], dtype=int),
+            edge_indices_mask=np.ones(mple_regressors.shape[0], dtype=bool),
+        )
+        self.assertTrue(np.all(expected_mple_regressors == mple_regressors))
+
+        edge_indices = (2, 6)
+        dummy_metrics_collection = MetricsCollection(metrics=[metric], is_directed=True, n_nodes=n_nodes)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(edge_indices)
+        mple_regressors = np.zeros((edge_indices[1] - edge_indices[0], num_types ** 2))
+        metric.calculate_mple_regressors(
+            Xs_out=mple_regressors,
+            feature_col_indices=np.arange(mple_regressors.shape[1], dtype=int),
+            edge_indices_mask=mask,
+        )
+        self.assertTrue(np.all(expected_mple_regressors[edge_indices[0]:edge_indices[1]] == mple_regressors))
+
+        set_seed(92349)
+        global_mask = flatten_square_matrix_to_edge_list(
+            generate_binomial_tensor(
+                net_size=n_nodes, node_features_size=0, num_samples=1
+            )[..., -1],
+            True,
+        ).astype(bool)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric], is_directed=True, n_nodes=n_nodes, mask=global_mask
+        )
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(None)
+        mple_regressors = np.zeros((global_mask.sum(), num_types ** 2))
+        metric.calculate_mple_regressors(
+            Xs_out=mple_regressors,
+            feature_col_indices=np.arange(mple_regressors.shape[1], dtype=int),
+            edge_indices_mask=mask,
+        )
+        self.assertTrue(np.all(expected_mple_regressors[global_mask] == mple_regressors))
+
+        edge_indices = (1, 3)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(edge_indices)
+        mple_regressors = np.zeros((mask.sum(), num_types ** 2))
+        metric.calculate_mple_regressors(
+            Xs_out=mple_regressors,
+            feature_col_indices=np.arange(mple_regressors.shape[1], dtype=int),
+            edge_indices_mask=mask,
+        )
+        self.assertTrue(
+            np.all(
+                expected_mple_regressors[global_mask][edge_indices[0]:edge_indices[1]] == mple_regressors
+            )
+        )
+
+
+class TestNumberOfEdgesTypesUndirected(unittest.TestCase):
+    def test_calc_edge_type_idx_assignment(self):
+        neuronal_types = ['A', 'B', 'A', 'B']
+        metric = NumberOfEdgesTypesUndirected(neuronal_types)
+        expected_edge_type_indices = np.array([[0, 1, 0, 1],
+                                               [1, 2, 1, 2],
+                                               [0, 1, 0, 1],
+                                               [1, 2, 1, 2]])
+
+        expected_edge_type_indices += 1  # Increment because we also want a bin for nonexisting edges (which have the entry 0)
+
+        self.assertTrue(np.all(metric._edge_type_idx_assignment == expected_edge_type_indices))
+
+        neuronal_types = ['A', 'B', 'B', 'A']
+        metric = NumberOfEdgesTypesUndirected(neuronal_types)
+        expected_edge_type_indices = np.array([[0, 1, 1, 0],
+                                               [1, 2, 2, 1],
+                                               [1, 2, 2, 1],
+                                               [0, 1, 1, 0]])
+
+        expected_edge_type_indices += 1  # Increment because we also want a bin for nonexisting edges (which have the entry 0)
+
+        self.assertTrue(np.all(metric._edge_type_idx_assignment == expected_edge_type_indices))
+
+    def test_calculate(self):
+        W = np.array([
+            [0, 1, 1, 0],
+            [1, 0, 0, 1],
+            [1, 0, 0, 0],
+            [0, 1, 0, 0]
+        ])
+
+        neuronal_types = ['A', 'B', 'A', 'B']
+        expected_num_edges = np.array([1, 1, 1])
+        metric = NumberOfEdgesTypesUndirected(neuronal_types)
+        calculated_num_edges = metric.calculate(W)
+        self.assertTrue(np.all(expected_num_edges == calculated_num_edges))
+
+    def test_calculate_for_sample(self):
+        n = 4
+        sample_size = 2
+        W1 = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 1, 0],
+            [0, 1, 0, 1],
+            [0, 0, 1, 0]
+        ])
+        W2 = np.array([
+            [0, 0, 1, 1],
+            [0, 0, 0, 1],
+            [1, 0, 0, 1],
+            [1, 1, 1, 0]
+        ])
+
+        neuronal_types = ['A', 'B', 'A', 'B']
+        expected_num_edges = np.array([
+            [0, 3, 0],
+            [1, 2, 1]
+        ]).T
+
+        sample = np.zeros((n, n, sample_size))
+        sample[:, :, 0] = W1
+        sample[:, :, 1] = W2
+        metric = NumberOfEdgesTypesUndirected(neuronal_types)
+        calculated_num_edges = metric.calculate_for_sample(sample)
+        self.assertTrue(np.all(expected_num_edges == calculated_num_edges))
+
+        mask = np.array([
+            [False, False, False, False],
+            [False, False, True, True],
+            [False, True, False, True],
+            [False, True, True, False],
+        ])
+
+        expected_num_edges_masked = np.array([
+            [0, 2, 0],
+            [0, 1, 1]
+        ]).T
+        calculated_num_edges = metric.calculate_for_sample(sample, mask=flatten_square_matrix_to_edge_list(mask, False))
+        self.assertTrue(np.all(expected_num_edges_masked == calculated_num_edges))
+
+    def test_calc_change_score(self):
+        W1 = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 1, 0],
+            [0, 1, 0, 1],
+            [0, 0, 1, 0]
+        ])
+        W2 = np.array([
+            [0, 0, 1, 1],
+            [0, 0, 0, 1],
+            [1, 0, 0, 1],
+            [1, 1, 1, 0]
+        ])
+
+        neuronal_types = ['A', 'B', 'A', 'B']
+        metric = NumberOfEdgesTypesUndirected(neuronal_types)
+
+        calculated_change_score = metric.calc_change_score(W1, (0, 1))
+        expected_change_score = np.array([0, -1, 0])
+        self.assertTrue(np.all(expected_change_score == calculated_change_score))
+
+        calculated_change_score = metric.calc_change_score(W1, (1, 3))
+        expected_change_score = np.array([0, 0, 1])
+        self.assertTrue(np.all(expected_change_score == calculated_change_score))
+
+        calculated_change_score = metric.calc_change_score(W2, (0, 2))
+        expected_change_score = np.array([-1, 0, 0])
+        self.assertTrue(np.all(expected_change_score == calculated_change_score))
+
+        calculated_change_score = metric.calc_change_score(W2, (1, 2))
+        expected_change_score = np.array([0, 1, 0])
+        self.assertTrue(np.all(expected_change_score == calculated_change_score))
+
+    def test_calc_mple_regressors(self):
+        neuronal_types = ['B', 'B', 'A', 'C', 'C', 'A']
+        metric = NumberOfEdgesTypesUndirected(neuronal_types)
+        n_nodes = len(neuronal_types)
+        empty_matrix = np.zeros((n_nodes, n_nodes))
+        num_types = len(set(neuronal_types))
+        expected_mple_regressors = np.zeros(((n_nodes ** 2 - n_nodes) // 2, (num_types ** 2 + num_types) // 2))
+        idx = 0
+        for i in range(n_nodes - 1):
+            for j in range(i + 1, n_nodes):
+                expected_mple_regressors[idx] = metric.calc_change_score(empty_matrix, (i, j))
+                idx += 1
+
+        mple_regressors = np.zeros_like(expected_mple_regressors)
+        metric.calculate_mple_regressors(
+            Xs_out=mple_regressors,
+            feature_col_indices=np.arange(mple_regressors.shape[1], dtype=int),
+            edge_indices_mask=np.ones(mple_regressors.shape[0], dtype=bool),
+        )
+        self.assertTrue(np.all(expected_mple_regressors == mple_regressors))
+
+        set_seed(349876)
+        global_mask = generate_binomial_tensor(n_nodes, 0, 1)[..., -1][
+            np.triu_indices(n_nodes, k=1)
+        ].astype(bool)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric], is_directed=False, n_nodes=n_nodes, mask=global_mask, fix_collinearity=False
+        )
+        with self.assertRaises(ValueError):
+            edge_indices_limits = (4, 11)
+            dummy_metrics_collection._get_mple_data_chunk_mask(edge_indices_limits)
+
+        edge_indices_limits = (2, 5)
+        mask_for_metric = dummy_metrics_collection._get_mple_data_chunk_mask(edge_indices_limits)
+        mple_regressors = np.zeros((mask_for_metric.sum(), expected_mple_regressors.shape[1]))
+        metric.calculate_mple_regressors(
+            Xs_out=mple_regressors,
+            feature_col_indices=np.arange(mple_regressors.shape[1], dtype=int),
+            edge_indices_mask=mask_for_metric,
+        )
+        self.assertTrue(
+            np.all(
+                expected_mple_regressors[global_mask][edge_indices_limits[0]:edge_indices_limits[1]] == mple_regressors
+            )
+        )
+
+
+class TestNodeAttrSums(unittest.TestCase):
+    def test_calc_edge_weights(self):
+        node_attr = np.array([1, 2, 3, 4])
+        metric_both = NodeAttrSum(node_attr, is_directed=True)
+        expected_edge_weights = np.array([
+            [0, 3, 4, 5],
+            [3, 0, 5, 6],
+            [4, 5, 0, 7],
+            [5, 6, 7, 0]
+        ])
+        self.assertTrue(np.all(expected_edge_weights == metric_both.edge_weights))
+
+        metric_out = NodeAttrSumOut(node_attr)
+        expected_edge_weights = np.array([
+            [0, 1, 1, 1],
+            [2, 0, 2, 2],
+            [3, 3, 0, 3],
+            [4, 4, 4, 0]
+        ])
+        self.assertTrue(np.all(expected_edge_weights == metric_out.edge_weights))
+
+        metric_in = NodeAttrSumIn(node_attr)
+        self.assertTrue(np.all(expected_edge_weights.T == metric_in.edge_weights))
+
+    def test_calculate(self):
+        W = np.array([
+            [0, 1, 1, 0],
+            [0, 0, 0, 1],
+            [1, 0, 0, 0],
+            [0, 1, 1, 0]
+        ])
+
+        node_attr = np.array([1, 2, 3, 4])
+        metric_both = NodeAttrSum(node_attr, is_directed=True)
+        expected_statistic = 3 + 4 + 6 + 4 + 6 + 7
+        self.assertEqual(expected_statistic, metric_both.calculate(W)[0])
+
+        metric_out = NodeAttrSumOut(node_attr)
+        expected_statistic = 1 + 1 + 2 + 3 + 4 + 4
+        self.assertEqual(expected_statistic, metric_out.calculate(W)[0])
+
+        metric_in = NodeAttrSumIn(node_attr)
+        expected_statistic = 1 + 2 + 2 + 3 + 3 + 4
+        self.assertEqual(expected_statistic, metric_in.calculate(W)[0])
+
+    def test_calculate_for_sample(self):
+        n = 3
+        sample_size = 3
+
+        W1 = np.array([
+            [0, 1, 0],
+            [1, 0, 1],
+            [1, 0, 0]
+        ])
+        W2 = np.array([
+            [0, 0, 1],
+            [1, 0, 0],
+            [1, 1, 0]
+        ])
+        W3 = np.array([
+            [0, 0, 0],
+            [1, 0, 0],
+            [0, 1, 0]
+        ])
+
+        sample = np.zeros((n, n, sample_size))
+        sample[:, :, 0] = W1
+        sample[:, :, 1] = W2
+        sample[:, :, 2] = W3
+
+        node_attributes = np.array([2, 1, 1])
+
+        set_seed(2349876)
+        mask = generate_binomial_tensor(n, 0, 1)[..., -1].astype(bool)
+        masked_sample = np.einsum("ijk,ij->ijk", sample, mask)
+        mask = flatten_square_matrix_to_edge_list(mask, True)
+
+        metric_both = NodeAttrSum(node_attributes, is_directed=True)
+        expected_stats_sample = np.array([11, 11, 5])
+        calculated_stats_sample = metric_both.calculate_for_sample(sample)
+        self.assertTrue(np.all(expected_stats_sample == calculated_stats_sample))
+        calculated_stats_masked_sample = metric_both.calculate_for_sample(masked_sample)
+        calculated_stats_with_mask = metric_both.calculate_for_sample(sample, mask)
+        self.assertTrue(np.all(calculated_stats_with_mask == calculated_stats_masked_sample))
+
+        metric_out = NodeAttrSumOut(node_attributes)
+        expected_stats_sample = np.array([5, 5, 2])
+        calculated_stats_sample = metric_out.calculate_for_sample(sample)
+        self.assertTrue(np.all(expected_stats_sample == calculated_stats_sample))
+        calculated_stats_masked_sample = metric_out.calculate_for_sample(masked_sample)
+        calculated_stats_with_mask = metric_out.calculate_for_sample(sample, mask)
+        self.assertTrue(np.all(calculated_stats_with_mask == calculated_stats_masked_sample))
+
+        metric_in = NodeAttrSumIn(node_attributes)
+        expected_stats_sample = np.array([6, 6, 3])
+        calculated_stats_sample = metric_in.calculate_for_sample(sample)
+        self.assertTrue(np.all(expected_stats_sample == calculated_stats_sample))
+        calculated_stats_masked_sample = metric_in.calculate_for_sample(masked_sample)
+        calculated_stats_with_mask = metric_in.calculate_for_sample(sample, mask)
+        self.assertTrue(np.all(calculated_stats_with_mask == calculated_stats_masked_sample))
+
+    def test_calc_change_score(self):
+        W_off = np.zeros((3, 3))
+        W_on = np.ones((3, 3))
+
+        node_attributes = np.array([1, 0.5, 2])
+
+        metric_both = NodeAttrSum(node_attributes, is_directed=True)
+        metric_out = NodeAttrSumOut(node_attributes)
+        metric_in = NodeAttrSumIn(node_attributes)
+
+        calculated_change_score = metric_both.calc_change_score(W_off, (2, 1))
+        expected_change_score = 2.5
+        self.assertEqual(expected_change_score, calculated_change_score)
+
+        calculated_change_score = metric_both.calc_change_score(W_on, (2, 0))
+        expected_change_score = -3
+        self.assertEqual(expected_change_score, calculated_change_score)
+
+        calculated_change_score = metric_out.calc_change_score(W_off, (1, 0))
+        expected_change_score = 0.5
+        self.assertEqual(expected_change_score, calculated_change_score)
+
+        calculated_change_score = metric_out.calc_change_score(W_on, (0, 2))
+        expected_change_score = -1
+        self.assertEqual(expected_change_score, calculated_change_score)
+
+        calculated_change_score = metric_in.calc_change_score(W_off, (0, 1))
+        expected_change_score = 0.5
+        self.assertEqual(expected_change_score, calculated_change_score)
+
+        calculated_change_score = metric_in.calc_change_score(W_on, (1, 2))
+        expected_change_score = -2
+        self.assertEqual(expected_change_score, calculated_change_score)
+
+    def test_calculate_mple_regressors(self):
+        # directed both (in+out)
+        node_attr = np.array([3, 5, 7])
+        n = node_attr.size
+        # The edge weights matrix for reference
+        # np.array([
+        #     [0, 8, 10],
+        #     [8, 0, 12],
+        #     [10, 12, 0]
+        # ])
+
+        metric_both = NodeAttrSum(node_attr, is_directed=True)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_both], n_nodes=n, is_directed=True, fix_collinearity=False
+        )
+        indices_lims = (0, 6)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_1_1 = np.array([[8.],
+                                            [10.],
+                                            [8.],
+                                            [12.],
+                                            [10.],
+                                            [12.]])
+        regressors = np.zeros_like(expected_regressors_1_1)
+        metric_both.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_1_1))
+
+        indices_lims = (1, 4)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_1_2 = np.array([[10.],
+                                            [8.],
+                                            [12.]])
+        regressors = np.zeros_like(expected_regressors_1_2)
+        metric_both.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_1_2))
+
+        global_mask_squared = np.array([
+            [False, False, True],
+            [True, False, False],
+            [True, False, False],
+        ])
+        global_mask = flatten_square_matrix_to_edge_list(global_mask_squared, True)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_both], n_nodes=n, is_directed=True, fix_collinearity=False, mask=global_mask
+        )
+        indices_lims = (0, 2)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_1_masked = np.array([[10.],
+                                                 [8.]])
+        regressors = np.zeros_like(expected_regressors_1_masked)
+        metric_both.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_1_masked))
+
+        # directed in
+        # The edge weights matrix for reference
+        # np.array([
+        #     [0, 5, 7],
+        #     [3, 0, 7],
+        #     [3, 5, 0]
+        # ])
+
+        metric_in = NodeAttrSumIn(node_attr)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_in], n_nodes=n, is_directed=True, fix_collinearity=False
+        )
+        indices_lims = (0, 6)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_2_1 = np.array([[5.],
+                                            [7.],
+                                            [3.],
+                                            [7.],
+                                            [3.],
+                                            [5.]])
+        regressors = np.zeros_like(expected_regressors_2_1)
+        metric_in.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_2_1))
+
+        indices_lims = (1, 4)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_2_2 = np.array([[7.],
+                                            [3.],
+                                            [7.]])
+        regressors = np.zeros_like(expected_regressors_2_2)
+        metric_in.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_2_2))
+
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_in], n_nodes=n, is_directed=True, fix_collinearity=False, mask=global_mask
+        )
+        indices_lims = (1, 3)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_2_masked = np.array([[3.], [3.]])
+        regressors = np.zeros_like(expected_regressors_2_masked)
+        metric_in.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_2_masked))
+
+        # directed out
+        # The edge weights matrix for reference
+        # np.array([
+        #     [0, 3, 3],
+        #     [5, 0, 5],
+        #     [7, 7, 0]
+        # ])
+
+        metric_out = NodeAttrSumOut(node_attr)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_out], n_nodes=n, is_directed=True, fix_collinearity=False
+        )
+        indices_lims = (0, 6)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_3_1 = np.array([[3.],
+                                            [3.],
+                                            [5.],
+                                            [5.],
+                                            [7.],
+                                            [7.]])
+        regressors = np.zeros_like(expected_regressors_3_1)
+        metric_out.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_3_1))
+
+        indices_lims = (1, 4)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_3_2 = np.array([[3.],
+                                            [5.],
+                                            [5.]])
+        regressors = np.zeros_like(expected_regressors_3_2)
+        metric_out.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_3_2))
+
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_out], n_nodes=n, is_directed=True, fix_collinearity=False, mask=global_mask
+        )
+        indices_lims = None
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_3_masked = np.array([[3.], [5.], [7.]])
+        regressors = np.zeros_like(expected_regressors_3_masked)
+        metric_out.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_3_masked))
+
+        # undirected (both)
+        node_attr = np.array([3, 5, 7])
+        # The edge weights matrix for reference
+        # np.array([
+        #     [0, 8, 10],
+        #     [8, 0, 12],
+        #     [10, 12, 0]
+        # ])
+
+        metric_both = NodeAttrSum(node_attr, is_directed=False)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_both], n_nodes=n, is_directed=False, fix_collinearity=False
+        )
+        indices_lims = (0, 3)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        # in undirected graphs the expected outcome is the upper triangle (without the diagonal)
+        expected_regressors_1 = np.array([[8.],
+                                          [10.],
+                                          [12.]])
+        regressors = np.zeros_like(expected_regressors_1)
+        metric_both.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_1))
+
+        indices_lims = (1, 2)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_2 = np.array([[10.]])
+        regressors = np.zeros_like(expected_regressors_2)
+        metric_both.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_2))
+
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_both],
+            n_nodes=n,
+            is_directed=False,
+            fix_collinearity=False,
+            mask=(global_mask_squared | global_mask_squared.T)[np.triu_indices(n, k=1)],
+        )
+        indices_lims = (1, 2)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        expected_regressors_3_masked = np.array([[10.]])
+        regressors = np.zeros_like(expected_regressors_3_masked)
+        metric_both.calculate_mple_regressors(regressors, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(regressors == expected_regressors_3_masked))
+
+
+class TestSumDistancesConnectedNeurons(unittest.TestCase):
+    def test_sum_distances(self):
+        positions = pd.DataFrame({"x_pos": [0, 0, 4], "y_pos": [0, 3, 0], "z_pos": [2, 2, 2]})
+        W = np.array([[0, 1, 0],
+                      [1, 0, 1],
+                      [1, 0, 0]])
+
+        # Dataframe with multiple columns
+        metric_1 = SumDistancesConnectedNeurons(positions, is_directed=True)
+        expected_res_1 = 3 + 3 + 5 + 4
+        self.assertTrue(metric_1.calculate(W) == expected_res_1)
+
+        # 2D numpy array
+        metric_2 = SumDistancesConnectedNeurons(positions.to_numpy(), is_directed=True)
+        expected_res_2 = 3 + 3 + 5 + 4
+        self.assertTrue(metric_2.calculate(W) == expected_res_2)
+
+        # 2D numpy array with mask
+        mask = flatten_square_matrix_to_edge_list(
+            np.array([
+                [False, False, False],
+                [True, False, False],
+                [True, True, False]
+            ]),
+            True,
+        )
+        expected_res_2_mask = 0 + 3 + 0 + 4
+        self.assertTrue(metric_2.calculate(W, mask=mask) == expected_res_2_mask)
+
+        # Series
+        metric_3 = SumDistancesConnectedNeurons(positions.x_pos, is_directed=True)
+        expected_res_3 = 4 + 4
+        self.assertTrue(metric_3.calculate(W) == expected_res_3)
+
+        # 1D numpy array
+        metric_4 = SumDistancesConnectedNeurons(positions.z_pos.to_numpy(), is_directed=True)
+        expected_res_4 = 0
+        self.assertTrue(metric_4.calculate(W) == expected_res_4)
+
+        # list
+        positions_y_list = [0, 3, 0]
+        metric_5 = SumDistancesConnectedNeurons(positions_y_list, is_directed=True)
+        expected_res_5 = 3 + 3 + 3
+        self.assertTrue(metric_5.calculate(W) == expected_res_5)
+
+        # tuple
+        positions_y_tuple = (0, 3, 0)
+        metric_6 = SumDistancesConnectedNeurons(positions_y_tuple, is_directed=True)
+        expected_res_6 = 3 + 3 + 3
+        self.assertTrue(metric_6.calculate(W) == expected_res_6)
+
+        # undirected_graph
+        W_undirected = np.array([[0, 1, 1],
+                                 [1, 0, 0],
+                                 [1, 0, 0]])
+
+        metric_7 = SumDistancesConnectedNeurons(positions, is_directed=False)
+        expected_res_7 = 3 + 4
+        self.assertTrue(metric_7.calculate(W_undirected) == expected_res_7)
+
+    def test_calculate_mple_regressors(self):
+        positions = pd.DataFrame({"x_pos": [0, 0, 4], "y_pos": [0, 3, 0], "z_pos": [2, 2, 2]})
+
+        # multiple columns
+        metric_1 = SumDistancesConnectedNeurons(positions, is_directed=True)
+        # distance matrix for reference
+        # np.array([[0, 3, 4],
+        #           [3, 0, 5],
+        #           [4, 5, 0]])
+        indices_lims = (0, 6)
+        expected_regressors_1_1 = np.array([[3.],
+                                            [4.],
+                                            [3.],
+                                            [5.],
+                                            [4.],
+                                            [5.]])
+        Xs_out = np.zeros_like(expected_regressors_1_1)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_1], n_nodes=3, is_directed=True, fix_collinearity=False
+        )
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        metric_1.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(Xs_out == expected_regressors_1_1))
+
+        indices_lims = (1, 4)
+        expected_regressors_1_2 = np.array([[4.],
+                                            [3.],
+                                            [5.]])
+        Xs_out = np.zeros_like(expected_regressors_1_2)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        metric_1.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(Xs_out == expected_regressors_1_2))
+
+        set_seed(349876)
+        global_mask = flatten_square_matrix_to_edge_list(
+            generate_binomial_tensor(3, 0, 1, 0.6)[..., -1].astype(bool),
+            True,
+        )
+        assert not np.all(global_mask), "the randomly sampled global mask for testing shouldn't be all-True"
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_1], n_nodes=3, is_directed=True, fix_collinearity=False, mask=global_mask
+        )
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        Xs_out = np.zeros((mask.sum(), 1))
+        metric_1.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(
+            np.all(Xs_out == expected_regressors_1_1[global_mask][indices_lims[0]:indices_lims[1]])
+        )
+
+        # Series
+        metric_2 = SumDistancesConnectedNeurons(positions.x_pos, is_directed=True)
+        # distance matrix for reference
+        # np.array([[0, 0, 4],
+        #           [0, 0, 4],
+        #           [4, 4, 0]])
+        indices_lims = (0, 6)
+        expected_regressors_2_1 = np.array([[0.],
+                                            [4.],
+                                            [0.],
+                                            [4.],
+                                            [4.],
+                                            [4.]])
+        Xs_out = np.zeros_like(expected_regressors_2_1)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_2], n_nodes=3, is_directed=True, fix_collinearity=False
+        )
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        metric_2.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(Xs_out == expected_regressors_2_1))
+
+        indices_lims = (1, 4)
+        expected_regressors_2_2 = np.array([[4.],
+                                            [0.],
+                                            [4.]])
+        Xs_out = np.zeros_like(expected_regressors_2_2)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        metric_2.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(Xs_out == expected_regressors_2_2))
+
+        metric_3 = SumDistancesConnectedNeurons(positions.z_pos, is_directed=True)
+        # distance matrix for reference
+        # np.array([[0, 0, 0],
+        #           [0, 0, 0],
+        #           [0, 0, 0]])
+        indices_lims = (0, 6)
+        expected_regressors_3 = np.array([[0.],
+                                          [0.],
+                                          [0.],
+                                          [0.],
+                                          [0.],
+                                          [0.]])
+        Xs_out = np.zeros_like(expected_regressors_3)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_3], n_nodes=3, is_directed=True, fix_collinearity=False
+        )
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        metric_3.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(Xs_out == expected_regressors_3))
+
+        # undirected
+        metric_4 = SumDistancesConnectedNeurons(positions, is_directed=False)
+        # distance matrix for reference
+        # np.array([[--, 3, 4],
+        #           [--, --, 5],
+        #           [--, --, --]])
+        indices_lims = (0, 3)
+        expected_regressors_4_1 = np.array([[3.],
+                                            [4.],
+                                            [5.]])
+        Xs_out = np.zeros_like(expected_regressors_4_1)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_4], n_nodes=3, is_directed=False, fix_collinearity=False
+        )
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        metric_4.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(Xs_out == expected_regressors_4_1))
+
+        indices_lims = (1, 2)
+        expected_regressors_4_2 = np.array([[4.]])
+        Xs_out = np.zeros_like(expected_regressors_4_2)
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        metric_4.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(Xs_out == expected_regressors_4_2))
+
+        global_mask = (
+            generate_binomial_tensor(3, 0, 1, 0.6)[..., -1].astype(bool)
+        )[np.triu_indices(3, k=1)]
+        assert not np.all(global_mask), "the randomly sampled global mask for testing shouldn't be all-True"
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_4], n_nodes=3, is_directed=False, fix_collinearity=False, mask=global_mask
+        )
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        Xs_out = np.zeros((mask.sum(), 1))
+        metric_4.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(
+            np.all(Xs_out == expected_regressors_4_1[global_mask][indices_lims[0]:indices_lims[1]])
+        )
+
+        metric_5 = SumDistancesConnectedNeurons(positions.z_pos, is_directed=False)
+        # distance matrix for reference
+        # np.array([[--, 0, 0],
+        #           [--, --, 0],
+        #           [--, --, --]])
+        indices_lims = (0, 3)
+        expected_regressors_5 = np.array([[0.],
+                                          [0.],
+                                          [0.]])
+        Xs_out = np.zeros_like(expected_regressors_5)
+        dummy_metrics_collection = MetricsCollection(
+            metrics=[metric_5], n_nodes=3, is_directed=False, fix_collinearity=False
+        )
+        mask = dummy_metrics_collection._get_mple_data_chunk_mask(indices_lims)
+        metric_5.calculate_mple_regressors(Xs_out, np.array([0]), edge_indices_mask=mask)
+        self.assertTrue(np.all(Xs_out == expected_regressors_5))
+
+
+class TestNumberOfNodesPerType(unittest.TestCase):
+    def test_calculate(self):
+        V = np.array([[1, 0],
+                      [2, 1],
+                      [1, 1],
+                      [0, 2]])  # n=4, k=2
+
+        expected_num_neurons_per_type = np.array([1, 2, 1])
+        metric = NumberOfNodesPerType(metric_node_feature={'morphology'}, n_node_categories=3)
+        calculated_num_neurons_per_type = metric.calculate(V[:, [0]])
+        self.assertTrue(np.all(expected_num_neurons_per_type[:-1] == calculated_num_neurons_per_type))
+
+    def test_calculate_for_sample(self):
+        n = 4
+        sample_size = 2
+        V1 = np.array([[1, 0],
+                       [2, 1],
+                       [1, 1],
+                       [0, 2]])
+        V2 = np.array([[2, 0],
+                       [0, 1],
+                       [0, 1],
+                       [0, 1]])
+
+        expected_num_neurons_per_type = np.array([
+            [1, 2, 1],
+            [3, 0, 1]
+        ]).T
+
+        sample = np.zeros((n, 1, sample_size), dtype=int)
+        sample[:, :, 0] = V1[:, [0]]
+        sample[:, :, 1] = V2[:, [0]]
+        metric = NumberOfNodesPerType(metric_node_feature={'morphology'}, n_node_categories=3)
+        calculated_num_neurons_per_type = metric.calculate_for_sample(sample)
+        self.assertTrue(np.all(expected_num_neurons_per_type[:-1] == calculated_num_neurons_per_type))
+
+    def test_calc_change_score(self):
+        V1 = np.array([[1, 0],
+                       [2, 1],
+                       [1, 1],
+                       [0, 2]])
+        V2 = np.array([[2, 0],
+                       [0, 1],
+                       [0, 1],
+                       [0, 1]])
+
+        metric = NumberOfNodesPerType(metric_node_feature={'morphology'}, n_node_categories=3)
+
+        calculated_change_score = metric.calc_change_score(V1[:, [0]], idx=2, new_category=0)
+        expected_change_score = np.array([1, -1, 0])
+        self.assertTrue(np.all(expected_change_score[:-1] == calculated_change_score))
+
+        calculated_change_score = metric.calc_change_score(V1[:, [1]], idx=0, new_category=2)
+        expected_change_score = np.array([-1, 0, 1])
+        self.assertTrue(np.all(expected_change_score[:-1] == calculated_change_score))
+
+        calculated_change_score = metric.calc_change_score(V2[:, [0]], idx=1, new_category=1)
+        expected_change_score = np.array([-1, 1, 0])
+        self.assertTrue(np.all(expected_change_score[:-1] == calculated_change_score))
+
+        calculated_change_score = metric.calc_change_score(V2[:, [1]], idx=0, new_category=1)
+        expected_change_score = np.array([-1, 1, 0])
+        self.assertTrue(np.all(expected_change_score[:-1] == calculated_change_score))
+
+
+class TestMetricsCollection(unittest.TestCase):
+
+    def test_get_effective_feature_count(self):
+        n = 18
+        receiver = InDegree()
+
+        collection = MetricsCollection([receiver], is_directed=True, n_nodes=n, do_copy_metrics=False)
+        self.assertEqual(receiver._get_effective_feature_count(), n)
+
+        receiver = InDegree(indices_from_user=[0])
+        collection = MetricsCollection([receiver], is_directed=True, n_nodes=n, do_copy_metrics=False)
+        self.assertEqual(receiver._get_effective_feature_count(), n - 1)
+
+        sender = OutDegree()
+
+        collection = MetricsCollection([sender], is_directed=True, n_nodes=n, do_copy_metrics=False)
+        self.assertEqual(sender._get_effective_feature_count(), n)
+
+        sender = OutDegree(indices_from_user=[0])
+        collection = MetricsCollection([sender], is_directed=True, n_nodes=n, do_copy_metrics=False)
+        self.assertEqual(sender._get_effective_feature_count(), n - 1)
+
+    def test_metrics_setup(self):
+        metrics = [NumberOfEdgesDirected(), TotalReciprocity(), InDegree()]
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=3)
+
+        expected_metric_names = tuple([str(NumberOfEdgesDirected()), str(TotalReciprocity()), str(InDegree())])
+
+        self.assertTrue(collection.metric_names == expected_metric_names)
+
+        metrics = [InDegree(), UndirectedDegree()]
+        with self.assertRaises(ValueError):
+            collection = MetricsCollection(metrics, is_directed=True,
+                                           n_nodes=3)  # Should fail because we have an undirected metric in a directed metrics collection
+
+        with self.assertRaises(ValueError):
+            collection = MetricsCollection(metrics, is_directed=False,
+                                           n_nodes=3)  # Should fail because we have a directed metric in an undirected metrics collection
+
+    def test_collinearity_fixer(self):
+        n = 18
+
+        possible_types = ['A', 'B', 'C', 'D']
+        # sampled once using np.random.choice(len(possible_types), size=n)
+        type_idx_per_node = [3, 3, 0, 0, 0, 0, 1, 3, 1, 1, 3, 0, 3, 2, 0, 3, 3, 1]
+        neuronal_types = [possible_types[type_idx_per_node[i]] for i in range(n)]
+
+        n_for_multitypes_test = 6
+        multitypes_1 = ['A', 'B']
+        multitypes_2 = ['C', 'D']
+        type_1_idx_per_node = [0, 0, 0, 1, 1, 1]
+        type_2_idx_per_node = [0, 0, 0, 0, 1, 1]
+        types_1 = [multitypes_1[type_1_idx_per_node[i]] for i in range(n_for_multitypes_test)]
+        types_2 = [multitypes_2[type_2_idx_per_node[i]] for i in range(n_for_multitypes_test)]
+
+        multitypes_3 = ['A', 'B']
+        multitypes_4 = ['C', 'D', 'E']
+        type_3_idx_per_node = [0, 0, 1, 1, 1, 1]
+        type_4_idx_per_node = [0, 0, 1, 1, 2, 2]
+        types_3 = [multitypes_3[type_3_idx_per_node[i]] for i in range(n_for_multitypes_test)]
+        types_4 = [multitypes_4[type_4_idx_per_node[i]] for i in range(n_for_multitypes_test)]
+
+        test_scenarios = {
+            "num_edges_twice": {
+                "metrics": [NumberOfEdgesDirected(), NumberOfEdgesDirected()],
+                "expected_num_of_features": 1,
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            },
+            "num_edges__total_reciprocity__indegree": {
+                "metrics": [NumberOfEdgesDirected(), TotalReciprocity(), InDegree()],
+                "expected_num_of_features": 1 + 1 + n - 1,
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            },
+            "indegree": {
+                "metrics": [InDegree()],
+                "expected_num_of_features": n,  # There is no collinearity since InDegree() is the only feature
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            },
+            "outdegree": {
+                "metrics": [OutDegree()],
+                "expected_num_of_features": n,
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            },
+            "in_outdegree": {
+                "metrics": [InDegree(), OutDegree()],
+                "expected_num_of_features": n + n - 1,
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            },
+            "num_edges__total_reciprocity__indegree_outdegree": {
+                "metrics": [NumberOfEdgesDirected(), TotalReciprocity(), InDegree(), OutDegree()],
+                "expected_num_of_features": 1 + 1 + n - 1 + n - 1,
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            },
+            "num_edges__exogenous_types": {
+                "metrics": [NumberOfEdgesDirected(), NumberOfEdgesTypesDirected(neuronal_types)],
+                "expected_num_of_features": 1 + len(set(neuronal_types)) ** 2 - 2,
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            },
+            "sum_attr_both__sum_attr_in__sum_attr_out": {
+                "metrics": [NodeAttrSum(np.arange(n), is_directed=True), NodeAttrSumIn(np.arange(n)),
+                            NodeAttrSumOut(np.arange(n))],
+                "expected_num_of_features": 2,
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            },
+            "multiple_types": {
+                "n": n_for_multitypes_test,
+                "metrics": [NumberOfEdgesDirected(), NumberOfEdgesTypesDirected(types_1),
+                            NumberOfEdgesTypesDirected(types_2)],
+                "expected_num_of_features": 1 + len(set(types_1)) ** 2 + len(set(types_2)) ** 2 - 2,
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            },
+            "multiple_types_2": {
+                "n": n_for_multitypes_test,
+                "metrics": [NumberOfEdgesDirected(), NumberOfEdgesTypesDirected(types_3),
+                            NumberOfEdgesTypesDirected(types_4)],
+                "expected_num_of_features": 1 + len(set(types_3)) ** 2 + len(set(types_4)) ** 2 - 5,
+                "expected_trimmed_metrics": {},
+                "expected_eliminated_metrics": []
+            }
+        }
+
+        # We want to make sure that the changes (trimming and complete removal) are made for the right metrics, so we
+        # update the scenarios after initializing the lists of Metrics, to pass the class instances by reference when
+        # asserting stuff later.
+        test_scenarios["num_edges_twice"]["expected_eliminated_metrics"] = [
+            test_scenarios["num_edges_twice"]["metrics"][0]]
+
+        test_scenarios["num_edges__total_reciprocity__indegree"]["expected_trimmed_metrics"] = {
+            # InDegree is trimmed by 1 because of collinearity with num_of_edges
+            test_scenarios["num_edges__total_reciprocity__indegree"]["metrics"][2]: [0]
+        }
+
+        test_scenarios["in_outdegree"]["expected_trimmed_metrics"] = {
+            test_scenarios["in_outdegree"]["metrics"][0]: [0]
+        }
+
+        test_scenarios["num_edges__total_reciprocity__indegree_outdegree"]["expected_trimmed_metrics"] = {
+            test_scenarios["num_edges__total_reciprocity__indegree_outdegree"]["metrics"][2]: [0],
+            test_scenarios["num_edges__total_reciprocity__indegree_outdegree"]["metrics"][3]: [0]
+        }
+
+        test_scenarios["num_edges__exogenous_types"]["expected_trimmed_metrics"] = {
+            test_scenarios["num_edges__exogenous_types"]["metrics"][1]: [0, 10]
+        }
+
+        test_scenarios["sum_attr_both__sum_attr_in__sum_attr_out"]["expected_eliminated_metrics"] = [
+            test_scenarios["sum_attr_both__sum_attr_in__sum_attr_out"]["metrics"][0]]
+
+        test_scenarios["multiple_types"]["expected_trimmed_metrics"] = {
+            test_scenarios["multiple_types"]["metrics"][1]: [0],
+            test_scenarios["multiple_types"]["metrics"][2]: [0]}
+
+        test_scenarios["multiple_types_2"]["expected_trimmed_metrics"] = {
+            # A->A, A->B, B->A trimmed
+            test_scenarios["multiple_types_2"]["metrics"][1]: [0, 1, 2],
+            # C->C, D->D trimmed
+            test_scenarios["multiple_types_2"]["metrics"][2]: [0, 4]}
+
+        for name, scenario_data in test_scenarios.items():
+            net_size = scenario_data.get("n", n)
+
+            collection = MetricsCollection(scenario_data["metrics"], is_directed=True, fix_collinearity=True,
+                                           n_nodes=net_size, do_copy_metrics=False)
+
+            # Check the general number of features matches the expectation
+            self.assertEqual(collection.num_of_features, scenario_data["expected_num_of_features"])
+
+            # Check if the correct metrics were trimmed
+            for metric in scenario_data["metrics"]:
+                if metric in scenario_data["expected_trimmed_metrics"].keys():
+                    self.assertEqual(set(np.where(metric._indices_to_ignore)[0]),
+                                     set(scenario_data["expected_trimmed_metrics"][metric]))
+                elif hasattr(metric,
+                             "_indices_to_ignore"):  # Only metrics with a base_idx can be trimmed. The others aren't tested
+                    self.assertFalse(np.any(metric._indices_to_ignore))
+                elif metric in scenario_data["expected_eliminated_metrics"]:
+                    self.assertTrue(metric not in [m for m in collection.metrics])
+                    self.assertEqual(collection.num_of_metrics, len(collection.metrics))
+
+    def test_calculate_statistics(self):
+        # Test undirected graphs
+        metrics = [NumberOfEdgesUndirected(), NumberOfTriangles()]
+        collection = MetricsCollection(metrics, is_directed=False, n_nodes=3)
+
+        W = np.array([
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 0]
+        ])
+
+        stats = collection.calculate_statistics(W)
+        expected_stats = np.array([3, 1])
+
+        np.testing.assert_array_equal(stats, expected_stats)
+
+        # Test directed graphs
+        metrics = [NumberOfEdgesDirected()]
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=3)
+        W = np.array([
+            [0, 1, 0],
+            [1, 0, 1],
+            [1, 0, 0]
+        ])
+
+        stats = collection.calculate_statistics(W)
+        expected_stats = np.array([4])
+
+        np.testing.assert_array_equal(stats, expected_stats)
+
+    def test_calculate_statistics_with_node_features(self):
+        # Test undirected graphs
+        metrics = [NumberOfEdgesUndirected(), NumberOfTriangles()]
+        collection = MetricsCollection(metrics, is_directed=False, n_nodes=3)
+
+        # Now, W is an (n, n+k) with n=3, k=2. Result shouldn't change.
+        W = np.array([
+            [0, 1, 1, 1, 2],
+            [1, 0, 1, 0, 1],
+            [1, 1, 0, 1, 0]
+        ])
+
+        stats = collection.calculate_statistics(W)
+        expected_stats = np.array([3, 1])
+
+        np.testing.assert_array_equal(stats, expected_stats)
+
+        # Test directed graphs
+        metrics = [NumberOfEdgesDirected()]
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=3)
+        W = np.array([
+            [0, 1, 0],
+            [1, 0, 1],
+            [1, 0, 0]
+        ])
+
+        stats = collection.calculate_statistics(W)
+        expected_stats = np.array([4])
+
+        np.testing.assert_array_equal(stats, expected_stats)
+
+    def test_get_num_of_features(self):
+        n = 4
+        metrics = [NumberOfEdgesUndirected(), NumberOfTriangles()]
+        collection = MetricsCollection(metrics, is_directed=False, n_nodes=n)
+        num_of_features = collection.num_of_features
+
+        # NumberOfEdges and NumberOfTriangles each produce 1 features
+        expected_num_of_features = 2
+
+        self.assertEqual(num_of_features, expected_num_of_features)
+
+        metrics = [Reciprocity(), NumberOfEdgesDirected()]
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n)
+
+        num_of_features = collection.num_of_features
+
+        expected_num_of_features = math.comb(n, 2) + 1
+
+        self.assertEqual(num_of_features, expected_num_of_features)
+
+    def test_calc_change_scores(self):
+        metrics = [NumberOfEdgesDirected(), Reciprocity()]
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=3)
+
+        W1 = np.array([
+            [0, 0, 1],
+            [1, 0, 0],
+            [1, 1, 0]
+        ])
+
+        W2 = np.array([
+            [0, 0, 1],
+            [1, 0, 0],
+            [0, 1, 0]
+        ])
+
+        flipped_indices = (2, 0)
+        edge_flip_info = {
+            'edge': flipped_indices
+        }
+        result = collection.calc_change_scores(W1, edge_flip_info=edge_flip_info)
+
+        # 1st is -1 because we lost an edge, and 3rd entry is -1 because node #2 lost it's reciprocity
+        expected_result = np.array([-1, 0, -1, 0])
+
+        self.assertTrue(np.all(result == expected_result))
+
+    def test_calculate_change_scores_all_edges(self):
+        types = ['A', 'B', 'A', 'B']
+        metrics = [NumberOfEdgesDirected(), NumberOfEdgesTypesDirected(types)]
+
+        W1 = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 0, 1],
+            [1, 1, 0, 0],
+            [0, 0, 1, 0]
+        ])
+        n_nodes = W1.shape[0]
+
+        expected_full_change_score = np.array([
+            [-1, 0, -1, 0, 0],
+            [1, 1, 0, 0, 0],
+            [1, 0, 1, 0, 0],
+            [-1, 0, 0, -1, 0],
+            [1, 0, 0, 1, 0],
+            [-1, 0, 0, 0, -1],
+            [-1, -1, 0, 0, 0],
+            [-1, 0, -1, 0, 0],
+            [1, 0, 1, 0, 0],
+            [1, 0, 0, 1, 0],
+            [1, 0, 0, 0, 1],
+            [-1, 0, 0, -1, 0]
+        ])
+
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n_nodes)
+
+        # The collinearity fixer is supposed to remove one attribute from the NumberOfEdgesTypesDirected metric
+        # self.assertEqual(len(collection.metrics[1]._indices_to_ignore), 1)
+        self.assertEqual(np.sum(collection.metrics[1]._indices_to_ignore), 1)
+
+        idx_to_ignore = np.where(collection.metrics[1]._indices_to_ignore)[0][0]
+
+        res = collection.calculate_change_scores_all_edges(W1)
+
+        # Deleting the 1+idx_to_ignore because the first entry is the NumberOfEdgesDirected metric
+        expected_full_change_score = np.delete(expected_full_change_score, 1 + idx_to_ignore, axis=1)
+        self.assertTrue(np.all(expected_full_change_score == res))
+
+    def test_prepare_mple_data(self):
+        types = ['A', 'B', 'A', 'B']
+        metrics = [NumberOfEdgesDirected(), NumberOfEdgesTypesDirected(types)]
+
+        W1 = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 0, 1],
+            [1, 1, 0, 0],
+            [0, 0, 1, 0]
+        ])
+
+        n_nodes = W1.shape[0]
+        expected_flattened_mat = np.array([1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1]).reshape(n_nodes ** 2 - n_nodes, 1)
+
+        expected_mple_regressors = np.array([
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0],
+            [1, 0, 1, 0, 0],
+            [1, 0, 0, 1, 0],
+            [1, 0, 0, 1, 0],
+            [1, 0, 0, 0, 1],
+            [1, 1, 0, 0, 0],
+            [1, 0, 1, 0, 0],
+            [1, 0, 1, 0, 0],
+            [1, 0, 0, 1, 0],
+            [1, 0, 0, 0, 1],
+            [1, 0, 0, 1, 0]
+        ])
+
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n_nodes)
+
+        # The collinearity fixer is supposed to remove one attribute from the NumberOfEdgesTypesDirected metric
+        self.assertEqual(np.sum(collection.metrics[1]._indices_to_ignore), 1)
+
+        idx_to_ignore = np.where(collection.metrics[1]._indices_to_ignore)[0][0]
+
+        Xs_full = collection.prepare_mple_regressors(W1)
+        ys_full = collection.prepare_mple_labels(W1[..., np.newaxis])
+
+        Xs_half = collection.prepare_mple_regressors(W1, edge_indices_lims=(0, expected_mple_regressors.shape[0] // 2))
+        ys_half = collection.prepare_mple_labels(
+            W1[..., np.newaxis],
+            edge_indices_lims=(0, expected_mple_regressors.shape[0] // 2)
+        )
+
+        # Deleting the 1+idx_to_ignore because the first entry is the NumberOfEdgesDirected metric
+        expected_mple_regressors_ignored_features = np.delete(expected_mple_regressors, 1 + idx_to_ignore, axis=1)
+        self.assertTrue(np.all(expected_mple_regressors_ignored_features == Xs_full))
+        self.assertTrue(np.all(expected_mple_regressors_ignored_features[:expected_mple_regressors.shape[0] // 2] == Xs_half))
+        self.assertTrue(np.all(expected_flattened_mat == ys_full))
+        self.assertTrue(np.all(expected_flattened_mat[:expected_mple_regressors.shape[0] // 2] == ys_half))
+
+        mask = flatten_square_matrix_to_edge_list(
+            np.array([
+                    [False, True, False, True],
+                    [False, False, True, False],
+                    [True, True, False, False],
+                    [False, True, True, False]
+            ]),
+            True,
+        )
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n_nodes, mask=mask)
+        # The collinearity fixer is supposed to remove one attribute from the NumberOfEdgesTypesDirected metric
+        # Note - the mask is designed to not eliminate all connections of a specific pair of types, as in such a case
+        # another attribute will be ignored (the one corresponding to the degenerate pair that never appears).
+        # For reference - the edge type idx assignment matrix for the list of types in this test is
+        # array([[1, 2, 1, 2],
+        #        [3, 4, 3, 4],
+        #        [1, 2, 1, 2],
+        #        [3, 4, 3, 4]])
+        self.assertEqual(np.sum(collection.metrics[1]._indices_to_ignore), 1)
+
+        idx_to_ignore = np.where(collection.metrics[1]._indices_to_ignore)[0][0]
+
+        Xs_full = collection.prepare_mple_regressors(W1)
+        ys_full = collection.prepare_mple_labels(W1[..., np.newaxis])
+
+        Xs_half = collection.prepare_mple_regressors(W1, edge_indices_lims=(0, mask.sum() // 2))
+        ys_half = collection.prepare_mple_labels(W1, edge_indices_lims=(0, mask.sum() // 2))
+
+        # Deleting the 1+idx_to_ignore because the first entry is the NumberOfEdgesDirected metric
+        expected_mple_regressors_ignored_features = np.delete(expected_mple_regressors[mask], 1 + idx_to_ignore, axis=1)
+        self.assertTrue(np.all(expected_mple_regressors_ignored_features == Xs_full))
+        self.assertTrue(
+            np.all(expected_mple_regressors_ignored_features[:mask.sum() // 2] == Xs_half))
+        self.assertTrue(np.all(expected_flattened_mat[mask] == ys_full))
+        self.assertTrue(np.all(expected_flattened_mat[mask][:mask.sum() // 2] == ys_half))
+
+
+    def test_prepare_mple_reciprocity_data(self):
+        W = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 0, 1],
+            [1, 0, 0, 1],
+            [0, 1, 1, 0]
+        ])
+        metrics = [NumberOfEdgesDirected(), OutDegree(), InDegree(), TotalReciprocity()]
+        n_nodes = W.shape[0]
+
+        expected_statistics = [7, 2, 2, 2, 2, 1, 2, 3]  # just a sanity check for the actual statistics
+
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n_nodes)
+        statistics = collection.calculate_statistics(W)
+        self.assertTrue(np.all(statistics == expected_statistics))
+
+        X = collection.prepare_mple_reciprocity_regressors()
+        y = collection.prepare_mple_reciprocity_labels(expand_net_dims(W))
+
+        # expected_X is an array of shape (6, 4, 8) - 6 dyads, 4 options per dyad, 8 p1 features after collinearity_fixer (10 before)
+        # For each dyad we calculate its changescore for all 4 options, on all p1 features (i.e. a (4,8) matrix)
+        dyad_1_2_X = np.array([
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 1, 0, 0, 0],
+            [1, 1, 0, 0, 0, 0, 0, 0],
+            [2, 1, 0, 0, 1, 0, 0, 1],
+        ])
+
+        dyad_1_3_X = np.array([
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 1, 0, 0],
+            [1, 0, 1, 0, 0, 0, 0, 0],
+            [2, 0, 1, 0, 0, 1, 0, 1],
+        ])
+
+        dyad_1_4_X = np.array([
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 1, 0],
+            [1, 0, 0, 1, 0, 0, 0, 0],
+            [2, 0, 0, 1, 0, 0, 1, 1],
+        ])
+
+        dyad_2_3_X = np.array([
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 0, 0, 0, 1, 0, 0],
+            [1, 0, 1, 0, 1, 0, 0, 0],
+            [2, 1, 1, 0, 1, 1, 0, 1],
+        ])
+
+        dyad_2_4_X = np.array([
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 0, 0, 0, 0, 1, 0],
+            [1, 0, 0, 1, 1, 0, 0, 0],
+            [2, 1, 0, 1, 1, 0, 1, 1],
+        ])
+
+        dyad_3_4_X = np.array([
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 1, 0, 0, 0, 1, 0],
+            [1, 0, 0, 1, 0, 1, 0, 0],
+            [2, 0, 1, 1, 0, 1, 1, 1],
+        ])
+
+        expected_X = np.array([dyad_1_2_X, dyad_1_3_X, dyad_1_4_X, dyad_2_3_X, dyad_2_4_X, dyad_3_4_X])
+        self.assertTrue(np.all(X == expected_X))
+
+        # expected_dyads is an array of 4choose2 dyads, with a one-hot encoding of length 4.
+        # 0 = empty, 1 = i->j , 2 = j->i , 3=reciprocal
+        expected_dyads = np.array([
+            [0, 0, 0, 1],
+            [0, 0, 1, 0],
+            [1, 0, 0, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, 1],
+            [0, 0, 0, 1]
+        ])
+
+        self.assertTrue(np.all(y == expected_dyads))
+
+    def test_get_parameter_names(self):
+        n = 18
+        metrics = [NumberOfEdgesDirected(), InDegree(), OutDegree()]
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n)
+
+        param_names = collection.get_parameter_names()
+
+        expected_names = ()
+        for metric in metrics:
+            metric_name = str(metric)
+            if metric_name == "num_edges_directed":
+                expected_names += (metric_name,)
+            elif metric_name == "indegree" or metric_name == "outdegree":
+                for i in range(1, n):
+                    expected_names += (f"{metric_name}_{i + 1}",)
+
+        self.assertTrue(param_names == expected_names)
+
+        n = 4
+        metrics = [NumberOfEdgesTypesDirected(['A', 'B', 'A', 'B'])]
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n)
+
+        param_names = collection.get_parameter_names()
+
+        expected_names = ("num_edges_between_types_directed_A__A", "num_edges_between_types_directed_A__B",
+                          "num_edges_between_types_directed_B__A", "num_edges_between_types_directed_B__B")
+        self.assertTrue(param_names == expected_names)
+
+    def test_get_ignored_features(self):
+        n = 18
+        metrics = [NumberOfEdgesDirected(), InDegree(), OutDegree()]
+        collection = MetricsCollection(metrics, is_directed=True, n_nodes=n)
+
+        ignored_features = collection.get_ignored_features()
+        expected_ignored_features = ("indegree_1", "outdegree_1")
+        self.assertTrue(ignored_features == expected_ignored_features)
+
+    @patch('pyERGM.metrics.split_network_for_bootstrapping')
+    def test_bootstrapped_features(self, mock_split_network_for_bootstrapping):
+        W = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 0, 1],
+            [1, 0, 0, 1],
+            [0, 1, 1, 0]
+        ])
+
+        W_symmetric = np.array([
+            [0, 1, 0, 0],
+            [1, 0, 0, 1],
+            [0, 0, 0, 1],
+            [0, 1, 1, 0]
+        ])
+
+        mock_split_network_for_bootstrapping.return_value = (
+            np.array([0, 2]).reshape((2, 1)), np.array([1, 3]).reshape((2, 1)))
+
+        metrics = [NumberOfEdgesDirected()]
+        metrics_collection = MetricsCollection(metrics, is_directed=True, n_nodes=W.shape[0])
+        bootstrapped_features = metrics_collection.bootstrap_observed_features(W, 1)
+        expected_bootstrapped_features = np.array([6]).reshape(1, 1)  # np.sum(W[[0,2],[0,2].T]) / 2 * 12
+        self.assertTrue(np.all(bootstrapped_features == expected_bootstrapped_features))
+
+        metrics = [NumberOfEdgesUndirected()]
+        metrics_collection = MetricsCollection(metrics, is_directed=False, n_nodes=W_symmetric.shape[0])
+        bootstrapped_features = metrics_collection.bootstrap_observed_features(W_symmetric, 1)
+        expected_bootstrapped_features = np.array([0]).reshape(1, 1)  # nodes 0 and 2 are not connected
+        self.assertTrue(np.all(bootstrapped_features == expected_bootstrapped_features))
+
+        metrics = [TotalReciprocity()]
+        metrics_collection = MetricsCollection(metrics, is_directed=True, n_nodes=W.shape[0])
+        bootstrapped_features = metrics_collection.bootstrap_observed_features(W, 1)
+        expected_bootstrapped_features = np.array([0]).reshape(1, 1)
+        self.assertTrue(np.all(bootstrapped_features == expected_bootstrapped_features))
+
+        metrics = [UndirectedDegree()]
+        metrics_collection = MetricsCollection(metrics, is_directed=False, n_nodes=W_symmetric.shape[0])
+        bootstrapped_features = metrics_collection.bootstrap_observed_features(W_symmetric, 1)
+        expected_bootstrapped_features = np.array([0, 3, 0, 3]).reshape(4,
+                                                                        1)  # nodes 0,2 are not connected, and nodes 1,3 are.
+        self.assertTrue(np.all(bootstrapped_features == expected_bootstrapped_features))
+
+        metrics = [InDegree()]
+        metrics_collection = MetricsCollection(metrics, is_directed=True, n_nodes=W.shape[0])
+        bootstrapped_features = metrics_collection.bootstrap_observed_features(W, 1)
+        expected_bootstrapped_features = np.array([3, 3, 0, 3]).reshape(4,
+                                                                        1)  # e.g., the first is given by np.sum(W[[0,2],[0,2].T], axis=0) / (2-1) * (4-1)
+        self.assertTrue(np.all(bootstrapped_features == expected_bootstrapped_features))
+
+        metrics = [NumberOfEdgesDirected(), OutDegree()]
+        metrics_collection = MetricsCollection(metrics, is_directed=True, n_nodes=W.shape[0])
+        bootstrapped_features = metrics_collection.bootstrap_observed_features(W, 1)
+        expected_bootstrapped_features = np.array([6, 3, 3, 3]).reshape(4,
+                                                                        1)  # Ignoring the out-degree of the first node
+        self.assertTrue(np.all(bootstrapped_features == expected_bootstrapped_features))
+
+        mock_split_network_for_bootstrapping.return_value = (
+            np.array([2, 3]).reshape((2, 1)), np.array([0, 1]).reshape((2, 1)))
+        metrics = [TotalReciprocity()]
+        metrics_collection = MetricsCollection(metrics, is_directed=True, n_nodes=W.shape[0])
+        bootstrapped_features = metrics_collection.bootstrap_observed_features(W, 1)
+        expected_bootstrapped_features = np.array([6]).reshape(1, 1)
+        self.assertTrue(np.all(bootstrapped_features == expected_bootstrapped_features))
