@@ -1,0 +1,4067 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexAgent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f5f7fa;
+            --bg2: #ffffff;
+            --card: #e8ecf1;
+            --text: #1a1a2e;
+            --text2: #6b7280;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --user: #6366f1;
+            --user-text: #ffffff;
+            --ai: #ffffff;
+            --ai-text: #1a1a2e;
+            --border: #e5e7eb;
+            --sidebar: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 16px;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --bg2: #1e293b;
+            --card: #334155;
+            --text: #f1f5f9;
+            --text2: #94a3b8;
+            --accent: #818cf8;
+            --accent-hover: #6366f1;
+            --user: #6366f1;
+            --user-text: #ffffff;
+            --ai: #1e293b;
+            --ai-text: #f1f5f9;
+            --border: #334155;
+            --sidebar: #1e293b;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --error: #f87171;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 2px 0 8px var(--shadow);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-settings {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-settings:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-new {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-new:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        /* 搜索栏样式 */
+        .search-bar {
+            padding: 12px;
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .search-input-wrap {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+        }
+
+        .search-input-wrap .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text2);
+            pointer-events: none;
+            width: 16px;
+            height: 16px;
+        }
+
+        .search-input {
+            display: block;
+            width: 100%;
+            height: 36px;
+            padding: 0 10px 0 34px;
+            margin: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 0.85rem;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text2);
+        }
+
+        .btn-refresh {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            padding: 0;
+            margin: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--text2);
+            transition: all 0.2s;
+        }
+
+        .btn-refresh:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-refresh.loading svg {
+            animation: spin 1s linear infinite;
+        }
+
+        .session-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 12px 12px 12px;
+        }
+
+        .session-item {
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .session-item:hover {
+            background: var(--card);
+            border-color: var(--border);
+        }
+
+        .session-item.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .session-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .session-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .session-meta {
+            font-size: 0.75rem;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+
+        .session-item.active .session-meta {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .session-actions {
+            display: none;
+            gap: 4px;
+        }
+
+        .session-item:hover .session-actions,
+        .session-item.active .session-actions {
+            display: flex;
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: none;
+            color: var(--text2);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+        }
+
+        .btn-icon.delete:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .session-item.active .btn-icon {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .session-item.active .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .session-item.active .btn-icon.delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .header {
+            background: var(--bg2);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header input {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            width: 110px;
+            height: 36px;
+        }
+
+        .header input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0 12px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .dropdown-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .dropdown.open .dropdown-btn {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .dropdown.open .dropdown-btn svg {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-btn svg {
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 8px 24px var(--shadow);
+            z-index: 50;
+            max-height: 280px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .dropdown.open .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--card);
+        }
+
+        .dropdown-item.active {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+        }
+
+        .dropdown-item-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .dropdown-item-model {
+            font-size: 0.75rem;
+            color: var(--text2);
+            margin-top: 2px;
+        }
+
+        .dropdown-item.active .dropdown-item-model {
+            color: var(--accent);
+            opacity: 0.8;
+        }
+
+        .header button {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0 14px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .theme-toggle {
+            width: 36px;
+            padding: 0 !important;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: var(--bg);
+        }
+
+        .msg {
+            max-width: 75%;
+            padding: 14px 18px;
+            border-radius: var(--radius-lg);
+            line-height: 1.6;
+            word-wrap: break-word;
+            position: relative;
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: all 0.2s;
+        }
+
+        .msg:hover {
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .msg.user {
+            background: var(--user);
+            color: var(--user-text);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg.ai {
+            background: var(--ai);
+            color: var(--ai-text);
+            align-self: flex-start;
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg .meta {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 6px;
+        }
+
+        .msg.ai .meta {
+            color: var(--text2);
+        }
+
+        .msg pre {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .msg.ai pre {
+            background: var(--card);
+        }
+
+        .msg code {
+            font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+            font-size: 0.9em;
+        }
+
+        .msg-content {
+            display: block;
+        }
+
+        .msg-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .msg.ai .msg-footer {
+            color: var(--text2);
+            border-top-color: var(--border);
+        }
+
+        .msg-tokens {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .msg-actions {
+            display: flex;
+            gap: 2px;
+        }
+
+        .msg-action-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .msg.ai .msg-action-btn {
+            color: var(--text2);
+        }
+
+        .msg-action-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent);
+        }
+
+        .msg-action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        .msg-action-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .tool-card {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius-sm);
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .tool-card.thinking {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .tool-header:hover {
+            background: rgba(99, 102, 241, 0.12);
+        }
+
+        .tool-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .tool-title .icon {
+            font-size: 1rem;
+        }
+
+        .tool-arrow {
+            transition: transform 0.2s;
+            color: var(--text2);
+        }
+
+        .tool-card.open .tool-arrow {
+            transform: rotate(180deg);
+        }
+
+        .tool-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .tool-body {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .tool-card.open .tool-body {
+            max-height: 500px;
+        }
+
+        .tool-content {
+            padding: 14px;
+            font-size: 0.85rem;
+        }
+
+        .tool-section {
+            margin-bottom: 10px;
+        }
+
+        .tool-section-title {
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tool-section pre {
+            background: var(--card);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            margin: 0;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .tool-status {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+        }
+
+        .tool-status.running {
+            background: var(--warning);
+            color: #000;
+        }
+
+        .tool-status.done {
+            background: var(--success);
+            color: #000;
+        }
+
+        .input-area {
+            background: var(--bg2);
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-wrap {
+            display: flex;
+            gap: 12px;
+            max-width: 900px;
+            margin: 0 auto;
+            align-items: flex-end;
+        }
+
+        .input-wrap textarea {
+            flex: 1;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            resize: none;
+            min-height: 52px;
+            max-height: 200px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .input-wrap textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .input-wrap button.send-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 24px;
+            height: 52px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .input-wrap button.send-btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .input-wrap button.send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .typing span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--text2);
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: bounce 1s infinite;
+        }
+
+        .typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text2);
+        }
+
+        .empty-state .icon {
+            margin-bottom: 20px;
+            opacity: 0.6;
+            color: var(--text2);
+        }
+
+        .empty-state div:last-child {
+            font-size: 1.1rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg2);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            min-width: 340px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .modal-content.wide {
+            min-width: 500px;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-content label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text2);
+            margin-bottom: 6px;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .modal-content input:focus,
+        .modal-content select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .modal-actions .btn-cancel {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .modal-actions .btn-cancel:hover {
+            background: var(--border);
+        }
+
+        .modal-actions .btn-confirm {
+            background: var(--accent);
+            color: white;
+        }
+
+        .modal-actions .btn-confirm:hover {
+            background: var(--accent-hover);
+        }
+
+        .modal-actions .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .modal-actions .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .item-list {
+            margin-bottom: 20px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: var(--card);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .list-item.current {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .list-item-info {
+            flex: 1;
+        }
+
+        .list-item-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .list-item-detail {
+            font-size: 0.8rem;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+
+        .list-item-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-icon-text {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text2);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-icon-text:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-icon-text.delete:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .btn-icon-text svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+            color: var(--text2);
+        }
+
+        .tab:hover {
+            background: var(--card);
+            color: var(--text);
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 三层设置导航样式 */
+        .settings-container {
+            display: flex;
+            height: 450px;
+            gap: 0;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .settings-nav {
+            width: 120px;
+            background: var(--bg2);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            gap: 4px;
+            border-right: 1px solid var(--border);
+        }
+
+        .settings-nav-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text2);
+            border: none;
+            background: transparent;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .settings-nav-item:hover {
+            background: var(--card);
+            color: var(--text);
+        }
+
+        .settings-nav-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .settings-nav-item svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .settings-panel {
+            flex: 1;
+            background: var(--bg);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .settings-panel.active {
+            display: flex;
+        }
+
+        .settings-panel-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-panel-header h4 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .settings-panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .settings-detail {
+            width: 280px;
+            background: var(--bg2);
+            flex-shrink: 0;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border-left: 1px solid var(--border);
+        }
+
+        .settings-detail.active {
+            display: flex;
+        }
+
+        .settings-detail-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-detail-header h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .settings-detail-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .settings-form label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text2);
+            margin-bottom: 6px;
+            margin-top: 12px;
+        }
+
+        .settings-form label:first-child {
+            margin-top: 0;
+        }
+
+        .settings-form input,
+        .settings-form select,
+        .settings-form textarea {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .settings-form input:focus,
+        .settings-form select:focus,
+        .settings-form textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .settings-form-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .settings-form-actions button {
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .provider-item,
+        .model-item,
+        .mcp-item {
+            padding: 12px;
+            background: var(--card);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .provider-item:hover,
+        .model-item:hover,
+        .mcp-item:hover {
+            border-color: var(--accent);
+        }
+
+        .provider-item.active,
+        .model-item.active,
+        .mcp-item.active {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .provider-item-name,
+        .model-item-name,
+        .mcp-item-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .provider-item-detail,
+        .model-item-detail,
+        .mcp-item-detail {
+            font-size: 0.8rem;
+            color: var(--text2);
+        }
+
+        .model-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 4px;
+        }
+
+        .model-tags-row {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .tag-checkbox-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .tag-checkbox {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-width: 70px;
+            height: 34px;
+            padding: 0 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+            background: var(--bg2);
+            transition: all 0.2s;
+        }
+
+        .tag-checkbox:hover {
+            border-color: var(--accent);
+        }
+
+        .tag-checkbox.active {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .tag-checkbox input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .tag-checkbox svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .model-list-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .model-list-section h5 {
+            font-size: 0.85rem;
+            color: var(--text2);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-add-small {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add-small:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-outline-small {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            background: transparent;
+            color: var(--text2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-outline-small:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .btn-outline-small svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* 模型列表弹窗项目 */
+        .provider-model-item {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .provider-model-item:last-child {
+            border-bottom: none;
+        }
+
+        .provider-model-item:hover {
+            background: var(--card);
+        }
+
+        .provider-model-item.embedding {
+            opacity: 0.75;
+        }
+
+        .provider-model-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .provider-model-item-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .provider-model-item-meta {
+            font-size: 0.75rem;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+
+        .provider-model-item-action {
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+
+        /* 模型列表弹窗样式 */
+        .modal-header-bar {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header-bar h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text2);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            background: var(--card);
+            color: var(--text);
+        }
+
+        /* 模型弹窗搜索栏 */
+        #providerModelsModal .modal-search-bar {
+            padding: 12px 20px;
+            background: var(--bg2);
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        #providerModelsModal .modal-search-wrap {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+            display: block;
+        }
+
+        #providerModelsModal .modal-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--text2);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #providerModelsModal .modal-search-input {
+            display: block;
+            width: 100%;
+            height: 36px;
+            padding: 0 12px 0 38px;
+            margin: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        #providerModelsModal .modal-search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        #providerModelsModal .modal-search-input::placeholder {
+            color: var(--text2);
+        }
+
+        #providerModelsModal .modal-search-refresh {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            padding: 0;
+            margin: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--text2);
+            transition: all 0.2s;
+        }
+
+        #providerModelsModal .modal-search-refresh:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        #providerModelsModal .modal-search-refresh.loading svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 筛选标签页 */
+        .modal-filter-tabs {
+            display: flex;
+            padding: 0 20px;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-filter-tab {
+            padding: 14px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text2);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: -1px;
+        }
+
+        .modal-filter-tab:hover {
+            color: var(--text);
+        }
+
+        .modal-filter-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .modal-footer-bar {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg2);
+        }
+
+        .modal-footer-bar span {
+            font-size: 0.85rem;
+            color: var(--text2);
+        }
+
+        .modal-action-btn {
+            padding: 8px 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .modal-action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* 模型标签样式 */
+        .model-tag,
+        .model-type-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .model-type-tag {
+            font-size: 0.65rem;
+        }
+
+        .model-tag svg,
+        .model-type-tag svg {
+            flex-shrink: 0;
+        }
+
+        /* 模型分组样式 */
+        .model-section-title {
+            font-size: 0.75rem;
+            color: var(--text2);
+            font-weight: 500;
+            padding: 8px 0 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .model-section-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 12px 0;
+        }
+
+        .model-item.embedding {
+            opacity: 0.8;
+        }
+
+        .model-item.embedding .model-item-name {
+            color: var(--text2);
+        }
+
+        .preset-model-item.embedding {
+            opacity: 0.8;
+        }
+
+        .preset-model-item.embedding .preset-model-item-name {
+            color: var(--text2);
+        }
+
+        /* 开关样式 */
+        .toggle-switch {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: 0.3s;
+            border-radius: 20px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked+.toggle-slider {
+            background-color: var(--accent);
+        }
+
+        .toggle-switch input:checked+.toggle-slider:before {
+            transform: translateX(16px);
+        }
+
+        /* 供应商信息卡片 */
+        .provider-info-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .provider-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .provider-info-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .provider-info-detail {
+            font-size: 0.8rem;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+
+        .btn-edit-small {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            background: transparent;
+            color: var(--text2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-edit-small:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-edit-small svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .btn-text-small {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .btn-text-small:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* 预设模型列表 */
+        .preset-model-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--card);
+        }
+
+        .preset-model-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.15s;
+        }
+
+        .preset-model-item:last-child {
+            border-bottom: none;
+        }
+
+        .preset-model-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .preset-model-item-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .preset-model-item-id {
+            font-size: 0.75rem;
+            color: var(--text2);
+            margin-top: 2px;
+        }
+
+        /* MCP 项目带开关 */
+        .mcp-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mcp-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+        }
+
+        .status-dot.disconnected {
+            background: var(--error);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text2);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+            }
+
+            .header {
+                padding: 12px 16px;
+            }
+
+            .messages {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .header {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .header input {
+                width: 80px;
+            }
+
+            .msg {
+                max-width: 90%;
+            }
+
+            .modal-content {
+                min-width: auto;
+                margin: 16px;
+            }
+        }
+
+        /* Toast 通知样式 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            box-shadow: 0 8px 24px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            max-width: 400px;
+            animation: toastIn 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .toast.hiding {
+            animation: toastOut 0.3s ease forwards;
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+        }
+
+        .toast-icon.success {
+            color: var(--success);
+        }
+
+        .toast-icon.error {
+            color: var(--error);
+        }
+
+        .toast-icon.warning {
+            color: var(--warning);
+        }
+
+        .toast-icon.info {
+            color: var(--accent);
+        }
+
+        .toast-content {
+            flex: 1;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            flex-shrink: 0;
+            background: none;
+            border: none;
+            color: var(--text2);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .toast-close:hover {
+            background: var(--card);
+            color: var(--text);
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        /* Alert 对话框样式 */
+        .alert-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            backdrop-filter: blur(4px);
+        }
+
+        .alert-modal.show {
+            display: flex;
+        }
+
+        .alert-content {
+            background: var(--bg2);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            min-width: 320px;
+            max-width: 450px;
+            box-shadow: 0 20px 40px var(--shadow);
+            border: 1px solid var(--border);
+            animation: alertIn 0.2s ease;
+        }
+
+        @keyframes alertIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .alert-header .alert-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .alert-header .alert-icon.error {
+            color: var(--error);
+        }
+
+        .alert-header .alert-icon.warning {
+            color: var(--warning);
+        }
+
+        .alert-header .alert-icon.info {
+            color: var(--accent);
+        }
+
+        .alert-header h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .alert-body {
+            color: var(--text2);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .alert-actions button {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .alert-btn-ok {
+            background: var(--accent);
+            color: white;
+        }
+
+        .alert-btn-ok:hover {
+            background: var(--accent-hover);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Toast 通知容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Alert 对话框 -->
+    <div class="alert-modal" id="alertModal">
+        <div class="alert-content">
+            <div class="alert-header">
+                <svg class="alert-icon" id="alertIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2"></svg>
+                <h4 id="alertTitle">提示</h4>
+            </div>
+            <div class="alert-body" id="alertBody"></div>
+            <div class="alert-actions">
+                <button class="alert-btn-ok" onclick="closeAlert()">确定</button>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"
+                    style="vertical-align: middle; margin-right: 6px;">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>会话</h2>
+            <button class="btn-new" onclick="newSession()">+ 新建</button>
+        </div>
+        <div class="search-bar">
+            <div class="search-input-wrap">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input type="text" class="search-input" id="sessionSearch" placeholder="搜索会话..."
+                    oninput="filterSessions()">
+            </div>
+            <button class="btn-refresh" id="refreshSessionsBtn" onclick="refreshSessions()" title="刷新会话列表">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M23 4v6h-6" />
+                    <path d="M1 20v-6h6" />
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg>
+            </button>
+        </div>
+        <div class="session-list" id="sessionList"></div>
+        <div class="sidebar-footer">
+            <button class="btn-settings" onclick="openSettings()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                设置
+            </button>
+        </div>
+    </div>
+    <div class="main">
+        <div class="header">
+            <h1 id="sessionTitle">NexAgent</h1>
+            <div class="header-right">
+                <input type="text" id="username" placeholder="用户名" value="guest">
+                <div class="dropdown" id="modelDropdown">
+                    <button class="dropdown-btn" onclick="toggleModelDropdown()">
+                        <span id="currentModelName">选择模型</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                            height="16">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div class="dropdown-menu" id="modelMenu"></div>
+                </div>
+                <button onclick="clearMsgs()">清空</button>
+                <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="切换主题"></button>
+            </div>
+        </div>
+        <div class="messages" id="msgs"></div>
+        <div class="input-area">
+            <div class="input-wrap">
+                <textarea id="inp" placeholder="输入消息..." rows="1"></textarea>
+                <button class="send-btn" id="btn" onclick="send()">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑会话弹窗 -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3 id="editModalTitle"></h3>
+            <input type="text" id="editSessionName" placeholder="会话名称">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeEditModal()">取消</button>
+                <button class="btn-confirm" onclick="saveSessionName()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置弹窗 -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content" style="min-width:700px;max-width:900px;padding:0;overflow:hidden;">
+            <div
+                style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                <h3 style="margin:0;font-size:1.1rem;">设置</h3>
+                <button onclick="closeSettings()"
+                    style="background:none;border:none;color:var(--text2);cursor:pointer;padding:4px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <div class="settings-container">
+                <!-- 第一层：导航 -->
+                <div class="settings-nav">
+                    <button class="settings-nav-item active" onclick="switchSettingsNav('providers')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="8" rx="2" />
+                            <rect x="2" y="14" width="20" height="8" rx="2" />
+                            <circle cx="6" cy="6" r="1" />
+                            <circle cx="6" cy="18" r="1" />
+                        </svg>
+                        服务商
+                    </button>
+                    <button class="settings-nav-item" onclick="switchSettingsNav('mcp')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
+                        MCP
+                    </button>
+                    <button class="settings-nav-item" onclick="switchSettingsNav('about')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="16" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12.01" y2="8" />
+                        </svg>
+                        关于
+                    </button>
+                </div>
+
+                <!-- 第二层：服务商列表 -->
+                <div class="settings-panel active" id="panel-providers">
+                    <div class="settings-panel-header">
+                        <h4>服务商管理</h4>
+                        <button class="btn-add-small" onclick="showAddProvider()">+ 添加</button>
+                    </div>
+                    <div class="settings-panel-content" id="providerListPanel"></div>
+                </div>
+
+                <!-- 第二层：MCP列表 -->
+                <div class="settings-panel" id="panel-mcp">
+                    <div class="settings-panel-header">
+                        <h4>MCP 服务器</h4>
+                        <button class="btn-add-small" onclick="showAddMCPInline()">+ 添加</button>
+                    </div>
+                    <div class="settings-panel-content" id="mcpListPanel"></div>
+                </div>
+
+                <!-- 第二层：关于 -->
+                <div class="settings-panel" id="panel-about">
+                    <div class="settings-panel-header">
+                        <h4>关于</h4>
+                    </div>
+                    <div class="settings-panel-content">
+                        <p style="color:var(--text2);line-height:1.8;font-size:0.9rem;">
+                            <strong style="color:var(--text);font-size:1.1rem;">NexAgent</strong><br><br>
+                            AI 对话框架，支持多服务商、多模型切换、深度思考、工具调用、MCP 服务器、流式输出、多会话管理。<br><br>
+                            <span style="color:var(--accent);">版本: <span id="appVersion">-</span></span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 第三层：服务商详情/编辑 -->
+                <div class="settings-detail" id="detail-provider">
+                    <div class="settings-detail-header">
+                        <h4 id="providerDetailTitle">服务商详情</h4>
+                        <button onclick="closeProviderDetail()"
+                            style="background:none;border:none;color:var(--text2);cursor:pointer;padding:4px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="settings-detail-content">
+                        <!-- 查看模式：信息卡片和模型列表 -->
+                        <div id="providerViewMode">
+                            <div class="provider-info-card">
+                                <div class="provider-info-header">
+                                    <div>
+                                        <div class="provider-info-name" id="providerViewName"></div>
+                                        <div class="provider-info-detail" id="providerViewUrl"></div>
+                                        <div class="provider-info-detail" id="providerViewKey"></div>
+                                    </div>
+                                    <button class="btn-edit-small" onclick="switchToProviderEditMode()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            width="12" height="12">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                        </svg>
+                                        编辑
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="model-list-section" style="margin-top:16px;padding-top:0;border-top:none;">
+                                <h5>模型列表
+                                    <div style="display:flex;gap:6px;">
+                                        <button class="btn-outline-small" onclick="showProviderModelsModal()">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                width="12" height="12">
+                                                <rect x="3" y="3" width="7" height="7" />
+                                                <rect x="14" y="3" width="7" height="7" />
+                                                <rect x="14" y="14" width="7" height="7" />
+                                                <rect x="3" y="14" width="7" height="7" />
+                                            </svg>
+                                            浏览
+                                        </button>
+                                        <button class="btn-add-small" onclick="showAddModelForProvider()">+ 添加</button>
+                                    </div>
+                                </h5>
+                                <div id="providerModelsList"></div>
+                            </div>
+                        </div>
+
+                        <!-- 编辑模式：表单 -->
+                        <div id="providerEditMode" style="display:none;">
+                            <div class="settings-form">
+                                <label>服务商ID</label>
+                                <input type="text" id="providerIdInput" placeholder="如: openai">
+                                <label>显示名称</label>
+                                <input type="text" id="providerNameInput" placeholder="如: OpenAI">
+                                <label>API Key</label>
+                                <input type="password" id="providerApiKeyInput" placeholder="sk-...">
+                                <label>Base URL</label>
+                                <input type="text" id="providerBaseUrlInput" placeholder="https://api.openai.com/v1">
+                                <div class="settings-form-actions">
+                                    <button class="btn-cancel" onclick="cancelProviderEdit()">取消</button>
+                                    <button class="btn-confirm" onclick="saveProviderInline()">保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第三层：MCP详情/编辑 -->
+                <div class="settings-detail" id="detail-mcp">
+                    <div class="settings-detail-header">
+                        <h4 id="mcpDetailTitle">MCP 服务器</h4>
+                        <button onclick="closeMCPDetail()"
+                            style="background:none;border:none;color:var(--text2);cursor:pointer;padding:4px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="settings-detail-content">
+                        <div class="settings-form">
+                            <label>服务器ID</label>
+                            <input type="text" id="mcpIdInput" placeholder="如: my-mcp">
+                            <label>显示名称</label>
+                            <input type="text" id="mcpNameInput" placeholder="如: 我的MCP">
+                            <label>服务器类型</label>
+                            <select id="mcpTypeInput">
+                                <option value="sse">SSE</option>
+                                <option value="streamable_http">Streamable HTTP</option>
+                            </select>
+                            <label>服务器URL</label>
+                            <input type="text" id="mcpUrlInput" placeholder="http://localhost:3000/mcp">
+                            <label>请求头 (JSON, 可选)</label>
+                            <textarea id="mcpHeadersInput" rows="3"
+                                placeholder='{"Authorization": "Bearer ..."}'></textarea>
+                            <div class="settings-form-actions">
+                                <button class="btn-cancel" onclick="closeMCPDetail()">取消</button>
+                                <button class="btn-confirm" onclick="saveMCPInline()">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第三层：模型编辑 -->
+                <div class="settings-detail" id="detail-model">
+                    <div class="settings-detail-header">
+                        <h4 id="modelDetailTitle">模型设置</h4>
+                        <button onclick="closeModelDetail()"
+                            style="background:none;border:none;color:var(--text2);cursor:pointer;padding:4px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="settings-detail-content">
+                        <!-- 供应商模型选择（添加模式显示） -->
+                        <div id="presetModelSection" style="display:none;margin-bottom:16px;">
+                            <div
+                                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                                <label style="margin:0;font-weight:500;">从供应商获取</label>
+                                <button class="btn-text-small" onclick="togglePresetList()">
+                                    <span id="presetToggleText">展开</span>
+                                    <svg id="presetToggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" width="14" height="14" style="transition:transform 0.2s;">
+                                        <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="presetModelList" class="preset-model-list" style="display:none;"></div>
+                        </div>
+                        <div class="settings-form">
+                            <label>模型类型</label>
+                            <select id="modelTypeInput" onchange="onModelTypeChange()">
+                                <option value="chat">对话模型</option>
+                                <option value="embedding">嵌入模型</option>
+                            </select>
+                            <label>模型ID</label>
+                            <input type="text" id="modelIdInput" placeholder="如: gpt-4">
+                            <label>显示名称</label>
+                            <input type="text" id="modelDisplayNameInput" placeholder="如: GPT-4">
+                            <div id="modelTagsSection">
+                                <label>模型能力</label>
+                                <div class="tag-checkbox-group" id="modelTagsGroup">
+                                    <div class="tag-checkbox" data-tag="tool"><input type="checkbox" value="tool"><svg
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path
+                                                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                                        </svg>工具</div>
+                                    <div class="tag-checkbox" data-tag="reasoning"><input type="checkbox"
+                                            value="reasoning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2">
+                                            <path
+                                                d="M12 2a4 4 0 0 0-4 4v1a4 4 0 0 0-4 4c0 1.5.8 2.8 2 3.4V16a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4v-1.6c1.2-.6 2-1.9 2-3.4a4 4 0 0 0-4-4V6a4 4 0 0 0-4-4z" />
+                                        </svg>推理</div>
+                                    <div class="tag-checkbox" data-tag="vision"><input type="checkbox"
+                                            value="vision"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                            <circle cx="12" cy="12" r="3" />
+                                        </svg>视觉</div>
+                                </div>
+                            </div>
+                            <div class="settings-form-actions">
+                                <button class="btn-cancel" onclick="closeModelDetail()">取消</button>
+                                <button class="btn-danger" onclick="deleteModelInline()" id="deleteModelBtn"
+                                    style="display:none;">删除</button>
+                                <button class="btn-confirm" onclick="saveModelInline()">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认弹窗 -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h3 id="confirmModalTitle"></h3>
+            <p id="confirmText" style="color:var(--text2);margin-bottom:20px"></p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeConfirm()">取消</button>
+                <button class="btn-danger" id="confirmBtn" onclick="doConfirm()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑消息弹窗 -->
+    <div class="modal" id="editMsgModal">
+        <div class="modal-content wide">
+            <h3 id="editMsgModalTitle"></h3>
+            <label>消息内容</label>
+            <textarea id="editMsgContent"
+                style="width:100%;min-height:120px;background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:var(--radius-sm);font-size:0.95rem;resize:vertical;font-family:inherit;"></textarea>
+            <div class="modal-actions" style="flex-wrap:wrap;gap:8px;">
+                <button class="btn-cancel" onclick="closeEditMsgModal()">取消</button>
+                <button class="btn-confirm" onclick="saveEditedMsg(false)">仅保存</button>
+                <button class="btn-confirm" style="background:var(--success)"
+                    onclick="saveEditedMsg(true)">保存并重新生成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 供应商模型列表弹窗 -->
+    <div class="modal" id="providerModelsModal">
+        <div class="modal-content"
+            style="min-width:600px;max-width:720px;max-height:85vh;display:flex;flex-direction:column;padding:0;">
+            <!-- 标题栏 -->
+            <div class="modal-header-bar">
+                <h3 id="providerModelsModalTitle">模型列表</h3>
+                <button class="modal-close-btn" onclick="closeProviderModelsModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+            <!-- 搜索栏 -->
+            <div class="modal-search-bar">
+                <div class="modal-search-wrap">
+                    <svg class="modal-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    <input type="text" class="modal-search-input" id="providerModelsSearch" placeholder="搜索模型名称..."
+                        oninput="filterProviderModels()">
+                </div>
+                <button class="modal-search-refresh" id="refreshModelsBtn" onclick="refreshProviderModels()" title="刷新">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <polyline points="23 4 23 10 17 10" />
+                        <polyline points="1 20 1 14 7 14" />
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                    </svg>
+                </button>
+            </div>
+            <!-- 标签页筛选 -->
+            <div class="modal-filter-tabs">
+                <button class="modal-filter-tab active" data-filter="all" onclick="setModelFilter('all')">全部</button>
+                <button class="modal-filter-tab" data-filter="reasoning"
+                    onclick="setModelFilter('reasoning')">推理</button>
+                <button class="modal-filter-tab" data-filter="vision" onclick="setModelFilter('vision')">视觉</button>
+                <button class="modal-filter-tab" data-filter="tool" onclick="setModelFilter('tool')">工具</button>
+                <button class="modal-filter-tab" data-filter="embedding"
+                    onclick="setModelFilter('embedding')">嵌入</button>
+            </div>
+            <!-- 模型列表 -->
+            <div id="providerModelsListContent" style="flex:1;overflow-y:auto;background:var(--bg);"></div>
+            <!-- 底部状态栏 -->
+            <div class="modal-footer-bar">
+                <span id="providerModelsCount"></span>
+                <button class="modal-action-btn" onclick="closeProviderModelsModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // ========== 全局变量 ==========
+        let busy = false, currentSessionId = null, editingSessionId = null, toolIdCounter = 0;
+        let editingModelKey = null, editingProviderId = null, confirmCallback = null;
+        let editingMsgId = null, editingMsgRole = null;
+        let currentModelKey = null;
+        let editingMCPId = null;
+
+        // ========== 工具函数 ==========
+        function getUser() { return document.getElementById('username').value.trim() || 'guest'; }
+        function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+        function fmt(t) {
+            if (!t) return '';
+            t = escapeHtml(t);
+            t = t.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+            t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+            t = t.replace(/\n/g, '<br>');
+            return t;
+        }
+
+        // ========== Toast 通知系统 ==========
+        const toastIcons = {
+            success: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+            error: '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+            warning: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+            info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'
+        };
+
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <svg class="toast-icon ${type}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${toastIcons[type] || toastIcons.info}</svg>
+                <div class="toast-content">${escapeHtml(message)}</div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            `;
+            container.appendChild(toast);
+            if (duration > 0) {
+                setTimeout(() => {
+                    toast.classList.add('hiding');
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            }
+        }
+
+        // ========== Alert 对话框系统 ==========
+        const alertIcons = {
+            error: '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+            warning: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+            info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'
+        };
+
+        function showAlert(message, title = '提示', type = 'info') {
+            const modal = document.getElementById('alertModal');
+            const icon = document.getElementById('alertIcon');
+            const titleEl = document.getElementById('alertTitle');
+            const bodyEl = document.getElementById('alertBody');
+            icon.innerHTML = alertIcons[type] || alertIcons.info;
+            icon.className = 'alert-icon ' + type;
+            titleEl.textContent = title;
+            bodyEl.textContent = message;
+            modal.classList.add('show');
+        }
+
+        function closeAlert() {
+            document.getElementById('alertModal').classList.remove('show');
+        }
+
+        // ========== 主题 ==========
+        const iconSun = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+        const iconMoon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+        const iconEdit = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+        const iconDelete = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+        const iconCopy = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+        const iconRefresh = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>';
+        const iconTokens = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>';
+        const iconBrain = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2a4 4 0 0 0-4 4v1a4 4 0 0 0-4 4c0 1.5.8 2.8 2 3.4V16a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4v-1.6c1.2-.6 2-1.9 2-3.4a4 4 0 0 0-4-4V6a4 4 0 0 0-4-4z"/><path d="M12 2v20"/><path d="M8 6h8"/><path d="M6 11h12"/></svg>';
+        const iconSettings = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+        const iconPlus = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+        const iconWarning = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+        const iconEditLg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+        const iconTool = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>';
+        const iconServer = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>';
+        const iconLink = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+        const iconEye = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+        // 模型标签配置 - 使用SVG图标
+        const MODEL_TAGS = {
+            'tool': { label: '工具', color: '#10b981', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>' },
+            'reasoning': { label: '推理', color: '#f59e0b', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 2a4 4 0 0 0-4 4v1a4 4 0 0 0-4 4c0 1.5.8 2.8 2 3.4V16a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4v-1.6c1.2-.6 2-1.9 2-3.4a4 4 0 0 0-4-4V6a4 4 0 0 0-4-4z"/></svg>' },
+            'vision': { label: '视觉', color: '#6366f1', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' }
+        };
+
+        function renderModelTags(tags) {
+            if (!tags || tags.length === 0) return '';
+            return tags.map(tag => {
+                const config = MODEL_TAGS[tag] || { label: tag, color: '#6b7280', icon: '' };
+                return `<span class="model-tag" style="background:${config.color}20;color:${config.color};border:1px solid ${config.color}40;">${config.icon}</span>`;
+            }).join('');
+        }
+
+        // 模型类型配置
+        const MODEL_TYPES = {
+            'chat': { label: '对话', color: '#6366f1', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>' },
+            'embedding': { label: '嵌入', color: '#8b5cf6', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>' }
+        };
+
+        function renderModelType(type) {
+            const config = MODEL_TYPES[type] || MODEL_TYPES['chat'];
+            return `<span class="model-type-tag" style="background:${config.color}20;color:${config.color};border:1px solid ${config.color}40;">${config.icon} ${config.label}</span>`;
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = localStorage.getItem('nex_theme');
+            let newTheme;
+            if (current === 'auto' || !current) {
+                newTheme = 'light';
+            } else if (current === 'light') {
+                newTheme = 'dark';
+            } else {
+                newTheme = 'auto';
+            }
+            localStorage.setItem('nex_theme', newTheme);
+            applyTheme(newTheme);
+            updateThemeIcon();
+        }
+
+        function applyTheme(theme) {
+            const html = document.documentElement;
+            if (theme === 'auto') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            } else {
+                html.setAttribute('data-theme', theme);
+            }
+        }
+
+        function updateThemeIcon() {
+            const btn = document.getElementById('themeBtn');
+            const saved = localStorage.getItem('nex_theme') || 'auto';
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (saved === 'auto') {
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>';
+                btn.title = '跟随系统 (点击切换到浅色)';
+            } else if (isDark) {
+                btn.innerHTML = iconSun;
+                btn.title = '深色模式 (点击切换到跟随系统)';
+            } else {
+                btn.innerHTML = iconMoon;
+                btn.title = '浅色模式 (点击切换到深色)';
+            }
+        }
+
+        function initTheme() {
+            const saved = localStorage.getItem('nex_theme') || 'auto';
+            applyTheme(saved);
+            updateThemeIcon();
+            // 监听系统主题变化
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (localStorage.getItem('nex_theme') === 'auto') {
+                    applyTheme('auto');
+                }
+            });
+        }
+
+        // ========== 工具卡片 ==========
+        function createToolCardHtml(name, args, result, id) {
+            const isDone = result !== undefined;
+            return `<div class="tool-card" id="tool-${id}">
+        <div class="tool-header" onclick="toggleTool('${id}')">
+            <div class="tool-title"><span class="icon">${iconTool}</span><span>${escapeHtml(name)}</span>
+                <span class="tool-status ${isDone ? 'done' : 'running'}">${isDone ? '完成' : '运行中'}</span></div>
+            <span class="tool-arrow">▼</span>
+        </div>
+        <div class="tool-body"><div class="tool-content">
+            <div class="tool-section"><div class="tool-section-title">参数</div><pre>${escapeHtml(JSON.stringify(args, null, 2))}</pre></div>
+            ${isDone ? `<div class="tool-section"><div class="tool-section-title">结果</div><pre>${escapeHtml(result)}</pre></div>` : '<div class="tool-section tool-result" style="display:none"><div class="tool-section-title">结果</div><pre></pre></div>'}
+        </div></div>
+    </div>`;
+        }
+
+        function toggleTool(id) { document.getElementById('tool-' + id)?.classList.toggle('open'); }
+
+        function updateToolResult(id, result) {
+            const card = document.getElementById('tool-' + id);
+            if (!card) return;
+            card.querySelector('.tool-status').className = 'tool-status done';
+            card.querySelector('.tool-status').textContent = '完成';
+            const rs = card.querySelector('.tool-result');
+            if (rs) { rs.style.display = 'block'; rs.querySelector('pre').textContent = result; }
+        }
+
+        // ========== 思考过程卡片 ==========
+        function createThinkingCardHtml(content, id, isDone = true) {
+            return `<div class="tool-card thinking" id="thinking-${id}">
+        <div class="tool-header" onclick="toggleThinking('${id}')">
+            <div class="tool-title"><span class="icon">${iconBrain}</span><span>深度思考</span>
+                <span class="tool-status ${isDone ? 'done' : 'running'}">${isDone ? '完成' : '思考中...'}</span></div>
+            <span class="tool-arrow">▼</span>
+        </div>
+        <div class="tool-body"><div class="tool-content">
+            <div class="tool-section"><div class="tool-section-title">思考过程</div><pre id="thinking-content-${id}">${escapeHtml(content || '')}</pre></div>
+        </div></div>
+    </div>`;
+        }
+
+        function toggleThinking(id) { document.getElementById('thinking-' + id)?.classList.toggle('open'); }
+
+        function updateThinkingContent(id, content, isDone = false) {
+            const card = document.getElementById('thinking-' + id);
+            if (!card) return;
+            const pre = document.getElementById('thinking-content-' + id);
+            if (pre) pre.textContent = content;
+            if (isDone) {
+                card.querySelector('.tool-status').className = 'tool-status done';
+                card.querySelector('.tool-status').textContent = '完成';
+            }
+        }
+
+        // ========== 初始化 ==========
+        async function init() {
+            initTheme();
+            const saved = localStorage.getItem('nex_user');
+            if (saved) document.getElementById('username').value = saved;
+            document.getElementById('username').addEventListener('change', e => localStorage.setItem('nex_user', e.target.value));
+            await loadModels();
+            await loadSessions();
+            await loadVersion();
+
+            const inp = document.getElementById('inp');
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+            });
+            // 输入框自动高度
+            inp.addEventListener('input', autoResizeTextarea);
+
+            document.addEventListener('click', e => {
+                const dropdown = document.getElementById('modelDropdown');
+                if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+            });
+        }
+
+        // ========== 输入框自动高度 ==========
+        function autoResizeTextarea() {
+            const inp = document.getElementById('inp');
+            inp.style.height = 'auto';
+            inp.style.height = Math.min(inp.scrollHeight, 200) + 'px';
+        }
+
+        function resetTextareaHeight() {
+            const inp = document.getElementById('inp');
+            inp.style.height = 'auto';
+        }
+
+        // ========== 版本号 ==========
+        async function loadVersion() {
+            try {
+                const r = await fetch('/nex/version');
+                const d = await r.json();
+                if (d.code === 0 && d.data.version) {
+                    document.getElementById('appVersion').textContent = d.data.version;
+                }
+            } catch (e) { console.error('获取版本号失败', e); }
+        }
+
+        // ========== 模型下拉框 ==========
+        function toggleModelDropdown() {
+            document.getElementById('modelDropdown').classList.toggle('open');
+        }
+
+        async function selectModel(key) {
+            document.getElementById('modelDropdown').classList.remove('open');
+            if (key === currentModelKey) return;
+            try {
+                await fetch('/nex/models/switch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model_key: key }) });
+                await loadModels();
+            } catch (e) { showToast('切换失败: ' + e.message, 'error'); }
+        }
+
+        // ========== 模型管理 ==========
+        async function loadModels() {
+            try {
+                const r = await fetch('/nex/models');
+                const d = await r.json();
+                // 只显示对话模型（嵌入模型不能用于对话）
+                const chatModels = d.data.models.filter(m => m.model_type !== 'embedding');
+                if (!d.data.current || d.data.current.model_type === 'embedding') {
+                    // 如果当前模型是嵌入模型或未配置，显示提示
+                    if (chatModels.length === 0) {
+                        document.getElementById('currentModelName').textContent = '未配置模型';
+                        document.getElementById('modelMenu').innerHTML = '<div style="padding:12px;color:var(--text2)">请先添加对话模型</div>';
+                        currentModelKey = null;
+                    } else {
+                        // 自动切换到第一个对话模型
+                        await fetch('/nex/models/switch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model_key: chatModels[0].key }) });
+                        currentModelKey = chatModels[0].key;
+                        document.getElementById('currentModelName').textContent = chatModels[0].name;
+                        document.getElementById('modelMenu').innerHTML = chatModels.map(m => `
+                        <div class="dropdown-item ${m.key === currentModelKey ? 'active' : ''}" onclick="selectModel('${m.key}')">
+                            <div class="dropdown-item-name">${escapeHtml(m.name)} ${renderModelTags(m.tags)}</div>
+                            <div class="dropdown-item-model">${escapeHtml(m.model)} · ${escapeHtml(m.provider_name)}</div>
+                        </div>
+                    `).join('');
+                    }
+                } else {
+                    currentModelKey = d.data.current.key;
+                    document.getElementById('currentModelName').textContent = d.data.current.name;
+                    document.getElementById('modelMenu').innerHTML = chatModels.map(m => `
+                    <div class="dropdown-item ${m.key === currentModelKey ? 'active' : ''}" onclick="selectModel('${m.key}')">
+                        <div class="dropdown-item-name">${escapeHtml(m.name)} ${renderModelTags(m.tags)}</div>
+                        <div class="dropdown-item-model">${escapeHtml(m.model)} · ${escapeHtml(m.provider_name)}</div>
+                    </div>
+                `).join('');
+                }
+            } catch { }
+        }
+
+        // ========== 服务商管理 ==========
+        let currentProviderIdEdit = null;
+        let currentMCPIdEdit = null;
+        let selectedProviderId = null;
+
+        async function loadProviderListPanel() {
+            try {
+                const r = await fetch('/nex/providers');
+                const d = await r.json();
+                const panel = document.getElementById('providerListPanel');
+                if (d.data.length === 0) {
+                    panel.innerHTML = '<div style="padding:20px;color:var(--text2);text-align:center">暂无服务商<br><span style="font-size:0.85rem">点击上方按钮添加</span></div>';
+                    return;
+                }
+                panel.innerHTML = d.data.map(p => `
+                    <div class="provider-item ${selectedProviderId === p.id ? 'active' : ''}" onclick="selectProvider('${p.id}')">
+                        <div class="provider-item-name">${escapeHtml(p.name)}</div>
+                        <div class="provider-item-detail">${escapeHtml(p.base_url)}</div>
+                    </div>
+                `).join('');
+            } catch (e) { showToast('加载失败: ' + e.message, 'error'); }
+        }
+
+        function showAddProvider() {
+            currentProviderIdEdit = null;
+            selectedProviderId = null;
+            document.getElementById('providerDetailTitle').textContent = '添加服务商';
+            document.getElementById('providerIdInput').value = '';
+            document.getElementById('providerIdInput').disabled = false;
+            document.getElementById('providerNameInput').value = '';
+            document.getElementById('providerApiKeyInput').value = '';
+            document.getElementById('providerApiKeyInput').placeholder = 'sk-...';
+            document.getElementById('providerBaseUrlInput').value = '';
+            document.getElementById('providerViewMode').style.display = 'none';
+            document.getElementById('providerEditMode').style.display = 'block';
+            document.getElementById('detail-provider').classList.add('active');
+        }
+
+        async function selectProvider(id) {
+            selectedProviderId = id;
+            try {
+                const r = await fetch(`/nex/providers/${id}`);
+                const d = await r.json();
+
+                // 更新列表高亮
+                await loadProviderListPanel();
+
+                // 显示查看模式
+                document.getElementById('providerDetailTitle').textContent = d.data.name;
+                document.getElementById('providerViewName').textContent = d.data.name;
+                document.getElementById('providerViewUrl').textContent = d.data.base_url;
+                document.getElementById('providerViewKey').textContent = 'API Key: ' + d.data.api_key_masked;
+                document.getElementById('providerViewMode').style.display = 'block';
+                document.getElementById('providerEditMode').style.display = 'none';
+                document.getElementById('detail-provider').classList.add('active');
+
+                await loadProviderModels(id);
+            } catch (e) { showToast('加载失败: ' + e.message, 'error'); }
+        }
+
+        function switchToProviderEditMode() {
+            if (!selectedProviderId) return;
+            currentProviderIdEdit = selectedProviderId;
+            fetch(`/nex/providers/${selectedProviderId}`).then(r => r.json()).then(d => {
+                document.getElementById('providerDetailTitle').textContent = '编辑服务商';
+                document.getElementById('providerIdInput').value = selectedProviderId;
+                document.getElementById('providerIdInput').disabled = true;
+                document.getElementById('providerNameInput').value = d.data.name;
+                document.getElementById('providerApiKeyInput').value = '';
+                document.getElementById('providerApiKeyInput').placeholder = d.data.api_key_masked + ' (留空不修改)';
+                document.getElementById('providerBaseUrlInput').value = d.data.base_url;
+                document.getElementById('providerViewMode').style.display = 'none';
+                document.getElementById('providerEditMode').style.display = 'block';
+            });
+        }
+
+        function cancelProviderEdit() {
+            if (selectedProviderId) {
+                selectProvider(selectedProviderId);
+            } else {
+                closeProviderDetail();
+            }
+        }
+
+        async function loadProviderModels(providerId) {
+            try {
+                const r = await fetch('/nex/models');
+                const d = await r.json();
+                const models = d.data.models.filter(m => m.provider_id === providerId);
+                const list = document.getElementById('providerModelsList');
+                if (models.length === 0) {
+                    list.innerHTML = '<div style="color:var(--text2);font-size:0.85rem;text-align:center;padding:12px;">暂无模型</div>';
+                    return;
+                }
+
+                // 分离对话模型和嵌入模型
+                const chatModels = models.filter(m => m.model_type !== 'embedding');
+                const embeddingModels = models.filter(m => m.model_type === 'embedding');
+
+                let html = '';
+
+                // 对话模型
+                if (chatModels.length > 0) {
+                    html += '<div class="model-section-title">对话模型</div>';
+                    html += chatModels.map(m => `
+                        <div class="model-item" onclick="selectModelForEdit('${m.key}')">
+                            <div class="model-item-name">${escapeHtml(m.name)} ${renderModelTags(m.tags)}</div>
+                            <div class="model-item-detail">${escapeHtml(m.model)}</div>
+                        </div>
+                    `).join('');
+                }
+
+                // 嵌入模型
+                if (embeddingModels.length > 0) {
+                    if (chatModels.length > 0) {
+                        html += '<div class="model-section-divider"></div>';
+                    }
+                    html += '<div class="model-section-title">嵌入模型</div>';
+                    html += embeddingModels.map(m => `
+                        <div class="model-item embedding" onclick="selectModelForEdit('${m.key}')">
+                            <div class="model-item-name">${escapeHtml(m.name)}</div>
+                            <div class="model-item-detail">${escapeHtml(m.model)}</div>
+                        </div>
+                    `).join('');
+                }
+
+                list.innerHTML = html;
+            } catch (e) { showToast('加载失败: ' + e.message, 'error'); }
+        }
+
+        async function saveProviderInline() {
+            const id = document.getElementById('providerIdInput').value.trim();
+            const name = document.getElementById('providerNameInput').value.trim();
+            const apiKey = document.getElementById('providerApiKeyInput').value.trim();
+            const baseUrl = document.getElementById('providerBaseUrlInput').value.trim();
+
+            if (!id || !name || !baseUrl) { showAlert('请填写完整信息', '提示', 'warning'); return; }
+            if (!currentProviderIdEdit && !apiKey) { showAlert('请填写 API Key', '提示', 'warning'); return; }
+
+            try {
+                if (currentProviderIdEdit) {
+                    const body = { name, base_url: baseUrl };
+                    if (apiKey) body.api_key = apiKey;
+                    await fetch(`/nex/providers/${currentProviderIdEdit}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                } else {
+                    await fetch('/nex/providers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, name, api_key: apiKey, base_url: baseUrl }) });
+                    selectedProviderId = id;
+                }
+                showToast('保存成功', 'success');
+                closeProviderDetail();
+                if (selectedProviderId) {
+                    await selectProvider(selectedProviderId);
+                } else {
+                    await loadProviderListPanel();
+                }
+            } catch (e) { showToast('保存失败: ' + e.message, 'error'); }
+        }
+
+        function closeProviderDetail() {
+            document.getElementById('detail-provider').classList.remove('active');
+            currentProviderIdEdit = null;
+            selectedProviderId = null;
+            loadProviderListPanel();
+        }
+
+        // ========== 供应商模型列表弹窗 ==========
+        let allProviderModels = [];  // 存储所有模型数据
+        let currentModelFilter = 'all';  // 当前筛选类型
+
+        async function showProviderModelsModal() {
+            if (!selectedProviderId) return;
+
+            const modal = document.getElementById('providerModelsModal');
+            const content = document.getElementById('providerModelsListContent');
+            const countEl = document.getElementById('providerModelsCount');
+
+            // 获取供应商名称
+            try {
+                const providerR = await fetch(`/nex/providers/${selectedProviderId}`);
+                const providerD = await providerR.json();
+                document.getElementById('providerModelsModalTitle').textContent = `${providerD.data.name} 模型列表`;
+            } catch {
+                document.getElementById('providerModelsModalTitle').textContent = '模型列表';
+            }
+
+            // 重置搜索和筛选
+            document.getElementById('providerModelsSearch').value = '';
+            setModelFilter('all');
+
+            modal.classList.add('show');
+            content.innerHTML = '<div style="padding:60px;text-align:center;color:var(--text2);"><span class="typing"><span></span><span></span><span></span></span> 正在加载模型列表...</div>';
+            countEl.textContent = '';
+
+            await loadProviderModelsData();
+        }
+
+        async function loadProviderModelsData() {
+            const content = document.getElementById('providerModelsListContent');
+            const countEl = document.getElementById('providerModelsCount');
+
+            try {
+                const r = await fetch(`/nex/providers/${selectedProviderId}/models`);
+                const d = await r.json();
+
+                if (d.code !== 0) {
+                    content.innerHTML = `<div style="padding:60px;text-align:center;color:var(--error);">获取失败: ${escapeHtml(d.detail || '未知错误')}</div>`;
+                    return;
+                }
+
+                allProviderModels = d.data || [];
+                renderProviderModelsModal();
+            } catch (e) {
+                content.innerHTML = `<div style="padding:60px;text-align:center;color:var(--error);">获取失败: ${escapeHtml(e.message)}</div>`;
+            }
+        }
+
+        async function refreshProviderModels() {
+            const btn = document.getElementById('refreshModelsBtn');
+            btn.classList.add('loading');
+
+            const content = document.getElementById('providerModelsListContent');
+            content.innerHTML = '<div style="padding:60px;text-align:center;color:var(--text2);"><span class="typing"><span></span><span></span><span></span></span> 正在刷新...</div>';
+
+            await loadProviderModelsData();
+            btn.classList.remove('loading');
+            showToast('刷新成功', 'success');
+        }
+
+        function setModelFilter(filter) {
+            currentModelFilter = filter;
+            // 更新标签页状态
+            document.querySelectorAll('.modal-filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.filter === filter);
+            });
+            renderProviderModelsModal();
+        }
+
+        function filterProviderModels() {
+            renderProviderModelsModal();
+        }
+
+        function renderProviderModelsModal() {
+            const content = document.getElementById('providerModelsListContent');
+            const countEl = document.getElementById('providerModelsCount');
+            const searchText = document.getElementById('providerModelsSearch').value.toLowerCase().trim();
+
+            // 筛选模型
+            let filtered = allProviderModels.filter(m => {
+                // 标签页筛选
+                if (currentModelFilter === 'embedding') {
+                    if (m.model_type !== 'embedding') return false;
+                } else if (currentModelFilter === 'reasoning') {
+                    if (m.model_type === 'embedding') return false;
+                    if (!m.capabilities || !m.capabilities.includes('reasoning')) return false;
+                } else if (currentModelFilter === 'vision') {
+                    if (m.model_type === 'embedding') return false;
+                    if (!m.capabilities || !m.capabilities.includes('vision')) return false;
+                } else if (currentModelFilter === 'tool') {
+                    if (m.model_type === 'embedding') return false;
+                    if (!m.capabilities || !m.capabilities.includes('tool')) return false;
+                }
+                // 搜索筛选
+                if (searchText && !m.id.toLowerCase().includes(searchText)) return false;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                content.innerHTML = '<div style="padding:60px;text-align:center;color:var(--text2);">没有找到匹配的模型</div>';
+                countEl.textContent = `共 ${allProviderModels.length} 个模型`;
+                return;
+            }
+
+            // 分组显示（仅在"全部"标签页时分组）
+            if (currentModelFilter === 'all') {
+                const chatModels = filtered.filter(m => m.model_type !== 'embedding');
+                const embeddingModels = filtered.filter(m => m.model_type === 'embedding');
+
+                let html = '';
+
+                if (chatModels.length > 0) {
+                    html += '<div class="model-section-title" style="padding:10px 14px;background:var(--card);">对话模型 (' + chatModels.length + ')</div>';
+                    html += chatModels.map(m => renderProviderModelItem(m)).join('');
+                }
+
+                if (embeddingModels.length > 0) {
+                    if (chatModels.length > 0) {
+                        html += '<div class="model-section-divider" style="margin:0;"></div>';
+                    }
+                    html += '<div class="model-section-title" style="padding:10px 14px;background:var(--card);">嵌入模型 (' + embeddingModels.length + ')</div>';
+                    html += embeddingModels.map(m => renderProviderModelItem(m)).join('');
+                }
+
+                content.innerHTML = html;
+            } else {
+                content.innerHTML = filtered.map(m => renderProviderModelItem(m)).join('');
+            }
+
+            countEl.textContent = `显示 ${filtered.length} / ${allProviderModels.length} 个模型`;
+        }
+
+        function renderProviderModelItem(m) {
+            const isEmbedding = m.model_type === 'embedding';
+            const capsHtml = !isEmbedding && m.capabilities && m.capabilities.length > 0
+                ? renderModelTags(m.capabilities)
+                : '';
+
+            return `
+                <div class="provider-model-item ${isEmbedding ? 'embedding' : ''}" onclick="addModelFromBrowser('${escapeHtml(m.id)}', '${m.model_type || 'chat'}', ${JSON.stringify(m.capabilities || []).replace(/"/g, '&quot;')})">
+                    <div class="provider-model-item-info">
+                        <div class="provider-model-item-name">
+                            ${escapeHtml(m.id)} ${capsHtml}
+                        </div>
+                        ${m.owned_by ? `<div class="provider-model-item-meta">${escapeHtml(m.owned_by)}</div>` : ''}
+                    </div>
+                    <div class="provider-model-item-action">
+                        <button class="btn-add-small" onclick="event.stopPropagation();addModelFromBrowser('${escapeHtml(m.id)}', '${m.model_type || 'chat'}', ${JSON.stringify(m.capabilities || []).replace(/"/g, '&quot;')})">添加</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addModelFromBrowser(modelId, modelType, capabilities) {
+            closeProviderModelsModal();
+            showAddModelForProvider();
+
+            // 填充表单
+            document.getElementById('modelIdInput').value = modelId;
+            const displayName = modelId
+                .replace(/-/g, ' ')
+                .replace(/_/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            document.getElementById('modelDisplayNameInput').value = displayName;
+            document.getElementById('modelTypeInput').value = modelType;
+            onModelTypeChange();
+
+            if (modelType !== 'embedding' && capabilities && capabilities.length > 0) {
+                setModelTags(capabilities);
+            } else {
+                setModelTags([]);
+            }
+        }
+
+        function closeProviderModelsModal() {
+            document.getElementById('providerModelsModal').classList.remove('show');
+            allProviderModels = [];
+        }
+
+        // ========== 模型管理（内联） ==========
+        let editingModelProviderIdInline = null;
+        let presetListExpanded = false;
+        let providerModelsCache = null;  // 缓存供应商模型列表
+
+        function showAddModelForProvider() {
+            if (!selectedProviderId) return;
+            editingModelProviderIdInline = selectedProviderId;
+            editingModelKey = null;
+            document.getElementById('modelDetailTitle').textContent = '添加模型';
+            document.getElementById('modelTypeInput').value = 'chat';
+            document.getElementById('modelIdInput').value = '';
+            document.getElementById('modelIdInput').disabled = false;
+            document.getElementById('modelDisplayNameInput').value = '';
+            setModelTags([]);
+            document.getElementById('modelTagsSection').style.display = 'block';
+            document.getElementById('deleteModelBtn').style.display = 'none';
+
+            // 显示模型选择区域
+            const presetSection = document.getElementById('presetModelSection');
+            const presetList = document.getElementById('presetModelList');
+            presetSection.style.display = 'block';
+            presetListExpanded = false;
+            presetList.style.display = 'none';
+            presetList.innerHTML = '<div style="padding:12px;color:var(--text2);text-align:center;font-size:0.85rem;">点击展开加载模型列表</div>';
+            document.getElementById('presetToggleText').textContent = '展开';
+            document.getElementById('presetToggleIcon').style.transform = 'rotate(0deg)';
+            providerModelsCache = null;  // 清除缓存
+
+            document.getElementById('detail-model').classList.add('active');
+        }
+
+        async function togglePresetList() {
+            presetListExpanded = !presetListExpanded;
+            const presetList = document.getElementById('presetModelList');
+            presetList.style.display = presetListExpanded ? 'block' : 'none';
+            document.getElementById('presetToggleText').textContent = presetListExpanded ? '收起' : '展开';
+            document.getElementById('presetToggleIcon').style.transform = presetListExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+
+            // 展开时加载模型列表
+            if (presetListExpanded && !providerModelsCache) {
+                await loadProviderModelsList();
+            }
+        }
+
+        async function loadProviderModelsList() {
+            const presetList = document.getElementById('presetModelList');
+            presetList.innerHTML = '<div style="padding:12px;color:var(--text2);text-align:center;font-size:0.85rem;"><span class="typing"><span></span><span></span><span></span></span> 正在获取模型列表...</div>';
+
+            try {
+                const r = await fetch(`/nex/providers/${selectedProviderId}/models`);
+                const d = await r.json();
+
+                if (d.code !== 0) {
+                    presetList.innerHTML = `<div style="padding:12px;color:var(--error);text-align:center;font-size:0.85rem;">获取失败: ${escapeHtml(d.detail || '未知错误')}</div>`;
+                    return;
+                }
+
+                providerModelsCache = d.data;
+
+                if (!d.data || d.data.length === 0) {
+                    presetList.innerHTML = '<div style="padding:12px;color:var(--text2);text-align:center;font-size:0.85rem;">该供应商暂无可用模型</div>';
+                    return;
+                }
+
+                // 分离对话模型和嵌入模型
+                const chatModels = d.data.filter(m => m.model_type !== 'embedding');
+                const embeddingModels = d.data.filter(m => m.model_type === 'embedding');
+
+                let html = '';
+
+                // 对话模型
+                if (chatModels.length > 0) {
+                    html += '<div class="model-section-title">对话模型</div>';
+                    html += chatModels.map(m => `
+                        <div class="preset-model-item" onclick="selectProviderModel('${escapeHtml(m.id)}', '${m.model_type || 'chat'}', ${JSON.stringify(m.capabilities || []).replace(/"/g, '&quot;')})">
+                            <div class="preset-model-item-name">${escapeHtml(m.id)} ${renderModelTags(m.capabilities)}</div>
+                            ${m.owned_by ? `<div class="preset-model-item-id">${escapeHtml(m.owned_by)}</div>` : ''}
+                        </div>
+                    `).join('');
+                }
+
+                // 嵌入模型
+                if (embeddingModels.length > 0) {
+                    if (chatModels.length > 0) {
+                        html += '<div class="model-section-divider"></div>';
+                    }
+                    html += '<div class="model-section-title">嵌入模型</div>';
+                    html += embeddingModels.map(m => `
+                        <div class="preset-model-item embedding" onclick="selectProviderModel('${escapeHtml(m.id)}', 'embedding', [])">
+                            <div class="preset-model-item-name">${escapeHtml(m.id)}</div>
+                            ${m.owned_by ? `<div class="preset-model-item-id">${escapeHtml(m.owned_by)}</div>` : ''}
+                        </div>
+                    `).join('');
+                }
+
+                presetList.innerHTML = html || '<div style="padding:12px;color:var(--text2);text-align:center;font-size:0.85rem;">该供应商暂无可用模型</div>';
+            } catch (e) {
+                presetList.innerHTML = `<div style="padding:12px;color:var(--error);text-align:center;font-size:0.85rem;">获取失败: ${escapeHtml(e.message)}</div>`;
+            }
+        }
+
+        function selectProviderModel(modelId, modelType, capabilities) {
+            document.getElementById('modelIdInput').value = modelId;
+            // 自动生成显示名称（将 model id 转为更友好的格式）
+            const displayName = modelId
+                .replace(/-/g, ' ')
+                .replace(/_/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            document.getElementById('modelDisplayNameInput').value = displayName;
+
+            // 设置模型类型
+            document.getElementById('modelTypeInput').value = modelType || 'chat';
+            onModelTypeChange();
+
+            // 设置模型能力标签
+            if (modelType !== 'embedding' && capabilities && capabilities.length > 0) {
+                setModelTags(capabilities);
+            } else {
+                setModelTags([]);
+            }
+
+            // 收起列表
+            presetListExpanded = false;
+            document.getElementById('presetModelList').style.display = 'none';
+            document.getElementById('presetToggleText').textContent = '展开';
+            document.getElementById('presetToggleIcon').style.transform = 'rotate(0deg)';
+        }
+
+        function onModelTypeChange() {
+            const modelType = document.getElementById('modelTypeInput').value;
+            const tagsSection = document.getElementById('modelTagsSection');
+            if (modelType === 'embedding') {
+                tagsSection.style.display = 'none';
+                // 清除所有标签
+                setModelTags([]);
+            } else {
+                tagsSection.style.display = 'block';
+            }
+        }
+
+        function setModelTags(tags) {
+            const checkboxes = document.querySelectorAll('#modelTagsGroup .tag-checkbox');
+            checkboxes.forEach(cb => {
+                const input = cb.querySelector('input');
+                const isChecked = tags && tags.includes(input.value);
+                input.checked = isChecked;
+                cb.classList.toggle('active', isChecked);
+            });
+        }
+
+        function getModelTags() {
+            const tags = [];
+            document.querySelectorAll('#modelTagsGroup .tag-checkbox input:checked').forEach(input => {
+                tags.push(input.value);
+            });
+            return tags;
+        }
+
+        // 标签复选框点击事件
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('#modelTagsGroup .tag-checkbox').forEach(cb => {
+                cb.addEventListener('click', () => {
+                    const input = cb.querySelector('input');
+                    input.checked = !input.checked;
+                    cb.classList.toggle('active', input.checked);
+                });
+            });
+        });
+
+        async function selectModelForEdit(key) {
+            try {
+                const r = await fetch(`/nex/models/${key}`);
+                const d = await r.json();
+                editingModelKey = key;
+                editingModelProviderIdInline = d.data.provider_id;
+                document.getElementById('modelDetailTitle').textContent = '编辑模型';
+                document.getElementById('modelTypeInput').value = d.data.model_type || 'chat';
+                document.getElementById('modelIdInput').value = d.data.model_id;
+                document.getElementById('modelIdInput').disabled = false;
+                document.getElementById('modelDisplayNameInput').value = d.data.display_name;
+                setModelTags(d.data.tags || []);
+                // 根据模型类型显示/隐藏能力标签
+                onModelTypeChange();
+                document.getElementById('deleteModelBtn').style.display = 'block';
+                // 编辑模式隐藏模型选择
+                document.getElementById('presetModelSection').style.display = 'none';
+                document.getElementById('detail-model').classList.add('active');
+            } catch (e) { showToast('加载失败: ' + e.message, 'error'); }
+        }
+
+        async function saveModelInline() {
+            const modelType = document.getElementById('modelTypeInput').value;
+            const modelId = document.getElementById('modelIdInput').value.trim();
+            const displayName = document.getElementById('modelDisplayNameInput').value.trim();
+            // 嵌入模型不保存标签
+            const tags = modelType === 'embedding' ? [] : getModelTags();
+
+            if (!modelId || !displayName) { showAlert('请填写模型ID和显示名称', '提示', 'warning'); return; }
+
+            try {
+                if (editingModelKey) {
+                    const body = { model_id: modelId, display_name: displayName, tags: tags, model_type: modelType };
+                    const r = await fetch(`/nex/models/${editingModelKey}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                    if (!r.ok) { const d = await r.json(); throw new Error(d.detail); }
+                    const d = await r.json();
+                    // 更新 editingModelKey 为新的 key
+                    if (d.data && d.data.new_key) {
+                        editingModelKey = d.data.new_key;
+                    }
+                } else {
+                    const r = await fetch('/nex/models', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ provider_id: editingModelProviderIdInline, model_id: modelId, display_name: displayName, tags: tags, model_type: modelType }) });
+                    if (!r.ok) { const d = await r.json(); throw new Error(d.detail); }
+                }
+                showToast('保存成功', 'success');
+                closeModelDetail();
+                if (selectedProviderId) {
+                    await selectProvider(selectedProviderId);
+                }
+                await loadModels();
+            } catch (e) { showToast('保存失败: ' + e.message, 'error'); }
+        }
+
+        function deleteModelInline() {
+            if (!editingModelKey) return;
+            showConfirm('删除模型', '确定要删除此模型吗？', async () => {
+                try {
+                    const r = await fetch(`/nex/models/${editingModelKey}`, { method: 'DELETE' });
+                    if (!r.ok) { const d = await r.json(); throw new Error(d.detail); }
+                    closeModelDetail();
+                    if (selectedProviderId) {
+                        await selectProvider(selectedProviderId);
+                    }
+                    await loadModels();
+                } catch (e) { showToast('删除失败: ' + e.message, 'error'); }
+            });
+        }
+
+        function closeModelDetail() {
+            document.getElementById('detail-model').classList.remove('active');
+            editingModelKey = null;
+            editingModelProviderIdInline = null;
+        }
+
+        // ========== 设置面板 ==========
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('show');
+            switchSettingsNav('providers');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('show');
+            closeProviderDetail();
+            closeMCPDetail();
+            closeModelDetail();
+        }
+
+        function switchSettingsNav(name) {
+            document.querySelectorAll('.settings-nav-item').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.settings-panel').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.settings-nav-item[onclick="switchSettingsNav('${name}')"]`).classList.add('active');
+            document.getElementById('panel-' + name).classList.add('active');
+            document.querySelectorAll('.settings-detail').forEach(d => d.classList.remove('active'));
+            if (name === 'providers') loadProviderListPanel();
+            if (name === 'mcp') loadMCPListPanel();
+        }
+
+        // ========== MCP 服务器管理 ==========
+        async function loadMCPListPanel() {
+            try {
+                const r = await fetch('/nex/mcp/servers');
+                const d = await r.json();
+                const panel = document.getElementById('mcpListPanel');
+                if (d.data.length === 0) {
+                    panel.innerHTML = '<div style="padding:20px;color:var(--text2);text-align:center">暂无 MCP 服务器<br><span style="font-size:0.85rem">点击上方按钮添加</span></div>';
+                    return;
+                }
+                panel.innerHTML = d.data.map(function (s) {
+                    var statusClass = s.connected ? 'connected' : 'disconnected';
+                    var statusText = s.connected ? '已连接' : '未连接';
+                    var isEnabled = s.enabled !== false;
+                    return `<div class="mcp-item ${currentMCPIdEdit === s.id ? 'active' : ''}" onclick="selectMCP('${s.id}')">
+                        <label class="toggle-switch" onclick="event.stopPropagation()">
+                            <input type="checkbox" ${isEnabled ? 'checked' : ''} onchange="toggleMCPEnabled('${s.id}', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="mcp-item-content">
+                            <div class="mcp-item-name"><span class="status-dot ${statusClass}"></span>${escapeHtml(s.name)}</div>
+                            <div class="mcp-item-detail">${statusText} · ${s.tool_count || 0} 个工具</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (e) { showToast('加载失败: ' + e.message, 'error'); }
+        }
+
+        async function toggleMCPEnabled(id, enabled) {
+            try {
+                showToast(enabled ? '正在连接...' : '正在断开...', 'info', 2000);
+                const r = await fetch('/nex/mcp/servers/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                if (!r.ok) {
+                    showToast('操作失败', 'error');
+                    await loadMCPListPanel();
+                    return;
+                }
+                // 等待一下让后台连接完成
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await loadMCPListPanel();
+                // 检查连接状态
+                const statusR = await fetch('/nex/mcp/servers');
+                const statusD = await statusR.json();
+                const server = statusD.data.find(s => s.id === id);
+                if (enabled) {
+                    if (server && server.connected) {
+                        showToast('连接成功', 'success');
+                    } else {
+                        showToast('连接中，请稍后刷新查看状态', 'warning');
+                    }
+                } else {
+                    showToast('已禁用', 'info');
+                }
+            } catch (e) { showToast('操作失败: ' + e.message, 'error'); await loadMCPListPanel(); }
+        }
+
+        function showAddMCPInline() {
+            currentMCPIdEdit = null;
+            document.getElementById('mcpDetailTitle').textContent = '添加 MCP 服务器';
+            document.getElementById('mcpIdInput').value = '';
+            document.getElementById('mcpIdInput').disabled = false;
+            document.getElementById('mcpNameInput').value = '';
+            document.getElementById('mcpTypeInput').value = 'sse';
+            document.getElementById('mcpUrlInput').value = '';
+            document.getElementById('mcpHeadersInput').value = '';
+            document.getElementById('detail-mcp').classList.add('active');
+        }
+
+        async function selectMCP(id) {
+            currentMCPIdEdit = id;
+            try {
+                const r = await fetch('/nex/mcp/servers');
+                const d = await r.json();
+                const server = d.data.find(s => s.id === id);
+                if (!server) { showAlert('服务器不存在', '错误', 'error'); return; }
+                document.getElementById('mcpDetailTitle').textContent = '编辑 MCP 服务器';
+                document.getElementById('mcpIdInput').value = id;
+                document.getElementById('mcpIdInput').disabled = true;
+                document.getElementById('mcpNameInput').value = server.name;
+                document.getElementById('mcpTypeInput').value = server.server_type || 'sse';
+                document.getElementById('mcpUrlInput').value = server.url;
+                document.getElementById('mcpHeadersInput').value = server.headers ? JSON.stringify(server.headers, null, 2) : '';
+                document.getElementById('detail-mcp').classList.add('active');
+                await loadMCPListPanel();
+            } catch (e) { showToast('加载失败: ' + e.message, 'error'); }
+        }
+
+        async function saveMCPInline() {
+            const id = document.getElementById('mcpIdInput').value.trim();
+            const name = document.getElementById('mcpNameInput').value.trim();
+            const serverType = document.getElementById('mcpTypeInput').value;
+            const url = document.getElementById('mcpUrlInput').value.trim();
+            const headersText = document.getElementById('mcpHeadersInput').value.trim();
+
+            if (!id || !name || !url) { showAlert('请填写完整信息', '提示', 'warning'); return; }
+
+            let headers = null;
+            if (headersText) {
+                try { headers = JSON.parse(headersText); }
+                catch (e) { showAlert('请求头格式错误', '格式错误', 'error'); return; }
+            }
+
+            try {
+                if (currentMCPIdEdit) {
+                    await fetch('/nex/mcp/servers/' + currentMCPIdEdit, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, url, server_type: serverType, headers }) });
+                } else {
+                    const r = await fetch('/nex/mcp/servers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, name, url, server_type: serverType, headers }) });
+                    const d = await r.json();
+                    if (d.code !== 0) { showToast('添加失败: ' + (d.detail || d.message), 'error'); return; }
+                    if (!d.data.connected) { showToast('添加成功，正在后台连接...', 'warning', 5000); }
+                    currentMCPIdEdit = id;
+                }
+                showToast('保存成功', 'success');
+                closeMCPDetail();
+            } catch (e) { showToast('保存失败: ' + e.message, 'error'); }
+        }
+
+        function closeMCPDetail() {
+            document.getElementById('detail-mcp').classList.remove('active');
+            currentMCPIdEdit = null;
+            loadMCPListPanel();
+        }
+
+        // ========== 确认弹窗 ==========
+        function showConfirm(title, text, callback) {
+            document.getElementById('confirmModalTitle').innerHTML = iconWarning + ' ' + title;
+            document.getElementById('confirmText').textContent = text;
+            confirmCallback = callback;
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function closeConfirm() { document.getElementById('confirmModal').classList.remove('show'); confirmCallback = null; }
+        function doConfirm() { if (confirmCallback) confirmCallback(); closeConfirm(); }
+
+        // ========== 会话管理 ==========
+        let allSessions = []; // 存储所有会话数据用于搜索
+
+        async function loadSessions() {
+            try {
+                const r = await fetch('/nex/sessions');
+                const d = await r.json();
+                allSessions = d.data.sessions || [];
+                renderSessionList(allSessions);
+                if (!currentSessionId && allSessions.length > 0) currentSessionId = allSessions[0].id;
+                if (currentSessionId) {
+                    var activeItem = document.querySelector('.session-item[data-id="' + currentSessionId + '"]');
+                    if (activeItem) activeItem.classList.add('active');
+                    await loadMessages(currentSessionId);
+                }
+            } catch { }
+        }
+
+        function renderSessionList(sessions) {
+            const list = document.getElementById('sessionList');
+            if (sessions.length === 0) {
+                const searchText = document.getElementById('sessionSearch')?.value?.trim() || '';
+                if (searchText) {
+                    list.innerHTML = '<div style="padding:20px;color:var(--text2);text-align:center">没有找到匹配的会话</div>';
+                } else {
+                    list.innerHTML = '<div style="padding:20px;color:var(--text2);text-align:center">暂无会话<br><span style="font-size:0.85rem">点击"新建"开始</span></div>';
+                    currentSessionId = null;
+                    showEmptyState();
+                }
+                return;
+            }
+            list.innerHTML = sessions.map(function (s) {
+                return '<div class="session-item ' + (s.id === currentSessionId ? 'active' : '') + '" data-id="' + s.id + '" onclick="switchSession(' + s.id + ')">' +
+                    '<div class="session-info">' +
+                    '<div class="session-name">' + escapeHtml(s.name) + '</div>' +
+                    '<div class="session-meta">' + s.message_count + '条消息 · ' + s.user + '</div>' +
+                    '</div>' +
+                    '<div class="session-actions">' +
+                    '<button class="btn-icon" onclick="event.stopPropagation();editSession(' + s.id + ',\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\')" title="编辑">' + iconEdit + '</button>' +
+                    '<button class="btn-icon delete" onclick="event.stopPropagation();deleteSession(' + s.id + ')" title="删除">' + iconDelete + '</button>' +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function filterSessions() {
+            const searchText = document.getElementById('sessionSearch').value.toLowerCase().trim();
+            if (!searchText) {
+                renderSessionList(allSessions);
+                return;
+            }
+            const filtered = allSessions.filter(s =>
+                s.name.toLowerCase().includes(searchText) ||
+                s.user.toLowerCase().includes(searchText)
+            );
+            renderSessionList(filtered);
+        }
+
+        async function refreshSessions() {
+            const btn = document.getElementById('refreshSessionsBtn');
+            const searchInput = document.getElementById('sessionSearch');
+
+            btn.classList.add('loading');
+            if (searchInput) searchInput.value = '';
+
+            await loadSessions();
+
+            btn.classList.remove('loading');
+            showToast('会话列表已刷新', 'success');
+        }
+
+        async function updateSessionList() {
+            try {
+                const r = await fetch('/nex/sessions');
+                const d = await r.json();
+                allSessions = d.data.sessions || [];
+                filterSessions(); // 保持当前搜索状态
+            } catch { }
+        }
+
+        async function newSession() {
+            try {
+                const r = await fetch('/nex/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '新会话', user: getUser() }) });
+                const d = await r.json();
+                currentSessionId = d.data.session_id;
+                await loadSessions();
+            } catch (e) { showToast('创建失败: ' + e.message, 'error'); }
+        }
+
+        async function switchSession(id) {
+            if (id === currentSessionId) return;
+            currentSessionId = id;
+            document.querySelectorAll('.session-item').forEach(function (el) { el.classList.remove('active'); });
+            var activeItem = document.querySelector('.session-item[data-id="' + id + '"]');
+            if (activeItem) activeItem.classList.add('active');
+            await loadMessages(id);
+        }
+
+        function editSession(id, name) {
+            editingSessionId = id;
+            document.getElementById('editSessionName').value = name;
+            document.getElementById('editModalTitle').innerHTML = iconEditLg + ' 编辑会话名称';
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        async function saveSessionName() {
+            const name = document.getElementById('editSessionName').value.trim();
+            if (!name) return;
+            try {
+                await fetch(`/nex/sessions/${editingSessionId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
+                closeEditModal();
+                await updateSessionList();
+            } catch (e) { showToast('保存失败: ' + e.message, 'error'); }
+        }
+
+        function closeEditModal() { document.getElementById('editModal').classList.remove('show'); editingSessionId = null; }
+
+        function deleteSession(id) {
+            showConfirm('删除会话', '确定要删除这个会话吗？', async function () {
+                try {
+                    await fetch('/nex/sessions/' + id, { method: 'DELETE' });
+                    if (currentSessionId === id) currentSessionId = null;
+                    await loadSessions();
+                } catch (e) { showToast('删除失败: ' + e.message, 'error'); }
+            });
+        }
+
+        // ========== 消息管理 ==========
+        async function loadMessages(sessionId) {
+            try {
+                const r = await fetch('/nex/sessions/' + sessionId + '/messages');
+                const d = await r.json();
+                const sr = await fetch('/nex/sessions/' + sessionId);
+                const sd = await sr.json();
+                document.getElementById('sessionTitle').textContent = sd.data.name;
+                renderMessages(d.data);
+            } catch { }
+        }
+
+        function renderMessages(messages) {
+            const container = document.getElementById('msgs');
+            if (messages.length === 0) {
+                showEmptyState();
+                return;
+            }
+            container.innerHTML = messages.map(function (m) {
+                if (m.role === 'user') {
+                    return '<div class="msg user" data-id="' + m.id + '">' +
+                        '<div class="meta">' + escapeHtml(m.user || 'guest') + '</div>' +
+                        '<div class="msg-content">' + fmt(m.content) + '</div>' +
+                        '<div class="msg-footer"><span></span><div class="msg-actions">' +
+                        '<button class="msg-action-btn" onclick="editMsg(' + m.id + ',\'user\')" title="编辑">' + iconEdit + '</button>' +
+                        '<button class="msg-action-btn delete" onclick="deleteMsg(' + m.id + ')" title="删除">' + iconDelete + '</button>' +
+                        '</div></div></div>';
+                } else {
+                    var content = '';
+                    var extra = m.extra || {};
+                    if (extra.content_parts) {
+                        for (var i = 0; i < extra.content_parts.length; i++) {
+                            var part = extra.content_parts[i];
+                            if (part.type === 'text') content += fmt(part.content);
+                            else if (part.type === 'tool') content += createToolCardHtml(part.name, part.args, part.result, 'h' + m.id + '-' + toolIdCounter++);
+                            else if (part.type === 'thinking') content += createThinkingCardHtml(part.content, 'h' + m.id + '-think');
+                        }
+                    } else {
+                        content = fmt(m.content);
+                        if (extra.tool_calls) {
+                            for (var j = 0; j < extra.tool_calls.length; j++) {
+                                var tc = extra.tool_calls[j];
+                                content += createToolCardHtml(tc.name, tc.args, tc.result, 'h' + m.id + '-' + toolIdCounter++);
+                            }
+                        }
+                    }
+                    var tokens = extra.tokens;
+                    var tokensHtml = tokens ? '<span class="msg-tokens">' + iconTokens + ' ' + tokens.total + ' tokens</span>' : '<span></span>';
+                    return '<div class="msg ai" data-id="' + m.id + '">' +
+                        '<div class="meta">AI</div>' +
+                        '<div class="msg-content">' + content + '</div>' +
+                        '<div class="msg-footer">' + tokensHtml +
+                        '<div class="msg-actions">' +
+                        '<button class="msg-action-btn" onclick="copyMsg(' + m.id + ')" title="复制">' + iconCopy + '</button>' +
+                        '<button class="msg-action-btn" onclick="regenerateMsg()" title="重新生成">' + iconRefresh + '</button>' +
+                        '<button class="msg-action-btn delete" onclick="deleteMsg(' + m.id + ')" title="删除">' + iconDelete + '</button>' +
+                        '</div></div></div>';
+                }
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showEmptyState() {
+            document.getElementById('msgs').innerHTML = '<div class="empty-state"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div>开始新的对话吧</div></div>';
+        }
+
+        function editMsg(id, role) {
+            editingMsgId = id;
+            editingMsgRole = role;
+            document.getElementById('editMsgModalTitle').innerHTML = iconEditLg + ' 编辑消息';
+            const msgEl = document.querySelector(`.msg[data-id="${id}"] .msg-content`);
+            fetch(`/nex/messages/${id}`).then(r => r.json()).then(d => {
+                document.getElementById('editMsgContent').value = d.data.content;
+                document.getElementById('editMsgModal').classList.add('show');
+            });
+        }
+
+        async function saveEditedMsg(regenerate) {
+            const content = document.getElementById('editMsgContent').value.trim();
+            if (!content) return;
+
+            // 保存当前编辑状态，因为 closeEditMsgModal 会清除它们
+            const msgId = editingMsgId;
+            const msgRole = editingMsgRole;
+
+            try {
+                const r = await fetch(`/nex/messages/${msgId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, regenerate: regenerate && msgRole === 'user' })
+                });
+                const d = await r.json();
+                if (d.code !== 0) {
+                    showAlert('保存失败: ' + (d.detail || d.message), '错误', 'error');
+                    return;
+                }
+                closeEditMsgModal();
+                if (regenerate && msgRole === 'user' && d.data && d.data.session_id) {
+                    // 先加载消息（显示更新后的用户消息，AI回复已被删除）
+                    await loadMessages(d.data.session_id);
+                    // 重新发送消息，不保存用户消息（因为已存在）
+                    await sendMessage(content, false);
+                } else {
+                    await loadMessages(currentSessionId);
+                }
+            } catch (e) { showToast('保存失败: ' + e.message, 'error'); }
+        }
+
+        function closeEditMsgModal() { document.getElementById('editMsgModal').classList.remove('show'); editingMsgId = null; editingMsgRole = null; }
+
+        function deleteMsg(id) {
+            showConfirm('删除消息', '确定要删除这条消息吗？', async () => {
+                try {
+                    await fetch(`/nex/messages/${id}`, { method: 'DELETE' });
+                    await loadMessages(currentSessionId);
+                } catch (e) { showToast('删除失败: ' + e.message, 'error'); }
+            });
+        }
+
+        async function regenerateMsg() {
+            if (!currentSessionId || busy) return;
+            try {
+                const r = await fetch(`/nex/sessions/${currentSessionId}/regenerate`, { method: 'POST' });
+                const d = await r.json();
+                if (d.code !== 0) {
+                    showAlert('重新生成失败: ' + (d.detail || d.message || '未知错误'), '错误', 'error');
+                    return;
+                }
+                if (!d.data || !d.data.message) {
+                    showAlert('没有找到可重新生成的消息', '重新生成失败', 'error');
+                    return;
+                }
+                await loadMessages(currentSessionId);
+                await sendMessage(d.data.message, false);
+            } catch (e) { showToast('重新生成失败: ' + e.message, 'error'); }
+        }
+
+        async function clearMsgs() {
+            if (!currentSessionId) return;
+            showConfirm('清空消息', '确定要清空当前会话的所有消息吗？', async () => {
+                try {
+                    await fetch(`/nex/sessions/${currentSessionId}/messages`, { method: 'DELETE' });
+                    await loadMessages(currentSessionId);
+                } catch (e) { showToast('清空失败: ' + e.message, 'error'); }
+            });
+        }
+
+        // ========== 发送消息 ==========
+        function send() {
+            const inp = document.getElementById('inp');
+            const msg = inp.value.trim();
+            if (!msg || busy) return;
+            inp.value = '';
+            resetTextareaHeight();
+            sendMessage(msg, true);
+        }
+
+        async function sendMessage(message, saveUserMsg) {
+            if (busy) return;
+            busy = true;
+            document.getElementById('btn').disabled = true;
+
+            const container = document.getElementById('msgs');
+            if (container.querySelector('.empty-state')) container.innerHTML = '';
+
+            if (saveUserMsg) {
+                container.innerHTML += `<div class="msg user"><div class="meta">${escapeHtml(getUser())}</div><div class="msg-content">${fmt(message)}</div></div>`;
+            }
+
+            const aiMsgId = 'ai-' + Date.now();
+            container.innerHTML += `<div class="msg ai" id="${aiMsgId}"><div class="meta">AI</div><div class="msg-content"><div class="typing"><span></span><span></span><span></span></div></div><div class="msg-footer" style="display:none"><span class="msg-tokens"></span><div class="msg-actions"><button class="msg-action-btn" onclick="copyMsgById('${aiMsgId}')" title="复制">${iconCopy}</button><button class="msg-action-btn" onclick="regenerateMsg()" title="重新生成">${iconRefresh}</button><button class="msg-action-btn delete" onclick="deleteMsgAndReload()" title="删除">${iconDelete}</button></div></div></div>`;
+            container.scrollTop = container.scrollHeight;
+
+            let totalTokens = 0;
+
+            try {
+                const response = await fetch('/nex/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user: getUser(), message, session_id: currentSessionId, stream: true, save_user_message: saveUserMsg })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                // 内容流：按顺序保存各种内容块
+                let contentParts = [];  // [{type: 'thinking', id, content}, {type: 'text', content}, {type: 'tool', ...}]
+                let currentTextContent = '';  // 当前正在接收的文本
+                let currentThinkingContent = '';  // 当前正在接收的思考内容
+                const aiMsg = document.getElementById(aiMsgId);
+                const contentEl = aiMsg.querySelector('.msg-content');
+                let currentToolId = null;
+                let currentThinkingId = null;
+                let isThinking = false;  // 当前是否正在思考
+
+                // 重新渲染内容的函数
+                function renderContent() {
+                    let html = '';
+                    // 按顺序渲染内容块
+                    for (const part of contentParts) {
+                        if (part.type === 'thinking') {
+                            html += createThinkingCardHtml(part.content, part.id, true);
+                        } else if (part.type === 'text') {
+                            html += fmt(part.content);
+                        } else if (part.type === 'tool') {
+                            html += createToolCardHtml(part.name, part.args, part.result, part.id);
+                        }
+                    }
+                    // 渲染当前正在进行的思考
+                    if (isThinking && currentThinkingId) {
+                        html += createThinkingCardHtml(currentThinkingContent, currentThinkingId, false);
+                    }
+                    // 渲染当前正在接收的文本
+                    if (currentTextContent) {
+                        html += fmt(currentTextContent);
+                    }
+                    contentEl.innerHTML = html;
+                }
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const text = decoder.decode(value);
+                    const lines = text.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                if (data.type === 'content') {
+                                    currentTextContent += data.data;
+                                    renderContent();
+                                } else if (data.type === 'thinking_start') {
+                                    // 保存之前的文本（如果有）
+                                    if (currentTextContent) {
+                                        contentParts.push({ type: 'text', content: currentTextContent });
+                                        currentTextContent = '';
+                                    }
+                                    isThinking = true;
+                                    currentThinkingId = 'think-' + toolIdCounter++;
+                                    currentThinkingContent = '';
+                                    renderContent();
+                                } else if (data.type === 'thinking') {
+                                    currentThinkingContent += data.data;
+                                    updateThinkingContent(currentThinkingId, currentThinkingContent, false);
+                                } else if (data.type === 'thinking_end') {
+                                    // 保存完成的思考到 contentParts
+                                    contentParts.push({ type: 'thinking', id: currentThinkingId, content: currentThinkingContent });
+                                    isThinking = false;
+                                    currentThinkingContent = '';
+                                    renderContent();
+                                } else if (data.type === 'tool_start') {
+                                    // 保存工具调用前的文本
+                                    if (currentTextContent) {
+                                        contentParts.push({ type: 'text', content: currentTextContent });
+                                        currentTextContent = '';
+                                    }
+                                    currentToolId = 'tool-' + toolIdCounter++;
+                                    contentParts.push({ type: 'tool', id: currentToolId, name: data.data.name, args: data.data.args, result: undefined });
+                                    renderContent();
+                                } else if (data.type === 'tool_end') {
+                                    // 更新工具结果
+                                    const tool = contentParts.find(p => p.type === 'tool' && p.id === currentToolId);
+                                    if (tool) tool.result = data.data.result;
+                                    updateToolResult(currentToolId, data.data.result);
+                                } else if (data.type === 'done') {
+                                    // 保存最后的文本内容
+                                    if (currentTextContent) {
+                                        contentParts.push({ type: 'text', content: currentTextContent });
+                                        currentTextContent = '';
+                                    }
+                                    if (data.session_id) currentSessionId = data.session_id;
+                                    if (data.tokens) totalTokens = data.tokens.total || 0;
+                                    // 最终渲染
+                                    renderContent();
+                                }
+                            } catch { }
+                        }
+                    }
+                    container.scrollTop = container.scrollHeight;
+                }
+
+                // 确保最终内容被渲染
+                if (currentTextContent) {
+                    contentParts.push({ type: 'text', content: currentTextContent });
+                    renderContent();
+                }
+
+                // 流式输出完成后，重新加载消息以获取正确的消息ID和操作栏
+                await loadMessages(currentSessionId);
+            } catch (e) {
+                const aiMsg = document.getElementById(aiMsgId);
+                if (aiMsg) aiMsg.querySelector('.msg-content').innerHTML = `<span style="color:var(--error)">发送失败: ${e.message}</span>`;
+            }
+
+            busy = false;
+            document.getElementById('btn').disabled = false;
+            await updateSessionList();
+        }
+
+        function copyMsgById(id) {
+            const msgEl = document.getElementById(id)?.querySelector('.msg-content');
+            if (msgEl) {
+                navigator.clipboard.writeText(msgEl.innerText);
+                showToast('已复制到剪贴板', 'success', 2000);
+            }
+        }
+
+        function copyMsg(id) {
+            const msgEl = document.querySelector(`.msg[data-id="${id}"] .msg-content`);
+            if (msgEl) {
+                navigator.clipboard.writeText(msgEl.innerText);
+                showToast('已复制到剪贴板', 'success', 2000);
+            }
+        }
+
+        async function deleteMsgAndReload() {
+            // 删除最后一条AI消息，需要先刷新获取消息ID
+            await loadMessages(currentSessionId);
+        }
+
+        // 初始化
+        init();
+    </script>
+</body>
+
+</html>
