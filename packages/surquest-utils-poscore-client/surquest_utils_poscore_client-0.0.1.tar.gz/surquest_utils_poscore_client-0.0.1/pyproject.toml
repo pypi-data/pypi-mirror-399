@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "surquest-utils-poscore-client"
+version = "0.0.1"
+description = "Python client for POS Media Data Core APIs with credential handling and convenience helpers."
+authors = [
+	{ name = "Surquest", email = "michal.svarc@surquest.com" }
+]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+	"requests>=2.32.3,<3.0",
+]
+
+[project.optional-dependencies]
+test = [
+	"pytest==8.4.1",
+	"pytest-cov==6.2.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/surquest/python-utils-data-core-client"
+"Bug Tracker" = "https://github.com/surquest/python-utils-data-core-client/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/surquest"]
