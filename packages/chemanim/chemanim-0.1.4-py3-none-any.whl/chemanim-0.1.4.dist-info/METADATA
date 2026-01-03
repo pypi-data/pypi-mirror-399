@@ -1,0 +1,107 @@
+Metadata-Version: 2.4
+Name: chemanim
+Version: 0.1.4
+Summary: A Manim-based library for chemistry and biochemistry animations
+Project-URL: Homepage, https://github.com/Wachirawut2023/Chemanim
+Project-URL: Repository, https://github.com/Wachirawut2023/Chemanim
+Project-URL: Issues, https://github.com/Wachirawut2023/Chemanim/issues
+Author-email: Wachirawut Raksawat <wachirawut2002@gmail.com>
+License: MIT
+License-File: LICENSE
+Keywords: animation,biochemistry,chemistry,manim,molecules,protein,visualization
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Requires-Python: >=3.9
+Requires-Dist: biopython
+Requires-Dist: networkx
+Requires-Dist: numpy
+Requires-Dist: pubchempy
+Requires-Dist: requests
+Provides-Extra: all
+Requires-Dist: biotite; extra == 'all'
+Requires-Dist: chemformula; extra == 'all'
+Requires-Dist: chempy; extra == 'all'
+Requires-Dist: manimgl; extra == 'all'
+Requires-Dist: py3dmol; extra == 'all'
+Requires-Dist: rdkit; extra == 'all'
+Provides-Extra: bio
+Requires-Dist: biotite; extra == 'bio'
+Provides-Extra: chem
+Requires-Dist: chemformula; extra == 'chem'
+Requires-Dist: chempy; extra == 'chem'
+Requires-Dist: rdkit; extra == 'chem'
+Provides-Extra: viewer
+Requires-Dist: py3dmol; extra == 'viewer'
+Provides-Extra: vis
+Requires-Dist: manimgl; extra == 'vis'
+Description-Content-Type: text/markdown
+
+# Chemanim
+
+A Python library extended from [Manim](https://github.com/3b1b/manim) for creating chemistry and biochemistry animations.
+
+## Features
+
+- **Core Chemistry**: Visualize Atoms, Bonds, and Molecules.
+- **Trusted Data**: Fetch molecular structures directly from PubChem.
+- **Biochemistry**: Parse and visualize PDB structures (Proteins/DNA).
+- **3D Molecules**: Render ball-and-stick structures with PubChem or RDKit conformers.
+- **Reactions**: Animate chemical reactions simply.
+
+## Installation
+
+### 1. Basic (Logic & Data only)
+Use this if you don't need animations or cannot install Manim dependencies.
+```bash
+pip install -e .
+```
+
+### 2. Full (With Animations)
+First, ensure you have [Manim's system dependencies](https://docs.manim.community/en/stable/installation.html) installed (FFmpeg, etc.).
+```bash
+pip install -e .[vis]
+```
+
+## Usage
+
+See `examples/` folder for demo scripts.
+
+```bash
+manim -pql examples/demo_reaction.py SimpleReactionScene
+```
+
+### 3D quickstart
+
+Install with Manim and RDKit (optional) and run the sample:
+
+```bash
+manim -pql examples/demo_3d_molecule.py Molecule3DDemo
+```
+
+### External 3D viewers (py3Dmol / XYZ)
+
+Optional dependency: `pip install py3Dmol`
+
+- Generate interactive HTML and XYZ: `python examples/demo_py3dmol_viewer.py`
+- Styles supported: ball, stick, ball-and-stick (default). Files land in `media/py3dmol/`.
+
+Programmatic use:
+
+```python
+from chemanim.connect import fetch_molecule_data
+from chemanim.viewer_3d import show_py3dmol, write_xyz
+
+data = fetch_molecule_data("benzene")
+view = show_py3dmol(data, style="ball_and_stick")
+view.write_html("benzene.html")
+write_xyz("benzene.xyz", data)
+```
