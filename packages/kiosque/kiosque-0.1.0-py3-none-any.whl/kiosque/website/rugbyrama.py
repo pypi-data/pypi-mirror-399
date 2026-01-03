@@ -1,0 +1,31 @@
+from typing import ClassVar
+
+from ..core.website import Website
+
+
+class Rugbyrama(Website):
+    base_url = "https://www.rugbyrama.fr/"
+
+    article_node = ("div", {"class": "article-full__body-content"})
+    clean_nodes: ClassVar = ["div"]
+    clean_attributes: ClassVar = ["h2"]
+
+    def description(self, url):
+        e = self.bs4(url)
+        p = e.find("p", {"class": "article-full__chapo"})
+        if p is not None:
+            for elem in p.find_all("span"):
+                elem.decompose()
+            return p.text.strip()
+        return ""
+
+    def date(self, url):
+        e = self.bs4(url)
+        return e.find("time").attrs["content"][:10]
+
+    def author(self, url: str):
+        e = self.bs4(url)
+        author = e.find("a", {"class": "author-link"})
+        if author:
+            return author.text
+        return ""
