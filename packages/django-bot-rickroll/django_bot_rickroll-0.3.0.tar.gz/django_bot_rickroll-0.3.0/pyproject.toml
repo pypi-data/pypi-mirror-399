@@ -1,0 +1,47 @@
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[project]
+name = "django-bot-rickroll"
+version = "0.3.0"
+description = "Django plugin that rickrolls bots and scanners by redirecting common malicious URLs"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+keywords = ["django", "security", "rickroll", "bots", "scanners"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Django",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Security",
+]
+dependencies = [
+    "django>=4.0",
+]
+
+[dependency-groups]
+dev = [
+    "prek>=0.2.19",
+    "pytest>=8.0",
+    "pytest-django>=4.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/vEnhance/django-bot-rickroll"
+Repository = "https://github.com/vEnhance/django-bot-rickroll"
+
+[tool.uv.build-backend]
+module-name = "bot_rickroll"
