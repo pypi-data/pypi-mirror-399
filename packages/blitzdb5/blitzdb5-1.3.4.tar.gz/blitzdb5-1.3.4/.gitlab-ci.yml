@@ -1,0 +1,92 @@
+# This file defines the GitLab CI/CD pipeline for building and publishing
+# a Python package to PyPI.
+
+# Use a specific, stable Python image
+image: python:3.12
+
+# Define the stages of the pipeline
+stages:
+  - build
+  - test
+  - publish
+
+# Define artifacts path for caching dependencies
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.pip-cache"
+
+cache:
+  paths:
+    - .pip-cache/
+
+# -----------------
+# 1. BUILD STAGE
+# Creates the distributable files (.whl and .tar.gz)
+# -----------------
+build_package:
+  stage: build
+  before_script:
+    - git fetch --tags
+  script:
+    - echo "--- Installing build tools ---"
+    - pip install --upgrade pip
+    - pip install build
+    
+    - echo "--- Building distribution archives ---"
+    # Execute the build process which creates files in the 'dist/' directory
+    - python -m build
+    
+    - echo "--- Listing generated artifacts ---"
+    - ls -l dist/
+
+  # Store the contents of the dist/ folder so they can be passed to the next stage
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+
+# -----------------
+# 2. TEST STAGE
+# Validates the built package before publishing
+# -----------------
+test_package:
+  stage: test
+  script:
+    - echo "--- Installing Twine for package validation ---"
+    - pip install twine
+    
+    - echo "--- Validating distribution archives ---"
+    - python -m twine check dist/*
+
+# -----------------
+# 3. PUBLISH STAGE
+# Uploads the built package to PyPI using Twine.
+# -----------------
+publish_to_pypi:
+  stage: publish
+  
+  # Set authentication credentials as environment variables
+  variables:
+    TWINE_USERNAME: __token__
+    TWINE_PASSWORD: $PYPI_TOKEN
+  
+  # This job will only run when a new tag is created (e.g., git tag v0.1.0)
+  # This ensures releases are intentional and versioned.
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: always
+      
+  # Ensure twine is installed before running the upload script
+  before_script:
+    - echo "--- Installing Twine for secure uploading ---"
+    - pip install twine
+
+  script:
+    - echo "--- Verifying PYPI_TOKEN existence ---"
+    - |
+      if [ -z "$PYPI_TOKEN" ]; then 
+        echo "FATAL ERROR: PYPI_TOKEN is not defined in CI/CD secrets. Aborting deployment."
+        exit 1
+      fi
+      
+    - echo "--- Authenticating and uploading distribution archives to PyPI ---"
+    - python -m twine upload --non-interactive --verbose dist/*
