@@ -1,0 +1,805 @@
+"""Command-line interface and application orchestrator for HDB Valuation Engine.
+
+This module contains:
+- HDBValuationEngineApp: Main orchestrator class that wires the entire pipeline
+- CLI argument parser and main entry point
+- Integration logic for all components
+"""
+
+from __future__ import annotations
+
+import argparse
+import logging
+import os
+import sys
+from typing import Any
+
+import numpy as np
+import pandas as pd
+
+from hdb_valuation_engine.fetch import (
+    DEFAULT_HDB_PATH,
+    DEFAULT_MRT_PATH,
+    ensure_hdb_dataset,
+    ensure_mrt_dataset,
+    fetch_hdb_data,
+    fetch_mrt_data,
+)
+from hdb_valuation_engine.loader import HDBLoader, Schema
+from hdb_valuation_engine.models import FeatureEngineer, ValuationEngine
+from hdb_valuation_engine.reporter import ReportGenerator
+from hdb_valuation_engine.spatial import TransportScorer
+from hdb_valuation_engine.utils import __version__, configure_logging
+
+
+class HDBValuationEngineApp:
+    """Application orchestrator wiring the pipeline and providing both programmatic and CLI access.
+
+    This class can be used directly as a Python module or via the CLI. For programmatic usage,
+    use the `process()` method with explicit parameters. For CLI usage, use the `run()` method
+    with parsed arguments.
+
+    Example (Module Usage)
+    ----------------------
+    >>> app = HDBValuationEngineApp()
+    >>> results = app.process(
+    ...     input_path="resale.csv",
+    ...     town="PUNGGOL",
+    ...     budget=600000,
+    ...     top_n=10
+    ... )
+    >>> print(results.head())
+
+    Example (With Transport Scoring)
+    ---------------------------------
+    >>> app = HDBValuationEngineApp()
+    >>> results = app.process(
+    ...     input_path="resale.csv",
+    ...     mrt_catalog="stations.geojson",
+    ...     town="BISHAN"
+    ... )
+    """
+
+    def __init__(self, schema: Schema | None = None, transport_cache_dir: str | None = None) -> None:
+        """Initialize the valuation engine with optional custom schema and cache directory.
+
+        Parameters
+        ----------
+        schema : Schema | None
+            Custom schema definition. If None, uses default Schema().
+        transport_cache_dir : Optional[str]
+            Directory for caching transport KDTree data. If None, uses default .cache_transport.
+        """
+        self.schema = schema or Schema()
+        self.loader = HDBLoader(self.schema)
+        self.fe = FeatureEngineer(self.schema)
+        self.engine = ValuationEngine(self.schema)
+        self.transport = TransportScorer(cache_dir=transport_cache_dir)
+        self.reporter = ReportGenerator(self.schema)
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self._data: pd.DataFrame | None = None
+
+    def load_data(self, input_path: str) -> pd.DataFrame:
+        """Load HDB resale data from CSV file.
+
+        Parameters
+        ----------
+        input_path : str
+            Path to the HDB resale CSV file.
+
+        Returns
+        -------
+        pd.DataFrame
+            Loaded and normalized DataFrame.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the file does not exist.
+        ValueError
+            If the CSV cannot be parsed.
+        """
+        self._data = self.loader.load(input_path)
+        return self._data
+
+    def process(
+        self,
+        input_path: str | None = None,
+        data: pd.DataFrame | None = None,
+        mrt_catalog: str | None = None,
+        clear_transport_cache: bool = False,
+        group_by: list[str] | None = None,
+        enable_accessibility_adjust: bool = True,
+        # Filters
+        town: str | None = None,
+        town_like: str | None = None,
+        budget: float | None = None,
+        flat_type: str | None = None,
+        flat_type_like: str | None = None,
+        flat_model: str | None = None,
+        flat_model_like: str | None = None,
+        storey_min: int | None = None,
+        storey_max: int | None = None,
+        area_min: float | None = None,
+        area_max: float | None = None,
+        lease_min: float | None = None,
+        lease_max: float | None = None,
+        top_n: int = 10,
+        return_full: bool = False,
+    ) -> pd.DataFrame:
+        """Process HDB resale data and return filtered, scored results.
+
+        This is the main programmatic entry point for using the valuation engine as a module.
+
+        Parameters
+        ----------
+        input_path : Optional[str]
+            Path to HDB resale CSV. Required if `data` is not provided.
+        data : Optional[pd.DataFrame]
+            Pre-loaded DataFrame. If provided, `input_path` is ignored.
+        mrt_catalog : Optional[str]
+            Path to MRT stations GeoJSON or CSV for transport scoring.
+        clear_transport_cache : bool
+            Whether to clear transport cache before processing.
+        group_by : Optional[List[str]]
+            Columns to group by for peer comparison z-scores. Defaults to [town, flat_type].
+        enable_accessibility_adjust : bool
+            Whether to adjust price efficiency based on MRT accessibility. Default True.
+        town : Optional[str]
+            Exact town filter (case-insensitive).
+        town_like : Optional[str]
+            Partial town match (substring).
+        budget : Optional[float]
+            Maximum resale price.
+        flat_type : Optional[str]
+            Exact flat type filter.
+        flat_type_like : Optional[str]
+            Partial flat type match.
+        flat_model : Optional[str]
+            Exact flat model filter.
+        flat_model_like : Optional[str]
+            Partial flat model match.
+        storey_min : Optional[int]
+            Minimum storey number.
+        storey_max : Optional[int]
+            Maximum storey number.
+        area_min : Optional[float]
+            Minimum floor area (sqm).
+        area_max : Optional[float]
+            Maximum floor area (sqm).
+        lease_min : Optional[float]
+            Minimum remaining lease (years).
+        lease_max : Optional[float]
+            Maximum remaining lease (years).
+        top_n : int
+            Number of top results to return. Default 10.
+        return_full : bool
+            If True, return all filtered results instead of just top_n.
+
+        Returns
+        -------
+        pd.DataFrame
+            Filtered and scored results, sorted by valuation_score descending.
+
+        Raises
+        ------
+        ValueError
+            If neither input_path nor data is provided.
+        FileNotFoundError
+            If input_path does not exist.
+
+        Examples
+        --------
+        >>> app = HDBValuationEngineApp()
+        >>> results = app.process(
+        ...     input_path="resale.csv",
+        ...     town="PUNGGOL",
+        ...     budget=600000,
+        ...     top_n=5
+        ... )
+        >>> print(f"Found {len(results)} undervalued properties")
+        """
+        # Load data
+        if data is not None:
+            df = data.copy()
+            self._data = df
+        elif input_path is not None:
+            df = self.load_data(input_path)
+        elif self._data is not None:
+            df = self._data.copy()
+        else:
+            raise ValueError("Either input_path or data must be provided, or data must be pre-loaded via load_data()")
+
+        # Feature engineering
+        df = self.fe.parse_remaining_lease(df)
+        df = self.fe.compute_price_efficiency(df)
+
+        # Optional transport scoring
+        if mrt_catalog:
+            try:
+                if clear_transport_cache:
+                    self.transport.clear_cache()
+
+                if str(mrt_catalog).lower().endswith(".geojson"):
+                    self.transport.load_stations_geojson(mrt_catalog)
+                else:
+                    stations_df = pd.read_csv(mrt_catalog)
+                    self.transport.load_stations(stations_df)
+
+                df = self.transport.calculate_accessibility_score(df)
+            except Exception as exc:
+                self.logger.warning("Transport scoring skipped due to error: %s", exc)
+
+        # Normalize group_by columns
+        if group_by:
+            group_by = [g.strip().lower().replace(" ", "_") for g in group_by]
+
+        # Integrate accessibility into valuation
+        if enable_accessibility_adjust and "Accessibility_Score" in df.columns:
+            adj = 1.0 + (pd.to_numeric(df["Accessibility_Score"], errors="coerce") / 10.0)
+            with np.errstate(divide="ignore", invalid="ignore"):
+                df[self.schema.price_efficiency] = df[self.schema.price_efficiency] / adj
+
+        # Compute valuation scores
+        df = self.engine.score(df, group_by=group_by)
+
+        # Filter and return results
+        return self.reporter.generate_dataframe(
+            df,
+            town=town,
+            town_like=town_like,
+            budget=budget,
+            flat_type=flat_type,
+            flat_type_like=flat_type_like,
+            flat_model=flat_model,
+            flat_model_like=flat_model_like,
+            storey_min=storey_min,
+            storey_max=storey_max,
+            area_min=area_min,
+            area_max=area_max,
+            lease_min=lease_min,
+            lease_max=lease_max,
+            top_n=top_n,
+            full=return_full,
+        )
+
+    def render_report(
+        self,
+        data: pd.DataFrame | None = None,
+        town: str | None = None,
+        town_like: str | None = None,
+        budget: float | None = None,
+        flat_type: str | None = None,
+        flat_type_like: str | None = None,
+        flat_model: str | None = None,
+        flat_model_like: str | None = None,
+        storey_min: int | None = None,
+        storey_max: int | None = None,
+        area_min: float | None = None,
+        area_max: float | None = None,
+        lease_min: float | None = None,
+        lease_max: float | None = None,
+        top_n: int = 10,
+    ) -> str:
+        """Render a formatted string report from processed data.
+
+        Parameters
+        ----------
+        data : Optional[pd.DataFrame]
+            Pre-processed DataFrame with scores. If None, uses internally stored data.
+        town, town_like, budget, etc. : Optional filters
+            Same filters as process() method.
+        top_n : int
+            Number of results to include in report.
+
+        Returns
+        -------
+        str
+            Formatted table string ready for console output.
+        """
+        if data is None:
+            if self._data is None:
+                raise ValueError("No data available. Call process() or load_data() first.")
+            data = self._data
+
+        return self.reporter.render(
+            data,
+            town=town,
+            town_like=town_like,
+            budget=budget,
+            flat_type=flat_type,
+            flat_type_like=flat_type_like,
+            flat_model=flat_model,
+            flat_model_like=flat_model_like,
+            storey_min=storey_min,
+            storey_max=storey_max,
+            area_min=area_min,
+            area_max=area_max,
+            lease_min=lease_min,
+            lease_max=lease_max,
+            top_n=top_n,
+        )
+
+    def run(self, args: argparse.Namespace) -> int:
+        """Execute the end-to-end pipeline from CLI arguments.
+
+        This method is a thin CLI wrapper around the programmatic process() method.
+
+        Parameters
+        ----------
+        args : argparse.Namespace
+            Parsed CLI arguments.
+
+        Returns
+        -------
+        int
+            Exit code: 0 on success, non-zero on error.
+        """
+        # Configure transport cache dir if provided
+        if getattr(args, "transport_cache_dir", None):
+            self.transport._cache_dir = args.transport_cache_dir
+            os.makedirs(self.transport._cache_dir, exist_ok=True)
+
+        try:
+            # Process data using the programmatic API
+            display_df = self.process(
+                input_path=args.input,
+                mrt_catalog=getattr(args, "mrt_catalog", None),
+                clear_transport_cache=getattr(args, "clear_transport_cache", False),
+                group_by=getattr(args, "group_by", None),
+                enable_accessibility_adjust=not getattr(args, "no_accessibility_adjust", False),
+                town=args.town,
+                town_like=getattr(args, "town_like", None),
+                budget=args.budget,
+                flat_type=getattr(args, "flat_type", None),
+                flat_type_like=getattr(args, "flat_type_like", None),
+                flat_model=getattr(args, "flat_model", None),
+                flat_model_like=getattr(args, "flat_model_like", None),
+                storey_min=getattr(args, "storey_min", None),
+                storey_max=getattr(args, "storey_max", None),
+                area_min=getattr(args, "area_min", None),
+                area_max=getattr(args, "area_max", None),
+                lease_min=getattr(args, "lease_min", None),
+                lease_max=getattr(args, "lease_max", None),
+                top_n=args.top,
+                return_full=False,
+            )
+
+            # Render to console
+            table = self.render_report(
+                data=self._data,
+                town=args.town,
+                town_like=getattr(args, "town_like", None),
+                budget=args.budget,
+                flat_type=getattr(args, "flat_type", None),
+                flat_type_like=getattr(args, "flat_type_like", None),
+                flat_model=getattr(args, "flat_model", None),
+                flat_model_like=getattr(args, "flat_model_like", None),
+                storey_min=getattr(args, "storey_min", None),
+                storey_max=getattr(args, "storey_max", None),
+                area_min=getattr(args, "area_min", None),
+                area_max=getattr(args, "area_max", None),
+                lease_min=getattr(args, "lease_min", None),
+                lease_max=getattr(args, "lease_max", None),
+                top_n=args.top,
+            )
+            print(table)  # noqa: T201 - intentional CLI output
+
+            # Export if requested
+            if getattr(args, "output", None):
+                export_df = display_df
+                if getattr(args, "export_full", False):
+                    # Re-process with full results
+                    export_df = self.reporter.generate_dataframe(
+                        self._data if self._data is not None else pd.DataFrame(),
+                        town=args.town,
+                        town_like=getattr(args, "town_like", None),
+                        budget=args.budget,
+                        flat_type=getattr(args, "flat_type", None),
+                        flat_type_like=getattr(args, "flat_type_like", None),
+                        flat_model=getattr(args, "flat_model", None),
+                        flat_model_like=getattr(args, "flat_model_like", None),
+                        storey_min=getattr(args, "storey_min", None),
+                        storey_max=getattr(args, "storey_max", None),
+                        area_min=getattr(args, "area_min", None),
+                        area_max=getattr(args, "area_max", None),
+                        lease_min=getattr(args, "lease_min", None),
+                        lease_max=getattr(args, "lease_max", None),
+                        top_n=args.top,
+                        full=True,
+                    )
+
+                try:
+                    fmt = getattr(args, "output_format", "csv") or "csv"
+                    if fmt == "csv":
+                        export_df.to_csv(args.output, index=False)
+                    elif fmt == "json":
+                        export_df.to_json(args.output, orient="records", lines=False)
+                    elif fmt == "parquet":
+                        try:
+                            export_df.to_parquet(args.output, index=False)
+                        except Exception as parq_exc:  # noqa: BLE001
+                            self.logger.warning(
+                                "Parquet export failed (missing engine?). Falling back to CSV: %s",
+                                parq_exc,
+                            )
+                            export_df.to_csv(args.output, index=False)
+                    self.logger.info(
+                        "Exported %s (%s) to %s",
+                        "full" if getattr(args, "export_full", False) else f"Top-{args.top}",
+                        fmt,
+                        args.output,
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    self.logger.exception("Failed to export to %s: %s", args.output, exc)
+                    return 5
+
+        except FileNotFoundError as exc:
+            self.logger.error("File not found: %s", exc)
+            return 2
+        except ValueError as exc:
+            self.logger.error("Invalid input: %s", exc)
+            return 3
+        except Exception as exc:  # noqa: BLE001
+            self.logger.exception("Processing failed: %s", exc)
+            return 4
+
+def build_parser() -> argparse.ArgumentParser:
+    """Build an argument parser for the CLI.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Configured CLI parser.
+    """
+    parser = argparse.ArgumentParser(
+        prog="hdb_valuation_engine",
+        description=(
+            f"HDB Valuation Engine v{__version__} — Identify undervalued HDB resale properties using a "
+            "lease-adjusted price efficiency metric and group-wise z-scores."
+        ),
+    )
+
+    subparsers = parser.add_subparsers(dest="command")
+
+    # Cache management subcommand
+    cache_parser = subparsers.add_parser("cache", help="Manage transport cache")
+    cache_parser.add_argument("--clear", action="store_true", help="Clear transport cache and exit")
+    cache_parser.add_argument(
+        "--transport-cache-dir",
+        required=False,
+        help=("Directory of transport cache (default: .cache_transport in CWD)."),
+    )
+    cache_parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="Increase logging verbosity (use -v or -vv).",
+    )
+
+    # Data fetch subcommand (resale CSV)
+    fetch_parser = subparsers.add_parser(
+        "fetch",
+        help="Fetch a sample HDB resale dataset (or generate synthetic) into ResaleFlatPrices/",
+        description=(
+            "Fetch a CSV for optional smoke tests. Attempts public APIs; falls back to synthetic data if needed."
+        ),
+    )
+    fetch_parser.add_argument("--limit", type=int, default=5000, help="Max rows to write (0 = all, default: 5000)")
+    fetch_parser.add_argument(
+        "--out-dir", default="ResaleFlatPrices", help="Output directory for HDB resale CSV (default: ResaleFlatPrices)"
+    )
+    fetch_parser.add_argument(
+        "--filename",
+        default="Resale flat prices based on registration date from Jan-2017 onwards.csv",
+        help="HDB resale output filename (default: Resale flat prices based on registration date from Jan-2017 onwards.csv)",
+    )
+    fetch_parser.add_argument(
+        "--mrt-out",
+        default=os.path.join(".data", "LTAMRTStationExitGEOJSON.geojson"),
+        help="Output path for MRT station exits GeoJSON (default: .data/LTAMRTStationExitGEOJSON.geojson)",
+    )
+    fetch_parser.add_argument(
+        "--datasets",
+        default="all",
+        choices=["all", "resale", "mrt"],
+        help="Datasets to fetch (default: all)",
+    )
+    fetch_parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="Increase logging verbosity (use -v or -vv).",
+    )
+
+    parser.add_argument(
+        "--input",
+        required=False,
+        help=(
+            "Path to HDB resale CSV data. If not specified, defaults to "
+            f"{DEFAULT_HDB_PATH} and will be automatically downloaded if missing."
+        ),
+    )
+    parser.add_argument(
+        "--mrt-catalog",
+        required=False,
+        help=(
+            "Path to MRT stations GEOJSON (LTA exits) or CSV [name,line_code,lat,lon]. "
+            "If not specified, defaults to "
+            f"{DEFAULT_MRT_PATH} and will be automatically downloaded if missing. "
+            "LRT lines (BP, SW/SE, PW/PE) are auto-excluded. Enables accessibility scoring."
+        ),
+    )
+    parser.add_argument(
+        "--transport-cache-dir",
+        required=False,
+        help=("Directory to store transport KDTree cache (default: .cache_transport in CWD)."),
+    )
+    parser.add_argument(
+        "--clear-transport-cache",
+        action="store_true",
+        help="Clear transport KDTree/stations cache before building.",
+    )
+    # Filtering options
+    parser.add_argument("--town", required=False, help="Exact town filter (case-insensitive)")
+    parser.add_argument(
+        "--town-like", dest="town_like", required=False, help="Partial town match (case-insensitive substring)"
+    )
+    parser.add_argument("--flat-type", dest="flat_type", required=False, help="Exact flat_type filter")
+    parser.add_argument("--flat-type-like", dest="flat_type_like", required=False, help="Partial flat_type match")
+    parser.add_argument("--flat-model", dest="flat_model", required=False, help="Exact flat_model filter")
+    parser.add_argument("--flat-model-like", dest="flat_model_like", required=False, help="Partial flat_model match")
+    parser.add_argument(
+        "--storey-min", dest="storey_min", type=int, required=False, help="Minimum storey (overlaps any storey_range)"
+    )
+    parser.add_argument(
+        "--storey-max", dest="storey_max", type=int, required=False, help="Maximum storey (overlaps any storey_range)"
+    )
+    parser.add_argument("--area-min", dest="area_min", type=float, required=False, help="Minimum floor area (sqm)")
+    parser.add_argument("--area-max", dest="area_max", type=float, required=False, help="Maximum floor area (sqm)")
+    parser.add_argument(
+        "--lease-min", dest="lease_min", type=float, required=False, help="Minimum remaining lease (years)"
+    )
+    parser.add_argument(
+        "--lease-max", dest="lease_max", type=float, required=False, help="Maximum remaining lease (years)"
+    )
+
+    parser.add_argument(
+        "--budget",
+        type=float,
+        required=False,
+        help="Optional maximum budget for resale_price.",
+    )
+    parser.add_argument(
+        "--top",
+        type=int,
+        default=10,
+        help="Number of results to display (default: 10).",
+    )
+    parser.add_argument(
+        "--group-by",
+        nargs="+",
+        required=False,
+        help=(
+            "Columns to group by for peer comparison z-scores (default: town flat_type). "
+            "Use dataset column names (case/space insensitive)."
+        ),
+    )
+    parser.add_argument(
+        "--output",
+        required=False,
+        help="Optional output path to export the filtered table (format controlled by --output-format).",
+    )
+    parser.add_argument(
+        "--export-full",
+        action="store_true",
+        help="Export full filtered dataset (ignores --top for the file; console still shows Top-N).",
+    )
+    parser.add_argument(
+        "--output-format",
+        choices=["csv", "json", "parquet"],
+        default="csv",
+        help="Output file format when --output is provided (default: csv).",
+    )
+    parser.add_argument(
+        "--no-accessibility-adjust",
+        action="store_true",
+        help=(
+            "Compute and display accessibility metrics but do NOT adjust price_efficiency. "
+            "Useful for analysis-only runs."
+        ),
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="Increase logging verbosity (use -v or -vv).",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"hdb_valuation_engine {__version__}",
+        help="Show program version and exit.",
+    )
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Program entrypoint.
+
+    Parameters
+    ----------
+    argv : Optional[List[str]]
+        Optional override for sys.argv[1:]. Useful for testing.
+
+    Returns
+    -------
+    int
+        Process exit code.
+    """
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    configure_logging(getattr(args, "verbose", 0))
+
+    # Handle cache subcommand
+    if getattr(args, "command", None) == "cache":
+        # create a scorer with provided or default cache dir
+        cache_dir = getattr(args, "transport_cache_dir", None)
+        scorer = TransportScorer(cache_dir=cache_dir)
+        if getattr(args, "clear", False):
+            scorer.clear_cache()
+            return 0
+        # if no explicit action, print cache dir and exit
+        logging.getLogger("Cache").info("Transport cache dir: %s", scorer._cache_dir)
+        return 0
+
+    # Handle fetch subcommand
+    # Handle fetch subcommand
+    if getattr(args, "command", None) == "fetch":
+        limit = getattr(args, "limit", 5000)
+        out_dir = getattr(args, "out_dir", "ResaleFlatPrices")
+        filename = getattr(args, "filename", "Resale flat prices based on registration date from Jan-2017 onwards.csv")
+        datasets = getattr(args, "datasets", "all")
+        mrt_out = getattr(args, "mrt_out", os.path.join(".data", "LTAMRTStationExitGEOJSON.geojson"))
+
+        # 1. Fetch HDB Resale
+        if datasets in ("all", "resale"):
+            # Call the updated fetch_hdb_data (which now uses the API)
+            fetch_hdb_data(limit=limit, out_dir=out_dir, filename=filename, verbose=getattr(args, "verbose", 0))
+
+        # 2. Fetch MRT Data
+        if datasets in ("all", "mrt"):
+            # Call the new specialized MRT fetcher
+            fetch_mrt_data(mrt_out, verbose=getattr(args, "verbose", 0))
+
+        return 0
+
+        # if getattr(args, "command", None) == "fetch":
+        limit = getattr(args, "limit", 5000)
+        out_dir = getattr(args, "out_dir", "ResaleFlatPrices")
+        filename = getattr(args, "filename", "Resale flat prices based on registration date from Jan-2017 onwards.csv")
+        datasets = getattr(args, "datasets", "all")
+        mrt_out = getattr(args, "mrt_out", os.path.join(".data", "LTAMRTStationExitGEOJSON.geojson"))
+        rc = 0
+        if datasets in ("all", "resale"):
+            rc |= fetch_hdb_data(limit=limit, out_dir=out_dir, filename=filename, verbose=getattr(args, "verbose", 0))
+        if datasets in ("all", "mrt"):
+            # inline minimal MRT fetch with synthetic fallback
+            try:
+                import time
+
+                import requests
+
+                def _get(url: str, **kwargs):
+                    for attempt in range(3):
+                        try:
+                            r = requests.get(url, timeout=60, **kwargs)
+                            r.raise_for_status()
+                            return r
+                        except Exception:
+                            if attempt == 2:
+                                raise
+                            time.sleep(1 + attempt)
+                    raise RuntimeError("unreachable")
+
+                os.makedirs(os.path.dirname(mrt_out) or ".", exist_ok=True)
+                meta = _get("https://api-production.data.gov.sg/v2/public/api/collections/367/metadata").json()
+                data = meta.get("data", {})
+                cm = data.get("collectionMetadata", {})
+                gj_url = None
+
+                # probe assets and child datasets
+                def _assets(d: dict[str, Any]) -> list[dict[str, Any]]:
+                    acc = []
+                    for key in ("assets", "releases"):
+                        v = d.get(key)
+                        if isinstance(v, list):
+                            for item in v:
+                                if isinstance(item, dict) and "assets" in item:
+                                    acc.extend(item.get("assets") or [])
+                                elif isinstance(item, dict):
+                                    acc.append(item)
+                        elif isinstance(v, dict):
+                            acc.extend(v.get("assets") or [])
+                    return acc
+
+                assets = _assets(cm)
+                if not assets:
+                    cds = cm.get("childDatasets") or []
+                    for did in cds:
+                        dm = _get(f"https://api-production.data.gov.sg/v2/public/api/datasets/{did}/metadata").json()
+                        dmd = dm.get("data", {}).get("datasetMetadata", {})
+                        assets = _assets(dmd)
+                        if assets:
+                            break
+                for a in assets:
+                    if not isinstance(a, dict):
+                        continue
+                    fmt = (a.get("fileFormat") or a.get("format") or "").lower()
+                    url = a.get("downloadUrl") or a.get("url") or a.get("href")
+                    name = (a.get("name") or a.get("title") or "").lower()
+                    if (
+                        url
+                        and (fmt in {"geojson", "json"} or str(url).lower().endswith(".geojson"))
+                        and ("mrt" in name or "station" in name or "exit" in name)
+                    ):
+                        gj_url = url
+                        break
+                if not gj_url:
+                    raise RuntimeError("no geojson url")
+                r = _get(gj_url)
+                with open(mrt_out, "wb") as f:
+                    f.write(r.content)
+                logging.getLogger("fetch").info("Wrote MRT GeoJSON to %s", mrt_out)
+            except Exception as e:
+                import json
+
+                logging.getLogger("fetch").warning("Fetch MRT failed (%s). Writing synthetic...", e)
+                sample = {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "geometry": {"type": "Point", "coordinates": [103.851959, 1.290270]},
+                            "properties": {"STN_NAME": "RAFFLES PLACE", "LINE": "NS"},
+                        },
+                        {
+                            "type": "Feature",
+                            "geometry": {"type": "Point", "coordinates": [103.845, 1.3008]},
+                            "properties": {"STN_NAME": "BUGIS", "LINE": "DT"},
+                        },
+                    ],
+                }
+                with open(mrt_out, "w", encoding="utf-8") as f:
+                    json.dump(sample, f)
+                logging.getLogger("fetch").info("Wrote synthetic MRT GeoJSON to %s", mrt_out)
+        return rc
+
+    # Main valuation command: handle default paths and auto-download
+    # If --input not provided, use default path and ensure it exists
+    input_path = getattr(args, "input", None)
+    if input_path is None:
+        input_path = DEFAULT_HDB_PATH
+        if not ensure_hdb_dataset(input_path, verbose=getattr(args, "verbose", 0)):
+            logging.getLogger("main").error("HDB dataset is required but not available. Exiting.")
+            return 1
+        # Update args with the resolved path
+        args.input = input_path
+
+    # If --mrt-catalog not provided, use default path and ensure it exists
+    mrt_catalog = getattr(args, "mrt_catalog", None)
+    if mrt_catalog is None:
+        mrt_catalog = DEFAULT_MRT_PATH
+        # Only download MRT data if user wants accessibility scoring
+        # We'll try to ensure it exists, but if user declines, we continue without it
+        if _ensure_mrt_dataset(mrt_catalog, verbose=getattr(args, "verbose", 0)):
+            args.mrt_catalog = mrt_catalog
+        else:
+            # User declined or download failed - continue without MRT data
+            logging.getLogger("main").info("Continuing without MRT accessibility scoring.")
+            args.mrt_catalog = None
+
+    app = HDBValuationEngineApp()
