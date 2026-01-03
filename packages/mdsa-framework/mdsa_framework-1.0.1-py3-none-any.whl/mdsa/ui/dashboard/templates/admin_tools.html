@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MDSA Dashboard - Tool Management</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: box-shadow 0.3s;
+        }
+
+        .tool-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-card.disabled {
+            opacity: 0.6;
+            background: #f5f5f5;
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .tool-name {
+            font-weight: 600;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .tool-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tool-status.enabled {
+            background: #e8f5e9;
+            color: #2E7D32;
+        }
+
+        .tool-status.disabled {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .tool-description {
+            color: #666;
+            font-size: 14px;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .tool-params {
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+
+        .tool-params h4 {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .param-item {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .param-item strong {
+            color: #333;
+        }
+
+        .param-item span {
+            color: #666;
+        }
+
+        .tool-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #1976D2;
+        }
+
+        .btn-toggle {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-toggle:hover {
+            background: #F57C00;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+
+        .add-tool-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: background 0.3s;
+        }
+
+        .add-tool-btn:hover {
+            background: #45a049;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .api-key-field {
+            position: relative;
+        }
+
+        .api-key-field input {
+            padding-right: 100px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #2196F3;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            z-index: 1001;
+            animation: slideIn 0.3s;
+        }
+
+        .notification.success {
+            background: #4CAF50;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .user-info {
+            float: right;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: #f44336;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .key-encrypted {
+            color: #4CAF50;
+            font-size: 11px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Tool Management</h1>
+        <p>Configure API integrations and external tools</p>
+        <div class="user-info">
+            Logged in as: <strong>{{ user.name }}</strong>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="nav">
+            <a href="/welcome">🏠 Home</a>
+            <a href="/admin/rag">📤 RAG Management</a>
+            <a href="/admin/models">🔧 Model Configuration</a>
+            <a href="/admin/tools" class="active">🛠️ Tools</a>
+            <a href="/domains">🎯 Domains</a>
+            <a href="/admin/monitor">📊 Monitor</a>
+        </div>
+
+        <div class="info-box">
+            <strong>🔒 Secure Storage:</strong> API keys are encrypted using AES-256 before storage. Only encrypted values are stored on disk.
+        </div>
+
+        <div style="text-align: center;">
+            <button class="add-tool-btn" onclick="showAddToolModal()">+ Add New Tool</button>
+        </div>
+
+        <div id="toolsGrid" class="tools-grid">
+            <!-- Tools will be loaded here -->
+        </div>
+
+        <div id="emptyState" style="text-align: center; padding: 60px; color: #999; display: none;">
+            <h3>No tools configured</h3>
+            <p>Add your first tool integration to get started</p>
+        </div>
+    </div>
+
+    <!-- Add/Edit Tool Modal -->
+    <div id="toolModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Tool</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <form id="toolForm" onsubmit="saveTool(event)">
+                <div class="form-group">
+                    <label for="toolName">Tool Name *</label>
+                    <input type="text" id="toolName" required placeholder="e.g., Google Search API">
+                    <span class="help-text">Descriptive name for this tool</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="toolType">Tool Type *</label>
+                    <select id="toolType" required>
+                        <option value="">Select type...</option>
+                        <option value="search">Search API</option>
+                        <option value="weather">Weather API</option>
+                        <option value="database">Database</option>
+                        <option value="email">Email Service</option>
+                        <option value="sms">SMS Service</option>
+                        <option value="payment">Payment Gateway</option>
+                        <option value="custom">Custom Integration</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="toolDescription">Description</label>
+                    <textarea id="toolDescription" placeholder="Describe what this tool does..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="toolEndpoint">API Endpoint *</label>
+                    <input type="url" id="toolEndpoint" required placeholder="https://api.example.com/v1">
+                    <span class="help-text">Base URL for the API</span>
+                </div>
+
+                <div class="form-group api-key-field">
+                    <label for="toolApiKey">API Key *</label>
+                    <input type="password" id="toolApiKey" required placeholder="Enter API key...">
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">Show</button>
+                    <span class="help-text key-encrypted">🔒 Will be encrypted before storage</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="toolParams">Additional Parameters (JSON)</label>
+                    <textarea id="toolParams" placeholder='{"timeout": 30, "max_results": 10}'></textarea>
+                    <span class="help-text">Optional parameters in JSON format</span>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="toolEnabled" checked>
+                        Enable this tool
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn btn-edit" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn" style="background: #4CAF50; color: white;">Save Tool</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let tools = [];
+        let editingToolId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTools();
+        });
+
+        async function loadTools() {
+            try {
+                const response = await fetch('/api/admin/tools');
+                if (response.ok) {
+                    const data = await response.json();
+                    tools = data.tools || [];
+                    renderTools();
+                }
+            } catch (error) {
+                console.error('Error loading tools:', error);
+                showNotification('Error loading tools', 'error');
+            }
+        }
+
+        function renderTools() {
+            const grid = document.getElementById('toolsGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (tools.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = tools.map(tool => `
+                <div class="tool-card ${tool.enabled ? '' : 'disabled'}">
+                    <div class="tool-header">
+                        <div class="tool-name">${tool.name}</div>
+                        <span class="tool-status ${tool.enabled ? 'enabled' : 'disabled'}">
+                            ${tool.enabled ? 'Enabled' : 'Disabled'}
+                        </span>
+                    </div>
+                    <div class="tool-description">
+                        ${tool.description || 'No description provided'}
+                    </div>
+                    <div class="tool-params">
+                        <h4>Configuration</h4>
+                        <div class="param-item">
+                            <strong>Type:</strong>
+                            <span>${tool.type}</span>
+                        </div>
+                        <div class="param-item">
+                            <strong>Endpoint:</strong>
+                            <span>${tool.endpoint}</span>
+                        </div>
+                        <div class="param-item">
+                            <strong>API Key:</strong>
+                            <span>🔒 Encrypted</span>
+                        </div>
+                    </div>
+                    <div class="tool-actions">
+                        <button class="btn btn-edit" onclick="editTool('${tool.id}')">Edit</button>
+                        <button class="btn btn-toggle" onclick="toggleTool('${tool.id}', ${!tool.enabled})">
+                            ${tool.enabled ? 'Disable' : 'Enable'}
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteTool('${tool.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAddToolModal() {
+            editingToolId = null;
+            document.getElementById('modalTitle').textContent = 'Add New Tool';
+            document.getElementById('toolForm').reset();
+            document.getElementById('toolEnabled').checked = true;
+            document.getElementById('toolModal').style.display = 'block';
+        }
+
+        function editTool(toolId) {
+            const tool = tools.find(t => t.id === toolId);
+            if (!tool) return;
+
+            editingToolId = toolId;
+            document.getElementById('modalTitle').textContent = 'Edit Tool';
+            document.getElementById('toolName').value = tool.name;
+            document.getElementById('toolType').value = tool.type;
+            document.getElementById('toolDescription').value = tool.description || '';
+            document.getElementById('toolEndpoint').value = tool.endpoint;
+            document.getElementById('toolApiKey').value = '••••••••••••'; // Placeholder
+            document.getElementById('toolParams').value = JSON.stringify(tool.params || {}, null, 2);
+            document.getElementById('toolEnabled').checked = tool.enabled;
+            document.getElementById('toolModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('toolModal').style.display = 'none';
+            editingToolId = null;
+        }
+
+        async function saveTool(event) {
+            event.preventDefault();
+
+            const toolData = {
+                name: document.getElementById('toolName').value,
+                type: document.getElementById('toolType').value,
+                description: document.getElementById('toolDescription').value,
+                endpoint: document.getElementById('toolEndpoint').value,
+                api_key: document.getElementById('toolApiKey').value,
+                params: {},
+                enabled: document.getElementById('toolEnabled').checked
+            };
+
+            // Parse JSON params
+            const paramsText = document.getElementById('toolParams').value.trim();
+            if (paramsText) {
+                try {
+                    toolData.params = JSON.parse(paramsText);
+                } catch (e) {
+                    showNotification('Invalid JSON in parameters', 'error');
+                    return;
+                }
+            }
+
+            try {
+                const url = editingToolId ? `/api/admin/tools/${editingToolId}` : '/api/admin/tools';
+                const method = editingToolId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(toolData)
+                });
+
+                if (response.ok) {
+                    showNotification(editingToolId ? 'Tool updated successfully' : 'Tool added successfully', 'success');
+                    closeModal();
+                    loadTools();
+                } else {
+                    const error = await response.json();
+                    showNotification(`Error: ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showNotification('Error saving tool', 'error');
+            }
+        }
+
+        async function toggleTool(toolId, enable) {
+            try {
+                const response = await fetch(`/api/admin/tools/${toolId}/toggle`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ enabled: enable })
+                });
+
+                if (response.ok) {
+                    showNotification(`Tool ${enable ? 'enabled' : 'disabled'} successfully`, 'success');
+                    loadTools();
+                } else {
+                    showNotification('Error toggling tool', 'error');
+                }
+            } catch (error) {
+                showNotification('Error toggling tool', 'error');
+            }
+        }
+
+        async function deleteTool(toolId) {
+            const tool = tools.find(t => t.id === toolId);
+            if (!confirm(`Are you sure you want to delete "${tool.name}"?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/tools/${toolId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showNotification('Tool deleted successfully', 'success');
+                    loadTools();
+                } else {
+                    showNotification('Error deleting tool', 'error');
+                }
+            } catch (error) {
+                showNotification('Error deleting tool', 'error');
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const input = document.getElementById('toolApiKey');
+            const button = event.target;
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = 'Hide';
+            } else {
+                input.type = 'password';
+                button.textContent = 'Show';
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('toolModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
