@@ -1,0 +1,22 @@
+[build-system]
+requires = [ "setuptools>=61.0",]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tmux-fork"
+version = "1.0.0"
+description = "Fork current tmux window to a new window in the same directory"
+readme = "README.md"
+classifiers = [ "Environment :: Console", "Intended Audience :: Developers", "License :: OSI Approved :: MIT License", "Operating System :: POSIX", "Programming Language :: Python :: 3", "Topic :: Utilities",]
+requires-python = ">=3.7"
+[[project.authors]]
+name = "Your Name"
+
+[project.license]
+text = "MIT"
+
+[project.scripts]
+tmux-fork = "tmux_fork.main:main"
+
+[project.urls]
+Homepage = "https://github.com/talwrii/tmux-fork"
