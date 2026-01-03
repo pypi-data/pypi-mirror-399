@@ -1,0 +1,130 @@
+Metadata-Version: 2.4
+Name: tomusic.ai
+Version: 1767082.937.253
+Summary: High-quality integration for https://tomusic.ai/
+Home-page: https://tomusic.ai/
+Author: SuperMaker
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+Dynamic: summary
+
+# tomusic.ai - Python Library
+
+This package provides an automated interface to interact with and showcase the capabilities of tomusic.ai. It simplifies integration with the tomusic.ai platform through a Python-based API.
+
+## Installation
+
+To install the `tomusic.ai` library, use pip:
+bash
+pip install tomusic.ai
+
+## Basic Usage
+
+Here are a few examples demonstrating how to use the `tomusic.ai` library:
+
+**1. Generating a Simple Melody:**
+python
+from tomusic import ai
+
+# Initialize the API client (replace with your actual API key)
+client = ai.Client(api_key="YOUR_API_KEY")
+
+# Generate a melody with default parameters
+melody = client.generate_melody()
+
+# Print the generated melody (format depends on the API)
+print(melody)
+
+**2. Composing a Song with Specified Parameters:**
+python
+from tomusic import ai
+
+# Initialize the API client (replace with your actual API key)
+client = ai.Client(api_key="YOUR_API_KEY")
+
+# Define parameters for the song generation
+params = {
+    "genre": "Jazz",
+    "tempo": 120,
+    "key": "C Major",
+    "duration": 60, # seconds
+}
+
+# Generate a song based on the specified parameters
+song = client.generate_song(params)
+
+# Save the generated song to a file (format depends on the API - e.g., MIDI, MP3)
+client.save_song(song, "jazz_song.mid")
+
+**3. Analyzing an Existing Piece of Music:**
+python
+from tomusic import ai
+
+# Initialize the API client (replace with your actual API key)
+client = ai.Client(api_key="YOUR_API_KEY")
+
+# Analyze a music file
+analysis_result = client.analyze_music("path/to/your/music.mp3")
+
+# Print the analysis results (e.g., key, tempo, genre)
+print(analysis_result)
+
+**4. Generating Variations of an Existing Melody:**
+python
+from tomusic import ai
+
+# Initialize the API client (replace with your actual API key)
+client = ai.Client(api_key="YOUR_API_KEY")
+
+# Load an existing melody (replace with your melody data)
+original_melody = "C-D-E-F-G-A-B-C"
+
+# Generate variations of the melody
+variations = client.generate_melody_variations(original_melody, num_variations=3)
+
+# Print the generated variations
+for i, variation in enumerate(variations):
+    print(f"Variation {i+1}: {variation}")
+
+**5. Generating Accompaniment for a Melody:**
+python
+from tomusic import ai
+
+# Initialize the API client (replace with your actual API key)
+client = ai.Client(api_key="YOUR_API_KEY")
+
+# Load an existing melody (replace with your melody data)
+melody = "C-D-E-F-G-A-B-C"
+
+# Generate accompaniment for the melody
+accompaniment = client.generate_accompaniment(melody, style="Piano")
+
+# Save the generated accompaniment (format depends on the API)
+client.save_accompaniment(accompaniment, "piano_accompaniment.mid")
+
+## Features
+
+*   **Melody Generation:** Generate original melodies based on various parameters.
+*   **Song Composition:** Compose full songs with specified genres, tempos, and keys.
+*   **Music Analysis:** Analyze existing music files to extract key information.
+*   **Melody Variations:** Create variations of existing melodies.
+*   **Accompaniment Generation:** Generate accompaniment for melodies.
+*   **Easy Integration:** Seamlessly integrate with the tomusic.ai platform.
+*   **Parameter Customization:** Fine-tune music generation with customizable parameters.
+*   **File Saving:** Save generated music in various formats (e.g., MIDI, MP3).
+
+## License
+
+MIT License
+
+This project is a gateway to the tomusic.ai ecosystem. For advanced features and full capabilities, please visit: https://tomusic.ai/
