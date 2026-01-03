@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyromind-sdk"
+version = "0.1.0"
+description = "Lightweight SDK stub for local development and testing of third-party nodes without the full platform codebase"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+    {name = "PyroMind Team"}
+]
+keywords = ["sdk", "node", "development", "stub"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://pyromind.ai/"
+Documentation = "https://pyromind.ai/"
+Repository = "https://github.com/pyromind/pyromind-sdk"
+Issues = "https://github.com/pyromind/pyromind-sdk/issues"
+
+[tool.setuptools]
+packages = ["pyromind_sdk"]
+
+[tool.setuptools.package-data]
+"*" = ["*.py", "*.txt", "*.md"]
+
