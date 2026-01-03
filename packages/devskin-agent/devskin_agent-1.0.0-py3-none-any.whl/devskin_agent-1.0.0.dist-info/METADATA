@@ -1,0 +1,214 @@
+Metadata-Version: 2.4
+Name: devskin-agent
+Version: 1.0.0
+Summary: DevSkin Monitor Agent - Python Instrumentation SDK
+Home-page: https://github.com/devskin/devskin-monitor
+Author: DevSkin Team
+Author-email: DevSkin Team <team@devskin.monitor>
+Project-URL: Homepage, https://devskin.com
+Project-URL: Documentation, https://docs.devskin.com
+Project-URL: Repository, https://github.com/devskin1/devskin-monitoring-python-agent
+Keywords: monitoring,apm,agent,instrumentation,observability,tracing,logging,metrics
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: System :: Monitoring
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.31.0
+Requires-Dist: opentelemetry-api>=1.21.0
+Requires-Dist: opentelemetry-sdk>=1.21.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.1.0; extra == "dev"
+Requires-Dist: black>=23.12.0; extra == "dev"
+Requires-Dist: mypy>=1.7.0; extra == "dev"
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
+# devskin-agent
+
+DevSkin APM Agent for Python - Automatic instrumentation for Flask, Django, and FastAPI.
+
+## Installation
+
+```bash
+pip install devskin-agent
+```
+
+## Quick Start
+
+### Flask
+
+```python
+from flask import Flask
+from devskin_agent import init, start_agent
+from devskin_agent.instrumentation import flask_middleware
+
+# Initialize agent
+agent = init(
+    server_url='http://localhost:3000',
+    api_key='your-api-key',
+    service_name='my-flask-app',
+    service_version='1.0.0',
+    environment='production',
+)
+
+start_agent()
+
+# Create Flask app
+app = Flask(__name__)
+
+# Add middleware
+flask_middleware(app, agent)
+
+@app.route('/api/users')
+def get_users():
+    # Automatically traced!
+    return {'users': []}
+
+if __name__ == '__main__':
+    app.run()
+```
+
+### Django
+
+Add to your `settings.py`:
+
+```python
+MIDDLEWARE = [
+    'devskin_agent.instrumentation.DjangoMiddleware',
+    # ... other middleware
+]
+
+# At the end of settings.py
+from devskin_agent import init, start_agent
+
+DEVSKIN_AGENT = init(
+    server_url='http://localhost:3000',
+    api_key='your-api-key',
+    service_name='my-django-app',
+    environment='production',
+)
+
+start_agent()
+```
+
+### FastAPI
+
+```python
+from fastapi import FastAPI
+from devskin_agent import init, start_agent
+from devskin_agent.instrumentation import fastapi_middleware
+
+# Initialize agent
+agent = init(
+    server_url='http://localhost:3000',
+    api_key='your-api-key',
+    service_name='my-fastapi-app',
+)
+
+start_agent()
+
+# Create FastAPI app
+app = FastAPI()
+
+# Add middleware
+fastapi_middleware(app, agent)
+
+@app.get('/api/users')
+async def get_users():
+    # Automatically traced!
+    return {'users': []}
+```
+
+### Manual Span Creation
+
+```python
+from devskin_agent import get_agent, SpanBuilder, SpanKind
+
+agent = get_agent()
+
+def process_order(order_id):
+    span = SpanBuilder(
+        name='process_order',
+        kind=SpanKind.INTERNAL,
+        service_name=agent.get_config().service_name,
+        agent=agent
+    )
+
+    span.set_attribute('order.id', order_id)
+
+    try:
+        # Your business logic
+        order = fetch_order(order_id)
+        span.set_attribute('order.amount', order['amount'])
+        return order
+    except Exception as e:
+        span.record_error(e)
+        raise
+    finally:
+        span.end()
+```
+
+## Configuration
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `server_url` | str | *required* | DevSkin backend URL |
+| `api_key` | str | *required* | API key for authentication |
+| `service_name` | str | *required* | Name of your service |
+| `service_version` | str | None | Version of your service |
+| `environment` | str | None | Environment (production, staging, etc) |
+| `enabled` | bool | True | Enable/disable agent |
+| `sample_rate` | float | 1.0 | Sample rate (0.0 to 1.0) |
+| `batch_size` | int | 100 | Batch size before flushing |
+| `flush_interval` | float | 10.0 | Flush interval in seconds |
+| `debug` | bool | False | Enable debug logging |
+
+## Environment Variables
+
+```bash
+export DEVSKIN_SERVER_URL=http://localhost:3000
+export DEVSKIN_API_KEY=your-api-key
+export DEVSKIN_SERVICE_NAME=my-service
+export DEVSKIN_ENVIRONMENT=production
+export DEVSKIN_SAMPLE_RATE=1.0
+```
+
+```python
+import os
+from devskin_agent import init
+
+agent = init(
+    server_url=os.getenv('DEVSKIN_SERVER_URL'),
+    api_key=os.getenv('DEVSKIN_API_KEY'),
+    service_name=os.getenv('DEVSKIN_SERVICE_NAME'),
+    environment=os.getenv('DEVSKIN_ENVIRONMENT'),
+    sample_rate=float(os.getenv('DEVSKIN_SAMPLE_RATE', '1.0')),
+)
+```
+
+## Features
+
+- ✅ Automatic Flask instrumentation
+- ✅ Automatic Django instrumentation
+- ✅ Automatic FastAPI instrumentation
+- ✅ Manual span creation
+- ✅ Distributed tracing with trace ID propagation
+- ✅ Error tracking and reporting
+- ✅ Sampling support
+- ✅ Context propagation across async operations
+- ✅ Service discovery
+
+## License
+
+MIT
