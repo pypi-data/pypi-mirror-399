@@ -1,0 +1,189 @@
+{
+  "mcp": {
+    "servers": {
+      "carton": {
+        "command": "carton-mcp",
+        "args": [],
+        "env": {
+          "GITHUB_PAT": "{{GITHUB_PAT}}",
+          "REPO_URL": "{{REPO_URL}}",
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}",
+          "NEO4J_URI": "{{NEO4J_URI}}",
+          "NEO4J_USER": "{{NEO4J_USER}}",
+          "NEO4J_PASSWORD": "{{NEO4J_PASSWORD}}",
+          "OPENAI_API_KEY": "{{OPENAI_API_KEY}}",
+          "CHROMA_PERSIST_DIR": "{{CHROMA_PERSIST_DIR}}"
+        },
+        "enabled": true
+      },
+      "starlog": {
+        "command": "python",
+        "args": [
+          "-m",
+          "starlog_mcp.starlog_mcp"
+        ],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}"
+        },
+        "enabled": true
+      },
+      "starship": {
+        "command": "python",
+        "args": [
+          "-m",
+          "starship_mcp.starship_mcp"
+        ],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}"
+        },
+        "enabled": true
+      },
+      "waypoint": {
+        "command": "python",
+        "args": [
+          "-m",
+          "payload_discovery.mcp_server_v2"
+        ],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}"
+        },
+        "enabled": true
+      },
+      "STARSYSTEM": {
+        "command": "python",
+        "args": [
+          "-m",
+          "starsystem.starsystem_mcp"
+        ],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}"
+        },
+        "enabled": true
+      },
+      "llm2hyperon": {
+        "command": "python",
+        "args": [
+          "-m",
+          "hyperon_mcp.mcps.metta_server"
+        ],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}",
+          "PYTHONPATH": "{{PYTHONPATH}}",
+          "GITHUB_PAT": "{{GITHUB_PAT}}",
+          "REPO_URL": "{{REPO_URL}}",
+          "NEO4J_URI": "{{NEO4J_URI}}",
+          "NEO4J_USER": "{{NEO4J_USER}}",
+          "NEO4J_PASSWORD": "{{NEO4J_PASSWORD}}"
+        },
+        "enabled": true
+      },
+      "canopy": {
+        "command": "canopy-server",
+        "args": [],
+        "enabled": true
+      },
+      "opera": {
+        "command": "opera-server",
+        "args": [],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}"
+        },
+        "enabled": true
+      },
+      "emergence-engine": {
+        "command": "emergence-engine-mcp",
+        "args": [],
+        "enabled": true
+      },
+      "giint-llm-intelligence": {
+        "command": "python",
+        "args": [
+          "-m",
+          "llm_intelligence.mcp_server"
+        ],
+        "env": {
+          "LLM_INTELLIGENCE_DIR": "{{LLM_INTELLIGENCE_DIR}}",
+          "GIINT_TREEKANBAN_BOARD": "{{GIINT_TREEKANBAN_BOARD}}"
+        },
+        "enabled": true
+      },
+      "heaven-framework-toolbox": {
+        "command": "python",
+        "args": [
+          "-m",
+          "heaven_base.mcps.toolbox_server"
+        ],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}",
+          "OPENAI_API_KEY": "{{OPENAI_API_KEY}}"
+        },
+        "enabled": true
+      },
+      "toot": {
+        "command": "python",
+        "args": [
+          "-m",
+          "toot_mcp.toot_mcp"
+        ],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}"
+        },
+        "enabled": true
+      },
+      "metastack": {
+        "command": "python",
+        "args": [
+          "-m",
+          "pydantic_stack_core.mcp_server"
+        ],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}"
+        },
+        "enabled": true
+      },
+      "seed": {
+        "command": "python",
+        "args": [
+          "-m",
+          "seed_mcp.seed_mcp"
+        ],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}",
+          "LLM_INTELLIGENCE_DIR": "{{LLM_INTELLIGENCE_DIR}}",
+          "GITHUB_PAT": "{{GITHUB_PAT}}",
+          "REPO_URL": "{{REPO_URL}}",
+          "NEO4J_URI": "{{NEO4J_URI}}",
+          "NEO4J_USER": "{{NEO4J_USER}}",
+          "NEO4J_PASSWORD": "{{NEO4J_PASSWORD}}",
+          "SEED_MEMBERSHIP_SITE_URL": "{{SEED_MEMBERSHIP_SITE_URL}}",
+          "SEED_MEMBERSHIP_SITE_API_KEY": "{{SEED_MEMBERSHIP_SITE_API_KEY}}",
+          "SEED_MEMBERSHIP_SITE_ADMIN_EMAIL": "{{SEED_MEMBERSHIP_SITE_ADMIN_EMAIL}}",
+          "SEED_MEMBERSHIP_SITE_ADMIN_PASSWORD": "{{SEED_MEMBERSHIP_SITE_ADMIN_PASSWORD}}"
+        },
+        "enabled": true
+      },
+      "flightsim": {
+        "command": "flightsim-server",
+        "args": [],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}"
+        },
+        "enabled": true
+      },
+      "brain-agent": {
+        "command": "brain-agent-server",
+        "args": [],
+        "env": {
+          "HEAVEN_DATA_DIR": "{{HEAVEN_DATA_DIR}}",
+          "OPENAI_API_KEY": "{{OPENAI_API_KEY}}"
+        },
+        "enabled": true
+      },
+      "sanctuary": {
+        "command": "sanctuary-server",
+        "args": [],
+        "enabled": true
+      }
+    }
+  }
+}
