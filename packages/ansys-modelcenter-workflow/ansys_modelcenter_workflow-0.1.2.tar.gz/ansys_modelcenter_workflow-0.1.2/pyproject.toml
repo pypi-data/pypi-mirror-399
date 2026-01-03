@@ -1,0 +1,90 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "ansys-modelcenter-workflow"
+version = "0.1.2"
+description = "A python wrapper for ModelCenter Desktop"
+readme = "README.rst"
+requires-python = ">=3.10,<4"
+license = {file = "LICENSE"}
+authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
+maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows :: Windows 7",
+    "Operating System :: Microsoft :: Windows :: Windows Vista",
+    "Operating System :: Microsoft :: Windows :: Windows 8",
+    "Operating System :: Microsoft :: Windows :: Windows 8.1",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Operating System :: Microsoft :: Windows :: Windows Server 2003",
+    "Operating System :: Microsoft :: Windows :: Windows Server 2008",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "ansys-platform-instancemanagement>=1.1.1",
+    "ansys-api-modelcenter>=0.3.1",
+    "numpy>=1.22.3",
+    "overrides>=6.1",
+    "pyansys-tools-variableinterop>=0.1.2",
+    "protobuf>=5.29.2",
+    "ansys-engineeringworkflow-api>=0.1.1",
+    "ansys-tools-common>=0.4.0"
+]
+
+[project.optional-dependencies]
+doc=[
+    "ansys-engineeringworkflow-api==0.1.1",
+    "ansys-sphinx-theme[autoapi]==1.6.4",
+    "numpydoc==1.10.0",
+    "pyansys-tools-variableinterop==0.1.2",
+    "pytest-sphinx==0.6.3",
+    "sphinx==8.2.3",
+    "sphinx-copybutton==0.5.2",
+    "sphinx-gallery==0.20.0",
+    "sphinx-notfound-page==1.1.0",
+]
+tests = [
+    "ansys-engineeringworkflow-api==0.1.1",
+    "grpcio==1.76.0",
+    "pyansys-tools-variableinterop==0.1.2",
+    "pytest==9.0.1",
+    "pytest-cov==7.0.0",
+]
+
+[tool.flit.module]
+name = "ansys.modelcenter.workflow"
+
+[project.urls]
+Source = "https://github.com/ansys/pymodelcenter"
+Issues = "https://github.com/ansys/pymodelcenter/issues"
+Discussions = "https://github.com/ansys/pymodelcenter/discussions"
+Documentation = "https://modelcenter.docs.pyansys.com"
+Releases = "https://github.com/ansys/pymodelcenter/releases"
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+force_sort_within_sections = true
+line_length = 100
+default_section = "THIRDPARTY"
+src_paths = ["doc", "src", "tests", "integration"]
+
+[tool.coverage.run]
+source = ["ansys.modelcenter.workflow"]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.pytest.ini_options]
+minversion = "7.1"
+addopts = "-ra --cov=ansys.modelcenter.workflow --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
+testpaths = ["tests"]
