@@ -1,0 +1,50 @@
+[project]
+name = "bthome-logger"
+version = "0.0.1"
+description = "BThome v2 BLE Advertisement Logger for debugging and monitoring BThome devices"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Daniel Bader", email = "mail@danielbader.de"}
+]
+maintainers = [
+    {name = "Daniel Bader", email = "mail@danielbader.de"}
+]
+keywords = ["bthome", "bluetooth", "ble", "home-assistant", "iot"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Home Automation",
+    "Topic :: System :: Monitoring",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "bleak>=0.21.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/the78mole/bthome-examples"
+Repository = "https://github.com/the78mole/bthome-examples"
+Issues = "https://github.com/the78mole/bthome-examples/issues"
+Documentation = "https://github.com/the78mole/bthome-examples/blob/main/tools/README.md"
+
+[project.scripts]
+bthome-logger = "bthome_logger:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+only-include = ["bthome-logger.py"]
+
+[tool.hatch.build.targets.sdist]
+only-include = ["bthome-logger.py", "README.md", "requirements.txt", "pyproject.toml"]
