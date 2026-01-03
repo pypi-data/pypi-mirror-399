@@ -1,0 +1,30 @@
+{
+  "name": "image_annotation",
+  "description": "Array of image annotations describing specific issues found in the student's submission image.",
+  "schema": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "A description of the problem or issue found in the image."
+        },
+        "location": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "description": "Bounding box coordinates in (x1, y1, x2, y2) format, where (x1, y1) is the top-left corner and (x2, y2) is the bottom-right corner."
+        }
+      },
+      "required": [
+        "description",
+        "location"
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "message_with_tags",
+  "description": "An AI message with optional metadata and a list of machine-readable tags (e.g., for routing or confidence).",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "output": {
+        "type": "string",
+        "minLength": 1,
+        "description": "The message text to display to the user."
+      },
+      "metadata": {
+        "type": "object",
+        "description": "Optional metadata about the generation (e.g., model, latency).",
+        "additionalProperties": true
+      },
+      "tags": {
+        "type": "array",
+        "description": "Labels describing attributes of the response. Use a 'confidence' tag to express certainty (e.g., 'confidence=0.82' or {\"name\":\"confidence\",\"value\":\"high\"}).",
+        "items": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "description": "Inline tag in 'key:value' or 'key=value' form (e.g., 'topic:recursion', 'confidence=0.82')."
+            },
+            {
+              "type": "object",
+              "description": "Structured tag.",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Tag key (e.g., 'topic', 'confidence')."
+                },
+                "value": {
+                  "type": ["string", "number", "boolean"],
+                  "description": "Tag value (e.g., 'recursion', 0.82, true)."
+                }
+              },
+              "required": ["name", "value"],
+              "additionalProperties": false
+            }
+          ]
+        }
+      }
+    },
+    "required": ["output", "tags"],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "student_code_annotation",
+  "description": "List of code annotations describing specific mistakes in the student's code.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "annotations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "filename": {
+              "type": "string",
+              "description": "The name of the student's file where the issue was found."
+            },
+            "content": {
+              "type": "string",
+              "description": "A short description of the mistake or issue."
+            },
+            "line_start": {
+              "type": "integer",
+              "description": "The starting line number where the issue begins.",
+              "minimum": 1
+            },
+            "line_end": {
+              "type": "integer",
+              "description": "The ending line number where the issue ends.",
+              "minimum": 1
+            },
+            "column_start": {
+              "type": "integer",
+              "description": "The starting column position of the mistake.",
+              "minimum": 0
+            },
+            "column_end": {
+              "type": "integer",
+              "description": "The ending column position of the mistake.",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "filename",
+            "content",
+            "line_start",
+            "line_end",
+            "column_start",
+            "column_end"
+          ]
+        }
+      }
+    },
+    "required": ["annotations"]
+  }
+}
