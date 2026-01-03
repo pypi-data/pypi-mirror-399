@@ -1,0 +1,56 @@
+Metadata-Version: 2.4
+Name: daerah_indonesia
+Version: 0.1.0
+Classifier: Programming Language :: Rust
+Classifier: Programming Language :: Python
+Classifier: License :: OSI Approved :: MIT License
+License-File: LICENSE
+Summary: Library Python untuk data wilayah Indonesia (Provinsi sampai Kelurahan) + Validasi NIK.
+Author-email: Nestero <nestero@mail.com>
+Requires-Python: >=3.14
+Description-Content-Type: text/markdown; charset=UTF-8; variant=GFM
+
+# Daerah Indonesia
+Library Python untuk data wilayah Indonesia (Provinsi sampai Kelurahan) + Validasi NIK.
+
+```python
+import daerah_indonesia
+
+# list provinsi
+daftar_provinsi = daerah_indonesia.provinsi()
+for p in daftar_provinsi[:3]:
+    print(f"{p.nama} ({p.kode})")
+
+# list kab/kota by provinsi 
+kabupaten = daerah_indonesia.daerah("kab_kota", 33) # 33 untuk jawa tengah
+for k in kabupaten[:3]:
+    print(f"{k.nama} ({k.kode})")
+        
+# list kecamatan by kab/kota
+kecamatan = daerah_indonesia.daerah("kecamatan", 3303) # 3303 untuk purbalingga
+print(f"Purbalingga memiliki {len(kecamatan)} kecamatan.")
+for kec in kecamatan[:3]:
+    print(f"{kec.nama} ({kec.kode})")
+
+# list kelurahan by kecamatan
+kelurahan = daerah_indonesia.daerah("kelurahan", 3303010) # 3303010 untuk kemangkon
+print(f"Kemangkon memiliki {len(kecamatan)} kelurahan/desa.")
+for kel in kelurahan[:3]:
+    print(f"{kel.nama} ({kel.kode})")
+
+# kode pos by kecamatan, bisa juga by provinsi, kab_kota, atau kelurahan tinggal di sesuaikan
+kode_pos = daerah_indonesia.kode_pos("kecamatan", 3303010) # 3303010 untuk kemangkon
+for pos in kode_pos:
+    print(f"kode pos {pos.nama}")
+    print(f"{pos.nama} ({pos.kode_pos})")
+
+# cek nik
+nik = "3374081205900001" # Contoh NIK (Semarang)
+data = daerah_indonesia.data_nik(nik)
+print(f"Info NIK: {data.nik}")
+print(f"Alamat: {data.kecamatan}, {data.kab_kota}, {data.provinsi}")
+print(f"Tanggal Lahir : {data.tanggal_lahir}")
+print(f"Jenis Kelamin : {data.jenis_kelamin}")
+print(f"No Reg: {data.no_registrasi}")
+```
+
