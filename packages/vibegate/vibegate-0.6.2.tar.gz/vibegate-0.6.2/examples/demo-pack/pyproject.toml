@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vibegate-demo-pack"
+version = "1.0.0"
+description = "Demo check pack for VibeGate showing CheckPack API usage"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["vibegate>=0.4.0"]
+authors = [
+    {name = "VibeGate Team", email = "noreply@example.com"},
+]
+
+[project.entry-points."vibegate.checkpacks"]
+demo = "vibegate_demo_pack.pack:DemoCheckPack"
+
+[tool.setuptools.packages.find]
+where = ["src"]
