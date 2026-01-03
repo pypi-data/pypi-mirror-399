@@ -1,0 +1,73 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cdd-flow"
+version = "0.1.0"
+description = "AI-Assisted Development Delivery System"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Gareth Dyne" }
+]
+keywords = [
+    "cdd",
+    "contract-driven-development",
+    "ai-development",
+    "workflow",
+    "automation"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Build Tools",
+]
+
+dependencies = [
+    "click>=8.0",
+    "pyyaml>=6.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+full = [
+    "cdd-context>=0.3.0",
+    "cdd-tooling>=0.1.1",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+cdd-flow = "cdd_flow.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/thegdyne/cdd-flow"
+Repository = "https://github.com/thegdyne/cdd-flow"
+Documentation = "https://github.com/thegdyne/cdd-flow/blob/main/SPEC.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cdd_flow"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
