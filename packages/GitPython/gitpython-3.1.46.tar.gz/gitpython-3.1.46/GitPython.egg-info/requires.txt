@@ -1,0 +1,28 @@
+gitdb<5,>=4.0.1
+
+[:python_version < "3.10"]
+typing-extensions>=3.10.0.2
+
+[doc]
+sphinx<7.2,>=7.1.2
+sphinx_rtd_theme
+sphinx-autodoc-typehints
+
+[test]
+coverage[toml]
+ddt!=1.4.3,>=1.1.1
+pre-commit
+pytest>=7.3.1
+pytest-cov
+pytest-instafail
+pytest-mock
+pytest-sugar
+
+[test:python_version < "3.11"]
+typing-extensions
+
+[test:python_version < "3.8"]
+mock
+
+[test:python_version >= "3.9"]
+mypy==1.18.2
