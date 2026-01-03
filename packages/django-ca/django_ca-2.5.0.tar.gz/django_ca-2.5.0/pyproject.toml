@@ -1,0 +1,638 @@
+[build-system]
+# Minimum requirements for the build system to execute (PEP-518)
+# >= 61: Add pyproject.toml support and setuptools.config.setupcfg.read_configuration
+# >= 68.1: "Promote pyproject.toml’s [tool.setuptools] out of beta." in the ChangeLog
+requires = ["setuptools>=68.1", "wheel", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[django-ca.release]
+# https://devguide.python.org/versions/#versions
+python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+# https://www.djangoproject.com/download/
+django = ["5.2", "6.0" ]
+cryptography = ["45", "46"]
+acme = ["5.0", "5.1", "5.2"]
+pydantic = ["2.11", "2.12"]
+josepy = ["2.1", "2.2"]
+# Newest uv release: https://pypi.org/project/uv/
+uv = "0.9.21"
+
+# https://www.postgresql.org/support/versioning/
+postgres = [
+    "16",  # until 2028-11-09
+    "17",  # until 2029-11-08
+    "18",  # until 2030-11-14
+]
+
+# MariaDB releases:
+#   * https://mariadb.org/mariadb/all-releases/
+#   * https://mariadb.org/about/#maintenance-policy
+mariadb = [
+    "11.4",  # LTS, until 2029-05-29
+    "11.8",  # LTS, until 2028-06-04
+    "12",  # latest rolling release
+]
+
+# MySQL releases:
+#   * https://dev.mysql.com/doc/refman/9.4/en/mysql-releases.html
+#   * https://blogs.oracle.com/mysql/post/introducing-mysql-innovation-and-longterm-support-lts-versions
+#   * https://endoflife.date/mysql
+# Innovation releases last just 2-3 months, so there is no point
+# in testing for them explicitly. Versions here are used as Docker
+# image tags.
+mysql = [
+    "8.4",  # until 2029-04-30
+    "9",  # Currently in innovation cycle, 9.7 will be next LTS release
+]
+
+# https://alpinelinux.org/releases/
+alpine = [
+    "3.20",  # until 2026-04-01
+    "3.21",  # until 2026-11-01
+    "3.22",  # until 2027-05-01
+    "3.23",  # until 2027-11-01
+]
+
+# List of tested Debian releases:
+#   https://en.wikipedia.org/wiki/Debian_version_history#Release_table
+debian-releases = [
+    "bullseye",  # until June 2026
+    "bookworm",  # until June 2028
+    "trixie",  # until June 2030
+]
+
+# List of tested Ubuntu releases:
+#   https://en.wikipedia.org/wiki/Ubuntu_version_history#Table_of_versions
+ubuntu-releases = [
+    "jammy",  # 22.04, until 2027-04-21
+    "noble",  # 24.04, until 2029-05-31
+    "plucky",  # 25.04, until 2026-01
+    "questing",  # 25.10, until 2026-07-09
+]
+
+[django-ca.release.github]
+# Action versions can be retrieved directly from the GitHub "marketplace", e.g.:
+#   https://github.com/marketplace/actions/checkout
+actions."actions/checkout" = "v5.0.0"
+actions."actions/setup-python" = "v6.0.0"
+actions."actions/cache" = "v4.2.4"
+actions."actions/attest-build-provenance" = "v3.0.0"
+actions."actions/download-artifact" = "v4.2.1"
+actions."actions/upload-artifact" = "v4.6.2"
+# CodeQL actions are actually all in the same repository:
+#   https://github.com/github/codeql-action
+actions."github/codeql-action/init" = "v3"
+actions."github/codeql-action/analyze" = "v3"
+# https://github.com/marketplace/actions/astral-sh-setup-uv
+actions."astral-sh/setup-uv" = "v6.6.1"
+# https://github.com/marketplace/actions/pypi-publish
+actions."pypa/gh-action-pypi-publish" = "v1.13.0"
+# https://github.com/marketplace/actions/gh-action-sigstore-python
+actions."sigstore/gh-action-sigstore-python" = "v3.0.1"
+# https://github.com/marketplace/actions/docker-login
+actions."docker/login-action" = "v3.5.0"
+# https://github.com/docker/setup-buildx-action
+actions."docker/setup-buildx-action" = "v3.12.0"
+# https://github.com/marketplace/actions/build-and-push-docker-images
+actions."docker/build-push-action" = "v6.18.0"
+# https://github.com/marketplace/actions/docker-metadata-action
+actions."docker/metadata-action" = "v5.8.0"
+
+[django-ca.validation]
+# list glob-style patterns to exclude from any check (currently only license headers)
+excludes = [
+    "ca/django_ca/migrations/*.py",
+    "docs/source/include/**/*.py",
+]
+# Files known to be stand-alone scripts (-> they include a shebang line)
+standalone-scripts = [
+    "ca/manage.py",
+    "devscripts/files/django-ca-dns-clean.py",
+    "devscripts/files/django-ca-dns-auth.py",
+    "devscripts/standalone/validate-testdata.py",
+    "devscripts/standalone/test-imports.py",
+    "devscripts/standalone/test-connectivity.py",
+    "devscripts/standalone/create-testdata.py",
+    "devscripts/standalone/clean.py",
+    "devscripts/standalone/check-clean-docker.py",
+]
+
+[project]
+# Valid keys: https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+name = "django-ca"
+authors = [
+    {name = "Mathias Ertl", email = "mati@er.tl"},
+]
+license = "GPL-3.0-or-later"
+description = "A Django app providing a TLS certificate authority."
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Security",
+    "Typing :: Typed",
+]
+
+# Dynamic metadata, further specified in the tool.setuptools.dynamic section below
+dynamic = ["version", "readme"]
+
+# Dependency information
+requires-python = ">=3.10"
+dependencies = [
+    "Django~=5.2.0;python_version<'3.12'",
+    "Django>=5.2;python_version>='3.12'",
+    "acme>=5.0",
+    "asn1crypto>=1.5",
+    "cryptography>=45",
+    "django-object-actions>=5.0",
+    "dnspython>=2.7",
+    "idna>=3.10",
+    "josepy>=2.1.0",
+    "packaging",
+    "pydantic>=2.11",
+    "requests>=2.32.3",
+    # typing_extensions==4.6.0 adds TypeAliasType, which was added in Python 3.12
+    "typing_extensions>=4.6.0;python_version<'3.12'",
+]
+
+[project.optional-dependencies]
+api = ["django-ninja>=1.5.1"]
+celery = ["celery>=5.5"]
+hsm = ["python-pkcs11>=0.9"]
+mysql = ["mysqlclient"]
+postgres = ["psycopg[c,pool]>=3.1"]
+redis = ["hiredis>=3.1.0", "redis>=6.0"]
+yaml = ["PyYAML>=6.0.0"]
+
+[project.urls]
+Homepage = "https://github.com/mathiasertl/django-ca/"
+Documentation = "https://django-ca.readthedocs.io/"
+Source = "https://github.com/mathiasertl/django-ca/"
+Issues = "https://github.com/mathiasertl/django-ca/issues"
+Changelog = "https://django-ca.readthedocs.io/en/latest/changelog.html"
+
+[tool.coverage.report]
+exclude_lines = [
+    "^\\s*@(abc.)?abstractmethod",
+    "^\\s*@(typing.)?overload",
+    "^\\s*if (typing.)?TYPE_CHECKING:",
+    "pragma: no ?cover",
+]
+
+[tool.coverage.run]
+source = [
+    "django_ca",
+    "ca.settings_utils",
+]
+branch = true
+omit = [
+    #"*/migrations/*",
+    "*/tests/tests*",
+    "*/tests/**/test_*",
+    "ca/django_ca/mypy.py",
+]
+
+[tool.doc8]
+max-line-length = 110
+ignore = [
+    "D000",
+]
+
+# NOTE: ideally, we would use ignore-path-errors to only ignore long lines, but doc8
+#       does not support directories for that.
+ignore-path = [
+    "docs/source/generated/",
+]
+
+[tool.mypy]
+strict = true
+show_error_codes = true
+mypy_path = "ca/:stubs/:docs/source/"
+exclude = [
+    "dist/",  # mypy complains about an extracted wheel
+    "migrations/.*\\.py$",
+    "docs/source/include/key_backend_tutorial/create_key_example.py",
+]
+plugins = [
+    "mypy_django_plugin.main",
+    "pydantic.mypy",
+    "django_ca.mypy",
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "asn1crypto.*",
+    # docker==6.1.3 does not have typehints. See also:
+    #   https://github.com/docker/docker-py/issues/2796
+    "docker.*",
+    "enchant.tokenize",
+    "httpcore.*",
+    "pkcs11.*",
+    "pkcs11.util.*",
+    # psycopg and psycopg_c are not installed in isolated mypy envs (tox, ...)
+    "psycopg",
+    "psycopg_c",
+    "pytest_cov.*",
+    "requests.packages.urllib3.response",
+    # semantic-version==2.10.0 does not have typehints. See also:
+    #   https://github.com/rbarrois/python-semanticversion/issues/138
+    "semantic_version",
+    "sphinx_rtd_theme",
+    "sphinxcontrib",
+    "sniffio",
+    # Identical to tomllib from Python 3.11, becomes unused once Python 3.10 is dropped
+    "tomli",
+]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "ca.test_settings"
+
+[tool.pydocstyle]
+convention = "numpy"
+add-ignore = "D102"
+match = "(?!tests?_).*\\.py"
+
+[tool.pylint.master]
+load-plugins = "pylint_django"
+
+# Allow both snake-case and UPPER_CASE for class constants/enums
+class-const-rgx = "(?:(?P<snake>[a-z_]+)|(?P<upper>[A-Z_]+))"
+
+# Allow dashes in module names (= top level scripts)
+module-rgx = "[a-z_][a-z_-]+"
+
+# ignore migrations
+ignore-paths = [
+    "ca/django_ca/migrations",
+]
+
+# Configure Django
+init-hook = "import os, sys; sys.path.insert(0, os.path.abspath('ca'))"
+django-settings-module = "ca.test_settings"
+
+[tool.pylint.basic]
+good-names = [
+    "ca",
+    "cn",
+    "ex",
+    "pk",
+    "e",  # TODO: consistently use ex
+    "i",
+    "k",
+]
+
+[tool.pylint.classes]
+exclude-protected = ["_default_manager"]
+
+[tool.pylint.design]
+# Maximum number of attributes for a class (see R0902).
+max-attributes = 20
+
+# Maximum number of parents for a class (see R0914).
+max-locals = 20
+
+# Maximum number of parents for a class (see R0901).
+max-parents = 15
+
+# Maximum number of public methods for a class (see R0904).
+max-public-methods = 30
+
+[tool.pylint.format]
+max-line-length = 110
+
+# TODO: could be reduced to 1500, only some test modulesare  over that
+max-module-lines = 3000
+
+[tool.pylint.messages_control]
+enable = [
+    "useless-suppression",
+]
+
+# https://pylint.readthedocs.io/en/latest/faq.html?highlight=flake8#i-am-using-another-popular-linter-alongside-pylint-which-messages-should-i-disable-to-avoid-duplicates
+disable = [
+    "too-many-positional-arguments",
+    # devscripts have some larger overlapping parts
+    "duplicate-code",
+    # pylint is just buggy with TypedDict inheritance.
+    "inherit-non-class",
+
+    # These are just annoying
+    "too-few-public-methods",
+    "fixme",
+
+    # covered by isort:
+    "wrong-import-order",
+
+    # covered by pyflakes:
+    "undefined-variable",  # also mypy
+    "unused-import",
+    "unused-variable",
+
+    # covered by ruff/pylint:
+    "import-outside-toplevel",  # ruff: PLC0415
+    "typevar-name-incorrect-variance", # ruff: PLC0105
+    "typevar-double-variance",  # ruff: PLC0131
+    "single-string-used-for-slots", # ruff: PLC0205
+    "subprocess-run-check",  # ruff: PLW1510
+    "too-many-arguments",  # ruff: PLR0913
+    "too-many-branches",  # ruff: PLR0912
+    "too-many-return-statements",  # ruff: PLR0911
+    "too-many-statements",  # ruff: PLR0915
+    "use-sequence-for-iteration",  # ruff: PLC0208
+    "useless-import-alias",  # ruff: PLC0414
+    "comparison-with-itself",  # ruff: PLR0124
+
+    # covered by ruff/flake8-bugbear
+    "pointless-statement",  # ruff: B018
+    "expression-not-assigned",  # ruff: B018
+    "raise-missing-from",  # ruff: B904
+
+    # covered by ruff/pycodestyle:
+    "bad-indentation",
+    "bare-except",
+    "line-too-long",
+    "missing-class-docstring",
+    "missing-final-newline",
+    "multiple-statements",
+    "trailing-whitespace",
+    "unnecessary-semicolon",
+    "unneeded-not",
+
+    # (seems to be) covered by mypy
+    "unsubscriptable-object",  # mypy: index
+    "arguments-differ",
+    "no-value-for-parameter",  # mypy: call-arg
+    "inconsistent-return-statements",
+    "assignment-from-no-return",
+    "import-error",  # mypy: import
+    "abstract-class-instantiated",  # mypy: abstract
+    "not-an-iterable",
+    "no-name-in-module",  # mypy: attr-defined
+
+    # pylint==2.7.2 shows the error for cyclic imports in arbitrary locations, making them impossible to
+    # disable for specific cases. mypy requires cyclic imports for type annotiations, which are usually
+    # protected by TYPE_CHECKING - but pylint doesn't know that.
+    #   https://github.com/PyCQA/pylint/issues/850
+    #   https://github.com/PyCQA/pylint/issues/59
+    #   https://github.com/landscapeio/landscape-issues/issues/214
+    "cyclic-import",
+
+    # pylint==2.9.3 does not detect methods returning a sequence as such:
+    #   https://github.com/PyCQA/pylint/issues/4696
+    "unpacking-non-sequence",
+]
+
+[tool.pylint.similarities]
+# Ignore comments when computing similarities.
+ignore-comments = "yes"
+
+# Ignore docstrings when computing similarities.
+ignore-docstrings = "yes"
+
+# Ignore imports when computing similarities.
+ignore-imports = "yes"
+
+# Minimum lines number of a similarity.
+min-similarity-lines = 16
+
+[tool.pytest.ini_options]
+env = [
+    # Set COLUMNS, which is used by argparse to determine the terminal width. If this is not set, the output of
+    # some argparse commands depend on the terminal size.
+    "COLUMNS=80",
+    # Set DJANGO_SETTINGS_MODULE early via pytest-env. This is necessary due to a complex interaction:
+    # 1. coverage covers ca/settings_utils.py
+    # 2. coverage loads ca.settings_utils -> ca -> ca.celery - BEFORE pytest-django is set up
+    # 3. ca.celery calls os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ca.settings")
+    # -> when settings are loaded the first time, DJANGO_SETTINGS_MODULE is defined (as ca.settings).
+    "DJANGO_SETTINGS_MODULE=ca.test_settings",
+]
+DJANGO_SETTINGS_MODULE = "ca.test_settings"
+addopts = [
+    "--cov",
+    "--cov-report=html:docs/build/coverage/",
+    "--cov-fail-under=100",
+    "--random-order",
+]
+pythonpath = [
+    "ca",
+    "docs/source/"
+]
+testpaths = "ca/django_ca/"
+filterwarnings = [
+    "always",
+    "error:::django_ca",
+    "error:::django",
+    "error:::cryptography",
+    "error:::acme",
+    "error:::josepy",
+    "error:::pydantic",
+
+    # django-ninja==1.5.1
+    #   Found in 1.5.1, only shows up in Python 3.14.
+    "ignore:'asyncio.iscoroutinefunction' is deprecated and slated for removal in Python 3.16::ninja.signature.utils",
+]
+
+[tool.ruff]
+extend-exclude = ["migrations", "stubs"]
+line-length = 110
+
+[tool.ruff.lint]
+extend-select = [
+    "B",  # flake8-bugbear
+    "D",  # pydocstyle
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "I",  # isort
+    "G",  # flake8-logging-format
+    "DJ",  # flake8-django
+    "PL",  # pylint
+    "PT",  # flake8-pytest-style
+    "UP",  # pyupgrade
+    "RUF",  # ruff specific checks
+]
+
+ignore = [
+    "D102",  # Missing docstring in public method - includes inherited methods
+    "D104",  # Missing docstring in public package - includes even empty __init__.py files
+    "D105",  # Missing docstring in magic method - includes __str__() etc
+    "D106",  # Missing docstring in public nested class - includes Meta/Media classes
+    "D301",  # Use `r"""` if any backslashes in a docstring - incompatible with doctests!
+    "D401",  # First line of docstring should be in imperative mood
+    "PLR2004",  # Magic value used in comparison - not disabled in default pylint
+    "PLW2901",  # redefined-loop-name - not disabled in default pylint
+]
+unfixable = [
+    "PLW1510",  # `subprocess.run` without explicit `check` argument - not deemed safe
+]
+
+[tool.ruff.lint.flake8-pytest-style]
+parametrize-values-type = "tuple"
+
+[tool.ruff.lint.isort]
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "crypto",
+    "django",
+    "django-addon",
+    "test",
+    "first-party",
+    "local-folder",
+]
+known-first-party = ["django_ca", "ca"]
+combine-as-imports = true
+
+[tool.ruff.lint.isort.sections]
+django = ["django"]
+django-addon = ["django_object_actions"]
+crypto = ["cryptography", "ocspbuilder", "asn1crypto", "oscrypto", "OpenSSL"]
+test = [
+    "_pytest",
+    "django_webtest",
+    "freezegun",
+    "pytest",
+    "pytest_cov",
+    "pytest_django",
+    "pyvirtualdisplay",
+    "requests_mock",
+    "selenium",
+    "webtest",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pylint]
+# Maximum number of arguments allowed for a function or method definition (see: PLR0913).
+max-args = 10
+
+# Maximum number of branch for function / method body (see R0912).
+max-branches = 20
+
+# Maximum number of return / yield for function / method body (see R0911).
+max-returns = 8
+
+# Maximum number of statements in function / method body (see R0915).
+max-statements = 60
+
+[tool.setuptools.dynamic]
+# NOTE: readme is equivalent to long_description in setup.cfg
+readme = {file = ["docs/source/intro.rst"], content-type = "text/x-rst"}
+
+[tool.setuptools.packages.find]
+where = ["ca"]
+include = ["django_ca*"]
+exclude = ["django_ca.tests*"]
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
+
+[tool.uv]
+required-version = "0.9.21"
+default-groups = ["dev", "dist", "docs", "lint", "mypy", "local"]
+conflicts = [
+    [ { group = "DjangoLTS" }, { group = "django5.2" }, { group = "django6.0" }, ],
+    [ { group = "cryptography45" }, { group = "cryptography46" }, ],
+    [ { group = "acme5.0" }, { group = "acme5.1" }, { group = "acme5.2" }, ],
+    [ { group = "pydantic2.11" }, { group = "pydantic2.12" }, ],
+]
+
+[dependency-groups]
+dev = [
+    "coverage[toml]>=7.6.12",
+    "django-webtest>=1.9.12",
+    "freezegun>=1.5.1",
+    "gitpython>=3.1.44",
+    "jinja2>=3.1.6",
+    "pyopenssl>=23",
+    "pyrfc3339>=2.0.1",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "pytest-django>=4.10.0",
+    "pytest-env>=1.1.5",
+    "pytest-freezer>=0.4.9",
+    "pytest-random-order>=1.1.1",
+    "pyvirtualdisplay>=3.0",
+    "pyyaml>=6.0.2",
+    "requests-mock>=1.12.1",
+    "selenium>=4.29.0",
+    "semantic-version>=2.10.0",
+    "sphinx~=8.2.0;python_version>='3.11'",
+    "sphinx~=8.1.0;python_version<'3.11'",
+    "sphinxcontrib-spelling>=8.0.1",
+    "tabulate>=0.9.0",
+    "termcolor>=2.5.0",
+    "tomli>=2.2.1 ; python_full_version < '3.11'",
+    "sphinx-copybutton>=0.5.2",
+    "structured-tutorials>=0.1.0",
+]
+dist = [
+    "setuptools-scm>=8.2.0",
+]
+docs = [
+    "doc8>=1.1.2",
+    "numpydoc>=1.8.0",
+    "sphinx-inline-tabs>=2023.4.21",
+    "sphinx-jinja>=2.0.2",
+    "sphinx-rtd-theme>=3.0.2",
+    "sphinxcontrib-openapi>=0.8.4",
+    "sphinxcontrib-spelling>=8.0.1",
+]
+local = [
+    "docker>=7.1.0",
+    "ipython>=7.28.0",
+    "pytest-xdist>=3.6.1",
+    "tox>=4.18.0",
+    "tox-uv>=1.25.0",
+    "wheel-inspect>=1.7.2",
+]
+lint = [
+    "pre-commit>=4.1.0",
+    "pylint>=3.3.4",
+    "pylint-django>=2.6.1",
+    "ruff>=0.14.10",
+]
+mypy = [
+    "django-stubs>=5.1.3",
+    "mypy>=1.15.0",
+    "types-docutils>=0.21.0.20241128",
+    "types-freezegun>=1.1.10",
+    "types-jinja2>=2.11.9",
+    "types-mysqlclient>=2.2.0.20241221",
+    "types-psycopg2>=2.9.21.20250121",
+    "types-pyopenssl>=24.1.0.20240722",
+    "types-pyrfc3339>=2.0.1.20241107",
+    "types-pytz>=2025.1.0.20250204",
+    "types-redis>=4.6.0.20241004",
+    "types-requests>=2.32.0.20250301",
+    "types-setuptools>=75.8.2.20250301",
+    "types-tabulate>=0.9.0.20241207",
+]
+gunicorn = [ "gunicorn>=23" ]
+
+# Dependency groups for use in test matrices (tox, GitHub actions, ...)
+# NOTE: don't forget to add conflicts in [tool.uv] above.
+"DjangoLTS" = ["Django~=5.2.0"]
+"Django5.2" = ["Django~=5.2.0"]
+"Django6.0" = ["Django~=6.0.0;python_version>='3.12'"]
+"cryptography45" = ["cryptography~=45.0"]
+"cryptography46" = ["cryptography~=46.0"]
+"acme5.0" = ["acme~=5.0.0"]
+"acme5.1" = ["acme~=5.1.0"]
+"acme5.2" = ["acme~=5.2.0"]
+"pydantic2.11" = ["pydantic~=2.11.0"]
+"pydantic2.12" = ["pydantic~=2.12.0"]

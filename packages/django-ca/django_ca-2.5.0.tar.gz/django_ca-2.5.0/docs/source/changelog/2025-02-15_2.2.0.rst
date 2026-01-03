@@ -1,0 +1,67 @@
+##################
+2.2.0 (2025-02-15)
+##################
+
+.. NOTE::
+
+   This release is ahead of schedule due to customer requirements in downstream plugins.
+
+* Key backends now support signing arbitrary data. This functionality is not used by django-ca itself, but may
+  be used by plugins.
+* Optimize number of database queries in performance-sensitive views (OCSP, CRLs, ACMEv2).
+* Fix error for OCSP queries for intermediate CAs.
+* Add support for storing/importing Ed25519 and Ed448 keys into HSMs.
+
+**********************
+Command-line utilities
+**********************
+
+* Drop support for old OpenSSL-style subject formats in :command:`manage.py init_ca`,
+  :command:`manage.py sign_cert` and :command:`manage.py resign_cert` (default switched in 2.0.0, deprecated
+  since 1.27.0). Use RFC 4514 subjects instead.
+
+********
+Settings
+********
+
+* Dropped support for the old subject format in :ref:`settings-ca-default-subject` and subjects in profiles
+  (deprecated since 1.29.0).
+* Project-level configuration now allows you to append to the projects URL configuration via
+  `EXTEND_URL_PATTERNS <settings-extend-url-patterns>`_ and :ref:`EXTEND_INSTALLED_APPS
+  <settings-extend-installed-apps>`. The latter replaces ``CA_CUSTOM_APPS``, which is deprecated and will be
+  removed in ``django-ca==2.5.0``.
+
+************
+Dependencies
+************
+
+* Add support for ``acme~=3.1.0`` and ``acme~=3.2.0``.
+* **BACKWARDS INCOMPATIBLE:** Dropped support for ``django~=5.0.0``, ``cryptography~=43.0``, ``acme~=2.11.0``
+  and ``pydantic~=2.9.0``.
+* **BACKWARDS INCOMPATIBLE:** Dropped support for Alpine 3.18.
+
+**********
+Python API
+**********
+
+* ``django_ca.utils.get_storage()`` was removed (deprecated since 2.0).
+* Key backends now expose :py:func:`~django_ca.key_backends.KeyBackend.sign_data` to sign arbitrary data.
+
+*******************
+Deprecation notices
+*******************
+
+* ``CA_CUSTOM_APPS`, a project-level configuration variable, is deprecated and will be removed in
+  ``django-ca==2.5.0``.
+* This will be the last release to support Debian 11 (Bullseye) and Alpine 3.19.
+* This will be the last release to support ``josepy~=1.15.0``, ``acme~=3.0.0`` and ``acme~=3.1.0``.
+* ``django_ca.extensions.parse_extension()`` is deprecated and will be removed in ``django-ca==2.3.0``. Use
+  :doc:`Pydantic models </python/pydantic>` instead.
+* Functions related to the old OpenSSL style subject format are deprecated and will be removed in
+  ``django_ca==2.3.0``:
+
+  * ``django_ca.utils.parse_name_x509()``
+  * ``django_ca.utils.parse_serialized_name_attributes()``
+  * ``django_ca.utils.serialize_name()``
+  * ``django_ca.utils.split_str()``
+  * ``django_ca.utils.x509_name()``

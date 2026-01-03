@@ -1,0 +1,10 @@
+{% extends "django_ca/admin/extensions/base/base.html" %}
+{# BasicConstraings extension #}
+
+{% block content %}
+{% if value.ca %}
+  CA: True{% if value.path_length is not None %}, path length: {{ value.path_length }}{% endif %}
+{% else %}
+  CA: False
+{% endif %}
+{% endblock content %}

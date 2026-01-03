@@ -1,0 +1,29 @@
+#!/bin/sh -e
+#
+# Wrapper script for django-ca's manage.py script. 
+
+# Location of config files. The variable name matches what SystemD sets via ConfigurationDirectory=.
+CONFIGURATION_DIRECTORY=${CONFIGURATION_DIRECTORY:-/etc/django-ca}
+SYSTEM_USER=${SYSTEM_USER:-django-ca}
+
+# Source service configuration
+. ${CONFIGURATION_DIRECTORY}/systemd.conf
+
+if [ -e "${CONFIGURATION_DIRECTORY}/systemd-local.conf" ]; then
+    . ${CONFIGURATION_DIRECTORY}/systemd-local.conf
+fi
+
+FORCE_USER=${FORCE_USER:-$SYSTEM_USER}
+
+# Export CONFIGURATION_DIRECTORY, as settings.py will load this variable to look for YAML config files.
+export CONFIGURATION_DIRECTORY
+
+PYTHON="${VIRTUAL_ENV}/bin/python"
+
+# Finally, call manage.py
+if [ -z "$FORCE_USER" ]; then
+    ${PYTHON} ${INSTALL_BASE}/ca/manage.py "$@"
+else
+    # NOTE: This su abomination is the only way I could figure out how to pass "$@" to manage.py.
+    su $FORCE_USER -s /bin/sh -c 'exec "$0" "$@"' -- $PYTHON ${INSTALL_BASE}/ca/manage.py "$@"
+fi

@@ -1,0 +1,130 @@
+###################
+1.29.0 (2024-07-01)
+###################
+
+* Fix the `encoding` GET parameter when retrieving certificate revocation lists.
+* Configuring a password in a certificate revocation list view is deprecated. Use the ``CA_PASSWORDS`` setting
+  instead. The feature will be removed in 2.1.0.
+
+**********************
+Command-line utilities
+**********************
+
+* :command:`manage.py sign_cert` and :command:`manage.py resign_cert` now verify that the certificate
+  authority used for signing has expired, is revoked or disabled.
+* :command:`manage.py init_ca` now use the new :ref:`settings-ca-default-private-key-type` setting as default
+  private key type.
+
+********
+Profiles
+********
+
+* Extensions in profiles now use the same syntax as in the API. This change only affects extensions usually
+  not set via profiles, such as the CRL Distribution Points or Authority Information Access extensions.
+  See :ref:`profiles-extensions` for the new format. Support for the old format will be removed in 2.0.0.
+* **BACKWARDS INCOMPATIBLE:** Removed support for the ``cn_in_san`` parameter in profiles (deprecated since
+  1.28.0).
+
+********
+Settings
+********
+
+django-ca specific settings where moved to a Pydantic model, providing better and more consistent setting
+validation on start up and more type safety at runtime.
+
+* :ref:`settings-ca-default-subject` and subjects in profiles now support the same (more verbose) format
+  as exposed via the API. Support for the old format will be removed in 2.2.0.
+* :ref:`settings-ca-default-expires`, the default expiry time for certificates created *without* ACMEv2, now
+  has a default value of 365 days. The minimum value is now also one day (instead of just a positive value).
+* Consistently parse serials in :ref:`settings-ca-default-ca` :ref:`settings-ca-passwords` and
+  :ref:`settings-ca-crl-profiles` overrides so that colons (``":"``) and leading zeros (as added by command
+  line tools to beautify serials) are stripped.
+
+Many settings now have more strictly enforced limits, meant to catch configuration mistakes earlier:
+
+* :ref:`settings-ca-min-key-size` and :ref:`settings-ca-default-key-size` now enforce a minimum key size of
+  1024 bit. Cryptography already enforces this limit, so this just catches a mistake earlier.
+* :ref:`CA_ACME_ORDER_VALIDITY` now has a minimum value of 60 seconds and a maximum value of one day.
+* :ref:`CA_ACME_DEFAULT_CERT_VALIDITY` and :ref:`CA_ACME_MAX_CERT_VALIDITY` now have a minimum value of
+  one day and a maximum value of 365 days.
+* :ref:`settings-ca-ocsp-responder-certificate-renewal` now has a minimum value of two hours (the task to
+  renew certificates runs every hour, so any lower value will cause problems).
+
+************
+Docker image
+************
+
+* Docker image is now based on Alpine 3.20.
+
+************
+Dependencies
+************
+
+* Add support for Alpine 3.20 and Ubuntu 24.04.
+* Add support for ``acme~=2.10.0``, ``acme~=2.11.0`` and ``pydantic~=2.7.0``.
+* **BACKWARDS INCOMPATIBLE:** Dropped support for Python 3.8.
+* **BACKWARDS INCOMPATIBLE:** Dropped support for ``cryptography~=41.0``, ``acme~=2.7.0`` and ``acme~=2.8.0``.
+* Increased minimum required versions to ``dnspython>=2.5``, ``hiredis>=2.1.0``, ``idna>=3.4``,
+  ``psycopg>=3.1`` and ``redis>=4.6``.
+
+**********
+Python API
+**********
+
+* **BACKWARDS INCOMPATIBLE:** Removed ``django_ca.utils.parse_hash_algorithm()``, deprecated since
+  1.25.0. Use :py:attr:`standard hash algorithm names <django_ca.typehints.SignatureHashAlgorithmName>`
+  instead.
+* **BACKWARDS INCOMPATIBLE:** Removed ``django_ca.utils.format_name()``, deprecated since 1.27.0. Use RFC
+  4514-formatted subjects instead.
+* **BACKWARDS INCOMPATIBLE:** Removed ``django_ca.utils.is_power2()``, use
+  ``django_ca.pydantic.validators.is_power_two_validator`` instead.
+* **BACKWARDS INCOMPATIBLE:** Removed the `password` parameter to
+  :py:func:`~django_ca.models.CertificateAuthority.sign`. It was a left-over and only used in the signal.
+* :py:func:`django_ca.managers.CertificateAuthorityManager.init`:
+
+  * **BACKWARDS INCOMPATIBLE:** The `expires` parameter is now mandatory, and should be a timezone-aware
+    datetime. Support for passing ``int`` or ``timedelta`` will be removed in 2.0.0.
+  * The `extensions` parameter no longer accepts extensions that are not valid for certificates.
+
+* :py:func:`django_ca.managers.CertificateManager.create_cert`:
+
+  * **BACKWARDS INCOMPATIBLE:** The `expires` parameter is now mandatory, and should be a ``timedelta`` or
+    timezone-aware datetime. Support for passing an ``int`` will be removed in 2.0.0.
+  * The `extensions` parameter no longer accepts extensions that are not valid for end entity certificates.
+
+* All Pydantic models are now exported under ``django_ca.pydantic``.
+* Add literal typehints for extension keys under :py:attr:`~django_ca.typehints.ExtensionKey` and
+  :py:attr:`~django_ca.typehints.CertificateExtensionKey` to improve type hinting.
+* Add :py:attr:`~django_ca.constants.CERTIFICATE_EXTENSION_KEYS`, a subset of
+  :py:attr:`~django_ca.constants.EXTENSION_KEYS`, for extensions all extensions that may occur in
+  end-entity certificates.
+
+*************
+Documentation
+*************
+
+* A detailed deprecation timeline is now available under :doc:`/deprecation`.
+* Pydantic models wrapping cryptography classes are now documented using specialized extension, showing valid
+  values as Pydantic model and JSON, as well as the equivalent value as cryptography class.
+
+*******
+Signals
+*******
+
+* :py:attr:`django_ca.signals.pre_sign_cert` now receives `key_backend_options` instead of `password`.
+
+*******************
+Deprecation notices
+*******************
+
+Please see the :doc:`deprecation timeline </deprecation>` for a detailed timeline of deprecated features.
+
+* This is the last release to support ``celery~=5.3``, ``pydantic~=2.5.0``, ``acme~=2.9.0`` and
+  ``acme~=2.10.0``.
+* This will be the last release to support Alpine 3.17.
+* Support for the old extension format in profiles will be removed in 2.0.0.
+* Support for the old subject format in :ref:`settings-ca-default-subject` and subjects in profiles will be
+  removed in 2.2.0.
+* ``django_ca.extensions.parse_extension()`` will be removed in 2.0.0. Use Pydantic models instead.
+* Configuring passwords in certificate revocation list views will be removed in 2.1.0. Use the
+  ``CA_PASSWORDS`` setting instead.

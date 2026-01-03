@@ -1,0 +1,39 @@
+name: Tests with faked time
+on:
+  push:
+  pull_request:
+
+env:
+  UV_PYTHON_PREFERENCE: only-system
+  UV_NO_SYNC: 1
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    name: libfaketime test
+    steps:
+      - name: Install APT dependencies
+        run: sudo apt-get install -y softhsm2 faketime
+
+      - name: Acquire sources
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6.0.0
+        with:
+          python-version: "3.14"
+          architecture: x64
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.6.1
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --extra api --extra celery --extra hsm --no-default-groups --group dev
+
+      - name: Run tests
+        run: faketime -f +100y uv run pytest -vx --no-selenium --cov-report term-missing --durations=20

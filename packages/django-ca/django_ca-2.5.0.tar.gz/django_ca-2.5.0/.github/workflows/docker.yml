@@ -1,0 +1,208 @@
+name: Docker
+on:
+  push:
+  pull_request:
+
+env:
+  UV_PYTHON_PREFERENCE: only-system
+  UV_NO_SYNC: 1
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  calc-version:
+    name: Calculate version
+    runs-on: ubuntu-latest
+    outputs:
+      django-ca-version: ${{ steps.setuptools-scm.outputs.DJANGO_CA_VERSION }}
+    steps:
+      - name: Acquire sources
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6.0.0
+        with:
+          python-version: "3.14"
+          architecture: x64
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.6.1
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --no-default-groups --group dist
+
+      - name: Calculate version
+        run: echo "DJANGO_CA_VERSION=$(uv run -q python -m setuptools_scm)" >> $GITHUB_ENV
+
+      - name: Export version
+        id: setuptools-scm
+        run: echo "DJANGO_CA_VERSION=$DJANGO_CA_VERSION" | tee -a $GITHUB_OUTPUT
+
+  test:
+    name: Test main image
+    runs-on: ubuntu-latest
+    needs:
+      - calc-version
+    env:
+      DJANGO_CA_VERSION: ${{ needs.calc-version.outputs.django-ca-version }}
+    strategy:
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        debian-version: [ "bullseye", "bookworm", "trixie" ]
+        exclude:
+          # python:3.14-slim-bullseye is not built.
+          - python-version: "3.14"
+            debian-version: "bullseye"
+
+    steps:
+      # buildx is required for docker build cache reuse
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.12.0
+      - name: Acquire sources
+        uses: actions/checkout@v5.0.0
+      - name: Build test stage
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          push: false
+          tags: test.${{ matrix.python-version }}
+          target: test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            IMAGE=python:${{ matrix.python-version }}-slim-${{ matrix.debian-version }}
+            DJANGO_CA_VERSION=${{ env.DJANGO_CA_VERSION }}+py${{ matrix.python-version }}
+            COVERAGE_ARGS=--no-cov
+
+  test-alpine:
+    name: Test Alpine image
+    runs-on: ubuntu-latest
+    needs:
+      - calc-version
+    env:
+      DJANGO_CA_VERSION: ${{ needs.calc-version.outputs.django-ca-version }}
+    strategy:
+      matrix:
+        alpine-version: [ "3.20", "3.21", "3.22", "3.23" ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        exclude:
+          # python:3.14-alpine3.20 is not built.
+          - python-version: "3.14"
+            alpine-version: "3.20"
+    steps:
+      # buildx is required for docker build cache reuse
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.12.0
+      - name: Acquire sources
+        uses: actions/checkout@v5.0.0
+      - name: Build test stage
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: .
+          push: false
+          tags: test.${{ matrix.python-version }}
+          target: test
+          file: Dockerfile.alpine
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            IMAGE=python:${{ matrix.python-version }}-alpine${{ matrix.alpine-version }}
+            DJANGO_CA_VERSION=${{ env.DJANGO_CA_VERSION }}+py${{ matrix.python-version }}
+            COVERAGE_ARGS=--no-cov
+
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+    needs:
+      - calc-version
+      - test
+    env:
+      BUILDKIT_PROGRESS: plain
+      DJANGO_CA_VERSION: ${{ needs.calc-version.outputs.django-ca-version }}
+      DOCKER_LATEST: ${{ startsWith(github.ref, 'refs/tags/') }}
+      DOCKER_SUFFIX: ""
+      DOCKERFILE: "Dockerfile"
+    permissions: &build-permissions
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    outputs: &build-outputs
+      tags: ${{ steps.build-and-upload.outputs.tags }}
+      digest: ${{ steps.build-and-upload.outputs.digest }}
+    steps: &build-steps
+      # buildx is required for docker build cache reuse
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.12.0
+
+      - name: Acquire sources
+        uses: actions/checkout@v5.0.0
+
+      - id: build-and-upload
+        name: Build and upload Docker image
+        uses: ./.github/actions/build-docker-image
+        with:
+          # Pushing the image if building on the main branch or for a tag
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ env.DJANGO_CA_VERSION }}
+          # Build `latest` flavor when building a tag (== new release)
+          latest: ${{ env.DOCKER_LATEST }}
+          suffix: ${{ env.DOCKER_SUFFIX }}
+          add-date-suffix: ${{ startsWith(github.ref, 'refs/tags/') }}
+          dockerfile: ${{ env.DOCKERFILE }}
+
+  upload:
+    name: Upload image
+    if: startsWith(github.ref, 'refs/tags/')  # only publish on tag pushes
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    env:
+      DOCKER_TAGS: ${{ needs.build.outputs.tags }}
+    environment: &upload-environment
+      name: Docker Hub
+      url: https://hub.docker.com/r/mathiasertl/django-ca
+    permissions: &upload-permissions
+      attestations: write
+      id-token: write
+    steps: &upload-steps
+      - uses: actions/checkout@v5.0.0
+      - id: upload-to-dockerhub
+        name: Upload image to Docker Hub
+        uses: ./.github/actions/push-to-dockerhub
+        with:
+          docker-hub-username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          docker-hub-token: ${{ secrets.DOCKER_HUB_TOKEN }}
+          tags: ${{ env.DOCKER_TAGS }}
+
+  build-alpine:
+    name: Build Alpine image
+    runs-on: ubuntu-latest
+    needs:
+      - calc-version
+      - test-alpine
+    env:
+      DJANGO_CA_VERSION: ${{ needs.calc-version.outputs.django-ca-version }}
+      DOCKER_LATEST: "false"
+      DOCKER_SUFFIX: "-alpine"
+      DOCKERFILE: "Dockerfile.alpine"
+    permissions: *build-permissions
+    outputs: *build-outputs
+    steps: *build-steps
+
+  upload-alpine:
+    name: Upload image (Alpine)
+    if: startsWith(github.ref, 'refs/tags/')  # only publish on tag pushes
+    runs-on: ubuntu-latest
+    needs:
+      - build-alpine
+    env:
+      DOCKER_TAGS: ${{ needs.build-alpine.outputs.tags }}
+    environment: *upload-environment
+    permissions: *upload-permissions
+    steps: *upload-steps

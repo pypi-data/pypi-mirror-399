@@ -1,0 +1,30 @@
+# .readthedocs.yaml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+version: 2
+
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.14"
+  jobs:
+    post_checkout:
+      - git fetch --unshallow || true
+      - git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' || true
+      - git fetch --all --tags || true
+    create_environment:
+      - asdf plugin add uv
+      - asdf install uv 0.9.21
+      - asdf global uv 0.9.21
+    install:
+      - uv sync --extra api --extra celery --extra hsm --no-default-groups --group dev --group docs
+    pre_build:
+      - uv run make -C docs extra-files
+    build:
+      html:
+        - uv run sphinx-build -T -b html docs/source $READTHEDOCS_OUTPUT/html
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+   configuration: docs/source/conf.py

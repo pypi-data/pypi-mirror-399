@@ -1,0 +1,68 @@
+************
+Use your CAs
+************
+
+After :ref:`adding your Root CA to your system <{{ guide }}-add-ca>`, you can use the admin interface at
+https://ca.example.com/admin/ with the credentials you created above to create new certificates or revoke
+certificates. {% if shared %}You cannot issue certificates with the "Root" CA, since you did not pass
+``--path=ca/shared/`` when creating it.{% endif %}
+
+CRL and OCSP services are provided by default, so there is nothing you need to do to enable them.
+
+You can use the :doc:`/cli/intro` for creating new CAs as well as issuing, renewing and revoking
+certificates.{% if guide == "from-source" %} The :command:`manage.py` script is available via the
+:command:`django-ca` symlink you :ref:`created above <from-source-add-manage-py-shortcut>`, for  example:
+
+.. code-block:: console
+
+   root@host:~# {{ manage }} list_cas
+
+{% elif guide == "with-docker-compose" %}
+The :command:`manage.py` script can be invoked via ``{{ manage }}``, for example:
+
+.. structured-tutorial-part:: list-cas
+
+To sign a certificate from the command line, simply invoke the ``sign_cert`` command.
+
+.. structured-tutorial-part:: sign-cert
+
+To pass data from stdin, for example to sign a certificate non-interactively by passing the CSR from stdin,
+you need to pass the ``-T`` parameter to :command:`docker-compose exec`:
+
+.. structured-tutorial-part:: sign-cert-stdin
+
+{% endif %}
+
+.. _{{ guide }}-add-ca:
+
+Add CA to your system
+=====================
+
+To get the certificate for your Root CA, you can use the admin interface or the ``view_ca`` command:
+
+{% if guide == "with-docker-compose" %}
+.. structured-tutorial-part:: add-ca-to-system
+{% else %}
+.. code-block:: console
+
+   {{ user|default("user") }}@host:{{ path|default("~") }}{% if user == "root" %}#{% else %}${% endif %} {{ manage }} dump_ca Root > root.pem
+{% endif %}
+
+You can add this file directly to the list of known CAs in your browser.
+
+Distributions usually provide instructions for how to add a CA to the whole system, see for example `these
+instructions for Debian/Ubuntu <https://ubuntu.com/server/docs/security-trust-store>`_.
+
+Use ACME with certbot
+=====================
+
+If you enabled :doc:`ACMEv2 support </acme>`, all you need to do is enable ACMEv2 for the intermediate CA
+using the admin interface (or using ``{{ manage|default("manage.py") }} edit_ca``). After that, you can
+retrieve a certificate using a simple certbot command:
+
+.. code-block:: console
+
+   $ sudo certbot register --server https://{{ ca_default_hostname }}/{{ ca_url_path|default("django_ca/") }}acme/directory/
+   $ sudo certbot certonly --server https://{{ ca_default_hostname }}/{{ ca_url_path|default("django_ca/") }}acme/directory/ ...
+
+.. This comment is here because jinja templates don't work in Sphinx 7 if they end with a code-block.

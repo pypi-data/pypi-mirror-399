@@ -1,0 +1,140 @@
+# syntax = docker/dockerfile:1.19.0
+# check=error=true
+# https://hub.docker.com/r/docker/dockerfile
+# https://docs.docker.com/build/dockerfile/release-notes/
+ARG IMAGE=python:3.14-alpine3.23
+
+# These arguments are used to more easily assure a consistent version
+# with dev.py validate state
+ARG UV=0.9.21
+
+# Intermediate layer to be able to use a build argument in COPY --from below:
+#   https://stackoverflow.com/a/63472135
+FROM ghcr.io/astral-sh/uv:$UV AS uv
+
+FROM $IMAGE AS base
+WORKDIR /usr/src/django-ca
+
+RUN --mount=type=cache,target=/etc/apk/cache apk upgrade
+RUN --mount=type=cache,target=/etc/apk/cache apk add --update \
+        pcre openssl tzdata binutils busybox softhsm \
+        libpq postgresql-client mariadb-connector-c mariadb-client
+
+# Add user (some tests check if it's impossible to write a file)
+RUN addgroup -g 9000 -S django-ca && \
+    adduser -S -u 9000 -G django-ca django-ca
+
+# Activate the virtual environment (even if it's not created yet).
+ENV PATH="/usr/src/django-ca/.venv/bin:$PATH"
+
+FROM base AS build
+
+# Install uv: https://docs.astral.sh/uv/guides/integration/docker/
+COPY --from=uv /uv /uvx /bin/
+
+RUN --mount=type=cache,target=/etc/apk/cache apk add \
+        build-base linux-headers libffi libffi-dev openssl-dev \
+        pcre-dev mailcap mariadb-connector-c-dev postgresql-dev cargo
+
+COPY ca/django_ca/__init__.py ca/django_ca/
+COPY pyproject.toml uv.lock ./
+COPY --chown=django-ca:django-ca docs/source/intro.rst docs/source/intro.rst
+
+ENV UV_PYTHON_PREFERENCE=only-system
+ENV UV_LINK_MODE=copy
+ARG DJANGO_CA_VERSION
+ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_DJANGO_CA=$DJANGO_CA_VERSION
+RUN --mount=type=cache,target=/root/.cache/uv,id=django-ca-uv-alpine \
+    uv sync --frozen --all-extras --no-default-groups --group gunicorn --group=DjangoLTS --compile-bytecode
+
+# Finally, copy sources
+COPY ca/ ca/
+
+##############
+# Test stage #
+##############
+FROM build AS test
+ENV SKIP_SELENIUM_TESTS=y
+ENV SQLITE_NAME=:memory:
+
+# Install additional requirements for testing:
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --all-extras --group dev
+
+# copy this late so that changes do not trigger a cache miss during build
+COPY pyproject.toml ./
+COPY --chown=django-ca:django-ca ca/ ca/
+
+# Create some files/directories that we need later on
+RUN mkdir -p /var/lib/django-ca/
+RUN chown django-ca:django-ca /var/lib/django-ca/ /usr/src/django-ca/ca
+
+# From here on, we run as normal user
+USER django-ca:django-ca
+
+# doctests are run by test suite, CA files are also loaded
+COPY docs/source/django_ca_sphinx/ docs/source/django_ca_sphinx/
+COPY docs/source/_files/ docs/source/_files/
+COPY docs/source/python/ docs/source/python/
+
+# Finally run tests
+ARG FAIL_UNDER=100
+ARG COVERAGE_ARGS="--cov-report=html:/tmp/coverage --cov-report term-missing --cov-fail-under=$FAIL_UNDER"
+ENV COVERAGE_FILE=/tmp/.coverage
+# Alpine Linux has issues with the SoftHSM library, so tests are disabled here.
+RUN pytest -vx $COVERAGE_ARGS --no-selenium --no-hsm
+RUN touch /tmp/.coverage-sentinel
+
+###############
+# Build stage #
+###############
+FROM build AS prepare
+
+COPY ca/ ca/
+COPY conf/ ca/conf/
+COPY gunicorn/ gunicorn/
+COPY nginx/ nginx/
+
+COPY devscripts/ devscripts/
+
+RUN rm -rf ca/django_ca/tests ca/ca/test_settings.py ca/ca/localsettings.py.example
+
+# Test that imports are working
+RUN python devscripts/standalone/clean.py
+RUN DJANGO_CA_SECRET_KEY=dummy devscripts/standalone/test-imports.py --all-extras
+
+# Finally, clean up to minimize the image
+RUN python devscripts/standalone/clean.py
+RUN rm -rf pyproject.toml ca/django_ca/migrations/pyproject.toml devscripts/pyproject.toml docs/
+RUN python devscripts/standalone/check-clean-docker.py --ignore-devscripts
+RUN rm -rf devscripts/
+
+# Seems like with BuildKit, the test stage is never executed unless we somehow depend on it
+COPY --from=test /tmp/.coverage-sentinel /tmp
+
+###############
+# final stage #
+###############
+FROM base
+
+RUN mkdir -p /usr/share/django-ca/static /usr/share/django-ca/media /var/lib/django-ca/ \
+             /var/lib/django-ca/certs/ca/shared /var/lib/django-ca/certs/ocsp \
+             /var/lib/django-ca/shared /var/lib/django-ca/nginx/templates/ \
+            /run/django-ca && \
+    chown -R django-ca:django-ca /usr/share/django-ca/ /var/lib/django-ca/ /run/django-ca/ && \
+    chmod 0700 /run/django-ca/
+
+COPY --from=prepare /usr/src/django-ca/ ./
+RUN ln -s /usr/src/django-ca/ca/manage.py /usr/local/bin/manage
+
+COPY scripts/ /usr/src/django-ca/scripts/
+RUN ln -s /usr/src/django-ca/scripts/*.sh /usr/local/bin/
+
+USER django-ca:django-ca
+EXPOSE 8000
+VOLUME ["/var/lib/django-ca/", "/usr/share/django-ca/media/"]
+WORKDIR /usr/src/django-ca/ca/
+
+ENV DJANGO_CA_SETTINGS=conf/
+
+CMD [ "gunicorn.sh" ]

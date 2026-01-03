@@ -1,0 +1,92 @@
+##################
+2.5.0 (2025-12-31)
+##################
+
+* The :ref:`key_backends_ocsp_db_backend` is now configured by default with the ``db`` alias. It can be used
+  with the ``--ocsp-key-backend`` option for :command:`manage.py init_ca` and :command:`manage.py edit_ca`.
+* :command:`manage.py regenerate_ocsp_keys` will not stop generating keys if Celery is *not* enabled and an
+  error occurs when generating one key.
+* Fix validation for ACMEv2 DNS challenges.
+
+**************
+ACMEv2 support
+**************
+
+* Check for the correct domain while performing ``dns-01`` challenge validations (fixes
+  `#175 <https://github.com/mathiasertl/django-ca/issues/175>`_).
+
+********
+REST API
+********
+
+* No longer include the username when viewing a certificate order.
+* Ensure that a user can only view certificate orders that were created by themself.
+* The deprecated endpoint `/ca/{ca_serial}/revoke/{certificate_serial}/` for revoking certificates was
+  removed (deprecated since ``django-ca==2.3.0``). Use `/ca/{ca_serial}/certs/{certificate_serial}/revoke/`
+  instead.
+
+*************
+Docker images
+*************
+
+* Docker images now use a timestamp (instead of an increasing integer) for image-only updates (e.g. updates
+  of dependencies).
+* Docker mages are now updated automatically every week. The pure-version tag (e.g. ``2.5.0``) is updated
+  along with it.
+* Docker images have been updated to use Python 3.14.
+* Docker images will now always use the current LTS release of Django (see `supported versions
+  <https://www.djangoproject.com/download/>`_).
+* Docker images are now uniquely tagged using a datestamp, not an increasing integer. This simplifies
+  automatic image updates.
+
+*************
+Compose setup
+*************
+
+* Configuration files are now also loaded from ``conf/local``.
+* The Redis container is upgraded to version 8.
+* The nginx container is upgraded to version 1.28.
+* Added a health check for the `beat` container.
+* :doc:`Tutorial </quickstart/docker_compose>` changes:
+
+  * The tutorial is now rendered using `structured-tutorials
+    <https://structured-tutorials.readthedocs.io/en/latest/>`_. The tutorial can thus be run locally for
+    verification.
+  * The directory is mapped in the tutorial instead of ``./localsettings.yaml``. This allows the user to
+    split configuration variables as well.
+  * Provide and use a proper certbot deployment hook script to setup automatic certificate renewal.
+  * Configuration and web server volumes are now mounted read-only.
+
+************
+Dependencies
+************
+
+* **BACKWARDS INCOMPATIBLE:** Dropped support for ``acme~=4.1.0``, ``acme~=4.2.0`` and ``josepy~=2.0.0``.
+* Add support for Python 3.14.
+* Add support for ``Django~=6.0.0``.
+* Add support for ``pydantic~=2.12``.
+* Add support for ``acme~=5.1.0`` and ``acme~=5.2.0``.
+* Add support for ``josepy~=2.2.0``.
+* Add support Ubuntu 24.10 (Questing Quokka).
+
+**********
+Python API
+**********
+
+* Removed the `key_type`, `key_size`, `elliptic_curve`, `profile`, `algorithm` and `not_after` arguments for
+  :py:func:`django_ca.models.CertificateAuthority.generate_ocsp_key`. They where deprecated since
+  ``django-ca==2.3.0``. The arguments where deprecated since 2.4.0 and no longer accessible via the command
+  line or normal configuration.
+
+*******************
+Deprecation notices
+*******************
+
+* This is the last release to support Python 3.10.
+* This is the last release to support ``cryptography~=45.0``.
+* This is the last release to support ``pydantic~=2.11.0``.
+* This is the last release to support ``acme~=5.0.0`` and ``acme~=5.1.0``.
+* This is the last release to support ``josepy~=2.1.0``.
+* This is the last release to support Alpine 3.20 and Alpine 3.21.
+* This is the last release to support Debian 11 (Bullseye) and Debian 12 (Bookworm).
+* This is the last release to support Ubuntu 24.04 (Plucky Puffin).

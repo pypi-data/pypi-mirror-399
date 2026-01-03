@@ -1,0 +1,89 @@
+name: Docker image update
+on:
+  #push:
+  schedule:
+    #        ┌───────────── minute (0 - 59)
+    #        │  ┌───────────── hour (0 - 23)
+    #        │  │ ┌───────────── day of the month (1 - 31)
+    #        │  │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #        │  │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #        │  │ │ │ │
+    - cron: '23 6 * * 1'
+
+env:
+  # Do not set UV_PYTHON_PREFERENCE to 'only_system', as release branches
+  # limit python versions to the version at release time.
+  #UV_PYTHON_PREFERENCE: only-system
+  UV_NO_SYNC: 1
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  NEWEST_DJANGO_CA: "2.5.0"
+
+jobs:
+  build:
+    name: "${{ matrix.version }}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [ "2.4.0", "2.5.0" ]
+    environment:
+      name: Docker Hub
+      url: https://hub.docker.com/r/mathiasertl/django-ca
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      # buildx is required for docker build cache reuse
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.12.0
+      - uses: actions/checkout@v5.0.0
+        with:
+          ref: release/${{ matrix.version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.6.1
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Update uv lock file
+        run: uv lock --upgrade
+
+      - id: build-and-upload
+        name: Build and upload Docker image (Debian variant)
+        uses: ./.github/actions/build-docker-image
+        with:
+          push: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.version }}
+          add-date-suffix: true
+          latest: ${{ matrix.version == env.NEWEST_DJANGO_CA }}
+
+      - id: upload-to-dockerhub
+        name: Upload image to Docker Hub (Debian variant)
+        uses: ./.github/actions/push-to-dockerhub
+        with:
+          docker-hub-username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          docker-hub-token: ${{ secrets.DOCKER_HUB_TOKEN }}
+          tags: ${{ steps.build-and-upload.outputs.tags }}
+
+      - id: build-and-upload-alpine
+        name: Build and upload Docker image (Alpine variant)
+        uses: ./.github/actions/build-docker-image
+        with:
+          push: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ matrix.version }}
+          suffix: -alpine
+          add-date-suffix: true
+          dockerfile: Dockerfile.alpine
+
+      - id: upload-to-dockerhub-alpine
+        name: Upload image to Docker Hub (Alpine variant)
+        uses: ./.github/actions/push-to-dockerhub
+        with:
+          docker-hub-username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          docker-hub-token: ${{ secrets.DOCKER_HUB_TOKEN }}
+          tags: ${{ steps.build-and-upload-alpine.outputs.tags }}

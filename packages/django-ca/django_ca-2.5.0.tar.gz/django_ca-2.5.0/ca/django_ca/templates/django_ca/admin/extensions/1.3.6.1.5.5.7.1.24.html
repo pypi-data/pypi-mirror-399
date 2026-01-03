@@ -1,0 +1,13 @@
+{% extends "django_ca/admin/extensions/base/base.html" %}
+{% load i18n django_ca %}
+{# TLSFeatureType extension #}
+
+{% block content %}<ul>{% for feature in value %}
+  <li>{% if feature == x509|enum:"TLSFeatureType.status_request" %}
+    status_request (OCSPMustStaple)
+  {% elif feature == x509|enum:"TLSFeatureType.status_request_v2" %}
+    status_request_v2 (MultipleCertStatusRequest)
+  {% else %}
+    {% trans "Unknown TLS Feature Type." %}
+  {% endif %}</li>
+{% endfor %}</ul>{% endblock content %}

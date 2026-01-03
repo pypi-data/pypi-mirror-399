@@ -1,0 +1,24 @@
+{% load i18n %}
+<div class="key-value-field key-value-field-{{ widget.name }}">
+  {% block templates %}{% endblock %}
+
+  {% include "django/forms/widgets/input.html" %}
+
+
+  <span class="key-value-template">
+    <div class="key-value-row" draggable="true">
+      <span class="draggable-handle">&#9776;</span>
+      {% with widget=widget.select_template %}
+        {% include widget.template_name %}
+      {% endwith %}
+      {% with widget=widget.value_template %}
+        {% include widget.template_name %}
+      {% endwith %}
+      <button type="button" class="remove-row-btn button">{% translate "Remove" %}</button>
+    </div>
+  </span>
+
+  <span class="key-value-list"></span>
+  <button type="button" class="add-row-btn default button">{% translate "Add" %}</button>
+  {% block after-add-row-button %}{% endblock %}
+</div>

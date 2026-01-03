@@ -1,0 +1,65 @@
+name: Tests
+on:
+  push:
+  pull_request:
+
+env:
+  UV_PYTHON_PREFERENCE: only-system
+  UV_NO_SYNC: 1
+  NEWEST_PYTHON: "3.14"
+  NEWEST_CRYPTOGRAPHY: "46"
+  NEWEST_PYDANTIC: "2.12"
+
+jobs:
+  run:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        django-version: [ "5.2", "6.0" ]
+        cryptography-version: [ "45", "46" ]
+        pydantic-version: [ "2.11", "2.12" ]
+        exclude:
+          - python-version: "3.14"
+            pydantic-version: "2.11"
+          - python-version: "3.10"
+            django-version: "6.0"
+          - python-version: "3.11"
+            django-version: "6.0"
+
+
+    name: Python ${{ matrix.python-version }}, Django ${{ matrix.django-version }}, cryptography ${{ matrix.cryptography-version }}, pydantic ${{ matrix.pydantic-version }}
+    steps:
+      - name: Install APT dependencies
+        run: sudo apt-get install -y softhsm2
+
+      - name: Install Firefox
+        run: sudo apt-get install -y firefox
+        if: ${{ matrix.python-version == env.NEWEST_PYTHON && matrix.cryptography-version == env.NEWEST_CRYPTOGRAPHY && matrix.pydantic-version == env.NEWEST_PYDANTIC }}
+
+      - name: Acquire sources
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6.6.1
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --extra api --extra celery --extra hsm --no-default-groups --group dev --group Django${{ matrix.django-version }} --group cryptography${{ matrix.cryptography-version }} --group pydantic${{ matrix.pydantic-version }}
+
+      - name: Initialize demo
+        run: uv run python dev.py init-demo
+
+      - name: Run tests
+        run: uv run pytest -vx --cov-report term-missing --durations=20
