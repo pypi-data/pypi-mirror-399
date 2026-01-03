@@ -1,0 +1,37 @@
+[project]
+name = "coordinatus"
+version = "0.2.0"
+description = "A library for working with hierarchical coordinate systems and transformations"
+readme = "README.md"
+authors = [
+    { name = "Manu Gira", email = "manu.gira@outlook.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ManuGira/Coordinatus"
+Repository = "https://github.com/ManuGira/Coordinatus"
+
+[project.optional-dependencies]
+plotting = [
+    "matplotlib>=3.10.8",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.13,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "matplotlib>=3.10.8",
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+    "ruff>=0.14.10",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/coordinatus/__init__.py" = ["F401"]  # Ignore `F401` (imported but unused)
+
