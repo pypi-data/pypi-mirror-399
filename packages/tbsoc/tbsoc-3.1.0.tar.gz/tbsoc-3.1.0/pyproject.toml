@@ -1,0 +1,45 @@
+[project]
+name = "tbsoc"
+version = "3.1.0"
+description = "A computational method to estimate spin-orbital interaction strength in solid state systems"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Q. Gu", email = "guqq@ustc.edu.cn" }
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "pyyaml",
+    "jax>=0.4.0",
+    "jaxlib>=0.4.0",
+    "fastapi>=0.124.4",
+    "uvicorn>=0.38.0",
+    "python-multipart>=0.0.20",
+    "pywebview>=6.1",
+    "httpx>=0.28.1",
+    "plotly>=6.5.0",
+]
+
+[project.scripts]
+tbsoc = "tbsoc.__main__:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tbsoc*"]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.2.0",
+    "pyinstaller>=6.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+python_files = "test_*.py"
