@@ -1,0 +1,30 @@
+[package]
+name = "py-diffusionx"
+authors = ["xiangong tang <tangxiangong@gmail.com>"]
+edition = "2024"
+version = "0.2.1"
+readme = "README.md"
+
+[lib]
+name = "_core"
+# "cdylib" is necessary to produce a shared library for Python to import from.
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "stub_gen"
+path = "src/bin/stub_gen.rs"
+required-features = ["stub_gen"]
+
+[features]
+stub_gen = ["pyo3-stub-gen"]
+
+[dependencies]
+diffusionx = "0.11.1"
+gauss-quad = "0.2.4"
+num_cpus = "1.17"
+numpy = "0.27"
+pyo3 = { version = "0.27.2", features = ["abi3-py311", "experimental-inspect"] }
+pyo3-stub-gen = { version = "0.17.2", optional = true }
+rand = "0.9"
+rayon = "1.11"
+thiserror = "2"

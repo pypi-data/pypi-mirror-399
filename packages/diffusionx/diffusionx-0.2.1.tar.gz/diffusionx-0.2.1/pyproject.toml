@@ -1,0 +1,42 @@
+[project]
+name = "diffusionx"
+version = "0.2.1"
+description = "A library for random number/stochastic process simulation with high performance."
+readme = "README.md"
+authors = [{ name = "tangxiangong", email = "tangxiangong@gmail.com" }]
+requires-python = ">=3.11"
+dependencies = ["numpy >= 2.3.0"]
+license = { text = "MIT" }
+keywords = [
+    "stochastic-processes",
+    "simulation",
+    "random",
+    "scientific-computing",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Repository = "https://github.com/tangxiangong/py-diffusionx"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+module-name = "diffusionx._core"
+python-source = "python"
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
