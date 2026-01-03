@@ -1,0 +1,31 @@
+[tool.ruff]
+# Target Python version
+target-version = "py312"
+
+# Same as Black's default line length
+line-length = 88
+
+[tool.ruff.lint]
+# Enable specific rule sets
+# E: pycodestyle errors
+# F: Pyflakes (logic errors)
+# I: isort (import sorting)
+# D: pydocstyle (docstring conventions)
+select = ["E", "F", "I", "D"]
+
+# Ignore specific rules if needed
+# D100: Missing docstring in public module
+# D104: Missing docstring in public package
+ignore = ["D100", "D104"]
+
+[tool.ruff.lint.pydocstyle]
+# Use Google-style docstrings
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+# ingore docstring lint
+"src/tests/*" = ["D103"]
+
+[tool.ruff.format]
+# Use double quotes for strings (Production standard)
+quote-style = "double"
