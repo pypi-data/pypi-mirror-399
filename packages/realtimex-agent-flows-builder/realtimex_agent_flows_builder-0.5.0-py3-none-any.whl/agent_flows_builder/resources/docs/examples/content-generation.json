@@ -1,0 +1,31 @@
+{
+  "name": "Content Generation Example",
+  "description": "Generate AI content about a specified topic using LLM instruction",
+  "uuid": "content-generation-example",
+  "active": true,
+  "steps": [
+    {
+      "type": "start",
+      "config": {
+        "variables": [
+          {
+            "name": "topic",
+            "value": "artificial intelligence",
+            "type": "string",
+            "description": "The topic for content generation"
+          }
+        ]
+      }
+    },
+    {
+      "type": "llmInstruction",
+      "config": {
+        "provider": "openai",
+        "model": "gpt-4o-mini",
+        "instruction": "Write a brief, informative summary about {{ $topic }} in 2-3 sentences. Make it engaging and accessible to a general audience.",
+        "temperature": 0.7,
+        "resultVariable": "generated_content"
+      }
+    }
+  ]
+}

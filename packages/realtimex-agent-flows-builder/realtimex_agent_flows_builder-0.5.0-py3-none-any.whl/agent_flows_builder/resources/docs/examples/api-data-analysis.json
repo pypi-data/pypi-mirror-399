@@ -1,0 +1,71 @@
+{
+  "name": "API Data Analysis Example",
+  "description": "Fetch API data and analyze it with LLM for insights and recommendations",
+  "uuid": "api-data-analysis-example", 
+  "active": true,
+  "steps": [
+    {
+      "type": "start",
+      "config": {
+        "variables": [
+          {
+            "name": "api_endpoint",
+            "value": "users",
+            "type": "string",
+            "description": "API endpoint to fetch data from"
+          },
+          {
+            "name": "analysis_focus",
+            "value": "user demographics and patterns",
+            "type": "string",
+            "description": "What to focus on in the analysis"
+          }
+        ]
+      }
+    },
+    {
+      "type": "apiCall",
+      "config": {
+        "url": "https://jsonplaceholder.typicode.com/{{ $api_endpoint }}",
+        "method": "GET",
+        "responseVariable": "api_response",
+        "timeout": 30
+      }
+    },
+    {
+      "type": "conditional",
+      "config": {
+        "condition": {
+          "variable": "api_response.status_code",
+          "operator": "equals",
+          "value": 200
+        },
+        "truePath": [
+          {
+            "type": "llmInstruction",
+            "config": {
+              "provider": "openai",
+              "model": "gpt-4o-mini",
+              "instruction": "Analyze this API data focusing on {{ $analysis_focus }}:\n\n{{ $api_response.data }}\n\nProvide key insights, patterns, and actionable recommendations.",
+              "temperature": 0.3,
+              "maxTokens": 500,
+              "resultVariable": "data_analysis"
+            }
+          }
+        ],
+        "falsePath": [
+          {
+            "type": "llmInstruction",
+            "config": {
+              "provider": "openai",
+              "model": "gpt-4o-mini", 
+              "instruction": "API request failed with status {{ $api_response.status_code }}. Generate an appropriate error message and suggest next steps.",
+              "temperature": 0.2,
+              "resultVariable": "error_message"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
