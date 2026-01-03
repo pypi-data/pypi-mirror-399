@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scada-python"  # Tên package trên PyPI (phải duy nhất)
+version = "0.1.0"
+authors = [
+  { name="locluklak", email="23520854@uit.edu.vn" },
+]
+description = "Statistical Inference for k-means Clustering after Domain Adaptation"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "mpmath",
+    "torch",
+    "scikit-learn",
+    "PyYAML",
+    "tqdm"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scada*", "solveinequalities*"]
+
+[project.urls]
+Homepage = "https://github.com/DAIR-Group/SCaDA"
