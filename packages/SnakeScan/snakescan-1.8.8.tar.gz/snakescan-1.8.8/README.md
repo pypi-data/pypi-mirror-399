@@ -1,0 +1,134 @@
+<!--
+This documentation was created with GeekBot Language Model and Den*Ram
+
+-->
+
+# 🐍 SnakeScan: A Reliable Python Port Scanner
+
+A versatile and efficient Python library designed for comprehensive network port scanning.
+
+[![PyPI](https://img.shields.io/pypi/v/SnakeScan?color=blue&label=PyPI)](https://pypi.org/project/SnakeScan/)
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green)](https://opensource.org/licenses/MIT)
+
+[![Python 3.7+](https://img.shields.io/badge/Python-3.7+-brightgreen)](https://www.python.org/)
+
+[![Status: Stable](https://img.shields.io/badge/Status-Stable-green)](https://img.shields.io/badge/Status-Stable-green)
+
+**SnakeScan** provides a flexible and powerful solution for network administrators, security professionals, and developers who need reliable port scanning capabilities. From simple port checks to advanced, multi-threaded subnet analysis, SnakeScan provides the tools necessary for effective network assessment.
+
+## ⚙️ Key Features:
+
+*   **Flexible Port Specification:** Define target ports as individual values, ranges, or through preconfigured sets.
+
+*   **Multi-Threaded Architecture:** Accelerate scanning operations with parallel processing for rapid analysis.
+
+*   **IP Address Information Retrieval:** Obtain detailed information about target IP addresses, supporting both IPv4 and IPv6.
+
+*   **Real-Time Port Monitoring:** Utilize the `Watcher` class for continuous monitoring of the status of critical ports.
+
+*   **Concise Command-Line Interface and API:** Easily integrate SnakeScan into workflows via command-line or programmatic access.
+
+*   **UDP Port Scanning:** Built-in support for scanning UDP ports.
+
+*   **Customizable Port Dictionaries:** Add your own port descriptions from JSON files and easily revert to the default set.
+
+*   **Automatic Home Directory Detection:** Uses `pathlib` to automatically detect the user's home directory, storing configuration files in a dedicated folder. **All configuration files are now located in this dedicated directory, ensuring that changes to SnakeScan's configuration do not affect the installed library files. This provides a secure and resilient setup.**
+
+## ⬇️ Installation:
+
+**It is strongly recommended to install this specific version of SnakeScan (1.8.8) as it includes significant enhancements and bug fixes that improve reliability and operational stability. The updates are aimed at ensuring optimal performance and eliminating issues encountered in previous versions.**
+
+**Installation via pip (recommended):**
+
+
+
+bash
+
+pip install SnakeScan
+
+**Alternative Installation from Source Code Archive:**
+
+SnakeScan is distributed with open source code. This means you can download the code archive, examine it, make necessary changes, and fix any errors that occur during use.
+
+**Note:** Installing from the archive requires the **Flit** package to be installed. After downloading the archive, you need to unpack it and navigate to the directory containing the unpacked files. The command to unpack the archive depends on the archive format and the operating system being used.
+
+bash
+
+pip install flit
+
+cd [directory where the archive was unpacked]
+
+flit install
+
+## ⌨️ Command Line Usage:
+
+### 💡 Attribute Reference:
+
+*   **-p**: Specify target ports to scan (single port or range). Note: Range excludes the lower bound in the first entry. For example: To scan from port 80 through 443, specify the range as `79-443`. Examples: `snake -p 80,443` or `snake -p 80,3437,8080,20-30,79-443`
+
+*   **-u**: Enable scanning of UDP ports. Example: `snake -p 53 -u`
+
+*   **-h**: Show the full list of available command-line attributes and their descriptions. Example: `snake -h` or `snake -help`
+
+*   **-v**: Display the current version of the SnakeScan library. Example: `snake -v`
+
+*   **-gs**: Retrieve an SSL/TLS certificate from a specified web server. Example: `snake www.google.com -gs` (Requires a valid hostname to avoid connection errors.)
+
+*   **-t**: Enable multithreading for improved scanning performance. Example: `snake -t`
+
+*   **-ch**: Scan the subnet for active IP addresses within the network. Example: `snake -ch`
+
+*   **-l**: Display your public IP address (requires an active internet connection). Example: `snake -l`
+
+*   **-i**: Show detailed information about a specific IP address (supports both IPv4 and IPv6). Example: `snake www.google.com -i`
+
+*   **-a --asynchronous**: Uses all ports from the predefined dictionary for asynchronous port scanning. Example: `snake -a`. If you want to scan all ports using your own port file, use the `-d` argument to specify the path to that file.
+
+*   **-d**: Specify the path to a JSON file containing TCP port definitions and optionally, a second JSON file containing UDP port definitions. **Note:** Upon the first use of this argument, the paths to the JSON files must be provided with each command execution and separated by a comma. After the initial use, SnakeScan can remember these paths for subsequent scans.
+
+    Example: `snake -d /path/to/tcp_ports.json,/path/to/udp_ports.json` (if you want to specify both TCP and UDP, if only TCP: `snake -d /path/to/tcp_ports.json`)
+
+    **Subsequent Use**: After the initial setup, you can simply use the `-d` flag without the file paths, and SnakeScan can utilize the previously defined JSON files.
+
+    Example (after initial setup): `snake -d` (may use previously stored paths)
+
+    **JSON File Format:** The JSON file should be formatted as a dictionary where the keys are port numbers (as strings), and the values are the corresponding service names or descriptions.
+
+    ```json
+    {
+        "53": "DNS",
+        "80": "HTTP",
+        "443": "HTTPS"
+    }
+    ```
+
+*   **-dr**: Reset custom port dictionaries to their default state and revert to standard SnakeScan port definitions. Example: `snake -dr`
+
+*   **-ds**: Display the paths to the currently used custom port dictionaries (TCP and UDP). This is useful for verifying which custom definitions are loaded. Example: `snake -ds`
+
+*   **-home --homedir**: Display the user's home directory and the location of the `config.ini` file. The home directory is determined automatically using the `pathlib` library. Example: `snake -home`, `snake --homedir`
+
+## 💻 Python Code Integration:
+
+### ⏱️ Watcher Class: Real-Time Port Status
+
+The `Watcher` class allows you to continuously monitor a specified port.
+
+python
+
+from SnakeScan import Watcher
+
+watcher = Watcher("localhost", 53, 2)  # Host, Port, Check Interval (in seconds)
+
+watcher.start()  # Start monitoring!
+
+#### `Watcher` Methods:
+
+*   `Watcher.start()` - Start the port monitoring process.
+
+*   `Watcher.stop()` - Terminate the port monitoring process.
+
+---
+
+**Last Updated:** 1.8.8 (Automatic Home Directory Detection, Added `-home` and `--homedir` arguments. Added `-a` or `--asynchronous` arguments for scan allports from dictionaries. All config files are stored outside the installed library for permanent and secure customization.)
