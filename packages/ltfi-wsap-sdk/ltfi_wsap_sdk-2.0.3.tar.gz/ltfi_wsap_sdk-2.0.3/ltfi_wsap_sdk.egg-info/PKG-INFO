@@ -1,0 +1,178 @@
+Metadata-Version: 2.4
+Name: ltfi-wsap-sdk
+Version: 2.0.3
+Summary: Official Python SDK for LTFI-WSAP (Web System Alignment Protocol) by Kief Studio - Part of the LTFI ecosystem
+Home-page: https://github.com/KiefStudioMA/LTFI-WSAP-Python
+Author: Kief Studio
+Author-email: developers@kief.studio
+Maintainer: LTFI Team
+Maintainer-email: support@wsap.ltfi.ai
+License: MIT
+Project-URL: Documentation, https://docs.ltfi.ai
+Project-URL: Bug Reports, https://github.com/KiefStudioMA/LTFI-WSAP-Python/issues
+Project-URL: Source, https://github.com/KiefStudioMA/LTFI-WSAP-Python
+Project-URL: Discord, https://discord.gg/JfjyUdjJgP
+Project-URL: Company, https://kief.studio
+Project-URL: LTFI Ecosystem, https://ltfi.ai
+Project-URL: WSAP Protocol, https://wsap.ltfi.ai
+Keywords: wsap verification domain security api sdk kief-studio ltfi ai-verification organizational-data
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Security
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: NOTICE
+Requires-Dist: requests>=2.28.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: cryptography>=41.0.0
+Requires-Dist: dnspython>=2.3.0
+Requires-Dist: pyyaml>=6.0
+Provides-Extra: async
+Requires-Dist: aiohttp>=3.8.0; extra == "async"
+Requires-Dist: asyncio>=3.4.3; extra == "async"
+Provides-Extra: cli
+Requires-Dist: click>=8.0.0; extra == "cli"
+Requires-Dist: rich>=13.0.0; extra == "cli"
+Requires-Dist: tabulate>=0.9.0; extra == "cli"
+Provides-Extra: django
+Requires-Dist: django>=3.2; extra == "django"
+Provides-Extra: flask
+Requires-Dist: flask>=2.0.0; extra == "flask"
+Provides-Extra: cache
+Requires-Dist: redis>=4.5.0; extra == "cache"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: sphinx>=6.0.0; extra == "dev"
+Requires-Dist: sphinx-rtd-theme>=1.2.0; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: license-file
+Dynamic: maintainer
+Dynamic: maintainer-email
+Dynamic: project-url
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# LTFI-WSAP Python SDK
+
+[![PyPI version](https://badge.fury.io/py/ltfi-wsap-sdk.svg)](https://pypi.org/project/ltfi-wsap-sdk/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/KiefStudioMA/ltfi-wsap-python/blob/main/LICENSE)
+[![LTFI-WSAP](https://img.shields.io/badge/LTFI--WSAP-v2.0.0-blue.svg)](https://wsap.ltfi.ai)
+[![Kief Studio](https://img.shields.io/badge/By-Kief%20Studio-green.svg)](https://kief.studio)
+
+Official Python SDK for **LTFI-WSAP** (Layered Transformer Framework Intelligence - Web System Alignment Protocol) by **Kief Studio**.
+
+Part of the [LTFI Ecosystem](https://ltfi.ai) • [WSAP Protocol](https://wsap.ltfi.ai)
+
+## 📦 Installation
+
+```bash
+pip install ltfi-wsap-sdk
+```
+
+For development or to get the latest changes:
+```bash
+pip install git+https://github.com/KiefStudioMA/ltfi-wsap-python.git
+```
+
+## 🚀 Quick Start
+
+```python
+from ltfi_wsap import WSAPClient
+
+# Initialize the client
+client = WSAPClient(api_key="your-api-key")
+
+# Get entity information
+entity = client.entities.get("entity-id")
+print(f"Entity: {entity.name}")
+
+# Verify a domain
+verification = client.verify_domain("example.com")
+print(f"Domain verified: {verification.verified}")
+
+# Generate WSAP JSON
+wsap_json = client.generate_wsap("entity-id")
+print(wsap_json)
+```
+
+## 📚 Documentation
+
+- **Main Documentation**: [docs.ltfi.ai](https://docs.ltfi.ai)
+- **API Reference**: [api.ltfi.ai/docs](https://api.ltfi.ai/docs)
+- **Examples**: [github.com/KiefStudioMA/LTFI-WSAP-Examples](https://github.com/KiefStudioMA/LTFI-WSAP-Examples)
+
+## 🔑 Features
+
+- ✅ Full WSAP protocol implementation
+- ✅ Entity management (CRUD operations)
+- ✅ Domain verification (DNS TXT, file upload, meta tags)
+- ✅ Progressive disclosure levels (BASIC, STANDARD, DETAILED, COMPLETE)
+- ✅ Field-level encryption for sensitive data
+- ✅ Async/await support
+- ✅ Type hints for better IDE support
+- ✅ Comprehensive error handling
+- ✅ Retry logic with exponential backoff
+- ✅ Rate limiting support
+
+## 📄 License
+
+**MIT License** - This SDK is open source and free to use.
+
+See [LICENSE](https://github.com/KiefStudioMA/ltfi-wsap-python/blob/main/LICENSE) for full terms.
+
+### LTFI-WSAP Service Usage
+
+While this SDK is open source, the LTFI-WSAP service has the following usage terms:
+
+- ✅ **FREE** for personal use, open source projects, and small businesses
+- ✅ **FREE** for most users and use cases
+- 💳 **Paid plans** required for:
+  - Enterprises with annual revenue exceeding $1M USD
+  - Organizations managing more than 100 domains
+  - High-volume API usage
+
+For pricing details: [wsap.ltfi.ai/pricing](https://wsap.ltfi.ai/pricing)
+
+## 🆘 Support
+
+- **Technical Support**: developers@kief.studio
+- **Business Inquiries**: business@kief.studio
+- **Discord**: [discord.gg/JfjyUdjJgP](https://discord.gg/JfjyUdjJgP)
+- **X (Twitter)**: [x.com/kief_ma](https://x.com/kief_ma)
+- **LinkedIn**: [linkedin.com/company/kief-studio](https://www.linkedin.com/company/kief-studio/)
+
+---
+
+**Built with ❤️ by [Kief Studio](https://kief.studio)**
+
+Part of the [LTFI Ecosystem](https://ltfi.ai) • [WSAP Protocol](https://wsap.ltfi.ai)
+
+© 2025 Kief Studio, MA. All rights reserved.
+
+**Open Source SDK - Service usage subject to terms**
