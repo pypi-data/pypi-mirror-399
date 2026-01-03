@@ -1,0 +1,25 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0", "polars>=1.3.0"]
+build-backend = "maturin"
+
+[project]
+name = "polars-array-algorithms"
+description = "Rust-accelerated array algorithms for Polars DataFrames."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+  "Programming Language :: Rust",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/Sumanth-NR/polars_array_algorithms"
+
+[tool.maturin]
+module-name = "polars_array_algorithms._internal"
+
+[[tool.mypy.overrides]]
+module = "polars.utils.udfs"
+ignore_missing_imports = true
