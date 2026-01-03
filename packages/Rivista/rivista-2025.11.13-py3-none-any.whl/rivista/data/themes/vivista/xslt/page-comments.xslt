@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright (C) 2025 Schimon Jehuda. Released under MIT license. -->
+<xsl:stylesheet version="1.0"
+                xmlns:atom="http://www.w3.org/2005/Atom"
+                xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:xml="http://www.w3.org/XML/1998/namespace"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output encoding = "UTF-8"
+                indent = "yes"
+                media-type = "text/html"
+                method = "html"
+                version = "5"/>
+    <xsl:include href="element-base.xslt"/>
+    <xsl:include href="element-generator.xslt"/>
+    <xsl:include href="element-header.xslt"/>
+    <xsl:include href="element-meta.xslt"/>
+    <xsl:include href="element-navigation.xslt"/>
+    <xsl:include href="element-navigation-bar.xslt"/>
+    <xsl:include href="element-script.xslt"/>
+    <xsl:include href="elements-link-relation.xslt"/>
+    <xsl:include href="elements-link-stylesheet.xslt"/>
+    <xsl:include href="extract-filename.xslt"/>
+    <xsl:include href="template-comments.xslt"/>
+    <xsl:include href="transform-filesize.xslt"/>
+</xsl:stylesheet>
