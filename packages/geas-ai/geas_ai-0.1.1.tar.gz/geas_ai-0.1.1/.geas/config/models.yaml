@@ -1,0 +1,11 @@
+models:
+  gpt4_turbo:
+    provider: "openai"
+    base_url: "[https://api.openai.com/v1](https://api.openai.com/v1)"
+    api_key: "${OPENAI_API_KEY}"
+    model_name: "gpt-4-turbo"
+
+  local_mistral:
+    provider: "ollama"
+    base_url: "http://localhost:11434/v1"
+    model_name: "llama3:7b"

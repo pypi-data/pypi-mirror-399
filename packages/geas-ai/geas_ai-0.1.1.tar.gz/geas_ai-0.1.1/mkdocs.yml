@@ -1,0 +1,38 @@
+site_name: GEAS AI
+
+# Theme configuration
+theme:
+    name: 'material'
+    language: 'en'
+    features:
+      - navigation.sections
+      - navigation.expand
+    palette:
+      - scheme: 'default'
+        toggle:
+          icon: 'material/brightness-4'
+          name: 'Switch to dark mode'
+      - scheme: 'slate'
+        toggle:
+          icon: 'material/brightness-5'
+          name: 'Switch to light mode'
+
+# Plusings
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ['src']
+
+# Versioning (Mike)
+extra:
+  version:
+    provider: mike
+
+# Navigation
+nav:
+  - Home: index.md
+  - About: WHITE_PAPER.md
+  - Getting started: getting_started.md
+  - API reference: reference.md
