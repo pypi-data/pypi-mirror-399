@@ -1,0 +1,56 @@
+{
+  "mcpServers": {
+    "fetch": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "env": {},
+      "disabled": true,
+      "autoApprove": []
+    },
+    "mcp-ui Docs": {
+      "url": "https://gitmcp.io/idosal/mcp-ui",
+      "disabled": false
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest",
+        "--isolated=true"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "list_pages",
+        "take_snapshot",
+        "wait_for",
+        "fill",
+        "click",
+        "evaluate_script",
+        "navigate_page",
+        "list_console_messages",
+        "press_key"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "resolve-library-id",
+        "get-library-docs"
+      ]
+    },
+    "mcp-deepwiki": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-deepwiki@latest"
+      ],
+      "disabled": false
+    }
+  }
+}

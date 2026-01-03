@@ -1,0 +1,186 @@
+# mem1 - 用户记忆系统
+
+让 AI 真正"记住"用户：三层记忆架构 + 图片记忆 + 业务场景解耦。
+
+## 为什么需要 mem1？
+
+LLM 本身无状态，每次对话都是"失忆"的。mem1 让 AI 助手能够：
+- 记住用户是谁（身份、背景）
+- 记住用户喜欢什么（偏好、习惯）  
+- 记住用户说过什么（历史对话、图片）
+- 记住用户的反馈（表扬、批评）
+
+## 核心特性
+
+- **三层记忆架构**：短期会话 → 用户画像 → 长期记录，参考 ChatGPT Memory 设计
+- **图片记忆**：支持存储和语义搜索用户发送的图片
+- **业务解耦**：通过 ProfileTemplate 适配不同场景（舆情、电商、医疗等）
+- **智能检索**：LLM 判断是否需要回溯历史，节省 token
+- **画像自动更新**：基于对话轮数/时间自动触发 LLM 更新用户画像
+
+## 三层记忆架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Tier 1: 短期记忆 (LangChain 管理)                           │
+│  - 当前会话 messages，会话结束即清空                          │
+└─────────────────────────────────────────────────────────────┘
+                              ↓ 会话结束时保存
+┌─────────────────────────────────────────────────────────────┐
+│  Tier 2: 用户画像 (ES: mem1_user_profile)                    │
+│  - LLM 从历史对话中提炼的结构化信息                           │
+│  - 基本信息、偏好习惯、重要事项、用户反馈                      │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  Tier 3: 长期记忆 (ES: conversation_history)                 │
+│  - 原始对话记录（带时间戳、元数据、图片）                      │
+│  - 按需加载，避免 token 浪费                                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 安装
+
+```bash
+pip install mem1
+```
+
+或开发模式：
+```bash
+pip install -e .
+```
+
+## 快速开始
+
+```python
+import os
+from mem1 import Mem1Memory, Mem1Config, LLMConfig
+
+config = Mem1Config(
+    llm=LLMConfig(
+        model="deepseek-chat",
+        api_key=os.getenv("DEEPSEEK_API_KEY"),
+        base_url="https://api.deepseek.com"
+    )
+)
+
+memory = Mem1Memory(config)
+
+# 添加对话
+memory.add_conversation(
+    user_id="user001",
+    messages=[
+        {"role": "user", "content": "你好，我是张明"},
+        {"role": "assistant", "content": "你好张明！"}
+    ],
+    metadata={"topic": "自我介绍"}
+)
+
+# 获取上下文（含用户画像）
+ctx = memory.get_context(user_id="user001", query="帮我写报告")
+print(ctx['import_content'])  # 用户画像
+print(ctx['current_time'])    # 当前时间
+
+# 更新画像
+memory.update_profile(user_id="user001")
+```
+
+## 配置
+
+通过 `.env` 文件或环境变量：
+
+```bash
+# ES 配置
+MEM1_ES_HOSTS=http://localhost:9200
+MEM1_ES_INDEX=conversation_history
+
+# 记忆配置
+MEM1_IMAGES_DIR=./memories/images
+MEM1_AUTO_UPDATE_PROFILE=true
+MEM1_MAX_PROFILE_CHARS=3000
+MEM1_UPDATE_INTERVAL_ROUNDS=5
+MEM1_UPDATE_INTERVAL_MINUTES=3
+```
+
+## ES 索引
+
+| 索引 | 用途 |
+|------|------|
+| `conversation_history` | 对话记录 |
+| `mem1_user_state` | 用户状态（更新轮数、时间） |
+| `mem1_user_profile` | 用户画像 |
+
+## 核心接口
+
+```python
+# 添加对话（支持图片、元数据）
+memory.add_conversation(
+    user_id="user001",
+    messages=[...],
+    images=[{"filename": "截图.png", "path": "./test.png"}],
+    metadata={"topic": "舆情分析"}
+)
+
+# 获取上下文
+ctx = memory.get_context(user_id="user001", query="问题")
+
+# 查询对话（支持时间、元数据过滤）
+convs = memory.get_conversations(
+    user_id="user001",
+    days_limit=7,
+    metadata_filter={"topic": "用户反馈"}
+)
+
+# 搜索图片
+results = memory.search_images(user_id="user001", query="麻花")
+
+# 删除用户
+memory.delete_user(user_id="user001")
+```
+
+## LangChain 集成
+
+```python
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage, HumanMessage
+
+# 获取用户画像
+ctx = memory.get_context(user_id="user001", query="")
+
+# 注入到 system prompt
+system_prompt = f"""当前时间：{ctx['current_time']}
+
+## 用户画像
+{ctx['import_content']}
+"""
+
+llm = ChatOpenAI(model="deepseek-chat", ...)
+messages = [SystemMessage(content=system_prompt)]
+messages.append(HumanMessage(content="帮我写报告"))
+response = llm.invoke(messages)
+
+# 保存对话
+memory.add_conversation(
+    user_id="user001",
+    messages=[
+        {"role": "user", "content": "帮我写报告"},
+        {"role": "assistant", "content": response.content}
+    ]
+)
+```
+
+## 示例
+
+见 `examples/` 目录：
+- `basic_usage.py` - 基础用法
+- `langchain_integration.py` - LangChain 集成
+- `batch_import.py` - 批量导入
+- `image_usage.py` - 图片功能
+
+## 参考资料
+
+- [Reverse Engineering Latest ChatGPT Memory Feature](https://agentman.ai/blog/reverse-ngineering-latest-ChatGPT-memory-feature-and-building-your-own)
+- [How ChatGPT's Memory Actually Works](https://manthanguptaa.in/posts/chatgpt_memory/)
+
+## License
+
+MIT
