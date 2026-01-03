@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "Qurango"
+version = "1.0.0"
+description = "Python library for Quran and Hadith books with multi-language support"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    { name = "Engr. Mubashir Hussain", email = "mubashir6u@gmail.com" },
+    { name = "Engr. Usman Zia", email = "engr_usmanzia@yahoo.com" },
+    { name = "Muhammad Aurangzaib", email = "aurangzaibwagi@gmail.com" },
+    { name = "Ikhlaq Wahid", email = "ikhlaqwahid2003@gmail.com" }
+
+
+]
+
+dependencies = ["pandas>=1.3.0"]
+
+[project.urls]
+"Homepage" = "https://github.com/mubashir6u/Qurango"
+"PyPI" = "https://pypi.org/project/Qurango"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
