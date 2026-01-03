@@ -1,0 +1,80 @@
+[build-system]
+requires = ["uv_build >= 0.9.20"]
+build-backend = "uv_build"
+
+[project]
+name = "pygpp"
+version = "0.0.1"
+description = "A Python abstraction layer for GW-Instek GPP power supplies"
+keywords = ["gwinstek", "gpp", "power supply", "scpi", "visa"]
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+  {name = "Sam Shahrokni", email = "sam@shahrokni.nl"}
+]
+dependencies = [
+    "pyvisa>=1.16",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+    "pre-commit",
+    "coverage",
+    "vulture"
+]
+
+# Tools for the EXAMPLES
+examples = [
+    "pandas",
+    "matplotlib",
+    "rich",
+    "numpy",
+]
+
+[project.urls]
+"Homepage" = "https://gitlab.com/samshahrokni/pyGPP"
+
+[tool.coverage.run]
+source = ["pygpp"]
+
+[tool.coverage.report]
+omit = [
+    "*/tests/*",
+    "*/examples/*",
+]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F = Basic Errors
+# I = Import Sorting
+# B = Bugbear (Best practice checks)
+# D = Docstrings (Enforces your :param style)
+# C4 = Comprehensions
+select = ["E", "F", "I", "B", "D", "C4"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257" # Sphinx/reST style.
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
