@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling>=1.26.1"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ks_market_api"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+dependencies = [
+  "ks-utility>=0.0.35",
+  "ks-trade-api>=0.1.0",
+  "ks-futu-market-api>=1.0.13"
+]
+
+[tool.hatch.version]
+path = "__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["api.py", "config.py", "__init__.py", "logger.py", "__about__.py"]
+
+
+[tool.hatch.build.targets.wheel.sources]
+"" = "ks_market_api"
