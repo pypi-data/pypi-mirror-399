@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "numpy", "setuptools-rust"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aceflow"
+version = "1.6.5"
+description = "A Python library for building and training Seq2Seq models"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT License"}
+authors = [
+    {name = "Maaz waheed", email = "wwork4287@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dynamic = ["dependencies"]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/42Wor/aceflow/issues"
+"Source Code" = "https://github.com/42Wor/aceflow"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["aceflow*"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
