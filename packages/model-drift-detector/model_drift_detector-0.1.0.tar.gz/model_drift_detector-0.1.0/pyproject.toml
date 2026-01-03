@@ -1,0 +1,90 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "model-drift-detector"
+version = "0.1.0"
+description = "Production monitoring for ML model drift - detect data drift, concept drift, and performance degradation"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Pranay M", email = "pranay@example.com" }
+]
+keywords = [
+    "machine-learning",
+    "model-monitoring",
+    "drift-detection",
+    "data-drift",
+    "concept-drift",
+    "mlops",
+    "production-ml",
+    "statistical-testing",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+requires-python = ">=3.8"
+dependencies = []
+
+[project.optional-dependencies]
+scipy = [
+    "scipy>=1.7.0",
+]
+ml = [
+    "numpy>=1.20.0",
+    "pandas>=1.3.0",
+    "scipy>=1.7.0",
+]
+full = [
+    "numpy>=1.20.0",
+    "pandas>=1.3.0",
+    "scipy>=1.7.0",
+    "matplotlib>=3.5.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/pranaym/model-drift-detector"
+Documentation = "https://github.com/pranaym/model-drift-detector#readme"
+Repository = "https://github.com/pranaym/model-drift-detector"
+Issues = "https://github.com/pranaym/model-drift-detector/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/model_drift_detector"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+disallow_untyped_defs = true
