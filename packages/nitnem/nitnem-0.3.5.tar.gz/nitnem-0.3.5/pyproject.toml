@@ -1,0 +1,34 @@
+[project]
+name = "nitnem"
+version = "0.3.5"
+description = "Nitnem using python for Mac and possibly windows latter"
+readme = "README.md"
+authors = [{name = "Sukhbinder Singh"}]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.7"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License"
+]
+dependencies = [
+    "afplay-win ; sys_platform == 'win32'",
+]
+
+
+[tool.setuptools.package-data]
+"*" = ["*.*"]
+
+[project.urls]
+Homepage = "https://github.com/sukhbinder/nitnem"
+Changelog = "https://github.com/sukhbinder/nitnem/releases"
+Issues = "https://github.com/sukhbinder/nitnem/issues"
+CI = "https://github.com/sukhbinder/nitnem/actions"
+
+[project.scripts]
+nitnem = "nitnem.cli:cli"
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
