@@ -1,0 +1,70 @@
+Metadata-Version: 2.4
+Name: npmai
+Version: 0.1.1
+Summary: A lightweight Ollama(no ollama installation needed) based LangChain-compatible LLM bridge ('LLaMA-3.2','CodeLLaMA-Instruct 7B','Gemma-2-Instruct 9B','Mistral 7B Instruct','Qwen-2.5-Coder 7B','Phi-3 Medium (8B)','Falcon 7B Instruct','Baichuan-2-7B','InternLM-Chat-7B','Vicuna 7B') built by Sonu Kumar.
+Author-email: "Sonu Kumar (Viral Boy Bihar)" <sonuramashishnpm@gmail.com>
+License: MIT
+Project-URL: Homepage, https://npmai.onrender.com
+Project-URL: Source, https://github.com/sonuramashishnpm/npmai
+Requires-Python: <3.14,>=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: requests
+Requires-Dist: langchain-core
+
+npmai
+
+npmai (by Sonu Kumar Ramashish) is a lightweight Python package that seamlessly connects you  with Ollama and other open-source models without any Installation, Login/Signup or API problems.
+
+🚀 Features
+
+Execute prompts on multiple LLMs simultaneously:["LLaMA-3.2","CodeLLaMA-Instruct 7B","Gemma-2-Instruct 9B","Mistral 7B Instruct","Qwen-2.5-Coder 7B","Phi-3 Medium (8B)","Falcon 7B Instruct","Baichuan-2-7B","InternLM-Chat-7B","Vicuna 7B"]
+
+Fully LangChain,CrewAI and other -compatible interface.
+
+Simple and intuitive invoke() API for instant responses.
+
+Support continuous conversation.
+
+Encourages responsible usage.
+
+#For documentation visit:- https://npmai.onrender.com
+
+⚙️ Installation
+pip install npmai
+
+
+Tip: For Python 3.13, make sure to use:
+
+py -3.13 -m pip install npmai
+
+💡 How to Use
+
+Import the models 
+
+from npmai import Ollama
+
+
+Initialize Ollama:
+
+llm = Ollama()      
+
+prompts=""
+model="Llama3.2" you can keep other also
+
+Invoke a prompt and get the response:
+
+response = llm.invoke(prompts,model)
+print(response) 
+
+#Latest Update :
+version 0.1.1 Here in this version we fixed the bug and added Structured_Output schemas.
+
+⚠️ Important Notes
+
+Designed for educational ,small-scale experimentation, for demo projets and small scale users.
+
+If using at a larger scale, consider supporting the original AI platforms—they invest heavily in research and infrastructure.
+
+use responsibly to help us.
+
+✅ npmai makes it effortless to connect Ollam models with Python, bringing automation, experimentation, and LangChain,Crew AI integration together in a single, easy-to-use package.
