@@ -1,0 +1,273 @@
+# XSScan - Production-Grade XSS Detection Tool
+
+A professional, production-ready Command-Line Interface (CLI) application for detecting Cross-Site Scripting (XSS) vulnerabilities in web applications.
+
+## 🎯 Features
+
+- **Comprehensive XSS Detection**: Detects reflected and stored XSS vulnerabilities
+- **Context-Aware Payloads**: Intelligent payload generation based on injection context (HTML body, attributes, JavaScript, URL, CSS)
+- **Web Crawling**: Automatic discovery of URLs and injection points
+- **Professional Reporting**: Export results to JSON, HTML, PDF, and TXT formats
+- **Configuration Management**: Persistent configuration storage
+- **Clean Architecture**: Strict separation of concerns (Core Engine, CLI Layer, Reporting Layer)
+- **Production-Ready**: Error handling, exit codes, rate limiting, timeout controls
+
+## 📦 Installation
+
+### From Source
+
+```bash
+git clone https://github.com/xsscan/xsscan.git
+cd xsscan
+pip install -e .
+```
+
+### From PyPI (when published)
+
+```bash
+pip install xsscan
+```
+
+## 🚀 Quick Start
+
+### Basic Scan
+
+```bash
+xsscan scan -u https://example.com
+```
+
+### Advanced Scan
+
+```bash
+xsscan scan -u https://example.com -d 3 --timeout 15 --rate-limit 2 --threads 10
+```
+
+### Export Results
+
+```bash
+# JSON export
+xsscan scan -u https://example.com --json results.json
+
+# HTML report
+xsscan scan -u https://example.com --html report.html
+
+# PDF report
+xsscan scan -u https://example.com --pdf report.pdf
+
+# Text report
+xsscan scan -u https://example.com --txt report.txt
+```
+
+## 📖 Usage
+
+### Scan Command
+
+```bash
+xsscan scan [OPTIONS]
+```
+
+**Options:**
+- `-u, --url TEXT`: Target URL to scan (required)
+- `-d, --depth INTEGER`: Maximum crawl depth (default: 2)
+- `--timeout FLOAT`: Request timeout in seconds (default: 10.0)
+- `--rate-limit FLOAT`: Requests per second (default: 1.0)
+- `--threads INTEGER`: Maximum concurrent threads (default: 5)
+- `--payload-set TEXT`: Payload set to use
+- `-v, --verbose`: Verbose output
+- `-s, --silent`: Silent mode (minimal output)
+- `--json PATH`: Export results as JSON
+- `--html PATH`: Export results as HTML
+- `--pdf PATH`: Export results as PDF
+- `--txt PATH`: Export results as TXT
+- `-o, --output PATH`: Output file path
+
+**Examples:**
+
+```bash
+# Basic scan
+xsscan scan -u https://example.com
+
+# Deep scan with custom settings
+xsscan scan -u https://example.com -d 5 --timeout 20 --rate-limit 0.5
+
+# Scan with verbose output
+xsscan scan -u https://example.com --verbose
+
+# Scan and export to multiple formats
+xsscan scan -u https://example.com --json results.json --html report.html
+```
+
+### Config Command
+
+```bash
+xsscan config [ACTION] [KEY] [VALUE]
+```
+
+**Actions:**
+- `show`: Display current configuration
+- `set KEY VALUE`: Set a configuration value
+- `get KEY`: Get a configuration value
+- `reset`: Reset configuration to defaults
+
+**Examples:**
+
+```bash
+# Show configuration
+xsscan config show
+
+# Set default depth
+xsscan config set default_depth 3
+
+# Set default timeout
+xsscan config set default_timeout 15.0
+
+# Get a configuration value
+xsscan config get default_depth
+
+# Reset configuration
+xsscan config reset
+```
+
+### Report Command
+
+```bash
+xsscan report INPUT_FILE [OPTIONS]
+```
+
+**Options:**
+- `-f, --format TEXT`: Output format (json, html, pdf, txt)
+- `-o, --output PATH`: Output file path (required)
+
+**Examples:**
+
+```bash
+# Convert JSON to HTML
+xsscan report results.json -f html -o report.html
+
+# Convert JSON to PDF
+xsscan report results.json -f pdf -o report.pdf
+```
+
+### Version Command
+
+```bash
+xsscan version
+```
+
+## 🏗️ Architecture
+
+XSScan follows a strict layered architecture:
+
+### Core Engine (Scanner Layer)
+
+Pure Python logic with no CLI dependencies:
+- **Crawler** (`xsscan.core.crawler`): Web crawling and link discovery
+- **Detector** (`xsscan.core.detector`): XSS vulnerability detection
+- **Payload Generator** (`xsscan.core.payloads`): Context-aware payload generation
+- **Scanner** (`xsscan.core.scanner`): Main orchestration layer
+- **Models** (`xsscan.core.models`): Data structures and enums
+
+### CLI Layer (Interface Layer)
+
+Built with Typer and Rich:
+- **Main CLI** (`xsscan.cli.main`): Command definitions and user interaction
+- Handles input validation, output formatting, and error handling
+
+### Reporting Layer
+
+Professional report generation:
+- **Exporter** (`xsscan.reporting.export`): Multi-format export (JSON, HTML, PDF, TXT)
+- Structured vulnerability schema
+- Client-ready report formatting
+
+### Configuration Management
+
+Persistent configuration storage:
+- **Config Manager** (`xsscan.config.manager`): Configuration persistence
+- Stores settings in `~/.xsscan/config.json`
+
+## 🔍 XSS Detection Capabilities
+
+### Supported XSS Types
+
+- **Reflected XSS**: Detected through response analysis
+- **Stored XSS**: Verification phase (future enhancement)
+- **DOM XSS**: Context detection (future enhancement)
+
+### Context Detection
+
+The scanner intelligently detects injection contexts:
+
+- **HTML Body**: Payloads injected into HTML content
+- **HTML Attributes**: Payloads in HTML attribute values
+- **JavaScript**: Payloads in JavaScript code
+- **URL**: Payloads in URLs/hrefs
+- **CSS**: Payloads in CSS contexts
+
+### Payload Generation
+
+Context-aware payloads with:
+- Base payloads for each context
+- Payload mutations (encoding, case variations)
+- Intelligent string concatenation
+- False-positive reduction
+
+## 📊 Exit Codes
+
+- `0`: No vulnerabilities found
+- `1`: Vulnerabilities found
+- `2`: Runtime or configuration error
+
+## 🔐 Security Features
+
+- Safe request handling
+- Rate limiting to avoid overwhelming targets
+- Timeout controls
+- Input sanitization
+- No hardcoded secrets
+- Proper exception isolation
+
+## 📝 Configuration
+
+Configuration is stored in `~/.xsscan/config.json`. Supported settings:
+
+- `default_depth`: Default crawl depth
+- `default_timeout`: Default request timeout
+- `rate_limit`: Default rate limit
+- `headers`: Custom HTTP headers
+- `cookies`: Custom cookies
+- `excluded_paths`: Paths to exclude from crawling
+- `excluded_params`: Parameters to exclude from testing
+
+## 🧪 Testing
+
+```bash
+# Run tests (when test suite is added)
+pytest tests/
+```
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read the contributing guidelines before submitting pull requests.
+
+## 📧 Support
+
+For issues, questions, or feature requests, please open an issue on GitHub.
+
+## 🙏 Acknowledgments
+
+Built with:
+- [Typer](https://typer.tiangolo.com/) - Modern CLI framework
+- [Rich](https://rich.readthedocs.io/) - Beautiful terminal output
+- [httpx](https://www.python-httpx.org/) - Modern HTTP client
+- [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) - HTML parsing
+- [ReportLab](https://www.reportlab.com/) - PDF generation
+
+---
+
+**⚠️ Disclaimer**: This tool is for authorized security testing only. Unauthorized use against systems you don't own or have permission to test is illegal and unethical.
+

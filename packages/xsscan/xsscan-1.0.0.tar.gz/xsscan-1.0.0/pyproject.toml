@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xsscan"
+version = "1.0.0"
+description = "Production-grade CLI tool for detecting Cross-Site Scripting (XSS) vulnerabilities"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    {name = "Alan", email = "whoamialan11@gmail.com"},
+]
+keywords = ["security", "xss", "vulnerability", "scanner", "pentesting"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Topic :: Security",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "httpx>=0.24.0",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=4.9.0",
+    "reportlab>=4.0.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0.0",
+    "appdirs>=1.4.4",
+]
+
+[project.scripts]
+xsscan = "xsscan.cli.main:main"
+
+[project.urls]
+Homepage = "https://github.com/xsscan/xsscan"
+Documentation = "https://github.com/xsscan/xsscan#readme"
+Repository = "https://github.com/xsscan/xsscan"
+Issues = "https://github.com/xsscan/xsscan/issues"
+
+[tool.setuptools]
+packages = ["xsscan", "xsscan.core", "xsscan.cli", "xsscan.reporting", "xsscan.config"]
+
+[tool.setuptools.package-data]
+xsscan = ["py.typed"]
+
