@@ -1,0 +1,32 @@
+{% load hrenpack.html %}
+{% load hrenpack.debug %}
+<style>
+    .hrendjango-cb {
+        display: flex;
+        align-items: center;
+        margin-left: {{ cb_ml|default:0 }}%;
+        label {
+            margin-left: {{ cb_label_ml|default:0 }}%;
+            text-align: center;
+        }
+    }
+</style>
+<div class="form-error">{{ form.non_field_errors }}</div>
+{% get_condition div_mode 'div' 'p' as f_tag %}
+{% for el in form %}
+    {% var el.field.widget.input_type as input_type %}
+    {% if el.name == 'captcha' %}
+        {% if fc_mode == 'debug' %}{% print "Используется капча" %}{% endif %}
+        {{ el }}
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    {% elif input_type == 'hidden' %}
+    {% elif input_type == 'checkbox' %}
+        <{{ f_tag }} class="hrendjango-cb">{{ el }}<label for="{{ el.id_for_label }}">{{ el.label }}</label></{{ f_tag }}>
+    {% else %}
+        <{{ f_tag }}><label for="{{ el.id_for_label }}">{{ el.label }}{% if colon_post %}:{% endif %}</label> {% if br_post %}<br>{% endif %} {{ el }}</{{ f_tag }}>
+    <div class="form-error">{{ el.errors }}</div>
+    {% endif %}
+{% endfor %}
+{% if button_text %}
+	<input type="submit" {% if button_class %} class="{{ button_class }}" {% endif %} value="{{ button_text }}">
+{% endif %} 
