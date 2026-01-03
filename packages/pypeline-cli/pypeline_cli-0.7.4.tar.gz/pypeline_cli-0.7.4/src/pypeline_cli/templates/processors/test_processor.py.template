@@ -1,0 +1,124 @@
+"""
+Unit tests for $class_name
+
+Tests verify the behavior of the $processor_name processor in isolation.
+"""
+
+import pytest
+from unittest.mock import Mock, patch, MagicMock
+
+from snowflake.snowpark import DataFrame
+
+# Import the processor class
+from ..${processor_name}_processor import $class_name
+
+
+class Test$class_name:
+    """Test suite for $class_name processor."""
+
+    @pytest.fixture
+    def mock_etl(self):
+        """Mock ETL instance with Snowpark session."""
+        with patch("$project_name.pipelines.$pipeline_name.processors.${processor_name}_processor.ETL") as mock:
+            mock_instance = MagicMock()
+            mock_instance.session = MagicMock()
+            mock.return_value = mock_instance
+            yield mock_instance
+
+    @pytest.fixture
+    def mock_logger(self):
+        """Mock Logger instance."""
+        with patch("$project_name.pipelines.$pipeline_name.processors.${processor_name}_processor.Logger") as mock:
+            mock_instance = MagicMock()
+            mock.return_value = mock_instance
+            yield mock_instance
+
+    @pytest.fixture
+    def processor(self, mock_etl, mock_logger):
+        """
+        Create processor instance with mocked dependencies.
+
+        TODO: Update this fixture if __init__ requires parameters.
+        """
+        return $class_name()
+
+    def test_initialization(self, processor, mock_logger):
+        """
+        Test that processor initializes correctly.
+
+        TODO: Add assertions for:
+        - Instance attributes are set correctly
+        - Data extraction happens in __init__
+        - Logger is instantiated
+        """
+        assert processor.logger is not None
+        assert processor.etl is not None
+
+        # TODO: Add more specific initialization tests
+        # Example:
+        # assert processor.source_df is not None
+        # mock_logger.return_value.info.assert_called_once()
+
+    def test_process_returns_dataframe(self, processor):
+        """
+        Test that process() returns a DataFrame.
+
+        TODO: Mock the process() implementation and verify return type.
+        """
+        # This will raise NotImplementedError until process() is implemented
+        # Replace with actual test once implemented
+
+        with pytest.raises(NotImplementedError):
+            result = processor.process()
+
+        # TODO: Once process() is implemented, update test:
+        # result = processor.process()
+        # assert isinstance(result, DataFrame)
+
+    def test_process_transformations(self, processor, mock_etl):
+        """
+        Test specific transformations performed by process().
+
+        TODO: Add tests for transformation logic:
+        - Verify correct columns are selected/created
+        - Verify filters are applied correctly
+        - Verify joins happen as expected
+        - Verify aggregations are correct
+        """
+        # TODO: Implement transformation tests
+        pass
+
+    def test_example_transformation(self, processor):
+        """
+        Test the _example_transformation private method.
+
+        TODO: Replace with tests for actual private transformation methods.
+
+        Example test structure:
+        1. Create mock input DataFrame
+        2. Call the transformation method
+        3. Assert output DataFrame has expected schema/values
+        """
+        # TODO: Implement tests for private transformation methods
+        pass
+
+    def test_error_handling(self, processor):
+        """
+        Test error handling in the processor.
+
+        TODO: Add tests for error scenarios:
+        - Missing source data
+        - Invalid data types
+        - Null handling
+        - Edge cases
+        """
+        # TODO: Implement error handling tests
+        pass
+
+
+# TODO: Add more test classes or functions as needed
+# Consider testing:
+# - Integration with config.py TableConfigs
+# - Edge cases and boundary conditions
+# - Performance with large datasets (if applicable)
+# - Data quality validations

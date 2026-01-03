@@ -1,0 +1,63 @@
+from datetime import datetime
+from typing import cast, Tuple, TypedDict
+from zoneinfo import ZoneInfo
+
+from snowflake.snowpark import Session
+
+class TimestampResult(TypedDict):
+    dt: datetime
+    iso: str
+
+def table_modified_this_month(
+    session: Session,
+    table_name: str,
+    schema_name: str,
+    database_name: str
+) -> bool:
+    """
+    Let Snowflake handle the timestamp conversion
+    """
+    query = f"""
+    SELECT 
+        TO_TIMESTAMP_NTZ(SYSTEM$LAST_CHANGE_COMMIT_TIME('{database_name}.{schema_name}.{table_name}') / 1000000000) as LAST_CHANGE_DATETIME,
+        DATE_TRUNC('MONTH', TO_TIMESTAMP_NTZ(SYSTEM$LAST_CHANGE_COMMIT_TIME('{database_name}.{schema_name}.{table_name}') / 1000000000)) = DATE_TRUNC('MONTH', CURRENT_TIMESTAMP()) as IS_CURRENT_MONTH
+    """
+
+    result = session.sql(query).collect()
+
+    last_change = result[0]['LAST_CHANGE_DATETIME']
+    is_current_month = bool(result[0]['IS_CURRENT_MONTH'])
+
+    print(f"Last change: {last_change}")
+    print(f"Modified in current month: {is_current_month}")
+
+    return is_current_month
+
+
+def get_table_last_modified(
+    session: Session,
+    database_name: str,
+    schema_name: str,
+    table_name: str
+) -> TimestampResult:
+
+    query = f"""
+        SELECT LAST_ALTERED
+        FROM {database_name}.INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_CATALOG = '{database_name}'
+        AND TABLE_SCHEMA = '{schema_name}'
+        AND TABLE_NAME = '{table_name}'
+    """
+
+    result = session.sql(query).collect()
+    last_updated = cast(datetime, result[0]["LAST_ALTERED"])
+
+    eastern_tz = ZoneInfo("America/New_York")
+    dt_eastern = last_updated.astimezone(eastern_tz)
+
+    iso_string = dt_eastern.isoformat()
+
+    return {
+        "dt": dt_eastern,
+        "iso": iso_string
+    }

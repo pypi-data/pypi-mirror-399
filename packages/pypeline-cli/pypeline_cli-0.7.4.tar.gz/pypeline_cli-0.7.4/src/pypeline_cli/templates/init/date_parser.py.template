@@ -1,0 +1,153 @@
+"""
+utils/date_parser.py
+
+This module provides the DateTimeManager class for validating and structuring 
+timezone-aware datetime objects. All datetimes are normalized to UTC internally.
+"""
+
+from datetime import datetime, timezone
+from typing import TypedDict, Dict, Optional
+from zoneinfo import ZoneInfo
+
+from .logger import Logger
+
+MODULE_NAME = "utils/date_parser.py"
+
+
+class ParsedDateTime(TypedDict):
+    """
+    TypedDict representing a validated datetime with UTC normalization.
+
+    Attributes:
+        iso_string_utc (str): ISO formatted string in UTC.
+        iso_string_eastern (str): ISO formatted string in Eastern timezone (for display).
+        datetime_utc (datetime): The datetime object normalized to UTC.
+        datetime_original (datetime): The original datetime object with its timezone preserved.
+        year_utc (int): The year component in UTC.
+        month_utc (str): The month component in UTC, zero-padded.
+        day_utc (str): The day component in UTC, zero-padded.
+    """
+    iso_string_utc: str
+    iso_string_eastern: str
+    datetime_utc: datetime
+    datetime_original: datetime
+    year_utc: int
+    month_utc: str
+    day_utc: str
+
+
+class DateTimeManager:
+    """
+    Manages validation and normalization of timezone-aware datetime objects.
+    All datetimes are normalized to UTC for consistency.
+
+    Attributes:
+        is_required (bool): Whether the datetimes are required.
+        parsed_datetimes (Dict[str, ParsedDateTime]): Structured parsed datetime information.
+    """
+
+    def __init__(self, is_required: bool, **kwargs: Optional[datetime]) -> None:
+        """
+        Initialize DateTimeManager.
+
+        Args:
+            is_required (bool): Whether the datetimes are required.
+            **kwargs (Optional[datetime]): Timezone-aware datetime objects to be validated.
+
+        Raises:
+            ValueError: If a required datetime is missing or lacks timezone info.
+        """
+        self.is_required: bool = is_required
+        self._kwargs: Dict[str, Optional[datetime]] = kwargs
+        self.logger: Logger = Logger()
+        self.logger.info(
+            message=f"Initializing DateTimeManager with is_required={is_required} and datetimes={list(kwargs.keys())}",
+            context=MODULE_NAME
+        )
+        self.parsed_datetimes: Dict[str, ParsedDateTime] = self._parse_and_normalize_datetimes()
+
+    def _parse_and_normalize_datetimes(self) -> Dict[str, ParsedDateTime]:
+        """
+        Validate and normalize timezone-aware datetimes to UTC.
+
+        Returns:
+            Dict[str, ParsedDateTime]: Mapping of datetime names to parsed datetime information.
+            
+        Raises:
+            ValueError: If a required datetime is missing or lacks timezone info.
+        """
+        parsed_datetimes: Dict[str, ParsedDateTime] = {}
+        eastern_tz = ZoneInfo("America/New_York")
+        
+        for datetime_name, datetime_object in self._kwargs.items():
+            # Check if datetime object exists
+            if datetime_object is None:
+                if self.is_required:
+                    self.logger.critical(
+                        message=f"{datetime_name} is missing a datetime object.",
+                        context=MODULE_NAME
+                    )
+                    raise ValueError(f"Datetime object for '{datetime_name}' is required.")
+                else:
+                    self.logger.warning(
+                        message=f"Skipping {datetime_name} since datetime object was not provided.",
+                        context=MODULE_NAME
+                    )
+                    continue
+            
+            # Check if datetime has timezone info
+            if datetime_object.tzinfo is None:
+                if self.is_required:
+                    self.logger.critical(
+                        message=f"{datetime_name} datetime object is missing timezone information.",
+                        context=MODULE_NAME
+                    )
+                    raise ValueError(
+                        f"{datetime_name} datetime object must include timezone information. "
+                        f"Use datetime.now(timezone.utc) or datetime.now(ZoneInfo('America/New_York'))."
+                    )
+                else:
+                    self.logger.warning(
+                        message=f"Skipping {datetime_name} since datetime object lacks timezone information.",
+                        context=MODULE_NAME
+                    )
+                    continue
+            
+            # Normalize to UTC (this is the core of your transition)
+            dt_utc = datetime_object.astimezone(timezone.utc)
+            dt_eastern = datetime_object.astimezone(eastern_tz)
+            
+            # Build structured datetime info with UTC as the source of truth
+            parsed_datetimes[datetime_name] = {
+                "iso_string_utc": dt_utc.isoformat(),
+                "iso_string_eastern": dt_eastern.isoformat(),  # For display purposes only
+                "datetime_utc": dt_utc,  # This is your source of truth
+                "datetime_original": datetime_object,  # Preserved for reference
+                "year_utc": dt_utc.year,
+                "month_utc": f"{dt_utc.month:02d}",
+                "day_utc": f"{dt_utc.day:02d}"
+            }
+            
+            self.logger.debug(
+                message=f"Normalized {datetime_name}: {datetime_object.isoformat()} → {dt_utc.isoformat()}",
+                context=MODULE_NAME
+            )
+        
+        self.logger.info(
+            message=f"Successfully normalized {len(parsed_datetimes)} datetime(s) to UTC.",
+            context=MODULE_NAME
+        )
+        return parsed_datetimes
+
+    def get_utc_datetime(self, name: str) -> Optional[datetime]:
+        """
+        Get the UTC-normalized datetime by name.
+        
+        Args:
+            name (str): The name of the datetime.
+            
+        Returns:
+            Optional[datetime]: The UTC datetime, or None if not found.
+        """
+        parsed = self.parsed_datetimes.get(name)
+        return parsed["datetime_utc"] if parsed else None
