@@ -1,0 +1,138 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "numpy>=1.20.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mle-runtime"
+version = "2.0.4"
+description = "MLE Runtime - High-Performance Machine Learning Inference Engine"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Vinay Kamble", email = "vinaykamble289@gmail.com"}
+]
+maintainers = [
+    {name = "Vinay Kamble", email = "vinaykamble289@gmail.com"}
+]
+keywords = [
+    "machine learning",
+    "inference",
+    "runtime",
+    "optimization",
+    "performance",
+    "scikit-learn",
+    "pytorch",
+    "xgboost",
+    "lightgbm",
+    "catboost",
+    "neural networks",
+    "deep learning",
+    "model deployment",
+    "production",
+    "c++",
+    "cuda",
+    "gpu acceleration"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: C++",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Hardware :: Symmetric Multi-processing",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.20.0",
+    "scipy>=1.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-benchmark>=3.4.0",
+    "black>=21.0.0",
+    "flake8>=3.9.0",
+    "mypy>=0.910",
+]
+all = [
+    "scikit-learn>=1.0.0",
+    "torch>=1.9.0",
+    "xgboost>=1.5.0",
+    "lightgbm>=3.2.0",
+    "catboost>=1.0.0",
+]
+gpu = [
+    "cupy-cuda11x>=9.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/vinaykamble289/mle-runtime"
+Repository = "https://github.com/vinaykamble289/mle-runtime"
+Documentation = "https://github.com/vinaykamble289/mle-runtime#readme"
+"Bug Reports" = "https://github.com/vinaykamble289/mle-runtime/issues"
+Changelog = "https://github.com/vinaykamble289/mle-runtime/releases"
+
+[project.scripts]
+mle-runtime = "mle_runtime.cli:main"
+
+[tool.setuptools]
+packages = ["mle_runtime"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+mle_runtime = ["*.pyd", "*.so", "*.dll"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "gpu: marks tests as requiring GPU",
+    "integration: marks tests as integration tests",
+]
