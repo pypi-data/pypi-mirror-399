@@ -1,0 +1,120 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hallucination-detector"
+version = "1.0.0"
+description = "Production-ready hallucination detection for LLM outputs"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Pranay M", email = "pranay@example.com"}
+]
+maintainers = [
+    {name = "Pranay M", email = "pranay@example.com"}
+]
+keywords = [
+    "llm",
+    "hallucination",
+    "detection",
+    "ai",
+    "machine-learning",
+    "nlp",
+    "fact-checking",
+    "verification",
+    "chatgpt",
+    "gpt",
+    "claude",
+    "openai",
+    "anthropic"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed"
+]
+requires-python = ">=3.8"
+dependencies = []
+
+[project.optional-dependencies]
+full = [
+    "sentence-transformers>=2.2.0",
+    "spacy>=3.0.0",
+    "numpy>=1.20.0"
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0"
+]
+docs = [
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.3.0",
+    "myst-parser>=2.0.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/pranaym/hallucination-detector"
+Documentation = "https://hallucination-detector.readthedocs.io"
+Repository = "https://github.com/pranaym/hallucination-detector"
+Issues = "https://github.com/pranaym/hallucination-detector/issues"
+Changelog = "https://github.com/pranaym/hallucination-detector/blob/main/CHANGELOG.md"
+
+[project.scripts]
+hallucination-detect = "hallucination_detector.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+hallucination_detector = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "D", "UP", "S", "B", "A", "C4", "T20"]
+ignore = ["D100", "D104"]
+
+[tool.coverage.run]
+source = ["src/hallucination_detector"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError"
+]
