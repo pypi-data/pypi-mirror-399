@@ -1,0 +1,124 @@
+import time
+from typing import Any
+
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import selectinload
+from sqlmodel import select
+
+from planar.security.authorization import GroupResource, UserResource
+from planar.session import get_config
+from planar.user.models import IDPUser
+from planar.utils import flatmap
+
+
+class Principal(BaseModel):
+    """Represents an authenticated principal (user) with JWT claims."""
+
+    # Standard JWT claims
+    sub: str = Field(..., description="Subject (user ID)")
+    iss: str | None = Field(None, description="Issuer")
+    exp: int | None = Field(None, description="Expiration timestamp")
+    iat: int | None = Field(None, description="Issued at timestamp")
+    sid: str | None = Field(None, description="Session ID")
+    jti: str | None = Field(None, description="JWT ID")
+
+    # WorkOS specific claims
+    org_id: str | None = Field(None, description="Organization ID")
+    org_name: str | None = Field(None, description="Organization name")
+    user_first_name: str | None = Field(None, description="User's first name")
+    user_last_name: str | None = Field(None, description="User's last name")
+    user_email: str | None = Field(None, description="User's email address")
+    role: str | None = Field(None, description="User's role")
+    permissions: list[str] | None = Field(None, description="User's permissions")
+
+    user: UserResource | None = Field(None, description="User resource from IDPUser")
+    groups: list[GroupResource] | None = Field(
+        None, description="User's group resources from IDPGroups"
+    )
+
+    # Additional custom claims
+    extra_claims: dict[str, Any] = Field(
+        default_factory=dict, description="Additional custom claims"
+    )
+
+    @classmethod
+    async def from_jwt_payload(cls, payload: dict[str, Any]) -> "Principal":
+        """Create a Principal from a JWT payload, querying the DB to populate IDP data."""
+        from planar import get_session
+
+        if "sub" not in payload:
+            raise ValueError("JWT payload must contain 'sub' field")
+
+        standard_fields = {
+            "sub",
+            "iss",
+            "exp",
+            "iat",
+            "sid",
+            "jti",
+            "org_id",
+            "org_name",
+            "user_first_name",
+            "user_last_name",
+            "user_email",
+            "role",
+            "permissions",
+        }
+
+        # Extract standard fields
+        principal_data = {}
+        for field in standard_fields:
+            if field in payload:
+                principal_data[field] = payload[field]
+
+        # All other fields go into extra_claims
+        extra_claims = {k: v for k, v in payload.items() if k not in standard_fields}
+        principal_data["extra_claims"] = extra_claims
+
+        principal_data["user"] = principal_data["groups"] = None
+
+        try:
+            config = get_config()
+        except LookupError:
+            config = None
+
+        if config and config.dir_sync is not None:
+            session = get_session()
+
+            user_result = await session.exec(
+                select(IDPUser)
+                .where(IDPUser.email == principal_data.get("user_email"))
+                .options(selectinload(IDPUser.groups))  # pyright: ignore[reportArgumentType]
+            )
+            idp_user = user_result.one_or_none()
+
+            if idp_user:
+                principal_data["user"] = flatmap(idp_user, UserResource.from_user)
+                principal_data["groups"] = [
+                    flatmap(group, GroupResource.from_group)
+                    for group in idp_user.groups
+                ]
+
+        return cls(**principal_data)
+
+    @classmethod
+    def from_service_token(cls, token: str) -> "Principal":
+        """Create a Principal from a service token."""
+        # TO-DO Potentially lookup token in database to get org_id, org_name, user_first_name, user_last_name, user_email, role, permissions
+        return cls(
+            sub="service_token",
+            iss="service_token",
+            exp=int(time.time()) + 3600,
+            iat=int(time.time()),
+            sid="service_token",
+            jti="service_token",
+            org_id="service_token",
+            org_name="service_token",
+            user_first_name="service_token",
+            user_last_name="service_token",
+            user_email="service_token",
+            role="service_token",
+            permissions=["service_token"],
+            user=None,
+            groups=None,
+        )
