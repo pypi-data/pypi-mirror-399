@@ -1,0 +1,108 @@
+Metadata-Version: 2.4
+Name: gen-art-framework
+Version: 0.1.0
+Summary: A framework for creating generative art with Python
+Keywords: generative-art,art,creative-coding,image-generation
+Author: josh-gree
+Author-email: josh-gree <joshuadouglasgreenhalgh@gmail.com>
+License-Expression: MIT
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Education
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Artistic Software
+Classifier: Topic :: Multimedia :: Graphics
+Requires-Dist: click>=8.3.1
+Requires-Dist: numpy>=2.4.0
+Requires-Dist: pillow>=12.0.0
+Requires-Dist: pyyaml>=6.0.3
+Requires-Dist: scipy>=1.16.3
+Requires-Python: >=3.12
+Project-URL: Homepage, https://github.com/josh-gree/gen-art-framework
+Project-URL: Issues, https://github.com/josh-gree/gen-art-framework/issues
+Project-URL: Repository, https://github.com/josh-gree/gen-art-framework
+Description-Content-Type: text/markdown
+
+# gen-art-framework
+
+A Python framework for generating art from parameterised scripts. Define parameter distributions in YAML, and the framework samples from them to create unique variations of your artwork.
+
+## Installation
+
+```bash
+pip install gen-art-framework
+```
+
+Or with [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv add gen-art-framework
+```
+
+## Quick Start
+
+Create a script with a YAML parameter block in its docstring:
+
+```python
+"""
+parameters:
+  - name: seed
+    distribution: constant
+    value: 42
+  - name: width
+    distribution: constant
+    value: 800
+  - name: height
+    distribution: constant
+    value: 600
+  - name: num_circles
+    distribution: randint
+    low: 20
+    high: 50
+  - name: colour
+    distribution: choice
+    values: ["#e94560", "#f39c12", "#00b894"]
+"""
+
+from PIL import Image, ImageDraw
+import random
+
+random.seed(seed)
+
+img = Image.new("RGB", (width, height), "#1a1a2e")
+draw = ImageDraw.Draw(img)
+
+for _ in range(num_circles):
+    x = random.randint(0, width)
+    y = random.randint(0, height)
+    r = random.randint(10, 50)
+    draw.ellipse([x - r, y - r, x + r, y + r], fill=colour)
+
+img
+```
+
+Generate images using the CLI:
+
+```bash
+# Generate a single image
+gen-art sample my_script.py
+
+# Generate 10 variations
+gen-art sample my_script.py --count 10
+
+# Specify output directory and seed for reproducibility
+gen-art sample my_script.py -n 5 -o ./output -s 42
+```
+
+Output files are named `{script_name}_{index}_{seed}.png`.
+
+## Documentation
+
+- [CLI Usage](docs/cli.md) - Command-line interface reference
+- [Writing Scripts](docs/writing-scripts.md) - How to write parameterised art scripts
+- [Distributions](docs/distributions.md) - Available parameter distributions
+- [Python API](docs/api.md) - Programmatic usage
+- [Examples](docs/examples.md) - Walkthrough of example scripts
