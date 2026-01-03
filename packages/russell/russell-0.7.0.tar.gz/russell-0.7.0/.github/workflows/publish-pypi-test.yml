@@ -1,0 +1,32 @@
+name: publish-pypi-test
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi-test
+      url: https://test.pypi.org/p/russell
+    permissions:
+      id-token: write
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+    - uses: astral-sh/setup-uv@v7
+      with:
+        enable-cache: true
+    - run: uv version --bump patch --bump dev=$GITHUB_RUN_NUMBER
+    - run: uv build
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
