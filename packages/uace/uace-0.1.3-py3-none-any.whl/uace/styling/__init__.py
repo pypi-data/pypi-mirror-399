@@ -1,0 +1,101 @@
+"""
+Style Presets
+
+Declarative styling for captions with motion typography.
+"""
+
+from uace.styling.presets import (
+    StylePreset,
+    AnimationStyle,
+    ColorPalette,
+    FontStyle,
+    EffectsConfig,
+    PositionConfig,
+    get_preset,
+    list_presets,
+    PRESET_REGISTRY,
+    # Original presets
+    VIRAL_POP,
+    MINIMAL,
+    KARAOKE,
+    SUBTITLE_CLASSIC,
+    BOUNCE,
+    NEON,
+    # Viral/Social Media
+    BIG_BOLD,
+    ZOOM_PUNCH,
+    WAVE_MOTION,
+    ELASTIC_BOUNCE,
+    EARTHQUAKE,
+    # Music/Rhythm
+    BEAT_PULSE,
+    SOUND_WAVE,
+    RHYTHM_BOUNCE,
+    # Creative/Artistic
+    GLITCH,
+    RETRO_VHS,
+    HOLOGRAM,
+    GRAFFITI,
+    HANDWRITTEN,
+    # Animation Styles
+    SLIDE_DOWN,
+    FLIP_IN,
+    ROTATE_IN,
+    BLUR_FOCUS,
+    NOIR_TYPEWRITER,
+    CINEMATIC_FADE,
+    # 3D/Perspective
+    PERSPECTIVE_3D,
+    DEPTH_BLUR,
+    FLOATING,
+    # Special Effects
+    FIRE,
+    LIGHTNING,
+    PARTICLES,
+    SPOTLIGHT,
+)
+
+__all__ = [
+    "StylePreset",
+    "AnimationStyle",
+    "ColorPalette",
+    "FontStyle",
+    "EffectsConfig",
+    "PositionConfig",
+    "get_preset",
+    "list_presets",
+    "PRESET_REGISTRY",
+    # All preset instances
+    "VIRAL_POP",
+    "MINIMAL",
+    "KARAOKE",
+    "SUBTITLE_CLASSIC",
+    "BOUNCE",
+    "NEON",
+    "BIG_BOLD",
+    "ZOOM_PUNCH",
+    "WAVE_MOTION",
+    "ELASTIC_BOUNCE",
+    "EARTHQUAKE",
+    "BEAT_PULSE",
+    "SOUND_WAVE",
+    "RHYTHM_BOUNCE",
+    "GLITCH",
+    "RETRO_VHS",
+    "HOLOGRAM",
+    "GRAFFITI",
+    "HANDWRITTEN",
+    "SLIDE_DOWN",
+    "FLIP_IN",
+    "ROTATE_IN",
+    "BLUR_FOCUS",
+    "NOIR_TYPEWRITER",
+    "CINEMATIC_FADE",
+    "PERSPECTIVE_3D",
+    "DEPTH_BLUR",
+    "FLOATING",
+    "FIRE",
+    "LIGHTNING",
+    "PARTICLES",
+    "SPOTLIGHT",
+]
