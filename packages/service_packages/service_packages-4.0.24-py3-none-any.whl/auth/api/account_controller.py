@@ -1,0 +1,127 @@
+from typing import Any
+from uuid import UUID
+
+from litestar import Controller, Request, get, post
+from litestar.datastructures import State
+from litestar.di import Provide
+from litestar.exceptions import HTTPException
+from litestar.status_codes import HTTP_400_BAD_REQUEST
+import msgspec
+
+from auth.services import (
+    AuthService,
+    AccountDTO,
+    LoginRequestDTO,
+    LogoutRequestDTO,
+    SignUpRequestDTO,
+    UserNotEnabledError,
+    provide_auth_service,
+    provide_user_service,
+    InvalidEmailError,
+    InvalidPasswordError,
+    UserEmailNotVerifiedError,
+    EmailIsAlreadyUsedError,
+)
+from auth.services.auth_service import AccountUserDTO
+
+
+class SignUpRequestScheme(msgspec.Struct):
+    email: str
+    password: str
+
+
+class SignUpResponseScheme(msgspec.Struct):
+    message: str
+
+
+class LoginResponseScheme(AccountDTO): ...
+
+
+class ActivateAccountResponseScheme(AccountDTO): ...
+
+
+class LoginRequestScheme(msgspec.Struct):
+    email: str
+    password: str
+
+
+class ActivateAccountRequestScheme(msgspec.Struct):
+    code: str
+
+
+class AccountMeResponseScheme(msgspec.Struct):
+    session_id: UUID
+    user: AccountUserDTO
+
+
+class AccountController(Controller):
+    path = "/account"
+
+    dependencies = {
+        "user_service": Provide(provide_user_service),
+        "auth_service": Provide(provide_auth_service),
+    }
+
+    @get("/me")
+    async def account(self, request: Request[AccountDTO, Any, State]) -> AccountMeResponseScheme:
+        return AccountMeResponseScheme(session_id=request.user.session_id, user=request.user.user)
+
+    @post("/login", exclude_from_auth=True)
+    async def login(self, request: Request, data: LoginRequestScheme, auth_service: AuthService) -> LoginResponseScheme:
+        device = request.headers.get("User-Agent")
+        try:
+            login_user = await auth_service.login(
+                LoginRequestDTO(
+                    email=data.email,
+                    password=data.password,
+                    device=device,
+                )
+            )
+        except UserNotEnabledError:
+            raise HTTPException("User is not enabled", status_code=HTTP_400_BAD_REQUEST)
+        except UserEmailNotVerifiedError:
+            raise HTTPException("Еmail not verified", status_code=HTTP_400_BAD_REQUEST)
+        except InvalidEmailError:
+            raise HTTPException("Email not found", status_code=HTTP_400_BAD_REQUEST)
+        except InvalidPasswordError:
+            raise HTTPException("Invalid password", status_code=HTTP_400_BAD_REQUEST)
+
+        return LoginResponseScheme(
+            token=login_user.token,
+            session_id=login_user.session_id,
+            user=login_user.user,
+        )
+
+    @post("/signup", exclude_from_auth=True)
+    async def sign_up(self, data: SignUpRequestScheme, auth_service: AuthService) -> SignUpResponseScheme:
+        try:
+            await auth_service.signup(SignUpRequestDTO(email=data.email, password=data.password))
+        except EmailIsAlreadyUsedError:
+            raise HTTPException("Email is already used", status_code=HTTP_400_BAD_REQUEST)
+        return SignUpResponseScheme(message="success")
+
+    @post("/logout")
+    async def logout(self, auth_service: AuthService, request: Request[AccountDTO, Any, State]) -> None:
+        await auth_service.logout(
+            LogoutRequestDTO(
+                user_id=request.user.user.id,
+                session_id=request.user.session_id,
+                device=request.headers.get("User-Agent"),
+            )
+        )
+
+    @post("/activate", exclude_from_auth=True)
+    async def activate(
+        self,
+        data: ActivateAccountRequestScheme,
+        auth_service: AuthService,
+        request: Request,
+    ) -> ActivateAccountResponseScheme:
+        device = request.headers.get("User-Agent")
+        activated_account = await auth_service.verify_user_email(data.code, device)
+
+        return ActivateAccountResponseScheme(
+            token=activated_account.token,
+            session_id=activated_account.session_id,
+            user=activated_account.user,
+        )
