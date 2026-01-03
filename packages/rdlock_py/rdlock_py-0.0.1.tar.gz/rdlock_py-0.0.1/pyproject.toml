@@ -1,0 +1,26 @@
+[project]
+name = "rdlock_py"
+version = "0.0.1"
+description = "A simple distributed lock based on redis."
+readme = "README.md"
+license = "MIT"
+keywords = ["redis", "distributed lock", "lock"]
+authors = [{ name = "Kevin Chen", email = "1354016594@qq.com" }]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+]
+requires-python = ">=3.10"
+dependencies = ["redis>=7.1.0", "setuptools>=80.9.0"]
+
+[project.urls]
+Home-page = "https://github.com/czf0613/rdlock_py"
+
+[build-system]
+requires = ["setuptools>=45.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = ["pytest>=7.0.1"]
