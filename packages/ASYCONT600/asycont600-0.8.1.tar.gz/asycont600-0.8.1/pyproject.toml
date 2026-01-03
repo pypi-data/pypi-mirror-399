@@ -1,0 +1,38 @@
+[project]
+name = "ASYCONT600"
+dynamic = []
+description = "ASYCONT600 Axis Control Unit Instrument Interface"
+authors = [
+    { name = "Hüseyin YİĞİT", email = "yigit.hsyn@gmail.com" },
+]
+dependencies = []
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: System :: Hardware",
+    "Environment :: Console",
+]
+readme = "README.md"
+version = "0.8.1"
+
+[project.license]
+text = "MIT"
+
+[project.scripts]
+asycont600 = "asycont600.__main__:app"
+
+[build-system]
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.version]
+source = "file"
+path = "src/asycont600/__init__.py"
