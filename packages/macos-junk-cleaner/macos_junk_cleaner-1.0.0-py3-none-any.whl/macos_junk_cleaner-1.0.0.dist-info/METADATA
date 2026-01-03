@@ -1,0 +1,110 @@
+Metadata-Version: 2.4
+Name: macos-junk-cleaner
+Version: 1.0.0
+Summary: A utility to list and clear junk files created by macOS indexation.
+Author-email: João Caetano <joaomartinscaetano@proton.me>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/JCaet/mac-os-junk-cleaner
+Project-URL: Repository, https://github.com/JCaet/mac-os-junk-cleaner
+Project-URL: Issues, https://github.com/JCaet/mac-os-junk-cleaner/issues
+Project-URL: Changelog, https://github.com/JCaet/mac-os-junk-cleaner/blob/main/CHANGELOG.md
+Keywords: macos,cleanup,junk-files,ds_store,cli
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Operating System :: MacOS
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: System :: Systems Administration
+Classifier: Topic :: Utilities
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: click>=8.0.0
+Requires-Dist: rich>=12.0.0
+Dynamic: license-file
+
+# macOS Junk Cleaner
+
+[![CI](https://github.com/joaomartinscaetano/macos-junk-cleaner/actions/workflows/ci.yml/badge.svg)](https://github.com/joaomartinscaetano/macos-junk-cleaner/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/macos-junk-cleaner.svg)](https://pypi.org/project/macos-junk-cleaner/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Semantic Release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/python-semantic-release/python-semantic-release)
+
+A Python-based CLI utility to scan and remove macOS-specific junk files (e.g., `.DS_Store`, `._*`, `.Spotlight-V100`) from directories.
+
+## Installation
+
+### Using pip
+```bash
+pip install .
+```
+
+### Using uv
+```bash
+uv tool install .
+```
+
+## Usage
+
+### Scan
+To see what would be cleaned with a detailed summary:
+```bash
+mac-clean scan /path/to/dir
+# or using uv
+uv run mac-clean scan /path/to/dir
+```
+
+### Clean
+The `clean` command is used for removal. For safety, it **defaults to dry-run mode**.
+
+```bash
+# Preview deletion (Dry-run)
+mac-clean clean /path/to/dir
+
+# Perform actual deletion
+mac-clean clean /path/to/dir --force
+```
+
+## Development
+
+### Setup (uv)
+1. Clone the repository.
+2. Sync the environment (creates venv and installs all dependencies and dev tools):
+   ```bash
+   uv sync
+   ```
+3. Install pre-commit hooks:
+   ```bash
+   uv run pre-commit install
+   ```
+
+### Linting and Formatting
+This project uses [Ruff](https://github.com/astral-sh/ruff) for linting and formatting.
+
+```bash
+# Lint
+ruff check .
+# or using uv
+uv run ruff check .
+
+# Format
+ruff format .
+# or using uv
+uv run ruff format .
+```
+
+### Testing
+```bash
+pytest
+# or using uv
+uv run pytest
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
