@@ -1,0 +1,133 @@
+# ELDB — Embedded Lightweight DB Engine
+
+> Simple file-backed fixed-width record database for small projects and experimentation.
+
+ELDB is a minimal, easy-to-use embedded database implemented in Python. It stores tables as binary files with a small text header and fixed-width records. This project is intended for learning, prototyping, and small single-user applications — not for production use.
+
+**Features**
+- **Tiny footprint**: each table is a single `.eldb` file under a database folder
+- **Fixed-size fields**: supports `int` and fixed-length `str` columns
+- **Simple API**: create/load tables, insert/select/update/delete rows, add/delete columns
+- **Primary key index**: builds an in-memory index for a declared primary key on load
+
+
+
+## Installation
+
+No external dependencies — just Python 3.6+.
+
+Clone or copy the repository files to your project folder. The engine writes table files to a folder (default `mydb`).
+
+## Basic Usage
+
+Example session using the `ELDB` class from `ELDB_engine.py`:
+
+```python
+from SQELDB import ELDB
+
+# Create engine (defaults to folder 'mydb')
+db = ELDB(db_folder='ELDB_Data')
+
+# Define table schema: column -> {type, size, nullable}
+columns = {
+    'id': {'type': 'int', 'size': 4, 'nullable': False},
+    'name': {'type': 'str', 'size': 50, 'nullable': False},
+    'age': {'type': 'int', 'size': 4, 'nullable': True}
+}
+
+# Create table with a primary key
+db.create_table('users', columns, primary_key='id', if_not_exists=True)
+
+# Insert a row (note: columns with no value must be nullable or provide default)
+db.insert('users', {'id': 1, 'name': 'Alice', 'age': 30})
+db.insert('users', {'id': 2, 'name': 'Bob'})
+
+# Select rows (where uses dict: column -> (operator, value))
+rows = db.select('users', where={'age': ('>=', 18)}, order_by=('age', False), limit=10)
+print(rows)
+
+# Update rows
+db.update('users', updates={'age': 31}, where={'id': ('=', 1)})
+
+# Delete rows
+db.delete('users', where={'id': ('=', 2)})
+
+# Add a new column
+db.add_column('users', 'email', column_type='str', size=100, nullable=True, default='')
+
+# Delete table
+# db.delete_table('users')
+```
+
+## API Reference
+
+- `ELDB(db_folder='mydb')`
+  - Create engine instance. `db_folder` is the folder where `.eldb` files live.
+
+- `create_table(name, columns, primary_key=None, if_not_exists=False)`
+  - `columns` is a dict mapping column name to options: `{'type': 'int'|'str', 'size': <int>, 'nullable': True|False}`.
+  - `primary_key` (optional) column name to build an in-memory index on load.
+
+- `load_table(table_name)`
+  - Loads an existing `.eldb` table and builds the primary key index if present.
+
+- `insert(table_name, row)`
+  - `row` is a dict of column -> value. Type checks are performed.
+
+- `select(table_name=None, where=None, order_by=None, limit=None, columns=None)`
+  - `table_name`: choose specific table or `None` to select across all tables.
+  - `where`: dict of column -> (operator, value), operators: `=, !=, >, <, >=, <=`.
+  - `order_by`: tuple `(column, reverse)` where `reverse` is `True` for descending.
+  - `limit`: maximum number of rows to return.
+  - `columns`: list of column names to return.
+
+- `update(table_name, updates, where=None)`
+  - `updates` is a dict of column -> new value.
+
+- `delete(table_name, where=None)`
+  - Remove rows matching `where` — omit `where` to remove all rows.
+
+- `add_column(table_name, column_name, column_type='str', size=50, nullable=True, default=None)`
+  - Adds a column to the schema and writes the default value to existing rows.
+
+- `delete_column(table_name, column_name)`
+  - Removes a column from the schema and from existing rows.
+
+- `clear_table(table_name)`
+  - Remove all rows from a table (keeps file and schema).
+
+- `delete_table(table_name)` and `drop_all_tables()`
+  - Remove files from disk.
+
+## Table File Format
+
+Each table is stored as a `.eldb` file under the database folder. The file begins with a single text header line (a Python dictionary representation) that contains the `columns` schema, `primary_key`, and `row_count`. Following the header, records are stored as fixed-size binary blobs. String columns are fixed-length and padded with NUL bytes; integers are 4-byte little-endian signed integers using Python's `struct` format `i`.
+
+Note: The header is written using `str()` and read with `eval()` in the current implementation. This is simple but unsafe for untrusted inputs; do not open files from unknown sources.
+
+## Limitations & Notes
+
+- Binary fixed-width format: you must choose adequate `size` for `str` columns.
+- No concurrency control: this engine is not safe for concurrent writers.
+- Header uses `eval()` and thus can execute arbitrary code if the file is tampered with — treat files as untrusted.
+- Index is in-memory and rebuilt on load; large tables will use more memory.
+
+## Suggested Improvements
+
+- Replace `eval()` with a safe serializer (JSON) for the header.
+- Add transaction/locking and append-mode writes for better concurrency.
+- Support variable-length fields or a simple heap for strings to save space.
+- Add basic tests and a small CLI for table inspection.
+
+## Development
+
+
+To experiment interactively, run `python` in the project folder and import the `ELDB` class.
+
+## Contributing
+
+Feel free to open issues or create pull requests with improvements, tests, or bug fixes.
+
+## License
+
+This project is provided as-is for learning and prototyping. No explicit license file is included.
