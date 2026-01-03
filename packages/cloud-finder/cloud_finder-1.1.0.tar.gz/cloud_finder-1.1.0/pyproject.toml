@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cloud-finder"
+version = "1.1.0"
+description = "Keyword cloud and topic hotspot detection in documents. Find where keywords concentrate to detect topic relevance."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "vibe-finder>=1.2.0",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Indexing",
+    "Topic :: Text Processing :: Linguistic",
+]
+keywords = ["keyword", "cloud", "topic", "detection", "hotspot", "nlp", "text", "relevance", "clustering", "density"]
+
+[project.urls]
+Homepage = "https://github.com/LifeAITools/cloud-finder"
+Issues = "https://github.com/LifeAITools/cloud-finder/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
