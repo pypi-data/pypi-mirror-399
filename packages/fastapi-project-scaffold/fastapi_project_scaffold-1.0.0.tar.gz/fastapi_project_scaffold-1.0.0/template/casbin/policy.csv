@@ -1,0 +1,86 @@
+p, super_admin, /api/users, read
+p, super_admin, /api/users, create
+p, super_admin, /api/users, update
+p, super_admin, /api/users, delete
+p, super_admin, /api/roles, read
+p, super_admin, /api/roles, create
+p, super_admin, /api/roles, update
+p, super_admin, /api/roles, delete
+p, super_admin, /api/permissions, read
+p, super_admin, /api/permissions, create
+p, super_admin, /api/permissions, update
+p, super_admin, /api/permissions, delete
+p, super_admin, /api/examples, read
+p, super_admin, /api/examples, create
+p, super_admin, /api/examples, update
+p, super_admin, /api/examples, delete
+p, admin, /api/users, read
+p, admin, /api/users, create
+p, admin, /api/users, update
+p, admin, /api/users, delete
+p, admin, /api/roles, read
+p, admin, /api/examples, read
+p, admin, /api/examples, create
+p, admin, /api/examples, update
+p, admin, /api/examples, delete
+p, user, /api/examples, read
+p, user, /api/examples, create
+p, user, /api/examples, update
+p, user, /api/examples, delete
+# 题库和题目权限策�?# 格式: p, role, resource, action
+
+# ==================== Super Admin (超级管理�? ====================
+# 拥有所有题库和题目的完整权�?p, super_admin, /api/v1/question-banks, read
+p, super_admin, /api/v1/question-banks, create
+p, super_admin, /api/v1/question-banks, update
+p, super_admin, /api/v1/question-banks, delete
+p, super_admin, /api/v1/question-banks/*, *
+p, super_admin, /api/v1/questions, read
+p, super_admin, /api/v1/questions, create
+p, super_admin, /api/v1/questions, update
+p, super_admin, /api/v1/questions, delete
+p, super_admin, /api/v1/questions/*, *
+
+# ==================== Admin (管理�? ====================
+# 拥有题库和题目的完整管理权限
+p, admin, /api/v1/question-banks, read
+p, admin, /api/v1/question-banks, create
+p, admin, /api/v1/question-banks, update
+p, admin, /api/v1/question-banks, delete
+p, admin, /api/v1/question-banks/*/stats, read
+p, admin, /api/v1/questions, read
+p, admin, /api/v1/questions, create
+p, admin, /api/v1/questions, update
+p, admin, /api/v1/questions, delete
+p, admin, /api/v1/questions/template, read
+p, admin, /api/v1/questions/import/*, create
+p, admin, /api/v1/questions/export/*, read
+p, admin, /api/v1/questions/batch-delete, delete
+p, admin, /api/v1/questions/random, read
+
+# ==================== Teacher (教师) ====================
+# 可以管理题库和题目，但不能删除题�?p, teacher, /api/v1/question-banks, read
+p, teacher, /api/v1/question-banks, create
+p, teacher, /api/v1/question-banks, update
+p, teacher, /api/v1/question-banks/*/stats, read
+p, teacher, /api/v1/questions, read
+p, teacher, /api/v1/questions, create
+p, teacher, /api/v1/questions, update
+p, teacher, /api/v1/questions, delete
+p, teacher, /api/v1/questions/template, read
+p, teacher, /api/v1/questions/import/*, create
+p, teacher, /api/v1/questions/export/*, read
+p, teacher, /api/v1/questions/batch-delete, delete
+p, teacher, /api/v1/questions/random, read
+
+# ==================== Student (学生) ====================
+# 只能查看题库和题目，用于考试/练习
+p, student, /api/v1/question-banks, read
+p, student, /api/v1/question-banks/*/stats, read
+p, student, /api/v1/questions, read
+p, student, /api/v1/questions/random, read
+
+# ==================== User (普通用�? ====================
+# 基础查看权限
+p, user, /api/v1/question-banks, read
+p, user, /api/v1/questions, read

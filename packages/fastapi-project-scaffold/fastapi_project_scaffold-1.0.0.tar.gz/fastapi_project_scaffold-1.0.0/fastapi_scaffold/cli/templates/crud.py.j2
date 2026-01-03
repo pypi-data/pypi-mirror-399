@@ -1,0 +1,64 @@
+"""{{ module_name|title }} CRUD Operations"""
+from sqlalchemy.orm import Session
+from typing import Optional, List, Tuple
+from app.models.{{ module_name }} import {{ class_name }}
+from app.schemas.{{ module_name }} import {{ class_name }}Create, {{ class_name }}Update
+
+
+class {{ class_name }}CRUD:
+    """{{ class_name }} CRUD 操作类"""
+    
+    def get_list(
+        self, 
+        db: Session, 
+        skip: int = 0, 
+        limit: int = 20
+    ) -> Tuple[List[{{ class_name }}], int]:
+        """
+        获取{{ class_name }}列表（分页）
+        
+        Returns:
+            (items, total)
+        """
+        query = db.query({{ class_name }})
+        total = query.count()
+        items = query.offset(skip).limit(limit).all()
+        return items, total
+    
+    def get_by_id(self, db: Session, id: int) -> Optional[{{ class_name }}]:
+        """根据 ID 获取{{ class_name }}"""
+        return db.query({{ class_name }}).filter({{ class_name }}.id == id).first()
+    
+    def create(self, db: Session, obj_in: {{ class_name }}Create) -> {{ class_name }}:
+        """创建{{ class_name }}"""
+        db_obj = {{ class_name }}(**obj_in.model_dump())
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+    
+    def update(
+        self, 
+        db: Session, 
+        db_obj: {{ class_name }}, 
+        obj_in: {{ class_name }}Update
+    ) -> {{ class_name }}:
+        """更新{{ class_name }}"""
+        update_data = obj_in.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_obj, field, value)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+    
+    def delete(self, db: Session, id: int) -> bool:
+        """删除{{ class_name }}"""
+        db_obj = self.get_by_id(db, id)
+        if db_obj:
+            db.delete(db_obj)
+            db.commit()
+            return True
+        return False
+
+
+{{ module_name }}_crud = {{ class_name }}CRUD()

@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastapi-project-scaffold"
+dynamic = ["version"]
+description = "Enterprise-grade FastAPI project scaffold with CLI and AI-powered code generation"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    {name = "Project Team", email = "support@example.com"}
+]
+keywords = [
+    "fastapi",
+    "scaffold",
+    "cli",
+    "code-generator",
+    "template",
+    "crud",
+    "rest-api",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Code Generators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: FastAPI",
+]
+dependencies = [
+    "click>=8.1.0",
+    "jinja2>=3.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "flake8>=6.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/btrobot/fastapi-scaffold"
+Documentation = "https://github.com/btrobot/fastapi-scaffold/blob/main/README.md"
+Repository = "https://github.com/btrobot/fastapi-scaffold"
+"Bug Tracker" = "https://github.com/btrobot/fastapi-scaffold/issues"
+
+[project.scripts]
+fastapi-scaffold = "fastapi_scaffold.cli.main:cli"
+
+[tool.setuptools]
+packages = ["fastapi_scaffold", "fastapi_scaffold.cli", "fastapi_scaffold.cli.commands", "fastapi_scaffold.cli.utils", "fastapi_scaffold.cli.templates"]
+
+[tool.setuptools.package-data]
+fastapi_scaffold = ["cli/templates/*.j2", "template/**/*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --cov=fastapi_scaffold --cov-report=term-missing"
+testpaths = [
+    "tests",
+]

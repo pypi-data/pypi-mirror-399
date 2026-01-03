@@ -1,0 +1,27 @@
+"""{{ module_name|title }} Model"""
+from sqlalchemy import String, Integer, Float, Boolean, Text, Date, DateTime, JSON, func
+from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime{% if has_date %}, date{% endif %}
+from typing import Optional
+from app.database import Base
+
+
+class {{ class_name }}(Base):
+    """{{ class_name }} 模型"""
+    __tablename__ = "{{ table_name }}"
+    
+    # 主键
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    
+    # 业务字段
+    {%- for field in fields %}
+    {{ field.name }}: Mapped[{{ field.type_hint }}] = mapped_column({{ field.sa_type }}{% if not field.required %}, nullable=True{% endif %})
+    {%- endfor %}
+    
+    # 审计字段
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[Optional[datetime]] = mapped_column(onupdate=func.now())
+    
+    __table_args__ = (
+        {"sqlite_autoincrement": True},
+    )
