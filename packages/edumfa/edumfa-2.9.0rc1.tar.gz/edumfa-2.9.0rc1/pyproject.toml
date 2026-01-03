@@ -1,0 +1,125 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]  # Minimum for new license field
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edumfa"
+version = "2.9.0rc1"
+requires-python = ">=3.10,<3.15"
+authors = [{ name = "edumfa.io", email = "edumfa@listserv.dfn.de" }]
+description = "eduMFA: identity, multifactor authentication (OTP), authorization, audit"
+readme = { file = "README.rst", content-type = "text/x-rst" }
+license = "AGPL-3.0-only"
+keywords = ["OTP", "two factor authentication", "management", "security"]
+classifiers = [
+    "Framework :: Flask",
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Internet",
+    "Topic :: Security",
+    "Topic :: System :: Systems Administration :: Authentication/Directory",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://edumfa.io/"
+Documentation = "https://edumfa.readthedocs.io/"
+Repository = "https://github.com/eduMFA/eduMFA.git"
+Issues = "https://github.com/eduMFA/eduMFA/issues"
+
+[project.optional-dependencies]
+lint = [
+    "ruff==0.14.10",
+]
+docs = [
+    "furo==2025.12.19",
+    "docutils==0.21.2",
+    "imagesize==1.4.1",
+    "packaging==25.0",
+    "pyenchant==3.3.0",
+    "Pygments==2.19.2",
+    "snowballstemmer==3.0.1",
+    "Sphinx==9.0.4; python_version >= '3.11'",
+    "sphinxcontrib-applehelp==2.0.0",
+    "sphinxcontrib-devhelp==2.0.0",
+    "sphinxcontrib-htmlhelp==2.1.0",
+    "sphinxcontrib-httpdomain==1.8.1",
+    "sphinxcontrib-jsmath==1.0.1",
+    "sphinxcontrib-qthelp==2.0.0",
+    "sphinxcontrib-serializinghtml==2.0.0",
+    "sphinxcontrib-spelling==8.0.2; python_version >= '3.10'",
+    "sphinx-copybutton==0.5.2",
+    "sphinx-inline-tabs==2025.12.21.14",
+]
+test = [
+    "attrs==25.4.0",
+    "coverage==7.13.0",
+    "exceptiongroup==1.3.1",
+    "iniconfig==2.3.0",
+    "mock==5.2.0",
+    "packaging==25.0",
+    "pluggy==1.6.0",
+    "pyparsing==3.3.0",
+    "pytest==9.0.2",
+    "pytest-cov==7.0.0",
+    "pytest-github-actions-annotate-failures==0.3.0",
+    "responses==0.25.8",
+    "testfixtures==8.3.0",
+    "tomli==2.3.0",
+    "types-PyYAML==6.0.12.20250915",
+]
+postgres = ["psycopg2==2.9.11"]
+hsm = ["PyKCS11==1.5.18"]
+kerberos = ["gssapi==1.10.1"]
+grpc = [
+    "protobuf==6.33.2",
+    "google==3.0.0",
+]
+
+[project.scripts]
+edumfa-manage = "edumfa.commands.manage.main:cli"
+
+[tool.setuptools.dynamic]
+dependencies = { file = "requirements.txt" }
+
+[tool.setuptools.packages.find]
+include = ["edumfa*"]
+
+[tool.setuptools.package-data]
+"edumfa" = ["translations/**/*", "static/**/*"]
+
+[tool.ruff]
+extend-include = [
+    "edumfa-manage",
+    "tools/creategoogleauthenticator-file",
+    "tools/edumfa-create-ad-users",
+    "tools/edumfa-create-certificate",
+    "tools/edumfa-create-pwidresolver-user",
+    "tools/edumfa-create-sqlidresolver-user",
+    "tools/edumfa-cron",
+    "tools/edumfa-expired-users",
+    "tools/edumfa-fix-access-rights",
+    "tools/edumfa-get-serial",
+    "tools/edumfa-get-unused-tokens",
+    "tools/edumfa-pip-update",
+    "tools/edumfa-queue-huey",
+    "tools/edumfa-standalone",
+    "tools/edumfa-token-janitor",
+    "tools/edumfa-user-action",
+    "tools/edumfa-usercache-cleanup",
+    "tools/getgooglecodes"
+]
+
+[tool.ruff.lint]
+select = [
+    "I", # Isort
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/test_lib_crypto.py" = ["I001"]

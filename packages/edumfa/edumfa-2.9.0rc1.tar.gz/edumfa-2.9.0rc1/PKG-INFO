@@ -1,0 +1,304 @@
+Metadata-Version: 2.4
+Name: edumfa
+Version: 2.9.0rc1
+Summary: eduMFA: identity, multifactor authentication (OTP), authorization, audit
+Author-email: "edumfa.io" <edumfa@listserv.dfn.de>
+License-Expression: AGPL-3.0-only
+Project-URL: Homepage, https://edumfa.io/
+Project-URL: Documentation, https://edumfa.readthedocs.io/
+Project-URL: Repository, https://github.com/eduMFA/eduMFA.git
+Project-URL: Issues, https://github.com/eduMFA/eduMFA/issues
+Keywords: OTP,two factor authentication,management,security
+Classifier: Framework :: Flask
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Topic :: Internet
+Classifier: Topic :: Security
+Classifier: Topic :: System :: Systems Administration :: Authentication/Directory
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Requires-Python: <3.15,>=3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+License-File: AUTHORS.md
+Requires-Dist: alembic==1.17.2
+Requires-Dist: argon2-cffi==25.1.0
+Requires-Dist: argon2-cffi-bindings==25.1.0
+Requires-Dist: async-timeout==5.0.1
+Requires-Dist: babel==2.17.0
+Requires-Dist: bcrypt==4.3.0
+Requires-Dist: beautifulsoup4==4.14.3
+Requires-Dist: blinker==1.9.0
+Requires-Dist: cachetools==6.2.4
+Requires-Dist: cbor2==5.7.1
+Requires-Dist: certifi==2025.11.12
+Requires-Dist: cffi==2.0.0
+Requires-Dist: charset-normalizer==3.4.4
+Requires-Dist: click==8.3.1
+Requires-Dist: configobj==5.0.9
+Requires-Dist: croniter==6.0.0
+Requires-Dist: cryptography==46.0.3
+Requires-Dist: defusedxml==0.7.1
+Requires-Dist: flask==3.1.2
+Requires-Dist: flask-babel==4.0.0
+Requires-Dist: flask-migrate==4.1.0
+Requires-Dist: flask-sqlalchemy==3.1.1
+Requires-Dist: google-auth==2.45.0
+Requires-Dist: grpcio==1.76.0
+Requires-Dist: huey==2.5.5
+Requires-Dist: idna==3.11
+Requires-Dist: importlib-metadata==8.7.0
+Requires-Dist: itsdangerous==2.2.0
+Requires-Dist: jinja2==3.1.6
+Requires-Dist: ldap3==2.9.1
+Requires-Dist: lxml==6.0.2
+Requires-Dist: mako==1.3.10
+Requires-Dist: markupsafe==3.0.3
+Requires-Dist: netaddr==1.3.0
+Requires-Dist: passlib==1.7.4
+Requires-Dist: pyasn1==0.6.1
+Requires-Dist: pyasn1-modules==0.4.2
+Requires-Dist: pycparser==2.23
+Requires-Dist: pydash==8.0.5
+Requires-Dist: pyjwt==2.10.1
+Requires-Dist: pymysql==1.1.2
+Requires-Dist: pyopenssl==25.3.0
+Requires-Dist: pyrad==2.4
+Requires-Dist: python-dateutil==2.9.0.post0
+Requires-Dist: python-gnupg==0.5.5
+Requires-Dist: pytz==2025.2
+Requires-Dist: pyyaml==6.0.3
+Requires-Dist: redis==7.1.0
+Requires-Dist: requests==2.32.5
+Requires-Dist: rsa==4.9.1
+Requires-Dist: segno==1.6.6
+Requires-Dist: six==1.17.0
+Requires-Dist: smpplib==2.2.4
+Requires-Dist: soupsieve==2.8.1
+Requires-Dist: sqlalchemy==2.0.45
+Requires-Dist: typing-extensions==4.15.0
+Requires-Dist: urllib3==2.6.2
+Requires-Dist: werkzeug==3.1.4
+Requires-Dist: zipp==3.23.0
+Requires-Dist: setuptools==80.9.0
+Provides-Extra: lint
+Requires-Dist: ruff==0.14.10; extra == "lint"
+Provides-Extra: docs
+Requires-Dist: furo==2025.12.19; extra == "docs"
+Requires-Dist: docutils==0.21.2; extra == "docs"
+Requires-Dist: imagesize==1.4.1; extra == "docs"
+Requires-Dist: packaging==25.0; extra == "docs"
+Requires-Dist: pyenchant==3.3.0; extra == "docs"
+Requires-Dist: Pygments==2.19.2; extra == "docs"
+Requires-Dist: snowballstemmer==3.0.1; extra == "docs"
+Requires-Dist: Sphinx==9.0.4; python_version >= "3.11" and extra == "docs"
+Requires-Dist: sphinxcontrib-applehelp==2.0.0; extra == "docs"
+Requires-Dist: sphinxcontrib-devhelp==2.0.0; extra == "docs"
+Requires-Dist: sphinxcontrib-htmlhelp==2.1.0; extra == "docs"
+Requires-Dist: sphinxcontrib-httpdomain==1.8.1; extra == "docs"
+Requires-Dist: sphinxcontrib-jsmath==1.0.1; extra == "docs"
+Requires-Dist: sphinxcontrib-qthelp==2.0.0; extra == "docs"
+Requires-Dist: sphinxcontrib-serializinghtml==2.0.0; extra == "docs"
+Requires-Dist: sphinxcontrib-spelling==8.0.2; python_version >= "3.10" and extra == "docs"
+Requires-Dist: sphinx-copybutton==0.5.2; extra == "docs"
+Requires-Dist: sphinx-inline-tabs==2025.12.21.14; extra == "docs"
+Provides-Extra: test
+Requires-Dist: attrs==25.4.0; extra == "test"
+Requires-Dist: coverage==7.13.0; extra == "test"
+Requires-Dist: exceptiongroup==1.3.1; extra == "test"
+Requires-Dist: iniconfig==2.3.0; extra == "test"
+Requires-Dist: mock==5.2.0; extra == "test"
+Requires-Dist: packaging==25.0; extra == "test"
+Requires-Dist: pluggy==1.6.0; extra == "test"
+Requires-Dist: pyparsing==3.3.0; extra == "test"
+Requires-Dist: pytest==9.0.2; extra == "test"
+Requires-Dist: pytest-cov==7.0.0; extra == "test"
+Requires-Dist: pytest-github-actions-annotate-failures==0.3.0; extra == "test"
+Requires-Dist: responses==0.25.8; extra == "test"
+Requires-Dist: testfixtures==8.3.0; extra == "test"
+Requires-Dist: tomli==2.3.0; extra == "test"
+Requires-Dist: types-PyYAML==6.0.12.20250915; extra == "test"
+Provides-Extra: postgres
+Requires-Dist: psycopg2==2.9.11; extra == "postgres"
+Provides-Extra: hsm
+Requires-Dist: PyKCS11==1.5.18; extra == "hsm"
+Provides-Extra: kerberos
+Requires-Dist: gssapi==1.10.1; extra == "kerberos"
+Provides-Extra: grpc
+Requires-Dist: protobuf==6.33.2; extra == "grpc"
+Requires-Dist: google==3.0.0; extra == "grpc"
+Dynamic: license-file
+
+eduMFA
+===========
+
+.. image:: https://codecov.io/gh/eduMFA/eduMFA/coverage.svg?branch=main
+    :target: https://codecov.io/gh/eduMFA/eduMFA?branch=main
+
+.. image:: https://img.shields.io/pypi/v/eduMFA.svg
+    :alt: Latest Version
+    :target: https://pypi.python.org/pypi/eduMFA/#history
+
+.. image:: https://img.shields.io/pypi/pyversions/edumfa.svg
+    :alt: PyPI - Python Version
+    :target: https://pypi.python.org/pypi/edumfa/
+
+.. image:: https://img.shields.io/github/license/edumfa/edumfa.svg
+    :alt: License
+    :target: https://pypi.python.org/pypi/edumfa/
+    
+.. image:: https://readthedocs.org/projects/edumfa/badge/?version=latest
+    :alt: Documentation
+    :target: http://edumfa.readthedocs.org/en/latest/
+
+    
+eduMFA is an open solution for strong two-factor authentication like
+OTP tokens, SMS, smartphones or SSH keys.
+Using eduMFA you can enhance your existing applications like local login
+(PAM, Windows Credential Provider), 
+VPN, remote access, SSH connections, access to websites or web portals with
+a second factor during authentication. Thus boosting the security of your 
+existing applications.
+
+The project eduMFA is based on the privacyIDEA Project and aims to provide up-to-date multifactor authentication for academic institutions.
+
+Overview
+========
+
+eduMFA runs as an additional service in your network, and you can connect different
+applications to eduMFA.
+
+eduMFA does not bind you to any decision of the authentication
+protocol, nor does it dictate you where your user information should be
+stored. This is achieved by its totally modular architecture.
+eduMFA is not only open as far as its modular architecture is
+concerned. But eduMFA is completely licensed under the AGPLv3.
+
+It supports a wide variety of authentication devices like OTP tokens 
+(HMAC, HOTP, TOTP, OCRA, mOTP), Yubikey (HOTP, TOTP, AES), FIDO U2F, as well
+as FIDO2 WebAuthn devices like Yubikey and Plug-Up, smartphone Apps like Google
+Authenticator, FreeOTP, Token2  or TiQR, SMS, Email, SSH keys, x509 certificates
+and Registration Codes for easy deployment.
+
+eduMFA is based on Flask and SQLAlchemy as the python backend. The
+web UI is based on angularJS and bootstrap.
+A MachineToken design lets you assign tokens to machines. Thus, you can use
+your Yubikey to unlock LUKS, assign SSH keys to SSH servers or use Offline OTP
+with PAM.
+
+
+
+Setup
+=====
+
+For setting up the system to *run* it, please read install instructions 
+at `edumfa.readthedocs.io <http://edumfa.readthedocs.io/en/latest/installation/index.html>`_.
+
+If you want to setup a development environment start like this::
+
+    git clone https://github.com/edumfa/edumfa.git
+    cd edumfa
+    virtualenv venv
+    source venv/bin/activate
+    pip install .
+    
+.. _testing_env:
+
+You may additionally want to set up your environment for testing, by adding the
+additional dependencies::
+
+    pip install .[test]
+
+
+Getting and updating submodules
+===============================
+
+The client-side library for the registering and signing of WebAuthn-Credentials
+resides in a submodule.
+
+To fetch all submodules for this repository, run::
+
+   git submodule update --init --recursive
+
+When pulling changes from upstream later, you can automatically update any outdated
+submodules, by running::
+
+   git pull --recurse-submodules
+
+Running it
+==========
+
+First You need to create a `config-file <https://edumfa.readthedocs.io/en/latest/installation/system/inifile.html>`_.
+
+Then create the database tables and the encryption key::
+
+    ./edumfa-manage create_tables
+    ./edumfa-manage create_enckey
+
+If You want to keep the development database upgradable, You should `stamp
+<https://edumfa.readthedocs.io/en/latest/installation/upgrade.html>`_ it
+to simplify updates::
+
+    ./edumfa-manage db stamp head -d migrations/
+
+Create the key for the audit log::
+
+    ./edumfa-manage create_audit_keys
+
+Create the first administrator::
+
+    ./edumfa-manage admin add <username>
+
+Run it::
+
+    ./edumfa-manage runserver
+
+Now you can connect to ``http://localhost:5000`` with your browser and login
+as administrator.
+
+Run tests
+=========
+
+If you have followed the steps above to set up your
+`environment for testing <#testing-env>`__, running the test suite should be as
+easy as running `pytest <http://pytest.org/>`_ with the following options::
+
+    python -m pytest -v --cov=eduMFA --cov-report=html tests/
+
+Contributing
+============
+
+There are a lot of different ways to contribute to eduMFA, even
+if you are not a developer.
+
+If you found a security vulnerability please report it to us using the reporting form provided by GitHub
+
+You can find detailed information about contributing here:
+https://github.com/eduMFA/eduMFA/blob/main/CONTRIBUTING.md
+
+Code structure
+==============
+
+The database models are defined in ``models.py`` and tested in 
+tests/test_db_model.py.
+
+Based on the database models there are the libraries ``lib/config.py`` which is
+responsible for basic configuration in the database table ``config``.
+And the library ``lib/resolver.py`` which provides functions for the database
+table ``resolver``. This is tested in tests/test_lib_resolver.py.
+
+Based on the resolver there is the library ``lib/realm.py`` which provides
+functions
+for the database table ``realm``. Several resolvers are combined into a realm.
+
+Based on the realm there is the library ``lib/user.py`` which provides functions 
+for users. There is no database table user, since users are dynamically read 
+from the user sources like SQL, LDAP, SCIM or flat files.
+
+Versioning
+==========
+eduMFA adheres to `Semantic Versioning <http://semver.org/>`_.
