@@ -1,0 +1,75 @@
+Metadata-Version: 2.4
+Name: funner
+Version: 0.0.3
+Summary: Collection of functions and other, including functional approach to dates (as ISO-DATE string)
+Author: Nauri Nastik
+License-File: LICENSE.txt
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.10
+Requires-Dist: jinja2
+Requires-Dist: loguru
+Requires-Dist: pyyaml
+Description-Content-Type: text/markdown
+
+# funner
+
+Repeatedly used code snippets. Let them live their own life as collection of functions.
+
+Includes:
+
+- textparse - functions for string to data manipulatins
+- textgen - functions for generating text from text template using data (Jinja2 helps here)
+- filefun - functions for file manipulation
+- packfun - functions for finding and loading resources from packages
+- storable - Base class for serializable objects
+
+
+
+## install
+
+`pip install funner`
+
+(or pip3 or pipx)
+
+Needs python 3.10 (because of type hints/annotations with pipes)
+
+
+
+## textparse
+
+Conversion functions:
+
+- dict_from_yaml
+- list_from_yaml
+
+
+## textgen
+
+Conversion functions:
+
+- generate_from_string
+- generate_from_file
+
+
+## packfun
+
+Package/module digging functions:
+
+- read_content_of_package_file
+- copy_from_package_to_file
+- prepare_function
+
+
+## filefun
+
+Context Manager:
+
+- open_with_missing_dirs
+
+
+Text-reading function:
+
+- read_content_of_file
+
