@@ -1,0 +1,34 @@
+[project]
+name = "file-sanitizer"
+version = "0.1.1"
+description = "A powerful file sanitizer for env, YAML, JSON, CSV"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.8"
+authors = [{ name = "V. Arvindh Kumar", email = "arvindhvetri@gmail.com" }]
+license = "MIT"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Security",
+    "Topic :: Utilities",
+]
+keywords = ["sanitizer", "data-cleaning", "env", "yaml", "json", "csv", "security"]
+
+dependencies = [
+    "PyYAML",
+    "pandas",
+    "cryptography"
+]
+
+[project.scripts]
+filesan = "file_sanitizer.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["file_sanitizer*"]
+exclude = ["manual_tests*"]
