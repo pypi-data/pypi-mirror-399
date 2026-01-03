@@ -1,0 +1,48 @@
+Metadata-Version: 2.4
+Name: thinkthinksyn
+Version: 0.0.2
+Author-email: ThinkThinkSyn <contact@thinkthinksyn.com>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/ThinkThinkSyn/thinkthinksyn
+Project-URL: Issues, https://github.com/ThinkThinkSyn/thinkthinksyn/issues
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: license
+Requires-Dist: numpy
+Requires-Dist: pydantic
+Requires-Dist: sympy
+Requires-Dist: aiossechat
+Requires-Dist: colorlog
+Requires-Dist: attrs
+Requires-Dist: typeguard
+Requires-Dist: typing-extensions>=4.1.0
+Requires-Dist: pillow
+Requires-Dist: psutil
+Requires-Dist: aioftp
+Requires-Dist: aiohttp
+Requires-Dist: pydub
+Requires-Dist: ffmpeg-downloader
+Requires-Dist: moviepy
+Requires-Dist: noisereduce
+Requires-Dist: json-repair
+Requires-Dist: audioop-lts
+Requires-Dist: pyvips[binary]
+Dynamic: license-file
+
+#### Client for accessing ThinkThinkSyn AI API Service.
+
+Required Python >= 3.11
+
+Example:
+```python
+import asyncio
+
+from thinkthinksyn import ThinkThinkSyn
+tts = ThinkThinkSyn(apikey=os.getenv('TTS_APIKEY', ''))
+
+async def test():
+    return (await tts.completion(prompt='1+1? tell me ans directly without words.'))['text'].strip()
+
+if __name__ == "__main__":
+    asyncio.run(test())
+```

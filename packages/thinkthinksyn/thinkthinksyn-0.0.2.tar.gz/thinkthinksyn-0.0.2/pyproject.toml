@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+version = "0.0.2"
+name = "thinkthinksyn"
+dependencies = [
+  "numpy",
+  "pydantic",
+  "sympy",
+  "aiossechat",
+  "colorlog",
+  "attrs",
+  "typeguard",
+  "typing-extensions>=4.1.0",
+  "pillow",
+  "psutil",
+  "aioftp",
+  "aiohttp",
+  "pydub",
+  "ffmpeg-downloader",
+  "moviepy",
+  "noisereduce",
+  "json-repair",
+  "audioop-lts",
+  "pyvips[binary]",
+]
+requires-python = ">= 3.11"
+authors = [
+  {name = "ThinkThinkSyn", email = "contact@thinkthinksyn.com"},
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+readme = "README.md"
+
+[tool.setuptools.packages.find]
+where = [""]
+include = ["thinkthinksyn*"]
+exclude = ["tmp*"]
+
+[project.urls]
+Homepage = "https://github.com/ThinkThinkSyn/thinkthinksyn"
+Issues = "https://github.com/ThinkThinkSyn/thinkthinksyn/issues"
