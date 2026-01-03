@@ -1,0 +1,179 @@
+Metadata-Version: 2.4
+Name: excelminer
+Version: 0.0.0
+Summary: Extract and normalize Excel workbook artifacts (sheets, connections, formulas) into a lightweight graph.
+Author-email: Brent Carpenetti <brentwc.git@pm.me>
+License: MIT License
+        
+        Copyright (c) 2025 Brent Carpenetti
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: openpyxl
+Provides-Extra: calamine
+Requires-Dist: pandas; extra == "calamine"
+Requires-Dist: python-calamine; extra == "calamine"
+Provides-Extra: com
+Requires-Dist: pywin32; platform_system == "Windows" and extra == "com"
+Provides-Extra: test
+Requires-Dist: pytest>=7.0.0; extra == "test"
+Requires-Dist: pytest-cov>=4.0.0; extra == "test"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Requires-Dist: isort; extra == "dev"
+Provides-Extra: all
+Requires-Dist: pandas; extra == "all"
+Requires-Dist: python-calamine; extra == "all"
+Requires-Dist: pywin32; platform_system == "Windows" and extra == "all"
+Requires-Dist: pytest>=7.0.0; extra == "all"
+Requires-Dist: pytest-cov>=4.0.0; extra == "all"
+Requires-Dist: black; extra == "all"
+Requires-Dist: flake8; extra == "all"
+Requires-Dist: mypy; extra == "all"
+Requires-Dist: isort; extra == "all"
+Dynamic: license-file
+
+# excelminer
+
+`excelminer` extracts Excel workbook artifacts into a small, normalized in-memory graph (nodes + edges) that you can serialize to deterministic JSON.
+
+It is designed for inventory, analysis, and reproducible diffs (stable ordering), not for “opening Excel” or evaluating formulas.
+
+## What you can extract
+
+From OOXML files (`.xlsx/.xlsm/.xltx/.xltm`) without Excel installed:
+
+- sheets
+- defined names
+- connections + basic source inference
+- Power Query queries (when stored as `xl/queries/*.xml`)
+- Power Query mashup-container detection (best-effort, metadata-only)
+- pivot tables + pivot caches (best-effort)
+- VBA project presence for macro-enabled OOXML (`.xlsm/.xltm/.xlam`) (metadata-only)
+- formula text + basic dependencies (via `openpyxl`, when enabled)
+
+Optional enrichment:
+
+- used-range “value blocks” via calamine (fast scanning)
+- Windows Excel COM automation (for legacy formats like `.xls/.xlsb` and opt-in enrichment for modern OOXML)
+
+## Install
+
+Base install:
+
+```bash
+pip install excelminer
+```
+
+Optional extras:
+
+```bash
+pip install "excelminer[calamine]"  # pandas + python-calamine
+pip install "excelminer[com]"       # Windows + Microsoft Excel required
+```
+
+## Quickstart
+
+### JSON output
+
+```python
+from excelminer import AnalysisOptions, analyze_to_dict
+
+result = analyze_to_dict(
+    "workbook.xlsx",
+    options=AnalysisOptions(include_formulas=True),
+)
+
+print(result["graph"]["stats"])          # counts by node kind
+print(result["reports"][0]["backend"])    # per-backend reports
+```
+
+### Graph output
+
+```python
+from excelminer import AnalysisOptions, analyze_workbook
+
+graph, reports, ctx = analyze_workbook(
+    "workbook.xlsx",
+    options=AnalysisOptions(include_formulas=True),
+)
+
+print(graph.stats())
+print([r.backend for r in reports])
+print(ctx.issues)
+```
+
+## Output shape (high level)
+
+`analyze_to_dict()` returns:
+
+- `path`, `options`, `issues`
+- `reports`: per-backend stats/issues
+- `graph`: `{ nodes: [...], edges: [...], stats: {...} }`
+
+Common node kinds include: `sheet`, `connection`, `source`, `powerquery`, `pivot_table`, `pivot_cache`, `vba_project`, `formula_cell`, `cell_block`.
+
+## Default backend pipeline
+
+By default, backends run in this order:
+
+1. OOXML zip parsing (structure)
+2. VBA projects (macro detection for `.xlsm/.xltm/.xlam`)
+3. Power Query (queries XML + mashup-container detection)
+4. Pivot tables (pivots + caches)
+5. Calamine (used-range/value blocks; optional)
+6. openpyxl (formula text)
+7. Excel COM (Windows-only enrichment; opt-in for modern OOXML)
+
+You can override the pipeline via the `backends=` argument.
+
+## Security & privacy notes
+
+- Connection parsing produces a sanitized key/value view (`password` / `user id` / etc masked) in `connection_kv`.
+- The raw connection string may also be stored in `connection.raw`.
+
+Treat the output JSON as potentially sensitive. If you don’t need connections, use `AnalysisOptions(include_connections=False)`.
+
+## Documentation (in this repo)
+
+- docs/README.md: documentation index
+- docs/USAGE.md: usage patterns + backend ordering
+- docs/OPTIONS.md: `AnalysisOptions` flags and limits
+- docs/BACKENDS.md: backend behavior and requirements
+- docs/OUTPUT.md: output schema and common node/edge kinds
+- docs/SECURITY.md: security & privacy notes
+- docs/DEVELOPMENT.md: tests, COM opt-in, coverage profiles
+
+## Development notes
+
+COM integration tests are opt-in because some environments can crash the Python process when Excel COM is invoked.
+
+PowerShell:
+
+```powershell
+$env:EXCELMINER_RUN_COM_TESTS='1'
+pytest -m integration
+```
