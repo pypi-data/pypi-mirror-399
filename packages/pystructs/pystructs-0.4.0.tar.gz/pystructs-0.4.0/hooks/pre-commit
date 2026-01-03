@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if ! command -v ruff >/dev/null
+then
+    echo "'ruff' seems not installed. You can install it manually with"\
+    "'pip install ruff' or 'uv sync --dev'."
+    exit -1
+fi
+
+ruff format .
+ruff check --fix .
