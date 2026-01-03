@@ -1,0 +1,74 @@
+name: Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TEST_MATCH_ID_1: "8461956309"
+  TEST_MATCH_ID_2: "8594217096"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DOTA_REPLAY_CACHE: ${{ github.workspace }}/replays
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: false
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Lint with ruff
+        run: uv run ruff check src/ tests/ dota_match_mcp_server.py
+
+      - name: Type check with mypy
+        run: uv run mypy src/ dota_match_mcp_server.py --ignore-missing-imports
+
+      - name: Cache replay files
+        uses: actions/cache@v4
+        with:
+          path: replays
+          key: replays-v2-${{ env.TEST_MATCH_ID_1 }}-${{ env.TEST_MATCH_ID_2 }}
+          restore-keys: |
+            replays-v2-
+
+      - name: Download replays from GCP bucket
+        run: |
+          mkdir -p $DOTA_REPLAY_CACHE
+          for MATCH_ID in ${{ env.TEST_MATCH_ID_1 }} ${{ env.TEST_MATCH_ID_2 }}; do
+            if [ ! -f $DOTA_REPLAY_CACHE/${MATCH_ID}.dem ]; then
+              echo "Downloading replay ${MATCH_ID} from GCP bucket..."
+              curl -sL "https://storage.googleapis.com/dota-replays/${MATCH_ID}.dem" -o $DOTA_REPLAY_CACHE/${MATCH_ID}.dem
+            else
+              echo "Replay ${MATCH_ID} already cached"
+            fi
+          done
+          ls -lh $DOTA_REPLAY_CACHE/
+
+      - name: Run tests
+        timeout-minutes: 15
+        run: |
+          # Run only tests that use the smaller replay (match 2) to avoid OOM
+          # The larger replay (400MB) causes memory issues on GitHub runners
+          # Tests for match 8461956309 are run locally only
+          uv run pytest tests/examples/test_match_8594217096.py -v
