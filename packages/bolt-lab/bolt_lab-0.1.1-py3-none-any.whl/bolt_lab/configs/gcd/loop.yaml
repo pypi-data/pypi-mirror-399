@@ -1,0 +1,97 @@
+dataset: "banking"
+known_cls_ratio: 0.25
+
+seed: 42
+gpu_id: "0"
+data_dir: "data"
+save_results_path: "results/gcd/loop"
+save_model_path: "outputs/gcd/loop/model"
+pretrain_dir: "outputs/gcd/loop/premodels" 
+bert_model: "./pretrained_models/bert-base-uncased"
+tokenizer: "./pretrained_models/bert-base-uncased"
+labeled_ratio: 0.1
+fold_idx: 0
+
+train_batch_size: 64
+eval_batch_size: 128
+pretrain_batch_size: 64
+num_train_epochs: 100
+num_pretrain_epochs: 100
+lr: !!float 1e-5
+es_metric: "NMI"
+es_patience: 5
+es_min_delta: 0.1
+
+view_strategy: 'rtr'
+update_per_epoch: 5
+
+api_key: "YOUR_API_KEY"
+api_base: "https://uni-api.cstcloud.cn/v1"
+llm_model_name: "deepseek-v3:671b"
+
+dataset_specific_configs:
+  clinc:
+    max_seq_length: 30
+    topk: 50
+  stackoverflow:
+    max_seq_length: 45
+    topk: 500
+  banking:
+    max_seq_length: 55
+    topk: 50
+  hwu:
+    max_seq_length: 55
+    topk: 55
+  mcid:
+    max_seq_length: 55
+    topk: 55
+  ecdt:
+    max_seq_length: 55
+    topk: 55
+  TREC:
+    max_seq_length: 40
+    topk: 50
+  AGNews:
+    max_seq_length: 128
+    topk: 200
+  Yahoo: 
+    max_seq_length: 128
+    topk: 200
+  DBPedia:
+    max_seq_length: 256
+    topk: 200
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  medical:
+    max_seq_length: 256
+    topk: 200
+  ele:
+    max_seq_length: 200
+    topk: 500
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  news:
+    max_seq_length: 256
+    topk: 500
+    train_batch_size: 8
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  thucnews:
+    max_seq_length: 256
+    topk: 500
+    train_batch_size: 8
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  20NG: 
+    max_seq_length: 256
+    topk: 500
+    train_batch_size: 8
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  XTopic:
+    max_seq_length: 128
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16

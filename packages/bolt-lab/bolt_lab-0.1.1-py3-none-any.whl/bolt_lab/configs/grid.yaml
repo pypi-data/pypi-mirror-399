@@ -1,0 +1,44 @@
+maps:
+  gcd: [alup, deepaligned, dpn, geoid, loop, plm_gcd, sdc, tan]
+  openset: [ab, adb, clap, deepunk, doc, dyen, knncon, plm_ood, scl]
+
+methods: [alup, deepaligned, dpn, geoid, loop, plm_gcd, sdc, tan]
+result_file: summary_gcd
+
+datasets: [banking, clinc, stackoverflow, hwu, mcid, 20NG, DBPedia, TREC, Yahoo, thucnews, ecdt]
+
+grid:
+  known_cls_ratio: [0.25]
+  labeled_ratio: [0.1]
+  fold_idxs: [0,1,2,3,4]
+  fold_types: [imbalance_fold]
+  fold_nums: [5]
+  seeds: [2025]
+  cluster_num_factor: [1.0]
+
+run:
+  gpus: [0,1,2,3,4,5,6,7]
+  max_workers: 1
+  num_pretrain_epochs: 1
+  num_train_epochs: 1
+
+
+paths:
+  results_dir: results
+  logs_dir: logs
+
+scripts_override:
+  # sdc: scripts/custom/sdc_entry.sh
+
+result_globs_override:
+  # ab: outputs/openset/ab/**/final_results.csv
+
+extra_args:
+  data_dir: ./data
+  fold_num: 5
+  gpu_id: 0
+
+per_method_extra:
+  tan:
+    num_train_epochs: 50
+    # backbone: pretrained_models/bert-base-uncased
