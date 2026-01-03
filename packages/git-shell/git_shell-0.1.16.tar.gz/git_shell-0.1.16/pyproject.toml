@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "git-shell"
+version = "0.1.16"
+description = "A custom git shell with GPG and SSH certificate authorization"
+authors = [
+    {name = "Justin Ovens", email = "code@gotunix.net"}
+]
+maintainers = [
+    {name = "Justin Ovens", email = "code@gotunix.net"}
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = "AGPL-3.0"
+license-files = ["LICENSE"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Version Control :: Git",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/gotunix/git-shell"
+Repository = "https://github.com/gotunix/git-shell.git"
+
+[project.scripts]
+git-shell = "git_shell.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
