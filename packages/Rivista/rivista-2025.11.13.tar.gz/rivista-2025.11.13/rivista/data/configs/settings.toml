@@ -1,0 +1,105 @@
+# Routine properties of articles.
+[document]
+locale = "en"
+rights = "Unless stated otherwise, content is licensed under GFDL."
+
+# Public urls of sites.
+[domain-name]
+gemini = "gemini://localhost"
+http = "http://localhost:8080"
+
+# Properties of Metalink.
+[metalink]
+copyright = ""
+language = "en"
+logo = "http://localhost:8080/logo.svg"
+[metalink.publisher]
+name = "Rivista Voyager"
+url = "http://localhost:8080"
+[metalink.signature]
+mediatype = "application/pgp-signature"
+key = ""
+
+# Properties of search plugin.
+[search]
+attribution = "Search Information © 2025, Rivitsa Voyager LLC"
+contact = ""
+description = "Search Rivista Voyager - Journals and Torrents"
+image = ""
+language = "en-ie"
+suggestions = 1
+syndication_right = "open"
+[search.name]
+long = "Rivista Voyager Search System"
+short = "Rivitsa Voyager"
+[search.encoding]
+input = "UTF-8"
+output = "UTF-8"
+
+# Routine stylesheets of documents.
+[stylesheet]
+routine = "article.xslt"
+theme = "vivista"
+[stylesheet.custom]
+"collection.opml" = "opml.xslt"
+#"contact.atom" = "contact.xslt"
+#"connect.atom" = "connect.xslt"
+#"index.atom" = "main.xslt"
+"rivista.doap" = "doap.xslt"
+"search.atom" = "search.xslt"
+"sitemap.doap" = "sitemap.xslt"
+"urlset.doap" = "sitemap.xslt"
+
+# Server configuration.
+[server.gemini]
+# Listening address and port.
+host = "127.0.0.1"
+port = 1965
+# Hostname has to be a fully qualified domain name which is matching the given
+# certificate, if you are hosting publicly.
+hostname = "localhost"
+certfile = ""
+keyfile = ""
+#cafile = ""
+#capath = ""
+#proxy_protocol = 0
+use_tls = 1
+[server.http]
+# Listening address and port.
+host = "127.0.0.1"
+port = 8080
+#path = ""
+#sock = ""
+#shutdown_timeout = 60.0
+#keepalive_timeout = 75.0
+#ssl_context = ""
+#print = ""
+#backlog = 128
+#access_log_class = ""
+#access_log_format = ""
+#access_log = ""
+#handle_signals = 1
+#reuse_address = ""
+#reuse_port = ""
+#handler_cancellation = 0
+
+# XMPP configurations.
+# Publishing account to publish information with.
+[xmpp]
+address = ""
+password = ""
+# Messaging account to send notification messages to publishing account.
+[xmpp.messenger]
+address = ""
+password = ""
+# Services and nodes to publish content and comments.
+[xmpp.publish]
+# Account (PEP) or PubSub service.
+pubsub = ""
+# For an account, node name should be urn:xmpp:microblog:0
+# For PubSub service, node name may be anything else.
+node = "urn:xmpp:microblog:0"
+# Comments should be hosted over a PubSub service; yet it is possible to host
+# comments under PEP node name urn:xmpp:microblog:0/comments of an account, yet
+# PEP is not encouraged for comments if comments are to be publicly accessible.
+comments = ""

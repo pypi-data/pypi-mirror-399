@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Rivista"
+description = "A private journal publication and a content management system for XMPP"
+authors = [{name = "Schimon Zachary", email = "sch@fedora.email"}]
+license = {text = "AGPL-3.0"}
+classifiers = [
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Natural Language :: English",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary",
+    "Topic :: Internet :: XMPP",
+    "Topic :: Office/Business :: News/Diary",
+]
+dynamic = ["version"]
+keywords = [
+    "atom",
+    "blog",
+    "cms",
+    "gemini",
+    "jabber",
+    "journal",
+    "news",
+    "opml",
+    "rss",
+    "sitemap",
+    "ssg",
+    "syndication",
+    "xml",
+    "xmpp",
+]
+
+dependencies = [
+    "aiohttp",
+    "docutils",
+#   "html2rest",
+    "jetforce",
+    "lxml",
+#   "markdown",
+#   "markdown-text-clean",
+#   "md2gemini",
+    "pillow",
+    "python-dateutil",
+    "qrcode",
+    "rst2gemtext",
+#   "rst2html5",
+    "slixmpp",
+    "tomli-w", # Python 3.10
+]
+
+[project.urls]
+Homepage = "https://schapps.woodpeckersnest.eu/rivista/"
+Repository = "https://git.xmpp-it.net/sch/Rivista"
+Issues = "https://git.xmpp-it.net/sch/Rivista/issues"
+
+[project.scripts]
+rivista-adjust = "rivista.script.adjust:start"
+rivista-build = "rivista.script.build:start"
+rivista-server = "rivista.script.server:start"
+
+[tool.setuptools]
+platforms = ["any"]
+
+[tool.setuptools.dynamic]
+version = {attr = "rivista.__version__"}
+
+[tool.setuptools.package-data]
+"*" = ["*.css", "*.gmi", "*.ico", "*.js", "*.png", "*.rst", "*.svg", "*.toml", "*.xslt"]

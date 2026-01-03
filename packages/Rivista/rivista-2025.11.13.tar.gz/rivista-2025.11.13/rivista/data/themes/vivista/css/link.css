@@ -1,0 +1,756 @@
+/* URI of enclosure or related resource. */
+
+.enclosure,
+.microsummary,
+.related,
+.replies {
+  line-height: 2em;
+  margin: 3px;
+}
+
+.enclosure a,
+.related a,
+.replies a {
+  /* cursor: help; */
+  /* overflow: hidden; */
+  text-decoration: none;
+  /* text-overflow: ellipsis; */
+  /* white-space: nowrap; */
+}
+
+.enclosure a:hover,
+.microsummary a:hover,
+.related a:hover,
+.replies a:hover {
+  text-decoration: underline;
+}
+
+.enclosure:after,
+.enclosure > a:before,
+.microsummary > a:before,
+.related > a:before,
+.replies > a:before {
+  margin: 0 5px 0 5px;
+}
+
+.replies > a:before {
+  content: "🗨️";
+}
+
+.related > a:before {
+  content: "📄";
+}
+
+/*
+.enclosure[type^="application/"]:after {
+  content: "(File)";
+  content: "(Document)";
+}
+*/
+
+.enclosure[type^="audio/"]:after {
+  content: "(Audio)";
+}
+
+.enclosure[type^="executable/"]:after{
+  content: "(Executable)";
+}
+
+.enclosure[type^="image/"]:after {
+  content: "(Image)";
+}
+
+.enclosure[type^="text/"]:after {
+  content: "(Text)";
+}
+
+.enclosure[type^="video/"]:after {
+  content: "(Video)";
+}
+
+/*
+
+.enclosure[type^="application/"]:before {
+  content: "📋";
+}
+
+.enclosure[type^="text/"]:before {
+  content: "📄️";
+}
+
+*/
+
+.enclosure > a[href$="/"]:before {
+  content: "📁"; /* 📂 */
+}
+
+/*
+  NOTE
+  Consider to remove "feed" and "itpc".
+  waves in the aether » Blog Archive » breaking things
+  http://blogs.openaether.org/?p=108
+*/
+
+.enclosure > a[href$=".atom"]:before,
+.enclosure > a[href^="feed:"]:before,
+.related > a[href^="feed:"]:before,
+.enclosure > a[href$=".opml"]:before,
+.enclosure > a[href$=".rdf"]:before,
+.enclosure > a[href$=".rss"]:before {
+  content: "📰";
+}
+
+.microsummary > a:before {
+  content: "📢";
+}
+
+.enclosure > a[href$=".desktop"]:before,
+.enclosure > a[href$=".url"]:before {
+  content: "🔗";
+}
+
+.enclosure > a[href$=".conf"]:before,
+.enclosure > a[href$=".doap"]:before,
+.enclosure > a[href$=".ini"]:before,
+.enclosure > a[href$=".menu"]:before,
+.enclosure > a[href$=".plist"]:before,
+.enclosure > a[href$=".toml"]:before,
+.enclosure > a[href$=".yaml"]:before,
+.enclosure > a[href$=".yml"]:before {
+  content: "🎛";
+}
+
+.enclosure > a[href$=".aap"]:before,
+.enclosure > a[href$=".ac"]:before,
+.enclosure > a[href$=".am"]:before,
+.enclosure > a[href$=".asp"]:before,
+.enclosure > a[href$=".awk"]:before,
+.enclosure > a[href$=".b"]:before,
+.enclosure > a[href$=".bat"]:before,
+.enclosure > a[href$=".bf"]:before,
+.enclosure > a[href$=".c"]:before,
+.enclosure > a[href$=".cc"]:before,
+.enclosure > a[href$=".cjs"]:before,
+.enclosure > a[href$=".cpp"]:before,
+.enclosure > a[href$=".cs"]:before,
+.enclosure > a[href$=".emacs"]:before,
+.enclosure > a[href$=".erl"]:before,
+.enclosure > a[href$=".exs"]:before,
+.enclosure > a[href$=".go"]:before,
+.enclosure > a[href$=".guess"]:before,
+.enclosure > a[href$=".h"]:before,
+.enclosure > a[href$=".hh"]:before,
+.enclosure > a[href$=".hxml"]:before,
+.enclosure > a[href$=".hx"]:before,
+.enclosure > a[href$=".ih"]:before,
+.enclosure > a[href$=".in"]:before,
+.enclosure > a[href$=".java"]:before,
+.enclosure > a[href$=".js"]:before,
+.enclosure > a[href$=".jsx"]:before,
+.enclosure > a[href$=".m4"]:before,
+.enclosure > a[href$=".mjs"]:before,
+.enclosure > a[href$=".mm"]:before,
+.enclosure > a[href$=".pas"]:before,
+.enclosure > a[href$=".php"]:before,
+.enclosure > a[href$=".pl"]:before,
+.enclosure > a[href$=".py"]:before,
+.enclosure > a[href$=".pyc"]:before,
+.enclosure > a[href$=".rb"]:before,
+.enclosure > a[href$=".S"]:before,
+.enclosure > a[href$=".sh"]:before,
+.enclosure > a[href$=".svelte"]:before,
+.enclosure > a[href$=".ts"]:before,
+.enclosure > a[href$=".tsx"]:before,
+.enclosure > a[href$=".vue"]:before,
+.enclosure > a[href$=".w"]:before,
+.enclosure > a[href$=".xsd"]:before {
+  content: "{}";
+}
+
+.enclosure > a[href$=".apng"]:before,
+.enclosure > a[href$=".avif"]:before,
+.enclosure > a[href$=".bmp"]:before,
+.enclosure > a[href$=".eps"]:before,
+.enclosure > a[href$=".exr"]:before,
+.enclosure > a[href$=".gif"]:before,
+.enclosure > a[href$=".gifv"]:before,
+.enclosure > a[href$=".heic"]:before,
+.enclosure > a[href$=".heif"]:before,
+.enclosure > a[href$=".ico"]:before,
+.enclosure > a[href$=".jfif"]:before,
+.enclosure > a[href$=".jif"]:before,
+.enclosure > a[href$=".jpe"]:before,
+.enclosure > a[href$=".jpeg"]:before,
+.enclosure > a[href$=".jpg"]:before,
+.enclosure > a[href$=".jxl"]:before,
+.enclosure > a[href$=".mng"]:before,
+.enclosure > a[href$=".ora"]:before,
+.enclosure > a[href$=".pam"]:before,
+.enclosure > a[href$=".pbm"]:before,
+.enclosure > a[href$=".pcc"]:before,
+.enclosure > a[href$=".pcx"]:before,
+.enclosure > a[href$=".pfm"]:before,
+.enclosure > a[href$=".pgm"]:before,
+.enclosure > a[href$=".png"]:before,
+.enclosure > a[href$=".ppm"]:before,
+.enclosure > a[href$=".tga"]:before,
+.enclosure > a[href$=".webp"]:before,
+.enclosure > a[href$=".xbm"]:before,
+.enclosure > a[href$=".xmc"]:before,
+.enclosure > a[href$=".xpm"]:before,
+.enclosure > a[href$=".xwd"]:before {
+  content: "🖼️";
+}
+
+.enclosure > a[href$=".glade"]:before,
+.enclosure > a[href$=".lxsl"]:before,
+.enclosure > a[href$=".smil"]:before,
+.enclosure > a[href$=".svg"]:before,
+.enclosure > a[href$=".svgz"]:before,
+.enclosure > a[href$=".xsl"]:before,
+.enclosure > a[href$=".xslt"]:before,
+.enclosure > a[href$=".xul"]:before {
+  content: "〽";
+}
+
+.enclosure > a[href$=".cdr"]:before,
+.enclosure > a[href$=".cgm"]:before,
+.enclosure > a[href$=".css"]:before,
+.enclosure > a[href$=".emf"]:before,
+.enclosure > a[href$=".kpp"]:before,
+.enclosure > a[href$=".krz"]:before,
+.enclosure > a[href$=".gbr"]:before,
+.enclosure > a[href$=".gih"]:before,
+.enclosure > a[href$=".kra"]:before,
+.enclosure > a[href$=".odg"]:before,
+.enclosure > a[href$=".psd"]:before,
+.enclosure > a[href$=".qml"]:before,
+.enclosure > a[href$=".r8"]:before,
+.enclosure > a[href$=".r16"]:before,
+.enclosure > a[href$=".r32"]:before,
+.enclosure > a[href$=".scml"]:before,
+.enclosure > a[href$=".scss"]:before,
+.enclosure > a[href$=".xcf"]:before {
+  content: "🎨";
+}
+
+.enclosure > a[href$=".cue"]:before,
+.enclosure > a[href$=".jspf"]:before,
+.enclosure > a[href$=".m3u"]:before,
+.enclosure > a[href$=".m3u8"]:before,
+.enclosure > a[href$=".mxf"]:before,
+.enclosure > a[href$=".pls"]:before,
+.enclosure > a[href$=".scpls"]:before,
+.enclosure > a[href$=".sdp"]:before,
+.enclosure > a[href$=".sfv"]:before,
+.enclosure > a[href$=".smi"]:before,
+.enclosure > a[href$=".wpl"]:before,
+.enclosure > a[href$=".xspf"]:before {
+  content: "📜"; /* ▶ */
+}
+
+.related > a[href^="cso:"]:before,
+.enclosure > a[href$=".osd"]:before {
+  content: "🔍";
+}
+
+.enclosure > a[href$=".srt"]:before,
+.enclosure > a[href$=".sub"]:before,
+.enclosure > a[href$=".vtt"]:before {
+  content: "🎞";
+}
+
+.enclosure > a[href$=".ins"]:before,
+.enclosure > a[href$=".mml"]:before,
+.enclosure > a[href$=".tex"]:before {
+  content: "∑"; /* Σ 𝝨 𝚺 𝛴 Ω 𝛀 𝛺 */
+}
+
+.enclosure > a[href$=".musicxml"]:before,
+.enclosure > a[href$=".mxl"]:before {
+  content: "𝄢"; /* 𝄞 */
+}
+
+.enclosure > a[href$=".mid"]:before,
+.enclosure > a[href$=".midi"]:before {
+  content: "🎹";
+}
+
+.enclosure > a[href$=".aac"]:before,
+.enclosure > a[href$=".ac3"]:before,
+.enclosure > a[href$=".acm"]:before,
+.enclosure > a[href$=".adpcm"]:before,
+.enclosure > a[href$=".ape"]:before,
+.enclosure > a[href$=".aptx"]:before,
+.enclosure > a[href$=".au"]:before,
+.enclosure > a[href$=".caf"]:before,
+.enclosure > a[href$=".eac3"]:before,
+.enclosure > a[href$=".flac"]:before,
+.enclosure > a[href$=".gsm"]:before,
+.enclosure > a[href$=".it"]:before,
+.enclosure > a[href$=".ldac"]:before,
+.enclosure > a[href$=".m4a"]:before,
+.enclosure > a[href$=".mka"]:before,
+.enclosure > a[href$=".mod"]:before,
+.enclosure > a[href$=".mp"]:before,
+.enclosure > a[href$=".mp1"]:before,
+.enclosure > a[href$=".mp2"]:before,
+.enclosure > a[href$=".mp3"]:before,
+.enclosure > a[href$=".mt9"]:before,
+.enclosure > a[href$=".musepack"]:before,
+.enclosure > a[href$=".off"]:before,
+.enclosure > a[href$=".ofr"]:before,
+.enclosure > a[href$=".ofs"]:before,
+.enclosure > a[href$=".oga"]:before,
+.enclosure > a[href$=".opus"]:before,
+.enclosure > a[href$=".pcm"]:before,
+.enclosure > a[href$=".qcp"]:before,
+.enclosure > a[href$=".ra"]:before,
+.enclosure > a[href$=".ram"]:before,
+.enclosure > a[href$=".s3m"]:before,
+.enclosure > a[href$=".shorten"]:before,
+.enclosure > a[href$=".sil"]:before,
+.enclosure > a[href$=".tta"]:before,
+.enclosure > a[href$=".wav"]:before,
+.enclosure > a[href$=".wma"]:before,
+.enclosure > a[href$=".wv"]:before,
+.enclosure > a[href$=".wvc"]:before,
+.enclosure > a[href$=".xm"]:before {
+  content: "🎼️";
+}
+
+.enclosure > a[href^="itpc:"]:before,
+.related > a[href^="itpc:"]:before,
+.enclosure > a[href^="mms:"]:before,
+.related > a[href^="mms:"]:before,
+.enclosure > a[href$=".spx"]:before {
+  content: "🎙️";
+}
+
+.enclosure > a[href$=".3gp"]:before,
+.enclosure > a[href$=".3gpp"]:before,
+.enclosure > a[href$=".3gpp2"]:before,
+.enclosure > a[href$=".aiff"]:before,
+.enclosure > a[href$=".asf"]:before,
+.enclosure > a[href$=".asx"]:before,
+.enclosure > a[href$=".avi"]:before,
+.enclosure > a[href$=".divx"]:before,
+.enclosure > a[href$=".dv"]:before,
+.enclosure > a[href$=".flc"]:before,
+.enclosure > a[href$=".fli"]:before,
+.enclosure > a[href$=".flic"]:before,
+.enclosure > a[href$=".flv"]:before,
+.enclosure > a[href$=".ogg"]:before,
+.enclosure > a[href$=".ogm"]:before,
+.enclosure > a[href$=".ogv"]:before,
+.enclosure > a[href$=".m4v"]:before,
+.enclosure > a[href$=".mkv"]:before,
+.enclosure > a[href$=".mov"]:before,
+.enclosure > a[href$=".mp2t"]:before,
+.enclosure > a[href$=".mp4"]:before,
+.enclosure > a[href$=".mp4v"]:before,
+.enclosure > a[href$=".mpeg"]:before,
+.enclosure > a[href$=".mpeg2"]:before,
+.enclosure > a[href$=".mpeg3"]:before,
+.enclosure > a[href$=".mpg"]:before,
+.enclosure > a[href$=".rm"]:before,
+.enclosure > a[href$=".rma"]:before,
+.enclosure > a[href$=".rmhd"]:before,
+.enclosure > a[href$=".rmi"]:before,
+.enclosure > a[href$=".rmm"]:before,
+.enclosure > a[href$=".rmv"]:before,
+.enclosure > a[href$=".rmvb"]:before,
+.enclosure > a[href$=".webm"]:before,
+.enclosure > a[href$=".wmv"]:before,
+.enclosure > a[href$=".wvx"]:before {
+  content: "📼"; /* 📽️ */
+}
+
+.enclosure > a[href$=".md4"]:before,
+.enclosure > a[href$=".md5"]:before,
+.enclosure > a[href$=".sha1"]:before,
+.enclosure > a[href$=".sha224"]:before,
+.enclosure > a[href$=".sha256"]:before,
+.enclosure > a[href$=".sha384"]:before,
+.enclosure > a[href$=".sha512"]:before {
+  content: "㊙️";
+}
+
+.enclosure > a[href$=".asc"]:before,
+.enclosure > a[href$=".gpg"]:before,
+.enclosure > a[href$=".pgp"]:before,
+.related > a[href^="bunker:"]:before,
+.related > a[href^="openpgp4fpr:"]:before {
+  content: "🔐";
+}
+
+.enclosure > a[href$=".7z"]:before,
+.enclosure > a[href$=".a"]:before,
+.enclosure > a[href$=".ar"]:before,
+.enclosure > a[href$=".br"]:before,
+.enclosure > a[href$=".bz"]:before,
+.enclosure > a[href$=".bz2"]:before,
+.enclosure > a[href$=".cab"]:before,
+.enclosure > a[href$=".ear"]:before,
+.enclosure > a[href$=".tbz"]:before,
+.enclosure > a[href$=".tbz2"]:before,
+.enclosure > a[href$=".tgz"]:before,
+.enclosure > a[href$=".gz"]:before,
+.enclosure > a[href$=".tar"]:before,
+.enclosure > a[href$=".rar"]:before,
+.enclosure > a[href$=".lzma"]:before,
+.enclosure > a[href$=".txz"]:before,
+.enclosure > a[href$=".tzma"]:before,
+.enclosure > a[href$=".war"]:before,
+.enclosure > a[href$=".xz"]:before,
+.enclosure > a[href$=".zip"]:before {
+  content: "📦️";
+}
+
+.enclosure > a[href$=".swf"]:before,
+.enclosure > a[href$=".xdc"]:before {
+  content: "🕹️";
+}
+
+.enclosure > a[href$=".img"]:before,
+.enclosure > a[href$=".iso"]:before {
+  content: "📀";
+}
+
+.enclosure > a[href^="appstream:"]:before,
+.related > a[href^="appstream:"]:before,
+.enclosure > a[href^="openstore:"]:before,
+.related > a[href^="openstore:"]:before,
+.enclosure > a[href^="snap:"]:before,
+.related > a[href^="snap:"]:before,
+.enclosure > a[href$=".apk"]:before,
+.enclosure > a[href$=".build"]:before,
+.enclosure > a[href$=".deb"]:before,
+.enclosure > a[href$=".dmg"]:before,
+.enclosure > a[href$=".ebuild"]:before,
+.enclosure > a[href$=".exe"]:before,
+.enclosure > a[href$=".flatpakref"]:before,
+.enclosure > a[href$=".msi"]:before,
+.enclosure > a[href$=".ninja"]:before,
+.enclosure > a[href="PKGBUILD"]:before,
+.enclosure > a[href$=".pkg"]:before,
+.enclosure > a[href$=".rpm"]:before,
+.enclosure > a[href$=".SlackBuild"]:before,
+.enclosure > a[href="SLKBUILD"]:before {
+  content: "💿";
+}
+
+.enclosure > a[href$=".cb7"]:before,
+.enclosure > a[href$=".cbc"]:before,
+.enclosure > a[href$=".cbr"]:before,
+.enclosure > a[href$=".cbt"]:before,
+.enclosure > a[href$=".cbz"]:before,
+.enclosure > a[href$=".chm"]:before,
+.enclosure > a[href$=".djvu"]:before,
+.enclosure > a[href$=".epub"]:before,
+.enclosure > a[href$=".fb2"]:before,
+.enclosure > a[href$=".tif"]:before,
+.enclosure > a[href$=".tiff"]:before {
+  content: "📒";
+}
+
+.enclosure > a[href$=".dia"]:before,
+.enclosure > a[href$=".odp"]:before,
+.enclosure > a[href$=".ppt"]:before,
+.enclosure > a[href$=".pptx"]:before {
+  content: "📊";
+}
+
+.enclosure > a[href$=".csv"]:before,
+.enclosure > a[href$=".gnumeric"]:before,
+.enclosure > a[href$=".odb"]:before,
+.enclosure > a[href$=".ods"]:before,
+.enclosure > a[href$=".slk"]:before,
+.enclosure > a[href$=".tsv"]:before {
+  content: "📈";
+}
+
+.enclosure > a[href$=".as"]:before,
+.enclosure > a[href$=".xls"]:before,
+.enclosure > a[href$=".xlsx"]:before {
+  content: "📉";
+}
+
+.enclosure > a[href$=".1"]:before,
+.enclosure > a[href$=".adoc"]:before,
+.enclosure > a[href$=".diff"]:before,
+.enclosure > a[href$=".gmi"]:before,
+.enclosure > a[href$=".info"]:before,
+.enclosure > a[href$=".log"]:before,
+.enclosure > a[href$=".md"]:before,
+.enclosure > a[href$=".nfo"]:before,
+.enclosure > a[href$=".odt"]:before,
+.enclosure > a[href$=".org"]:before,
+.enclosure > a[href$=".patch"]:before,
+.enclosure > a[href$=".rst"]:before,
+.enclosure > a[href$=".rtf"]:before,
+.enclosure > a[href$=".scroll"]:before,
+.enclosure > a[href$=".txt"]:before,
+.enclosure > a[href$=".wiki"]:before,
+.enclosure > a[href$=".xht"]:before,
+.enclosure > a[href$=".xhtml"]:before {
+  content: "📖";
+}
+
+.enclosure > a[href$=".azw3"]:before,
+.enclosure > a[href$=".doc"]:before,
+.enclosure > a[href$=".docx"]:before,
+.enclosure > a[href$=".htm"]:before,
+.enclosure > a[href$=".html"]:before,
+.enclosure > a[href$=".htmlz"]:before,
+.enclosure > a[href$=".lit"]:before,
+.enclosure > a[href$=".mht"]:before,
+.enclosure > a[href$=".mhtml"]:before,
+.enclosure > a[href$=".mobi"]:before,
+.enclosure > a[href$=".pdf"]:before {
+  content: "📕";
+}
+
+.enclosure > a[href$=".mo"]:before,
+.enclosure > a[href$=".po"]:before,
+.enclosure > a[href$=".pot"]:before,
+.enclosure > a[href$=".ts"]:before {
+  content: "㊙"; /* 👄 📝 */
+}
+
+.enclosure > a[href$=".brk"]:before,
+.enclosure > a[href$=".ent"]:before,
+.enclosure > a[href$=".mmcif"]:before {
+  content: "⚛️";
+}
+
+.enclosure > a[href$=".db"]:before,
+.enclosure > a[href$=".sql"]:before,
+.enclosure > a[href$=".sqlite"]:before,
+.enclosure > a[href$=".pdb"]:before,
+.enclosure > a[href$=".xqy"]:before {
+  content: "🗄️";
+}
+
+.enclosure > a[href$=".vcard"]:before,
+.enclosure > a[href$=".vcf"]:before {
+  content: "📇";
+}
+
+.enclosure > a[href$=".meta4"]:before,
+.enclosure > a[href$=".metalink"]:before,
+.related > a[href$=".meta4"]:before,
+.related > a[href$=".metalink"]:before {
+  content: "♾️";
+}
+
+.enclosure > a[href^="magnet:"]:before,
+.related > a[href^="magnet:"]:before {
+  content: "🧲";
+}
+
+.enclosure > a[href^="adc:"]:before,
+.enclosure > a[href^="adcs:"]:before,
+.enclosure > a[href^="dchub:"]:before,
+.related > a[href^="adc:"]:before,
+.related > a[href^="adcs:"]:before,
+.related > a[href^="dchub:"]:before {
+  content: "🫐️";
+}
+
+.enclosure > a[href^="magnet:"][href*="urn:bitprint"]:before,
+.related > a[href^="magnet:"][href*="urn:bitprint"]:before {
+  content: "🪩";
+}
+
+.enclosure > a[href^="ed2k:"]:before,
+.enclosure > a[href^="magnet:"][href*="urn:aich"]:before,
+.enclosure > a[href^="magnet:"][href*="urn:ed2k"]:before,
+.enclosure > a[href^="magnet:"][href*="urn:ed2khash"]:before,
+.related > a[href^="ed2k:"]:before,
+.related > a[href^="magnet:"][href*="urn:aich"]:before,
+.related > a[href^="magnet:"][href*="urn:ed2k"]:before,
+.related > a[href^="magnet:"][href*="urn:ed2khash"]:before {
+  content: "🐴️"; /* 🫏 ♈ */
+}
+
+.enclosure > a[href$=".torrent"]:before,
+.enclosure > a[href^="magnet:"][href*="urn:btih"]:before,
+.enclosure > a[href^="magnet:"][href*="urn:btmh"]:before,
+.related > a[href^="magnet:"][href*="urn:btih"]:before,
+.related > a[href^="magnet:"][href*="urn:btmh"]:before {
+  content: "🌊";
+}
+
+.enclosure > a[href^="magnet:"][href*="urn:kzhash"]:before,
+.related > a[href^="magnet:"][href*="urn:kzhash"]:before {
+  content: "⏭️";
+}
+
+.enclosure > a[href^="magnet:"][href*="urn:md5"]:before,
+.related > a[href^="magnet:"][href*="urn:md5"]:before {
+  content: "❤️‍🔥️";
+}
+
+.enclosure > a[href^="magnet:"][href*="urn:sha1"]:before,
+.related > a[href^="magnet:"][href*="urn:sha1"]:before {
+  content: "🍋"; /* ❄️ 🍋🟩 */
+}
+
+.enclosure > a[href$=".fon"]:before,
+.enclosure > a[href$=".otf"]:before,
+.enclosure > a[href$=".ttf"]:before,
+.enclosure > a[href$=".woff"]:before,
+.enclosure > a[href$=".woff2"]:before {
+  content: "ℱ"; /* Ӕ 𝔐 */
+}
+
+.enclosure > a[href$=".json"]:before,
+.enclosure > a[href$=".xml"]:before {
+  content: "💫";
+}
+
+.enclosure > a[href$=".ical"]:before,
+.enclosure > a[href$=".icalendar"]:before,
+.enclosure > a[href$=".ics"]:before,
+.enclosure > a[href$=".ifb"]:before {
+  content: "🗓";
+}
+
+.related > a[href^="bitcoin:"]:before,
+.related > a[href^="ethereum:"]:before,
+.related > a[href^="litecoin:"]:before,
+.related > a[href^="monero:"]:before {
+  content: "🪙️";
+}
+
+.related > a[href^="tel:"]:before,
+.related > a[href^="callto:"]:before {
+  content: "☎️";
+}
+
+.related > a[href^="dweb:"]:before,
+.related > a[href^="ipfs:"]:before,
+.related > a[href^="ipns:"]:before {
+  content: "🔮";
+}
+
+.related > a[href^="dav:"]:before,
+.related > a[href^="davs:"]:before,
+.related > a[href^="mtp:"]:before,
+.related > a[href^="rsync:"]:before {
+  content: "🔄";
+}
+
+.related > a[href^="ftp:"]:before,
+.related > a[href^="ftps:"]:before,
+.related > a[href^="ftpsi:"]:before,
+.related > a[href^="fsp:"]:before,
+.related > a[href^="tftp:"]:before {
+  content: "🔁";
+}
+
+.related > a[href^="finger:"]:before {
+  content: "🫆";
+}
+
+.related > a[href^="gemini:"]:before {
+  content: "♊";
+}
+
+.enclosure > a[href$=".geojson"]:before,
+.enclosure > a[href$=".gpx"]:before,
+.enclosure > a[href$=".kml"]:before,
+.enclosure > a[href$=".kmx"]:before,
+.related > a[href^="geo:"]:before {
+  content: "📍️";
+}
+
+.related > a[href^="gopher:"]:before {
+  content: "🦦";
+}
+
+.related > a[href^="https:"]:before {
+  content: "📄"; /* 🔏 */
+}
+
+.related > a[href^="http:"]:before {
+  content: "🚫"; /* 🔓 */
+}
+
+.related > a[href^="hyper:"]:before {
+  content: "⚡";
+}
+
+.related > a[href*=".i2p/"]:before,
+.related > a[href$=".i2p"]:before {
+  content: "🃏";
+}
+
+.related > a[href^="irc:"]:before,
+.related > a[href^="ircs:"]:before {
+  content: "#"; /* #⃣ */
+}
+
+.related > a[href^="nex:"]:before {
+  content: "️🏙️";
+}
+
+.related > a[href^="nostr:"]:before {
+  content: "🦜";
+}
+
+.related > a[href*=".onion/"]:before,
+.related > a[href$=".onion"]:before {
+  content: "🧅️";
+}
+
+.related > a[href^="ssh:"]:before,
+.related > a[href^="telnet:"]:before {
+  content: "🖥";
+}
+
+.enclosure > a[href$=".user.css"]:before {
+  content: "️🖌️";
+}
+
+.enclosure > a[href$=".user.js"]:before {
+  content: "🐵";
+}
+
+.enclosure > a[href$=".crx"]:before,
+.enclosure > a[href$=".dll"]:before,
+.enclosure > a[href$=".jar"]:before,
+.enclosure > a[href$=".xpi"]:before {
+  content: "🧩";
+}
+
+.enclosure > a[href$=".eml"]:before,
+.enclosure > a[href$=".mbox"]:before,
+.related > a[href^="mailto:"]:before {
+  content: "📮";
+}
+
+.related > a[href^="cso:"]:before {
+  content: "🔍";
+}
+
+.related > a[href^="dcaccount:"]:before {
+  content: "𝛿";
+}
+
+.related > a[href^="udp:"]:before {
+  content: "📶";
+}
+
+.related > a[href^="xmpp:"]:before {
+  content: "💡";
+}
+
+.related > a[href^="xmpp:"][href$="?join"]:before {
+  content: "👥";
+}
+
+.related > a[href^="xmpp:"][href$="?vcard"]:before {
+  content: "🪪";
+}
