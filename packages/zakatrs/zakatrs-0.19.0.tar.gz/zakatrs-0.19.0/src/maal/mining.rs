@@ -1,0 +1,234 @@
+//! # Fiqh Compliance: Mining & Rikaz
+//!
+//! ## Classifications
+//! - **Rikaz (Buried Treasure)**: Pre-Islamic buried wealth found without labor and extraction cost. Rate is **20% (Khumus)** immediately. No Nisab, No Debt deductions.
+//!   - Source: "In Rikaz is the Khumus (one-fifth)." (Sahih Bukhari 1499).
+//! - **Ma'adin (Mines)**: Extracted minerals. Treated as gold/silver assets with **2.5%** rate and 85g Gold Nisab. (Subject to Ikhtilaf, default implemented as 2.5%).
+
+use rust_decimal::Decimal;
+use rust_decimal_macros::dec;
+use crate::types::{ZakatDetails, ZakatError};
+use serde::{Serialize, Deserialize};
+use crate::traits::{CalculateZakat, ZakatConfigArgument};
+
+use crate::inputs::IntoZakatDecimal;
+use crate::math::ZakatDecimal;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub enum MiningType {
+    /// Buried Treasure / Ancient Wealth found.
+    Rikaz,
+    /// Extracted Minerals/Metals from a mine.
+    #[default]
+    Mines,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct MiningAssets {
+    pub value: Decimal,
+    pub mining_type: MiningType,
+    pub liabilities_due_now: Decimal,
+    pub hawl_satisfied: bool,
+    pub label: Option<String>,
+    pub id: uuid::Uuid,
+    // Hidden field for deferred input validation errors
+    #[serde(skip)]
+    _input_errors: Vec<ZakatError>,
+}
+
+impl MiningAssets {
+    pub fn new() -> Self {
+        Self {
+            id: uuid::Uuid::new_v4(),
+            _input_errors: Vec::new(),
+            ..Default::default()
+        }
+    }
+
+    /// Sets the mining value.
+    /// 
+    /// If the value cannot be converted to a valid decimal, the error is
+    /// collected and will be returned by `validate()` or `calculate_zakat()`.
+    pub fn value(mut self, value: impl IntoZakatDecimal) -> Self {
+        match value.into_zakat_decimal() {
+            Ok(v) => self.value = v,
+            Err(e) => self._input_errors.push(e),
+        }
+        self
+    }
+
+    pub fn kind(mut self, kind: MiningType) -> Self {
+        self.mining_type = kind;
+        self
+    }
+
+    /// Sets deductible debt.
+    /// 
+    /// If the value cannot be converted to a valid decimal, the error is
+    /// collected and will be returned by `validate()` or `calculate_zakat()`.
+    pub fn debt(mut self, debt: impl IntoZakatDecimal) -> Self {
+        match debt.into_zakat_decimal() {
+            Ok(v) => self.liabilities_due_now = v,
+            Err(e) => self._input_errors.push(e),
+        }
+        self
+    }
+
+    pub fn hawl(mut self, satisfied: bool) -> Self {
+        self.hawl_satisfied = satisfied;
+        self
+    }
+
+    pub fn label(mut self, label: impl Into<String>) -> Self {
+        self.label = Some(label.into());
+        self
+    }
+
+    /// Restores the asset ID (for database/serialization restoration).
+    pub fn with_id(mut self, id: uuid::Uuid) -> Self {
+        self.id = id;
+        self
+    }
+
+    /// Validates the asset and returns any input errors.
+    ///
+    /// - If no errors, returns `Ok(())`.
+    /// - If 1 error, returns `Err(that_error)`.
+    /// - If >1 errors, returns `Err(ZakatError::MultipleErrors(...))`.
+    pub fn validate(&self) -> Result<(), ZakatError> {
+        match self._input_errors.len() {
+            0 => Ok(()),
+            1 => Err(self._input_errors[0].clone()),
+            _ => Err(ZakatError::MultipleErrors(self._input_errors.clone())),
+        }
+    }
+
+
+
+}
+
+impl CalculateZakat for MiningAssets {
+    fn validate_input(&self) -> Result<(), ZakatError> {
+        self.validate()
+    }
+
+    fn calculate_zakat<C: ZakatConfigArgument>(&self, config: C) -> Result<ZakatDetails, ZakatError> {
+        // Validate deferred input errors first
+        self.validate()?;
+        
+        let config_cow = config.resolve_config();
+        let config = config_cow.as_ref();
+
+        if self.value < Decimal::ZERO {
+            return Err(ZakatError::InvalidInput {
+                field: "value".to_string(),
+                value: "negative".to_string(),
+                reason: "Mining value must be non-negative".to_string(),
+                source_label: self.label.clone(),
+                asset_id: None,
+            });
+        }
+
+        match self.mining_type {
+            MiningType::Rikaz => {
+                // Rate: 20%. No Nisab (or minimal). No Debts deduction.
+                // Requirement: "Rikaz Rate: 20% (No Hawl, No Debts deduction)."
+                // We IGNORE hawl_satisfied here.
+                let rate = dec!(0.20);
+                
+                // We purposefully IGNORE extra_debts for Rikaz as per requirement.
+                // We set liabilities to 0.
+                // Nisab: 0 (Paying on whatever is found).
+                
+                // Calculate Trace
+                let trace = vec![
+                    crate::types::CalculationStep::initial("step-rikaz-value", "Rikaz Found Value", self.value),
+                    crate::types::CalculationStep::info("info-rikaz-rule", "Rikaz Rule: No Nisab, No Debt Deduction, 20% Rate"),
+                    crate::types::CalculationStep::rate("step-rate-applied", "Applied Rate (20%)", rate),
+                ];
+                
+                Ok(ZakatDetails::with_trace(self.value, Decimal::ZERO, Decimal::ZERO, rate, crate::types::WealthType::Rikaz, trace)
+                    .with_label(self.label.clone().unwrap_or_default()))
+            },
+            MiningType::Mines => {
+                let nisab_threshold = ZakatDecimal::new(config.gold_price_per_gram)
+                    .safe_mul(config.get_nisab_gold_grams())?
+                    .with_source(self.label.clone());
+                
+                // Rate: 2.5%. Nisab: 85g Gold.
+                if !self.hawl_satisfied {
+                     return Ok(ZakatDetails::below_threshold(*nisab_threshold, crate::types::WealthType::Mining, "Hawl (1 lunar year) not met")
+                        .with_label(self.label.clone().unwrap_or_default()));
+                }
+                // Dynamic rate from strategy (default 2.5%)
+                let rate = config.strategy.get_rules().trade_goods_rate;
+                let liabilities = self.liabilities_due_now;
+
+                // Build trace for Mines
+                let mut trace = Vec::new();
+                trace.push(crate::types::CalculationStep::initial("step-extracted-value", "Extracted Value", self.value));
+                trace.push(crate::types::CalculationStep::subtract("step-debts-due-now", "Debts Due Now", liabilities));
+                let net_val = ZakatDecimal::new(self.value)
+                    .safe_sub(liabilities)?
+                    .with_source(self.label.clone());
+                trace.push(crate::types::CalculationStep::result("step-net-mining-assets", "Net Mining Assets", *net_val));
+                trace.push(crate::types::CalculationStep::compare("step-nisab-check-gold", "Nisab Threshold (85g Gold)", *nisab_threshold));
+                
+                if *net_val >= *nisab_threshold && *net_val > Decimal::ZERO {
+                    trace.push(crate::types::CalculationStep::rate("step-rate-applied", "Applied Trade Goods Rate", rate));
+                } else {
+                     trace.push(crate::types::CalculationStep::info("status-exempt", "Net Value below Nisab - No Zakat Due"));
+                }
+                
+                Ok(ZakatDetails::with_trace(self.value, liabilities, *nisab_threshold, rate, crate::types::WealthType::Mining, trace)
+                    .with_label(self.label.clone().unwrap_or_default()))
+            }
+        }
+    }
+
+    fn get_label(&self) -> Option<String> {
+        self.label.clone()
+    }
+
+    fn get_id(&self) -> uuid::Uuid {
+        self.id
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::ZakatConfig;
+
+    #[test]
+    fn test_rikaz() {
+        let config = ZakatConfig::default();
+        let mining = MiningAssets::new()
+            .value(1000.0)
+            .kind(MiningType::Rikaz);
+        // Rikaz (Buried Treasure) is taxed at 20% on the gross value.
+        // Debts and Hawl are not considered for Rikaz.
+        
+        let res = mining.debt(500.0).hawl(false).calculate_zakat(&config).unwrap();
+        // Calculation: 1000 * 0.20 = 200. (Debt of 500 is ignored).
+        
+        assert!(res.is_payable);
+        assert_eq!(res.zakat_due, Decimal::from(200));
+    }
+    
+    #[test]
+    fn test_minerals() {
+         let config = ZakatConfig::new().with_gold_price(100);
+         // Nisab 85g = 8500.
+         
+         let mining = MiningAssets::new()
+             .value(10000.0)
+             .kind(MiningType::Mines);
+         let res = mining.hawl(true).calculate_zakat(&config).unwrap();
+         
+         // 10000 > 8500. Rate 2.5%.
+         // Due 250.
+         assert!(res.is_payable);
+         assert_eq!(res.zakat_due, dec!(250));
+    }
+}
