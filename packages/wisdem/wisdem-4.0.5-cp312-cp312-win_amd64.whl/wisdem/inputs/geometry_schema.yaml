@@ -1,0 +1,872 @@
+# Author: Pietro Bortolotti
+# Organization: National Renewable Energy Laboratory, Golden, CO
+# Date: 2020-04-28
+
+
+
+$schema: "http://json-schema.org/draft-07/schema#"
+$id: WISDEM_ontology_v00
+title: WISDEM wind turbine ontology
+description: Ontology definition for wind turbines as defined in WP1 of IEA Wind Task 37 - Phase II
+type: object
+# additionalProperties: true
+properties:
+    components:
+        type: object
+        default: {}
+        optional:
+            - jacket
+        properties:
+            hub:
+                type: object
+                required:
+                    - diameter
+                    - cone_angle
+                properties:
+                    flange_t2shell_t:
+                        type: number
+                        description: Ratio of flange thickness to shell thickness
+                        default: 6.
+                        unit: none
+                        minimum: 0
+                        maximum: 20.
+                    flange_OD2hub_D:
+                        type: number
+                        description: Ratio of flange outer diameter to hub diameter
+                        default: 0.6
+                        unit: none
+                        minimum: 0
+                        maximum: 10.
+                    flange_ID2OD:
+                        type: number
+                        description: Check this
+                        unit: none
+                        default: 0.8
+                        minimum: 0
+                        maximum: 10.
+                    hub_blade_spacing_margin:
+                        type: number
+                        description: Ratio of flange thickness to shell thickness
+                        default: 1.2
+                        unit: none
+                        minimum: 0
+                        maximum: 20.
+                    hub_stress_concentration:
+                        type: number
+                        description: Stress concentration factor. Stress concentration occurs at all fillets,notches, lifting lugs, hatches and are accounted for by assigning a stress concentration factor
+                        unit: none
+                        default: 3.
+                        minimum: 0
+                        maximum: 20.
+                    n_front_brackets:
+                        type: integer
+                        description: Number of front spinner brackets
+                        unit: none
+                        default: 5
+                        minimum: 0
+                        maximum: 20
+                    n_rear_brackets:
+                        type: integer
+                        description: Number of rear spinner brackets
+                        unit: none
+                        default: 5
+                        minimum: 0
+                        maximum: 20
+                    clearance_hub_spinner:
+                        type: number
+                        description: Clearance between spinner and hub
+                        default: 0.5
+                        unit: m
+                        minimum: 0
+                        maximum: 20.
+                    spin_hole_incr:
+                        type: number
+                        description: Ratio between access hole diameter in the spinner and blade root diameter. Typical value 1.2
+                        unit: none
+                        default: 1.2
+                        minimum: 0
+                        maximum: 20.
+                    pitch_system_scaling_factor:
+                        type: number
+                        description: Scaling factor to tune the total mass (0.54 is recommended for modern designs)
+                        unit: none
+                        default: 0.54
+                        minimum: 0
+                        maximum: 2.
+                    hub_material:
+                        type: string
+                        description: Material of the shell of the hub
+                    spinner_material:
+                        type: string
+                        description: Material of the spinner
+                    hub_shell_mass_user:
+                        type: number
+                        description: User input override of hub shell mass calculation
+                        unit: kg
+                        minimum: 0.
+                        default: 0.0
+                    spinner_mass_user:
+                        type: number
+                        description: User input override of hub shell mass calculation
+                        unit: kg
+                        minimum: 0.
+                        default: 0.0
+                    pitch_system_mass_user:
+                        type: number
+                        default: 0.0
+                        units: kg
+                        description: Override regular regression-based calculation of pitch system mass with this value
+                        minimum: 0.0
+                    hub_system_mass_user:
+                        type: number
+                        description: User input override of full hub system mass calculation
+                        unit: kg
+                        minimum: 0.
+                        default: 0.0
+            drivetrain:
+                type: object
+                properties:
+                    bedplate:
+                        type: object
+                        properties:
+                            mass_user:
+                                type: number
+                                default: 0.0
+                                units: kg
+                                description: Override regular calculation of bedplate mass with this value
+                                minimum: 0.0
+                    lss:
+                        type: object
+                        properties:
+                            mass_user:
+                                type: number
+                                default: 0.0
+                                units: kg
+                                description: User override of low speed shaft mass.
+                                minimum: 0.0
+                    hss:
+                        type: object
+                        properties:
+                            mass_user:
+                                type: number
+                                default: 0.0
+                                units: kg
+                                description: User override of high speed shaft mass.
+                                minimum: 0.0
+                    other_components:
+                        type: object
+                        description: Inputs describing all other drivetrain components, the assembly of brake, hvac, converter, transformer, and main bearings
+                        properties:
+                            mb1_mass_user:
+                                type: number
+                                default: 0.0
+                                units: kg
+                                description: Override regular regression-based calculation of first main bearing mass with this value
+                                minimum: 0.0
+                            mb2_mass_user:
+                                type: number
+                                default: 0.0
+                                units: kg
+                                description: Override regular regression-based calculation of second main bearing mass with this value
+                                minimum: 0.0
+                            converter_mass_user:
+                                type: number
+                                default: 0.0
+                                units: kg
+                                description: Override regular regression-based calculation of converter mass with this value
+                                minimum: 0.0
+                            transformer_mass_user:
+                                type: number
+                                default: 0.0
+                                units: kg
+                                description: Override regular regression-based calculation of transformer mass with this value
+                                minimum: 0.0
+                            platform_mass_user:
+                                type: number
+                                default: 0.0
+                                units: kg
+                                description: Override regular regression-based calculation of platform mass with this value
+                                minimum: 0.0
+                            cover_mass_user:
+                                type: number
+                                default: 0.0
+                                units: kg
+                                description: Override regular regression-based calculation of cover mass with this value
+                                minimum: 0.0
+                    elastic_properties:
+                        type: object
+                        properties:
+                            spring_constant_user:
+                                type: number
+                                default: 0.0
+                                units: N*m/rad
+                                description: Override regular calculation of drivetrain spring constant with this value
+                                minimum: 0.0
+                            damping_coefficient_user:
+                                type: number
+                                default: 0.0
+                                units: N*m/rad
+                                description: Override regular calculation of drivetrain damping coefficient with this value
+                                minimum: 0.0
+                    generator:
+                        type: object
+                        properties:
+                            generator_type:
+                                type: string
+                                default: DFIG
+                                enum: [DFIG, dfig, EESG, eesg, SCIG, scig, PMSG_Arms, PMSG_ARMS, pmsg_arms, PMSG_Disc, PMSG_Disk, PMSG_DISC, PMSG_DISK, pmsg_disk, pmsg_disc, PMSG_Outer, PMSG_OUTER, pmsg_outer]
+                            B_r:
+                                type: number
+                                default: 1.2
+                                units: T
+                                description: Words
+                                minimum: 0.0
+                            P_Fe0e:
+                                type: number
+                                default: 1.0
+                                units: W/kg
+                                minimum: 0.0
+                                maximum: 1000.0
+                                description: Words
+                            P_Fe0h:
+                                type: number
+                                default: 4.0
+                                units: W/kg
+                                minimum: 0.0
+                                maximum: 1000.0
+                                description: Words
+                            S_N:
+                                type: number
+                                default: -0.002
+                                minimum: -100.0
+                                maximum: 0.0
+                                description: Words
+                            S_Nmax:
+                                type: number
+                                default: -0.2
+                                minimum: -100.0
+                                maximum: 0.0
+                                description: Words
+                            alpha_p:
+                                type: number
+                                default: 1.0995574287564276
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            b_r_tau_r:
+                                type: number
+                                default: 0.45
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            b_ro:
+                                type: number
+                                default: 0.004
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            b_s_tau_s:
+                                type: number
+                                default: 0.45
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            b_so:
+                                type: number
+                                default: 0.004
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            cofi:
+                                type: number
+                                default: 0.85
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            freq:
+                                type: number
+                                default: 60.0
+                                units: Hz
+                                minimum: 1.0
+                                maximum: 1000.0
+                                description: Words
+                            h_i:
+                                type: number
+                                default: 0.001
+                                units: m
+                                minimum: 0.0
+                                maximum: 1.0
+                                description: Words
+                            h_sy0:
+                                type: number
+                                default: 0.0
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            h_w:
+                                type: number
+                                default: 0.005
+                                units: m
+                                minimum: 0.0
+                                maximum: 1.0
+                                description: Words
+                            k_fes:
+                                type: number
+                                default: 0.9
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            k_fillr:
+                                type: number
+                                default: 0.7
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            k_fills:
+                                type: number
+                                default: 0.65
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            k_s:
+                                type: number
+                                default: 0.2
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            m:
+                                type: integer
+                                default: 3
+                                minimum: 0
+                                maximum: 100
+                                description: Words
+                            mu_0:
+                                type: number
+                                default: 1.2566370614359173e-06
+                                units: m*kg/s^2/A^2
+                                minimum: 0.0
+                                maximum: 1.0
+                                description: Permittivity of free space
+                            mu_r:
+                                type: number
+                                default: 1.06
+                                units: m*kg/s^2/A^2
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            p:
+                                type: number
+                                default: 3.0
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            phi:
+                                type: number
+                                default: 90
+                                units: deg
+                                minimum: 0.0
+                                maximum: 180.0
+                                description: Words
+                            q1:
+                                type: integer
+                                default: 6
+                                minimum: 0
+                                maximum: 100
+                                description: Words
+                            q3:
+                                type: integer
+                                default: 4
+                                minimum: 0
+                                maximum: 100
+                                description: Words
+                            ratio_mw2pp:
+                                type: number
+                                default: 0.7
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            resist_Cu:
+                                type: number
+                                default: 2.52
+                                units: ohm/m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Resistiity of copper
+                            sigma:
+                                type: number
+                                default: 40.e+3
+                                units: kg/s^2/m
+                                minimum: 0.0
+                                maximum: 100.e+6
+                                description: Maximum allowable shear stress
+                            y_tau_p:
+                                type: number
+                                default: 1.0
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            y_tau_pr:
+                                type: number
+                                default: 0.83333333
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            I_0:
+                                type: number
+                                default: 0.0
+                                units: A
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            d_r:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            h_m:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            h_0:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            h_s:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            len_s:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            n_r:
+                                type: number
+                                default: 0.0
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            rad_ag:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            t_wr:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            n_s:
+                                type: number
+                                default: 0.0
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            b_st:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            d_s:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            t_ws:
+                                type: number
+                                default: 0.0
+                                units: m
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Words
+                            rho_Copper:
+                                type: number
+                                default: 8900.0
+                                units: kg/m^3
+                                minimum: 0.0
+                                maximum: 1.e+5
+                                description: Copper ensity
+                            rho_Fe:
+                                type: number
+                                default: 7700.0
+                                units: kg/m^3
+                                minimum: 0.0
+                                maximum: 1.e+5
+                                description: Structural steel density
+                            rho_Fes:
+                                type: number
+                                default: 7850.0
+                                units: kg/m^3
+                                minimum: 0.0
+                                maximum: 1.e+5
+                                description: Electrical steel density
+                            rho_PM:
+                                type: number
+                                default: 7450.0
+                                units: kg/m^3
+                                minimum: 0.0
+                                maximum: 1.e+5
+                                description: Permanent magnet density
+                            C_Cu:
+                                type: number
+                                default: 4.786
+                                units: USD/kg
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Copper cost
+                            C_Fe:
+                                type: number
+                                default: 0.556
+                                units: USD/kg
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Structural steel cost
+                            C_Fes:
+                                type: number
+                                default: 0.50139
+                                units: USD/kg
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Electrical steel cost
+                            C_PM:
+                                type: number
+                                default: 50.0
+                                units: USD/kg
+                                minimum: 0.0
+                                maximum: 100.0
+                                description: Permanent magnet cost
+            yaw:
+                type: object
+                default: {}
+                properties:
+                    yaw_system_mass_user:
+                        type: number
+                        default: 0.0
+                        units: kg
+                        description: Override regular regression-based calculation of yaw mass with this value
+                        minimum: 0.0
+            floating_platform:
+                type: object
+                properties:
+                    members:
+                        type: array
+                        items:
+                            type: object
+                            properties:
+                                member_mass_user:
+                                    type: number
+                                    default: 0.0
+                                    units: kg
+                                    description: Override bottom-up calculation of total member mass with this value
+                                    minimum: 0.0
+                                no_intersect:
+                                    description: This member is parallel to another and intersecting "ghost nodes" should not be calculated.  An example is a heave plate.
+                                    type: boolean
+                                    default: False
+            jacket:
+                type: object
+                properties:
+                    jacket_mass_user:
+                        type: number
+                        default: 0.0
+                        units: kg
+                        description: Override bottom-up calculation of total jacket mass with this value
+                        minimum: 0.0
+
+definitions:
+    distributed_data:
+        grid_al:
+            type: array
+            description: Grid along an arc length, expressed non dimensionally where 0 is the leading edge, -1 is the trailing edge on the pressure side and +1 the trailing edge on the pressure side
+            items:
+                type: number
+                unit: none
+                minItems: 2
+                minimum: -1.0
+                maximum: 1.0
+                uniqueItems: true
+        strings:
+            type: array
+            items:
+                type: string
+                minItems: 2
+                uniqueItems: false
+        mass_length:
+            type: array
+            description: Mass per unit length along a beam, expressed in kilogram per meter
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: kg/m
+                minItems: 2
+                uniqueItems: false
+        mass:
+            type: array
+            description: Concentrted mass along a beam, expressed in kilogram
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: kg
+                minItems: 2
+                uniqueItems: false
+        area:
+            type: array
+            description: Cross sectional area along a beam, expressed in meter squared
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: m2
+                minItems: 2
+                uniqueItems: false
+                description: Cross sectional area
+        elast_mod:
+            type: array
+            description: Modulus of elasticity of a material along a beam, expressed in Newton over meter squared
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N m2
+                minItems: 2
+                uniqueItems: false
+                description: Modulus of elasticity
+        shear_mod:
+            type: array
+            description: Shear modulus of elasticity of a material along a beam, expressed in Newton over meter squared
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N/m2
+                minItems: 2
+                uniqueItems: false
+                description: Shear modulus of elasticity
+        area_moment:
+            type: array
+            description: Area moment of inertia of a section along a beam, expressed in meter to the power of four
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: m4
+                minItems: 2
+                uniqueItems: false
+                description: Area moment of inertia
+        mass_moment:
+            type: array
+            description: Mass moment of inertia of a section along a beam, expressed in kilogram times meter squared per meter
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: kg*m2/m
+                minItems: 2
+                uniqueItems: false
+                description: Mass moment of inertia per unit span
+        tors_stiff_const:
+            type: array
+            description: Torsional stiffness constant with respect to ze axis at the shear center [m4/rad]. For a circular section only this is identical to the polar moment of inertia
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: m4/rad
+                minItems: 2
+                uniqueItems: false
+        shear_stiff:
+            type: array
+            description: Shearing stiffness along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        axial_stiff:
+            type: array
+            description: Axial stiffness EA along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        bending_stiff:
+            type: array
+            description: Bending stiffness E11-E22 along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: Nm2
+                minItems: 2
+                uniqueItems: false
+        tors_stiff:
+            type: array
+            description: Torsional stiffness GJ along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: Nm2
+                minItems: 2
+                uniqueItems: false
+        shearshear_stiff:
+            type: array
+            description: Cross term between shear stiffness along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        shearaxial_stiff:
+            type: array
+            description: Cross term between shear and axial stiffness along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        shearbending_stiff:
+            type: array
+            description: Cross term between shear and bending stiffness along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        sheartorsion_stiff:
+            type: array
+            description: Cross term between shear and torsion stiffness along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        axialbending_stiff:
+            type: array
+            description: Cross term between axial and bending stiffness along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        axialtorsion_stiff:
+            type: array
+            description: Cross term between axial and torsion stiffness along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        bendingbending_stiff:
+            type: array
+            description: Cross term between bending and bending stiffness along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        bendingtorsion_stiff:
+            type: array
+            description: Cross term between bending and torsion stiffness along the beam
+            default: [0.0, 0.0]
+            items:
+                type: number
+                unit: N
+                minItems: 2
+                uniqueItems: false
+        nd_arc_position:
+            type: object
+            description: non-dimensional location of the point along the non-dimensional arc length
+            properties:
+                grid:
+                    $ref: "#/definitions/distributed_data/grid_nd"
+                values:
+                    $ref: "#/definitions/distributed_data/grid_al"
+                fixed:
+                    type: string
+                    description: Name of the layer to lock the edge
+        offset:
+            type: object
+            description: dimensional offset in respect to the pitch axis along the x axis, which is the chord line rotated by a user-defined angle. Negative values move the midpoint towards the leading edge, positive towards the trailing edge
+            required:
+                - grid
+                - values
+            properties:
+                grid:
+                    $ref: "#/definitions/distributed_data/grid_nd"
+                values:
+                    $ref: "#/definitions/distributed_data/length"
+        rotation:
+            type: object
+            description: rotation of the chord axis around the pitch axis
+            properties:
+                grid:
+                    $ref: "#/definitions/distributed_data/grid_nd"
+                values:
+                    $ref: "#/definitions/distributed_data/angle"
+                fixed:
+                    type: string
+                    description: Name of the layer to lock the edge
+        axis_coordinates:
+            type: object
+            description: The reference system is used across wind turbine components. For the blade, the reference system is located at blade root, with z aligned with the pitch axis, x pointing towards the suction sides of the airfoils (standard prebend will be negative) and y pointing to the trailing edge (standard sweep will be positive). For tower and monopile, the reference system is located at tower/monopile base, with z aligned along the height pointing upwards, x aligned with the main wind direction, and y pointing to the side following the right hand rule.
+            required:
+                - x
+                - y
+                - z
+            properties:
+                x:
+                    type: object
+                    required:
+                        - grid
+                        - values
+                    properties:
+                        grid:
+                            $ref: "#/definitions/distributed_data/grid_nd"
+                        values:
+                            $ref: "#/definitions/distributed_data/length"
+                y:
+                    type: object
+                    required:
+                        - grid
+                        - values
+                    properties:
+                        grid:
+                            $ref: "#/definitions/distributed_data/grid_nd"
+                        values:
+                            $ref: "#/definitions/distributed_data/length"
+                z:
+                    type: object
+                    required:
+                        - grid
+                        - values
+                    properties:
+                        grid:
+                            $ref: "#/definitions/distributed_data/grid_nd"
+                        values:
+                            $ref: "#/definitions/distributed_data/length"
