@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弹幕管理</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome/font-awesome.min.css') }}">
+
+
+    <style>
+        /* 全局样式和变量 - 淡蓝紫色主题 */
+        :root {
+            --primary-color: #9c88ff;
+            --primary-dark: #7c63ff;
+            --primary-light: #c4b5fd;
+            --primary-ultralight: #f3e8ff;
+            --success-color: #4ade80;
+            --success-dark: #22c55e;
+            --warning-color: #fcd34d;
+            --warning-dark: #fbbf24;
+            --danger-color: #f87171;
+            --danger-dark: #ef4444;
+            --gray-light: #f3f4f6;
+            --gray: #e5e7eb;
+            --gray-dark: #6b7280;
+            --text-dark: #1f2937;
+            --text-light: #f9fafb;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --radius-sm: 4px;
+            --radius: 6px;
+            --radius-lg: 8px;
+            --transition: all 0.25s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9fafb;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+        
+        .container { 
+            width: 90%; 
+            margin: 0 auto; 
+            padding: 24px; 
+            max-width: 1200px; 
+        }
+        
+        /* 响应式样式 */
+        @media (max-width: 1200px) {
+            .action-btn {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .action-btn {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+            
+            .btn-icon {
+                margin-right: 2px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container { 
+                width: 95%; 
+                padding: 16px 10px; 
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .search-bar {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .search-container {
+                flex: 1;
+                min-width: 180px;
+            }
+            
+            /* 表格响应式处理 */
+            .table-container {
+                overflow-x: auto;
+                border-radius: var(--radius);
+                box-shadow: var(--shadow-sm);
+            }
+            
+            table {
+                min-width: 640px;
+            }
+            
+            /* 模态框响应式处理 */
+            .modal-content, .modal-sm {
+                width: 90% !important;
+                margin: 20px auto !important;
+                max-width: 500px;
+            }
+            
+            /* 分页按钮响应式处理 */
+            .pagination-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+                flex-shrink: 0;
+                min-width: 32px;
+                text-align: center;
+            }
+            
+            .page-info {
+                display: none;
+            }
+            
+            /* 操作按钮响应式处理 */
+            .action-cell {
+                flex-wrap: wrap;
+                gap: 4px;
+                justify-content: flex-start;
+            }
+            
+            .action-btn {
+                padding: 5px 8px;
+                font-size: 12px;
+                min-width: 60px;
+                justify-content: center;
+            }
+            
+            /* 确保操作列不被隐藏 */
+            .table-col-action {
+                display: table-cell !important;
+                white-space: normal;
+            }
+        }
+        
+        /* 头部样式 */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 28px; 
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .header h1 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header .user-info span {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        
+        /* 表格样式 */
+        .table-container {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-top: 24px;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+        
+        th { 
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            text-align: left;
+            padding: 14px 16px;
+            position: relative;
+        }
+        
+        td { 
+            padding: 14px 16px; 
+            text-align: left;
+            border-bottom: 1px solid var(--gray);
+            transition: var(--transition);
+        }
+        
+        tr:hover td {
+            background-color: rgba(156, 136, 255, 0.05);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            gap: 6px;
+        }
+        
+        .btn-icon {
+            margin-right: 6px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: var(--success-dark);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: var(--warning-dark);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: var(--danger-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray);
+            color: var(--text-dark);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--gray-light);
+        }
+        
+        /* 操作按钮样式 */
+        .action-cell { 
+            display: flex; 
+            gap: 4px; 
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .action-btn { 
+            margin: 0; 
+            padding: 4px 8px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: var(--radius-sm); 
+            font-size: 12px; 
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            transition: var(--transition);
+        }
+        
+        .edit-btn { 
+            background-color: var(--primary-color); 
+            color: white; 
+        }
+        
+        .edit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .update-btn { 
+            background-color: var(--warning-color); 
+            color: white; 
+        }
+        
+        .update-btn:hover {
+            background-color: var(--warning-dark);
+        }
+        
+        .delete-btn { 
+            background-color: var(--danger-color); 
+            color: white; 
+        }
+        
+        .delete-btn:hover {
+            background-color: var(--danger-dark);
+        }
+        
+        /* 搜索栏样式 */
+        .search-bar { 
+            margin: 0 0 24px; 
+            display: flex; 
+            gap: 10px; 
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+        
+        .search-container {
+            position: relative;
+            flex: 1;
+            min-width: 180px;
+        }
+        
+        .search-input { 
+            width: 100%; 
+            padding: 10px 14px 10px 14px; 
+            border: 1px solid var(--gray); 
+            border-radius: var(--radius); 
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        
+        .clear-search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray-dark);
+            cursor: pointer;
+            font-size: 16px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .clear-search-btn:hover {
+            color: var(--danger-color);
+            background-color: var(--gray-light);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(156, 136, 255, 0.2);
+        }
+        
+        .search-btn { 
+            padding: 10px 16px; 
+            background-color: var(--primary-color); 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: var(--radius); 
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        
+        .search-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .search-btn.reset {
+            background-color: var(--gray-dark);
+        }
+        
+        .search-btn.reset:hover {
+            background-color: #4b5563;
+        }
+        
+        .add-btn { 
+            background-color: var(--success-color); 
+            color: white; 
+            border: none; 
+            padding: 10px 16px; 
+            cursor: pointer; 
+            border-radius: var(--radius); 
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        
+        .add-btn:hover {
+            background-color: var(--success-dark);
+        }
+        
+        /* 模态框样式 */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content { 
+            margin: auto;
+            width: 100%;
+            max-width: 800px;
+            padding: 28px; 
+            background-color: white; 
+            border-radius: var(--radius-lg); 
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-sm { 
+            max-width: 500px; 
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray-dark);
+            transition: var(--transition);
+            padding: 4px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-modal:hover {
+            color: var(--danger-color);
+            background-color: var(--gray-light);
+        }
+        
+        /* 模态框底部样式 */
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--gray);
+        }
+        
+        /* 表单样式 */
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 500; 
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+        
+        input, textarea, select { 
+            width: 100%; 
+            padding: 10px 14px; 
+            box-sizing: border-box; 
+            border: 1px solid var(--gray); 
+            border-radius: var(--radius); 
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        textarea { 
+            min-height: 120px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            resize: vertical;
+        }
+        
+        .form-hint {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+        
+        /* 消息提示样式 */
+        .message { 
+            margin: 16px 0; 
+            padding: 12px 16px; 
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .message i {
+            font-size: 18px;
+        }
+        
+        .success { 
+            background-color: #dcfce7; 
+            color: #166534;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .error { 
+            background-color: #fee2e2; 
+            color: #991b1b;
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        /* 加载动画样式 */
+        .loading { 
+            display: inline-block; 
+            width: 20px; 
+            height: 20px; 
+            border: 3px solid rgba(59, 130, 246, 0.3); 
+            border-radius: 50%; 
+            border-top-color: var(--primary-color); 
+            animation: spin 1s infinite linear; 
+            vertical-align: middle; 
+        }
+        
+        @keyframes spin { 
+            to { 
+                transform: rotate(360deg); 
+            } 
+        }
+        
+        /* 分页控件样式 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+            gap: 6px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 12px 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray) transparent;
+        }
+        
+        .pagination::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .pagination::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .pagination::-webkit-scrollbar-thumb {
+            background-color: var(--gray);
+            border-radius: 3px;
+        }
+        
+        .pagination-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--gray);
+            border-radius: var(--radius-sm);
+            background-color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+            font-size: 14px;
+            min-width: 36px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background-color: var(--gray-light);
+            border-color: var(--gray);
+        }
+        
+        .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: var(--gray-light);
+        }
+        
+        .pagination-ellipsis {
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            flex-shrink: 0;
+            color: var(--gray-dark);
+        }
+        
+        .page-info {
+            margin-left: 15px;
+            display: flex;
+            align-items: center;
+            color: var(--gray-dark);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        /* 响应式表格列显示控制 */
+        .table-col-id { display: table-cell; }
+        .table-col-anime { display: table-cell; }
+        .table-col-episode { display: table-cell; }
+        .table-col-filename { display: table-cell; }
+        .table-col-file { display: table-cell; }
+        .table-col-time { display: table-cell; }
+        .table-col-action { display: table-cell; white-space: nowrap; }
+        
+        /* 根据屏幕宽度动态显示/隐藏列 */
+        @media (max-width: 1024px) {
+            .table-col-file { display: none; }
+        }
+        
+        @media (max-width: 768px) {
+            .table-col-anime { display: none; }
+            .table-col-episode { display: none; }
+        }
+        
+        @media (max-width: 480px) {
+            .table-col-time { display: none; }
+        }
+        
+        /* 通知样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 14px 18px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            max-width: 350px;
+        }
+        
+        /* 通知颜色变体 */
+        .notification.bg-purple-50 {
+            background-color: #f5f3ff;
+            color: #5b21b6;
+        }
+        
+        .notification.bg-green-50 {
+            background-color: #ecfdf5;
+            color: #065f46;
+        }
+        
+        .notification.bg-red-50 {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .notification.bg-yellow-50 {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+        
+        /* 空数据状态样式 */
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--gray-dark);
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--gray);
+        }
+        
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+        
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>弹幕管理</h1>
+            <div class="user-info">
+                <span>管理员</span>
+                <button class="action-btn delete-btn" onclick="logout()">
+                    <i class="fa fa-sign-out"></i> 退出
+                </button>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="搜索文件名/动画名称..." class="search-input">
+                <button type="button" id="clearSearchBtn" class="clear-search-btn" onclick="clearSearch()" style="display: none;">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <button class="search-btn" onclick="searchData()">
+                <i class="fa fa-search"></i> 搜索
+            </button>
+            <button class="add-btn" onclick="openAddModal()">
+                <i class="fa fa-plus"></i> 新增弹幕
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="table-col-id">ID</th>
+                        <th class="table-col-anime">动画名称</th>
+                        <th class="table-col-episode">剧集标题</th>
+                        <th class="table-col-filename">文件名</th>
+                        <th class="table-col-file">文件路径</th>
+                        <th class="table-col-time">更新时间</th>
+                        <th class="table-col-action">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTable"></tbody>
+            </table>
+        </div>
+        
+        <!-- 分页控件 -->
+        <div id="pagination"></div>
+
+        <!-- 新增模态框 -->
+        <div class="modal" id="addModal">
+            <div class="modal-content modal-sm">
+                <div class="modal-header">
+                    <h3 class="modal-title">新增弹幕数据</h3>
+                    <button type="button" class="close-modal" onclick="document.getElementById('addModal').style.display = 'none'">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <form id="addForm">
+                    <div class="form-group">
+                        <label>视频URL <span style="color:red">*</span>:</label>
+                        <input type="text" id="addVideoUrl" placeholder="https://example.com/video.mp4" required>
+                    </div>
+                    <div class="form-group">
+                        <label>文件名 <span style="color:red">*</span>:</label>
+                        <input type="text" id="addFileName" placeholder="请输入不带扩展名的文件名" required>
+                        <p class="form-hint">文件名无需包含扩展名，系统会自动处理</p>
+                    </div>
+                    <div class="message" id="addMessage" style="display:none"></div>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+                        <button type="button" class="btn btn-outline" onclick="document.getElementById('addModal').style.display = 'none'">
+                            取消
+                        </button>
+                        <button type="submit" id="addSubmitBtn" class="btn btn-success">
+                            <span id="addBtnText">提交</span>
+                            <span id="addLoading" class="loading" style="display:none"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 编辑模态框（全字段） -->
+        <div class="modal" id="editModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">编辑数据</h3>
+                    <button type="button" class="close-modal" onclick="document.getElementById('editModal').style.display = 'none'">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <form id="editForm">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>动画名称 <span style="color:red">*</span>:</label>
+                            <input type="text" id="editAnimeTitle" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>剧集标题:</label>
+                            <input type="text" id="editEpisodeTitle">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>文件名 <span style="color:red">*</span>:</label>
+                            <input type="text" id="editFileName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>图片URL:</label>
+                            <input type="text" id="editImageUrl" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>API信息 (JSON):</label>
+                        <textarea id="editApiInfo" placeholder="请输入有效的JSON格式数据"></textarea>
+                        <p class="form-hint">请输入有效的JSON格式数据</p>
+                    </div>
+                    
+                    <div class="message" id="editMessage" style="display:none"></div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" onclick="document.getElementById('editModal').style.display = 'none'">
+                            取消
+                        </button>
+                        <button type="submit" id="editSubmitBtn" class="btn btn-primary">
+                            <span id="editBtnText">保存</span>
+                            <span id="editLoading" class="loading" style="display:none"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 更新模态框（仅ID传递） -->
+        <div class="modal" id="updateModal">
+            <div class="modal-content modal-sm">
+                <div class="modal-header">
+                    <h3 class="modal-title">快速更新</h3>
+                    <button type="button" class="close-modal" onclick="document.getElementById('updateModal').style.display = 'none'">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <p>确定要更新ID为 <span id="updateIdDisplay"></span> 的记录吗？</p>
+                <input type="hidden" id="updateId">
+                <div class="message" id="updateMessage" style="display:none"></div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('updateModal').style.display = 'none'">
+                        取消
+                    </button>
+                    <button id="confirmUpdateBtn" class="btn btn-warning">
+                        <span id="updateBtnText">确认更新</span>
+                        <span id="updateLoading" class="loading" style="display:none"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSearchKey = '';
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 显示初始化提示
+            showNotification('正在加载数据...', 'success');
+            // 加载数据
+            loadData();
+            
+            // 获取搜索框和清除按钮元素
+            const searchInput = document.getElementById('searchInput');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            
+            // 为搜索框添加事件监听器
+            searchInput.addEventListener('input', updateClearButtonVisibility);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchData();
+                }
+            });
+            
+            // 初始化清除按钮可见性
+            updateClearButtonVisibility();
+        });
+
+        // 加载数据
+        async function loadData() {
+            // 构建URL参数
+            const params = new URLSearchParams();
+            params.append('page', currentPage);
+            params.append('per_page', itemsPerPage);
+            if (currentSearchKey) {
+                params.append('keyword', currentSearchKey);
+            }
+            
+            let url = `/api/admin/episodes?${params.toString()}`;
+            
+            try {
+                const res = await fetch(url, { credentials: 'include' });
+                if (!res.ok) {
+                    throw new Error(`HTTP错误! 状态码: ${res.status}`);
+                }
+                const responseData = await res.json();
+                const data = responseData.data || [];
+                const totalItems = responseData.total || 0;
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+                
+                const tbody = document.getElementById('dataTable');
+                tbody.innerHTML = data.length ? data.map(item => `
+                    <tr>
+                        <td class="table-col-id">${item.id}</td>
+                        <td class="table-col-anime">${item.animeTitle || '-'}</td>
+                        <td class="table-col-episode">${item.episodeTitle || '-'}</td>
+                        <td class="table-col-filename">${item.fileName || '-'}</td>
+                        <td class="table-col-file">${item.file || '-'}</td>
+                        <td class="table-col-time">${item.updateTime || '-'}</td>
+                        <td class="action-cell table-col-action">
+                            <button class="action-btn edit-btn" onclick="openEditModal(${item.id})">
+                                <i class="fa fa-pencil btn-icon"></i> 编辑
+                            </button>
+                            <button class="action-btn update-btn" onclick="updateItem(${item.id}, this)">
+                                <i class="fa fa-refresh btn-icon"></i> 更新
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteItem(${item.id})">
+                                <i class="fa fa-trash btn-icon"></i> 删除
+                            </button>
+                        </td>
+                    </tr>
+                `).join('') : '<tr><td colspan="7" style="text-align:center">暂无数据</td></tr>';
+                
+                // 更新分页控件
+                updatePagination(totalPages);
+            } catch (err) {
+                console.error('加载数据失败:', err);
+                const tbody = document.getElementById('dataTable');
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: #a94442;">数据加载失败，请稍后重试</td></tr>';
+                // 显示错误提示
+                showNotification('数据加载失败: ' + err.message, 'error');
+                // 清空分页控件
+                document.getElementById('pagination').innerHTML = '';
+            }
+        }
+        
+        // 更新分页控件
+        function updatePagination(totalPages) {
+            const paginationContainer = document.getElementById('pagination');
+            paginationContainer.innerHTML = '';
+            
+            // 如果只有一页，不需要显示分页控件
+            if (totalPages <= 1) {
+                return;
+            }
+            
+            const pagination = document.createElement('div');
+            pagination.className = 'pagination';
+            pagination.style.display = 'flex';
+            pagination.style.justifyContent = 'center';
+            pagination.style.marginTop = '20px';
+            pagination.style.gap = '5px';
+            
+            // 上一页按钮
+            const prevButton = document.createElement('button');
+            prevButton.className = 'pagination-btn';
+            prevButton.innerHTML = '<i class="fa fa-chevron-left"></i>';
+            prevButton.disabled = currentPage === 1;
+            prevButton.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadData();
+                }
+            };
+            pagination.appendChild(prevButton);
+            
+            // 检测是否为移动设备
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // 移动端优化：只显示首页、当前页、末页和省略号
+                
+                // 首页
+                if (currentPage > 1) {
+                    const firstPageBtn = document.createElement('button');
+                    firstPageBtn.className = 'pagination-btn';
+                    firstPageBtn.textContent = '1';
+                    firstPageBtn.onclick = () => {
+                        currentPage = 1;
+                        loadData();
+                    };
+                    pagination.appendChild(firstPageBtn);
+                    
+                    // 如果当前页不是第2页，添加省略号
+                    if (currentPage > 2) {
+                        const ellipsis1 = document.createElement('span');
+                        ellipsis1.className = 'pagination-ellipsis';
+                        ellipsis1.textContent = '...';
+                        pagination.appendChild(ellipsis1);
+                    }
+                }
+                
+                // 当前页
+                const currentPageBtn = document.createElement('button');
+                currentPageBtn.className = 'pagination-btn active';
+                currentPageBtn.textContent = currentPage;
+                pagination.appendChild(currentPageBtn);
+                
+                // 如果当前页不是最后一页
+                if (currentPage < totalPages) {
+                    // 如果当前页不是倒数第2页，添加省略号
+                    if (currentPage < totalPages - 1) {
+                        const ellipsis2 = document.createElement('span');
+                        ellipsis2.className = 'pagination-ellipsis';
+                        ellipsis2.textContent = '...';
+                        pagination.appendChild(ellipsis2);
+                    }
+                    
+                    // 末页
+                    const lastPageBtn = document.createElement('button');
+                    lastPageBtn.className = 'pagination-btn';
+                    lastPageBtn.textContent = totalPages;
+                    lastPageBtn.onclick = () => {
+                        currentPage = totalPages;
+                        loadData();
+                    };
+                    pagination.appendChild(lastPageBtn);
+                }
+            } else {
+                // 桌面端：显示当前页前后2页和首尾页
+                const visibleRange = 2;
+                
+                // 页码按钮
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentPage - visibleRange && i <= currentPage + visibleRange)) {
+                        const pageButton = document.createElement('button');
+                        pageButton.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                        pageButton.textContent = i;
+                        pageButton.onclick = () => {
+                            currentPage = i;
+                            loadData();
+                        };
+                        pagination.appendChild(pageButton);
+                    } else if (i === currentPage - visibleRange - 1 || i === currentPage + visibleRange + 1) {
+                        // 添加省略号
+                        const ellipsis = document.createElement('span');
+                        ellipsis.className = 'pagination-ellipsis';
+                        ellipsis.textContent = '...';
+                        pagination.appendChild(ellipsis);
+                    }
+                }
+            }
+            
+            // 下一页按钮
+            const nextButton = document.createElement('button');
+            nextButton.className = 'pagination-btn';
+            nextButton.innerHTML = '<i class="fa fa-chevron-right"></i>';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadData();
+                }
+            };
+            pagination.appendChild(nextButton);
+            
+            // 添加分页信息
+            const pageInfo = document.createElement('span');
+            pageInfo.className = 'page-info';
+            pageInfo.style.marginLeft = '15px';
+            pageInfo.style.display = 'flex';
+            pageInfo.style.alignItems = 'center';
+            pageInfo.textContent = `显示 ${currentPage} / ${totalPages} 页`;
+            pagination.appendChild(pageInfo);
+            
+            paginationContainer.appendChild(pagination);
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'success', autoRemove = true) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            // 添加图标
+            const icon = document.createElement('i');
+            if (type === 'success') {
+                icon.className = 'fa fa-check-circle';
+                notification.classList.add('bg-green-50', 'text-green-800');
+            } else if (type === 'error') {
+                icon.className = 'fa fa-exclamation-circle';
+                notification.classList.add('bg-red-50', 'text-red-800');
+            } else if (type === 'warning') {
+                icon.className = 'fa fa-exclamation-triangle';
+                notification.classList.add('bg-yellow-50', 'text-yellow-800');
+            } else {
+                icon.className = 'fa fa-info-circle';
+                notification.classList.add('bg-purple-50', 'text-purple-800');
+            }
+            
+            notification.appendChild(icon);
+            
+            // 添加消息文本
+            const text = document.createElement('span');
+            text.textContent = message;
+            notification.appendChild(text);
+            
+            document.body.appendChild(notification);
+            
+            // 如果需要自动移除，3秒后移除通知
+            if (autoRemove) {
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+            
+            return notification;
+        }
+        
+        // 显示右下角加载提示
+        function showLoadingNotification(message = '处理中...') {
+            const notification = document.createElement('div');
+            notification.className = 'notification bg-purple-50 text-purple-800';
+            notification.style.bottom = '20px';
+            notification.style.top = 'auto';
+            notification.style.animation = 'slideIn 0.3s ease';
+            notification.style.zIndex = '1000';
+            
+            // 添加加载动画
+            const loading = document.createElement('span');
+            loading.className = 'loading';
+            notification.appendChild(loading);
+            
+            // 添加消息文本
+            const text = document.createElement('span');
+            text.textContent = message;
+            notification.appendChild(text);
+            
+            document.body.appendChild(notification);
+            
+            return notification;
+        }
+
+        // 搜索
+        function searchData() {
+            currentSearchKey = document.getElementById('searchInput').value.trim();
+            currentPage = 1; // 重置为第一页
+            // 显示加载状态
+            showLoading(true);
+            loadData().finally(() => {
+                // 隐藏加载状态
+                showLoading(false);
+            });
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            currentSearchKey = '';
+            currentPage = 1; // 重置为第一页
+            // 显示加载状态
+            showLoading(true);
+            loadData().finally(() => {
+                // 隐藏加载状态
+                showLoading(false);
+            });
+        }
+        
+        // 显示/隐藏加载状态
+        function showLoading(show) {
+            const searchBar = document.querySelector('.search-bar');
+            let loadingIndicator = searchBar.querySelector('.loading-indicator');
+            
+            if (show) {
+                if (!loadingIndicator) {
+                    loadingIndicator = document.createElement('div');
+                    loadingIndicator.className = 'loading-indicator';
+                    loadingIndicator.style.display = 'flex';
+                    loadingIndicator.style.alignItems = 'center';
+                    loadingIndicator.style.color = '#666';
+                    loadingIndicator.innerHTML = '<span class="loading" style="border-top-color: #666;"></span> <span>加载中...</span>';
+                    searchBar.appendChild(loadingIndicator);
+                }
+                loadingIndicator.style.display = 'flex';
+            } else if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // 新增
+        function openAddModal() {
+            document.getElementById('addForm').reset();
+            document.getElementById('addMessage').style.display = 'none';
+            document.getElementById('addModal').style.display = 'block';
+        }
+
+        document.getElementById('addForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btnText = document.getElementById('addBtnText');
+            const loading = document.getElementById('addLoading');
+            const messageEl = document.getElementById('addMessage');
+
+            // 禁用按钮并显示加载状态
+            btnText.style.display = 'none';
+            loading.style.display = 'inline-block';
+            document.getElementById('addSubmitBtn').disabled = true;
+
+            // 获取表单数据
+            const formData = {
+                fileName: document.getElementById('addFileName').value,
+                file: document.getElementById('addVideoUrl').value
+            };
+            
+            // 显示右下角加载提示，包含文件名
+            const loadingNotification = showLoadingNotification(`${formData.fileName} 正在处理，请稍候...`);
+            
+            // 立即关闭弹窗
+            setTimeout(() => {
+                document.getElementById('addModal').style.display = 'none';
+                // 重置表单
+                document.getElementById('addForm').reset();
+                // 恢复按钮状态
+                btnText.style.display = 'inline';
+                loading.style.display = 'none';
+                document.getElementById('addSubmitBtn').disabled = false;
+            }, 300);
+
+            // 后台处理请求
+            fetch('/api/admin/episodes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+                credentials: 'include'
+            })
+            .then(res => res.json())
+            .then(data => {
+                // 移除加载提示
+                loadingNotification.remove();
+                
+                if (data.success) {
+                    // 显示成功提示
+                    showNotification('新增成功,'+data.msg+'条弹幕');
+                    // 刷新数据
+                    loadData();
+                } else {
+                    // 显示错误提示
+                    showNotification(data.error || '新增失败', 'error');
+                }
+            })
+            .catch(err => {
+                // 移除加载提示
+                loadingNotification.remove();
+                // 显示错误提示
+                showNotification('网络错误: ' + err.message, 'error');
+            });
+        });
+
+        // 编辑
+        async function openEditModal(id) {
+            try {
+                const res = await fetch(`/api/admin/episodes/${id}`, { credentials: 'include' });
+                const data = await res.json();
+                
+                document.getElementById('editId').value = data.id;
+                document.getElementById('editAnimeTitle').value = data.animeTitle;
+                document.getElementById('editEpisodeTitle').value = data.episodeTitle || '';
+                document.getElementById('editFileName').value = data.fileName;
+                document.getElementById('editImageUrl').value = data.imageUrl || '';
+                document.getElementById('editApiInfo').value = data.api_info ? JSON.stringify(data.api_info, null, 2) : '';
+                document.getElementById('editMessage').style.display = 'none';
+                
+                document.getElementById('editModal').style.display = 'block';
+            } catch (err) {
+                alert('获取数据失败');
+            }
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editId').value;
+            const btnText = document.getElementById('editBtnText');
+            const loading = document.getElementById('editLoading');
+            const messageEl = document.getElementById('editMessage');
+
+            btnText.style.display = 'none';
+            loading.style.display = 'inline-block';
+
+            try {
+                const res = await fetch(`/api/admin/episodes/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        animeTitle: document.getElementById('editAnimeTitle').value,
+                        episodeTitle: document.getElementById('editEpisodeTitle').value,
+                        fileName: document.getElementById('editFileName').value,
+                        imageUrl: document.getElementById('editImageUrl').value,
+                        api_info: validateJson(document.getElementById('editApiInfo').value)
+                    }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    messageEl.className = 'success';
+                    messageEl.textContent = '编辑成功';
+                    setTimeout(() => {
+                        document.getElementById('editModal').style.display = 'none';
+                        loadData();
+                        btnText.style.display = 'inline';
+                        loading.style.display = 'none';
+                    }, 1000);
+                } else {
+                    messageEl.className = 'error';
+                    messageEl.textContent = data.error || '失败';
+                    btnText.style.display = 'inline';
+                    loading.style.display = 'none';
+                }
+            } catch (err) {
+                messageEl.className = 'error';
+                messageEl.textContent = '网络错误';
+                btnText.style.display = 'inline';
+                loading.style.display = 'none';
+            }
+        });
+
+        // 更新（仅传递ID）
+        function openUpdateModal(id) {
+            document.getElementById('updateId').value = id;
+            document.getElementById('updateIdDisplay').textContent = id;
+            document.getElementById('updateMessage').style.display = 'none';
+            document.getElementById('updateModal').style.display = 'block';
+        }
+
+        // 直接更新函数
+        async function updateItem(id, button) {
+            // 保存原始按钮内容
+            const originalContent = button.innerHTML;
+            
+            // 创建加载中的按钮内容
+            const loadingContent = `
+                <span style="display:none">更新</span>
+                <span class="loading"></span>
+            `;
+            
+            // 设置按钮为加载状态
+            button.innerHTML = loadingContent;
+            button.disabled = true;
+            
+            try {
+                const res = await fetch(`/api/admin/episodes/update/${id}`, {
+                    method: 'get',
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    // 显示成功提示
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'message success';
+                    successMessage.textContent = '更新成功,'+data.msg+'条弹幕';
+                    successMessage.style.position = 'fixed';
+                    successMessage.style.top = '20px';
+                    successMessage.style.right = '20px';
+                    successMessage.style.zIndex = '1000';
+                    document.body.appendChild(successMessage);
+                    
+                    // 1秒后移除成功提示
+                    setTimeout(() => {
+                        successMessage.remove();
+                    }, 3000);
+                    
+                    // 重新加载当前页数据
+                    loadData();
+                } else {
+                    alert('更新失败: ' + (data.error || '未知错误'));
+                }
+            } catch (err) {
+                alert('更新失败: ' + err.message);
+            } finally {
+                // 恢复按钮原始状态
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            }
+        }
+
+        // 删除
+        async function deleteItem(id) {
+            if (!confirm('确定删除？')) return;
+            
+            try {
+                const res = await fetch(`/api/admin/episodes/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loadData(); // 删除成功后刷新当前页
+                } else {
+                    alert('删除失败');
+                }
+            } catch (err) {
+                alert('删除失败');
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        // 辅助函数：验证JSON
+        function validateJson(str) {
+            if (!str.trim()) return null;
+            try { return JSON.parse(str); } 
+            catch { return str; } // 不严格验证，保留原始值
+        }
+        
+        // 关闭模态框
+        ['addModal', 'editModal', 'updateModal'].forEach(id => {
+            document.getElementById(id).addEventListener('click', (e) => {
+                if (e.target === document.getElementById(id)) {
+                    document.getElementById(id).style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
