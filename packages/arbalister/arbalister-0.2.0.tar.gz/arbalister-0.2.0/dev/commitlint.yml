@@ -1,0 +1,29 @@
+rules:
+  description-empty:
+    level: error
+  description-format:
+    level: error
+    format: ^[A-Z].*$
+  subject-empty:
+    level: ignore
+  scope:
+    level: error
+    optional: true
+    options:
+      - client
+      - server
+  type:
+    level: error
+    options:
+      - chore # General maintenance/refactoring
+      - ci # Fix and extend CI jobs
+      - dev # Improvement to development workflow
+      - doc # Add or improve documentation
+      - feat # Add a new feature
+      - fix # Resolve an issue
+      - perf # General performance improvements
+      - release # Release specific work
+      - revert # Git revert
+      - test # Fix or improve tests
+  type-empty:
+    level: error
