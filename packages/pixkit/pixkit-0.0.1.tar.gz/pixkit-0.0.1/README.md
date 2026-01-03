@@ -1,0 +1,91 @@
+# Pixel toolkit (pixkit)
+
+屏幕像素工具。可以获取、对比颜色，或在屏幕与窗口上渲染像素。
+
+## 系统要求
+
+### 支持的平台
+- **操作系统**：Windows 10/11（64位）
+- **架构**：x64/AMD64
+- **Python**：3.14 或更高版本
+
+### 不支持的平台
+- 32位 Windows 系统
+- Linux 或 macOS
+- ARM 架构 Windows
+- Python 2.x
+
+## 安装
+
+### 从`PyPI`安装（推荐）
+```bash
+pip install pixkit
+```
+
+### 验证安装
+
+#### PowerShell
+```bash
+python -c "try:`n import pixkit`n print('安装成功')`nexcept:`n print('安装失败，请运行 pip install pixkit')"
+```
+
+#### 命令提示符（cmd）或其它
+```bash
+python -c "import pixkit; print('安装成功')"
+```
+如果报错提示`ModuleNotFoundError: No module named 'pixkit'`则代表安装失败，请运行`pip install pixkit`。
+
+## 快速开始
+
+### 基础示例
+```python
+import pixkit
+
+x: int = 0
+y: int = 0
+color = pixkit.getpixel(x, y)
+print("RGB Code: ", color["rgb"]["code"])
+print("R: ", color["rgb"]["r"], ", G: ", color["rgb"]["g"], ", B: ", color["rgb"]["b"])
+print("RGB: ", color["rgb"]["rgb"])
+print("x: ", color["rgb"]["x"], ", y: ", color["rgb"]["y"])
+```
+
+## API 参考
+### `getpixel`函数
+
+### 参数
+- `x`：像素点的 x 轴坐标。
+- `y`：像素点的 y 轴坐标。
+
+### 返回值
+- 包含像素点信息的字典。
+
+### 备注
+关于像素点信息的字典结构如下：
+```python
+{
+    "coord": {
+        "x": int,
+        "y": int
+    },
+    "rgb": {
+        "code": str, # 红色："#FF0000"，绿色："#00FF00"，蓝色："#0000FF"
+        "r": int,
+        "g": int,
+        "b": int
+    }
+}
+```
+
+## 更新日志
+
+### 最近版本
+- **v0.0.1** (2025-12-31)：
+- - 基础功能发布。
+
+<!-- 完整更新记录请查看项目文件中的 CHANGELOG.md。 -->
+
+## 许可证
+
+这是专有软件。请查看 LICENSE 文件了解详细条款。  
+**重要**: 使用本软件即表示您同意遵守许可证条款。

@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pixkit"
+version = "0.0.1"
+description = "屏幕像素工具。可以获取、对比颜色，或在屏幕与窗口上渲染像素"
+authors = [
+    {name = "Furnyna"},
+]
+readme = "README.md"
+requires-python = ">=3.14"
+license = {text = "Proprietary"}
+keywords = [
+    "c-extension",
+    "pixel",
+    "screen",
+    "color",
+    "rgb",
+]
+classifiers = [
+    # 项目与许可
+    "Development Status :: 3 - Alpha",
+    "License :: Other/Proprietary License",
+
+    # 用户与本地化
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: Chinese (Simplified)",
+    "Natural Language :: English",
+
+    # 平台要求
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+
+    # Python 版本支持
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+
+    # 实现语言
+    "Programming Language :: C",
+
+    # 核心
+    "Topic :: Multimedia :: Graphics :: Capture",
+    "Topic :: Multimedia :: Graphics :: Editors",
+    
+    # 性质
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+
+    # 代码结构
+    "Typing :: Stubs Only",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pixkit"]
+
+[tool.setuptools.package-data]
+"pixkit" = ["*.pyd", "*.pyi"]
+
+[tool.distutils.bdist_wheel]
+universal = false
+plat-name = "win_amd64"
