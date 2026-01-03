@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "onfire"
+version = "0.1.0"
+description = "AAFire-style terminal fire in pure Python + curses."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Code"}]
+keywords = ["curses", "terminal", "ascii", "fire", "aafire"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "License :: OSI Approved :: MIT License",
+  "Environment :: Console :: Curses",
+  "Topic :: Artistic Software",
+  "Topic :: Games/Entertainment",
+]
+dependencies = []
+
+[project.optional-dependencies]
+windows = ["windows-curses>=2.3.2"]
+
+[project.scripts]
+onfire = "termsite.onfire:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["termsite"]
