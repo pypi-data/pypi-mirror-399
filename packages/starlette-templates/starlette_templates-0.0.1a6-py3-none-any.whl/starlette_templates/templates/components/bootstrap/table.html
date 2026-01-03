@@ -1,0 +1,26 @@
+{% if responsive %}<div class="table-responsive">{% endif %}
+<table id="{{ id }}" class="table{% if striped %} table-striped{% endif %}{% if hover %} table-hover{% endif %}{% if bordered %} table-bordered{% endif %}{% if borderless %} table-borderless{% endif %}{% if small %} table-sm{% endif %}{% if variant %} table-{{ variant }}{% endif %}">
+    <thead>
+        <tr>
+            {% for column in columns %}
+            <th scope="col">
+                {% if column_labels and column in column_labels %}
+                    {{ column_labels[column] }}
+                {% else %}
+                    {{ column }}
+                {% endif %}
+            </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr>
+            {% for column in columns %}
+            <td>{{ row.get(column, '') }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if responsive %}</div>{% endif %}
