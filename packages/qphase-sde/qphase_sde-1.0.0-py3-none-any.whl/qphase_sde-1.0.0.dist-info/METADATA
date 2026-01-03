@@ -1,0 +1,111 @@
+Metadata-Version: 2.4
+Name: qphase-sde
+Version: 1.0.0
+Summary: Physics engine for QPhase: Stochastic Differential Equations in Phase Space
+Author-email: Yu Xue-Hao <yuxuehao23@mails.ucas.ac.cn>
+License: MIT License
+        
+        Copyright (c) 2025 Yu Xue-Hao
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Homepage, https://github.com/PolarisMegrez/qphase
+Project-URL: Repository, https://github.com/PolarisMegrez/qphase
+Project-URL: Issues, https://github.com/PolarisMegrez/qphase/issues
+Keywords: quantum optics,SDE,simulation,stochastic,phase-space
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Software Development :: Libraries
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.23
+Requires-Dist: qphase>=1.0.0
+Provides-Extra: accel
+Requires-Dist: numba>=0.57; extra == "accel"
+Provides-Extra: config
+Requires-Dist: pydantic>=2.4; extra == "config"
+Dynamic: license-file
+
+# qphase-sde
+
+**SDE Solver for QPhase**
+
+`qphase-sde` is a numerical library for solving Stochastic Differential Equations (SDEs), primarily focused on quantum optics applications. It implements common integration schemes and supports multiple computation backends.
+
+## Features
+
+- **Integrators**:
+    - **Euler-Maruyama**: Basic first-order strong approximation.
+    - **Milstein**: Higher-order scheme for multiplicative noise.
+    - **SRK**: Stochastic Runge-Kutta methods.
+- **Backends**:
+    - **NumPy**: Standard implementation.
+    - **Numba**: JIT-compiled for better CPU performance.
+    - **PyTorch/CuPy**: Support for GPU acceleration.
+- **Model Definition**:
+    - Define custom Hamiltonians and Dissipators via `SDEModel`.
+    - Supports additive and multiplicative noise.
+
+## Installation
+
+```bash
+pip install qphase-sde
+```
+
+## Usage
+
+### As a QPhase Plugin
+When installed with `qphase`, you can define `sde` jobs in your configuration file:
+
+```yaml
+jobs:
+  - name: "my_simulation"
+    type: "sde"
+    config:
+      t1: 100.0
+      dt: 1e-3
+      trajectories: 1000
+      model: "models/my_model.py"
+```
+
+### Standalone Usage
+You can also use the library directly in your Python scripts:
+
+```python
+from qphase_sde.engine import Engine, EngineConfig
+from qphase_sde.model import SDEModel
+
+# Define model and config
+config = EngineConfig(dt=1e-3, t1=10.0)
+engine = Engine(config)
+
+# Run simulation
+result = engine.run(my_model)
+```
+
+## License
+
+MIT License
