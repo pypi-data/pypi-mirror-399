@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+ 
+[project]
+name = "rep-grafos"
+version = "0.2.3"
+dependencies = [
+    "mmh3",
+    "igraph",
+]
+
+description = "Representações Monte Carlo, Las Vegas e Determinística de Grafos Massivos"
+readme = "README.md"
+authors = [
+    { name = "Paulo Leão", email = "t5tt0yerl@mozmail.com" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.8"
+ 
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths=['tests']
+
+[project.urls]
+Homepage = "https://github.com/paulodiogo/rep-grafos"
+Repository = "https://github.com/paulodiogo/rep-grafos"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
