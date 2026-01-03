@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(file:*)",
+      "Bash(uv venv:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(brew install:*)",
+      "Bash(uv run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(uv add:*)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue status)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue diff --stat)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue log --oneline -5)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue add cataloguer/__init__.py cataloguer/cli.py cataloguer/database/__init__.py cataloguer/database/models.py cataloguer/processor/pipeline.py cataloguer/processor/identifier.py pyproject.toml uv.lock tests/test_identifier.py)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue commit -m \"$\\(cat <<''EOF''\nv0.5.0: Add AI-based item identification with Claude and Ollama\n\nAdd LLM-powered identification for items that don''t OCR well \\(stylized\nlogos, hardware, Japanese text\\). Supports Claude \\(default\\) and Ollama.\n\nNew CLI flags:\n- --ai-identify: Use AI for all items\n- --ai-fallback: Use AI when OCR fails to extract a title\n- --ai-provider: Choose claude or ollama\n- --ai-model: Override default model\n\nNew database columns: item_type, ai_description, ai_identified, brand,\nregion, year for richer item metadata.\n\nSupports 10 item types: game, console, controller, accessory, peripheral,\nbook, vinyl, cd, trading_card, other.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue add cataloguer/__init__.py cataloguer/api/routes/images.py cataloguer/api/routes/items.py cataloguer/cli.py cataloguer/database/models.py pyproject.toml tests/test_curation.py)",
+      "Bash(git -C /Users/michael/Projects/Personal/catalogue commit -m \"$\\(cat <<''EOF''\nv0.6.0: Add item curation features for reviewing and correcting records\n\nNew CLI commands for managing catalogued items:\n- show: View detailed item information \\(--json for scripting\\)\n- edit: Manual field updates \\(title, platform, completeness, etc.\\)\n- reidentify: Re-run AI identification with different provider/model\n- review: Flag items for review or mark as reviewed\n\nEnhanced list command with new filters:\n- --unknown: Items with no title identified\n- --low-confidence: Items with <50% confidence\n- --item-type: Filter by type \\(game, console, controller, etc.\\)\n\nNew API endpoints:\n- POST /api/items/{id}/reidentify: Re-run AI on stored image\n- POST /api/items/{id}/images: Upload new images for items\n- Enhanced GET /api/items with unknown, low_confidence, item_type filters\n\nDatabase convenience methods:\n- get_item\\(\\), update_item\\(\\), get_item_image\\(\\), get_item_images_info\\(\\)\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
