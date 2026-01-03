@@ -1,0 +1,46 @@
+Metadata-Version: 2.1
+Name: byzpy
+Version: 0.1.1
+Summary: A research framework for Byzantine-robust distributed ML
+Author-email: ByzPy contributors <byzpy@users.noreply.github.com>
+Maintainer-email: ByzPy contributors <byzpy@users.noreply.github.com>
+License: MIT
+Project-URL: Homepage, https://github.com/Byzpy/byzpy
+Project-URL: Documentation, https://byzpy.github.io/byzpy/
+Project-URL: Source, https://github.com/Byzpy/byzpy
+Project-URL: Issues, https://github.com/Byzpy/byzpy/issues
+Keywords: distributed-learning,byzantine,federated-learning,pytorch,robust-ml
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: torch<2.6,>=2.2
+Requires-Dist: torchvision<0.21,>=0.17
+Requires-Dist: numpy<2.1,>=1.24
+Requires-Dist: matplotlib<3.11,>=3.8
+Requires-Dist: cloudpickle<4.0,>=2.2
+Provides-Extra: dev
+Requires-Dist: pytest==8.3.3; extra == "dev"
+Requires-Dist: pytest-asyncio==0.23.7; extra == "dev"
+Requires-Dist: pytest-cov==5.0.0; extra == "dev"
+Provides-Extra: gpu
+Requires-Dist: cupy-cuda12x>=13.2.0; extra == "gpu"
+Requires-Dist: ucxx-cu12>=0.38; extra == "gpu"
+
+# ByzPy
+
+ByzPy provides the core library for Byzantine-robust distributed ML. Install it
+in editable mode during development:
+
+```bash
+pip install -e python
+```
