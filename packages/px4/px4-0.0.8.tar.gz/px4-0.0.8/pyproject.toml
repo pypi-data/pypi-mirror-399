@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "px4"
+version = "0.0.8"
+description = "An interface to send trajectories to the PX4 flight controller"
+readme = "README.md"
+authors = [{name = "Jonas Eschmann", email = "jonas.eschmann@gmail.com"}]
+license = {text = "MIT"}
+dependencies = [
+    "numpy",
+    "multirobot==0.0.9",
+    "scipy",
+    "pymavlink",
+    "pyulog",
+    "matplotlib"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["px4"]
+
+[project.scripts]
+px4 = "px4:main"
+px4-ulog = "px4.ulog:main"
+px4-ulog-plotxy = "px4.ulog_plotxy:main"

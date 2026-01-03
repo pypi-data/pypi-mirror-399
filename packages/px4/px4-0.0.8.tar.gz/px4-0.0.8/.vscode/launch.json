@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "px4",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "px4.main",
+            "args": [
+                "udp:localhost:14540", "track", "lissajous", "--A", "2.0", "--B", "1.0", "--duration", "10", "--ramp-duration", "5", "--takeoff", "10.0", "--iterations", "2"
+            ],
+            "justMyCode": false
+        }
+    ]
+}
