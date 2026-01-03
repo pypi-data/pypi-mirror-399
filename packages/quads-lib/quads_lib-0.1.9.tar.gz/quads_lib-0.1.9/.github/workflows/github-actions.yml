@@ -1,0 +1,87 @@
+name: build
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: 'check'
+            python: '3.11'
+            toxpython: 'python3.11'
+            tox_env: 'check'
+            os: 'ubuntu-latest'
+          - name: 'docs'
+            python: '3.11'
+            toxpython: 'python3.11'
+            tox_env: 'docs'
+            os: 'ubuntu-latest'
+          - name: 'py310'
+            python: '3.10'
+            toxpython: 'python3.10'
+            python_arch: 'x64'
+            tox_env: 'py310'
+            os: 'ubuntu-latest'
+          - name: 'py311'
+            python: '3.11'
+            toxpython: 'python3.11'
+            python_arch: 'x64'
+            tox_env: 'py311'
+            os: 'ubuntu-latest'
+          - name: 'py312'
+            python: '3.12'
+            toxpython: 'python3.12'
+            python_arch: 'x64'
+            tox_env: 'py312'
+            os: 'ubuntu-latest'
+          - name: 'pypy311'
+            python: 'pypy-3.11'
+            toxpython: 'pypy3.11'
+            python_arch: 'x64'
+            tox_env: 'pypy311'
+            os: 'ubuntu-latest'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python }}
+        architecture: ${{ matrix.python_arch }}
+    - name: install dependencies
+      run: |
+        python -mpip install --progress-bar=off -r ci/requirements.txt
+        virtualenv --version
+        pip --version
+        tox --version
+        pip list --format=freeze
+    - name: test
+      env:
+        TOXPYTHON: '${{ matrix.toxpython }}'
+      run: >
+        tox -e ${{ matrix.tox_env }} -v
+    - name: Upload coverage data
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-data-${{ matrix.tox_env }}
+        path: coverage.xml
+        retention-days: 1
+  finish:
+    needs: test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v4
+      with:
+        pattern: coverage-data-*
+        merge-multiple: true
+    - uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.xml
+        slug: quadsproject/python-quads-lib
