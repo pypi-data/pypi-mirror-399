@@ -1,0 +1,157 @@
+{
+    "common": {
+        "trigger_behavior_description": "Na\u010din rada odabranih alarma za pokretanje.",
+        "trigger_behavior_name": "Pona\u0161anje"
+    },
+    "device_automation": {
+        "condition_type": {
+            "is_disarmed": "{entity_name} je deaktiviran"
+        },
+        "trigger_type": {
+            "disarmed": "{entity_name} deaktivirano"
+        }
+    },
+    "entity_component": {
+        "_": {
+            "state": {
+                "armed": "Aktivirano",
+                "armed_away": "Aktivirano odsustvo",
+                "armed_home": "Aktivirana ku\u0107a",
+                "armed_night": "Aktivirana no\u0107",
+                "armed_vacation": "Aktiviran odmor",
+                "arming": "Aktiviranje",
+                "disarmed": "Deaktivirano",
+                "disarming": "Deaktiviranje",
+                "pending": "\u010cekanje"
+            },
+            "state_attributes": {
+                "changed_by": {
+                    "name": "Promenio/la"
+                },
+                "code_format": {
+                    "name": "Format koda"
+                }
+            }
+        }
+    },
+    "selector": {
+        "trigger_behavior": {
+            "options": {
+                "any": "Bilo koji",
+                "first": "Prvi",
+                "last": "Poslednji"
+            }
+        }
+    },
+    "services": {
+        "alarm_arm_away": {
+            "name": "Aktiviraj status \"odsustvo\""
+        },
+        "alarm_arm_custom_bypass": {
+            "fields": {
+                "code": {
+                    "description": "Kod za aktiviranje alarma."
+                }
+            },
+            "name": "Aktiviraj sa prilago\u0111enim zaobila\u017eenjem"
+        },
+        "alarm_arm_home": {
+            "name": "Aktiviraj ku\u0107ni re\u017eim"
+        },
+        "alarm_arm_night": {
+            "name": "Aktiviraj no\u0107ni re\u017eim"
+        },
+        "alarm_arm_vacation": {
+            "name": "Aktiviraj re\u017eim odmora"
+        },
+        "alarm_disarm": {
+            "fields": {
+                "code": {
+                    "name": "Kod"
+                }
+            }
+        },
+        "alarm_trigger": {
+            "fields": {
+                "code": {
+                    "description": "Kod za aktiviranje alarma.",
+                    "name": "Kod"
+                }
+            },
+            "name": "Pokreta\u010d"
+        }
+    },
+    "title": "Alarm kontrolni panel",
+    "triggers": {
+        "armed": {
+            "description": "Pokre\u0107e se kada se jedan ili vi\u0161e alarma uklju\u010de, bez obzira na re\u017eim rada.",
+            "fields": {
+                "behavior": {
+                    "description": "Na\u010din rada odabranih alarma za pokretanje.",
+                    "name": "Pona\u0161anje"
+                }
+            },
+            "name": "Alarm je aktiviran"
+        },
+        "armed_away": {
+            "description": "Pokre\u0107e se kada se jedan ili vi\u0161e alarma uklju\u010de u re\u017eimu odsustva.",
+            "fields": {
+                "behavior": {
+                    "description": "Na\u010din rada odabranih alarma za pokretanje.",
+                    "name": "Pona\u0161anje"
+                }
+            },
+            "name": "Alarm je aktiviran u re\u017eimu odsustva"
+        },
+        "armed_home": {
+            "description": "Pokre\u0107e se kada se jedan ili vi\u0161e alarma uklju\u010de u re\u017eimu kod ku\u0107e",
+            "fields": {
+                "behavior": {
+                    "description": "Na\u010din rada odabranih alarma za pokretanje.",
+                    "name": "Pona\u0161anje"
+                }
+            },
+            "name": "Alarm je aktiviran u re\u017eimu kod ku\u0107e"
+        },
+        "armed_night": {
+            "description": "Pokre\u0107e se kada se jedan ili vi\u0161e alarma uklju\u010de u no\u0107nom re\u017eimu",
+            "fields": {
+                "behavior": {
+                    "description": "Na\u010din rada odabranih alarma za pokretanje.",
+                    "name": "Pona\u0161anje"
+                }
+            },
+            "name": "Alarm je aktiviran u no\u0107nom re\u017eimu"
+        },
+        "armed_vacation": {
+            "description": "Pokre\u0107e se kada se jedan ili vi\u0161e alarma uklju\u010de u re\u017eimu odmora.",
+            "fields": {
+                "behavior": {
+                    "description": "Na\u010din rada odabranih alarma za pokretanje.",
+                    "name": "Pona\u0161anje"
+                }
+            },
+            "name": "Alarm je aktiviran u re\u017eimu odmora"
+        },
+        "disarmed": {
+            "description": "Pokre\u0107e se kada se jedan ili vi\u0161e alarma isklju\u010de.",
+            "fields": {
+                "behavior": {
+                    "description": "Na\u010din rada odabranih alarma za pokretanje.",
+                    "name": "Pona\u0161anje"
+                }
+            },
+            "name": "Alarm je deaktiviran"
+        },
+        "triggered": {
+            "description": "Pokre\u0107e se kada se jedan ili vi\u0161e alarma oglase.",
+            "fields": {
+                "behavior": {
+                    "description": "Na\u010din rada odabranih alarma za pokretanje.",
+                    "name": "Pona\u0161anje"
+                }
+            },
+            "name": "Alarm je aktiviran"
+        }
+    }
+}
