@@ -1,0 +1,21 @@
+# Include documentation
+include README.md
+include LICENSE
+
+# Include configuration files
+include pyproject.toml
+include requirements.txt
+
+# Include package data
+recursive-include automl *.py
+recursive-include automl/templates *.html *.jinja2
+
+# Exclude test and development files
+exclude test_pipeline.py
+recursive-exclude tests *
+recursive-exclude sample_data *
+recursive-exclude outputs *
+recursive-exclude venv *
+recursive-exclude __pycache__ *
+recursive-exclude *.pyc
+recursive-exclude .git *
