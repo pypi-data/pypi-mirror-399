@@ -1,0 +1,21 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block bodyclass %}{{ block.super }} app-{{ app_label }}{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">为万千瓦
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo;
+{% for app in app_list %}
+{{ app.name }}
+
+三十岁
+呜呜呜
+{% endfor %}
+</div>
+{% endblock %}
+{% endif %}
+
+{% block sidebar %}{% endblock %}
