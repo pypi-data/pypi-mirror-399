@@ -1,0 +1,182 @@
+Metadata-Version: 2.4
+Name: wiba
+Version: 0.2.0
+Summary: WIBA: What Is Being Argued? A Comprehensive Approach to Argument Mining
+Home-page: https://github.com/Armaniii/WIBA
+Author: Arman Irani
+Author-email: airan002@ucr.edu
+Project-URL: Bug Tracker, https://github.com/Armaniii/WIBA/issues
+Project-URL: Documentation, https://wiba.dev
+Project-URL: Source Code, https://github.com/Armaniii/WIBA
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Text Processing :: Linguistic
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.25.0
+Requires-Dist: pandas>=1.2.0
+Requires-Dist: numpy>=1.19.0
+Requires-Dist: tqdm>=4.50.0
+Requires-Dist: structlog>=21.1.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# WIBA: What Is Being Argued?
+
+WIBA is a comprehensive argument mining toolkit that helps you detect, analyze, and understand arguments in text. It provides a simple yet powerful interface to identify argumentative content, extract topics, analyze stance, and discover arguments in longer texts.
+
+## Installation
+
+```bash
+pip install wiba
+```
+
+## Quick Start
+
+```python
+from wiba import WIBA
+
+# Initialize with your API token
+analyzer = WIBA(api_token="your_api_token_here")
+
+# Example text
+text = "Climate change is real because global temperatures are rising."
+
+# Detect if it's an argument
+result = analyzer.detect(text)
+print(f"Argument detected: {result.argument_prediction}")
+print(f"Confidence: {result.confidence_score}")
+```
+
+## Features
+
+- **Comprehensive Analysis**: Full argument analysis in one call - detection, extraction, topic, stance, and argument type
+- **Argument Detection**: Identify whether a text contains an argument
+- **Topic Extraction**: Extract the main topic being argued about
+- **Stance Analysis**: Determine the stance towards a specific topic
+- **Argument Discovery**: Find argumentative segments in longer texts
+- **Batch Processing**: Efficiently process multiple texts
+- **DataFrame Support**: Native pandas DataFrame integration
+
+## Documentation
+
+For detailed documentation and examples, visit [wiba.dev](https://wiba.dev).
+
+## Getting Started
+
+1. Create an account at [wiba.dev](https://wiba.dev) to get your API token
+2. Install the package: `pip install wiba`
+3. Initialize the client with your token
+4. Start analyzing arguments!
+
+## Example Usage
+
+### Detect Arguments
+
+```python
+# Single text
+result = analyzer.detect("Climate change is real because temperatures are rising.")
+print(result.argument_prediction)  # "Argument" or "NoArgument"
+print(result.confidence_score)     # Confidence score between 0 and 1
+
+# Multiple texts
+texts = [
+    "Climate change is real because temperatures are rising.",
+    "This is just a simple statement without any argument."
+]
+results = analyzer.detect(texts)
+for r in results:
+    print(f"Text: {r.text}")
+    print(f"Prediction: {r.argument_prediction}")
+```
+
+### Extract Topics
+
+```python
+result = analyzer.extract("Climate change is a serious issue because it affects our environment.")
+print(result.topics)  # List of extracted topics
+```
+
+### Analyze Stance
+
+```python
+text = "We must take action on climate change because the evidence is overwhelming."
+topic = "climate change"
+result = analyzer.stance(text, topic)
+print(f"Stance: {result.stance}")  # "Favor", "Against", or "NoArgument"
+```
+
+### Comprehensive Analysis (New in v0.2.0)
+
+```python
+# Get full analysis in one call
+text = "Climate change requires immediate action to prevent catastrophic environmental damage."
+result = analyzer.comprehensive(text)
+
+print(f"Is Argument: {result.is_argument}")      # True/False
+print(f"Confidence: {result.confidence}")         # 0.0-1.0
+print(f"Claims: {result.claims}")                 # List of claims
+print(f"Premises: {result.premises}")             # List of premises
+print(f"Topic (fine): {result.topic_fine}")       # Specific topic
+print(f"Topic (broad): {result.topic_broad}")     # Broad policy area
+print(f"Stance (fine): {result.stance_fine}")     # Favor/Against/NoArgument
+print(f"Stance (broad): {result.stance_broad}")   # Favor/Against/NoArgument
+print(f"Argument Type: {result.argument_type}")   # Deductive/Inductive/etc.
+print(f"Argument Scheme: {result.argument_scheme}")
+
+# Batch processing
+texts = ["Text 1...", "Text 2..."]
+results = analyzer.comprehensive(texts)
+```
+
+### Discover Arguments
+
+```python
+text = """Climate change is a serious issue. Global temperatures are rising at an
+unprecedented rate. This is causing extreme weather events. However, some argue
+that natural climate cycles are responsible."""
+
+results_df = analyzer.discover_arguments(
+    text,
+    window_size=2,  # Number of sentences per window
+    step_size=1     # Number of sentences to move window
+)
+print(results_df[['text_segment', 'argument_prediction', 'argument_confidence']])
+```
+
+## Citation
+
+If you use WIBA in your research, please cite:
+
+```bibtex
+@misc{irani2024wibaarguedcomprehensiveapproach,
+      title={WIBA: What Is Being Argued? A Comprehensive Approach to Argument Mining}, 
+      author={Arman Irani and Ju Yeon Park and Kevin Esterling and Michalis Faloutsos},
+      year={2024},
+      eprint={2405.00828},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2405.00828}, 
+}
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
