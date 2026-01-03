@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lerobot_lebai"
+version = "0.0.3"
+description = "LeRobot Lebai integration"
+readme = "README.md"
+authors = [
+  { name = "Lebai Robotics", email = "contact@lebai.ltd" },
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "lebai-sdk",
+  "numpy",
+  "transforms3d",
+  "teleop",
+  "lerobot>=0.4",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lerobot_lebai*"]
+exclude = ["*.egg-info"]
+
+[tool.setuptools.package-data]
+"lerobot_lebai" = ["*.urdf"]
