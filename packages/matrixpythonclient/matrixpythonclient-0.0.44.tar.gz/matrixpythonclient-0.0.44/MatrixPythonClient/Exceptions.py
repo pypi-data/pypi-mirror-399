@@ -1,0 +1,4 @@
+
+
+class UserAlreadyJoinedRoomException(Exception):
+    pass
