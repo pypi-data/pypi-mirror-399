@@ -1,0 +1,25 @@
+[project]
+name = "matrx-dream-service"
+version = "1.0.3"
+description = "Matrx service"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "black>=25.1.0",
+    "githubkit>=0.12.16",
+    "matrx-utils>=1.0.2",
+]
+
+[project.scripts]
+matrx = "matrx_dream_service.cli:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/matrx_dream_service"]
+
+
+[tool.setuptools]
+include-package-data = true
