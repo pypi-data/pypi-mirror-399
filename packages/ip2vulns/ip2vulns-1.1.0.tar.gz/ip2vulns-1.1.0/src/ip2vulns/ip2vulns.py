@@ -1,0 +1,27 @@
+from . import version
+from .Services import InternetDBService
+
+from .Utils import PipeUtils
+from .Utils import ArgUtils
+from .Utils.LogUtils import init_logger
+
+def main():
+    ver = version.__version__
+    logger = init_logger()
+    logger.info(f"ip2vulns started version: {ver}")
+
+    args = ArgUtils.init_argparse().parse_args()  # init argparse
+
+    if PipeUtils.has_pipe_data():  # read from pipe, enable internetdb by default
+        args.input = PipeUtils.read_from_pipe()
+    elif not any(vars(args).values()):  # check if argument is provided, if not, print help
+        args = ArgUtils.init_argparse().parse_args(["-h"])
+
+    if args.input:  # type(input) => list
+        InternetDBService.start(args.input, args.out, args.cvss, args.cvedict,args.nostdout)
+    elif args.version:
+        print(ver)
+
+
+if __name__ == "__main__":
+    main()
