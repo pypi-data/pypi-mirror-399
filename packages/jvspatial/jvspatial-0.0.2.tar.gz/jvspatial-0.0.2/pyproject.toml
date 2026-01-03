@@ -1,0 +1,173 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jvspatial"
+dynamic = ["version"]  # Version is read from jvspatial/version.py via setup.py
+# Update jvspatial/version.py to release a new version - the workflow will create the tag automatically
+description = "An asynchronous object-spatial Python library for persistence and business logic application layers."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "TrueSelph Inc.", email = "adminh@trueselph.com"},
+]
+keywords = ["async", "graph", "spatial", "persistence", "business-logic"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: FastAPI",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "pydantic>=2.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "python-multipart>=0.0.6",
+    "motor>=3.0.0",
+    "pymongo>=4.0.0",
+    "PyJWT>=2.0.0",  # JWT token handling for authentication
+    "bcrypt>=4.0.0",  # Password hashing for authentication
+    "schedule>=1.2.2",  # Job scheduling
+    "typing-extensions>=4.0.0",  # For @override decorator and enhanced typing
+    "aiosqlite>=0.19.0",  # SQLite database backend
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.24.0",
+    "pre-commit>=3.0.0",
+    "python-dotenv>=1.0.0",
+]
+test = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.24.0",
+]
+scheduler = [
+    "psutil>=5.9.0",
+    "python-dotenv>=1.0.0",
+]
+serverless = [
+    "mangum>=0.17.0",
+    "aioboto3>=12.0.0",
+]
+all = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.24.0",
+    "pre-commit>=3.0.0",
+    "python-dotenv>=1.0.0",
+    "psutil>=5.9.0",
+    "mangum>=0.17.0",
+    "aioboto3>=12.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/TrueSelph/jvspatial"
+Repository = "https://github.com/TrueSelph/jvspatial"
+Issues = "https://github.com/TrueSelph/jvspatial/issues"
+Documentation = "https://github.com/TrueSelph/jvspatial/tree/main/docs"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["jvspatial*"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "asyncio: mark test as an asyncio test",
+    "s3: mark test as requiring boto3 for S3 storage",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:pydantic.*",
+    "ignore::PendingDeprecationWarning",
+    "ignore::DeprecationWarning:starlette.*",
+    "ignore:'HTTP_413_REQUEST_ENTITY_TOO_LARGE' is deprecated:DeprecationWarning",
+    "ignore:'HTTP_414_REQUEST_URI_TOO_LONG' is deprecated:DeprecationWarning",
+    "ignore:'HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE' is deprecated:DeprecationWarning",
+    "ignore:'HTTP_422_UNPROCESSABLE_ENTITY' is deprecated:DeprecationWarning",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = false  # Relaxed: many functions return Any from dynamic operations
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_any_generics = false
+disallow_subclassing_any = false
+disallow_untyped_calls = false
+disallow_untyped_decorators = false
+check_untyped_defs = false  # Don't check bodies of untyped functions
+no_implicit_optional = false
+warn_redundant_casts = false
+warn_unused_ignores = false
+warn_no_return = false
+show_error_codes = true  # Show error codes for better debugging
+exclude = ["examples/", "tests/"]
+
+# Relax third-party imports that lack types
+[[tool.mypy.overrides]]
+module = [
+    "boto3.*",
+    "botocore.*",
+    "magic.*",
+    "motor.*",
+    "schedule.*",
+]
+ignore_missing_imports = true
+
+# Relax type checking for problematic modules with dynamic behavior
+[[tool.mypy.overrides]]
+module = [
+    "jvspatial.cache.*",
+    "jvspatial.memory.*",
+    "jvspatial.profiling.*",
+    "jvspatial.dev_tools.*",
+    "jvspatial.storage.interfaces.*",
+    "jvspatial.api.endpoints.response.*",
+]
+disallow_any_generics = false
+disallow_subclassing_any = false
+warn_return_any = false
+no_implicit_optional = false
+ignore_errors = true
+
+[tool.coverage.run]
+source = ["jvspatial"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+
+# Version is now managed in jvspatial/version.py
+# The workflow reads from there and creates tags automatically
