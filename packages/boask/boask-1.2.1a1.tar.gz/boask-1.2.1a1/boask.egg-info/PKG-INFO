@@ -1,0 +1,113 @@
+Metadata-Version: 2.4
+Name: boask
+Version: 1.2.1a1
+Summary: Pure Python website engine. Zero dependencies. Real JSX templates.
+Author: OXOP
+Author-email: minbartek41@gmail.com
+License: MIT
+Keywords: web,minimal,python,no-dependencies
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: Werkzeug>=2.3.0
+Requires-Dist: PyJWT>=2.8.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: keywords
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+<h1 align="center">Boask</h1>
+<div align="center"><img src="https://0xopx.github.io/some-things-lol/boask/logo.svg" alt="Boask Logo" /><br>
+Pure Python website engine. <br>
+</div>
+
+```bash
+pip install boask
+```
+
+# Quick Start
+
+```python
+from boask import route, use, run_server, html_templates
+
+@route("/")
+def home(handler):
+    return html_templates.render("home.html", title="Boask")
+
+if __name__ == "__main__":
+    run_server()
+```
+
+# Comparison to Flask
+
+1. Lightweight.
+2. No external dependecies.
+3. Unlike Flask, it's for beginners, and movers from Flask.
+4. No `{{ url_for('static', filename='css/main.css') }}` (example), we use `/static/css/main.css` for example!
+
+# Info
+
+1. Do not install a earlier version than 1.0.4, you can 1.0.0 but that one is not supported! You can't import them! Also, do not install 1.1.4! It had a bug in strict slashes and it did 500 always! I don't know how the 1.1.4 issue happened! Do not install 1.1.5a2 also! It has import error instead of import .error
+
+# Changelog
+
+## Nothing... *(shhh, check secret message #1)*
+
+# *Secret message/s*
+
+*#1 there is from boask import a683jfg84h the code is*
+
+```python
+class a683jfg84h:
+    def nokia():
+        print("*chime*")
+
+    def lg():
+        print("LG: Life's Good")
+        print("Playing LG jingle...")
+        print("*LG jingle plays*")
+        print("End of LG jingle.")
+        print("LG phone is operational.")
+        print("*hardware bootloop*")
+
+    def samsung():
+        print("Samsung: Imagine")
+        print("Playing Samsung jingle...")
+        print("*Samsung jingle plays*")
+        print("End of Samsung jingle.")
+        print("FRP Blocked a suspicious kernel. (meanwhile it's just a normal ROM)")
+
+    def honor():
+        print("*bootloop*")
+        print("*eRecorery*")
+        print("Trying to download latest version and recovery... (meanwhile it's EOL)")
+        print("Failed to download update. Please visit the nearest service center.")
+        print("*shows eRecovery screen again*")
+        print("infinitely doing that")
+        print("*still*")
+        print("*battery drains while installing, meanwhile it actually was installing an update*")
+        print("Charging.")
+        print("Charged.")
+        print("Starting...")
+        print("Operating system not Found.")
+
+    def tab_a7_lite():
+        print("Galaxy Tab A7 Lite: Ready to use")
+        print("*Boots normally*")
+        print("Operating system loaded.")
+        print("Hardware OK, battery healthy.")
+
+    def pc():
+        print("Old PC: Veteran mode")
+        print("*CMOS OK*")
+        print("Boots normally.")
+        print("256 MB DDR2 still operational.")
+
+```
