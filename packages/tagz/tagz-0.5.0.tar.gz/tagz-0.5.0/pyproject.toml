@@ -1,0 +1,45 @@
+[project]
+name = "tagz"
+version = "0.5.0"
+description = "tagz is a html tags builder"
+authors = [{ name = "Dmitry Orlov", email = "orlovdl@gmail.com" }]
+requires-python = ">=3.10,<4"
+readme = "README.md"
+license = "MIT"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.5.1,<2",
+    "pytest>=7.4.2,<8",
+    "pytest-cov>=4.1.0,<5",
+    "coveralls>=3.3.1,<4",
+    "markdown-pytest>=0.3.2",
+]
+
+[tool.hatch.build.targets.sdist]
+include = ["tagz.py"]
+
+[tool.hatch.build.targets.wheel]
+include = ["tagz.py"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_generics = false
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+follow_imports = "silent"
+no_implicit_reexport = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unused_ignores = true
+files = [
+    "tagz.py",
+]
