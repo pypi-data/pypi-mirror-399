@@ -1,0 +1,348 @@
+```text
+  _____       _--_          _                   
+ |  __ \     |  _ \        | |                  
+ | |__) |   _| |_) |__ _ __| | ___ ___  _   _ _ __ 
+ |  ___/ | | |  _ // _` | '__| |/ / _ \| | | | '__|
+ | |   | |_| | | \ \ (_| | |  |   < (_) | |_| | |  
+ |_|    \__, |_|  \_\__,_|_|  |_|\_\___/ \__,_|_|  
+         __/ |                                     
+        |___/                                      
+```
+
+> **Version**: 3.0.0  
+> **Author**: Zinzied (ziedboughdir@gmail.com) · [GitHub](https://github.com/zinzied)
+
+[![PyPI version](https://badge.fury.io/py/py-parkour.svg)](https://badge.fury.io/py/py-parkour)
+<a href="https://www.linkedin.com/in/zied-boughdir">
+  <img src="https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin"/>
+</a>
+
+# 🏃 Py-Parkour: The Hybrid Scraper Framework
+
+**Py-Parkour** is a lightweight automation utility designed to solve the biggest annoyances in modern web scraping:
+
+1.  🍪 **Cookie Consents**: Detecting and destroying GDPR/modal popups.
+2.  🧭 **Pagination**: Auto-detecting "Next" buttons or infinite scroll.
+3.  🎭 **Verification Gates**: Generating temporary identities (Email/SMS) for signups.
+4.  👻 **Hybrid Scraping**: Break in with the browser, then steal the session for fast API calls.
+5.  📡 **API Discovery**: Automatically detect hidden JSON APIs.
+6.  🔐 **Stealth Mode**: Browser fingerprinting and bot evasion scripts.
+7.  ⚡ **Turnstile Solving**: Built-in Cloudflare Turnstile bypass.
+
+It turns your scraper into a **workflow automation platform**.
+
+---
+
+## 🆕 What's New in v3.0.0
+
+- **🎯 Gadget System**: Pluggable modules via constructor
+- **🔐 Fingerprint Sync**: Match browser fingerprint with TLS layer (TLS-Chameleon compatible)
+- **⚡ Context Pool**: 10x faster challenge solving with reusable contexts
+- **🔄 Turnstile Auto-Solver**: Built-in micro-interaction patterns (no external API needed)
+- **📤 Session Export**: Export cookies, localStorage, sessionStorage for cloudscraper handoff
+- **👻 Stealth Injection**: Comprehensive bot evasion scripts
+
+---
+
+## 📦 Installation
+
+```bash
+pip install py-parkour[full]
+```
+
+Or for development:
+```bash
+pip install -r requirements.txt
+playwright install
+```
+
+---
+
+## 🚀 Quick Start
+
+### Basic Usage
+
+```python
+import asyncio
+from py_parkour import ParkourBot
+
+async def main():
+    # Supports 'chromium' (default), 'firefox', or 'webkit'
+    bot = ParkourBot(headless=False, browser="firefox")
+    await bot.start()
+    await bot.goto("https://target-website.com")
+    # ... use gadgets here ...
+    await bot.close()
+
+asyncio.run(main())
+```
+
+### With Fingerprint & Stealth (v3.0)
+
+```python
+from py_parkour import ParkourBot, FingerprintGallery
+
+async def main():
+    # Create bot with Chrome 120 fingerprint
+    bot = ParkourBot(
+        headless=True,
+        gadgets=['ghost', 'turnstile', 'shadow', 'crusher'],
+        fingerprint=FingerprintGallery.CHROME_120_WIN11,
+        stealth=True
+    )
+    await bot.start()
+    
+    # Solve Turnstile automatically
+    await bot.goto("https://protected-site.com")
+    await bot.solve_turnstile()
+    
+    # Export session for cloudscraper
+    session = await bot.export_session()
+    print(f"Cookies: {session['cookies']}")
+    
+    await bot.close()
+```
+
+### For CloudScraper Integration
+
+```python
+from py_parkour import ParkourBot
+import cloudscraper
+
+async def main():
+    # Create bot optimized for cloudscraper
+    bot = ParkourBot.for_cloudscraper(tls_profile="chrome_120_win11")
+    await bot.start()
+    
+    # Bypass challenges with browser
+    await bot.goto("https://protected-site.com")
+    await bot.solve_turnstile()
+    
+    # Hand off to cloudscraper
+    scraper = cloudscraper.create_scraper()
+    await bot.import_to_cloudscraper(scraper)
+    
+    # Continue with fast requests
+    response = scraper.get("https://protected-site.com/api/data")
+    print(response.json())
+    
+    await bot.close()
+```
+
+## ☕ Support / Donate
+If you found this library useful, buy me a coffee!
+
+<a href="https://www.buymeacoffee.com/zied">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="50" width="210" alt="zied" />
+</a>
+
+---
+
+## License
+MIT
+
+---
+
+## 🎯 Gadgets
+
+### 🍪 Crusher (Cookie Bypasser)
+Don't write brittle selectors for every "Accept Cookies" button.
+
+```python
+await bot.crush_cookies()
+```
+
+### 🧭 Compass (Auto-Pagination)
+Stop guessing if the site uses `?page=2` or a "Next >" button.
+
+```python
+async for page_number in bot.crawl(max_pages=10):
+    print(f"Scraping Page {page_number}: {bot.current_url}")
+```
+
+### 🎭 Disguises (Temp Identity)
+Need to sign up to view data? Generate a burner identity.
+
+```python
+identity = await bot.identity.generate_identity(country="US")
+print(f"Using email: {identity.email}")
+
+code = await bot.identity.wait_for_code()
+await bot.driver.page.fill("#otp-input", code)
+```
+
+### 👻 Shadow (Session Bridge) 
+Break in with the browser, then steal the session for high-speed API calls.
+
+```python
+# 1. Login with the browser
+await bot.goto("https://target.com/login")
+# ... do login stuff ...
+
+# 2. Export session state
+session = await bot.export_session()
+# {'cookies': {...}, 'local_storage': {...}, 'headers': {...}}
+
+# 3. Transfer to aiohttp
+async with await bot.shadow.create_session() as session:
+    async with session.get("https://target.com/api/data") as resp:
+        print(await resp.json())
+```
+
+### 📡 Radar (API Detector)
+Why scrape HTML if there's a hidden API? Radar listens to background traffic.
+
+```python
+await bot.goto("https://complex-spa-site.com")
+
+print(f"Latest JSON found: {bot.radar.latest_json}")
+
+for req in bot.radar.requests:
+    if "api/v1/users" in req['url']:
+        print(f"Found User API: {req['url']}")
+```
+
+### 🖱️ GhostCursor (Human Movement)
+Move the mouse like a human with Bezier curves, overshoot, and variable speed.
+
+```python
+await bot.ghost.click("#submit-btn")
+await bot.ghost.hover("#menu-item", duration=0.5)
+await bot.ghost.idle_movement(duration=2.0)  # Subtle jitter
+```
+
+### 🔄 TurnstileSolver (Built-in)
+Solve Cloudflare Turnstile without external APIs.
+
+```python
+success = await bot.solve_turnstile(timeout=30)
+if success:
+    print("Turnstile bypassed!")
+```
+
+### ⌨️ ChaosTyper (Human Typing)
+Type with realistic speed variations and occasional typos + corrections.
+
+```python
+await bot.typer.type_human("#input", "Hello World")
+```
+
+### ⚖️ Solicitor (Captcha Solving)
+Connect to external solvers (like 2Captcha) for ReCaptcha, hCaptcha, and Turnstile.
+
+```python
+bot.solicitor.set_solver(TwoCaptchaSolver(api_key="KEY"))
+
+await bot.solicitor.solve_recaptcha_v2()  # Auto-injects
+await bot.solicitor.solve_turnstile()     # Auto-injects
+```
+
+---
+
+## 🔐 Fingerprint Profiles
+
+Match your browser fingerprint with your TLS layer:
+
+```python
+from py_parkour import FingerprintGallery
+
+# Available profiles
+profiles = FingerprintGallery.list_profiles()
+# ['chrome_120_win11', 'chrome_120_macos', 'firefox_121_linux', 'safari_17_ios', ...]
+
+# Use a profile
+bot = ParkourBot.with_profile("chrome_120_win11")
+
+# Or customize
+from py_parkour import BrowserFingerprint
+
+fingerprint = BrowserFingerprint(
+    user_agent="Mozilla/5.0...",
+    viewport={"width": 1920, "height": 1080},
+    timezone="America/New_York",
+    locale="en-US",
+)
+bot = ParkourBot(fingerprint=fingerprint)
+```
+
+---
+
+## ⚡ Context Pooling
+
+For faster operation, maintain a pool of browser contexts:
+
+```python
+bot = ParkourBot(pool_size=5)  # Maintain 5 contexts
+await bot.start()
+
+# Get context from pool (10x faster than creating new)
+context = await bot.get_pooled_context()
+try:
+    page = await context.new_page()
+    await page.goto("https://example.com")
+finally:
+    await bot.release_pooled_context(context)
+
+# Check pool stats
+print(bot.pool_stats())
+```
+
+---
+
+## 🏗 Architecture
+
+- **Core**: Async Playwright wrapper with stealth and fingerprinting
+- **Gadgets**: Modular tools attached to the bot
+  - `.crusher` - Cookie consent handling
+  - `.compass` - Pagination
+  - `.identity` - Temp identity generation
+  - `.shadow` - Session export
+  - `.radar` - API discovery
+  - `.ghost` - Human-like mouse movement
+  - `.spatial` - Geometric element finding
+  - `.typer` - Human-like typing
+  - `.solicitor` - External captcha solving
+  - `.turnstile` - Built-in Turnstile solver
+
+---
+
+## 🔗 Integration with CloudScraper
+
+Py-Parkour is designed to work seamlessly with [CloudScraper](https://github.com/venomous/cloudscraper) and [TLS-Chameleon](https://github.com/zinzied/TLS-Chameleon):
+
+```python
+# Unified workflow
+from py_parkour import ParkourBot
+import cloudscraper
+
+async def bypass_and_scrape(url):
+    # Use browser for initial bypass
+    bot = ParkourBot.for_cloudscraper("chrome_120_win11")
+    await bot.start()
+    
+    await bot.goto(url)
+    await bot.crush_cookies()
+    await bot.solve_turnstile()
+    
+    # Hand off to cloudscraper
+    scraper = cloudscraper.create_scraper()
+    await bot.import_to_cloudscraper(scraper)
+    await bot.close()
+    
+    # Continue with fast requests
+    return scraper.get(url).text
+```
+
+---
+
+## 📚 More Resources
+
+- [Gadgets Guide](GUIDE.md) - Detailed examples for Compass and Radar
+- [Cookbook](COOKBOOK.md) - Common recipes and patterns
+- [Anti-Bot Strategy](ANTI_BOT_STRATEGY.md) - Understanding detection and evasion
+
+---
+
+*Built with ❤️ for Scrapers who hate boilerplate.*
+
+
