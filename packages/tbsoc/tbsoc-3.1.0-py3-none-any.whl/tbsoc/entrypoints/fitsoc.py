@@ -1,0 +1,288 @@
+import numpy as np
+import time
+from scipy.optimize import minimize
+import jax
+import jax.numpy as jnp
+
+from tbsoc.lib.json_loader import j_loader
+from tbsoc.entrypoints.loadall import load_all_data
+from tbsoc.lib.soc_mat import get_Hsoc
+from tbsoc.lib.cal_tools import hr2hk
+from tbsoc.lib.jax_core import loss_fn_jax
+
+def build_soc_basis_matrices(full_lambdas, fit_indices, orbitals, orb_type, orb_num, Msoc):
+    """
+    Construct the constant matrices M_i such that H_soc = sum_i lambda_i * M_i.
+    Returns: Stacked array (n_fit_params, n_wan, n_wan)
+    """
+    basis_matrices = []
+    
+    # We want to isolate the effect of each fitted lambda.
+    # We do this by calling get_Hsoc with a "one-hot" lambda vector.
+    # Note: get_Hsoc logic is linear in lambdas.
+    
+    n_params = len(full_lambdas)
+    
+    # Check if there is a 'background' SOC from non-fitted parameters?
+    # Current assumption: non-fitted parameters are zero. 
+    # If they are non-zero but fixed, we should calculate a "static_soc" matrix.
+    # But usually fitsoc optimizes all non-zero values.
+    # We will strictly follow the indices.
+    
+    for idx_in_full in fit_indices:
+        # Create a dummy lambda vector with 1.0 at the current index
+        temp_lambdas = np.zeros(n_params)
+        temp_lambdas[idx_in_full] = 1.0
+        
+        # Calculate H_soc for this single unit parameter
+        h_basis = get_Hsoc(temp_lambdas, orbitals, orb_type, orb_num, Msoc)
+        basis_matrices.append(h_basis)
+        
+    return np.array(basis_matrices)
+
+def find_best_alignment(tb_energies_flat, dft_bands_flat, n_tb, n_dft_bands, n_kpoints):
+    """
+    Finds the best integer offset N such that TB[0] aligns with DFT[N].
+    Assumes bands are sorted.
+    
+    Args:
+        tb_energies_flat: (nk * n_tb) or (nk, n_tb)
+        dft_bands_flat: (nk, n_dft)
+    """
+    # Reshape for easier broadcasting if needed, but mean squared error is robust
+    tb_mean = np.mean(tb_energies_flat)
+    
+    best_offset = -1
+    min_mse = float('inf')
+    
+    max_offset = n_dft_bands - n_tb
+    
+    # If DFT bands are fewer, we allows fitting if user insists (partial alignment).
+    # "DFT[k] corresponds to TB[0], k >= 0".
+    # We scan offset k from 0 upwards.
+    # We allow k such that we have at least some overlap.
+    
+    # Heuristic: We judge alignment based on the bottom half of the TB bands
+    # as suggested by user: [0, max(n_tb/2, 1)].
+    # This avoids using high energy TB bands which might correspond to meaningless/missing DFT bands.
+    
+    judge_limit = max(n_tb // 2, 1)
+    
+    # We scan possible offsets for DFT start.
+    # User suggestion: "up to n_dft - n_tb/2"
+    # This prevents scanning too far where the overlap is too small or irrelevant.
+    scan_limit = max(0, n_dft_bands - judge_limit)
+
+    print(f"Scanning offsets 0 to {scan_limit} using top {judge_limit} bands for judgement...")
+    
+    for offset in range(scan_limit + 1):
+        # Determine number of overlapping bands
+        n_overlap = min(n_tb, n_dft_bands - offset)
+        
+        if n_overlap <= 0: continue
+        
+        # We only use the bottom 'judge_limit' bands of the overlap for MSE calculation
+        # But we can't exceed the actual overlap
+        n_compare = min(n_overlap, judge_limit)
+        
+        if n_compare < 1: continue
+
+        # Extract the window of DFT bands
+        target_window = dft_bands_flat[:, offset : offset + n_compare]
+        
+        # Extract corresponding TB bands (from bottom 0)
+        tb_subset = tb_energies_flat[:, :n_compare]
+        
+        target_mean = np.mean(target_window)
+        tb_mean = np.mean(tb_subset)
+        
+        # Center them
+        diff = (tb_subset - tb_mean) - (target_window - target_mean)
+        
+        mse = np.mean(diff**2)
+        
+        if mse < min_mse:
+            min_mse = mse
+            best_offset = offset
+            
+    return best_offset, min_mse
+
+def fitsoc(INPUT, outdir='./', **kwargs):
+    """
+    Fits SOC parameters using JAX-accelerated gradient descent.
+    """
+    start_time = time.time()
+    print("--- Starting JAX-accelerated SOC fitting ---")
+    
+    # 1. Load Data
+    if isinstance(INPUT, dict):
+        jdata = INPUT
+    else:
+        jdata = j_loader(INPUT)
+    data_dict = load_all_data(**jdata)
+    
+    vasp_bands = data_dict['vasp_bands']
+
+    # 2. Config & Pre-calculation
+    efermi = jdata.get('Efermi', 0.0)
+    sigma = jdata.get('weight_sigma', 0.5) 
+    print(f"DFT Fermi Level: {efermi} eV. Weighting sigma: {sigma} eV")
+
+    raw_lambdas = jdata.get('lambdas')
+    orb_labels = data_dict.get('orb_labels', [])
+
+    if isinstance(raw_lambdas, dict):
+        # Convert dict to array based on orb_labels order
+        if not orb_labels:
+            raise ValueError("Orbital labels missing in data, but lambdas provided as dict.")
+        
+        initial_full_lambdas = np.zeros(len(orb_labels))
+        for i, label in enumerate(orb_labels):
+            # Attempt to find key in raw_lambdas
+            val = raw_lambdas.get(label)
+            if val is None:
+                 # Check if it is an s-orbital (strictly l=0)
+                 # Label format is usually "Atom:orb" e.g. "Ga:s"
+                 orbital_type = label.split(':')[1] if ':' in label else label
+                 if orbital_type == 's':
+                     # s-orbitals have no SOC, default to 0 quietly
+                     val = 0.0
+                 else:
+                     print(f"Warning: No initial value for {label} in input. Defaulting to 0.")
+                     val = 0.0
+            initial_full_lambdas[i] = val
+    elif isinstance(raw_lambdas, list):
+        initial_full_lambdas = np.array(raw_lambdas)
+    else:
+        raise ValueError("Invalid format for 'lambdas' in input.json. Must be list or dict.")
+
+    fit_indices = np.where(initial_full_lambdas != 0)[0]
+    initial_params = initial_full_lambdas[fit_indices]
+    
+    if len(initial_params) == 0:
+        print("No non-zero lambdas found. Nothing to fit.")
+        return
+
+    print(f"Optimizing {len(initial_params)} parameters at indices: {fit_indices}")
+    print("Pre-calculating Hamiltonian components...")
+    
+    # A. Build Basis Matrices
+    soc_basis = build_soc_basis_matrices(
+        initial_full_lambdas, fit_indices, 
+        data_dict['orbitals'], data_dict['orb_type'], 
+        data_dict['orb_num'], data_dict['Msoc']
+    ) # (n_params, n_wan, n_wan)
+    
+    # B. Build Non-SOC Hk
+    hk_tb = hr2hk(
+        data_dict['hop_spinor'], data_dict['Rlatt'], 
+        data_dict['kpath'], data_dict['num_wan']
+    ) # (n_k, n_wan, n_wan)
+
+    # Convert to JAX arrays
+    hk_tb_jax = jnp.array(hk_tb)
+    soc_basis_jax = jnp.array(soc_basis)
+
+    # 3. Phase 1: Alignment (using Initial Guess)
+    print("Phase 1: Band Alignment...")
+    # Calculate initial TB bands
+    # We can use the JAX function (compiled) for this
+    initial_loss_dummy = loss_fn_jax(
+        initial_params, soc_basis_jax, hk_tb_jax, 
+        np.zeros((hk_tb.shape[0], hk_tb.shape[1])), np.zeros((hk_tb.shape[0], hk_tb.shape[1]))
+    ) # Compile trigger (optional)
+    
+    h_soc_init = jnp.tensordot(initial_params, soc_basis_jax, axes=1)
+    h_tot_init = hk_tb_jax + h_soc_init
+    eigvals_init = np.array(jnp.linalg.eigvalsh(h_tot_init)) # (n_k, n_wan)
+    
+    n_wan = eigvals_init.shape[1]
+    n_dft = vasp_bands.shape[1]
+    n_k = vasp_bands.shape[0]
+    
+    # Perform Alignment Logic
+    best_offset, min_mse = find_best_alignment(eigvals_init, vasp_bands, n_wan, n_dft, n_k)
+    print(f"Alignment Found: TB Bands correspond to DFT Bands {best_offset} - {best_offset + n_wan - 1}")
+    print(f"Initial MSE (Unweighted): {min_mse:.6f}")
+
+    # 4. Phase 2: Optimization
+    print("Phase 2: Optimization...")
+    
+    # Prepare Target and Weights
+    # Handle partial overlap
+    n_compare = min(n_wan, n_dft - best_offset)
+    target_bands = vasp_bands[:, best_offset : best_offset + n_compare]
+    print(f"Fitting using {n_compare} overlapping bands (TB: {n_wan}, DFT: {n_dft})")
+    
+    # Calculate Weights: exp(-(E - Ef)^2 / (2*sigma^2))
+    # Gaussian weights are more standard for 'sigma' parameter
+    weights_np = np.exp(- (target_bands - efermi)**2 / (2 * sigma**2))
+    
+    # Convert constraints to JAX
+    target_bands_jax = jnp.array(target_bands)
+    weights_jax = jnp.array(weights_np)
+    
+    # Define Gradient Function
+    val_and_grad_fn = jax.value_and_grad(loss_fn_jax)
+    
+    def scipy_fun(x):
+        # Check for cancellation
+        if kwargs.get('check_stop'):
+            kwargs['check_stop']()
+            
+        # Wrapper to bridge JAX and Scipy
+        # x is float64 usually
+        v, g = val_and_grad_fn(x, soc_basis_jax, hk_tb_jax, target_bands_jax, weights_jax)
+        return float(v), np.array(g, dtype=np.float64)
+
+    # Run Optimization
+    try:
+        # Enforce non-negative lambdas
+        bounds = [(0, None) for _ in range(len(initial_params))]
+        
+        res = minimize(
+            scipy_fun, 
+            initial_params, 
+            method='L-BFGS-B', 
+            jac=True,
+            bounds=bounds,
+            options={'disp': True, 'maxiter': 200}
+        )
+    except Exception as e:
+        print(f"\n--- Optimization Interrupted: {e} ---")
+        return {
+            "success": False,
+            "message": f"Interrupted: {e}",
+            "mse": -1,
+            "optimized_lambdas": initial_full_lambdas.tolist(),
+            "lambdas_dict": {}
+        }
+    
+    # 5. Output Results
+    final_params = res.x
+    final_full_lambdas = np.copy(initial_full_lambdas)
+    final_full_lambdas[fit_indices] = final_params
+    
+    print("\n--- Optimization Finished ---")
+    print(f"Success: {res.success}")
+    print(f"Message: {res.message}")
+    print(f"Final Weighted MSE: {res.fun:.6f}")
+    
+    # Format Lambdas with Labels
+    orb_labels = data_dict.get('orb_labels', [])
+    if len(orb_labels) == len(final_full_lambdas):
+        lambda_dict = {label: float(val) for label, val in zip(orb_labels, final_full_lambdas)}
+        print(f"Optimized Lambdas: {lambda_dict}")
+    else:
+        print(f"Optimized Lambdas: {final_full_lambdas}")
+    print(f"Total time: {time.time() - start_time:.2f}s")
+    
+    print(f"Total time: {time.time() - start_time:.2f}s")
+    
+    return {
+        "success": bool(res.success),
+        "message": str(res.message),
+        "mse": float(res.fun),
+        "optimized_lambdas": final_full_lambdas.tolist(),
+        "lambdas_dict": lambda_dict if len(orb_labels) == len(final_full_lambdas) else {}
+    }
