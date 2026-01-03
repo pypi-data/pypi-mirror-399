@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "CubePlus_SDK"
+version = "1.0.0"
+description = "Official Tradejini CubePlus API SDK Wrapper"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pydantic>=2.0",
+    "requests",
+    "urllib3",
+    "python-dotenv",
+    "pyotp",
+    "websocket-client"
+]
+[project.scripts]
+cubeplus-setup = "cubeplus_sdk.cli:setup_wizard"
+[tool.setuptools.packages.find]
+where = ["src"]
