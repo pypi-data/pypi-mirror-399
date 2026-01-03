@@ -1,0 +1,82 @@
+Metadata-Version: 2.4
+Name: autopieby2
+Version: 1.0.82
+Summary: AutoImpute - Missing Data Imputation Framework for Machine Learning
+Home-page: https://github.com/pieby2/AutoImpute
+Author: Prakhar
+Author-email: Prakharpragyan1000@gmail.com
+License: MIT
+Keywords: data science,machine learning,data preprocessing,null imputation,predictive null imputation,multiple null imputation,automated machine learning
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Customer Service
+Classifier: Intended Audience :: Financial and Insurance Industry
+Classifier: Intended Audience :: Healthcare Industry
+Classifier: Intended Audience :: Telecommunications Industry
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: atlantic>=1.1.80
+Requires-Dist: catboost>=1.1.1
+Requires-Dist: xgboost>=1.7.3
+Requires-Dist: lightgbm>=3.3.5
+Requires-Dist: matplotlib>=3.5.0
+Requires-Dist: seaborn>=0.11.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# AutoImpute
+
+**AutoImpute - Missing Data Imputation Framework for Machine Learning**
+
+AutoImpute is a comprehensive Python library designed to simplify and automate the process of handling missing data in machine learning datasets. It provides a suite of imputation strategies, from simple statistical methods to advanced predictive modeling, ensuring your data is ready for analysis.
+
+## Features
+
+*   **Diverse Imputation Strategies**: Supports mean, median, mode, constant, and predictive imputation (using models like XGBoost, CatBoost, LightGBM).
+*   **Automated Workflow**: Streamlines the imputation process, fitting seamlessly into scikit-learn pipelines.
+*   **Evaluation Metrics**: Includes tools to evaluate imputation quality and impact on model performance.
+*   **Visualization**: Visualize missing data patterns and imputation results.
+
+## Installation
+
+```bash
+pip install autopieby2
+```
+
+## Usage
+
+```python
+from autoimpute.imputation import AutoImputer
+import pandas as pd
+
+# Load your data
+data = pd.read_csv("your_data.csv")
+
+# Initialize and fit imputer
+imputer = AutoImputer()
+imputed_data = imputer.fit_transform(data)
+
+print(imputed_data.head())
+```
+
+## License
+
+MIT License
