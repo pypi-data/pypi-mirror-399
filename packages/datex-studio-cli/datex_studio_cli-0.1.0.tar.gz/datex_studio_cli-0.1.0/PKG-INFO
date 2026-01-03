@@ -1,0 +1,172 @@
+Metadata-Version: 2.4
+Name: datex-studio-cli
+Version: 0.1.0
+Summary: CLI for Datex Studio low-code platform, designed for LLM-based AI agents
+Project-URL: Homepage, https://github.com/datex/datex-studio-cli
+Project-URL: Documentation, https://github.com/datex/datex-studio-cli
+Project-URL: Repository, https://github.com/datex/datex-studio-cli
+Author: Datex
+License-Expression: MIT
+Keywords: ai,cli,datex,llm,low-code
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Requires-Python: >=3.10
+Requires-Dist: click>=8.1.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: markdownify>=0.13.0
+Requires-Dist: msal>=1.28.0
+Requires-Dist: pydantic-settings>=2.0.0
+Requires-Dist: pydantic>=2.5.0
+Requires-Dist: pyyaml>=6.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.8.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.0.0; extra == 'dev'
+Requires-Dist: pytest-httpx>=0.30.0; extra == 'dev'
+Requires-Dist: pytest>=8.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.4.0; extra == 'dev'
+Requires-Dist: types-pyyaml>=6.0.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# Datex Studio CLI (`dxs`)
+
+Command-line interface for Datex Studio low-code platform, designed for LLM-based AI agents.
+
+## Installation
+
+```bash
+# Using uv
+uv pip install datex-studio-cli
+
+# Using pip
+pip install datex-studio-cli
+```
+
+## Quick Start
+
+```bash
+# Authenticate with Azure Entra
+dxs auth login
+
+# View commit history
+dxs source log --repo 10
+
+# View configuration history
+dxs source history userGrid --branch 100
+
+# View current locks
+dxs source locks --repo 10
+```
+
+## Output Formats
+
+The CLI supports multiple output formats optimized for LLM consumption:
+
+```bash
+# YAML (default)
+dxs source log --repo 10
+
+# JSON
+dxs source log --repo 10 --output json
+
+# CSV
+dxs source log --repo 10 --output csv
+```
+
+## Configuration
+
+Configuration is stored in `~/.datex/config.yaml`. You can also use environment variables:
+
+```bash
+# Set via environment
+export DXS_API_BASE_URL=https://api.datex.io
+export DXS_DEFAULT_BRANCH=100
+export DXS_DEFAULT_REPO=10
+
+# Set via CLI
+dxs config set api_base_url https://api.datex.io
+dxs config set default_branch 100
+dxs config set default_repo 10
+
+# View configuration
+dxs config list
+```
+
+## Commands
+
+### Authentication
+
+- `dxs auth login` - Authenticate with Azure Entra
+- `dxs auth logout` - Clear stored credentials
+- `dxs auth status` - Show authentication status
+
+### Configuration
+
+- `dxs config get <key>` - Get a configuration value
+- `dxs config set <key> <value>` - Set a configuration value
+- `dxs config list` - List all configuration values
+
+### Source Control
+
+- `dxs source log` - Show commit history
+- `dxs source history <ref>` - Show configuration version history
+- `dxs source diff` - Show pending changes (draft vs last commit)
+- `dxs source changes` - Show pending changes in detail
+- `dxs source locks` - Show current lock status
+- `dxs source deps` - Show configuration dependencies
+- `dxs source compare` - Compare two branches
+
+### Exploration
+
+- `dxs source explore info` - Show application overview
+- `dxs source explore configs` - List all configurations
+- `dxs source explore config <ref>` - View a specific configuration
+- `dxs source explore summary <ref>` - Show structural summary
+- `dxs source explore trace <ref>` - Show configuration dependencies
+
+### Branch & Repository Management
+
+- `dxs source branch list` - List branches
+- `dxs source branch show <id>` - Show branch details
+- `dxs source repo list` - List repositories
+- `dxs source repo show <id>` - Show repository details
+
+### Integrations
+
+- `dxs devops workitem <id>` - Get Azure DevOps work item
+- `dxs crm case <id>` - Get Dynamics CRM case
+- `dxs organization list` - List organizations
+- `dxs marketplace list` - List marketplace applications
+- `dxs api <method> <url>` - Make raw API requests
+
+## Development
+
+```bash
+# Clone and install
+git clone https://github.com/datex/datex-studio-cli.git
+cd datex-studio-cli
+uv venv
+source .venv/bin/activate
+uv pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Lint and format
+ruff check .
+ruff format .
+
+# Type check
+mypy src/dxs
+```
+
+## License
+
+MIT
