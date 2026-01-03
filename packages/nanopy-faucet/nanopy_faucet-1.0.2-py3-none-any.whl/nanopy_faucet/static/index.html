@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NanoPy Faucet - Pyralis Testnet</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 50%, #1a2a4e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 500px;
+            width: 90%;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #888;
+            font-size: 1.1em;
+        }
+        .network-badge {
+            display: inline-block;
+            background: rgba(255,107,107,0.2);
+            border: 1px solid #ff6b6b;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #ff6b6b;
+        }
+
+        /* Faucet Card */
+        .faucet-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #888; }
+        .info-value { color: #fff; font-weight: bold; }
+        .info-value.highlight { color: #6bcb77; }
+
+        /* Input */
+        .input-group {
+            margin-top: 30px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #888;
+            font-size: 0.9em;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 1em;
+            font-family: 'Consolas', monospace;
+        }
+        .input-group input::placeholder { color: #555; }
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        /* Button */
+        .claim-btn {
+            width: 100%;
+            padding: 18px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+            color: #1a0a2e;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .claim-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+        }
+        .claim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Result */
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+        .result.success {
+            background: rgba(107,203,119,0.2);
+            border: 1px solid #6bcb77;
+            color: #6bcb77;
+            display: block;
+        }
+        .result.error {
+            background: rgba(255,107,107,0.2);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            display: block;
+        }
+        .result a {
+            color: inherit;
+            word-break: break-all;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            color: #555;
+            font-size: 0.85em;
+            margin-top: 30px;
+        }
+        footer a { color: #ff6b6b; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #1a0a2e;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NanoPy Faucet</h1>
+            <p class="subtitle">Get free testnet NPY tokens</p>
+            <div class="network-badge">Pyralis Testnet</div>
+        </header>
+
+        <div class="faucet-card">
+            <div class="info-row">
+                <span class="info-label">Amount per claim</span>
+                <span class="info-value highlight">__AMOUNT__ NPY</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Cooldown</span>
+                <span class="info-value">__COOLDOWN__ hours</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Faucet Balance</span>
+                <span class="info-value" id="faucetBalance">Loading...</span>
+            </div>
+
+            <div class="input-group">
+                <label>Your Wallet Address</label>
+                <input type="text" id="address" placeholder="0x..." maxlength="42">
+            </div>
+
+            <button class="claim-btn" id="claimBtn" onclick="claim()">
+                Get Test NPY
+            </button>
+
+            <div class="result" id="result"></div>
+        </div>
+
+        <footer>
+            <p>
+                Faucet: <code style="font-size:0.8em;">__FAUCET_ADDRESS__</code>
+            </p>
+            <p style="margin-top:10px;">
+                <a href="https://pypi.org/project/nanopy-chain/">pip install nanopy-chain</a> |
+                <a href="https://pypi.org/project/nanopy-scan/">nanopy-scan</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = '';
+
+        async function loadStatus() {
+            try {
+                const resp = await fetch('/status');
+                const data = await resp.json();
+                document.getElementById('faucetBalance').textContent =
+                    data.balance.toFixed(2) + ' NPY';
+            } catch (e) {
+                document.getElementById('faucetBalance').textContent = 'Error';
+            }
+        }
+
+        async function claim() {
+            const address = document.getElementById('address').value.trim();
+            const btn = document.getElementById('claimBtn');
+            const result = document.getElementById('result');
+
+            if (!address || !address.startsWith('0x') || address.length !== 42) {
+                result.className = 'result error';
+                result.textContent = 'Please enter a valid Ethereum address';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>Sending...';
+            result.className = 'result';
+            result.style.display = 'none';
+
+            try {
+                const resp = await fetch('/claim', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address })
+                });
+                const data = await resp.json();
+
+                if (data.success) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        Success! ${data.amount} NPY sent.<br>
+                        <small>TX: ${data.txHash.slice(0,20)}...</small>
+                    `;
+                    loadStatus(); // Refresh balance
+                } else {
+                    result.className = 'result error';
+                    result.textContent = data.error;
+                }
+            } catch (e) {
+                result.className = 'result error';
+                result.textContent = 'Network error. Please try again.';
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = 'Get Test NPY';
+        }
+
+        // Enter key to submit
+        document.getElementById('address').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') claim();
+        });
+
+        // Initial load
+        loadStatus();
+        setInterval(loadStatus, 30000);
+    </script>
+</body>
+</html>
