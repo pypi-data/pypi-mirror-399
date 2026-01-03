@@ -1,0 +1,93 @@
+[build-system]
+requires = [
+    "setuptools>=65.0",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "krl-geospatial-tools"
+version = "0.2.0"
+description = "Geospatial analysis and mapping tools for the Khipu Intelligence Suite"
+readme = "README.md"
+authors = [
+    { name = "KR-Labs Foundation", email = "dev@krlabs.org" },
+]
+maintainers = [
+    { name = "KR-Labs Foundation", email = "support@krlabs.dev" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "geopandas>=0.13.0",
+    "shapely>=2.0.0",
+    "folium>=0.14.0",
+    "plotly>=5.17.0",
+    "pandas>=2.1.0",
+    "numpy>=1.26.0",
+    "krl-open-core>=0.2.0",
+    "krl-types~=0.2.0",
+]
+
+[project.license]
+text = "Apache-2.0"
+
+[project.urls]
+Homepage = "https://krlabs.dev"
+Documentation = "https://docs.krlabs.dev/geospatial-tools"
+Repository = "https://github.com/kr-labs/krl-geospatial-tools"
+Changelog = "https://github.com/kr-labs/krl-geospatial-tools/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.5.0",
+]
+test = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.11.0",
+]
+spatial = [
+    "pysal>=23.0",
+    "rtree>=1.0.0",
+    "scikit-learn>=1.2.0",
+]
+geocoding = [
+    "geopy>=2.3.0",
+    "googlemaps>=4.10.0",
+]
+
+[project.scripts]
+krl-geo = "krl_geospatial.cli:main"
+
+[tool.setuptools.packages.find]
+where = [
+    "src",
+]
+
+[tool.black]
+line-length = 100
+target-version = [
+    "py311",
+    "py312",
+    "py313",
+]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
