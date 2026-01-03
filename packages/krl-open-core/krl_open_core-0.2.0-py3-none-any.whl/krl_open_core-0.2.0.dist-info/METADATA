@@ -1,0 +1,203 @@
+Metadata-Version: 2.4
+Name: krl-open-core
+Version: 0.2.0
+Summary: Shared foundation utilities for the KR-Labs analytics platform
+Author-email: "Quipu Research Labs, LLC" <support@krlabs.dev>
+Maintainer-email: KR-Labs Foundation <support@krlabs.dev>
+License: MIT
+Project-URL: Homepage, https://krlabs.dev
+Project-URL: Documentation, https://krl-core.readthedocs.io
+Project-URL: Repository, https://github.com/KR-Labs/krl-open-core
+Project-URL: Bug Tracker, https://github.com/KR-Labs/krl-open-core/issues
+Project-URL: Changelog, https://github.com/KR-Labs/krl-open-core/blob/main/CHANGELOG.md
+Keywords: krl,utilities,logging,configuration,caching,api-client
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: python-json-logger>=2.0.0
+Requires-Dist: requests>=2.28.0
+Requires-Dist: python-dotenv>=1.0.0
+Provides-Extra: redis
+Requires-Dist: redis>=4.5.0; extra == "redis"
+Provides-Extra: dev
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: pre-commit>=3.0.0; extra == "dev"
+Requires-Dist: types-pyyaml; extra == "dev"
+Requires-Dist: types-requests; extra == "dev"
+Provides-Extra: test
+Requires-Dist: pytest>=7.2.0; extra == "test"
+Requires-Dist: pytest-cov>=4.0.0; extra == "test"
+Requires-Dist: pytest-xdist>=3.0.0; extra == "test"
+Requires-Dist: pytest-asyncio>=0.20.0; extra == "test"
+Requires-Dist: pytest-benchmark>=4.0.0; extra == "test"
+Requires-Dist: coverage[toml]>=7.0.0; extra == "test"
+Provides-Extra: docs
+Requires-Dist: sphinx>=5.3.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.2.0; extra == "docs"
+Requires-Dist: sphinx-autodoc-typehints>=1.22.0; extra == "docs"
+Requires-Dist: myst-parser>=1.0.0; extra == "docs"
+Provides-Extra: all
+Requires-Dist: krl-core[dev,docs,redis,test]; extra == "all"
+Dynamic: license-file
+
+# KRL Open Core
+
+> **Version:** 0.1.0  
+> **License:** MIT  
+> **Python:** ≥3.9  
+> **Status:** Production
+
+---
+
+## SECTION A — Executive & Strategic Overview
+
+### What This Repository Does
+
+KRL Open Core is the **foundation library** shared across all KRL packages. It provides:
+
+1. **Configuration Management** — Environment variables and YAML config
+2. **Structured Logging** — JSON-formatted logging with correlation IDs
+3. **Caching** — File-based and Redis caching with TTL
+4. **API Client Base** — Reusable HTTP client with retry logic
+5. **Utilities** — Date parsing, validation, decorators
+
+### Why It Matters to the Business
+
+This repository is **infrastructure code**. Every other KRL package depends on these utilities:
+- Consistent logging across all services
+- Shared configuration patterns
+- Reusable caching layer
+- Common HTTP client behavior
+
+### Current Maturity Level: **PRODUCTION**
+
+| Criterion | Status |
+|-----------|--------|
+| Core utilities implemented | ✅ Yes |
+| Logging stable | ✅ Yes |
+| Caching stable | ✅ Yes |
+| Test coverage | ⚠️ Not measured |
+| PyPI published | ⚠️ Not yet |
+
+### Strategic Dependencies
+
+- **Upstream:** None (this is the foundation)
+- **Downstream:** All other KRL packages
+
+### Known Gaps
+
+1. **Not on PyPI** — Manual installation required
+2. **Test coverage unknown** — No coverage.xml found
+
+---
+
+## SECTION B — Product, Marketing & Sales Intelligence
+
+### Core Utilities
+
+| Utility | Purpose | Status |
+|---------|---------|--------|
+| `config` | Configuration management | ✅ |
+| `logging` | Structured JSON logging | ✅ |
+| `cache` | Redis/file caching | ✅ |
+| `http` | HTTP client with retries | ✅ |
+| `decorators` | Common decorators | ✅ |
+| `validation` | Input validation | ✅ |
+
+### Not Customer-Facing
+
+This is infrastructure code. It is not directly visible to customers but affects all KRL products.
+
+---
+
+## SECTION C — Engineering & Development Brief
+
+### Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Language | Python ≥3.9 |
+| Config | pydantic-settings |
+| Logging | structlog |
+| HTTP | httpx |
+| Cache | redis |
+
+### Repository Structure
+
+```
+krl-open-core/
+├── src/
+│   └── krl_core/
+│       ├── config/         # Configuration management
+│       ├── logging/        # Structured logging
+│       ├── cache/          # Caching utilities
+│       ├── http/           # HTTP client
+│       └── utils/          # Common utilities
+│
+├── tests/                  # Test suite
+├── docs/                   # Documentation
+├── scripts/                # Build scripts
+└── pyproject.toml          # Package definition
+```
+
+### How to Run
+
+```bash
+pip install -e ".[dev]"
+pytest tests/ -v
+```
+
+### Usage Example
+
+```python
+from krl_core.config import get_config
+from krl_core.logging import get_logger
+from krl_core.cache import Cache
+
+# Configuration
+config = get_config()
+
+# Logging
+logger = get_logger(__name__)
+logger.info("Starting process", correlation_id="abc123")
+
+# Caching
+cache = Cache(backend="redis")
+cache.set("key", "value", ttl=3600)
+```
+
+---
+
+## SECTION D — Operational & Governance Notes
+
+### Maintenance Risks
+
+| Risk | Severity | Mitigation |
+|------|----------|------------|
+| Not on PyPI | MEDIUM | Publish to PyPI |
+| Coverage unknown | MEDIUM | Add coverage measurement |
+| Breaking changes | HIGH | Version carefully |
+
+### Ownership
+
+- **Team:** KR-Labs Engineering
+- **Package:** krl-core (planned PyPI name)
+- **Escalation:** engineering@krlabs.dev
+
+---
+
+*Last updated: December 14, 2025 — Forensic audit*
