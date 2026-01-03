@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: scicomp-molecular-mcp
+Version: 0.1.1
+Summary: MCP server for classical molecular dynamics simulations
+Project-URL: Homepage, https://github.com/andylbrummer/math-mcp
+Project-URL: Documentation, https://andylbrummer.github.io/math-mcp/api/molecular-mcp
+Project-URL: Repository, https://github.com/andylbrummer/math-mcp
+Author-email: Andy Brummer <andy@example.com>
+License-Expression: MIT
+Keywords: dynamics,gpu,mcp,model-context-protocol,molecular,physics,simulation
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Classifier: Topic :: Scientific/Engineering :: Physics
+Requires-Python: >=3.11
+Requires-Dist: h5py>=3.10.0
+Requires-Dist: matplotlib>=3.8.0
+Requires-Dist: mcp>=1.0.0
+Requires-Dist: numpy>=1.26.0
+Requires-Dist: scicomp-compute-core>=0.1.1
+Requires-Dist: scicomp-mcp-common>=0.1.1
+Requires-Dist: scipy>=1.11.0
+Provides-Extra: gpu
+Requires-Dist: cupy-cuda12x>=13.0.0; extra == 'gpu'
