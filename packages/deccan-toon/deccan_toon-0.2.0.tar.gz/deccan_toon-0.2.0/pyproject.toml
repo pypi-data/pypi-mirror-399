@@ -1,0 +1,65 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "deccan-toon"
+version = "0.2.0"
+description = "Battling JSON bloat with Pythonic elegance. A high-efficiency TOON serializer."
+authors = [
+    "Saurabh Dugdhe <saurabhdugdhe18@gmail.com>",
+    #"Deccan Tensor Labs <labs@deccantensor.com>",
+]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/DeccanTensor/toon-py"
+repository = "https://github.com/DeccanTensor/toon-py"
+
+keywords = [
+    "toon",
+    "json",
+    "llm",
+    "ai",
+    "serialization",
+    "agentic-web",
+    "token-optimization",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.2"
+hypothesis = "^6.148.8"
+ruff = "^0.14.10"
+mypy = "^1.19.1"
+bandit = "^1.9.2"
+setuptools = "^80.9.0"
+
+[tool.pytest.ini_options]
+markers = [
+    "smoke: Quick sanity checks for CI gating (fast, no deps)",
+    "unit: Core encoder/decoder unit tests",
+    "compliance: TOON v3.0 specification compliance tests",
+    "security: Security and attack vector tests",
+    "fuzz: Property-based fuzz tests (requires hypothesis, slow)",
+    "integration: Tests using fixture files from disk",
+    "benchmark: Performance regression tests (may be slow)",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
