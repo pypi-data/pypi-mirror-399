@@ -1,0 +1,288 @@
+# datablade
+
+[![Tests](https://github.com/brentwc/data-prep/actions/workflows/test.yml/badge.svg)](https://github.com/brentwc/data-prep/actions/workflows/test.yml)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**datablade** is a small, single-machine Python toolkit for data engineers who need reliable “file → DataFrame/Parquet → SQL DDL” workflows.
+
+It focuses on:
+
+- Reading common file formats with memory-aware heuristics
+- Streaming large files in chunks (without concatenating)
+- Normalizing DataFrame columns for downstream systems
+- Generating `CREATE TABLE` DDL across a small set of SQL dialects
+- Producing bulk-load commands (and executing BCP for SQL Server)
+
+## What datablade Does
+
+datablade helps data engineers:
+
+- **Load data efficiently** from common file formats with automatic memory heuristics
+- **Standardize data cleaning** with consistent column naming and type inference
+- **Generate database schemas** for multiple SQL dialects from DataFrames or Parquet schemas
+- **Handle datasets that don't fit in memory** using chunked iteration and optional Polars acceleration
+- **Work across databases** with cross-dialect DDL and bulk-load command generation
+- **Maintain data quality** with built-in validation and logging
+
+## When to Use datablade
+
+datablade is ideal for:
+
+✅ **ETL/ELT Pipelines** - Building reproducible data ingestion workflows across multiple source formats
+
+✅ **Multi-Database Projects** - Deploying the same schema to SQL Server, PostgreSQL, MySQL, or DuckDB
+
+✅ **Large File Processing** - Streaming CSV/TSV/TXT/Parquet without concatenating
+
+✅ **Data Lake to Warehouse** - Converting raw files to Parquet with optimized schemas
+
+✅ **Ad-hoc Data Analysis** - Quickly exploring and preparing datasets with consistent patterns
+
+✅ **Legacy System Integration** - Standardizing messy column names and data types from external sources
+
+## When datablade is not the right tool
+
+- Real-time streaming ingestion (Kafka, Spark Structured Streaming)
+- Distributed compute / cluster execution (Spark, Dask)
+- Warehouse-native transformations and modeling (dbt)
+- A full-featured schema migration tool (Alembic, Flyway)
+- Direct database connectivity/transactions (datablade generates SQL; it does not manage connections)
+
+## Installation
+
+```bash
+pip install git+https://github.com/brentwc/data-prep.git
+```
+
+**Optional dependencies:**
+
+```bash
+# For high-performance file reading with Polars
+pip install git+https://github.com/brentwc/data-prep.git#egg=datablade[performance]
+
+# For development and testing
+pip install git+https://github.com/brentwc/data-prep.git#egg=datablade[dev]
+
+# All optional dependencies
+pip install git+https://github.com/brentwc/data-prep.git#egg=datablade[all]
+```
+
+## Features
+
+datablade provides four main modules:
+
+### 📊 `datablade.dataframes`
+
+DataFrame operations and transformations:
+
+- Clean and normalize DataFrame columns
+- Auto-detect and convert data types
+- Generate optimized Parquet schemas
+- Convert pandas DataFrames to PyArrow tables
+- Generate multi-dialect SQL DDL statements
+- **Memory-aware file reading** with automatic chunking
+- **Polars integration** for high-performance large file processing
+- Partitioned Parquet writing for datasets that don't fit in memory
+
+### 🌐 `datablade.io`
+
+Input/output operations for external data:
+
+- Fetch JSON data from URLs
+- Download and extract ZIP files
+
+### 🛠️ `datablade.utils`
+
+General utility functions:
+
+- SQL name quoting
+- Path standardization
+- List flattening
+- **Configurable logging** with Python logging module
+
+### 🗄️ `datablade.sql`
+
+Multi-dialect SQL utilities:
+
+- **Multi-dialect support**: SQL Server, PostgreSQL, MySQL, DuckDB
+- Dialect-aware identifier quoting
+- CREATE TABLE generation for all dialects (from pandas DataFrames)
+- CREATE TABLE generation from Parquet schemas (schema-only, via PyArrow)
+- Bulk loading helpers:
+    - SQL Server: executes `bcp` via subprocess
+    - PostgreSQL/MySQL/DuckDB: returns command strings you can run in your environment
+
+## Quick Start
+
+```python
+import pandas as pd
+from datablade import configure_logging, read_file_smart
+from datablade.dataframes import clean_dataframe_columns, pandas_to_parquet_table
+from datablade.io import get_json
+from datablade.utils import sql_quotename
+from datablade.sql import Dialect, generate_create_table, generate_create_table_from_parquet
+
+# Configure logging
+import logging
+configure_logging(level=logging.INFO, log_file="datablade.log")
+
+# Read a file into a single DataFrame (materializes)
+df = read_file_smart('large_dataset.csv', verbose=True)
+
+# Clean DataFrame
+df = clean_dataframe_columns(df, verbose=True)
+
+# Convert to Parquet
+table = pandas_to_parquet_table(df, convert=True)
+
+# Generate SQL DDL for multiple dialects
+sql_sqlserver = generate_create_table(df, table='my_table', dialect=Dialect.SQLSERVER)
+sql_postgres = generate_create_table(df, table='my_table', dialect=Dialect.POSTGRES)
+
+# Generate SQL DDL directly from an existing Parquet schema (no data materialization)
+# Note: nested Parquet types (struct/list/map/union) are dropped with a warning.
+ddl_from_parquet = generate_create_table_from_parquet(
+    "events.parquet",
+    table="events",
+    dialect=Dialect.POSTGRES,
+)
+
+# Fetch JSON data
+data = get_json('https://api.example.com/data.json')
+```
+
+### Memory-Aware File Reading
+
+```python
+from datablade.dataframes import read_file_chunked, read_file_iter, read_file_to_parquets, stream_to_parquets
+
+# Read large files in chunks
+for chunk in read_file_chunked('huge_file.csv', memory_fraction=0.5):
+    process(chunk)
+
+# Stream without ever concatenating/materializing
+for chunk in read_file_iter('huge_file.csv', memory_fraction=0.3, verbose=True):
+    process(chunk)
+
+# Parquet is also supported for streaming (single .parquet files)
+for chunk in read_file_iter('huge_file.parquet', memory_fraction=0.3, verbose=True):
+    process(chunk)
+
+# Partition large files to multiple Parquets
+files = read_file_to_parquets(
+    'large_file.csv',
+    output_dir='partitioned/',
+    convert_types=True,
+    verbose=True
+)
+
+# Stream to Parquet partitions without materializing
+files = stream_to_parquets(
+    'large_file.csv',
+    output_dir='partitioned_streamed/',
+    rows_per_file=200_000,
+    convert_types=True,
+    verbose=True,
+)
+```
+
+## Blade (Optional Facade)
+
+The canonical API is module-level functions (for example, `datablade.dataframes.read_file_iter`).
+
+If you prefer an object-style entrypoint with shared defaults, you can use the optional `Blade` facade:
+
+```python
+from datablade import Blade
+from datablade.sql import Dialect
+
+blade = Blade(memory_fraction=0.3, verbose=True, convert_types=True)
+
+for chunk in blade.iter("huge.csv"):
+    process(chunk)
+
+files = blade.stream_to_parquets("huge.csv", output_dir="partitioned/")
+
+# Generate DDL (CREATE TABLE)
+ddl = blade.create_table_sql(
+    df,
+    table="my_table",
+    dialect=Dialect.POSTGRES,
+)
+
+# Generate DDL from an existing Parquet file (schema-only)
+ddl2 = blade.create_table_sql_from_parquet(
+    "events.parquet",
+    table="events",
+    dialect=Dialect.POSTGRES,
+)
+```
+
+## Documentation
+
+- [Docs Home](docs/README.md) - Documentation landing page
+- [Usage Guide](docs/USAGE.md) - File reading (including streaming), SQL, IO, logging
+- [Testing Guide](docs/TESTING.md) - How to run tests locally
+- [Test Suite](tests/README.md) - Testing documentation and coverage
+
+## Testing
+
+Run the test suite:
+
+```bash
+# Install with test dependencies
+pip install -e ".[test]"
+
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=datablade --cov-report=html
+```
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
+
+## Backward Compatibility
+
+All functions are available through the legacy `datablade.core` module for backward compatibility:
+
+```python
+# Legacy imports (still supported)
+from datablade.core.frames import clean_dataframe_columns
+from datablade.core.json import get
+```
+
+## Requirements
+
+**Core dependencies:**
+
+- pandas
+- pyarrow
+- numpy
+- openpyxl
+- requests
+
+## Design choices and limitations
+
+- **Single-machine focus**: datablade is designed for laptop/VM/server execution, not clusters.
+- **Streaming vs materializing**:
+    - Use `read_file_iter()` to process arbitrarily large files chunk-by-chunk.
+    - `read_file_smart()` returns a single DataFrame and may still be memory-intensive.
+- **Parquet support**:
+    - Streaming reads support single `.parquet` files.
+    - Parquet “dataset directories” (Hive partitions / directory-of-parquets) are not a primary target API.
+- **Parquet → SQL DDL**:
+    - Uses the Parquet schema (PyArrow) without scanning data.
+    - Complex/nested columns (struct/list/map/union) are dropped and logged as warnings.
+- **DDL scope**: `CREATE TABLE` generation is column/type oriented (no indexes/constraints).
+
+**Optional dependencies:**
+
+- polars (for high-performance file reading)
+- psutil (for memory-aware operations)
+- pytest (for testing)
+
+## License
+
+MIT
