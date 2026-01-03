@@ -1,0 +1,726 @@
+Metadata-Version: 2.4
+Name: torrentcli-pro
+Version: 2.0.11
+Summary: Hardcore terminal torrent client with cyberpunk aesthetics, optimized for rare torrents
+License: MIT
+License-File: LICENSE
+Keywords: torrent,cli,aria2,download,bittorrent,tracker,terminal,tui
+Author: TorrentCLI Contributors
+Requires-Python: >=3.9,<4.0
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Topic :: Communications :: File Sharing
+Classifier: Topic :: Internet
+Requires-Dist: click (>=8.1.7,<9.0.0)
+Requires-Dist: httpx (>=0.27.0,<0.28.0)
+Requires-Dist: rich (>=13.7.0,<14.0.0)
+Requires-Dist: tomli (>=2.0.1,<3.0.0) ; python_version < "3.11"
+Requires-Dist: tomli-w (>=1.0.0,<2.0.0)
+Project-URL: Homepage, https://github.com/torrentcli/torrentcli-pro
+Project-URL: Repository, https://github.com/torrentcli/torrentcli-pro
+Description-Content-Type: text/markdown
+
+# TorrentCLI Pro
+
+**Enterprise-grade BitTorrent client for terminal environments with intelligent optimization and aria2c integration.**
+
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Tests](https://img.shields.io/badge/tests-115%20passed-brightgreen.svg)]()
+[![Coverage](https://img.shields.io/badge/coverage-42%25-yellow.svg)]()
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Interactive REPL](#interactive-repl)
+- [Configuration](#configuration)
+- [Download Profiles](#download-profiles)
+- [CLI Reference](#cli-reference)
+- [API & Integration](#api--integration)
+- [Security Considerations](#security-considerations)
+- [Troubleshooting](#troubleshooting)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## Overview
+
+TorrentCLI Pro is a production-ready command-line BitTorrent client that wraps [aria2c](https://aria2.github.io/) with intelligent download optimization, health analysis, and a rich terminal interface. Designed for server environments, automation pipelines, and power users who prefer terminal workflows.
+
+### Why TorrentCLI Pro?
+
+| Challenge | Solution |
+|-----------|----------|
+| Low-seeder torrents fail silently | Health analysis with automatic profile escalation |
+| Manual tracker management | Auto-fetches 100+ working trackers from trusted sources |
+| No visibility into download issues | Real-time diagnostics showing peer/tracker status |
+| Complex aria2c configuration | Profile system with sensible defaults |
+| GUI clients unsuitable for servers | Full CLI/REPL with scriptable JSON output |
+
+---
+
+## Features
+
+### Core Capabilities
+
+- **Intelligent Health Analysis** - Queries DHT and trackers before download to assess torrent viability
+- **Automatic Profile Selection** - Chooses optimal configuration based on seeder count and network conditions
+- **Dynamic Tracker Injection** - Fetches and injects 50-100 working trackers from curated sources
+- **Interactive REPL** - Full-featured shell with readline support, auto-completion, and command history
+- **Auto-Start Daemon** - REPL automatically manages aria2c lifecycle (start/stop)
+
+### Download Management
+
+- **Multiple Source Types** - Magnet URIs, .torrent files, .metalink files, HTTP URLs, bare info hashes
+- **Selective File Download** - Interactive picker for multi-file torrents
+- **Resume Support** - Session persistence with automatic resume on restart
+- **Batch Processing** - Queue multiple downloads with configurable concurrency
+
+### Monitoring & Observability
+
+- **Real-time Progress** - Speed graphs, ETA, peer statistics
+- **Tracker Diagnostics** - Response times, success rates, peer counts per tracker
+- **JSON Output Mode** - Machine-readable output for integration with monitoring systems
+- **SQLite History** - Queryable download history with performance metrics
+
+### Performance
+
+| Metric | Value |
+|--------|-------|
+| Memory footprint | < 50 MiB (Python + aria2c) |
+| CPU usage (idle) | < 5% |
+| Cold start time | < 500ms |
+| Supported concurrent downloads | Configurable (default: 5) |
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        TorrentCLI Pro                           │
+├─────────────────────────────────────────────────────────────────┤
+│  CLI Layer (Click)                                              │
+│  ├── download, list, pause, resume, cancel                      │
+│  ├── config, history, stats                                     │
+│  └── repl (interactive shell)                                   │
+├─────────────────────────────────────────────────────────────────┤
+│  Core Services                                                  │
+│  ├── DownloadEngine      - Orchestrates download lifecycle      │
+│  ├── HealthAnalyzer      - Assesses torrent viability           │
+│  ├── TrackerManager      - Fetches/injects external trackers    │
+│  └── ProfileManager      - Manages download configurations      │
+├─────────────────────────────────────────────────────────────────┤
+│  REPL Backend                                                   │
+│  ├── CommandParser       - Parses user input                    │
+│  ├── REPLBackend         - aria2c JSON-RPC interface            │
+│  └── Auto-start/stop     - Manages aria2c daemon lifecycle      │
+├─────────────────────────────────────────────────────────────────┤
+│  Data Layer                                                     │
+│  ├── SQLite              - Download history, tracker stats      │
+│  └── TOML Config         - User preferences, profiles           │
+├─────────────────────────────────────────────────────────────────┤
+│  External                                                       │
+│  └── aria2c              - BitTorrent protocol implementation   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Installation
+
+### Prerequisites
+
+| Requirement | Version | Installation |
+|-------------|---------|--------------|
+| Python | 3.9+ | [python.org](https://www.python.org/downloads/) |
+| aria2c | 1.36.0+ | See below |
+
+### Install aria2c
+
+```bash
+# macOS
+brew install aria2
+
+# Ubuntu/Debian
+sudo apt install aria2
+
+# RHEL/CentOS/Fedora
+sudo dnf install aria2
+
+# Arch Linux
+sudo pacman -S aria2
+
+# Windows (Chocolatey)
+choco install aria2
+```
+
+### Install TorrentCLI Pro
+
+```bash
+# From PyPI (recommended)
+pip install torrentcli-pro
+
+# From source
+git clone https://github.com/torrentcli/torrentcli-pro.git
+cd torrentcli-pro
+pip install -e .
+
+# With Poetry (development)
+poetry install
+```
+
+### Verify Installation
+
+```bash
+torrentcli --version
+# TorrentCLI Pro, version 1.0.0
+
+aria2c --version
+# aria2 version 1.37.0
+```
+
+---
+
+## Quick Start
+
+### 1. Start Interactive REPL (Recommended)
+
+The easiest way to use TorrentCLI Pro - one command handles everything:
+
+```bash
+torrentcli repl
+```
+
+This automatically:
+- Starts aria2c daemon if not running
+- Connects to existing aria2c if available
+- Provides an interactive shell for managing downloads
+- Stops aria2c on exit (if it started it)
+
+### 2. Add a Download
+
+In the REPL, add a torrent using any supported source:
+
+```bash
+# Magnet URI
+torrentcli> add magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny
+
+# Info hash (auto-converts to magnet)
+torrentcli> add dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c
+
+# .torrent file
+torrentcli> add /path/to/file.torrent
+
+# HTTP URL
+torrentcli> add https://example.com/file.torrent
+```
+
+### 3. Monitor Progress
+
+```bash
+torrentcli> list
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┓
+┃ GID            ┃ Name             ┃ Progress ┃ Speed    ┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━┩
+│ a1b2c3d4e5f6   │ Big Buck Bunny   │ 42.3%    │ 5.2 MB/s │
+└────────────────┴──────────────────┴──────────┴──────────┘
+
+torrentcli> details a1b2c3d4e5f6
+```
+
+### Example Test Magnet
+
+Use this legal, freely-distributable torrent for testing (Big Buck Bunny - open source animated short):
+
+```
+magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce
+```
+
+---
+
+## Interactive REPL
+
+The REPL provides a full-featured interactive environment for managing downloads.
+
+### Starting the REPL
+
+```bash
+# Basic usage (auto-starts aria2c)
+torrentcli repl
+
+# With RPC authentication
+torrentcli repl --rpc-secret=YOUR_SECRET
+
+# Using environment variable
+export ARIA2_RPC_SECRET=YOUR_SECRET
+torrentcli repl
+```
+
+### Command Reference
+
+| Command | Aliases | Description | Example |
+|---------|---------|-------------|---------|
+| `add <source>` | `a`, `dl` | Add download (magnet/URL/hash/file) | `add magnet:?xt=...` |
+| `pause <GID>` | `p` | Pause a download | `pause a1b2c3` |
+| `resume <GID>` | `r` | Resume paused download | `resume a1b2c3` |
+| `remove <GID>` | `rm`, `del` | Remove a download | `remove a1b2c3` |
+| `list` | `ls`, `l` | List all downloads | `list` |
+| `details <GID>` | `d`, `info` | Show download details | `details a1b2c3` |
+| `filter <criteria>` | `f` | Filter by status or name | `filter active` |
+| `set <GID> <k>=<v>` | `option` | Set per-download option | `set a1b2c3 max-download-limit=1M` |
+| `set global <k>=<v>` | | Set global option | `set global max-overall-download-limit=5M` |
+| `retry` | | Reconnect to aria2c | `retry` |
+| `help` | `?`, `h` | Show help | `help` |
+| `quit` | `q`, `exit` | Exit REPL | `quit` |
+
+### Supported Source Types
+
+| Type | Format | Example |
+|------|--------|---------|
+| Magnet URI | `magnet:?xt=urn:btih:...` | `add magnet:?xt=urn:btih:abc123...` |
+| Info Hash (hex) | 40 hexadecimal characters | `add abc123def456789012345678901234567890abcd` |
+| Info Hash (base32) | 32 base32 characters | `add ABCDEFGHIJKLMNOPQRSTUVWXYZ234567` |
+| Torrent File | `.torrent` path | `add /downloads/file.torrent` |
+| Metalink File | `.metalink` or `.meta4` path | `add /downloads/file.metalink` |
+| HTTP/HTTPS URL | URL to torrent/file | `add https://example.com/file.iso` |
+
+### Filtering Downloads
+
+```bash
+# Filter by status
+torrentcli> filter active
+torrentcli> filter waiting
+torrentcli> filter stopped
+
+# Filter by name (case-insensitive substring match)
+torrentcli> filter ubuntu
+
+# Clear filter
+torrentcli> filter
+```
+
+---
+
+## Configuration
+
+### Configuration File Location
+
+```
+~/.config/torrentcli/config.toml
+```
+
+### Initialize Configuration
+
+```bash
+torrentcli config init
+```
+
+### Configuration Reference
+
+```toml
+# General Settings
+[general]
+default_profile = "auto"           # auto|default|rare|fast|seeder|privacy|batch
+download_dir = "~/Downloads"       # Default download directory
+tracker_update_interval = 43200    # Tracker list refresh interval (seconds)
+
+# User Interface
+[ui]
+theme = "cyberpunk"                # cyberpunk|matrix|solar|nord|gruvbox|midnight
+
+# Notifications
+[notifications]
+level = "important"                # all|important|none
+
+# aria2c Global Options
+[aria2c]
+max_overall_download_limit = "0"   # Global download speed limit (0 = unlimited)
+max_overall_upload_limit = "0"     # Global upload speed limit
+max_concurrent_downloads = 5       # Maximum parallel downloads
+
+# Custom Profile Example
+[profiles.my_custom]
+inherit = "rare"                   # Inherit from built-in profile
+aria2c_options.bt_max_peers = 300  # Override specific options
+aria2c_options.seed_time = 120     # Seed for 2 hours
+```
+
+### Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `TORRENTCLI_PROFILE` | Default profile | `rare` |
+| `TORRENTCLI_DOWNLOAD_DIR` | Download directory | `/data/torrents` |
+| `TORRENTCLI_THEME` | UI theme | `matrix` |
+| `TORRENTCLI_QUIET` | Suppress output | `1` |
+| `ARIA2_RPC_SECRET` | aria2c RPC secret | `mysecret` |
+
+---
+
+## Download Profiles
+
+Profiles are pre-configured optimization strategies for different scenarios.
+
+| Profile | Description | Max Peers | Trackers | Use Case |
+|---------|-------------|-----------|----------|----------|
+| `auto` | Analyzes health, selects optimal | Dynamic | Dynamic | **Recommended default** |
+| `default` | Balanced settings | 55 | Best 20 | Popular torrents (10+ seeders) |
+| `rare` | Aggressive peer discovery | 200 | All 100+ | Low-seeder torrents (0-10 seeders) |
+| `fast` | High-bandwidth optimization | 100 | Best 20 | High-speed connections (100+ Mbps) |
+| `seeder` | Long-term seeding | 100 | Best 20 | Contribute back (24h or 2.0 ratio) |
+| `privacy` | Minimal exposure | 50 | Best 20, no DHT | VPN/privacy-focused usage |
+| `batch` | Concurrent downloads | 30 | Best 20 | Multiple simultaneous downloads |
+
+### Profile Selection
+
+```bash
+# CLI
+torrentcli download "magnet:..." --profile rare
+
+# REPL (uses default profile from config)
+torrentcli> add magnet:?xt=...
+
+# Environment
+export TORRENTCLI_PROFILE=rare
+torrentcli download "magnet:..."
+```
+
+---
+
+## CLI Reference
+
+### Download Commands
+
+```bash
+# Download with automatic profile selection
+torrentcli download "magnet:?xt=..."
+
+# Specify profile
+torrentcli download "magnet:?xt=..." --profile rare
+
+# Custom download directory
+torrentcli download "magnet:?xt=..." --dir /data/torrents
+
+# Speed limiting
+torrentcli download "magnet:?xt=..." --max-speed 5M
+
+# Seeding options
+torrentcli download "magnet:?xt=..." --seed-time 60      # Seed for 60 minutes
+torrentcli download "magnet:?xt=..." --seed-ratio 2.0    # Seed until 2.0 ratio
+torrentcli download "magnet:?xt=..." --no-seed           # Exit after download
+
+# Interactive file selection (multi-file torrents)
+torrentcli download "magnet:?xt=..." --select
+
+# Completion hook
+torrentcli download "magnet:?xt=..." --on-complete "notify-send 'Done'"
+
+# Output modes
+torrentcli download "magnet:?xt=..." --quiet             # Errors only
+torrentcli download "magnet:?xt=..." --json              # JSON output
+```
+
+### Management Commands
+
+```bash
+# List downloads
+torrentcli list
+torrentcli list --status active
+
+# Download history
+torrentcli history --limit 20
+
+# Aggregate statistics
+torrentcli stats
+
+# Tracker performance
+torrentcli tracker-stats --limit 20
+```
+
+### Configuration Commands
+
+```bash
+# Show current configuration
+torrentcli config show
+
+# Initialize configuration
+torrentcli config init
+
+# Edit in $EDITOR
+torrentcli config edit
+
+# List available profiles
+torrentcli list-profiles
+
+# Update tracker lists
+torrentcli update-trackers
+```
+
+### Command Aliases
+
+| Full Command | Alias |
+|--------------|-------|
+| `torrentcli download` | `torrentcli dl` |
+| `torrentcli list` | `torrentcli ls` |
+
+---
+
+## API & Integration
+
+### JSON Output Mode
+
+For integration with scripts and monitoring systems:
+
+```bash
+torrentcli download "magnet:..." --json > download_stats.json
+```
+
+### Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | General error |
+| 130 | Interrupted (Ctrl+C) |
+
+### Scripting Examples
+
+```bash
+# Batch download from file
+while read -r magnet; do
+  torrentcli dl "$magnet" --quiet
+done < magnets.txt
+
+# Download with notification
+torrentcli dl "magnet:..." --on-complete "curl -X POST https://webhook.example.com/done"
+
+# Health check before download
+torrentcli info "magnet:..." --json | jq '.seeders'
+```
+
+---
+
+## Security Considerations
+
+### Network Security
+
+- **RPC Authentication**: Use `--rpc-secret` for aria2c RPC authentication
+- **Local Binding**: aria2c RPC binds to localhost by default
+- **No External Exposure**: REPL does not expose network services
+
+### File System
+
+- **Download Directory**: Validate and sanitize download paths
+- **Session Files**: Stored in `~/.local/share/torrentcli/sessions/`
+- **Configuration**: Stored in `~/.config/torrentcli/`
+
+### Best Practices
+
+```bash
+# Always use RPC secret in shared environments
+export ARIA2_RPC_SECRET=$(openssl rand -hex 16)
+torrentcli repl --rpc-secret=$ARIA2_RPC_SECRET
+
+# Restrict download directory permissions
+chmod 700 ~/Downloads/torrents
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### aria2c not found
+
+```bash
+# Check if installed
+which aria2c
+
+# Install (see Installation section)
+brew install aria2        # macOS
+sudo apt install aria2    # Ubuntu/Debian
+```
+
+#### No seeders found
+
+```bash
+# Use rare profile for aggressive peer discovery
+torrentcli dl "magnet:..." --profile rare
+
+# Manually refresh tracker lists
+torrentcli update-trackers
+
+# Check if content still exists (very old torrents may be dead)
+```
+
+#### Slow download despite seeders
+
+```bash
+# Check for ISP throttling (try VPN)
+# Use fast profile for high-bandwidth connections
+torrentcli dl "magnet:..." --profile fast
+
+# Verify aria2c version (1.36.0+ recommended)
+aria2c --version
+```
+
+#### REPL connection failed
+
+```bash
+# Check if another aria2c is running
+pgrep aria2c
+
+# Kill existing instance if needed
+pkill aria2c
+
+# Restart REPL
+torrentcli repl
+```
+
+### Debug Mode
+
+```bash
+# Enable verbose logging
+export TORRENTCLI_DEBUG=1
+torrentcli download "magnet:..."
+```
+
+---
+
+## Development
+
+### Setup Development Environment
+
+```bash
+# Clone repository
+git clone https://github.com/torrentcli/torrentcli-pro.git
+cd torrentcli-pro
+
+# Install Poetry
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Install dependencies
+poetry install
+
+# Activate virtual environment
+poetry shell
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+poetry run pytest
+
+# Run with coverage
+poetry run pytest --cov=torrentcli --cov-report=html
+
+# Run specific test file
+poetry run pytest tests/test_repl.py -v
+
+# Run specific test
+poetry run pytest tests/test_repl.py::TestCommandParser -v
+```
+
+### Code Quality
+
+```bash
+# Linting
+poetry run ruff check .
+
+# Type checking
+poetry run mypy src/
+
+# Formatting
+poetry run black src/ tests/
+```
+
+### Project Structure
+
+```
+torrentcli-pro/
+├── src/torrentcli/
+│   ├── __init__.py          # Package metadata
+│   ├── cli.py                # Click CLI commands
+│   ├── repl.py               # Interactive REPL
+│   ├── engine.py             # Download orchestration
+│   ├── config.py             # Configuration management
+│   ├── aria2c/               # aria2c wrapper
+│   ├── db/                   # SQLite database layer
+│   ├── trackers/             # Tracker management
+│   ├── tui/                  # Terminal UI components
+│   └── utils/                # Utilities
+├── tests/                    # Test suite
+├── pyproject.toml            # Project configuration
+└── README.md
+```
+
+---
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md).
+
+### Reporting Issues
+
+- Use [GitHub Issues](https://github.com/torrentcli/torrentcli-pro/issues)
+- Include: Python version, aria2c version, OS, error message, steps to reproduce
+
+### Pull Requests
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make changes with tests
+4. Ensure all tests pass (`poetry run pytest`)
+5. Submit pull request
+
+---
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+## Acknowledgments
+
+- **[aria2c](https://aria2.github.io/)** - High-performance download utility
+- **[Click](https://click.palletsprojects.com/)** - CLI framework
+- **[Rich](https://rich.readthedocs.io/)** - Terminal formatting
+- **[ngosang/trackerslist](https://github.com/ngosang/trackerslist)** - Public tracker lists
+- **[XIU2/TrackersListCollection](https://github.com/XIU2/TrackersListCollection)** - Additional tracker sources
+
+---
+
+## Legal Notice
+
+TorrentCLI Pro is designed for downloading legal content such as Linux distributions, open-source software, Creative Commons media, and other freely-distributable materials. Users are solely responsible for ensuring compliance with applicable copyright laws and terms of service in their jurisdiction.
+
+---
+
+<p align="center">
+  <strong>TorrentCLI Pro</strong> - Enterprise-grade BitTorrent for the terminal
+</p>
+
