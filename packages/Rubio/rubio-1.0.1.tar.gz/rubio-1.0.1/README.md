@@ -1,0 +1,44 @@
+# Rubio ⚔️ (v0.3.0)
+### The Elite Rubika Bot Framework
+Powered by **@RubioLib** | The only library built to dominate.
+
+## Why Rubio?
+- **FastHTTP Core**: Built on `httpx` for insane speeds.
+- **Event Driven**: Advanced decorators (`@bot.on_message`) just like Telegram libraries.
+- **Modern Async**: Full support for `async/await` and context managers.
+- **Crush the Competition**: Cleaner, faster, and more powerful than `Rubka` or `pyrubi`.
+
+## Installation
+```bash
+pip install Rubio --upgrade
+```
+
+## Advanced Usage
+```python
+import asyncio
+from rubio import Bot, Message
+
+bot = Bot("YOUR_TOKEN")
+
+@bot.on_message(commands=["start"])
+async def welcome(bot, message: Message):
+    await message.reply("Welcome to the elite era of Rubika bots. 🚀")
+
+@bot.on_message(filters=lambda m: "help" in m.text.lower())
+async def handle_help(bot, message: Message):
+    await message.reply("Need help? Visit @RubioLib")
+
+@bot.on_callback("btn_id")
+async def on_click(bot, message: Message):
+    await message.reply("Button clicked!")
+
+if __name__ == "__main__":
+    asyncio.run(bot.run())
+```
+
+## Powerful Features
+- **Decorators**: `@bot.on_message`, `@bot.on_callback`
+- **Smart Filters**: Apply custom filters to your handlers.
+- **Message Class**: Handle everything directly from the `message` object (`reply`, `delete`, `edit`).
+
+Join **@RubioLib** and build the future.
