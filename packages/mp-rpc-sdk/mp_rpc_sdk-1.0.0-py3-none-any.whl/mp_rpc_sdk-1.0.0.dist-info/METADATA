@@ -1,0 +1,178 @@
+Metadata-Version: 2.1
+Name: mp-rpc-sdk
+Version: 1.0.0
+Summary: Python SDK for Browser RPC System
+Home-page: https://github.com/example/rpc-system
+Author: RPC Team
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: requests (>=2.28.0)
+Provides-Extra: dev
+Requires-Dist: pytest-cov (>=4.0.0) ; extra == 'dev'
+Requires-Dist: pytest (>=7.0.0) ; extra == 'dev'
+
+# RPC SDK
+
+Python SDK for Browser RPC System.
+
+## Installation
+
+```bash
+pip install rpc-sdk
+```
+
+Or install from source:
+
+```bash
+cd src/sdk-python
+pip install -e .
+```
+
+## Quick Start
+
+### Basic Usage
+
+```python
+from rpc_sdk import RPCClient, RPCAdmin
+
+# Initialize client with node ID
+client = RPCClient(
+    endpoint='https://rpc-gateway.pub2022.workers.dev',
+    node='browser-abc123'
+)
+
+# Call platform methods
+profile = client.call('douyin.getUserProfile', ['user123'])
+print(f"User: {profile['nickname']}, Followers: {profile['followers']}")
+
+# Like a video
+result = client.call('douyin.likeVideo', ['video123'])
+
+# Post on Facebook
+client.call('facebook.post', ['Hello World!'])
+```
+
+### Browser Capabilities
+
+```python
+# Get agent info
+info = client.agent.getInfo()
+print(f"Node: {info['nodeId']}, Type: {info['agentType']}")
+
+# Cookie management
+cookies = client.agent.getCookies('douyin.com')
+client.agent.setCookies('douyin.com', [
+    {'name': 'session', 'value': 'xxx', 'domain': '.douyin.com'}
+])
+client.agent.clearCookies('douyin.com')
+
+# Tab management
+tabs = client.agent.getTabs()
+client.agent.openTab('https://douyin.com')
+client.agent.switchTab(tabs[0]['id'])
+
+# Screenshot
+result = client.agent.screenshot()
+# result['dataUrl'] contains base64 PNG
+```
+
+### Admin Operations
+
+```python
+admin = RPCAdmin(endpoint='https://rpc-gateway.pub2022.workers.dev')
+
+# List all online nodes
+nodes = admin.list_nodes()
+for node in nodes:
+    print(f"{node['nodeId']}: {node['envType']}/{node['agentType']} - {'online' if node['online'] else 'offline'}")
+
+# Filter by environment or service
+browser_nodes = admin.list_nodes(env_type='browser')
+douyin_nodes = admin.list_nodes(service='douyin')
+
+# Check node status
+status = admin.get_node_status('browser-abc123')
+print(f"Online: {status['online']}, Last seen: {status['lastSeen']}")
+
+# List available services
+services = admin.list_services()
+for svc in services:
+    print(f"{svc['name']}: {svc['online']}/{svc['total']} nodes online")
+
+# Disconnect a node
+admin.delete_node('browser-abc123')
+```
+
+### Error Handling
+
+```python
+from rpc_sdk import RPCClient, NodeOfflineError, MethodNotFoundError, ExecutionError
+
+client = RPCClient(endpoint='...', node='browser-abc123')
+
+try:
+    result = client.call('douyin.sendMessage', ['user123', 'Hello'])
+except NodeOfflineError as e:
+    print(f"Node {e.node_id} is offline")
+except MethodNotFoundError as e:
+    print(f"Method {e.method} not found")
+except ExecutionError as e:
+    print(f"Execution failed: {e.message}")
+```
+
+### Custom Timeout
+
+```python
+# Global timeout (milliseconds)
+client = RPCClient(endpoint='...', node='...', timeout=60000)
+
+# Per-call timeout
+result = client.call('douyin.uploadVideo', ['video_path'], timeout=120000)
+```
+
+## API Reference
+
+### RPCClient
+
+| Method | Description |
+|--------|-------------|
+| `call(method, params, timeout)` | Call a remote method |
+| `agent.getInfo()` | Get agent information |
+| `agent.getCookies(domain)` | Get cookies for domain |
+| `agent.setCookies(domain, cookies)` | Set cookies |
+| `agent.clearCookies(domain)` | Clear cookies |
+| `agent.getTabs()` | Get all tabs |
+| `agent.openTab(url, active)` | Open new tab |
+| `agent.closeTab(tabId)` | Close tab |
+| `agent.switchTab(tabId)` | Switch to tab |
+| `agent.navigate(url, tabId)` | Navigate to URL |
+| `agent.getCurrentUrl(tabId)` | Get current URL |
+| `agent.screenshot(tabId)` | Take screenshot |
+
+### RPCAdmin
+
+| Method | Description |
+|--------|-------------|
+| `list_nodes(env_type, service)` | List nodes with optional filters |
+| `get_node(node_id)` | Get node details |
+| `get_node_status(node_id)` | Get node online status |
+| `delete_node(node_id)` | Disconnect node |
+| `list_services()` | List all services |
+
+## License
+
+MIT
+
+
