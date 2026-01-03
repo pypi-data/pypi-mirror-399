@@ -1,0 +1,95 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [ "hatchling", "uv-dynamic-versioning" ]
+
+[project]
+name = "afxdl"
+description = "Download audio from aphextwin.warp.net"
+readme = "README.md"
+keywords = [
+  "aphextwin",
+  "cli",
+  "commandline-tool",
+  "downloader",
+  "id3-tag",
+  "mp3",
+  "warp",
+]
+license = { text = "MIT" }
+authors = [ { name = "eggplants", email = "w10776e8w@yahoo.co.jp" } ]
+requires-python = ">=3.12,<4"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Multimedia :: Sound/Audio",
+  "Typing :: Typed",
+]
+dynamic = [ "version" ]
+dependencies = [
+  "beautifulsoup4>=4.12.3,<5",
+  "mutagen>=1.47,<2",
+  "pydantic>=2.10.5,<3",
+  "requests>=2.32.3,<3",
+]
+
+urls.Repository = "https://github.com/eggplants/afxdl"
+scripts.afxdl = "afxdl.main:main"
+
+[dependency-groups]
+dev = [
+  "pymarkdownlnt>=0.9.33",
+  "pyproject-fmt>=2.11.1",
+  "pytest>=9.0.2",
+  "pytest-asyncio>=1.3",
+  "pytest-cov>=7",
+]
+docs = [
+  "pdoc>=16",
+]
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.hatch.build.targets.sdist]
+include = [ "afxdl" ]
+
+[tool.hatch.build.targets.wheel]
+include = [ "afxdl" ]
+
+[tool.uv]
+preview = true
+default-groups = [
+  "dev",
+  "docs",
+]
+exclude-newer = "P7D"
+
+[tool.ruff]
+format.indent-style = "space"
+format.quote-style = "double"
+lint.select = [
+  "ALL",
+]
+lint.ignore = [
+  "COM812",
+  "D211",   # No blank lines allowed before class docstring
+  "D213",   # Multi-line docstring summary should start at the second line
+]
+lint.per-file-ignores."main.py" = [
+  "T201", # `print` found
+]
+lint.per-file-ignores."tests/*.py" = [
+  "D",
+  "S101", # Use of assert detected
+]
+lint.pydocstyle.convention = "google"
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "semver"
+fallback-version = "0.0.0"
