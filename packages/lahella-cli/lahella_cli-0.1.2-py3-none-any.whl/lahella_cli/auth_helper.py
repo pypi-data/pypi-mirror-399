@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+"""
+Shared authentication helper for lahella.fi automation.
+
+Handles token refresh and session management.
+"""
+
+import sys
+from pathlib import Path
+
+import httpx
+from filelock import FileLock
+from ruamel.yaml import YAML
+
+
+AUTH_FILE = Path.cwd() / "auth.yaml"
+AUTH_LOCK_FILE = AUTH_FILE.with_suffix(".yaml.lock")
+BASE_URL = "https://hallinta.lahella.fi"
+
+
+def load_auth_config() -> dict:
+    """Load auth configuration from auth.yaml."""
+    if not AUTH_FILE.exists():
+        print(f"Error: {AUTH_FILE} not found")
+        sys.exit(1)
+
+    yaml = YAML()
+    with open(AUTH_FILE) as f:
+        config = yaml.load(f)
+
+    auth = config.get("auth", {})
+    if not auth.get("cookies"):
+        print("Error: No cookies found in auth.yaml")
+        print("Run login.py first to authenticate.")
+        sys.exit(1)
+
+    return auth
+
+
+def parse_cookies(cookie_string: str) -> dict:
+    """Parse cookie string into dict."""
+    cookies = {}
+    if cookie_string:
+        for item in cookie_string.split(";"):
+            item = item.strip()
+            if "=" in item:
+                key, value = item.split("=", 1)
+                cookies[key.strip()] = value.strip()
+    return cookies
+
+
+def cookies_to_string(cookies: dict) -> str:
+    """Convert cookies dict back to string format."""
+    return ";".join(f"{k}={v}" for k, v in cookies.items())
+
+
+def update_cookies_in_file(cookies: dict) -> None:
+    """Update the cookies in auth.yaml.
+
+    Uses file locking to prevent race conditions when multiple processes
+    try to update the file concurrently.
+    """
+    cookie_str = cookies_to_string(cookies)
+
+    lock = FileLock(AUTH_LOCK_FILE, timeout=10)
+    with lock:
+        yaml = YAML()
+        yaml.preserve_quotes = True
+        with open(AUTH_FILE) as f:
+            config = yaml.load(f)
+
+        config["auth"]["cookies"] = cookie_str
+
+        with open(AUTH_FILE, "w") as f:
+            yaml.dump(config, f)
+
+    print("Updated cookies in auth.yaml")
+
+
+def try_refresh_token(session: httpx.Client) -> bool:
+    """
+    Attempt to refresh the auth token using the refresh token.
+    Returns True if successful, False otherwise.
+    """
+    url = f"{BASE_URL}/api/v1/auth/token"
+
+    try:
+        response = session.post(
+            url,
+            json={"grant_type": "refresh_token"},
+            headers={
+                "Content-Type": "application/json",
+                "Origin": BASE_URL,
+                "Referer": f"{BASE_URL}/login",
+            }
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            if result.get("status") == "Success":
+                print("Token refreshed successfully")
+
+                updated_cookies = {}
+                for cookie in session.cookies.jar:
+                    if any(x in cookie.name for x in ["AUTH_TOKEN", "REFRESH_TOKEN", "EXP_"]):
+                        updated_cookies[cookie.name] = cookie.value
+
+                if updated_cookies:
+                    update_cookies_in_file(updated_cookies)
+
+                return True
+
+        print(f"Token refresh failed: {response.status_code}")
+        return False
+
+    except Exception as e:
+        print(f"Error refreshing token: {e}")
+        return False
+
+
+def get_authenticated_session(auto_refresh: bool = True) -> httpx.Client:
+    """
+    Get an authenticated httpx.Client session.
+
+    Args:
+        auto_refresh: If True, will attempt to refresh token if auth fails
+
+    Returns:
+        Authenticated httpx.Client session
+    """
+    auth_config = load_auth_config()
+    cookies = parse_cookies(auth_config["cookies"])
+
+    session = httpx.Client(timeout=60.0)
+    session.cookies.update(cookies)
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "Origin": BASE_URL,
+    })
+
+    if auto_refresh:
+        test_url = f"{BASE_URL}/v1/activities"
+        try:
+            response = session.get(test_url, params={"limit": 1})
+
+            if response.status_code == 401:
+                print("Auth token expired, attempting refresh...")
+                if try_refresh_token(session):
+                    auth_config = load_auth_config()
+                    cookies = parse_cookies(auth_config["cookies"])
+                    session.cookies.clear()
+                    session.cookies.update(cookies)
+                else:
+                    print("Token refresh failed. Please run login.py to re-authenticate.")
+                    sys.exit(1)
+        except Exception as e:
+            print(f"Warning: Could not test authentication: {e}")
+
+    return session
+
+
+def main():
+    print("Testing authentication...")
+    session = get_authenticated_session()
+
+    response = session.get(f"{BASE_URL}/v1/activities", params={"limit": 1})
+    print(f"Status: {response.status_code}")
+
+    if response.status_code == 200:
+        print("Authentication successful!")
+    else:
+        print("Authentication failed!")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
