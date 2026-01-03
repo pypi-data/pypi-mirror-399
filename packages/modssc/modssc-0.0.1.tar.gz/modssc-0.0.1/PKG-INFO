@@ -1,0 +1,252 @@
+Metadata-Version: 2.4
+Name: modssc
+Version: 0.0.1
+Summary: ModSSC: a modular framework for semi-supervised classification on heterogeneous data
+Project-URL: Homepage, https://github.com/ModSSC/ModSSC
+Project-URL: Repository, https://github.com/ModSSC/ModSSC
+Project-URL: Documentation, https://github.com/ModSSC/ModSSC/tree/main/docs
+Project-URL: Changelog, https://github.com/ModSSC/ModSSC/blob/main/CHANGELOG.md
+Project-URL: Issues, https://github.com/ModSSC/ModSSC/issues
+Author: ModSSC contributors
+License: MIT License
+        
+        Copyright (c) 2025 ModSSC
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+License-File: LICENSE
+Keywords: classification,semi-supervised
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Requires-Python: >=3.11
+Requires-Dist: numpy<2.4,>=1.24
+Requires-Dist: platformdirs>=4.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: typer>=0.12.0
+Provides-Extra: audio
+Requires-Dist: torch; extra == 'audio'
+Requires-Dist: torchaudio; extra == 'audio'
+Requires-Dist: torchcodec; extra == 'audio'
+Provides-Extra: data
+Requires-Dist: datasets; extra == 'data'
+Requires-Dist: scikit-learn; extra == 'data'
+Requires-Dist: tensorflow; extra == 'data'
+Requires-Dist: tensorflow-datasets; extra == 'data'
+Requires-Dist: tf-keras; extra == 'data'
+Requires-Dist: torch; extra == 'data'
+Requires-Dist: torch-geometric; extra == 'data'
+Requires-Dist: torchaudio; extra == 'data'
+Requires-Dist: torchvision; extra == 'data'
+Provides-Extra: datasets
+Requires-Dist: datasets; extra == 'datasets'
+Requires-Dist: scikit-learn; extra == 'datasets'
+Requires-Dist: tensorflow; extra == 'datasets'
+Requires-Dist: tensorflow-datasets; extra == 'datasets'
+Requires-Dist: tf-keras; extra == 'datasets'
+Requires-Dist: torch; extra == 'datasets'
+Requires-Dist: torch-geometric; extra == 'datasets'
+Requires-Dist: torchaudio; extra == 'datasets'
+Requires-Dist: torchvision; extra == 'datasets'
+Provides-Extra: dev
+Requires-Dist: build>=1.2; extra == 'dev'
+Requires-Dist: pre-commit>=3.7; extra == 'dev'
+Requires-Dist: pytest-cov>=4.1; extra == 'dev'
+Requires-Dist: pytest-timeout>=2.2; extra == 'dev'
+Requires-Dist: pytest-xdist>=3.5; extra == 'dev'
+Requires-Dist: pytest>=7.4; extra == 'dev'
+Requires-Dist: ruff>=0.6.0; extra == 'dev'
+Requires-Dist: twine>=4.0; extra == 'dev'
+Provides-Extra: docs
+Requires-Dist: mkdocs-enumerate-headings-plugin; extra == 'docs'
+Requires-Dist: mkdocs-material>=9.5; extra == 'docs'
+Requires-Dist: mkdocs>=1.6; extra == 'docs'
+Requires-Dist: mkdocstrings[python]>=0.25; extra == 'docs'
+Requires-Dist: pymdown-extensions>=10.0; extra == 'docs'
+Provides-Extra: full
+Requires-Dist: datasets; extra == 'full'
+Requires-Dist: open-clip-torch; extra == 'full'
+Requires-Dist: pillow; extra == 'full'
+Requires-Dist: scikit-learn; extra == 'full'
+Requires-Dist: scipy; extra == 'full'
+Requires-Dist: sentence-transformers; extra == 'full'
+Requires-Dist: tensorflow; extra == 'full'
+Requires-Dist: tensorflow-datasets; extra == 'full'
+Requires-Dist: tf-keras; extra == 'full'
+Requires-Dist: torch; extra == 'full'
+Requires-Dist: torch-geometric; extra == 'full'
+Requires-Dist: torchaudio; extra == 'full'
+Requires-Dist: torchcodec; extra == 'full'
+Requires-Dist: torchvision; extra == 'full'
+Requires-Dist: transformers; extra == 'full'
+Provides-Extra: graph
+Requires-Dist: torch; extra == 'graph'
+Requires-Dist: torch-geometric; extra == 'graph'
+Provides-Extra: graph-faiss
+Requires-Dist: faiss-cpu; extra == 'graph-faiss'
+Provides-Extra: hf
+Requires-Dist: datasets; extra == 'hf'
+Provides-Extra: inductive-tf
+Requires-Dist: tensorflow; extra == 'inductive-tf'
+Requires-Dist: tf-keras; extra == 'inductive-tf'
+Provides-Extra: inductive-torch
+Requires-Dist: torch; extra == 'inductive-torch'
+Provides-Extra: openml
+Requires-Dist: scikit-learn; extra == 'openml'
+Provides-Extra: preprocess
+Requires-Dist: open-clip-torch; extra == 'preprocess'
+Requires-Dist: pillow; extra == 'preprocess'
+Requires-Dist: scikit-learn; extra == 'preprocess'
+Requires-Dist: scipy; extra == 'preprocess'
+Requires-Dist: sentence-transformers; extra == 'preprocess'
+Requires-Dist: torch; extra == 'preprocess'
+Requires-Dist: torchaudio; extra == 'preprocess'
+Requires-Dist: torchvision; extra == 'preprocess'
+Requires-Dist: transformers; extra == 'preprocess'
+Provides-Extra: preprocess-audio
+Requires-Dist: torch; extra == 'preprocess-audio'
+Requires-Dist: torchaudio; extra == 'preprocess-audio'
+Provides-Extra: preprocess-graph
+Requires-Dist: scipy; extra == 'preprocess-graph'
+Provides-Extra: preprocess-sklearn
+Requires-Dist: scikit-learn; extra == 'preprocess-sklearn'
+Provides-Extra: preprocess-text
+Requires-Dist: sentence-transformers; extra == 'preprocess-text'
+Requires-Dist: transformers; extra == 'preprocess-text'
+Provides-Extra: preprocess-vision
+Requires-Dist: open-clip-torch; extra == 'preprocess-vision'
+Requires-Dist: pillow; extra == 'preprocess-vision'
+Requires-Dist: torch; extra == 'preprocess-vision'
+Requires-Dist: torchvision; extra == 'preprocess-vision'
+Provides-Extra: sklearn
+Requires-Dist: scikit-learn; extra == 'sklearn'
+Provides-Extra: supervised-torch
+Requires-Dist: torch; extra == 'supervised-torch'
+Provides-Extra: text
+Requires-Dist: datasets; extra == 'text'
+Provides-Extra: tfds
+Requires-Dist: tensorflow; extra == 'tfds'
+Requires-Dist: tensorflow-datasets; extra == 'tfds'
+Requires-Dist: tf-keras; extra == 'tfds'
+Provides-Extra: transductive-advanced
+Requires-Dist: torch; extra == 'transductive-advanced'
+Requires-Dist: torch-geometric; extra == 'transductive-advanced'
+Provides-Extra: transductive-pyg
+Requires-Dist: torch; extra == 'transductive-pyg'
+Requires-Dist: torch-geometric; extra == 'transductive-pyg'
+Provides-Extra: transductive-torch
+Requires-Dist: torch; extra == 'transductive-torch'
+Provides-Extra: vision
+Requires-Dist: torch; extra == 'vision'
+Requires-Dist: torchvision; extra == 'vision'
+Description-Content-Type: text/markdown
+
+# ModSSC
+
+[![Ruff](https://github.com/ModSSC/ModSSC/actions/workflows/ruff.yml/badge.svg)](https://github.com/ModSSC/ModSSC/actions/workflows/ruff.yml)
+[![Tests](https://github.com/ModSSC/ModSSC/actions/workflows/tests.yml/badge.svg)](https://github.com/ModSSC/ModSSC/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/ModSSC/ModSSC/graph/badge.svg?token=5S1R9H5L8G)](https://codecov.io/gh/ModSSC/ModSSC)
+
+ModSSC is a modular framework for semi-supervised classification across heterogeneous
+modalities (text, vision, tabular, graph). It is designed for academic research: clear
+abstractions, reproducible pipelines, and extensible method registries.
+
+## Research goals
+
+- Provide composable "bricks" for data loading, sampling, preprocessing, graphs, and SSL methods.
+- Make experiments reproducible via declarative configs and deterministic seeds.
+- Support both inductive and transductive SSL with lightweight baselines and extensible APIs.
+
+## Repository map
+
+- `src/modssc`: core library + CLI tools
+- `bench/`: end-to-end benchmark runner (GitHub-only, not shipped to PyPI)
+- `docs/`: MkDocs site (concepts, CLI, API)
+- `examples/`, `notebooks/`: demos and exploratory workflows
+
+## Install
+
+PyPI (library + CLI tools):
+
+```bash
+python -m pip install modssc
+```
+
+From source (recommended for benchmark runs):
+
+```bash
+git clone https://github.com/ModSSC/ModSSC
+cd ModSSC
+python -m pip install -e "."
+```
+
+Python 3.11+ is required. For modality-specific extras, see `bench/README.md`.
+
+## Quickstart (library + CLI)
+
+CLI:
+
+```bash
+modssc-datasets list
+modssc-sampling --help
+modssc-preprocess steps list
+modssc-graph build --help
+modssc-inductive methods list
+modssc-transductive methods list
+```
+
+Python:
+
+```python
+from modssc.data_loader import load_dataset
+from modssc.sampling import sample
+from modssc.preprocess import preprocess
+```
+
+## Benchmark quickstart (GitHub-only)
+
+```bash
+python -m bench.main --config bench/configs/experiments/toy_inductive.yaml
+python -m bench.main --config bench/configs/experiments/toy_transductive.yaml
+```
+
+Artifacts land in `runs/<name-timestamp>/` with:
+- `config.yaml` (immutable config snapshot)
+- `run.json` (metrics + metadata)
+- `error.txt` (full traceback on failure)
+
+## Reproducibility notes
+
+- Every run derives a timestamped run directory and a per-stage seed from a master seed.
+- Preprocess and graph caches are fingerprinted by dataset + plan + seed.
+- Configs are declarative YAML; they are copied into the run directory for auditability.
+
+## Citation
+
+If you use ModSSC in research, please cite `CITATION.cff`.
+
+## License
+
+MIT. See `LICENSE`.
