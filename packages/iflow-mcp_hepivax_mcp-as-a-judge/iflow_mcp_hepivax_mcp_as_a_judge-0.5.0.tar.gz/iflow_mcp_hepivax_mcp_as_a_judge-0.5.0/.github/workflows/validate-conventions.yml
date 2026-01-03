@@ -1,0 +1,30 @@
+name: Validate Conventions
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches-ignore: [ main ]
+
+jobs:
+  validate-branch-name:
+    name: Validate Branch Name
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+    
+    steps:
+    - name: Check branch name
+      run: |
+        branch_name="${{ github.head_ref || github.ref_name }}"
+        echo "Checking branch name: $branch_name"
+        
+        # Allow semver prefixes: feat/, fix/, docs/, style/, refactor/, perf/, test/, chore/, ci/, build/
+        if [[ $branch_name =~ ^(feat|fix|docs|style|refactor|perf|test|chore|ci|build)/.+ ]]; then
+          echo "✅ Branch name follows semver convention"
+        else
+          echo "❌ Branch name must start with one of: feat/, fix/, docs/, style/, refactor/, perf/, test/, chore/, ci/, build/"
+          echo "Current branch: $branch_name"
+          exit 1
+        fi
+
+
