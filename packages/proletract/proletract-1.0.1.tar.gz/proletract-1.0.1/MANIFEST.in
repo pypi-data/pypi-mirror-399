@@ -1,0 +1,19 @@
+include README.md
+include LICENSE
+include MANIFEST.in
+include pyproject.toml
+include setup.py
+recursive-include proletract/frontend/public *
+recursive-include proletract/frontend/src *
+recursive-include proletract/frontend/build *
+include proletract/frontend/package.json
+include proletract/frontend/package-lock.json
+include proletract/frontend/tsconfig.json
+include proletract/backend/requirements.txt
+recursive-include proletract/backend/data *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude proletract/frontend/node_modules
+recursive-exclude proletract/frontend/build/node_modules
+recursive-exclude * .git
+
