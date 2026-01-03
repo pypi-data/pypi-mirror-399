@@ -1,0 +1,239 @@
+# CHILL Compiler
+
+A CHILL to C transpiler. Because in 2001, GCC removed CHILL support "due to lack of interest," and in 2025, I have apparently mass quantities of both free time and questionable judgment.
+
+## What Is This
+
+This is a compiler for **CHILL** (CCITT High Level Language), the ITU-T standard programming language for telecommunications switching systems. It transpiles CHILL source code to C.
+
+You are now rightfully confused. Allow me to explain.
+
+## A Brief and Concerning History
+
+In the 1970s, the international telecommunications community decided they needed a standard programming language for telephone switches. Reasonable enough. They formed committees. The committees had meetings. The meetings produced CHILL.
+
+CHILL was standardised as ITU-T Recommendation Z.200 in 1980. It was implemented in telephone switches worldwide. The Siemens EWSD alone runs **45 million lines of CHILL code** across **200 million subscriber lines** in **105 countries**.
+
+When you make a phone call, there is a non-trivial probability that CHILL code is involved. You have never heard of CHILL. The phone works anyway.
+
+In 2001, the GCC maintainers removed CHILL from the compiler. The commit cited "lack of interest." The 200 million telephone lines were not consulted. The maintainers, presumably, did not make many phone calls that year.
+
+In 2025, I wrote a new CHILL compiler.
+
+Nobody asked me to do this.
+
+## Why
+
+Look, I don't know either. I was building a [CHILL language server](https://github.com/Zaneham/chill-lsp) for syntax highlighting and code navigation, which is already a questionable life choice, and then I thought "what if it could also compile things" and here we are.
+
+The telecommunications industry has moved on. Modern switches use C++ or Java or whatever programming language was fashionable when they were built. Nobody writes new CHILL code.
+
+But the old switches are still running. The EWSD is still connecting calls. Somewhere in Germany, a Siemens engineer is probably maintaining CHILL code right now, using a text editor from 1995 because that's what was available when the switch was installed.
+
+This compiler is for them. Or for historians. Or for people with very specific kinks. I don't judge.
+
+## Installation
+
+```bash
+pip install chill-compiler
+```
+
+Just kidding, it's not on PyPI yet. Clone the repo like a normal person:
+
+```bash
+git clone https://github.com/Zaneham/chill-compiler
+cd chill-compiler
+pip install -e .
+```
+
+Requires Python 3.8+. If you're running Python 2, I have concerns about your life choices that extend well beyond this compiler.
+
+## Usage
+
+```bash
+# Compile a CHILL file to C
+chill-compile input.chl -o output.c
+
+# Or just dump to stdout like a heathen
+chill-compile input.chl
+
+# Check syntax without generating code
+chill-compile input.chl --check
+```
+
+The generated C code uses pthreads for concurrency. Compile it with:
+
+```bash
+gcc output.c -o output -lpthread
+```
+
+If it works, you have successfully compiled code in a language that GCC abandoned 24 years ago, using a compiler written by someone who has never actually seen a telephone switch, to run on hardware that didn't exist when CHILL was designed.
+
+The future is weird.
+
+## What It Compiles
+
+The compiler handles ITU-T Z.200 (1999) CHILL, including:
+
+### The Basics
+- `MODULE` - Compilation units
+- `DCL` - Variable declarations
+- `PROC` - Procedures (functions, for normal people)
+- `NEWMODE` / `SYNMODE` - Type definitions (modes, because CHILL)
+- All the control flow you'd expect (`IF`, `DO`, `CASE`, etc.)
+
+### The Weird Stuff
+- `PROCESS` - Concurrent processes (maps to pthreads)
+- `SIGNAL` - Inter-process communication (maps to message queues)
+- `BUFFER` - Bounded queues for message passing
+- `EVENT` - Synchronisation primitives
+- `REGION` - Mutual exclusion
+- `DELAY` - Time-based waiting
+
+### The Concurrency Model
+
+CHILL was designed for telephone switches, which are inherently concurrent systems. Every phone call is a process. Every signal is a message. Every buffer is a queue of waiting calls.
+
+The compiler maps this to pthreads:
+
+| CHILL | C |
+|-------|---|
+| `PROCESS` | `pthread_t` + wrapper |
+| `START process(args)` | `pthread_create(...)` |
+| `SIGNAL` | Message queue with `pthread_cond_t` |
+| `BUFFER` | Thread-safe bounded queue |
+| `EVENT` | `pthread_cond_t` wrapper |
+| `DELAY 100 ms` | `nanosleep(...)` |
+
+It's not a perfect mapping. Real CHILL implementations have sophisticated schedulers and priority systems. This compiler has pthreads and hope.
+
+## Example
+
+Input (`call_handler.chl`):
+```chill
+MODULE call_handler;
+
+NEWMODE call_state = SET(idle, ringing, connected);
+
+DCL current_state call_state := idle;
+
+handle_call: PROC(caller_id INT) RETURNS(BOOL);
+    DCL success BOOL := FALSE;
+
+    IF current_state = idle THEN
+        current_state := ringing;
+        success := TRUE;
+    FI;
+
+    RETURN success;
+END handle_call;
+
+END call_handler;
+```
+
+Output (`call_handler.c`):
+```c
+/* Generated by CHILL Compiler */
+
+#include <pthread.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+typedef enum { idle, ringing, connected } call_state;
+
+call_state call_handler_current_state = idle;
+
+bool call_handler_handle_call(int32_t caller_id) {
+    bool success = false;
+
+    if (call_handler_current_state == idle) {
+        call_handler_current_state = ringing;
+        success = true;
+    }
+
+    return success;
+}
+```
+
+It's not pretty. It's not optimised. But it compiles, and it runs, and that's more than GCC can say since 2001.
+
+## Limitations
+
+The compiler has limitations. I could list them, but that would be providing a roadmap for people who want to use this commercially without paying me.
+
+Let's just say: it handles core CHILL constructs. If you need full CHILL2000 OOP support, complete I/O system implementation, or multi-module compilation with proper GRANT/SEIZE semantics, we should probably talk.
+
+My email is at the bottom. I accept payment in money, interesting CHILL codebases, or stories about maintaining telephone switches.
+
+## The Absurdity of It All
+
+Let me be clear about what has happened here:
+
+1. In 1980, international committees standardised CHILL
+2. Major telecommunications companies spent billions implementing it
+3. 200 million telephone lines came to depend on it
+4. The open-source world lost interest and removed compiler support
+5. 24 years passed
+6. A random person in New Zealand wrote a new compiler
+7. You are reading the README
+
+The telephone network continues to function. This is unrelated to anything I have done.
+
+## Why Python?
+
+Honestly? It's hilarious.
+
+CHILL was designed for hard real-time telecommunications systems where microseconds matter. I wrote the compiler in a language with a Global Interpreter Lock and garbage collection pauses. The original CHILL compilers were written in assembly and C by serious engineers at Siemens and Ericsson. This one was written in Python by a guy in New Zealand who thought it would be funny.
+
+In my defence:
+- The *output* is C, which compiles to proper native code
+- It works, which is more than GCC can say since 2001
+- I'll probably rewrite it in C at some point anyway
+
+But for now, Python gets the job done and the irony sustains me.
+
+## Related Projects
+
+- **[CHILL Language Server](https://github.com/Zaneham/chill-lsp)** - IDE support for VS Code. Has this compiler bundled. You probably want that instead unless you're doing something weird.
+
+- **[JOVIAL J73 LSP](https://github.com/Zaneham/jovial-lsp)** - For the language flying F-15s and B-52s. Different infrastructure, same energy.
+
+- **[CMS-2 LSP](https://github.com/Zaneham/cms2-lsp)** - US Navy tactical systems. Aegis cruisers and submarines.
+
+I appear to have a type. The type is "languages that run critical infrastructure and that everyone has forgotten exist."
+
+## Contributing
+
+Contributions welcome. Especially:
+
+- Real CHILL code samples from actual switches
+- Bug reports from people who know what they're doing
+- War stories from telecommunications engineers
+- Emotional support
+
+## License
+
+Apache 2.0. See LICENSE.
+
+## Contact
+
+Zane Hambly
+zanehambly@gmail.com
+
+If you're a telecommunications company with CHILL code that needs modernising, I'm available for consulting.
+
+If you're a historian researching the history of programming languages, I'm available for interviews.
+
+If you're a GCC maintainer who removed CHILL in 2001, I'm not angry. I'm just disappointed. And also I wrote a replacement compiler. Make of that what you will.
+
+---
+
+*"Removed from GCC due to lack of interest. Resurrected in 2025 due to lack of sense."*
+
+---
+
+*"The phones work. Nobody knows why. This compiler will not help you understand."*
+
+---
+
+*"CHILL: Connecting the world since 1980. Forgotten by the world since approximately 1985. Inexplicably revived in 2025 by someone who should probably find a healthier hobby."*
