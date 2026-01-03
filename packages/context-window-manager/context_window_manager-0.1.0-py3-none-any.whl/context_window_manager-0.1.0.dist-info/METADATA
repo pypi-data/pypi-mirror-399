@@ -1,0 +1,257 @@
+Metadata-Version: 2.4
+Name: context-window-manager
+Version: 0.1.0
+Summary: Production-ready LLM context window optimization and management
+Author-email: Pranay M <pranay@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/pranaym/context-window-manager
+Project-URL: Documentation, https://github.com/pranaym/context-window-manager#readme
+Project-URL: Repository, https://github.com/pranaym/context-window-manager
+Keywords: llm,context,tokens,gpt,claude,optimization
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: tiktoken
+Requires-Dist: tiktoken>=0.5.0; extra == "tiktoken"
+Provides-Extra: full
+Requires-Dist: tiktoken>=0.5.0; extra == "full"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Dynamic: license-file
+
+# Context Window Manager
+
+Production-ready LLM context window optimization and management. Automatically handles token counting, message pruning, and content compression to keep conversations within context limits.
+
+## Features
+
+- **Token Counting**: Accurate token counting with tiktoken or approximate fallback
+- **Automatic Pruning**: Multiple strategies (FIFO, relevance, recency-weighted, etc.)
+- **Content Compression**: Truncation, summarization, bullet point extraction
+- **Priority System**: Pin important messages, set priorities for retention
+- **Model Presets**: Built-in configs for GPT-4, GPT-4o, GPT-3.5, Claude
+- **Usage Statistics**: Track token usage and pruning operations
+- **Zero Dependencies Core**: Works without tiktoken (with approximation)
+
+## Installation
+
+```bash
+pip install context-window-manager           # Core (approximate counting)
+pip install context-window-manager[tiktoken] # Accurate token counting
+```
+
+## Quick Start
+
+### Basic Usage
+
+```python
+from context_window_manager import ContextWindowManager, create_manager
+
+# Create manager for GPT-4
+manager = create_manager("gpt-4")
+
+# Set system message
+manager.set_system_message("You are a helpful assistant.")
+
+# Add messages
+manager.add_message("user", "Hello, how are you?")
+manager.add_message("assistant", "I'm doing well, thank you!")
+manager.add_message("user", "Tell me about Python.")
+
+# Get messages for API call
+messages = manager.get_messages()
+
+# Check budget
+budget = manager.get_budget()
+print(f"Used: {budget.used_tokens}/{budget.total_tokens}")
+```
+
+### Automatic Pruning
+
+```python
+from context_window_manager import ContextWindowManager, WindowConfig, PruningStrategy
+
+config = WindowConfig(
+    max_tokens=16000,
+    pruning_strategy=PruningStrategy.RECENCY_WEIGHTED,
+    pruning_threshold=0.85,  # Start pruning at 85% utilization
+    preserve_recent_turns=2   # Always keep last 2 exchanges
+)
+
+manager = ContextWindowManager(config)
+
+# Messages are automatically pruned when threshold is reached
+for i in range(100):
+    manager.add_message("user", f"Message {i}: " + "x" * 500)
+    manager.add_message("assistant", f"Response {i}: " + "y" * 500)
+
+print(f"Messages: {manager.conversation.message_count}")
+print(f"Utilization: {manager.conversation.utilization:.1%}")
+```
+
+### Manual Pruning
+
+```python
+from context_window_manager import PruningStrategy
+
+# Prune to specific token count
+result = manager.prune(target_tokens=8000)
+print(f"Removed {result.removed_messages} messages")
+print(f"Saved {result.tokens_saved} tokens")
+
+# Prune with specific strategy
+result = manager.prune(strategy=PruningStrategy.RELEVANCE)
+```
+
+### Message Priorities
+
+```python
+from context_window_manager import Priority
+
+# Add important message
+manager.add_message("user", "Critical instruction", priority=Priority.CRITICAL)
+
+# Pin a message (never pruned)
+manager.pin_message(0)
+
+# Set priority after creation
+manager.set_priority(1, Priority.HIGH)
+```
+
+### Content Compression
+
+```python
+from context_window_manager import CompressionMethod
+
+# Compress a specific message
+result = manager.compress_message(
+    message_index=5,
+    target_tokens=100,
+    method=CompressionMethod.BULLET_POINTS
+)
+
+print(f"Compressed from {result.original_tokens} to {result.compressed_tokens}")
+```
+
+### Conversation Buffer
+
+```python
+from context_window_manager import ConversationBuffer
+
+# Simple buffer with limits
+buffer = ConversationBuffer(
+    max_tokens=8000,
+    max_messages=50
+)
+
+buffer.add("user", "Hello")
+buffer.add("assistant", "Hi there!")
+
+messages = buffer.get_messages()
+print(f"Tokens: {buffer.token_count}")
+```
+
+### Model Configurations
+
+```python
+from context_window_manager import ModelConfig, ContextWindowManager
+
+# Use preset
+config = ModelConfig.gpt4o()
+manager = ContextWindowManager(model_config=config)
+
+# Or create custom
+custom_config = ModelConfig(
+    name="custom-model",
+    max_context_tokens=32000,
+    max_output_tokens=4096,
+    tokenizer=TokenizerType.TIKTOKEN_CL100K
+)
+```
+
+## Pruning Strategies
+
+| Strategy | Description |
+|----------|-------------|
+| `FIFO` | Remove oldest messages first |
+| `LIFO` | Remove newest (except recent turns) |
+| `SLIDING_WINDOW` | Keep only most recent N messages |
+| `RELEVANCE` | Remove by relevance score |
+| `IMPORTANCE` | Remove by importance score |
+| `RECENCY_WEIGHTED` | Combine recency + relevance |
+
+## Compression Methods
+
+| Method | Description |
+|--------|-------------|
+| `TRUNCATE` | Cut content at sentence boundary |
+| `BULLET_POINTS` | Extract key sentences as bullets |
+| `EXTRACT_KEY_INFO` | Keep first/last paragraphs |
+
+## API Reference
+
+### ContextWindowManager
+
+```python
+manager = ContextWindowManager(config, model_config)
+
+# Add messages
+manager.add_message(role, content, **kwargs)
+manager.set_system_message(content)
+
+# Get messages
+messages = manager.get_messages()
+
+# Budget management
+budget = manager.get_budget()
+snapshot = manager.get_snapshot()
+
+# Pruning
+result = manager.prune(target_tokens, strategy)
+
+# Compression
+result = manager.compress_message(index, target_tokens, method)
+
+# Message management
+manager.pin_message(index)
+manager.set_priority(index, priority)
+manager.clear()
+
+# Utilities
+fits = manager.fits(content)
+tokens = manager.tokens_for(content)
+```
+
+### WindowConfig
+
+```python
+config = WindowConfig(
+    max_tokens=128000,
+    reserved_output_tokens=4096,
+    max_history_ratio=0.7,
+    pruning_strategy=PruningStrategy.RECENCY_WEIGHTED,
+    compression_method=CompressionMethod.NONE,
+    tokenizer_type=TokenizerType.TIKTOKEN_CL100K,
+    min_messages_to_keep=2,
+    always_keep_system=True,
+    preserve_recent_turns=2,
+    pruning_threshold=0.85,
+    on_prune=callback_function
+)
+```
+
+## License
+
+MIT License - Pranay M
