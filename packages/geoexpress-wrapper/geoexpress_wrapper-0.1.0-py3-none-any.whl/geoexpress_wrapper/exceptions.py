@@ -1,0 +1,2 @@
+class MrSIDEncodingError(RuntimeError):
+    pass
