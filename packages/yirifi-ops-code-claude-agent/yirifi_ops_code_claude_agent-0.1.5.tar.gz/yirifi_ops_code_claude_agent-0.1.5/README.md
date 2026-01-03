@@ -1,0 +1,102 @@
+# Yirifi Ops Claude Code Agent
+
+A standalone agent that executes Claude Code tasks dispatched from the Yirifi Ops Dashboard.
+
+## Installation
+
+```bash
+pip install yirifi-ops-code-claude-agent
+# or
+git clone https://github.com/yirifi/yirifi-ops-code-claude-agent
+cd yirifi-ops-code-claude-agent && pip install -e .
+```
+
+## Quick Start
+
+1. **Configure the agent** with your API token:
+   ```bash
+   export FLASK_URL=http://your-dashboard-url
+   export AGENT_API_TOKEN=your-api-token
+   ```
+
+2. **Start the agent**:
+   ```bash
+   # Polling mode (simpler, works with any network)
+   yirifi-claude-agent --mode polling
+
+   # Or using python module
+   python -m yirifi_ops_code_claude_agent.run --mode polling
+
+   # WebSocket mode (lower latency, requires direct connection)
+   yirifi-claude-agent --mode websocket
+   ```
+
+## Operating Modes
+
+### Polling Mode (Default)
+- Polls a Redis queue for tasks at regular intervals
+- Works with any network setup
+- Simpler to configure and debug
+- Slightly higher latency
+
+### WebSocket Mode
+- Maintains persistent WebSocket connection
+- Tasks are pushed directly to the agent
+- Lower latency
+- Requires direct network connectivity to dashboard
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `FLASK_URL` | Dashboard server URL | `http://localhost:5000` |
+| `AGENT_API_TOKEN` | Authentication token | (none) |
+| `AGENT_NAME` | Unique agent name | `claude-agent-1` |
+| `AGENT_MODE` | Operating mode | `polling` |
+| `REDIS_URL` | Redis connection URL | `redis://localhost:6379/0` |
+| `CLAUDE_PATH` | Path to Claude CLI | `claude` |
+| `LOG_LEVEL` | Logging level | `INFO` |
+
+### Command Line Options
+
+```bash
+yirifi-claude-agent --help
+
+Options:
+  --mode {polling,websocket}  Operating mode (default: polling)
+  --name NAME                 Agent name (default: claude-agent-1)
+  --flask-url URL             Flask server URL
+  --redis-url URL             Redis URL (for polling mode)
+  --mock                      Use mock executor for testing
+  -v, --verbose               Enable verbose logging
+```
+
+## Requirements
+
+- Python 3.11+
+- Claude Code CLI installed (`claude` command available)
+- Redis (for polling mode)
+- Network access to Yirifi Ops Dashboard
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/yirifi/yirifi-ops-code-claude-agent
+cd yirifi-ops-code-claude-agent
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run linting
+ruff check .
+```
+
+## License
+
+MIT
