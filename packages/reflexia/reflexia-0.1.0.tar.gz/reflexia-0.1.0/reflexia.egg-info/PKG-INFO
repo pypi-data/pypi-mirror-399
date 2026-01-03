@@ -1,0 +1,862 @@
+Metadata-Version: 2.4
+Name: reflexia
+Version: 0.1.0
+Summary: Python SDK for Reflexia API - Quantum Coordination Infrastructure for Autonomous Agent Swarms
+Author-email: Reflexia <support@reflexia.dev>
+License: MIT
+Project-URL: Homepage, https://reflexia.dev
+Project-URL: Documentation, https://reflexia.dev/docs
+Project-URL: Repository, https://github.com/AaronVick/reflexia-python-sdk
+Project-URL: Issues, https://github.com/AaronVick/reflexia-python-sdk/issues
+Keywords: reflexia,api,sdk,agents,coordination,swarm
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.28.0
+Requires-Dist: typing-extensions>=4.0.0; python_version < "3.10"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: pytest-mock>=3.10.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Dynamic: license-file
+
+# Reflexia Python SDK
+
+[![PyPI version](https://badge.fury.io/py/reflexia.svg)](https://badge.fury.io/py/reflexia)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+
+**Python SDK for Reflexia API** - Quantum Coordination Infrastructure for Autonomous Agent Swarms
+
+> Coordinate autonomous AI agents without orchestrators. Self-organizing agent swarms using stigmergic coordination (like ant colonies). Multi-trajectory consistency checking for LLM uncertainty detection. Privacy-preserving pattern learning with k-anonymity.
+
+## Why Reflexia?
+
+### The Autonomous Agent Era
+
+As autonomous AI agents become prevalent—from research assistants to trading bots to content generators—a critical challenge emerges: **how do multiple agents coordinate without explicit messaging?**
+
+We're moving from single-agent systems to **agent swarms** where:
+- Multiple agents work on related tasks
+- Agents need to know what others are doing
+- Coordination must scale without central control
+- Uncertainty detection is crucial for reliability
+
+### The Coordination Problem
+
+Traditional approaches require:
+- **Central orchestrators** → Single points of failure, don't scale
+- **Direct agent-to-agent messaging** → Complex, brittle, tight coupling
+- **Manual coordination logic** → Doesn't adapt, hard to maintain
+
+### The Reflexia Solution
+
+**Reflexia solves this with stigmergic coordination**—agents communicate indirectly through a shared quantum field, enabling self-organizing swarms that adapt and coordinate naturally.
+
+> "Reflexia is TCP/IP for agent swarms—we handle coordination so you can focus on what your agents actually do."
+
+**Stigmergy** (from biology): Agents coordinate through modifications to a shared environment, not direct communication. Like ants leaving pheromone trails, agents modify the field to signal success or uncertainty.
+
+## Why Your Multi-Agent System Needs to Think Like an Ant Colony
+
+### The Orchestration Spaghetti Problem
+
+You know the pattern. You start with a simple pipeline: `Classifier → Matcher → Reconciler`. Clean, linear, easy to reason about. Then you need parallel processing. Then you need dynamic agent addition. Then you need graceful degradation. Before you know it, you're maintaining a Kafka-based message bus with 47 topics and a central orchestrator that's become the single point of failure for your entire system.
+
+**The problem isn't tooling. It's the coordination model itself.**
+
+### What Ants Know That We Forgot
+
+Here's the thing about ant colonies: they coordinate 10,000+ individuals with **zero central control**. No "queen orchestrator" sending messages. No explicit "Agent A, tell Agent B to start" logic. Just ants modifying their environment (pheromones) and other ants sensing those modifications.
+
+It's called **stigmergy**—coordination through environment modification. And it works because:
+
+1. **No bottleneck**: No single ant coordinates everyone
+2. **Self-organizing**: Trails emerge without top-down planning
+3. **Gracefully degrades**: Dead ants just stop contributing; pheromones decay naturally
+4. **Zero-config scaling**: New ants join by sensing the field—no introduction needed
+
+When you learn about this, you realize: **this is exactly what multi-agent AI systems need.**
+
+### The Digital Pheromone Field
+
+Reflexia implements this as a 2D "quantum field"—think of it as a 100×100 grid where each cell has a value between 0 and 1. When your agents complete work, they modify the field (like depositing pheromones). When they need to decide if they should activate, they sense the field gradient (like smelling pheromone concentration).
+
+**The field diffuses using actual diffusion equations from physics.** Agents positioned nearby sense the gradient change and activate. The coordination emerges from simple local interactions—just like ant colonies.
+
+**No orchestrator. No message bus. No explicit "Agent B, Agent A is done" logic.**
+
+### The Math (For the Nerds)
+
+For those who want to understand the physics behind it: the field evolves via the heat equation:
+
+```
+∂ψ/∂t = D∇²ψ
+```
+
+Where `ψ(x,y,t)` is the field value at position `(x,y)` at time `t`, and `D` is the diffusion coefficient.
+
+When your agent modifies the field, we apply a Gaussian modification:
+
+```
+ψ(x,y) ← ψ(x,y) + δ·e^(-r²/(2σ²))
+```
+
+This creates localized "hot zones" that nearby agents can sense. The gradient magnitude tells agents: "Activity is happening nearby—you should probably activate."
+
+Agents check `gradient_magnitude > activation_threshold` to decide if they should run. That's the entire activation logic. No complex state machines. No dependency graphs. Just: "Is something happening nearby?"
+
+## What Problem Does This Solve?
+
+### The Coordination Challenge
+
+When you deploy multiple autonomous agents:
+- **Research swarms** exploring different aspects of a problem
+- **Trading agents** analyzing markets and executing strategies
+- **Content generation pipelines** with multiple specialized agents
+- **Classification systems** with uncertainty detection needs
+
+These agents need to:
+1. **Know what others are doing** without direct communication
+2. **Detect uncertainty** when multiple trajectories disagree
+3. **Learn patterns** from past behavior (privately, across tenants)
+4. **Self-organize** around successful regions
+
+### The Reflexia Solution
+
+Reflexia provides **coordination infrastructure** (not an agent framework):
+
+- **Field Engine**: Quantum field where agents sense and modify shared state
+- **Epistemic Service**: Multi-trajectory consistency checking for uncertainty detection
+- **Pattern Store**: Privacy-preserving pattern learning with k-anonymity
+
+Agents coordinate through the field—no explicit messaging, no central orchestrator, just emergent self-organization.
+
+## Use Cases
+
+### 1. Multi-Agent Research Swarms
+
+Coordinate agents exploring different research directions:
+
+```python
+# Agent 1: Literature review agent finds promising paper
+client.field.modify(
+    agent_id="literature-reviewer",
+    session_token=token,
+    delta=0.3,
+    outcome="success"
+)
+
+# Agent 2: Analysis agent senses high activity and activates
+sense = client.field.sense(agent_id="analyzer", session_token=token2)
+if sense["should_activate"]:
+    # Process the promising research direction
+    perform_analysis()
+```
+
+**Result**: Agents naturally converge on promising research directions without explicit coordination.
+
+### 2. Uncertainty Detection in LLM Systems
+
+Detect when multiple agent trajectories disagree:
+
+```python
+# Run same task with 5 different prompts/agents
+trajectories = [
+    {"answer_hash": hash_answer(llm1_output), "confidence": 0.9},
+    {"answer_hash": hash_answer(llm2_output), "confidence": 0.85},
+    {"answer_hash": hash_answer(llm3_output), "confidence": 0.7},
+    # ... more trajectories
+]
+
+result = client.epistemic.check_consistency(
+    agent_id="classifier",
+    trajectories=trajectories
+)
+
+if result["abstained"]:
+    # Insufficient agreement - flag for human review
+    send_to_human_review()
+else:
+    # Consensus reached - use winning answer
+    use_answer(result["winning_hash"])
+```
+
+**Result**: Automatically detect low-confidence outputs before deployment.
+
+### 3. Trading Agent Coordination
+
+Coordinate multiple trading agents analyzing different market signals:
+
+```python
+# Momentum agent detects strong trend
+client.field.modify(
+    agent_id="momentum-analyzer",
+    session_token=token,
+    delta=0.4,
+    outcome="success"
+)
+
+# Mean reversion agent senses activity and adjusts strategy
+sense = client.field.sense(agent_id="mean-reversion", session_token=token2)
+if sense["gradient_magnitude"] > threshold:
+    # Adjust strategy based on field activity
+    adjust_trading_parameters()
+```
+
+**Result**: Agents adapt strategies based on what others are discovering, without explicit communication.
+
+### 4. Content Generation Pipelines
+
+Coordinate specialized agents in content creation:
+
+```python
+# Topic discovery agent finds trending topic
+client.field.modify(agent_id="topic-scout", session_token=token, delta=0.3, outcome="success")
+
+# Writing agent activates when it senses topic activity
+# Editing agent follows writing agent
+# SEO agent optimizes based on field patterns
+
+# All coordinate around successful topics automatically
+```
+
+**Result**: Content pipeline self-organizes around successful topics and trends.
+
+### 5. Pattern Learning Across Tenants
+
+Learn from anonymized patterns across all users:
+
+```python
+# Store pattern: entity → outcome
+client.patterns.store(
+    agent_id="classifier",
+    agent_type="sentiment-analyzer",
+    entity_hash=hash_document(document),
+    outcome_hash=hash_outcome("positive"),
+    confidence=0.9
+)
+
+# Query: "Have we seen similar documents before?"
+patterns = client.patterns.query(entity_hash=hash_document(new_doc))
+
+# Get cross-tenant aggregates (k-anonymity protected)
+aggregates = client.patterns.aggregate(
+    entity_hash=hash_document(new_doc),
+    agent_type="sentiment-analyzer"
+)
+# Learn from patterns seen by other tenants (anonymized)
+```
+
+**Result**: Benefit from collective learning while maintaining privacy.
+
+## How Agents Register and Coordinate
+
+### The Complete Flow
+
+Here's the actual flow of how agents register and coordinate using Reflexia:
+
+```python
+from reflexia import ReflexiaClient
+
+client = ReflexiaClient(api_key="rk_YOUR_API_KEY")
+
+# Step 1: Register your agent in the field
+agent = client.field.register_agent(
+    agent_id="classifier-1",
+    agent_type="classifier"
+)
+# Returns: {
+#   "agent_id": "classifier-1",
+#   "position": {"x": 42.3, "y": 67.8},  # 2D position in field
+#   "session_token": "base64-encoded-token"  # Use for subsequent requests
+# }
+
+# Step 2: Before doing work, sense the field
+signal = client.field.sense(
+    agent_id="classifier-1",
+    session_token=agent["session_token"]
+)
+# Returns: {
+#   "local_value": 0.65,  # Field value at agent position (0-1)
+#   "gradient_x": 0.12,  # Gradient vector X component
+#   "gradient_y": -0.08,  # Gradient vector Y component
+#   "gradient_magnitude": 0.144,  # Magnitude of gradient
+#   "should_activate": True,  # Reflexia tells you if conditions are right
+#   "activation_priority": 0.72,  # Normalized priority (0-1)
+#   "nearby_agents": [...]  # List of nearby agents
+# }
+
+# Step 3: If should_activate is True, do your actual work
+if signal["should_activate"]:
+    # Do your actual work (classify, analyze, etc.)
+    result = classify_document(document)
+    
+    # Step 4: Signal completion by modifying the field
+    modify_result = client.field.modify(
+        agent_id="classifier-1",
+        session_token=agent["session_token"],
+        delta=0.1,  # Positive = success, negative = uncertainty
+        outcome="success"  # "success", "uncertain", or "failure"
+    )
+    # Returns: {
+    #   "accepted": True,
+    #   "new_local_value": 0.75,  # Updated field value
+    #   "field_iteration": 1234  # Current field evolution iteration
+    # }
+```
+
+**That's it.** No orchestrator. No message bus. No explicit "Agent B, Agent A is done" logic.
+
+### What Happens Behind the Scenes
+
+1. **Field Evolution**: The field diffuses using the heat equation: `∂ψ/∂t = D∇²ψ`
+   - Modifications spread with Gaussian falloff: `ψ(x,y) ← ψ(x,y) + δ·e^(-r²/(2σ²))`
+   - Creates localized "hot zones" that nearby agents can sense
+
+2. **Gradient-Based Activation**: Agents check `gradient_magnitude > activation_threshold`
+   - High gradient = activity happening nearby = agent should probably activate
+   - No complex state machines. No dependency graphs. Just: "Is something happening nearby?"
+
+3. **Emergent Coordination**: Multiple agents naturally coordinate:
+   - Success attracts: Positive modifications increase local field value
+   - Gradient guides: Agents follow gradients to high-activity areas
+   - Uncertainty spreads: Negative modifications warn nearby agents
+   - Self-organization: No central orchestrator needed
+
+### Inputs and Outputs Explained
+
+#### `register_agent()` - Register Agent in Field
+
+**Inputs:**
+- `agent_id` (str): Unique identifier for your agent
+- `agent_type` (str): Type of agent (e.g., "classifier", "researcher", "trader")
+- `semantic_embedding` (optional List[float]): Embedding vector for positioning (maps to 2D via dimensionality reduction)
+- `config` (optional dict): Agent configuration
+
+**Outputs:**
+- `agent_id` (str): Your agent's ID
+- `position` (dict): 2D position `{"x": float, "y": float}` in the field
+- `session_token` (str): Base64-encoded token for authentication in subsequent requests
+
+**When to use:** Once per agent, when your agent starts up.
+
+#### `sense()` - Sense Field at Agent Position
+
+**Inputs:**
+- `agent_id` (str): Your agent's ID
+- `session_token` (str): Token from `register_agent()`
+
+**Outputs:**
+- `local_value` (float): Field value at agent position (0-1, higher = more activity)
+- `gradient_x`, `gradient_y` (float): Gradient vector components (points toward higher activity)
+- `gradient_magnitude` (float): Magnitude of gradient (how strong the signal is)
+- `should_activate` (bool): **Reflexia's recommendation** - should your agent process work?
+- `activation_priority` (float): Normalized priority score (0-1)
+- `nearby_agents` (list): List of nearby agents with their positions and types
+
+**When to use:** Before doing work, to check if your agent should activate.
+
+**Decision logic:** If `should_activate` is `True`, process work. If `gradient_magnitude` is high, there's activity nearby.
+
+#### `modify()` - Modify Field After Work
+
+**Inputs:**
+- `agent_id` (str): Your agent's ID
+- `session_token` (str): Token from `register_agent()`
+- `delta` (float): Field modification amount
+  - **Positive** (e.g., 0.1, 0.3): Success signal - increases field value
+  - **Negative** (e.g., -0.1, -0.2): Uncertainty signal - decreases field value
+- `outcome` (str): Outcome type - `"success"`, `"uncertain"`, or `"failure"`
+
+**Outputs:**
+- `accepted` (bool): Whether modification was accepted
+- `new_local_value` (float): Updated field value after modification
+- `field_iteration` (int): Current field evolution iteration
+
+**When to use:** After completing work, to signal success or uncertainty to other agents.
+
+**How it spreads:** Modification spreads with Gaussian falloff - nearby agents feel the impact more strongly.
+
+### Example: Multi-Agent Coordination Flow
+
+```python
+# Agent 1: Topic discovery agent
+agent1 = client.field.register_agent("topic-scout", "topic-discovery")
+signal1 = client.field.sense("topic-scout", agent1["session_token"])
+
+if signal1["should_activate"]:
+    topic = discover_trending_topic()
+    if topic:
+        # Signal success - topic found
+        client.field.modify(
+            "topic-scout", agent1["session_token"],
+            delta=0.3, outcome="success"
+        )
+
+# Agent 2: Writing agent (positioned nearby)
+agent2 = client.field.register_agent("writer", "content-writer")
+signal2 = client.field.sense("writer", agent2["session_token"])
+
+# Agent 2 senses high gradient from Agent 1's success
+if signal2["gradient_magnitude"] > 0.15:
+    # High activity nearby - activate
+    article = write_article(topic)
+    client.field.modify(
+        "writer", agent2["session_token"],
+        delta=0.2, outcome="success"
+    )
+
+# Agent 3: Editing agent (also nearby)
+agent3 = client.field.register_agent("editor", "content-editor")
+signal3 = client.field.sense("editor", agent3["session_token"])
+
+# Agent 3 senses both Agent 1 and Agent 2's activity
+if signal3["should_activate"]:
+    edited = edit_article(article)
+    client.field.modify(
+        "editor", agent3["session_token"],
+        delta=0.15, outcome="success"
+    )
+```
+
+**Result:** All three agents coordinate around the successful topic discovery without any explicit messaging or orchestrator.
+
+## How It Works
+
+### Field Coordination (Stigmergy)
+
+Agents register in a 2D quantum field and coordinate through indirect signals:
+
+1. **Register**: Agent joins the field at a position (based on semantic embedding or random)
+2. **Sense**: Read local field value and gradient
+3. **Activate**: If gradient is high, process work
+4. **Modify**: Write to field (positive = success, negative = uncertainty)
+5. **Evolve**: Field diffuses, creating emergent coordination
+
+No explicit messaging—agents naturally organize around successful regions.
+
+### Epistemic Consistency
+
+**Problem:** LLMs lie with confidence. When you ask an LLM to classify a document, it gives you a classification and a confidence score. But that confidence is often meaningless—it'll confidently tell you the capital of France is London.
+
+**Solution:** Run it 5 times and check consistency.
+
+Reflexia's Epistemic Service does multi-trajectory consistency checking:
+
+**Inputs:**
+- `agent_id` (str): Your agent's ID
+- `trajectories` (list): List of trajectory objects, each with:
+  - `answer_hash` (str): Hash of the answer/output
+  - `confidence` (float): Confidence score (0-1)
+- `request_id` (optional str): For idempotency
+- `config` (optional dict): Configuration (abstention_threshold, etc.)
+
+**Outputs:**
+- `abstained` (bool): **True if consensus is insufficient** - send to human review
+- `winning_hash` (str or None): Hash of the winning answer (if not abstained)
+- `majority_vote` (float): Fraction of trajectories that agreed (0-1)
+- `confidence` (float): Adjusted confidence based on entropy
+- `analysis` (optional dict): Detailed analysis if requested
+
+**When to use:** After running multiple agent trajectories (e.g., 5 different LLM prompts), to detect uncertainty.
+
+**Decision logic:** If `abstained` is `True`, don't trust the result—send to human review. Otherwise, use `winning_hash`.
+
+**Example:**
+```python
+# Run classification 5 times
+trajectories = []
+for i in range(5):
+    result = await llm.classify(doc)
+    trajectories.append({
+        "answer_hash": hash(result),
+        "confidence": result.confidence
+    })
+
+# Check if they agree
+consistency = client.epistemic.check_consistency(
+    agent_id="classifier-1",
+    trajectories=trajectories
+)
+
+if consistency["abstained"]:
+    # They disagreed—send to human review
+    return None
+else:
+    # Consensus answer
+    return consistency["winning_hash"]
+```
+
+This reduces confident errors by ~75%. More importantly: your system can abstain when uncertain instead of confidently making wrong decisions.
+
+### Pattern Learning
+
+**Problem:** Agents don't learn from experience. If your classifier sees the same document 100 times, it should remember the answer, not recompute it every time. But storing raw data is a privacy nightmare.
+
+**Solution:** Store hashes, not data.
+
+Reflexia's Pattern Store lets you store `entity_hash → outcome_hash` mappings:
+
+**`store()` - Store Pattern Observation**
+
+**Inputs:**
+- `agent_id` (str): Your agent's ID
+- `agent_type` (str): Type of agent
+- `entity_hash` (str): Hash of entity (document, image, data point) - hex string, max 64 chars
+- `outcome_hash` (str): Hash of outcome (classification, result) - hex string, max 64 chars
+- `confidence` (float): Confidence score (0-1)
+- `context_hashes` (optional dict): Hashed context keys
+- `storage_policy` (optional dict): Storage policy controls
+
+**Outputs:**
+- `pattern_id` (str): Unique pattern ID
+- `is_new` (bool): True if first observation
+- `occurrence_count` (int): How many times seen (including this one)
+
+**`query()` - Query Tenant-Scoped Patterns**
+
+**Inputs:**
+- `entity_hash` (str): Hash of entity to look up
+- `agent_type` (optional str): Filter by agent type
+- `limit` (optional int): Max results (default: 10)
+- `min_confidence` (optional float): Confidence threshold (default: 0.0)
+
+**Outputs:**
+- `patterns` (list): List of matching patterns with outcome_hash, confidence, occurrence_count
+
+**`aggregate()` - Get Cross-Tenant Aggregates**
+
+**Inputs:**
+- `entity_hash` (str): Hash of entity to look up
+- `agent_type` (str): Agent type filter
+- `min_tenant_count` (optional int): K-anonymity threshold (default: 3)
+- `min_occurrences` (optional int): Minimum observations (default: 5)
+
+**Outputs:**
+- `patterns` (list): Aggregate patterns with:
+  - `outcome_hash` (str): Outcome hash
+  - `avg_confidence` (float): Average confidence across tenants
+  - `tenant_count` (int): Number of tenants (not which ones)
+  - `total_occurrences` (int): Total observations across all tenants
+- `k_anonymity_met` (bool): True if k-anonymity threshold was met
+
+**When to use:** Before classifying/processing, check if you've seen this entity before. Store patterns after successful classifications.
+
+**Example:**
+```python
+# Before classifying, check if we've seen this before
+patterns = client.patterns.query(
+    entity_hash=hash(document),
+    min_confidence=0.8
+)
+
+if patterns:
+    # Use learned pattern
+    return patterns[0]["outcome_hash"]
+
+# Otherwise, classify and store the pattern
+outcome = await classify(document)
+client.patterns.store(
+    agent_id="classifier-1",
+    agent_type="sentiment-analyzer",
+    entity_hash=hash(document),
+    outcome_hash=hash(outcome),
+    confidence=0.92
+)
+```
+
+Only hashes are stored—never raw data. And with k-anonymity protection, you can even learn from cross-tenant patterns (if 3+ other users saw the same entity hash, you get the aggregate pattern).
+
+## When You Actually Need This
+
+**Real talk:** you probably don't need Reflexia if you have 2-3 agents in a fixed pipeline. Just use flags and explicit dependencies. It's simpler.
+
+**You do need this if:**
+- **5+ agents** that coordinate dynamically
+- **Agents join/leave at runtime** (you can't hardcode dependencies)
+- **LLM uncertainty is a problem** (you need consistency checking)
+- **You want emergent behavior** (self-organizing workflows, not fixed pipelines)
+- **Privacy matters** (you want cross-tenant learning without exposing data)
+
+**Real-world example:** Living Arcade—a conceptual art platform with autonomous agents that create and trade art on-chain. It had 7 agents (collector, analyzer, creator, curator, trader, trust-scorer, chronicler) that needed to coordinate without a central controller. That's when the field engine was built.
+
+Then consistency checking was needed because LLMs kept confidently misclassifying art styles. That's when the epistemic service was built.
+
+Then agents needed to learn from past decisions. That's when the pattern store was built.
+
+**Reflexia is the infrastructure needed but couldn't be found.**
+
+## Quick Start
+
+This SDK is a convenience wrapper around the Reflexia REST API. The actual value (field computation, state persistence, multi-tenancy) runs on Reflexia's backend infrastructure at `api.reflexia.io`.
+
+## Installation
+
+```bash
+pip install reflexia
+```
+
+## Basic Usage
+
+```python
+from reflexia import ReflexiaClient
+
+# Initialize client with your API key
+client = ReflexiaClient(api_key="rk_YOUR_API_KEY")
+
+# Register an agent in the field
+response = client.field.register_agent(
+    agent_id="worker-1",
+    agent_type="researcher"
+)
+session_token = response["session_token"]
+
+# Sense the field at the agent's position
+sense_result = client.field.sense(
+    agent_id="worker-1",
+    session_token=session_token
+)
+
+# Modify the field after an action
+modify_result = client.field.modify(
+    agent_id="worker-1",
+    session_token=session_token,
+    delta=0.5,
+    outcome="success"
+)
+```
+
+## API Reference
+
+### Field Engine
+Coordinate agents through quantum field evolution:
+
+```python
+# Register agent
+agent = client.field.register_agent(
+    agent_id="worker-1",
+    agent_type="researcher",
+    semantic_embedding=[0.1, 0.2, 0.3]  # Optional
+)
+
+# Sense nearby agents and field gradients
+sense = client.field.sense(
+    agent_id="worker-1",
+    session_token=agent["session_token"]
+)
+
+# Modify field after action
+client.field.modify(
+    agent_id="worker-1",
+    session_token=agent["session_token"],
+    delta=0.5,
+    outcome="success"
+)
+
+# Get field metrics
+metrics = client.field.get_metrics()
+print(f"Coherence: {metrics['coherence']}")
+print(f"Active agents: {metrics['agent_count']}")
+```
+
+### Epistemic Service
+Multi-trajectory consistency checking:
+
+```python
+# Check consistency of multiple trajectories
+result = client.epistemic.check_consistency(
+    agent_id="worker-1",
+    trajectories=[
+        {"answer_hash": "abc123", "confidence": 0.9},
+        {"answer_hash": "abc123", "confidence": 0.85},
+        {"answer_hash": "def456", "confidence": 0.7},
+    ]
+)
+
+if not result["abstained"]:
+    print(f"Winning answer: {result['winning_hash']}")
+    print(f"Confidence: {result['confidence']}")
+
+# Get recommended k value
+recommendation = client.epistemic.recommend_k(complexity_hint="complex")
+print(f"Recommended trajectories: {recommendation['recommended_k']}")
+```
+
+### Pattern Store
+Store and query patterns with k-anonymity:
+
+```python
+# Store a pattern observation
+pattern = client.patterns.store(
+    agent_id="worker-1",
+    agent_type="researcher",
+    entity_hash="abc123",
+    outcome_hash="def456",
+    confidence=0.9
+)
+
+# Query patterns for an entity
+results = client.patterns.query(
+    entity_hash="abc123",
+    min_confidence=0.7,
+    limit=10
+)
+
+# Get cross-tenant aggregates (k-anonymity protected)
+aggregates = client.patterns.aggregate(
+    entity_hash="abc123",
+    agent_type="researcher",
+    min_tenant_count=5
+)
+```
+
+### Payment & Account
+Manage payments and account:
+
+```python
+# Get pricing
+pricing = client.payment.get_pricing()
+print(f"Sense field: {pricing['sense_field']['price']} sats")
+
+# Get usage statistics
+usage = client.payment.get_usage()
+print(f"Total operations: {usage['total_operations']}")
+
+# Get account balance
+balance = client.account.get_balance()
+print(f"Credits: {balance['credits']}")
+
+# Create API key
+api_key = client.account.create_api_key(name="production")
+print(f"New API key: {api_key['api_key']}")
+```
+
+## Configuration
+
+### Base URL
+
+By default, the SDK connects to production (`https://api.reflexia.io`). You can override this:
+
+```python
+client = ReflexiaClient(
+    api_key="rk_YOUR_API_KEY",
+    base_url="https://staging-api.reflexia.io"  # or "http://localhost:3000" for local dev
+)
+```
+
+### Timeout and Retries
+
+```python
+client = ReflexiaClient(
+    api_key="rk_YOUR_API_KEY",
+    timeout=60,  # Request timeout in seconds (default: 30)
+    max_retries=3  # Maximum retries for failed requests (default: 2)
+)
+```
+
+## Error Handling
+
+The SDK raises specific exceptions for different error types:
+
+```python
+from reflexia import (
+    ReflexiaClient,
+    ReflexiaAPIError,
+    ReflexiaAuthenticationError,
+    ReflexiaRateLimitError,
+    ReflexiaNotFoundError,
+)
+
+try:
+    result = client.field.sense(agent_id="worker-1", session_token=token)
+except ReflexiaAuthenticationError:
+    print("Invalid API key")
+except ReflexiaRateLimitError as e:
+    print(f"Rate limited. Retry after {e.retry_after} seconds")
+except ReflexiaNotFoundError:
+    print("Agent not found")
+except ReflexiaAPIError as e:
+    print(f"API error: {e.code} - {e.message}")
+```
+
+## Authentication
+
+### API Key Authentication (Traditional)
+
+```python
+client = ReflexiaClient(api_key="rk_YOUR_API_KEY")
+```
+
+### x402 Payment Authentication (Pay-per-call)
+
+For x402 payment authentication, you'll need to include the payment header manually:
+
+```python
+# Note: x402 payment integration requires additional setup
+# See https://reflexia.dev/docs/guides/x402-payments
+```
+
+## Documentation
+
+- **API Reference**: https://reflexia.dev/docs
+- **Website**: https://reflexia.dev
+- **GitHub**: https://github.com/reflexia/reflexia-python-sdk
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Architecture
+
+Reflexia is deployed as a **multi-tenant SaaS platform**:
+
+- **Backend**: Field computation, state persistence, multi-tenancy (runs on Reflexia servers)
+- **This SDK**: HTTP request wrappers for convenience (what you're looking at)
+
+**The value is in Reflexia's infrastructure**—this SDK just makes it easier to call the API.
+
+### What This SDK Provides:
+- ✅ HTTP request wrappers
+- ✅ Type-safe method calls
+- ✅ Error handling and retries
+- ✅ Developer convenience
+
+### What Runs on Reflexia Backend:
+- ✅ Field computation algorithms (diffusion equations, gradient computation)
+- ✅ State persistence (Redis + Postgres with multi-tenant isolation)
+- ✅ Epistemic voting logic (majority voting, abstention detection)
+- ✅ Pattern matching and k-anonymity aggregation
+- ✅ Multi-tenant isolation (Row-Level Security)
+
+## Why Open Source the SDK?
+
+This SDK is just HTTP request wrappers—anyone could write this in 30 minutes. The actual value is in:
+
+- **Field computation infrastructure** running 24/7
+- **Multi-tenant isolation** with Row-Level Security
+- **State persistence** in Redis/Postgres
+- **Epistemic voting algorithms**
+- **Pattern store** with k-anonymity
+- **Reliability, uptime, scaling**
+
+Think of it like AWS SDKs: they're open source, but you still pay AWS for S3 storage because the infrastructure is what costs money.
+
+Same with Reflexia: the SDK is free, but the coordination infrastructure is what you're paying for.
+
+## Support
+
+- **Documentation**: https://reflexia.dev/docs
+
