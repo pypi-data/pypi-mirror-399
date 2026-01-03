@@ -1,0 +1,203 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vibegui"
+version = "1.0.0"
+description = "A Python library for creating cross-platform GUIs from JSON configuration files. Supports Qt (PySide6/PyQt6), wxPython, tkinter, GTK3/GTK4, and Flet backends."
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+    {name = "vibegui Team"},
+]
+maintainers = [
+    {name = "vibegui Team"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: User Interfaces",
+    "Topic :: Desktop Environment",
+    "Topic :: Software Development :: Widget Sets",
+]
+keywords = ["gui", "json", "configuration", "form", "builder", "qt", "pyside6", "pyqt6", "qtpy", "wxpython", "tkinter", "gtk", "gtk3", "gtk4", "flet", "material-design", "cross-platform", "desktop"]
+dependencies = [
+    # No required dependencies - all GUI backends are optional
+]
+
+[project.optional-dependencies]
+pyside6 = [
+    "PySide6>=6.5.0",
+    "qtpy>=2.0.0",
+]
+pyqt6 = [
+    "PyQt6>=6.5.0",
+    "qtpy>=2.0.0",
+]
+qt = [
+    "qtpy>=2.0.0",
+    # Note: Requires either PySide6 or PyQt6 to be installed separately
+]
+wxpython = [
+    "wxPython>=4.2.0",
+]
+gtk = [
+    "PyGObject>=3.42.0",
+]
+gtk3 = [
+    "PyGObject>=3.42.0",
+]
+gtk4 = [
+    "PyGObject>=3.42.0",
+]
+flet = [
+    "flet>=0.24.0",
+]
+all = [
+    "qtpy>=2.0.0",
+    "PySide6>=6.5.0",
+    "wxPython>=4.2.0",
+    "PyGObject>=3.42.0",
+    "flet>=0.24.0",
+]
+dev = [
+    "pytest>=6.0",
+    "pytest-qt>=4.0",
+    "black>=21.0",
+    "flake8>=3.8",
+    "mypy>=0.910",
+    "pre-commit>=2.15.0",
+    "PySide6>=6.5.0",  # Default to PySide6 for development
+    "qtpy>=2.0.0",
+    "wxPython>=4.2.0",  # Optional: for wxPython testing
+    "PyGObject>=3.42.0",  # Optional: for GTK testing
+    "flet>=0.24.0",  # Optional: for Flet testing
+]
+test = [
+    "pytest>=6.0",
+    "pytest-qt>=4.0",
+    "pytest-cov>=3.0.0",
+]
+docs = [
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "furo>=2021.5.28",
+    "sphinx-autobuild>=2021.3.14",
+]
+
+[project.scripts]
+vibegui-demo = "examples.demo:main"
+
+[project.urls]
+Homepage = "https://github.com/jacobwilliams/vibegui"
+Documentation = "https://github.com/jacobwilliams/vibegui/blob/main/README.md"
+Repository = "https://github.com/jacobwilliams/vibegui"
+Issues = "https://github.com/jacobwilliams/vibegui/issues"
+Changelog = "https://github.com/jacobwilliams/vibegui/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["vibegui*", "examples*"]
+exclude = ["tests*", "docs*"]
+
+[tool.setuptools.package-data]
+vibegui = ["*.py", "schema/*.json"]
+examples = ["*.json", "*.py", "*.md"]
+
+# Black configuration
+[tool.black]
+line-length = 100
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort configuration
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+# mypy configuration
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+# pytest configuration
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "gui: marks tests that require GUI interaction",
+    "qt: marks tests specific to Qt backend",
+    "wx: marks tests specific to wxPython backend",
+    "tk: marks tests specific to tkinter backend",
+    "gtk: marks tests specific to GTK backend",
+    "flet: marks tests specific to Flet backend",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["vibegui"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+    "demo.py",
+    "simple_example.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
