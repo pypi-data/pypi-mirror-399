@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lunavox-tts"
+version = "1.5.0"
+authors = [
+    { name = "Lux_Luna", email = "525236052@qq.com" },
+]
+description = "GPT-SoVITS ONNX Inference Engine & Model Converter"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "onnx",
+    "onnxruntime==1.22.1",
+    "numpy<2",
+    "soundfile",
+    "soxr",
+    "pyyaml",
+    "sounddevice",
+    "huggingface_hub[hf_xet]",
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic",
+    "nltk",
+    "tokenizers",
+]
+
+[project.optional-dependencies]
+zh = [
+    "pypinyin",
+    "cn2an",
+    "jieba_fast",
+    "g2pM",
+]
+ja = [
+    "pyopenjtalk-plus",
+]
+dev = [
+    "psutil",
+    "nvidia-ml-py",
+    "build",
+    "twine",
+]
+gpu = [
+    "onnxruntime-gpu==1.20.1",
+    "nvidia-cudnn-cu12",
+    "nvidia-cublas-cu12",
+    "nvidia-cuda-runtime-cu12",
+]
+
+[project.urls]
+Homepage = "https://github.com/Lux-Luna/LunaVox"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"lunavox_tts" = [
+    "**/*.json",
+    "**/*.txt",
+    "**/*.rep",
+    "**/*.pickle",
+    "**/*.npz",
+]
