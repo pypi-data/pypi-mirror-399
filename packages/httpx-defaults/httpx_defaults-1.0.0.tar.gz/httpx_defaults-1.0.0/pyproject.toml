@@ -1,0 +1,62 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "httpx-defaults"
+version = "1.0.0"
+description = "Production-ready httpx client with secure defaults: timeouts, retries, connection limits."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "LadyCami" }]
+keywords = [
+    "httpx",
+    "http",
+    "client",
+    "timeout",
+    "retry",
+    "production",
+    "secure",
+    "defaults",
+    "requests",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
+dependencies = ["httpx>=0.25.0"]
+
+[project.optional-dependencies]
+http2 = ["h2>=4.0.0"]
+
+[project.urls]
+Homepage = "https://github.com/SerityOps/httpx-defaults"
+Documentation = "https://github.com/SerityOps/httpx-defaults#readme"
+Repository = "https://github.com/SerityOps/httpx-defaults"
+Issues = "https://github.com/SerityOps/httpx-defaults/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/httpx_defaults"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=httpx_defaults --cov-report=term-missing"
