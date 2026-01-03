@@ -1,0 +1,28 @@
+[project]
+name = "fairseq-light"
+version = "0.2.0"
+description = ""
+authors = [
+    {name = "migo",email = "1695587905@qq.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "numpy(<2.3)",
+    "scipy(<1.16)",
+    "tqdm",
+    "omegaconf"
+]
+
+[tool.poetry]
+packages = [{include = "fairseq", from = "src"}]
+
+[[tool.poetry.source]]
+name = "tuna"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
