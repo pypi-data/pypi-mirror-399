@@ -1,0 +1,52 @@
+Metadata-Version: 2.4
+Name: redzed
+Version: 25.12.30
+Summary: An asyncio-based library for building small automated systems
+Author-email: Vlado Potisk <redzed@poti.sk>
+License-Expression: MIT
+Project-URL: homepage, https://github.com/xitop/redzed
+Project-URL: repository, https://github.com/xitop/redzed
+Project-URL: documentation, https://redzed.readthedocs.io/en/latest/
+Keywords: automation,finite-state machine
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+Provides-Extra: tests
+Requires-Dist: pytest>=8.4.0; extra == "tests"
+Requires-Dist: pytest-asyncio>=0.26.0; extra == "tests"
+Requires-Dist: pytest-xdist; extra == "tests"
+Dynamic: license-file
+
+# Redzed
+
+Redzed is an asyncio-based library for building small automated systems,
+i.e. systems that control outputs according to input values,
+system’s internal state, date and time. Redzed was written in Python.
+It is free and open source.
+
+Included are pre-defined logic blocks for general use. There are memory cells,
+timers, programmable finite-state machines, outputs and many more.
+Blocks have outputs and react to events. Blocks are complemented by triggers
+running user-supplied functions when certain outputs change. Triggered functions
+evaluate outputs, make decisions and can send events to other blocks.
+
+The mutual interaction of blocks and triggers allows to build modular
+automated systems of small to middle complexity.
+
+What is not included:
+The application code must connect the system with outside world.
+
+## Documentation
+
+Please read the [online documentation](https://redzed.readthedocs.io/en/latest/)
+for more information.
+
+### Note:
+
+Redzed is intended to replace Edzed (an older library from the same author).
+It has the same capabilities, but is based on simpler concepts and that's why
+it is easier to learn and to use.
