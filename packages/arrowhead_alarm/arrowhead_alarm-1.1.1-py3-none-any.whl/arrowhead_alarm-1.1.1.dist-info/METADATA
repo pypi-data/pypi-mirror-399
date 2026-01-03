@@ -1,0 +1,98 @@
+Metadata-Version: 2.4
+Name: arrowhead_alarm
+Version: 1.1.1
+Summary: A library for interacting with arrowhead alarm systems.
+Project-URL: Repository, https://github.com/jonOriginal/arrowhead_alarm
+Project-URL: Issues, https://github.com/jonOriginal/arrowhead_alarm/issues
+Author-email: Jon <Jonathan@telkode.com>
+License: ﻿DUAL LICENSE NOTICE
+        
+        This software is dual-licensed. You may use it under either:
+        - License A: Non-Commercial License (free)
+        - License B: Commercial License (permission required)
+        
+        ------------------------------------------------------------
+        
+        License A — Non-Commercial License
+        
+        Copyright (c) 2025 Jonathan K.
+        
+        Permission is hereby granted to use, copy, modify, and distribute this
+        software for non-commercial purposes only, provided that all copies
+        or substantial portions of the software include:
+        
+        1. This copyright notice
+        2. A clear reference to the original author and project (https://github.com/jonOriginal/elitecloud-alarm)
+        
+        Commercial use, including but not limited to use in paid products,
+        services, SaaS offerings, internal business tools, or any
+        revenue-generating activities, is strictly prohibited under this
+        license.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+        EXPRESS OR IMPLIED.
+        
+        ------------------------------------------------------------
+        
+        License B — Commercial License
+        
+        Copyright (c) 2025 <Your Name>
+        
+        Commercial use of this software is permitted only under a separate
+        commercial license agreement obtained from the copyright holder.
+        
+        The terms of the commercial license will be defined in a written
+        agreement.
+        
+        To obtain a commercial license, contact:
+        jonathan@telkode.com
+License-File: LICENSE
+Keywords: alarm,arrowhead,home-automation,iot,security
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development :: Libraries
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+
+# Arrowhead Alarm Library
+
+## Feature Overview
+
+- Area arming/disarming
+- Zone monitoring
+- Output control
+
+## Installation Instructions
+
+### Requirements
+
+- Python 3.13 or higher
+
+### Installation
+
+```
+pip install arrowhead-alarm
+```
+
+## Usage Instructions
+
+```python
+from arrowhead_alarm import create_tcp_client, ArmingMode
+
+
+async def main():
+    client = create_tcp_client(
+        host="192.168.0.20",
+        port=9000,
+        username="admin",
+        password="admin"
+    )
+
+    await client.connect()
+    await client.arm_area(1, ArmingMode.AWAY)
+
+```
+
