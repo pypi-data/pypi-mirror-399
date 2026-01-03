@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcp-cuc-servermyx"
+version = "0.1.0"
+description = "MCP (Model Context Protocol) 时间服务器，提供当前时间获取功能"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "MCP Time Server Team", email = "team@example.com"}
+]
+maintainers = [
+    {name = "MCP Time Server Team", email = "team@example.com"}
+]
+keywords = ["mcp", "time", "server", "protocol", "fastmcp"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "pytz",
+    "mcp",
+]
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "twine",
+]
+
+[project.urls]
+Homepage = "https://github.com/example/mcp-time-server"
+Documentation = "https://github.com/example/mcp-time-server#readme"
+Repository = "https://github.com/example/mcp-time-server.git"
+Issues = "https://github.com/example/mcp-time-server/issues"
+
+[project.scripts]
+mcp-cuc-myx = "mcp_time_server.main:main"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/README.md",
+    "/LICENSE",
+]
