@@ -1,0 +1,42 @@
+# nocd
+Run commands in another directory withinout cd
+
+Warning: this is pure vibe code for now. It will become less so if I add features; or people use it
+
+## Motivation
+With llms I find myself managing more tasks at the same time while waiting for LLMs to finish and generally doing more stuff. This command lets you run commands in a different directory.
+
+## Alternatives and prior work
+You could run do this with subshells in bash
+
+```
+( cd ~/directory/blah ; command ; )
+```
+
+But this is more typing than I am willing to do. You could set up an alias for this. But I like my setup to be in globally installable pip packages where possible.
+
+
+## Installation
+You can install this with pipx
+
+```
+pipx install nocd
+```
+
+## Usage
+
+Add a diretory for looking for directories
+
+```
+nocd --add-dir directory
+```
+
+
+```
+nocd sub ls
+```
+
+Run ls in subdirectory of directory.
+
+
+
