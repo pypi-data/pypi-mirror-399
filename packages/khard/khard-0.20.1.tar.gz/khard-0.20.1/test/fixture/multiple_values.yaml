@@ -1,0 +1,179 @@
+# Contact template for khard version 0.11.0
+#
+# Use this yaml formatted template to create a new contact:
+#   either with: khard new -a address_book -i template.yaml
+#   or with: cat template.yaml | khard new -a address_book
+
+# name components
+# every entry may contain a string or a list of strings
+# format:
+#   First name : name1
+#   Additional : 
+#       - name2
+#       - name3
+#   Last name  : name4
+Prefix     :
+    - Prof.
+    - Dr.
+First name : Mark
+Additional :
+    - Stephe
+    - Tom
+Last name  : Schröder
+Suffix     : II
+
+# person related information
+#
+# birthday
+# Formats:
+#   vcard 3.0 and 4.0: yyyy-mm-dd or yyyy-mm-ddTHH:MM:SS
+#   vcard 4.0 only: --mm-dd or text= string value
+Birthday : 1992-12-21
+# nickname
+# may contain a string or a list of strings
+Nickname : 
+    - several
+    - nicknames
+
+# organisation
+# format:
+#   Organisation : company
+# or
+#   Organisation :
+#       - company1
+#       - company2
+# or
+#   Organisation :
+#       -
+#           - company
+#           - unit
+Organisation : 
+    -
+        - Company1
+        - Sub-Company1
+    - Company2
+
+# organisation title and role
+# every entry may contain a string or a list of strings
+#
+# title at organisation
+# example usage: research scientist
+Title : 
+    - research scientist
+    - Manager
+# role at organisation
+# example usage: project leader
+Role  : 
+    - CEO
+    - CTO
+
+# phone numbers
+# format:
+#   Phone:
+#       type1, type2: number
+#       type3:
+#           - number1
+#           - number2
+#       custom: number
+# allowed types:
+#   vcard 3.0: At least one of bbs, car, cell, fax, home, isdn, msg, modem,
+#                              pager, pcs, pref, video, voice, work
+#   vcard 4.0: At least one of home, work, pref, text, voice, fax, cell, video,
+#                              pager, textphone
+#   Alternatively you may use a single custom label (only letters).
+#   But beware, that not all address book clients will support custom labels.
+Phone :
+    cell, pref : 0161 99999999
+    work :
+        - 090 11122200
+        - 090 33344400
+        - 090 55566600
+
+# email addresses
+# format like phone numbers above
+# allowed types:
+#   vcard 3.0: At least one of home, internet, pref, work, x400
+#   vcard 4.0: At least one of home, internet, pref, work
+#   Alternatively you may use a single custom label (only letters).
+Email :
+    home : 
+    work : mark@example.com
+    pref : mark@example.org
+
+# post addresses
+# allowed types:
+#   vcard 3.0: At least one of dom, intl, home, parcel, postal, pref, work
+#   vcard 4.0: At least one of home, pref, work
+#   Alternatively you may use a single custom label (only letters).
+Address :
+    Custom :
+        Box      : 
+        Extended : 
+        Street   : Riverlane 1
+        Code     : 99A99
+        City     : A City
+        Region   : Region
+        Country  : Country
+    home :
+        -
+            Extended : 1st Floor
+            Street   : Main street 1
+            Code     : 12345
+            City     : Another City
+        -
+            Extended : 
+            Street   : |
+                Market Street 1
+                33333 City
+                Region, Country
+            Code     : 
+            City     : 
+
+# categories or tags
+# format:
+#   Categories : single category
+# or
+#   Categories :
+#       - category1
+#       - category2
+Categories : 
+    -
+        - cat1
+        - cat2
+        - cät3
+    - one more
+
+# web pages
+# may contain a string or a list of strings
+Webpage : 
+    - http://example.com
+    - https://example.org
+
+# private objects
+# define your own private objects in the vcard section of your khard.conf file
+# these objects are stored with a leading "X-" before the object name in the
+# vcard files.
+# every entry may contain a string or a list of strings
+Private :
+    Jabber  :
+        - jabber1
+        - jabber2
+    Skype   :
+        - skype1
+        - skype2
+    Twitter :
+        - twitter1
+        - twitter2
+        - twitter3
+
+# notes
+# may contain a string or a list of strings
+# for multi-line notes use:
+#   Note : |
+#       line one
+#       line two
+Note : 
+    - single line note with emoji 🍵
+    - |
+        multi-line
+        note
