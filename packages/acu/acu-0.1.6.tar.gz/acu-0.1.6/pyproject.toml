@@ -1,0 +1,54 @@
+[project]
+    authors = [
+        { name = "Carlos Eduardo Ferreyra", email = "eduferreyraok@gmail.com" },
+    ]
+    classifiers = [
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.14",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python",
+        "Programming Language :: Rust",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Utilities",
+    ]
+    dependencies = []
+    description = "TODO: short description of acu"
+    keywords = ["acu", "cli", "placeholder"]
+    license = { text = "MIT" }
+    name = "acu"
+    readme = "README.md"
+    requires-python = ">=3.14"
+    version = "0.1.6"
+
+[project.urls]
+    Changelog     = "https://github.com/carlosferreyra/acu/releases"
+    Documentation = "https://carlosferreyra.github.io/acu/docs"
+    Homepage      = "https://carlosferreyra.github.io/acu/"
+    Issues        = "https://github.com/carlosferreyra/acu/issues"
+    Repository    = "https://github.com/carlosferreyra/acu"
+
+[project.scripts]
+    acu = "acu:main"
+
+[tool.maturin]
+    module-name     = "acu._core"
+    python-packages = ["acu"]
+    python-source   = "src"
+    strip           = true
+
+[tool.uv]
+    cache-keys = [
+        { file = "Cargo.lock" },
+        { file = "Cargo.toml" },
+        { file = "pyproject.toml" },
+        { file = "src/**/*.rs" },
+    ]
+
+[build-system]
+    build-backend = "maturin"
+    requires      = ["maturin>=1.0,<2.0"]

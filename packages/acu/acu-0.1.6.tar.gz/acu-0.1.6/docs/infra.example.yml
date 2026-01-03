@@ -1,0 +1,118 @@
+# ACU infrastructure example (provider-agnostic)
+# Validation rules (summarized):
+# - version: required string
+# - name: required string
+# - resources: list; each resource.id is unique; type must be from the allowed set
+# - connections: list; from/to must reference existing resource ids; kind from allowed set
+# - labels: optional map of key: value strings (simple, DNS-ish keys recommended)
+# - scopes: optional grouping of resource ids
+
+version: '1.0'
+name: enterprise-demo
+
+resources:
+  - id: lb-1
+    name: public-lb
+    type: load_balancer
+    labels:
+      app: web
+      tier: edge
+      env: prod
+    properties:
+      ports:
+        - 80
+        - 443
+
+  - id: web-1
+    name: web-server-1
+    type: server
+    labels:
+      app: web
+      tier: frontend
+      env: prod
+    properties:
+      cpu: 2
+      memory: 4Gi
+      image: ghcr.io/example/web:latest
+
+  - id: web-2
+    name: web-server-2
+    type: server
+    labels:
+      app: web
+      tier: frontend
+      env: prod
+    properties:
+      cpu: 2
+      memory: 4Gi
+      image: ghcr.io/example/web:latest
+
+  - id: db-1
+    name: primary-db
+    type: database
+    labels:
+      app: web
+      tier: data
+      env: prod
+    properties:
+      engine: generic # resolved per provider (e.g., postgres, mysql, mongo)
+      storage: 50Gi
+      replicas: 2
+
+  - id: mq-1
+    name: orders-queue
+    type: queue
+    labels:
+      app: web
+      tier: async
+      env: prod
+    properties:
+      kind: generic # resolved per provider (e.g., rabbitmq, sqs, pubsub)
+      throughput: 1000
+
+connections:
+  # LB forwards to all web servers
+  - from: lb-1
+    to: web-1
+    kind: forwards
+    properties:
+      port: 80
+  - from: lb-1
+    to: web-2
+    kind: forwards
+    properties:
+      port: 80
+
+  # Web talks to DB
+  - from: web-1
+    to: db-1
+    kind: reads
+  - from: web-2
+    to: db-1
+    kind: reads
+
+  # Web publishes to queue
+  - from: web-1
+    to: mq-1
+    kind: publishes
+  - from: web-2
+    to: mq-1
+    kind: publishes
+
+# Optional grouping
+scopes:
+  - id: frontend
+    members:
+      - lb-1
+      - web-1
+      - web-2
+    purpose: public-edge
+  - id: data-plane
+    members:
+      - db-1
+      - mq-1
+    purpose: stateful-services
+
+# Allowed sets (for reference; enforce in validation layer)
+# types: [server, database, queue, load_balancer, cache, storage, network, secret, bucket, function, service]
+# connection kinds: [forwards, consumes, publishes, reads, writes, depends_on, connects_to, calls]
