@@ -1,0 +1,19 @@
+include README.md
+include LICENSE
+include pyproject.toml
+include MANIFEST.in
+recursive-include src/tbase_admin/templates *.html
+recursive-include src/tbase_admin/static *.css *.js *.png *.jpg *.gif *.svg
+recursive-include src/tbase_admin/management/commands *.py
+recursive-include docs *.md *.rst
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.so
+prune tests
+prune .git
+prune .pytest_cache
+prune .mypy_cache
+prune build
+prune dist
+prune *.egg-info
