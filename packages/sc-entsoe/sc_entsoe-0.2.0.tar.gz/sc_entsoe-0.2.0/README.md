@@ -1,0 +1,203 @@
+# sc-entsoe
+
+Modern, high-performance Python library for the ENTSOE Transparency Platform.
+
+![](./docs/banner.png)
+
+<div align="center">
+<img alt="Built at Skye" src="https://img.shields.io/badge/Built%20at-Skye-000000?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAyIiBoZWlnaHQ9IjIxMSIgdmlld0JveD0iMCAwIDIwMiAyMTEiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xNDAuMTggMjEwLjc3TDIwMS42NiAxNDkuMjlWMTMxLjczTDE0MC4xOCA3MC4yNUgyMDEuNjZWNjEuNDdMMTQwLjE4IDBINjEuNDhMMCA2MS40OFY3OS4wNEw2MS40OCAxNDAuNTJIMFYxNDkuM0w2MS40OCAyMTAuNzhIMTQwLjE5TDE0MC4xOCAyMTAuNzdaTTEzMS41NyAyMTAuNTlMNzAuMjUgMTQwLjUxQzMxLjUxIDEwMS43NyAzMS40NSAzOC45OSA3MC4wOCAwLjE4TDEzMS40IDcwLjI2QzE3MC4xNCAxMDkgMTcwLjIgMTcxLjc4IDEzMS41NyAyMTAuNTlaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K&logoColor=white&labelColor=0A5EE4&color=000000&logoWidth=30" />
+</div>
+
+## ✨ Features
+
+- **📦 Lean Package**: Only ~10-20MB - Polars optional for fast data processing
+- **🚀 High Performance**: Optional Polars support for fast data processing
+- **🔒 Secure**: Multi-source credential management with automatic redaction
+- **🔄 Reliable**: Built-in retry logic, rate limiting, and circuit breaker
+- **⚡ Modern**: Async-first with sync wrapper, full type hints
+- **📊 Complete**: All ENTSOE data types (prices, generation, load, transmission, balancing)
+- **☁️ Lambda-Ready**: Minimal dependencies perfect for AWS Lambda deployments
+
+## 📦 Installation
+
+```bash
+# Minimal install (~10-20MB) - Perfect for Lambda
+pip install sc-entsoe
+
+# With Polars support for DataFrame operations (~60-120MB)
+pip install sc-entsoe[polars]
+
+# With .env file support
+pip install sc-entsoe[dotenv]
+
+# With keyring support for enhanced security
+pip install sc-entsoe[keyring]
+
+# Combine extras
+pip install sc-entsoe[polars,dotenv,keyring]
+```
+
+## ⚙️ Configuration
+
+### 1. API Key
+
+You need a security token from [transparency.entsoe.eu](https://transparency.entsoe.eu/).
+
+**Best Practice:** Set it as an environment variable (or in a `.env` file):
+
+```bash
+export ENTSOE_API_KEY="your-security-token-here"
+```
+
+The library automatically loads this key. You can also pass it explicitly (`EntsoeClient(api_key="...")`) or use the OS keyring.
+
+### 2. Custom Settings
+
+Configure retries, timeouts, and rate limits globally:
+
+```python
+from sc_entsoe import EntsoeConfig, EntsoeClient
+
+config = EntsoeConfig(
+    api_timeout=30,
+    retry_attempts=3,
+    rate_limit_requests=10,
+    safe_logging=True
+)
+
+client = EntsoeClient(config=config)
+```
+
+### Configuration Reference
+
+| Parameter | Environment Variable | Default | Description |
+|-----------|---------------------|---------|-------------|
+| `api_key` | `ENTSOE_API_KEY` | `None` | ENTSOE API security token |
+| `api_base_url` | `ENTSOE_API_BASE_URL` | `https://web-api.tp.entsoe.eu/api` | API endpoint URL |
+| `api_timeout` | `ENTSOE_API_TIMEOUT` | `30` | Request timeout (seconds) |
+| `rate_limit_requests` | `ENTSOE_RATE_LIMIT_REQUESTS` | `10` | Max requests per second |
+| `rate_limit_burst` | `ENTSOE_RATE_LIMIT_BURST` | `20` | Burst capacity |
+| `retry_attempts` | `ENTSOE_RETRY_ATTEMPTS` | `3` | Number of retry attempts |
+| `retry_max_wait` | `ENTSOE_RETRY_MAX_WAIT` | `10` | Max wait between retries (seconds) |
+| `circuit_breaker_threshold` | `ENTSOE_CIRCUIT_BREAKER_THRESHOLD` | `5` | Failures before circuit opens |
+| `circuit_breaker_timeout` | `ENTSOE_CIRCUIT_BREAKER_TIMEOUT` | `60` | Circuit cool-down (seconds) |
+| `cache_enabled` | `ENTSOE_CACHE_ENABLED` | `false` | Enable response caching |
+| `cache_ttl` | `ENTSOE_CACHE_TTL` | `3600` | Cache TTL (seconds) |
+| `cache_max_size` | `ENTSOE_CACHE_MAX_SIZE` | `1000` | Max cache entries |
+| `debug_logging` | `ENTSOE_DEBUG_LOGGING` | `false` | Enable debug logs |
+| `safe_logging` | `ENTSOE_SAFE_LOGGING` | `true` | Redact API keys in logs |
+| `fill_missing` | `ENTSOE_FILL_MISSING` | `true` | Fill missing intervals |
+| `strict_schema` | `ENTSOE_STRICT_SCHEMA` | `false` | Strict schema validation |
+
+## 🚀 Quick Start
+
+### Minimal Install (No Polars)
+
+```python
+from sc_entsoe import EntsoeClient
+
+with EntsoeClient() as client:
+    # Get day-ahead prices for Germany
+    result = client.get_day_ahead_prices("DE", "2024-01-01", "2024-01-02")
+
+    # Access data as list of dictionaries (always available)
+    print(result.data)  # [{'timestamp': '...', 'value': 50.0}, ...]
+    print(f"Rows: {len(result.data)}")
+    print(f"Metadata: {result.metadata}")
+```
+
+### With Polars (DataFrame Support)
+
+```python
+from sc_entsoe import EntsoeClient
+
+# Install: pip install sc-entsoe[polars]
+with EntsoeClient() as client:
+    result = client.get_day_ahead_prices("DE", "2024-01-01", "2024-01-02")
+
+    # Access as Polars DataFrame (requires polars extra)
+    print(result.df)  # Polars DataFrame
+    print(result.df.shape)
+    print(result.df.head())
+```
+
+### Async
+
+```python
+import asyncio
+from sc_entsoe import AsyncEntsoeClient
+
+async def main():
+    async with AsyncEntsoeClient() as client:
+        # Get solar generation for France
+        result = await client.get_generation_actual(
+            area="FR", start="2024-01-01", end="2024-01-02", psr_type="B16"
+        )
+
+        # Use .data (always available) or .df (if polars installed)
+        print(result.data)  # List of dicts
+        # print(result.df)  # DataFrame (if sc-entsoe[polars] installed)
+
+asyncio.run(main())
+```
+
+## 📚 Core Methods
+
+The library achieves **100% parity** with the ENTSOE API. Major categories:
+
+*   **Prices**: `get_day_ahead_prices`, `get_imbalance_prices`
+*   **Generation**: `get_generation_actual`, `get_generation_forecast`, `get_wind_solar_forecast`, `get_installed_capacity`
+*   **Load**: `get_load_actual`, `get_load_forecast`
+*   **Transmission**: `get_crossborder_flows`, `get_scheduled_exchanges`, `get_transmission_capacity`
+*   **Balancing**: `get_procured_balancing_capacity`, `get_imbalance_volumes`, `get_activated_balancing_energy`
+
+## 📊 Data Access
+
+The library provides two ways to access data:
+
+### `.data` (Always Available)
+
+Returns data as a list of dictionaries. Perfect for minimal installations and Lambda:
+
+```python
+result = client.get_day_ahead_prices("DE", "2024-01-01", "2024-01-02")
+
+# Access raw data
+for row in result.data:
+    print(row["timestamp"], row["value"])
+
+# Get row count
+print(len(result.data))
+
+# Access metadata
+print(result.metadata["document_type"])
+```
+
+### `.df` (Requires Polars)
+
+Returns a Polars DataFrame. Requires `pip install sc-entsoe[polars]`:
+
+```python
+result = client.get_day_ahead_prices("DE", "2024-01-01", "2024-01-02")
+
+# Access as DataFrame
+df = result.df
+print(df.shape)
+print(df.head())
+print(df["value"].mean())
+```
+
+**Note**: `.df` property raises `ImportError` if Polars is not installed. Use `.data` for universal compatibility.
+
+## 🛠 Development
+
+```bash
+git clone https://github.com/skyeenergy/sc-entsoe.git
+cd sc-entsoe
+uv sync --dev      # Install dependencies
+uv run pytest      # Run tests
+```
+
+## 📄 License
+
+MIT License. Built at [Skye](https://www.skye.energy/) - The energy autopilot for industries.
