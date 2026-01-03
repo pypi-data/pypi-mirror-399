@@ -1,0 +1,266 @@
+Metadata-Version: 2.4
+Name: pikapika-organizer
+Version: 0.7.0
+Summary: Pikapika - A Python CLI utility to organize your files by extension
+Author-email: Ariz Muajianisan <arizmuajianisan@gmail.com>
+Maintainer-email: Ariz Muajianisan <arizmuajianisan@gmail.com>
+License-Expression: MIT
+Project-URL: Homepage, https://arizmuajianisan.github.io/pikapika
+Project-URL: Repository, https://github.com/arizmuajianisan/pikapika
+Project-URL: Bug Reports, https://github.com/arizmuajianisan/pikapika/issues
+Keywords: cli,file-organizer,downloads,cleanup,automation
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 4 - Beta
+Classifier: Topic :: Utilities
+Classifier: Topic :: System :: Filesystems
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Environment :: Console
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: send2trash>=1.8.0
+Provides-Extra: dev
+Requires-Dist: pytest>=9.0.2; extra == "dev"
+Requires-Dist: ruff>=0.14.10; extra == "dev"
+Dynamic: license-file
+
+# Pikapika Organizer — Downloads Folder Organizer
+
+<p align="center">
+  <img src="https://arizmuajianisan.github.io/pikapika/logo.png" alt="Pikapika Logo" width="120">
+</p>
+
+<p align="center">
+  <em>Automatically organize your files by extension with one command</em>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.13-blue" alt="Python 3.13">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
+  <img src="https://img.shields.io/badge/uv-compatible-green" alt="uv compatible">
+  <img src="https://github.com/arizmuajianisan/pikapika/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI">
+  <img src="https://github.com/arizmuajianisan/pikapika/workflows/Release/badge.svg" alt="Release">
+</p>
+
+<p align="center">
+<a href="https://arizmuajianisan.github.io/pikapika/">📚 View Documentation</a> | <a href="https://pypi.org/project/pikapika-organizer/">🐍 PyPI Package</a> | <a href="https://github.com/arizmuajianisan/pikapika/issues">🐛 Report Issues</a>
+</p>
+
+“_Pika Pika_ (ピカピカ)” is an onomatopoeia in Japanese, meaning “shiny” or “sparkly”. This
+project is mainly used to clean your folders of clutter and manage them efficiently.
+It automatically files items into category folders (Images, Documents, Archives, Installers, etc.)
+and optionally quarantines junk files such as partial downloads.
+
+> Built with Python 3.13 and the [`uv`](https://github.com/astral-sh/uv) workflow.
+
+---
+
+## Features
+
+- **Dry run mode** (`--dry-run`) shows every planned move before mutating files.
+- **Category routing** using an editable extension map in
+  `src/pikapika/__init__.py`.
+- **Junk handling** for extensions like `.crdownload`, `.tmp`, `.part`:
+  quarantine them or send them to the Recycle Bin (via `send2trash`).
+- **Duplicate safety** — automatically renames conflicts (`file (1).pdf`).
+- **Recursive mode** to organize nested folders while skipping known system
+  directories (`.git`, `__pycache__`, etc.).
+
+---
+
+## Requirements
+
+- Python **3.13+**
+- [`uv`](https://docs.astral.sh/uv/) for dependency and virtualenv management
+
+Optional:
+- [`send2trash`](https://pypi.org/project/Send2Trash/) (installed automatically)
+  if you want junk files to go to the system trash instead of `_Quarantine`.
+
+---
+
+## Installation
+
+```bash
+pip install pikapika-organizer
+```
+
+### Install from GitHub Packages
+
+```bash
+uv add --index-url https://python.pkg.github.com/arizmuajianisan/ pikapika-organizer
+```
+
+Or for temporary installation:
+
+```bash
+uv pip install --index-url https://python.pkg.github.com/arizmuajianisan/ pikapika-organizer
+```
+
+Useful helpers are available via `make`:
+
+```bash
+make help
+# test, check, format, run, clean, ...
+```
+
+If you prefer plain commands:
+
+```bash
+uv run pytest              # run tests
+uv run ruff check          # lint
+uv run ruff format         # format
+uv run pikapika-organizer --dry-run  # execute CLI
+```
+
+---
+
+## Usage
+
+Run commands from the project root (or install the package and use the
+`pikapika-organizer` entry point globally).
+
+```bash
+uv run pikapika-organizer --help
+```
+
+### Common flags
+
+| Flag | Description |
+| --- | --- |
+| `--path PATH` | Downloads directory to organize. Defaults to the current user's Downloads. |
+| `--dry-run` | Print intended operations without touching the filesystem. |
+| `--recursive` | Walk subdirectories (skips known system folders automatically). |
+| `--quarantine-junk` | Move old junk files to `_Quarantine`. |
+| `--junk-days N` | Minimum age (days) for junk files before action (default: 7). |
+| `--trash-junk` | Send junk files to the OS trash (requires `send2trash`). |
+
+### Examples
+
+```bash
+# Preview current user's Downloads
+uv run pikapika-organizer --dry-run
+
+# Organize a specific folder for real
+uv run pikapika-organizer --path "D:\Downloads" 
+
+# Go recursive and quarantine stale junk (>= 10 days old)
+uv run pikapika-organizer --recursive --quarantine-junk --junk-days 10
+
+# Send junk to Recycle Bin instead of _Quarantine
+uv run pikapika-organizer --quarantine-junk --trash-junk
+```
+
+---
+
+## Customizing categories
+
+Edit the `CATEGORIES` dictionary in `src/pikapika_organizer/__init__.py`:
+
+```python
+CATEGORIES = {
+    "Images": {".png", ".jpg", ".svg"},
+    "Documents": {".pdf", ".docx", ".md"},
+    "Archives": {".zip", ".iso"},
+}
+```
+
+Add or rename folders, or introduce new buckets (e.g., `"DesignAssets"`,
+`"DiskImages"`). Always run with `--dry-run` after changes to verify they behave
+as expected.
+
+---
+
+## Development workflow
+
+```bash
+uv sync --group dev   # install everything
+make check            # lint (ruff)
+make format           # format (ruff fmt)
+make test             # run pytest suite
+make run              # run CLI in-place
+```
+
+The test suite (`tests/test_pikapika.py`) covers:
+- extension categorization
+- duplicate handling
+- junk quarantine/trash flow
+- recursive traversal and skip logic
+
+---
+
+## Release Process
+
+This project uses automated releases via GitHub Actions, similar to `release-it` for JavaScript projects.
+
+### Quick Release (Recommended)
+```bash
+# Patch release (bug fixes)
+make release-patch
+
+# Minor release (new features)
+make release-minor
+
+# Major release (breaking changes)
+make release-major
+```
+
+### Manual Release Steps
+```bash
+# 1. Run the release script
+uv run python scripts/release.py patch
+
+# 2. The script will:
+#    - Check git status is clean
+#    - Run tests and linting
+#    - Update version in pyproject.toml
+#    - Build package
+#    - Create and push git tag (e.g., v0.1.1)
+
+# 3. GitHub Actions will automatically:
+#    - Run comprehensive tests
+#    - Build and validate package
+#    - Publish to TestPyPI
+#    - Verify TestPyPI installation
+#    - Publish to production PyPI
+#    - Create GitHub Release with changelog
+```
+
+### Dry Run Mode
+```bash
+# Preview what would happen without making changes
+uv run python scripts/release.py patch --dry-run
+```
+
+### Release Workflow Details
+- **Trigger**: Git tags starting with `v` (e.g., `v0.1.0`, `v1.2.3`)
+- **Testing**: Multi-platform tests (Ubuntu, Windows, macOS)
+- **Publishing**: TestPyPI → PyPI (with verification)
+- **Release Notes**: Auto-generated changelog from git commits
+- **Badges**: Updated automatically after release
+
+---
+
+## Troubleshooting
+
+- **Hardlink warning during `uv sync`**  
+  Set `UV_LINK_MODE=copy` (or run with `uv sync --link-mode=copy`) when working
+  across filesystems that do not support hardlinks.
+
+- **`--trash-junk` no-ops**  
+  Ensure `send2trash` is installed (it is pulled in automatically when using
+  `uv sync --group dev`). On Windows you might need to reopen the shell after
+  installation.
+
+- **Downloads path seems wrong**  
+  Supply an explicit path with `--path` when using redirected or network-backed
+  folders.
+
+---
+
+## License
+
+MIT — see the [LICENSE](LICENSE) file for details. Feel free to fork, tweak, and ship improvements. Contributions welcome!
