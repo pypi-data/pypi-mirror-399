@@ -1,0 +1,448 @@
+
+# Checkmate5 (fork)
+
+Python-based meta static-analysis runner that orchestrates multiple language analyzers (Bandit, tfsec, Brakeman, kubescape, opengrep, staticcheck, AiGraphCodeScan, etc.) and stores findings in a database backend.
+
+[[_TOC_]]
+
+---
+
+## Fork notice & acknowledgements
+
+This project is a modified version of the original **Checkmate**.
+
+- Original project: <https://github.com/quantifiedcode/checkmate>
+
+---
+
+## About
+
+**Checkmate5** is a cross-language (meta-)tool for static code analysis, written in Python. Unlike single-tool linters/scanners, it focuses on orchestrating multiple analyzers and providing a **global overview** of code quality and security findings across a project—aiming to present clear, actionable insights.
+
+---
+
+## Licenses
+
+- The original Checkmate project is licensed under the **MIT license**: <https://opensource.org/licenses/MIT>
+- Original Checkmate parts remain released under the **MIT License**.
+- **This fork’s modifications are released under the AGPL-3.0 license** (previously LGPL 2.1 with Commons Clause). See `LICENSE` for details.
+
+---
+
+## Requirements
+
+- Python **3.8+**
+- Python dependencies (typical): `blitzdb5`, `pyyaml`, `sqlalchemy`, `requests`
+- **Docker** (required for most analyzers; images are pulled automatically)
+- `CODE_DIR` defaults to the current directory if unset
+- Git is recommended but not required (if `.git` is missing, a warning is printed but execution continues)
+
+---
+
+## Install
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+---
+
+## Quick start
+
+### SQLite (local file DB)
+
+```bash
+export CODE_DIR=/path/to/source
+
+checkmate init \
+  --backend sqlite \
+  --backend-opts sqlite:////tmp/checkmate.db \
+  --pk myproject456
+
+checkmate analyze
+checkmate issues html
+```
+
+### PostgreSQL (shared SQL DB)
+
+```bash
+export CODE_DIR=/path/to/source
+
+checkmate init \
+  --backend sql \
+  --backend-opts postgresql://user:pass@localhost/checkmate \
+  --pk myproject123
+
+checkmate analyze
+checkmate issues html
+```
+
+---
+
+## CLI usage
+
+All commands are invoked as:
+
+```bash
+checkmate <command> [subcommand] [options]
+```
+
+If `CODE_DIR` is unset, it defaults to the current working directory. If `.git` is missing, a warning is printed but execution continues.
+
+### Core commands
+
+- `init [--backend sql|sqlite] [--backend-opts URI] [--path PATH] [--pk KEY]`
+  - Creates `.checkmate/config.json` in the target path
+  - Schema is auto-created on first use
+- `analyze [options]`
+  - Runs analyzers and stores results (typically creates a snapshot)
+- `issues [html]`
+  - Lists stored issues
+  - With `html`, emits `report.html`, `report.json`, `report.sarif`
+- `props get|set|delete <name> [value]`
+  - Project-level key/value storage
+- `shell`
+  - Starts a Python REPL with backend and project loaded
+- `alembic <args>`
+  - Pass-through to Alembic (requires `alembic.ini` and models)
+
+> :warning: **Note on placeholders:** Some commands may exist as stubs/placeholders in this fork (e.g., `stats`, `summary`, `compare`, `export`, `trend`, `sync`, `watch`) and may return nothing.
+
+> :information_source: `checkmate/__main__.py` remains a stub in this fork. Use the `checkmate` entry point.
+
+---
+
+## Configuration files
+
+### `.checkmate/config.json` (created by `init`)
+
+Stores the project id and backend configuration.
+
+Example:
+
+```json
+{
+  "project_id": "your-project-id",
+  "project_class": "Project",
+  "backend": {
+    "driver": "sqlite",
+    "connection_string": "sqlite:////tmp/checkmate.db"
+  }
+}
+```
+
+### `.checkmate.yml` (optional)
+
+Optional YAML configuration file merged from:
+
+1. `$HOME`
+2. current working directory
+3. project root
+
+Loaded with `yaml.safe_load`.
+
+Used to add or override:
+
+- plugins
+- analyzers
+- aggregators
+- commands
+- language patterns
+- models
+
+Defaults are defined in `checkmate/settings/defaults.py`.
+
+---
+
+## Backend configuration
+
+Checkmate5 supports multiple backend drivers, notably:
+
+- `sqlite` (SQLite, file-based)
+- `sql` (SQLAlchemy-supported SQL DBs, commonly PostgreSQL/MySQL)
+
+### How to specify the backend
+
+You can specify the backend via CLI during initialization or by editing `.checkmate/config.json`.
+
+#### CLI options
+
+- `--backend`
+  - `sql` (default): SQL database (e.g., PostgreSQL/MySQL)
+  - `sqlite`: SQLite
+- `--backend-opts`
+  - for `sql`: SQLAlchemy connection URI (e.g., `postgresql://...`, `mysql+pymysql://...`)
+  - for `sqlite`: SQLite connection string/path (use absolute paths to avoid surprises)
+- `--path` project directory
+- `--pk` project primary key (see below)
+
+### Backend notes
+
+- **SQLite**
+  - Recommended: `sqlite:////absolute/path/to/db.sqlite`
+  - Ensure the file path is writable
+- **SQL (Postgres/MySQL/etc.)**
+  - Ensure the DB user can create tables on first run
+  - Ensure the correct DB driver is installed (e.g., `pymysql` for MySQL)
+
+---
+
+## Project primary key (`--pk`) / `project_id`
+
+The `--pk` parameter sets the project’s primary key. It is stored as `project_id` in `.checkmate/config.json`.
+
+### Why use `--pk`?
+
+- **Custom identification**: choose a meaningful id (e.g., `myproject123`)
+- **Deterministic reference**: stable key for subsequent operations
+- **Multi-project management**: useful when multiple projects share one backend
+
+### Behavior
+
+- If you supply `--pk` during `init`, it becomes the `project_id`.
+- If not supplied, a random UUID is generated.
+- `project_id` is used to link the project, snapshots/history, file revisions, and findings in the backend.
+
+---
+
+## Snapshots & hash-based reuse
+
+> Snapshots are the mechanism used to associate findings with file hashes over project history (especially when Git integration is enabled).
+
+### What is a snapshot?
+
+A **snapshot** captures a project state at a point in time (often a Git commit/branch state). It records:
+
+- file revisions (with hashes)
+- analyzer results (issues found)
+- project configuration
+
+### How snapshots work (high level)
+
+When you run `checkmate analyze`, the system typically:
+
+1. Collects file revisions and computes hashes
+2. Queries the backend for previously-seen hashes
+3. Reuses findings for unchanged file content
+4. Only analyzes new/changed file revisions
+5. Saves findings and links them to the new snapshot
+
+### How findings are associated by file hash
+
+- Each file revision receives a hash derived from its content (and typically path).
+- If the file hash matches a previously analyzed revision, its findings can be reused.
+- Issues are fingerprinted/hashed to allow deduplication and stable grouping.
+
+### Diffing snapshots (concept)
+
+Checkmate can compare snapshots to show what changed between two states:
+
+- files added / deleted / modified
+- issues added / resolved
+
+> :warning: Some snapshot/diff-related commands may be placeholders in this fork.
+
+---
+
+## Plugins & analyzers
+
+Built-in plugins and language patterns are defined in `checkmate/settings/defaults.py` and can be overridden via `.checkmate.yml`.
+
+### Git integration
+
+- Git plugin: `checkmate.contrib.plugins.git`
+- Enables history-aware behavior and snapshot/commit associations where supported
+
+### Analyzer containers & mounting
+
+All analyzer containers mount `CODE_DIR` at `/workspace`.
+
+- **File-scoped analyzers** (e.g., Bandit, opengrep) typically target a specific file path under `/workspace`
+- **Repo-scoped analyzers** (e.g., tfsec, kubescape, brakeman, staticcheck, AiGraphCodeScan) scan the entire `/workspace`
+
+### Default analyzers (and image override env vars)
+
+- Bandit (Python): `pycqa/bandit:latest` — `CHECKMATE_IMAGE_BANDIT`
+- Tfsec (IaC): `aquasec/tfsec:latest` — `CHECKMATE_IMAGE_TFSEC`
+- Kubescape (IaC/K8s): `quay.io/armosec/kubescape:latest` — `CHECKMATE_IMAGE_KUBESCAPE`
+- Brakeman (Ruby/Rails): `presidentbeef/brakeman:latest` — `CHECKMATE_IMAGE_BRAKEMAN`
+- Staticcheck (Go): `ghcr.io/dominikh/staticcheck:latest` — `CHECKMATE_IMAGE_STATICCHECK`
+- Opengrep (multi-language rules): `betterscan/opengrep:latest` — `CHECKMATE_IMAGE_OPENGREP`
+- AiGraphCodeScan (cross-language): `betterscan/aigraphcodescan:latest` — `CHECKMATE_IMAGE_AIGRAPH`
+- Graudit (Perl): bundled binary in `bin/graudit`
+- Text4shell CE (CVE check): bundled script in `bin/text4shell-ce`
+- Semgrep Java / ESLint Semgrep: included in defaults; use local binaries (not dockerized in this fork)
+
+### Docker image for CLI
+
+- Docker Hub: `tcosolutions/betterscan-worker-cli` (built from this repo)
+- Entry: `checkmate`
+
+Run example (SQLite):
+```bash
+docker run --rm \
+  -v /path/to/your/code:/workspace \
+  -e CODE_DIR=/workspace \
+  tcosolutions/betterscan-worker-cli:latest \
+  init --backend sqlite --backend-opts sqlite:////workspace/.checkmate.db
+
+docker run --rm \
+  -v /path/to/your/code:/workspace \
+  -e CODE_DIR=/workspace \
+  tcosolutions/betterscan-worker-cli:latest \
+  analyze
+
+docker run --rm \
+  -v /path/to/your/code:/workspace \
+  -e CODE_DIR=/workspace \
+  tcosolutions/betterscan-worker-cli:latest \
+  issues html
+```
+
+Run example (Postgres):
+```bash
+docker run --rm \
+  -v /path/to/your/code:/workspace \
+  -e CODE_DIR=/workspace \
+  tcosolutions/betterscan-worker-cli:latest \
+  init --backend sql --backend-opts postgresql://user:pass@db/checkmate
+```
+
+---
+
+## Repository layout
+
+Key paths:
+
+- `checkmate/scripts/manage.py`
+  - Console entry point (`checkmate`) that loads settings, finds the project, and dispatches subcommands
+- `checkmate/management/commands/`
+  - Commands (`init`, `analyze`, `issues`, `reset`, `props`, `shell`, `alembic`, plus stubs)
+- `checkmate/settings/base.py`
+  - Settings loader; merges defaults with `.checkmate.yml`; loads plugins
+- `checkmate/settings/defaults.py`
+  - Built-in plugins, language patterns, command map, default aggregators
+- `checkmate/helpers/`
+  - `facts.Facts` (nested dict helper)
+  - `hashing.get_hash` / `Hasher` (stable hashing helpers)
+  - `issue.IssuesMapReducer`, `group_issues_by_fingerprint` (grouping helpers)
+  - `settings.update` (recursive dict merge)
+- `checkmate/management/helpers.py`
+  - Project discovery, config read/write, file filtering, backend factory
+- `checkmate/contrib/plugins/*`
+  - Analyzer plugins and Git plugin
+
+---
+
+## Troubleshooting DB connections
+
+### SQLite
+
+- Ensure the path is writable by the current user
+- Prefer absolute paths:
+
+```bash
+sqlite:////abs/path/to/db.sqlite
+```
+
+- If you see “no such table”:
+  - drop and recreate the DB, or
+  - re-run `checkmate init` with the correct connection string, then run migrations if applicable
+
+### Postgres / MySQL
+
+- Verify credentials and network access
+- Ensure the DB user can create tables on first run
+- For MySQL, install a DB driver (e.g., `pymysql`) and use an appropriate URI:
+
+```bash
+mysql+pymysql://user:pass@localhost/checkmate
+```
+
+---
+
+## Migrations (Alembic)
+
+If you add fields/models, run:
+
+```bash
+checkmate alembic upgrade head
+```
+
+Requires:
+
+- a valid `alembic.ini`
+- a SQL backend connection with permissions
+
+Minimal `alembic.ini` example (edit paths/DB URL as needed):
+
+```ini
+[alembic]
+script_location = checkmate/migrations
+sqlalchemy.url = postgresql://user:pass@localhost/checkmate
+prepend_sys_path = .
+
+[loggers]
+keys = root,sqlalchemy,alembic
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = WARN
+handlers = console
+
+[logger_sqlalchemy]
+level = WARN
+handlers =
+qualname = sqlalchemy.engine
+
+[logger_alembic]
+level = INFO
+handlers =
+qualname = alembic
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(levelname)-5.5s [%(name)s] %(message)s
+```
+
+---
+
+## Summary tables
+
+### Backend & identity parameters
+
+| Parameter            | Description                                   | Example |
+|---------------------|-----------------------------------------------|---------|
+| `driver`            | Backend type                                   | `sqlite` / `sql` |
+| `connection_string` | SQLAlchemy DB connection string                | `sqlite:////tmp/checkmate.db` / `postgresql://user:pass@host/db` |
+| `pk`                | CLI primary key used to identify the project   | `myproject123` |
+| `project_id`        | Config alias for `pk`; used in backend         | `myproject123` |
+
+### Snapshot concepts
+
+| Concept       | Description |
+|--------------|-------------|
+| `FileRevision` | Represents a file at a specific state (often commit-linked with Git) |
+| `hash`         | SHA-based hash of file contents (and usually path) |
+| `Snapshot`     | State of the project at a point in time; list of file hashes + results |
+| `Issue`        | Analyzer finding linked to a file revision (and snapshot); fingerprinted for dedup |
+
+---
+
+## Further reading (in-repo)
+
+- Backend implementation: `checkmate/lib/backend.py`
+- Snapshot & analysis logic: `checkmate/lib/code/environment.py`
+- Git integration & snapshots: `checkmate/contrib/plugins/git/models.py`
