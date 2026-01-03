@@ -1,0 +1,202 @@
+Metadata-Version: 2.4
+Name: haniwers
+Version: 1.19.0
+Summary: Analysis tool for TanQ/FunQ project
+License-Expression: MIT
+License-File: LICENSE
+Keywords: muon
+Author: Shota Takahashi (KMI)
+Author-email: shotakaha@kmi.nagoya-u.ac.jp
+Requires-Python: >=3.10
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Provides-Extra: all
+Provides-Extra: analysis
+Provides-Extra: notebooks
+Provides-Extra: viz
+Requires-Dist: altair (>=5.2.0) ; extra == "all"
+Requires-Dist: altair (>=5.2.0) ; extra == "notebooks"
+Requires-Dist: altair (>=5.2.0) ; extra == "viz"
+Requires-Dist: deprecated (>=1.2.14)
+Requires-Dist: esptool (>=4.8.1)
+Requires-Dist: hvplot (>=0.11.0) ; extra == "all"
+Requires-Dist: hvplot (>=0.11.0) ; extra == "analysis"
+Requires-Dist: hvplot (>=0.11.0) ; extra == "notebooks"
+Requires-Dist: icecream (>=2.1.2) ; extra == "notebooks"
+Requires-Dist: loguru (>=0.7.0)
+Requires-Dist: matplotlib (>=3.8.4) ; extra == "all"
+Requires-Dist: matplotlib (>=3.8.4) ; extra == "notebooks"
+Requires-Dist: matplotlib (>=3.8.4) ; extra == "viz"
+Requires-Dist: pandas (>=2.2.3)
+Requires-Dist: pendulum (>=3.0.0)
+Requires-Dist: platformdirs (>=4.2.2)
+Requires-Dist: plotly (>=6.0.1) ; extra == "all"
+Requires-Dist: plotly (>=6.0.1) ; extra == "notebooks"
+Requires-Dist: plotly (>=6.0.1) ; extra == "viz"
+Requires-Dist: polars (>=1.5.0)
+Requires-Dist: pydantic (>=2.7.1)
+Requires-Dist: pyserial (>=3.5)
+Requires-Dist: python-dotenv (>=1.0.1)
+Requires-Dist: scipy (>=1.11.1)
+Requires-Dist: typer (>=0.15.2)
+Requires-Dist: vl-convert-python (>=1.1.0) ; extra == "all"
+Requires-Dist: vl-convert-python (>=1.1.0) ; extra == "notebooks"
+Requires-Dist: vl-convert-python (>=1.1.0) ; extra == "viz"
+Project-URL: Homepage, https://qumasan.gitlab.io/haniwers/docs/
+Project-URL: Repository, https://gitlab.com/qumasan/haniwers/
+Description-Content-Type: text/markdown
+
+![GitLab Tag](https://img.shields.io/gitlab/v/tag/qumasan%2Fhaniwers?sort=semver&style=for-the-badge) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/haniwers?style=for-the-badge) ![GitLab License](https://img.shields.io/gitlab/license/qumasan%2Fhaniwers?style=for-the-badge)
+![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/qumasan%2Fhaniwers?style=for-the-badge) ![GitLab Last Commit](https://img.shields.io/gitlab/last-commit/qumasan%2Fhaniwers?style=for-the-badge)
+
+---
+
+# Haniwers : ハニワーズ
+
+墳Qの解析コード（個人用）
+
+![w:300](./docs/_static/haniwer.png)
+
+## 概要
+
+宇宙線検出器OSECHIでデータを取得・解析するPythonツール。
+
+- ✅ データ取得（DAQ）
+- ✅ データ処理・解析
+- ✅ スレッショルド測定
+
+---
+
+# ユーザー向け：インストール
+
+## インストール方法
+
+### 推奨：pipx を使用
+
+```bash
+# 基本インストール（DAQ + データ処理 + 解析）
+pipx install haniwers
+
+# オプション：閾値可視化（hvplot）
+pipx install "haniwers[analysis]"
+
+# オプション：Notebook分析（plotly, altair）
+pipx install "haniwers[viz]"
+
+# 全機能
+pipx install "haniwers[all]"
+
+# 動作確認
+haniwers --help
+```
+
+### 詳細ドキュメント
+
+- **[ユーザーガイド](https://haniwers.readthedocs.io/ja/latest/users/)** - インストール方法、セットアップ、使い方
+- **[トラブルシューティング](https://haniwers.readthedocs.io/ja/latest/users/faq.html)** - よくある質問
+
+## 基本的な使い方
+
+```bash
+# バージョン確認
+$ haniwers version
+
+# シリアルポート確認
+$ haniwers port list
+$ haniwers port test /dev/ttyUSB0
+
+# データ取得（DAQ）
+$ haniwers daq --config daq.toml
+
+# データ処理・変換
+$ haniwers preprocess input.raw output.csv
+
+# 閾値スキャン
+$ haniwers scan --config scan.toml
+
+# 閾値フィッティング
+$ haniwers fit data.csv
+```
+
+詳細は各コマンドのヘルプを確認：
+
+```bash
+haniwers daq --help
+haniwers scan --help
+```
+
+---
+
+# 開発者向け：開発に参加する
+
+## 開発環境セットアップ
+
+### 環境構築（推奨方法）
+
+```bash
+# 1. リポジトリをクローン
+git clone https://gitlab.com/qumasan/haniwers.git
+cd haniwers
+
+# 2. 開発環境をセットアップ（Poetry）
+poetry install
+
+# 3. テスト実行
+task test
+
+# 4. コード品質チェック
+task format:check
+task lint:fix
+
+# 5. CLIを試す
+poetry run haniwers --help
+```
+
+### ブランチ構成
+
+| ブランチ | 用途 |
+|---------|------|
+| **main** | v2開発（次世代版） |
+| **v1** | v1開発（現在の安定版） - このワークツリー |
+| **v0** | v0保守のみ（別worktreeで管理） |
+
+### 主なタスク
+
+```bash
+task --list              # すべてのタスク表示
+
+# テスト
+task test               # 全テスト
+task test:unit          # ユニットテストのみ
+task test:cov:html      # カバレッジレポート
+
+# コード品質
+task format             # コードフォーマット
+task lint:fix           # リント修正
+
+# ドキュメント
+task livehtml            # ドキュメント（ライブ編集）
+task docs:release -- v1.14.1  # リリースノート作成
+
+# Notebook
+task nb:sync            # .ipynb ↔ .md 同期
+```
+
+### 詳細リソース
+
+- **[CLAUDE.md](./CLAUDE.md)** - AI開発ガイド（環境構築、アーキテクチャ、ワークフロー）
+- **[プロジェクト憲法](/.specify/memory/constitution.md)** - 開発原則・テスト基準
+- **[公式ドキュメント](https://haniwers.readthedocs.io/)** - APIリファレンス・ユーザーガイド
+
+---
+
+# リンク
+
+- **[公式ドキュメント](https://haniwers.readthedocs.io/)**
+- **[解析ログブック](https://qumasan.gitlab.io/haniwers/)**
+- **[このリポジトリ](https://gitlab.com/qumasan/haniwers/)**
+
