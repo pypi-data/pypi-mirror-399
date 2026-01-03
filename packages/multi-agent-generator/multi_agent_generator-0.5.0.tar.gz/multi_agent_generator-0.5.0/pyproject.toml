@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=42", "wheel", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multi-agent-generator"
+version = "0.5.0"
+description = "Generate multi-agent AI teams from plain English, supporting multiple LLM backends via LiteLLM"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Aakriti Aggarwal", email = "aakritiaggarwal2k@gmail.com" }]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+dependencies = [
+    "litellm>=0.1.0",            # unified provider-agnostic client
+    "streamlit>=1.22.0",
+    "langchain>=0.3.0,<0.4.0",
+    "langchain-core>=0.3.0,<0.4.0",
+    "langchain-openai>=0.2.0,<0.4.0",
+    "langgraph>=0.2.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "agno==1.8.4",
+]
+
+[project.optional-dependencies]
+# keep watsonx as opt-in if people want IBM-specific SDK
+watsonx = ["ibm-watsonx-ai>=0.2.0"]
+dev = ["pytest>=7.0.0", "black>=23.0.0", "flake8>=6.0.0", "twine", "build"]
+
+[project.urls]
+"Homepage" = "https://github.com/aakriti1318/multi-agent-generator"
+"Bug Tracker" = "https://github.com/aakriti1318/multi-agent-generator/issues"
+
+[project.scripts]
+multi-agent-generator = "multi_agent_generator.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["multi_agent_generator*"]
