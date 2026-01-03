@@ -1,0 +1,48 @@
+Metadata-Version: 2.3
+Name: pyliblens
+Version: 1.0.1
+Summary: This is a lightweight utility library designed to audit your Python environment
+Author: bharathbabu
+Author-email: bharathbabu <bharath.r.babu@gmail.com>
+Requires-Dist: packaging>=25.0
+Requires-Dist: yarg>=0.1.10
+Requires-Dist: jinja2>=3.1.6 ; extra == 'report'
+Requires-Python: >=3.12
+Project-URL: Homepage, https://github.com/babu1993/pyLibLens
+Provides-Extra: report
+Description-Content-Type: text/markdown
+
+# pyLibLens
+This is a lightweight utility library designed to audit your Python environment. It scans your installed packages and requirement files to identify outdated versions and provide a summary
+
+## Installation
+```commandline
+pip install pyliblens
+```
+
+
+## Usage
+This lib can be used as both cli tool as well as python lib.
+
+Using in Python 
+
+```
+from pyliblens import analyze_packages
+# Need to provide the project source if the current file is not in the root directory
+packages = analyze_packages()
+```
+
+using cli (use --help for details)
+
+```commandline
+pyliblens
+```
+
+for report export use below commands
+```commandline
+pip install pyliblens[report]
+pyliblens -ex
+```
+this will create a index.html report for use.
+
+
