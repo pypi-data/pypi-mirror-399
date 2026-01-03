@@ -1,0 +1,64 @@
+Metadata-Version: 2.4
+Name: olang-semantic-doc-search
+Version: 1.0.0
+Summary: Python semantic document search resolver for O-lang workflows
+Author-email: Olami Ogundipe <6962539414@users.noreply.telegram.org>
+Maintainer-email: Olami Ogundipe <6962539414@users.noreply.telegram.org>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/olang/resolver-semantic-doc-search
+Project-URL: Documentation, https://github.com/olang/resolver-semantic-doc-search#readme
+Project-URL: Repository, https://github.com/olang/resolver-semantic-doc-search
+Project-URL: Issues, https://github.com/olang/resolver-semantic-doc-search/issues
+Project-URL: Changelog, https://github.com/olang/resolver-semantic-doc-search/releases
+Keywords: olang,semantic-search,document-search,embeddings,sentence-transformers,pgvector,ai-workflows,vector-search
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: Science/Research
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Text Processing :: Indexing
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: Flask<3.0.0,>=2.3.0
+Requires-Dist: sentence-transformers<3.0.0,>=2.2.2
+Requires-Dist: torch<3.0.0,>=1.13.0
+Requires-Dist: numpy<2.0.0,>=1.21.0
+Requires-Dist: scikit-learn<2.0.0,>=1.0.0
+Provides-Extra: pgvector
+Requires-Dist: pgvector<1.0.0,>=0.2.0; extra == "pgvector"
+Requires-Dist: psycopg2-binary<3.0.0,>=2.9.0; extra == "pgvector"
+Provides-Extra: all
+Requires-Dist: olang-semantic-doc-search[pgvector]; extra == "all"
+Dynamic: license-file
+
+# O-lang Semantic Document Search (Python)
+
+![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![O-lang Compatible](https://img.shields.io/badge/olang-compatible-brightgreen)
+
+Python implementation of the semantic document search resolver for **O-lang workflows**. Enables natural language search across document collections using state-of-the-art embeddings.
+
+## 🚀 Features
+
+- **O-lang Protocol Compliant**: Works seamlessly with O-lang kernel
+- **Local Embeddings**: Uses `all-MiniLM-L6-v2` (384-dim) for privacy and cost savings
+- **pgvector Support**: Optional PostgreSQL + pgvector integration for persistence
+- **In-Memory Fallback**: Works without database for simple use cases
+- **Production Ready**: Built-in error handling, timeouts, and validation
+- **Cross-Platform**: Runs on Windows, macOS, and Linux
+
+## 📥 Installation
+
+### Basic Installation
+```bash
+pip install olang-semantic-doc-search
