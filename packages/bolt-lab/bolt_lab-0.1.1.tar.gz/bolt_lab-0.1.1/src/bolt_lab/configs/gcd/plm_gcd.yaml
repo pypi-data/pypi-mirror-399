@@ -1,0 +1,46 @@
+seed: 0
+gpu_id: "0"
+dataset_name: "banking"     
+data_dir: "./data"          
+rate: 0.25                  
+labeled_ratio: 0.1
+fold_idx: 0
+fold_num: 5
+backbone: "Meta-Llama-3.1-8B-Instruct"
+bert_model: "./pretrained_models/bert-base-uncased"
+model_path_root: "./pretrained_models"
+n_epochs: 1
+lr: !!float 0.001           
+train_batch_size: 32
+eval_batch_size: 128
+
+es_patience: 3        
+es_min_delta: 0.0     
+metric_for_best: accuracy   
+
+output_dir: "./outputs/gcd/plm_gcd"
+save_results_path: "results/gcd/plm_gcd"
+
+
+dataset_specific_configs:
+  DBPedia:
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  20NG:
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  thucnews:
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  news:
+    train_batch_size: 8
+    eval_batch_size: 32
+    pretrain_batch_size: 16
+  XTopic:
+    max_seq_length: 128
+    train_batch_size: 16
+    eval_batch_size: 32
+    pretrain_batch_size: 16

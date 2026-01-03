@@ -1,0 +1,53 @@
+seed: 0
+gpu_id: "0"
+cuda: true
+
+dataset: "news"
+data_dir: "./data"
+known_cls_ratio: 0.25 
+labeled_ratio: 1.0
+fold_idx: 0
+fold_num: 5
+unseen_proportion: 100    
+mask_proportion: 0        
+dataset_proportion: 100   
+
+mode: "both"
+setting: ["gda", "lof", "msp"]
+
+embedding_file: "./pretrained_models/glove.6B.300d.txt" 
+
+hidden_dim: 128
+contractive_dim: 32
+embedding_dim: 300
+max_seq_len: 64
+max_num_words: 10000
+num_layers: 1
+do_normalization: true
+
+alpha: 1.0
+beta: 1.0
+norm_coef: 0.1
+adv: false
+cont_loss: true
+sup_cont: true
+ood_loss: false           
+n_plus_1: false           
+augment: false            
+cl_mode: 1                
+lmcl: false               
+cont_proportion: 1.0      
+use_bert: false           
+
+ind_pre_epoches: 3
+supcont_pre_epoches: 3
+finetune_epoches: 20
+
+train_batch_size: 8
+learning_rate: 0.001
+weight_decay: 0.0001
+clip: 0.25
+patience: 10             
+
+output_dir: "./outputs/openset/scl"
+save_results_path: "results/openset/scl"

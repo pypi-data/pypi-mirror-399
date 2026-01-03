@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bolt-lab"
+version = "0.1.1"
+description = "Bolt research project (packaged) with stable paths and workspace execution"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+
+dependencies = [
+  "pyyaml>=6.0",
+  "numpy>=1.23",
+  "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+hf = [
+  "huggingface_hub>=0.20",
+  "transformers>=4.35",
+  "datasets>=2.16",
+]
+# 你也可以加一个 full，把你项目里所有依赖都塞进去
+# full = ["..."]
+
+[project.scripts]
+bolt-grid = "bolt_lab.run_grid:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+bolt_lab = [
+  "configs/**/*.yaml",
+  "code/**/*",
+  "data/**/*",
+]

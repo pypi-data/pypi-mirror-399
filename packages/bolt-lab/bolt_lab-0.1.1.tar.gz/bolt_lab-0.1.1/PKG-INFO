@@ -1,0 +1,136 @@
+Metadata-Version: 2.4
+Name: bolt-lab
+Version: 0.1.1
+Summary: Bolt research project (packaged) with stable paths and workspace execution
+License: MIT
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: numpy>=1.23
+Requires-Dist: pandas>=2.0
+Provides-Extra: hf
+Requires-Dist: huggingface_hub>=0.20; extra == "hf"
+Requires-Dist: transformers>=4.35; extra == "hf"
+Requires-Dist: datasets>=2.16; extra == "hf"
+
+# bolt-lab User Guide
+
+## 1. Runtime Mechanism Overview
+
+When running, you specify a working directory via `--output-dir`. bolt-lab will automatically prepare the required directory structure under this directory, and write all logs, results, and model outputs there.
+
+At the same time, it prepares a workspace view under `--output-dir` for compatibility with legacy scripts:
+
+- `code/` (usually a symlink to the code directory inside the package; treat as read-only)
+- `configs/` (an editable copy of the configuration directory created under `output-dir`)
+- `data/` (usually a symlink to the data directory inside the package, or an external data directory you specify later; treat as read-only)
+- `pretrained_models/` (usually a symlink to the model directory you specify; treat as read-only)
+
+Notes:
+- `code/`, `data/`, and `pretrained_models/` are mainly for compatibility with legacy scripts and should be treated as read-only. Editing files under these directories may modify the real source files they point to.
+- `configs/` is a local copy under `output-dir`, so you can safely edit YAML files there without affecting the installed package.
+
+## 2. Environment Requirements
+
+- Linux + NVIDIA GPU (this guide has been verified with the CUDA 12.6 + PyTorch cu126 setup)
+- Python 3.10
+- NVIDIA driver installed on the machine (you can run `nvidia-smi`)
+- If you need to install `flash-attn`, you must have a build toolchain and enough free space in the temporary directory
+
+## 3. Installation Steps (Run in Order)
+
+1) Install bolt-lab
+```bash
+pip install bolt_lab
+```
+2) Install PyTorch (CUDA 12.6 corresponds to cu126)
+```bash
+pip install torch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cu126
+```
+3) Install NVCC (use conda only for this step)
+```bash
+conda install -c nvidia cuda-nvcc -y
+```
+
+4) Install the remaining Python dependencies
+```bash
+pip install -r requirements.txt
+```
+
+5) Install flash-attn (install separately to avoid failures caused by build isolation and caching)
+```bash
+mkdir -p ~/tmp/pip
+TMPDIR=~/tmp/pip 
+pip install --no-build-isolation --no-cache-dir flash-attn==2.8.3
+```
+
+## 4. Initialize Workspace (Recommended)
+
+Before running experiments, you can initialize the workspace under `--output-dir` without starting any training/evaluation:
+
+bolt-grid --init-only --output-dir ~/tmp/bolt_run --model-dir ~/code/bolt/pretrained_models
+
+This will create the directory structure and copy editable configs to:
+- ~/tmp/bolt_run/configs/
+
+If you want to refresh configs from the package version (overwrite the copied configs under `output-dir/configs/`):
+
+bolt-grid --init-only --overwrite-configs --output-dir ~/tmp/bolt_run --model-dir ~/code/bolt/pretrained_models
+
+## 5. Run Command
+
+After installation, you can run from any directory:
+
+bolt-grid --config grid_gcd.yaml --output-dir ~/tmp/bolt_run --model-dir ~/code/bolt/pretrained_models
+
+Argument details:
+
+- `--config`: configuration file path
+  - Absolute paths are supported (e.g., `/path/to/grid_gcd.yaml`).
+  - Paths starting with `./` or `../` are resolved relative to your current working directory.
+  - If you pass a plain filename like `grid_gcd.yaml` (or `configs/grid_gcd.yaml`), bolt-lab will first look for it under `output-dir/configs/` (editable copy), and then fall back to the package’s built-in `configs/` directory.
+
+- `--output-dir`: working directory (all `outputs/results/logs` will be written here)
+
+- `--model-dir`: model/cache directory (also compatible with the legacy `pretrained_models` relative path used by older scripts)
+  - It is recommended to point to a readable/writable directory for storing pretrained models and caches
+
+Typical workflow:
+1) Initialize workspace and edit configs:
+   - bolt-grid --init-only --output-dir ~/tmp/bolt_run --model-dir ~/code/bolt/pretrained_models
+   - edit ~/tmp/bolt_run/configs/grid_gcd.yaml
+2) Run:
+   - bolt-grid --config grid_gcd.yaml --output-dir ~/tmp/bolt_run --model-dir ~/code/bolt/pretrained_models
+
+## 6. Output Directory Structure (What You Will See After Running)
+
+Using `--output-dir ~/tmp/bolt_run` as an example, after running you will see:
+
+- `outputs/`: training/evaluation artifacts (models, predictions, etc.)
+- `results/`: summary files (e.g., `summary`, `seen_index`, etc.)
+- `logs/`: logs
+- `configs/`: editable config copy under `output-dir` (safe to modify)
+- `code/`, `data/`, `pretrained_models/`: workspace directories for legacy compatibility (usually symlinks)
+
+These workspace directories are expected and normal.
+
+## 7. Common Notes
+
+1) Do not point `--output-dir` to the `outputs` directory itself
+The correct approach is to point `--output-dir` to an experiment “root directory”, so that `outputs/results/logs` are created automatically under it.
+If you set `--output-dir` directly to `.../outputs`, you may end up with a nested `outputs/outputs` structure.
+
+2) Do not directly edit `code/data/pretrained_models` under `output-dir`
+These are usually symlinks for legacy compatibility. Editing them may modify the real source files they point to.
+If you need to modify configs, edit the copied YAML files under `output-dir/configs/`.
+
+3) Common reasons why `flash-attn` installation fails
+- Insufficient temporary disk space (this guide mitigates it by setting `TMPDIR`)
+- torch/CUDA version mismatch
+- Missing build toolchain
+If you encounter issues, first confirm that torch can be imported correctly and that `torch.cuda.is_available()` returns `True`.
+
+## 8. Optional Quick Self-Check (Verify Installation)
+
+python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
+bolt-grid --help
