@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+"""
+Sparse Spectral Graph Wavelet Transform (SGWT)
+----------------------------------------------
+Author: Luke Lowery (lukel@tamu.edu)
+File: examples/demo_filters_1.py
+Description: Basic filtering (LP, BP, HP) on the Texas grid.
+"""
+from sgwt import Convolve, impulse
+from sgwt import DELAY_TEXAS as L
+from sgwt import COORD_TEXAS as C
+
+# Impulse
+X  = impulse(L, n=1200)
+X += impulse(L, n=600)
+
+# Scales
+s = [1e-1]
+
+# Memory Efficient Context
+with Convolve(L) as conv:
+
+    LP = conv.lowpass(X, s)
+    BP = conv.bandpass(X, s)
+    HP = conv.highpass(X, s)
+
+from demo_plot import plot_signal
+plot_signal(BP[0][:,0], C, 'seismic')
