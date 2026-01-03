@@ -1,0 +1,108 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ephys-link"
+dynamic = ["version"]
+description = "A Python Socket.IO server that allows any Socket.IO-compliant application to communicate with manipulators used in electrophysiology experiments."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-only"
+keywords = ["socket-io", "manipulator", "electrophysiology", "ephys", "sensapex", "neuroscience", "neurotech", "virtualbrainlab", "new-scale"]
+authors = [{ name = "Kenneth Yang", email = "kjy5@uw.edu" }]
+maintainers = [{ name = "Kenneth Yang", email = "kjy5@uw.edu" }]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: Microsoft :: Windows",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+dependencies = [
+    "aiohttp==3.13.2",
+    "colorama==0.4.6",
+    "keyboard==0.13.5",
+    "packaging==25.0",
+    "platformdirs==4.5.1",
+    "pyserial==3.5",
+    "python-socketio==5.16.0",
+    "requests==2.32.5",
+    "sensapex==1.504.1",
+    "rich==14.2.0",
+    "vbl-aquarium==1.2.0"
+]
+
+[project.urls]
+Documentation = "https://virtualbrainlab.org/ephys_link/installation_and_use.html"
+Issues = "https://github.com/VirtualBrainLab/ephys-link/issues"
+Source = "https://github.com/VirtualBrainLab/ephys-link"
+
+[project.scripts]
+ephys-link = "ephys_link.__main__:main"
+ephys_link = "ephys_link.__main__:main"
+el = "ephys_link.__main__:main"
+
+[tool.hatch.version]
+path = "src/ephys_link/__about__.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.github", "/.idea", "/docs"]
+
+[tool.hatch.envs.default]
+installer = "uv"
+python = "3.14"
+dependencies = [
+    "pyinstaller==6.17.0",
+    "basedpyright==1.36.2",
+    "pytest==9.0.2",
+    "pytest-cov==7.0.0",
+    "pytest-mock==3.15.1",
+    "pytest-asyncio==1.3.0"
+]
+[tool.hatch.envs.default.scripts]
+exe = "pyinstaller.exe ephys_link.spec -y -- -d && pyinstaller.exe ephys_link.spec -y"
+exe-clean = "pyinstaller.exe ephys_link.spec -y --clean"
+check = "basedpyright"
+check-watched = "basedpyright --watch"
+tests = "pytest"
+cov = "pytest --cov=ephys_link --cov-report=html --cov-report=term-missing"
+
+[tool.hatch.envs.docs]
+installer = "uv"
+python = "3.14"
+skip-install = true
+dependencies = [
+    "mkdocs-material==9.7.1",
+    "mkdocstrings-python==2.0.1",
+    "mkdocs-gen-files==0.6.0",
+    "mkdocs-literate-nav==0.6.2",
+    "mkdocs-section-index==0.3.10"
+]
+[tool.hatch.envs.docs.scripts]
+serve = "mkdocs serve"
+build = "mkdocs build"
+
+[tool.ruff]
+exclude = ["typings"]
+unsafe-fixes = true
+
+[tool.basedpyright]
+include = ["src/ephys_link", "tests"]
+strict = ["src/ephys_link", "tests"]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+source_pkgs = ["ephys_link"]
+branch = true
+omit = [
+    "tests/*",
+    "scripts/*",
+]
