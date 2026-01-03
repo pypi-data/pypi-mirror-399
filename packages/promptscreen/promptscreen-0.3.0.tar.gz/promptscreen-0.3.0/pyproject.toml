@@ -1,0 +1,236 @@
+[project]
+name = "promptscreen"
+version = "0.3.0"
+description = "Prompt injection defense for LLMs"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Akshaj Rao", email = "kumaar324@gmail.com"},
+    {name = "Advait Singh", email = "kumaar324@gmail.com"},
+    {name = "Saumya Saksena", email = "kumaar324@gmail.com"},
+]
+keywords = ["llm", "prompt-injection", "jailbreak", "security", "ai-safety"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# Core dependencies (always installed)
+dependencies = [
+    "scikit-learn>=1.2.0",
+    "joblib>=1.5.0",
+    "yara-python>=4.3.0",
+    "emoji>=2.0.0",
+    "nltk>=3.9.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "typing-extensions>=4.5.0",
+]
+
+[project.optional-dependencies]
+# Heavy ML guards (transformers-based)
+ml = [
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "sentence-transformers>=2.0.0",
+]
+
+# Vector database guard
+vectordb = [
+    "chromadb>=0.4.0",
+    "pydantic>=2.0.0",
+]
+
+# API server
+api = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "pydantic>=2.0.0",
+]
+
+# Evaluation framework
+eval = [
+    "langchain-ollama>=1.0.0",
+    "omegaconf>=2.3.0",
+    "hydra-core>=1.3.0",
+]
+
+# All optional dependencies
+all = [
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "sentence-transformers>=2.0.0",
+    "chromadb>=0.4.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "langchain-ollama>=1.0.0",
+    "omegaconf>=2.3.0",
+    "hydra-core>=1.3.0",
+]
+
+# Development tools
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.11.0",
+    "black>=23.12.0",
+    "ruff>=0.14.5",
+    "mypy>=1.8.0",
+    "bandit[toml]>=1.7.6",
+    "pre-commit>=3.5.0",
+    "types-requests>=2.31.0",
+    "types-PyYAML>=6.0.0",
+    "pydocstyle>=6.3.0",
+    "yamllint>=1.33.0",
+    "fastapi>=0.100.0",
+    "chromadb>=1.2.0",
+    "lark>=1.2.0",
+    "httpx>=0.25.0",
+    "hydra-core>=1.3.0",
+    "langchain_google_genai>=2.0.0",
+    "langchain_ollama>=0.3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/dronefreak/PromptScreen"
+Repository = "https://github.com/dronefreak/PromptScreen"
+Documentation = "https://github.com/dronefreak/PromptScreen#readme"
+Issues = "https://github.com/dronefreak/PromptScreen/issues"
+
+[project.scripts]
+promptscreen = "promptscreen.cli:cli"
+
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+promptscreen = ["data/rules/*.yar", "data/rules/*.yara"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.mypy_cache
+  | \.venv
+  | build
+  | dist
+  | legacy
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".venv",
+    "build",
+    "dist",
+    "legacy",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "S",   # bandit (security)
+]
+ignore = [
+    "E501",  # line too long (black handles this)
+    "B008",  # function calls in argument defaults
+    "S101",  # assert statements (needed in tests)
+    "S311",  # pseudo-random generators (fine for non-crypto use)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # unused imports
+"tests/*" = ["S101"]      # assert allowed in tests
+
+[tool.mypy]
+mypy_path = "src"
+explicit_package_bases = true
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+check_untyped_defs = true
+files = ["src"]
+exclude = ["tests", "examples", "legacy", ".venv", "build"]
+no_site_packages = true
+follow_imports = "skip"
+
+# Ignore errors in installed packages
+[[tool.mypy.overrides]]
+module = [
+    "pytest.*",
+    "transformers.*",
+    "torch.*",
+    "langchain.*",
+]
+ignore_errors = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "legacy", "examples"]
+skips = ["B101", "B601", "B615"]
+
+[tool.pydocstyle]
+convention = "google"
+add_ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D107", "D212"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--cov=src/promptscreen",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "-v"
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/examples/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
