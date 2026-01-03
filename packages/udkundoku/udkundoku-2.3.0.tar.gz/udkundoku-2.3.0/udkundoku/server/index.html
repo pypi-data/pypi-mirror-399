@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>UD-Kundoku HTTP-server</title>
+<script src="conllusvgview.js"></script>
+<script src="conllusvgload.js"></script>
+<script>
+lastquery="";
+typenum=0;
+function kaiseki(textid,queryid){
+  qbox=document.getElementById(queryid)
+  if(qbox.value==null)
+    q=qbox.textContent
+  else
+    q=qbox.value
+  if(q!=lastquery)
+    typenum=0
+  else
+    typenum=(typenum+1)%4;
+  lastquery=q;
+  if(location.href.indexOf("append")>0)
+    append=(typenum!=0);
+  else
+    append=false;
+  conllusvg.loadRemote(textid,encodeURIComponent(q)+"."+typenum+".txt",append);
+}
+</script>
+</head>
+<body onresize="conllusvg.rewriteAll()">
+<span style="font-size:24pt">
+<input type="text" size=30 id="query" style="font-size:100%" />
+<button onclick="kaiseki('conllu','query')" style="font-size:100%">解析</button>
+</span><br />
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="100%" onload="conllusvg.view(this,'conllu')">
+<text id="conllu" fill="none" visibility="hidden">
+</text>
+</svg>
+</body>
