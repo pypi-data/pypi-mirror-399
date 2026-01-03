@@ -1,0 +1,96 @@
+{
+    "config": {
+        "step": {
+            "numeric_state": {
+                "data": {
+                    "name": "Naziv"
+                }
+            },
+            "observation_selector": {
+                "menu_options": {
+                    "template": "Dodaj bele\u0161ku za \u0161ablon"
+                }
+            },
+            "state": {
+                "data": {
+                    "name": "Naziv"
+                }
+            },
+            "template": {
+                "data": {
+                    "name": "Naziv",
+                    "prob_given_false": "Verovatno\u0107a kada je {parent_sensor_name} {device_class_off}",
+                    "prob_given_true": "Verovatno\u0107a kada je {parent_sensor_name} {device_class_on}",
+                    "value_template": "\u0160ablon"
+                },
+                "data_description": {
+                    "name": "Ovo ime \u0107e slu\u017eiti za prepoznavanje ove bele\u0161ke pri budu\u0107em ure\u0111ivanju."
+                }
+            },
+            "user": {
+                "data": {
+                    "name": "Naziv"
+                }
+            }
+        }
+    },
+    "config_subentries": {
+        "observation": {
+            "step": {
+                "numeric_state": {
+                    "data": {
+                        "name": "Naziv"
+                    }
+                },
+                "reconfigure": {
+                    "data": {
+                        "name": "Naziv"
+                    }
+                },
+                "state": {
+                    "data": {
+                        "entity_id": "Entitet",
+                        "name": "Naziv",
+                        "prob_given_false": "Verovatno\u0107a kada je {parent_sensor_name} {device_class_off}",
+                        "prob_given_true": "Verovatno\u0107a kada je {parent_sensor_name} {device_class_on}"
+                    },
+                    "data_description": {
+                        "name": "Ovo ime \u0107e slu\u017eiti za prepoznavanje ove bele\u0161ke pri budu\u0107em ure\u0111ivanju."
+                    }
+                },
+                "template": {
+                    "data": {
+                        "name": "Naziv",
+                        "value_template": "\u0160ablon"
+                    }
+                },
+                "user": {
+                    "description": "\u201eOpservacije\u201c su vrednosti senzora ili \u0161ablona koje se prate i zatim kombinuju kako bi informisale kona\u010dnu verovatno\u0107u Bajesovog senzora. Svaka opservacija \u0107e a\u017eurirati verovatno\u0107u Bajesovog senzora ako je detektovana ili ako nije detektovana. Ako stanje entiteta postane `unavailable` ili `unknown`, bi\u0107e ignorisano. Ako je za isti entitet konfigurisan vi\u0161e od jednog stanja ili vi\u0161e od jednog numeri\u010dkog opsega, tada \u0107e se obrnute detekcije ignorisati.",
+                    "menu_options": {
+                        "template": "Dodaj bele\u0161ku za \u0161ablon"
+                    }
+                }
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "data": {
+                    "name": "Naziv"
+                }
+            }
+        }
+    },
+    "selector": {
+        "binary_sensor_device_class": {
+            "options": {
+                "light": "Svetlo",
+                "lock": "Zaklju\u010dati",
+                "occupancy": "Prisustvo",
+                "opening": "Otvaranje",
+                "update": "A\u017euriranje"
+            }
+        }
+    }
+}
