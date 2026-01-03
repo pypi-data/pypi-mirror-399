@@ -1,0 +1,57 @@
+[project]
+name = "esn-lab"
+version = "0.2.0"
+description = "A Python package for Echo State Network experiments." 
+readme = "./docs/readme-en.md" 
+
+license = { text = "MIT License" }
+
+classifiers = [
+    "Development Status :: 3 - Alpha", 
+    "License :: OSI Approved :: MIT License", 
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "pandas",
+    "opencv-python",
+    "PyYAML",
+    "omegaconf",
+    "networkx",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+gpu = ["cupy-cuda13x"]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+
+[project.urls]
+"Homepage" = "https://github.com/Applica-760/esn-lab"
+"Repository" = "https://github.com/Applica-760/esn-lab"
+"Bug Tracker" = "https://github.com/Applica-760/esn-lab/issues"
+
+
+[tool.setuptools.packages.find]
+where = ["src"] 
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "-ra",
+]

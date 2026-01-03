@@ -1,0 +1,82 @@
+Metadata-Version: 2.4
+Name: esn-lab
+Version: 0.2.0
+Summary: A Python package for Echo State Network experiments.
+License: MIT License
+Project-URL: Homepage, https://github.com/Applica-760/esn-lab
+Project-URL: Repository, https://github.com/Applica-760/esn-lab
+Project-URL: Bug Tracker, https://github.com/Applica-760/esn-lab/issues
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Requires-Dist: pandas
+Requires-Dist: opencv-python
+Requires-Dist: PyYAML
+Requires-Dist: omegaconf
+Requires-Dist: networkx
+Requires-Dist: tqdm
+Provides-Extra: gpu
+Requires-Dist: cupy-cuda13x; extra == "gpu"
+Provides-Extra: test
+Requires-Dist: pytest>=7.0.0; extra == "test"
+Requires-Dist: pytest-cov>=4.0.0; extra == "test"
+Dynamic: license-file
+
+# esn-lab
+
+A Python package for Echo State Network (ESN) experiments and training.
+
+## Overview
+
+esn-lab provides an implementation of Echo State Networks, a type of reservoir computing. It enables training and prediction of time series data using state vectors from the reservoir layer.
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+## Key Components
+
+## Usage Example
+
+※ For detailed usage examples, see ./projects
+
+```python
+from esn_lab import ESN, Tikhonov, train
+
+# Initialize model
+model = ESN(
+    N_u=1,          # Input dimension
+    N_y=1,          # Output dimension
+    N_x=100,        # Number of reservoir nodes
+    density=0.1,    # Connection density
+    input_scale=1.0,
+    rho=0.9         # Spectral radius
+)
+
+# Initialize optimizer
+optimizer = Tikhonov(N_x=100, N_y=1, beta=1e-6)
+
+# Execute training
+output_weight = train(model, optimizer, U_list, D_list)
+
+# Set output weights
+model.Output.setweight(output_weight)
+```
+
+## License
+
+MIT License
+
+## Development Status
+
+Development Status: Alpha
