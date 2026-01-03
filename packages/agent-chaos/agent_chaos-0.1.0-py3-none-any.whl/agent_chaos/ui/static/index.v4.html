@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🃏 agent-chaos · Conversation Timeline</title>
+    <link rel="stylesheet" href="/static/styles.v4.css?v=4.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">🃏</span>
+            <span class="logo-text">agent-chaos</span>
+        </div>
+        <div class="header-stats" id="headerStats">
+            <!-- Dynamic stats populated by JS -->
+        </div>
+        <div class="header-controls">
+            <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+            <div class="status-indicator disconnected" id="statusBadge">
+                <div class="status-dot"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+        </div>
+    </header>
+    
+    <main class="main">
+        <!-- Narrative Summary Bar -->
+        <div class="summary-bar" id="summaryBar">
+            <span class="summary-narrative" id="summaryNarrative">Waiting for chaos runs...</span>
+        </div>
+
+        <!-- Scenarios Section -->
+        <section class="scenarios-section">
+            <div class="section-header">
+                <h2 class="section-title">Scenarios <span class="section-count" id="scenarioCount">0</span></h2>
+                <div class="filter-groups">
+                    <div class="view-toggle" id="viewToggle">
+                        <button class="view-btn active" data-view="grid" title="Grid view">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <rect x="1" y="1" width="6" height="6" rx="1"/>
+                                <rect x="9" y="1" width="6" height="6" rx="1"/>
+                                <rect x="1" y="9" width="6" height="6" rx="1"/>
+                                <rect x="9" y="9" width="6" height="6" rx="1"/>
+                            </svg>
+                        </button>
+                        <button class="view-btn" data-view="list" title="List view">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <rect x="1" y="2" width="14" height="2" rx="0.5"/>
+                                <rect x="1" y="7" width="14" height="2" rx="0.5"/>
+                                <rect x="1" y="12" width="14" height="2" rx="0.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button class="group-by-tags-btn" id="groupByTagsBtn" title="Group by tags">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M1 3h14v2H1zM3 7h12v2H3zM3 11h12v2H3z"/>
+                        </svg>
+                        <span>Group</span>
+                    </button>
+                    <div class="filter-tabs" id="filterTabs">
+                        <button class="filter-tab active" data-filter="all">All</button>
+                        <button class="filter-tab" data-filter="passed">Passed</button>
+                        <button class="filter-tab" data-filter="failed">Failed</button>
+                    </div>
+                    <div class="chaos-type-filter" id="chaosTypeFilter">
+                        <button class="chaos-type-dropdown-trigger" id="chaosTypeDropdownTrigger">
+                            <span class="chaos-type-label">Chaos Type</span>
+                            <span class="chaos-type-arrow">▾</span>
+                        </button>
+                        <div class="chaos-type-chips" id="chaosTypeChips"></div>
+                        <div class="chaos-type-dropdown" id="chaosTypeDropdown">
+                            <div class="dropdown-header">Filter by chaos type</div>
+                            <div class="dropdown-options">
+                                <label class="dropdown-option">
+                                    <input type="checkbox" value="none" data-type="none">
+                                    <span>None (Baseline)</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" value="user_input" data-type="user_input">
+                                    <span>User Input</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" value="llm" data-type="llm">
+                                    <span>LLM Call</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" value="stream" data-type="stream">
+                                    <span>LLM Streaming</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" value="tool" data-type="tool">
+                                    <span>Tools</span>
+                                </label>
+                                <label class="dropdown-option">
+                                    <input type="checkbox" value="context" data-type="context">
+                                    <span>Context</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="scenarios-grid" id="scenariosGrid">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🎲</div>
+                    <h3 class="empty-title">Awaiting Chaos...</h3>
+                    <p class="empty-text">
+                        Run your agent with chaos scenarios or use 
+                        <code>chaos_context("test", emit_events=True)</code>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scenario Detail Modal with Conversation Timeline -->
+    <div class="modal hidden" id="scenarioModal">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-panel">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <div class="modal-title" id="modalTitle">Scenario Details</div>
+                    <div class="modal-subtitle" id="modalSubtitle"></div>
+                </div>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic conversation timeline content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/static/app.v4.js?v=4.0"></script>
+</body>
+</html>
+
