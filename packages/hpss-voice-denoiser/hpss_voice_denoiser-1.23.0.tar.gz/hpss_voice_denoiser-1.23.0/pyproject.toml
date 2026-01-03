@@ -1,0 +1,122 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hpss-voice-denoiser"
+version = "1.23.0"
+description = "HPSS-based voice denoiser optimized for ASR preprocessing (STT, diarization, speaker embedding)"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Atomys", email = "contact@atomys.io"}
+]
+keywords = [
+    "audio",
+    "denoising",
+    "speech",
+    "asr",
+    "stt",
+    "whisper",
+    "hpss",
+    "voice",
+    "preprocessing",
+    "diarization",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+]
+
+[project.optional-dependencies]
+visualization = [
+    "matplotlib>=3.7.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+all = [
+    "hpss-voice-denoiser[visualization,dev]",
+]
+
+[project.scripts]
+hpss-denoise = "hpss_denoiser.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/atomys/hpss-voice-denoiser"
+Documentation = "https://github.com/atomys/hpss-voice-denoiser#readme"
+Repository = "https://github.com/atomys/hpss-voice-denoiser"
+Issues = "https://github.com/atomys/hpss-voice-denoiser/issues"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/README.md",
+    "/LICENSE",
+]
+exclude = [
+    "/.github",
+    "/tests",
+    "/benchmarks",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hpss_denoiser"]
+exclude = [
+    "/.github",
+    "/tests",
+    "/benchmarks",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+    "B905",   # zip without explicit strict
+]
+
+[tool.ruff.isort]
+known-first-party = ["hpss_denoiser"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=hpss_denoiser --cov-report=term-missing"
