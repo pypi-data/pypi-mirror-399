@@ -1,0 +1,233 @@
+# NeuronLens Python Package
+
+A Python package for accessing NeuronLens interpretability analysis functions.
+
+## Installation
+
+```bash
+pip install neuronlens
+```
+
+For development (editable install):
+```bash
+pip install -e .
+```
+
+## Quick Start
+
+### With API Key (Cloud API)
+
+```python
+import neuronlens
+
+# Initialize with API key
+NEURONLENS_API_KEY = "nlive_your_api_key_here"
+engine = neuronlens.Engine(api_key=NEURONLENS_API_KEY)
+
+# Optionally specify cloud API URL
+# engine = neuronlens.Engine(api_key=NEURONLENS_API_KEY, api_url="https://your-runpod.net")
+
+# Use functions directly
+result = engine.analyze_agent_query("Get Tesla stock price")
+print(f"Alignment: {result['alignment_status']}")
+```
+
+### Without API Key (Local Server)
+
+```python
+import neuronlens
+
+# Initialize without API key - uses localhost:8000 (local_server.py)
+engine = neuronlens.Engine()
+
+# All functions work the same way
+result = engine.analyze_agent_query("Get Tesla stock price")
+sentiment = engine.analyze_slm_sentiment("Strong earnings", top_n=10)
+```
+
+### Environment Variables
+
+You can also set the API key via environment variables:
+
+```bash
+export NEURONLENS_API_KEY="nlive_your_api_key_here"
+export NEURONLENS_API_URL="https://your-runpod.net"  # Optional
+```
+
+Then initialize:
+```python
+import neuronlens
+engine = neuronlens.Engine()  # Automatically picks up from environment
+```
+
+## Available Functions
+
+### Agent Lens
+- `engine.analyze_agent_query(query)` - Full agent analysis with tool-intent tracing
+
+### Hallucination Lens
+- `engine.analyze_hallucination(prompt, max_tokens=256, temperature=0.7)` - Token-level hallucination detection
+
+### SLM Lens
+- `engine.analyze_slm_sentiment(text, top_n=10)` - Sentiment analysis with SAE features
+- `engine.compare_probe_sae(text)` - Compare probe vs SAE sentiment analysis
+
+### Trading Lens
+- `engine.extract_trading_signals(text, ticker)` - Extract trading signals from news
+- `engine.backtest_strategy(ticker, signal_name, long_thr, short_thr, holding_days=1)` - Backtest strategy
+
+### Reasoning Lens
+- `engine.analyze_reasoning(prompt, trim_ratio=0.0, max_new_tokens=2048)` - CoT faithfulness analysis
+
+### Search & Steer
+- `engine.search_features(query, k=10, layer=16)` - Search features semantically
+- `engine.steer_features(prompt, features, model="meta-llama/Llama-2-7b-hf")` - Apply feature steering
+
+## Complete Examples
+
+### Agent Lens Analysis
+
+```python
+import neuronlens
+
+engine = neuronlens.Engine(api_key="nlive_your_key")
+
+result = engine.analyze_agent_query("What's the latest news about Apple?")
+
+print(f"Query: {result['query']}")
+print(f"Alignment Status: {result['alignment_status']}")  # GREEN, AMBER, or RED
+print(f"Expected Tools: {result['expected_tools']}")
+print(f"Tool Called: {result['tool_called']}")
+print(f"Intent Scores: {result['intent_scores']}")
+
+# Top activated features
+for feature in result['top_features'][:5]:
+    print(f"Feature #{feature['feature_id']}: {feature['activation']:.4f}")
+```
+
+### SLM Lens Sentiment Analysis
+
+```python
+import neuronlens
+
+engine = neuronlens.Engine(api_key="nlive_your_key")
+
+result = engine.analyze_slm_sentiment(
+    text="Strong quarterly earnings exceeded expectations",
+    top_n=10
+)
+
+sentiment = result['sentiment']
+print(f"Predicted Label: {sentiment['predicted_label']}")
+print(f"Confidence: {sentiment['confidence']:.3f}")
+
+# Top contributing features
+for feature in result['top_features']:
+    print(f"Feature #{feature['feature_id']}: {feature['activation']:.4f}")
+```
+
+### Trading Lens
+
+```python
+import neuronlens
+
+engine = neuronlens.Engine(api_key="nlive_your_key")
+
+# Extract signals
+signals = engine.extract_trading_signals(
+    text="Apple earnings beat expectations by 15%",
+    ticker="AAPL"
+)
+
+# Backtest strategy
+backtest_result = engine.backtest_strategy(
+    ticker="AAPL",
+    signal_name="event_alpha",
+    long_thr=0.5,
+    short_thr=-0.5,
+    holding_days=1
+)
+
+print(f"Equity Curve: {backtest_result['equity_curve']}")
+print(f"Metrics: {backtest_result['metrics']}")
+```
+
+### Search & Steer
+
+```python
+import neuronlens
+
+engine = neuronlens.Engine(api_key="nlive_your_key")
+
+# Search for features
+features = engine.search_features(
+    query="market volatility and uncertainty",
+    k=10,
+    layer=16
+)
+
+# Steer using found features
+steered = engine.steer_features(
+    prompt="What is the market outlook for tech stocks?",
+    features=[
+        {"id": features[0]['feature_id'], "magnitude": 0.7},  # Steer towards
+        {"id": features[1]['feature_id'], "magnitude": -0.5}  # Steer away
+    ],
+    model="meta-llama/Llama-2-7b-hf"
+)
+
+print(f"Original: {steered['original_text']}")
+print(f"Steered: {steered['steered_text']}")
+```
+
+## How It Works
+
+### Local Server Mode
+- **URL**: `http://localhost:8000`
+- **Server**: `local_server.py`
+- **Endpoints**: High-level lens endpoints (`/slm_lens`, `/agent_lens`, etc.)
+- **Usage**: Initialize `Engine()` without API key
+- **Authentication**: Optional (can be disabled)
+
+### Cloud Server Mode
+- **URL**: Cloud API URL (e.g., `https://your-runpod.net`)
+- **Server**: `server.py`
+- **Endpoints**: Low-level feature extraction endpoints
+- **Usage**: Initialize `Engine(api_key="...")` with API key
+- **Authentication**: Required (API key in `X-API-Key` header)
+
+The `Engine` class automatically:
+1. Detects mode based on API key presence
+2. Sets appropriate API URL
+3. Injects `X-API-Key` header when API key is set
+4. Wraps base functions without modifying them
+
+## Error Handling
+
+```python
+import neuronlens
+
+try:
+    engine = neuronlens.Engine(api_key="invalid_key")
+    result = engine.analyze_agent_query("Get Tesla price")
+except requests.exceptions.HTTPError as e:
+    if e.response.status_code == 401:
+        print("Authentication failed: Invalid API key")
+    else:
+        print(f"API error: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## Requirements
+
+- Python 3.8+
+- requests
+- numpy
+
+For full functionality (if running local server), see `requirements.txt` in the parent directory.
+
+## License
+
+MIT License
+
