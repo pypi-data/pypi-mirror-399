@@ -1,0 +1,76 @@
+import typing as t
+from functools import partial
+
+from ellar.common import APIException, EllarInterceptor, IExecutionContext, constants
+from ellar.core.services import reflector
+from ellar.di import injectable
+from starlette import status
+
+from .constants import POLICY_KEYS
+from .policy import Policy, PolicyType
+
+
+@injectable
+class AuthorizationInterceptor(EllarInterceptor):
+    """
+    Interceptor responsible for handling request authorization.
+    Verifies user authentication and evaluates policies required for route access.
+    """
+
+    status_code = status.HTTP_403_FORBIDDEN
+    exception_class = APIException
+
+    __slots__ = ()
+
+    @t.no_type_check
+    def get_route_handler_policy(
+        self, context: IExecutionContext
+    ) -> t.Optional[t.List[t.Union[PolicyType, str]]]:
+        """
+        Retrieves policy requirements for the current route handler.
+        """
+        return context.get_app().reflector.get_all_and_override(
+            POLICY_KEYS, context.get_handler(), context.get_class()
+        )
+
+    def _get_policy_instance(
+        self, context: IExecutionContext, policy: t.Union[t.Type, t.Any, str]
+    ) -> t.Union[Policy, t.Any]:
+        if isinstance(policy, type):
+            return context.get_service_provider().get(policy)
+        return policy
+
+    async def intercept(
+        self, context: IExecutionContext, next_interceptor: t.Callable[..., t.Coroutine]
+    ) -> t.Any:
+        """
+        Intercepts the request to enforce authorization logic.
+
+        - Checks if `@SkipAuth` is present.
+        - Verifies if the user is authenticated.
+        - Evaluates any registered policies.
+        """
+        skip_auth = reflector.get_all_and_override(
+            constants.SKIP_AUTH, context.get_handler(), context.get_class()
+        )
+        if skip_auth is True:
+            return await next_interceptor()
+
+        if not context.user.is_authenticated:
+            raise self.exception_class(status_code=401)
+
+        policies = self.get_route_handler_policy(context)
+
+        if policies:
+            partial_get_policy_instance = partial(self._get_policy_instance, context)
+
+            for policy in map(partial_get_policy_instance, policies):
+                result = await policy.handle(context)
+
+                if not result:
+                    self.raise_exception()
+
+        return await next_interceptor()
+
+    def raise_exception(self) -> None:
+        raise self.exception_class(status_code=self.status_code)

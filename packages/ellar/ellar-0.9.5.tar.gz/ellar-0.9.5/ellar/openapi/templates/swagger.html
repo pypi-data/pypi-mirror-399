@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <link type="text/css" rel="stylesheet" href="{{swagger_css_url}}">
+    {% if dark_theme %}
+        <link href="{{ url_for('static', path='/swagger/SwaggerDark.css') }}" rel="stylesheet">
+    {% endif %}
+    <link rel="shortcut icon" href="{{favicon_url}}">
+    <title>{{title}}</title>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+</body>
+<script src="{{swagger_js_url}}"></script>
+    <!-- `SwaggerUIBundle` is now available on the page -->
+<script>
+    const ui = SwaggerUIBundle({
+        url: '{{openapi_url}}',
+        dom_id: '#swagger-ui',
+        presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIBundle.SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout",
+        deepLinking: true,
+        showExtensions: true,
+        showCommonExtensions: true,
+    })
+</script>
+</html>
