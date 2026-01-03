@@ -1,0 +1,43 @@
+Metadata-Version: 2.4
+Name: hfortix-core
+Version: 0.4.0.dev1
+Summary: Core foundation for HFortix - Fortinet SDK
+Author-email: "Herman W. Jacobsen" <herman@wjacobsen.fo>
+License: Proprietary
+Project-URL: Homepage, https://github.com/hermanwjacobsen/hfortix
+Project-URL: Repository, https://github.com/hermanwjacobsen/hfortix
+Keywords: fortinet,fortigate,fortios,api,sdk
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: httpx[http2]>=0.27.0
+
+# HFortix Core
+
+Core foundation package for HFortix - Python SDK for Fortinet products.
+
+## Installation
+
+```bash
+pip install hfortix-core
+```
+
+## What's Included
+
+- **Exception System**: Common exception hierarchy for all Fortinet SDKs
+- **HTTP Client Framework**: Base HTTP client with retry, circuit breaker, and async support
+- **Type Definitions**: Shared type aliases and protocols
+
+## Usage
+
+This package is typically used as a dependency by product-specific packages:
+- `hfortix-fortios`
+- `hfortix-fortimanager`
+- `hfortix-fortianalyzer`
+
+For most users, install the product-specific package or the meta-package `hfortix`.
