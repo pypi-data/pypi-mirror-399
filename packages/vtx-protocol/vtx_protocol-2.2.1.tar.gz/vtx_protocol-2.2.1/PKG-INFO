@@ -1,0 +1,89 @@
+Metadata-Version: 2.4
+Name: vtx-protocol
+Version: 2.2.1
+Summary: WIT definitions and Python bindings for VTX plugins
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# vtx-protocol
+
+**The Official Python SDK for VTX Project Plugins.**
+
+This package provides the type definitions, bindings, and interfaces required to develop VTX-compatible plugins in Python. It serves as the Single Source of Truth (SSOT) for the plugin protocol, ensuring that your implementation adheres to the strict interface contracts defined by the host.
+
+## Installation
+
+```bash
+pip install vtx-protocol
+
+```
+
+## Usage
+
+### 1. Developing a Plugin
+
+The package exports all necessary data structures and interfaces directly. You can import strict types to ensure your plugin complies with the protocol.
+
+```python
+from vtx_protocol import types, sql, stream_io
+
+class Plugin:
+    def handle(self, req: types.HttpRequest) -> types.HttpResponse:
+        """
+        Handle an incoming HTTP request.
+        """
+        print(f"Received request: {req.method} {req.path}")
+
+        return types.HttpResponse(
+            status=200,
+            body=None
+        )
+
+    def get_manifest(self) -> types.Manifest:
+        """
+        Return the plugin manifest.
+        """
+        return types.Manifest(
+            id="my-python-plugin",
+            version="1.0.0",
+            name="My Python Plugin",
+            description="A sample plugin implemented in Python",
+            entrypoint="handle"
+        )
+
+```
+
+### 2. Accessing Protocol Definitions
+
+For tooling or build scripts that require access to the raw interface definitions, the package provides helper functions to locate the bundled WIT files.
+
+```python
+import vtx_protocol
+
+# Get the absolute path to the bundled vtx.wit file
+wit_path = vtx_protocol.get_wit_path()
+
+# Read the content of the WIT file directly
+wit_content = vtx_protocol.get_wit_content()
+
+```
+
+## Build Process
+
+To compile your Python code into a VTX-compatible WebAssembly component, use `componentize-py` with the protocol definitions provided by this package.
+
+```bash
+# Example build command using componentize-py
+componentize-py \
+  --wit-path $(python -c "import vtx_protocol; print(vtx_protocol.get_wit_path())") \
+  --world plugin \
+  componentize app -o plugin.wasm
+
+```
+
+## Versioning
+
+This package follows **Semantic Versioning**. The version number (`Major.Minor.Patch`) corresponds strictly to the version of the `vtx:api` WIT interface definition.
+
+* **Major/Minor**: Changes in the interface contract.
+* **Patch**: Bug fixes or non-breaking internal updates.
