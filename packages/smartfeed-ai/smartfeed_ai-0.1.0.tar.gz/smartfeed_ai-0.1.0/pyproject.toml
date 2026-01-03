@@ -1,0 +1,33 @@
+[project]
+name = "smartfeed-ai" 
+version = "0.1.0"  
+description = "Smart feed extraction and processing tool with DSPy-powered LLM extraction"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "firecrawl",
+    "python-dotenv",
+    "openai",
+    "litellm",
+    "presidio-analyzer",
+    "presidio-anonymizer",
+    "spacy>=3.0.0",
+    "markitdown[pdf, docx, xls, xlsx]",
+    "rich",
+    "numpy<2.0.0",
+    "dspy",
+    "tiktoken",
+    "transformers",
+    "trafilatura",
+    "chonkie<=1.5.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[project.scripts]
+smartfeed = "app.main:main" 
