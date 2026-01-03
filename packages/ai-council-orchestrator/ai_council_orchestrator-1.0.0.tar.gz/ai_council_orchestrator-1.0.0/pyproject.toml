@@ -1,0 +1,155 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-council-orchestrator"
+version = "1.0.0"
+description = "A production-grade multi-agent AI orchestration system that intelligently coordinates multiple AI models"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Shriyash", email = "shriyash@example.com"}
+]
+maintainers = [
+    {name = "AI Council Team"}
+]
+keywords = ["ai", "orchestration", "multi-agent", "llm", "coordination", "artificial-intelligence", "machine-learning", "ai-models"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Distributed Computing",
+]
+
+dependencies = [
+    "pydantic>=2.0.0",
+    "structlog>=23.0.0",
+    "pyyaml>=6.0",
+    "httpx>=0.24.0",
+    "tenacity>=8.0.0",
+    "typing-extensions>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "hypothesis>=6.0.0",
+    "black>=23.0.0",
+    "isort>=5.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "hypothesis>=6.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/shrixtacy/Ai-Council"
+Repository = "https://github.com/shrixtacy/Ai-Council"
+Documentation = "https://github.com/shrixtacy/Ai-Council/tree/master/docs"
+"Bug Tracker" = "https://github.com/shrixtacy/Ai-Council/issues"
+"Source Code" = "https://github.com/shrixtacy/Ai-Council"
+"Download" = "https://pypi.org/project/ai-council/"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ai_council*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=ai_council",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "property: Property-based tests",
+    "slow: Slow running tests",
+]
+
+[tool.coverage.run]
+source = ["ai_council"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["ai_council"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
