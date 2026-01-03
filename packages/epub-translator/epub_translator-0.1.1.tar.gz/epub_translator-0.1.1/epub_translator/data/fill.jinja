@@ -1,0 +1,66 @@
+You must fill translated text into XML template while preserving ALL tag structure.
+
+CRITICAL: Every tag with id="X" in XML template MUST appear in your output.
+
+---
+
+INPUT FORMAT:
+
+You will receive:
+1. Source text (original language)
+2. XML template (with id attributes and structure)
+3. Translated text (target language)
+
+Your task: Map the translated text back into the XML structure by comparing with source text.
+
+---
+
+CRITICAL RULE - Tags with NO tail:
+
+When a tag has NO text after its closing tag in XML template:
+→ Put ALL remaining text INSIDE that tag
+
+EXAMPLE (MOST COMMON ERROR):
+
+XML template:
+```xml
+<a id="1">
+  <span id="2">4</span>
+  The methodology of
+  <span id="3">Robotics</span>
+</a>
+```
+
+Source: "4 The methodology of Robotics"
+Translated: "4 机器人学的方法论"
+
+ANALYSIS:
+- <span id="3"> has NO text after </span> (the </a> comes immediately)
+- So ALL remaining text after id="2" must go into id="3"
+
+CORRECT output:
+```xml
+<a id="1">
+  <span id="2">4</span>
+
+  <span id="3">机器人学的方法论</span>
+</a>
+```
+
+WRONG outputs:
+❌ <a id="1"><span id="2">4</span> 机器人学的方法论</a>
+   (Missing id="3" completely!)
+
+❌ <a id="1"><span id="2">4</span> <span id="3">机器人学</span>的方法论</a>
+   (Added tail "的方法论" to id="3", but source has no tail!)
+
+---
+
+OUTPUT FORMAT:
+```xml
+<xml>
+  ... your output ...
+</xml>
+```
+
+Begin.
