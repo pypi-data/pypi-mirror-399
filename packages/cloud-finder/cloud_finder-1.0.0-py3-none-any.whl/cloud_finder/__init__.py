@@ -1,0 +1,340 @@
+"""
+Cloud Finder - Keyword concentration and topic hotspot detection in documents.
+
+A focused wrapper around vibe-finder for finding keyword clouds/hotspots.
+Use this when you need to:
+- Find where keywords cluster together in text
+- Detect topic regions in documents
+- Analyze keyword density and distribution
+- Score document relevance by keyword concentration
+
+Example:
+    from cloud_finder import find_topics, TopicMatch
+
+    # Quick one-liner
+    topics = find_topics(
+        document,
+        keywords=["налоговая", "оптимизация", "НДС"],
+        min_relevance=0.3
+    )
+
+    for topic in topics:
+        print(f"Topic at {topic.position}: relevance={topic.relevance:.0%}")
+        print(f"  Keywords: {topic.found_keywords}")
+        print(f"  Clustering: {topic.clustering}x concentrated")
+"""
+
+from dataclasses import dataclass
+from typing import List, Optional, Dict, Any
+
+# Import from vibe-finder (the core engine)
+from vibe_finder import (
+    CloudFinder as _CloudFinder,
+    HotspotMatch as _HotspotMatch,
+    DistributionStats as _DistributionStats,
+    jaro_winkler_similarity,
+    tokenize_text,
+)
+
+__version__ = "1.0.0"
+__all__ = [
+    "find_topics",
+    "find_best_topic",
+    "TopicMatch",
+    "TopicFinder",
+    "analyze_relevance",
+]
+
+
+@dataclass
+class TopicMatch:
+    """
+    A topic region found in the document.
+
+    Simplified view of keyword concentration with focus on relevance scoring.
+    """
+    # Core position info
+    position: int           # Center position in document
+    start: int              # Start offset
+    end: int                # End offset
+
+    # Relevance scoring (0-1, higher = more relevant)
+    relevance: float        # Overall topic relevance score
+    keyword_coverage: float # Percentage of keywords found (0-1)
+
+    # Keywords info
+    found_keywords: List[str]   # Keywords that were found
+    missing_keywords: List[str] # Keywords not found
+
+    # Distribution analysis
+    clustering: float       # How much more clustered than random (>1 = concentrated)
+    density: float          # Keywords per 100 chars
+    spread: float           # Standard deviation of keyword positions
+
+    # Text
+    preview: str            # Text preview of the region
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "position": self.position,
+            "start": self.start,
+            "end": self.end,
+            "relevance": self.relevance,
+            "keyword_coverage": self.keyword_coverage,
+            "found_keywords": self.found_keywords,
+            "missing_keywords": self.missing_keywords,
+            "clustering": self.clustering,
+            "density": self.density,
+            "spread": self.spread,
+            "preview": self.preview,
+        }
+
+    @property
+    def is_highly_relevant(self) -> bool:
+        """True if this is a highly relevant topic region."""
+        return self.relevance >= 0.5 and self.clustering >= 1.5
+
+    @property
+    def interpretation(self) -> str:
+        """Human-readable relevance interpretation."""
+        if self.relevance >= 0.7:
+            return "highly_relevant"
+        elif self.relevance >= 0.5:
+            return "relevant"
+        elif self.relevance >= 0.3:
+            return "somewhat_relevant"
+        else:
+            return "weakly_relevant"
+
+
+class TopicFinder:
+    """
+    Find topic regions in documents based on keyword concentration.
+
+    Wrapper around vibe-finder's CloudFinder with simplified API.
+
+    Example:
+        finder = TopicFinder(document)
+        topics = finder.find("налоговая", "оптимизация", "НДС")
+
+        # Or with options
+        topics = finder.find(
+            "налоговая", "оптимизация", "НДС",
+            min_relevance=0.4,
+            fuzzy=True
+        )
+    """
+
+    def __init__(
+        self,
+        text: str,
+        fuzzy_threshold: float = 0.85,
+        window_size: int = 400,
+    ):
+        """
+        Initialize TopicFinder.
+
+        Args:
+            text: Document text to analyze
+            fuzzy_threshold: Similarity threshold for fuzzy matching (0-1)
+            window_size: Default search window size in chars
+        """
+        self.text = text
+        self.fuzzy_threshold = fuzzy_threshold
+        self.window_size = window_size
+        self._finder = _CloudFinder(text, fuzzy_threshold=fuzzy_threshold)
+
+    def find(
+        self,
+        *keywords: str,
+        min_relevance: float = 0.2,
+        min_coverage: float = 0.3,
+        max_results: int = 10,
+        window_size: Optional[int] = None,
+    ) -> List[TopicMatch]:
+        """
+        Find topic regions containing the given keywords.
+
+        Args:
+            *keywords: Keywords to search for (variadic)
+            min_relevance: Minimum relevance score (0-1)
+            min_coverage: Minimum keyword coverage (0-1)
+            max_results: Maximum topics to return
+            window_size: Search window size (uses default if None)
+
+        Returns:
+            List of TopicMatch sorted by relevance (highest first)
+
+        Example:
+            topics = finder.find("налоговая", "оптимизация", "НДС")
+            topics = finder.find("tax", "optimization", min_relevance=0.5)
+        """
+        kw_list = list(keywords)
+        if not kw_list:
+            return []
+
+        hotspots = self._finder.find_hotspots(
+            keywords=kw_list,
+            min_score=min_relevance,
+            min_coverage=min_coverage,
+            window_size=window_size or self.window_size,
+            max_results=max_results,
+        )
+
+        return [self._convert_hotspot(h) for h in hotspots]
+
+    def find_best(
+        self,
+        *keywords: str,
+        min_coverage: float = 0.3,
+    ) -> Optional[TopicMatch]:
+        """
+        Find the single best topic region for given keywords.
+
+        Args:
+            *keywords: Keywords to search for
+            min_coverage: Minimum keyword coverage
+
+        Returns:
+            Best TopicMatch or None if not found
+        """
+        topics = self.find(
+            *keywords,
+            min_relevance=0.0,
+            min_coverage=min_coverage,
+            max_results=1,
+        )
+        return topics[0] if topics else None
+
+    def _convert_hotspot(self, h: _HotspotMatch) -> TopicMatch:
+        """Convert internal HotspotMatch to TopicMatch."""
+        return TopicMatch(
+            position=h.center_offset,
+            start=h.start_offset,
+            end=h.end_offset,
+            relevance=h.score,
+            keyword_coverage=h.coverage,
+            found_keywords=h.keywords_found,
+            missing_keywords=h.keywords_missing,
+            clustering=h.distribution.clustering_ratio,
+            density=h.distribution.density,
+            spread=h.distribution.std_deviation,
+            preview=h.text_preview,
+        )
+
+
+# =============================================================================
+# CONVENIENCE FUNCTIONS
+# =============================================================================
+
+def find_topics(
+    text: str,
+    keywords: List[str],
+    min_relevance: float = 0.2,
+    min_coverage: float = 0.3,
+    window_size: int = 400,
+    fuzzy: bool = True,
+) -> List[TopicMatch]:
+    """
+    Find topic regions in text where keywords concentrate.
+
+    One-liner convenience function for quick topic detection.
+
+    Args:
+        text: Document text
+        keywords: List of keywords to find
+        min_relevance: Minimum relevance score (0-1)
+        min_coverage: Minimum keyword coverage (0-1)
+        window_size: Search window size in chars
+        fuzzy: Enable fuzzy matching for typos/OCR errors
+
+    Returns:
+        List of TopicMatch sorted by relevance
+
+    Example:
+        topics = find_topics(
+            document,
+            ["налоговая", "оптимизация", "НДС"],
+            min_relevance=0.3
+        )
+    """
+    threshold = 0.85 if fuzzy else 0.99
+    finder = TopicFinder(text, fuzzy_threshold=threshold, window_size=window_size)
+    return finder.find(*keywords, min_relevance=min_relevance, min_coverage=min_coverage)
+
+
+def find_best_topic(
+    text: str,
+    keywords: List[str],
+    min_coverage: float = 0.3,
+    fuzzy: bool = True,
+) -> Optional[TopicMatch]:
+    """
+    Find the single best topic region for given keywords.
+
+    Args:
+        text: Document text
+        keywords: List of keywords
+        min_coverage: Minimum keyword coverage
+        fuzzy: Enable fuzzy matching
+
+    Returns:
+        Best TopicMatch or None
+    """
+    topics = find_topics(
+        text, keywords,
+        min_relevance=0.0,
+        min_coverage=min_coverage,
+        fuzzy=fuzzy,
+    )
+    return topics[0] if topics else None
+
+
+def analyze_relevance(
+    text: str,
+    keywords: List[str],
+    fuzzy: bool = True,
+) -> Dict[str, Any]:
+    """
+    Analyze document relevance to a set of keywords.
+
+    Returns summary statistics about how relevant the document is
+    to the given keywords.
+
+    Args:
+        text: Document text
+        keywords: Keywords representing the topic
+        fuzzy: Enable fuzzy matching
+
+    Returns:
+        Dict with relevance analysis:
+        - is_relevant: bool
+        - max_relevance: float (best topic score)
+        - topic_count: int (number of topic regions)
+        - best_coverage: float (best keyword coverage)
+        - best_topic: TopicMatch or None
+
+    Example:
+        result = analyze_relevance(doc, ["налоговая", "оптимизация"])
+        if result["is_relevant"]:
+            print(f"Document is relevant: {result['max_relevance']:.0%}")
+    """
+    topics = find_topics(text, keywords, min_relevance=0.1, fuzzy=fuzzy)
+
+    if not topics:
+        return {
+            "is_relevant": False,
+            "max_relevance": 0.0,
+            "topic_count": 0,
+            "best_coverage": 0.0,
+            "best_topic": None,
+        }
+
+    best = topics[0]
+    return {
+        "is_relevant": best.relevance >= 0.3,
+        "max_relevance": best.relevance,
+        "topic_count": len(topics),
+        "best_coverage": best.keyword_coverage,
+        "best_topic": best,
+    }
