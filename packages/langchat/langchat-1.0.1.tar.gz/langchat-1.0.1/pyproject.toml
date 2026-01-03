@@ -1,0 +1,116 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "poetry-core>=1.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "langchat"
+version = "1.0.1"
+description = "A powerful library for Ship production-grade AI chatbots in minutes"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Sifat Hasan, NeuroBrain"}
+]
+keywords = ["rag", "llm", "ai", "langchain", "chatbot", "vector-search", "retrieval-augmented-generation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "fastapi>=0.115.14",
+    "uvicorn>=0.34.3",
+    "starlette>=0.46.2",
+    "pydantic>=2.11.7",
+    "python-multipart>=0.0.20",
+    "pytz>=2022.7",
+    "requests>=2.32.3",
+    "langchain==0.3.27",
+    "langchain-core>=0.3.72,<1.0.0",
+    "langchain-pinecone>=0.1.0,<0.3.0",
+    "langchain-community>=0.3.0,<0.4.0",
+    "langchain-openai>=0.2.0,<0.3.0",
+    "openai",
+    "tiktoken>=0.9.0",
+    "pinecone-client",
+    "flashrank>=0.2.10",
+    "supabase>=2.15.2",
+    "docsuite>=0.1.0",
+    "pyperclip>=1.11.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "ty>=0.0.1",
+    "ruff>=0.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+# Ruff configuration for linting and formatting
+line-length = 100
+target-version = "py38"
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "*.egg-info",
+    ".pytest_cache",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "PTH", # flake8-use-pathlib
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults
+    "ARG001", # unused function argument (for compatibility)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "ARG",  # Allow unused arguments in tests
+    "FBT",  # Allow boolean positional values in tests
+    "SIM117",  # Allow nested with statements in tests (pytest.raises)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ty.rules]
+# Ty type checker configuration
+# Ignore unresolved imports for third-party packages that are installed at runtime
+# These packages are available when the code runs but ty can't resolve them statically
+unresolved-import = "ignore"
