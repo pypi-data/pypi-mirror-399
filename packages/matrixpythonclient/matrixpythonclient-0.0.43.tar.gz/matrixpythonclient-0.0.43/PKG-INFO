@@ -1,0 +1,53 @@
+Metadata-Version: 2.4
+Name: matrixpythonclient
+Version: 0.0.43
+Summary: Python package which provides Matrix Rest API Client
+Home-page: https://github.com/rmetcalf9/MatrixPythonClient
+Author: Robert Metcalf
+Author-email: rmetcalf9@googlemail.com
+License: MIT
+Description-Content-Type: text/markdown
+Requires-Dist: requests==2.31.0
+Requires-Dist: pytz==2025.2
+Requires-Dist: python-dateutil==2.9.0.post0
+Requires-Dist: PythonAPIClientBase==0.0.17
+Requires-Dist: InquirerPy==0.3.4
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: summary
+
+ # MatrixPythonClient
+
+
+TODO
+
+- Finsih review of https://spec.matrix.org/v1.14/client-server-api/#standard-error-response
+- Create a new user
+- Add login endpoint for user providing access token in saas_club
+- Endpoint creates a new user OR logs in as existing one
+
+
+
+
+I need some kind of generic room user to be added to all rooms created this way.
+
+Questions 
+- can Admin see all the users on server
+- can Admin see all the rooms on the server
+- should I group rooms in any way? Spaces???
+- e2e implications
+
+
+
+# Terms
+username = username such as admin
+userid = with domain etc. @admin:chat.metcarob.com
+
+room_name = room name e.g. TestRoom
+room_alais_name = room alais e.g. TestRoom
+room_id = Internal ID of room e.g.
