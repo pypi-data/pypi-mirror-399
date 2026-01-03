@@ -1,0 +1,889 @@
+# Trix Python SDK
+
+Official Python SDK for [Trix](https://trixdb.com) - A powerful memory and knowledge management API.
+
+[![PyPI version](https://badge.fury.io/py/trix.svg)](https://badge.fury.io/py/trix)
+[![Python Support](https://img.shields.io/pypi/pyversions/trix.svg)](https://pypi.org/project/trix/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Features
+
+- **Async-first design** with full sync support
+- **Type-safe** with comprehensive Pydantic models
+- **Automatic retry** with exponential backoff for rate limits
+- **Pagination helpers** for iterating through large datasets
+- **Context managers** for proper resource cleanup
+- **Comprehensive error handling** with custom exceptions
+- **Full API coverage** for all Trix endpoints
+
+## Installation
+
+```bash
+pip install trix
+```
+
+For development:
+
+```bash
+pip install trix[dev]
+```
+
+## Quick Start
+
+### Synchronous Usage
+
+```python
+from trix import Trix
+
+# Initialize client
+client = Trix(api_key="your_api_key")
+
+# Create a memory
+memory = client.memories.create(
+    content="Important information to remember",
+    tags=["important", "note"],
+    metadata={"source": "user_input"}
+)
+
+print(f"Created memory: {memory.id}")
+
+# Search memories
+results = client.memories.list(
+    q="important",
+    mode="hybrid",
+    limit=10
+)
+
+for result in results.data:
+    print(f"- {result.content}")
+
+# Create a relationship
+other_memory = client.memories.create(content="Related information")
+relationship = client.relationships.create(
+    source_id=memory.id,
+    target_id=other_memory.id,
+    relationship_type="related_to"
+)
+
+# Close client when done
+client.close()
+```
+
+### Asynchronous Usage
+
+```python
+import asyncio
+from trix import AsyncTrix
+
+async def main():
+    # Use async context manager
+    async with AsyncTrix(api_key="your_api_key") as client:
+        # Create memory
+        memory = await client.memories.create(
+            content="Async memory creation",
+            tags=["async"]
+        )
+
+        # List memories with pagination
+        async for memory in await client.memories.iter(limit=50):
+            print(f"Memory: {memory.content}")
+
+asyncio.run(main())
+```
+
+### Using Context Managers
+
+```python
+# Sync context manager
+with Trix(api_key="your_api_key") as client:
+    memory = client.memories.create(content="Hello, Trix!")
+
+# Async context manager
+async with AsyncTrix(api_key="your_api_key") as client:
+    memory = await client.memories.create(content="Hello, Trix!")
+```
+
+## Authentication
+
+Trix supports two authentication methods:
+
+### API Key Authentication
+
+```python
+from trix import Trix
+
+client = Trix(api_key="your_api_key")
+```
+
+### JWT Token Authentication
+
+```python
+from trix import Trix
+
+client = Trix(jwt_token="your_jwt_token")
+```
+
+## Core Resources
+
+### Memories
+
+Manage memories - the core unit of knowledge in Trix.
+
+```python
+# Create a memory
+memory = client.memories.create(
+    content="Machine learning is a subset of AI",
+    type="text",
+    tags=["ml", "ai"],
+    metadata={"category": "education"},
+    priority=5
+)
+
+# Get a memory
+memory = client.memories.get("mem_123")
+
+# Update a memory
+updated = client.memories.update(
+    "mem_123",
+    tags=["ml", "ai", "updated"],
+    priority=10
+)
+
+# Delete a memory
+client.memories.delete("mem_123")
+
+# List memories with filters
+results = client.memories.list(
+    q="machine learning",
+    mode="hybrid",
+    tags=["ml"],
+    limit=20
+)
+
+# Iterate through all memories
+for memory in client.memories.iter(page_size=100):
+    print(memory.content)
+
+# Bulk operations
+memories = client.memories.bulk_create([
+    MemoryCreate(content="First memory"),
+    MemoryCreate(content="Second memory"),
+])
+
+# Audio transcription
+transcript = client.memories.transcribe("mem_audio_123", language="en")
+audio_data = client.memories.stream_audio("mem_audio_123")
+```
+
+### Relationships
+
+Create and manage relationships between memories.
+
+```python
+from trix import RelationshipType
+
+# Create a relationship
+rel = client.relationships.create(
+    source_id="mem_123",
+    target_id="mem_456",
+    relationship_type=RelationshipType.SUPPORTS,
+    description="This memory supports the other",
+    weight=1.5,
+    bidirectional=False
+)
+
+# Get relationships
+incoming = client.relationships.get_incoming("mem_123")
+outgoing = client.relationships.get_outgoing("mem_123")
+
+# Update relationship
+rel = client.relationships.update(
+    "rel_123",
+    weight=2.0,
+    description="Stronger connection"
+)
+
+# Reinforce a relationship
+rel = client.relationships.reinforce("rel_123", boost=0.5)
+
+# Delete relationship
+client.relationships.delete("rel_123")
+```
+
+### Clusters
+
+Group related memories together.
+
+```python
+# Create a cluster
+cluster = client.clusters.create(
+    name="ML Research",
+    description="Machine learning research papers",
+    color="#FF5733"
+)
+
+# List clusters
+clusters = client.clusters.list(q="research", limit=50)
+
+# Add memory to cluster
+membership = client.clusters.add_memory(
+    cluster_id="cluster_123",
+    memory_id="mem_456",
+    confidence=0.95
+)
+
+# Remove memory from cluster
+client.clusters.remove_memory("cluster_123", "mem_456")
+
+# Expand cluster with similar memories
+suggestions = client.clusters.expand(
+    "cluster_123",
+    limit=20,
+    threshold=0.7
+)
+
+# Bulk operations
+clusters = client.clusters.bulk_create([
+    ClusterCreate(name="Cluster 1"),
+    ClusterCreate(name="Cluster 2"),
+])
+```
+
+### Spaces
+
+Organize memories into separate workspaces.
+
+```python
+# Create a space
+space = client.spaces.create(
+    name="Personal",
+    description="Personal memories and notes"
+)
+
+# List all spaces
+spaces = client.spaces.list()
+
+# Get a space
+space = client.spaces.get("space_123")
+
+# Update space
+space = client.spaces.update(
+    "space_123",
+    name="Personal (Updated)"
+)
+
+# Delete space
+client.spaces.delete("space_123")
+```
+
+### Graph Operations
+
+Traverse and analyze the memory graph.
+
+```python
+from trix import Direction, RelationshipType
+
+# Traverse the graph
+result = client.graph.traverse(
+    start_ids=["mem_123", "mem_456"],
+    depth=3,
+    relationship_types=[RelationshipType.RELATED_TO],
+    direction=Direction.OUTGOING
+)
+
+for node in result.nodes:
+    print(f"Memory: {node.memory.content}, Depth: {node.depth}")
+
+# Get context around a query
+context = client.graph.get_context(
+    query="machine learning concepts",
+    depth=2,
+    semantic_limit=10
+)
+
+# Find shortest path between memories
+path = client.graph.shortest_path(
+    source_id="mem_123",
+    target_id="mem_456",
+    max_hops=5
+)
+
+if path:
+    print(f"Path length: {path.distance}")
+    print(f"Path: {' -> '.join(path.path)}")
+```
+
+### Search
+
+Semantic and keyword search capabilities.
+
+```python
+# Find similar memories
+results = client.search.similar(
+    memory_id="mem_123",
+    limit=20,
+    threshold=0.7
+)
+
+for result in results.data:
+    print(f"{result.memory.content} (score: {result.score})")
+
+# Generate embeddings
+embeddings = client.search.embed(["mem_123", "mem_456"])
+
+# Embed all memories
+result = client.search.embed_all(batch_size=500)
+print(f"Processed {result.total_processed} memories")
+
+# Get search configuration
+config = client.search.get_config()
+print(f"Max limit: {config.max_limit}")
+```
+
+### Webhooks
+
+Set up webhooks for event notifications.
+
+```python
+from trix import WebhookEvent
+
+# Create a webhook
+webhook = client.webhooks.create(
+    name="Memory Updates",
+    url="https://example.com/webhook",
+    events=[
+        WebhookEvent.MEMORY_CREATED,
+        WebhookEvent.MEMORY_UPDATED,
+        WebhookEvent.MEMORY_DELETED
+    ],
+    headers={"X-Custom-Header": "value"}
+)
+
+# List webhooks
+webhooks = client.webhooks.list()
+
+# Update webhook
+webhook = client.webhooks.update(
+    "webhook_123",
+    active=False
+)
+
+# Test webhook
+result = client.webhooks.test("webhook_123")
+
+# Get delivery history
+deliveries = client.webhooks.get_deliveries("webhook_123", limit=50)
+
+# Retry failed delivery
+delivery = client.webhooks.retry_delivery("webhook_123", "delivery_456")
+
+# Delete webhook
+client.webhooks.delete("webhook_123")
+```
+
+### Agent Sessions
+
+Manage conversational agent sessions.
+
+```python
+from trix import ConsolidationStrategy
+
+# Create an agent session
+session = client.agent.create_session(
+    session_id="chat_123",
+    metadata={"user_id": "user_456"}
+)
+
+# Add memories to session
+memory = client.agent.add_session_memory(
+    session_id="chat_123",
+    content="User asked about Python",
+    role="user",
+    importance=0.8
+)
+
+# Get session context
+context = client.agent.get_context(
+    query="What did we discuss about Python?",
+    session_id="chat_123",
+    limit=10
+)
+
+# List sessions
+sessions = client.agent.list_sessions(limit=20)
+
+# End session with summary
+session = client.agent.end_session(
+    session_id="chat_123",
+    summary="Discussed Python best practices",
+    key_insights=["Use type hints", "Follow PEP 8"]
+)
+
+# Consolidate memories
+result = client.agent.consolidate(
+    strategy=ConsolidationStrategy.SIMILARITY,
+    threshold=0.85,
+    dry_run=True  # Preview changes
+)
+
+print(f"Would consolidate {result.consolidated_count} memories")
+```
+
+### Feedback
+
+Improve search results with feedback.
+
+```python
+from trix import FeedbackResult
+
+# Submit detailed feedback
+response = client.feedback.submit(
+    query_context="machine learning",
+    results=[
+        FeedbackResult(memory_id="mem_123", score=0.9, rank=1),
+        FeedbackResult(memory_id="mem_456", score=0.8, rank=2),
+    ],
+    boost_amount=0.5,
+    create_relationships=True
+)
+
+# Quick feedback
+response = client.feedback.quick(
+    memory_id="mem_123",
+    useful=True,
+    source_memory_id="mem_456"
+)
+
+# Batch feedback
+response = client.feedback.batch(
+    useful_ids=["mem_123", "mem_456"],
+    not_useful_ids=["mem_789"]
+)
+
+print(f"Created {response.relationships_created} relationships")
+```
+
+### Highlights
+
+Highlight important parts of memories.
+
+```python
+from trix import ExtractionType
+
+# Create a highlight
+highlight = client.highlights.create(
+    memory_id="mem_123",
+    text="This is the key insight",
+    note="Important for later",
+    importance=10,
+    tags=["key-insight"],
+    color="#FFFF00"
+)
+
+# List highlights for a memory
+highlights = client.highlights.list("mem_123")
+
+# Update highlight
+highlight = client.highlights.update(
+    "highlight_123",
+    importance=5
+)
+
+# Delete highlight
+client.highlights.delete("highlight_123")
+
+# Auto-extract highlights
+extractions = client.highlights.extract(
+    memory_id="mem_123",
+    extraction_types=[
+        ExtractionType.KEY_POINTS,
+        ExtractionType.ENTITIES,
+        ExtractionType.QUOTES
+    ],
+    limit=10
+)
+
+for extraction in extractions:
+    print(f"Type: {extraction.extraction_type}")
+    for highlight in extraction.highlights:
+        print(f"  - {highlight}")
+```
+
+### Jobs
+
+Monitor and manage background jobs.
+
+```python
+from trix import JobStatus
+
+# Get job statistics
+stats = client.jobs.get_stats()
+for queue_stats in stats:
+    print(f"{queue_stats.queue}: {queue_stats.waiting} waiting, {queue_stats.active} active")
+
+# List jobs
+jobs = client.jobs.list(
+    queue="transcription",
+    status=JobStatus.FAILED,
+    limit=50
+)
+
+# Get specific job
+job = client.jobs.get("transcription", "job_123")
+print(f"Status: {job.status}, Progress: {job.progress}%")
+
+# Retry failed job
+job = client.jobs.retry("transcription", "job_123")
+
+# Remove job
+client.jobs.remove("embedding", "job_456")
+
+# Clean old jobs
+result = client.jobs.clean(
+    queue="embedding",
+    grace=7200,  # 2 hours
+    status=JobStatus.COMPLETED
+)
+
+print(f"Removed {result['removed']} jobs")
+```
+
+### Facts (Knowledge Graph Triples)
+
+Store and query structured knowledge in Subject-Predicate-Object format.
+
+```python
+# Create a fact
+fact = client.facts.create(
+    subject="Albert Einstein",
+    predicate="was_born_in",
+    obj="Ulm, Germany",
+    confidence=0.95
+)
+
+# Create a fact with source attribution
+fact = client.facts.create(
+    subject="Trix",
+    predicate="is_a",
+    obj="memory database",
+    confidence=1.0,
+    source=FactSource(memory_id="mem_123", method="extracted")
+)
+
+# Query facts with natural language
+results = client.facts.query(
+    "Where was Einstein born?",
+    limit=5,
+    min_confidence=0.8
+)
+
+for fact in results.data:
+    print(f"{fact.subject} {fact.predicate} {fact.object} ({fact.score})")
+
+# List facts with filters
+facts = client.facts.list(subject="Einstein", min_confidence=0.9)
+
+# Find facts by subject/predicate/object
+by_subject = client.facts.find_by_subject("Einstein")
+by_predicate = client.facts.find_by_predicate("discovered")
+by_object = client.facts.find_by_object("Theory of Relativity")
+
+# Extract facts from a memory
+extracted = client.facts.extract("mem_123", save=True)
+print(f"Extracted {len(extracted.facts)} facts")
+
+# Verify a fact against the knowledge base
+verification = client.facts.verify("fact_123")
+if verification.verified:
+    print(f"Supported by {len(verification.supporting_memories)} memories")
+
+# Bulk create facts
+result = client.facts.bulk_create([
+    {"subject": "A", "predicate": "is", "object": "B", "confidence": 1.0},
+    {"subject": "C", "predicate": "has", "object": "D", "confidence": 0.9}
+])
+
+# Delete a fact
+client.facts.delete("fact_123")
+```
+
+### Entities (Named Entity Management)
+
+Manage named entities with flexible schemas, aliases, and memory linking.
+
+```python
+# Create an entity
+entity = client.entities.create(
+    name="Albert Einstein",
+    entity_type="person",
+    aliases=["Einstein", "A. Einstein", "Prof. Einstein"],
+    description="Theoretical physicist",
+    properties={"birth_year": 1879, "field": "physics"}
+)
+
+# Search entities
+results = client.entities.search("Einstein", entity_type="person", limit=10)
+
+for entity in results.data:
+    print(f"{entity.name} ({entity.type}) - score: {entity.score}")
+
+# List entities by type
+people = client.entities.find_by_type("person")
+
+# Resolve text to an entity
+resolution = client.entities.resolve("Einstein", context="Nobel Prize in Physics")
+if resolution.entity:
+    print(f"Resolved to {resolution.entity.name} ({resolution.confidence})")
+
+# Extract entities from a memory
+extracted = client.entities.extract("mem_123", save=True, link=True)
+print(f"Extracted {len(extracted.entities)} entities")
+
+# Link/unlink entity to memory
+client.entities.link_to_memory("ent_123", "mem_456")
+client.entities.unlink_from_memory("ent_123", "mem_456")
+
+# Find entities in a memory
+memory_entities = client.entities.find_by_memory("mem_123")
+
+# Merge duplicate entities
+merged = client.entities.merge("ent_target", "ent_source")
+print(f"Merged entity: {merged.merged_entity.name}")
+
+# Get facts about an entity
+entity_facts = client.entities.get_facts("ent_123")
+for fact in entity_facts.facts:
+    print(f"{fact.subject} {fact.predicate} {fact.object}")
+
+# Get all entity types
+types = client.entities.get_types()
+for t in types.types:
+    print(f"{t.name}: {t.count} entities")
+
+# Bulk create entities
+result = client.entities.bulk_create([
+    {"name": "Einstein", "type": "person"},
+    {"name": "Berlin", "type": "location"}
+])
+
+# Delete an entity
+client.entities.delete("ent_123")
+```
+
+## Error Handling
+
+The SDK provides comprehensive error handling with custom exceptions:
+
+```python
+from trix import (
+    Trix,
+    TrixError,
+    AuthenticationError,
+    NotFoundError,
+    RateLimitError,
+    ValidationError,
+)
+
+client = Trix(api_key="your_api_key")
+
+try:
+    memory = client.memories.get("invalid_id")
+except NotFoundError as e:
+    print(f"Memory not found: {e}")
+except AuthenticationError as e:
+    print(f"Authentication failed: {e}")
+except RateLimitError as e:
+    print(f"Rate limited. Retry after {e.retry_after} seconds")
+except ValidationError as e:
+    print(f"Validation error: {e}")
+except TrixError as e:
+    # Catch all Trix errors
+    print(f"API error: {e}")
+```
+
+### Exception Hierarchy
+
+- `TrixError` - Base exception for all errors
+  - `APIError` - General API errors
+  - `AuthenticationError` - 401 authentication failures
+  - `PermissionError` - 403 permission denied
+  - `NotFoundError` - 404 resource not found
+  - `ValidationError` - 422 validation errors
+  - `RateLimitError` - 429 rate limit exceeded
+  - `ServerError` - 5xx server errors
+  - `ConnectionError` - Network connection errors
+  - `TimeoutError` - Request timeout errors
+
+## Pagination
+
+The SDK provides convenient pagination helpers:
+
+```python
+# Iterate through all memories automatically
+for memory in client.memories.iter(page_size=100, max_items=1000):
+    print(memory.content)
+
+# Async iteration
+async for memory in await client.memories.iter(page_size=100):
+    print(memory.content)
+
+# Manual pagination
+offset = 0
+limit = 100
+
+while True:
+    results = client.memories.list(limit=limit, offset=offset)
+
+    for memory in results.data:
+        print(memory.content)
+
+    if len(results.data) < limit:
+        break
+
+    offset += limit
+```
+
+## Retry Configuration
+
+Customize retry behavior for failed requests:
+
+```python
+from trix import Trix
+from trix.utils import RetryConfig
+
+# Custom retry configuration
+retry_config = RetryConfig(
+    max_retries=5,
+    initial_delay=2.0,
+    max_delay=120.0,
+    exponential_base=2.0,
+    jitter=True
+)
+
+client = Trix(
+    api_key="your_api_key",
+    retry_config=retry_config
+)
+```
+
+## Configuration
+
+### Client Options
+
+```python
+from trix import Trix
+
+client = Trix(
+    api_key="your_api_key",
+    base_url="https://api.trixdb.com",  # Custom API endpoint
+    timeout=60.0,                        # Request timeout in seconds
+    max_retries=3,                       # Maximum retry attempts
+)
+```
+
+## Type Safety
+
+All request and response objects are fully typed with Pydantic models:
+
+```python
+from trix import MemoryCreate, MemoryType
+
+# Type-safe memory creation
+memory_data = MemoryCreate(
+    content="Type-safe memory",
+    type=MemoryType.TEXT,
+    tags=["typed"],
+    metadata={"key": "value"}
+)
+
+memory = client.memories.create(**memory_data.model_dump())
+
+# Access typed fields
+print(memory.id)          # str
+print(memory.created_at)  # datetime
+print(memory.tags)        # List[str]
+print(memory.metadata)    # Dict[str, Any]
+```
+
+## Development
+
+### Setup Development Environment
+
+```bash
+# Clone repository
+git clone https://github.com/trix/trix-python-sdk.git
+cd trix-python-sdk
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -e ".[dev]"
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=trix --cov-report=html
+
+# Run specific test file
+pytest tests/test_memories.py
+```
+
+### Code Quality
+
+```bash
+# Format code
+black src/
+
+# Lint code
+ruff check src/
+
+# Type checking
+mypy src/
+```
+
+## Requirements
+
+- Python 3.9+
+- httpx >= 0.25.0
+- pydantic >= 2.0.0
+- typing-extensions >= 4.5.0
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+- Documentation: [https://docs.trixdb.com](https://docs.trixdb.com)
+- Issues: [https://github.com/trix/trix-python-sdk/issues](https://github.com/trix/trix-python-sdk/issues)
+- Email: support@trixdb.com
+
+## Changelog
+
+### 0.1.0 (2025-12-30)
+
+- Initial public release
+- Full API coverage for Trix
+- Sync and async support
+- Comprehensive type hints
+- Automatic retry with exponential backoff
+- Pagination helpers
+- Custom exceptions
+- Context manager support
