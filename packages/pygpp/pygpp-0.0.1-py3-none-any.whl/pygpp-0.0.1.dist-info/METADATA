@@ -1,0 +1,93 @@
+Metadata-Version: 2.4
+Name: pygpp
+Version: 0.0.1
+Summary: A Python abstraction layer for GW-Instek GPP power supplies
+Keywords: gwinstek,gpp,power supply,scpi,visa
+Author: Sam Shahrokni
+Author-email: Sam Shahrokni <sam@shahrokni.nl>
+License-Expression: MIT
+License-File: LICENSE
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Dist: pyvisa>=1.16
+Requires-Dist: ruff ; extra == 'dev'
+Requires-Dist: mypy ; extra == 'dev'
+Requires-Dist: pre-commit ; extra == 'dev'
+Requires-Dist: coverage ; extra == 'dev'
+Requires-Dist: vulture ; extra == 'dev'
+Requires-Dist: pandas ; extra == 'examples'
+Requires-Dist: matplotlib ; extra == 'examples'
+Requires-Dist: rich ; extra == 'examples'
+Requires-Dist: numpy ; extra == 'examples'
+Requires-Python: >=3.12
+Project-URL: Homepage, https://gitlab.com/samshahrokni/pyGPP
+Provides-Extra: dev
+Provides-Extra: examples
+Description-Content-Type: text/markdown
+
+# pyGPP
+
+_pyGPP_ is a Python Hardware Abstraction Layer (HAL) over SCPI commands using [PyVISA](https://pyvisa.readthedocs.io/en/latest/) for controlling GW-Instek GPP series power supplies.
+Currently, these models are supported:
+- GPP-3060/6030/3650
+
+## Status
+**⚠️ Early development (v0.0.1) - API may change**
+
+## Prerequisites
+
+*   **Hardware**: GW-Instek GPP-3060, GPP-3650, or GPP-6030.
+*   **Drivers**:
+    *   [GW-Instek USB Driver](https://www.gwinstek.com/en-global/download/index?cate=93&subcate=644&ser=2123&down=62&key=) (for USB connection).
+    *   **VISA Backend** (choose one):
+        *   [NI-VISA](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html) (recommended, full-featured)
+        *   [PyVISA-py](https://pyvisa.readthedocs.io/projects/pyvisa-py/en/latest/) (pure Python, no binary install): `pip install pyvisa-py`
+*   **Tooling**: [uv](https://docs.astral.sh/uv/) (optional, )
+
+## Installation
+
+### As a Dependency (for users)
+
+If you want to use _pyGPP_ in your own project, install it directly from the repository:
+
+```bash
+uv add git+https://gitlab.com/samshahrokni/pyGPP.git
+```
+
+Or with pip:
+
+```bash
+pip install git+https://gitlab.com/samshahrokni/pyGPP.git
+```
+
+## Usage
+
+```python
+from src.pygpp import GPP3060
+
+with GPP3060(address='ASRL3::INSTR') as psu:
+    psu.ch1.set_voltage(5.0)  # set voltage to 5V
+    psu.ch1.set_ocp(1.0)  # set current overprotection to 1A
+    psu.ch1.enable()
+
+    measurement = psu.ch1.measure()
+    print(measurement)
+```
+
+For more examples, see [`examples/`](examples) directory.
+
+### For Development (for contributors)
+
+Clone the repository and sync dependencies (automatically fetches Python 3.14+):
+
+```bash
+git clone https://gitlab.com/samshahrokni/pyGPP.git
+cd pyGPP
+uv sync --all-extras
+pre-commit install
+```
+
+## Notes
+
+*   **Incomplete Implementation**: Not all SCPI commands are implemented.
+*   **Reference**: See the [GPP Series User Manual](https://www.gwinstek.com/en-global/download/downloadFile/21821) for the full command list.
