@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vitax-rag"
+version = "0.1.0"
+description = "ViTax-RAG: Alignment-augmented language model for viral taxonomy classification"
+readme = "Readme.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+
+authors = [
+  {name = "Peak Zhou", email = "your_email@xxx.edu"}
+]
+
+dependencies = [
+  "torch",
+  "numpy",
+  "biopython",
+  "tqdm",
+  "scikit-learn",
+]
+
+[project.scripts]
+vitax-rag = "vitax_rag.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
