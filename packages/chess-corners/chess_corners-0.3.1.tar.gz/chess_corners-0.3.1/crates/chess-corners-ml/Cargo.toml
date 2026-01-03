@@ -1,0 +1,28 @@
+[package]
+name = "chess-corners-ml"
+version = "0.3.1"
+description = "ONNX-based ML refiner inference for chess-corners"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation = "https://vitalyvorobyev.github.io/chess-corners-rs/api/chess_corners_ml"
+homepage = "https://vitalyvorobyev.github.io/chess-corners-rs"
+keywords = ["chessboard", "chess-corners", "corner-detection", "computer-vision", "image-processing"]
+readme = "README.md"
+
+[lib]
+name = "chess_corners_ml"
+path = "src/lib.rs"
+
+[features]
+default = ["embed-model"]
+embed-model = []
+
+[dependencies]
+anyhow = "1"
+serde_json = "1"
+tract-onnx = "0.21"
+
+[dev-dependencies]
+ndarray = "0.15"
+ndarray-npy = "0.8"
