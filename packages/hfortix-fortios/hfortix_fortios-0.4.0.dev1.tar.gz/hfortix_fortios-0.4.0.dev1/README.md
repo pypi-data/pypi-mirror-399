@@ -1,0 +1,164 @@
+# HFortix FortiOS
+
+Python SDK for FortiGate/FortiOS API.
+
+**Version:** 0.4.0-dev1 (Development)  
+**Latest Stable:** 0.3.39 (PyPI)
+
+## Installation
+
+```bash
+pip install hfortix-fortios
+```
+
+This will automatically install `hfortix-core` as a dependency.
+
+For complete installation (includes FortiManager, FortiAnalyzer when available):
+
+```bash
+pip install hfortix
+```
+
+## Quick Start
+
+```python
+from hfortix_fortios import FortiOS
+
+# Connect to FortiGate
+fgt = FortiOS(
+    host="192.168.1.99",
+    token="your-api-token",
+    verify=False
+)
+
+# Get system status
+status = fgt.monitor.system.status()
+print(f"Hostname: {status['hostname']}")
+print(f"Version: {status['version']}")
+
+# Work with firewall policies
+policies = fgt.firewall.policy.get()
+print(f"Total policies: {len(policies)}")
+
+# Create an address object
+fgt.firewall.address.create(
+    name="web_server",
+    subnet="192.168.1.100 255.255.255.255",
+    comment="Web server"
+)
+
+# Use convenience wrappers (v0.3.39+)
+fgt.firewall.service_custom.create(
+    name="HTTPS-8443",
+    tcp_portrange="8443",
+    protocol="TCP/UDP/SCTP",
+    comment="Custom HTTPS port"
+)
+
+# Create schedule
+fgt.firewall.schedule_recurring.create(
+    name="business-hours",
+    day=["monday", "tuesday", "wednesday", "thursday", "friday"],
+    start="08:00",
+    end="17:00"
+)
+
+# Traffic shaping
+fgt.firewall.traffic_shaper.create(
+    name="critical-apps",
+    guaranteed_bandwidth=50000,
+    maximum_bandwidth=100000,
+    bandwidth_unit="kbps"
+)
+```
+
+## Features
+
+### Complete API Coverage (v0.3.39)
+
+- **FortiOS 7.6.5**: 750+ endpoints across 77 categories
+- **CMDB API**: 100% coverage (500+ endpoints) - Full configuration management
+- **Monitor API**: 100% coverage (200+ endpoints) - Real-time monitoring
+- **Log API**: Complete log reading functionality
+- **Service API**: All service categories
+
+### Convenience Wrappers
+
+Production-ready wrappers with comprehensive validation:
+
+- **Service Management**: `service_custom`, `service_category`, `service_group`
+- **Schedules**: `schedule_onetime`, `schedule_recurring`, `schedule_group`
+- **Traffic Shaping**: `traffic_shaper`, `shaper_per_ip`
+- **IP/MAC Binding**: `ipmacbinding_table`, `ipmacbinding_setting`
+- **Firewall Policies**: `policy` with 150+ parameters
+
+### Advanced Features
+
+- **Async Support**: Built-in async client for concurrent operations
+- **Type Hints**: Full type annotations for IDE autocomplete
+- **Error Handling**: 387 specific exception types with recovery hints
+- **Validation Framework**: 832 auto-generated validators
+- **Circuit Breaker**: Automatic retry with configurable backoff
+- **Performance Testing**: Built-in connection pool optimization tools
+
+## API Structure
+
+```python
+# CMDB (Configuration)
+fgt.api.cmdb.firewall.policy.*
+fgt.api.cmdb.firewall.address.*
+fgt.api.cmdb.system.interface.*
+fgt.api.cmdb.router.static.*
+
+# Monitor (Real-time data)
+fgt.api.monitor.system.status()
+fgt.api.monitor.firewall.session.*
+fgt.api.monitor.system.resource.*
+
+# Convenience Wrappers
+fgt.firewall.policy.*
+fgt.firewall.service_custom.*
+fgt.firewall.schedule_recurring.*
+fgt.firewall.traffic_shaper.*
+```
+
+## Import Patterns
+
+### Recommended (New)
+
+```python
+from hfortix_fortios import FortiOS
+```
+
+### Legacy (Still Supported)
+
+```python
+from hfortix import FortiOS
+from hfortix.FortiOS import FortiOS
+```
+
+## Documentation
+
+For complete documentation, see the [main repository](https://github.com/hermanwjacobsen/hfortix):
+
+- [Quick Start Guide](https://github.com/hermanwjacobsen/hfortix/blob/main/QUICKSTART.md)
+- [Async/Await Guide](https://github.com/hermanwjacobsen/hfortix/blob/main/docs/ASYNC_GUIDE.md)
+- [Convenience Wrappers](https://github.com/hermanwjacobsen/hfortix/blob/main/docs/wrappers/CONVENIENCE_WRAPPERS.md)
+- [Service Wrappers](https://github.com/hermanwjacobsen/hfortix/blob/main/docs/wrappers/CONVENIENCE_WRAPPERS.md#service-management)
+- [Schedule Wrappers](https://github.com/hermanwjacobsen/hfortix/blob/main/docs/wrappers/SCHEDULE_WRAPPERS.md)
+- [Shaper Wrappers](https://github.com/hermanwjacobsen/hfortix/blob/main/docs/wrappers/SHAPER_WRAPPERS.md)
+- [Full Changelog](https://github.com/hermanwjacobsen/hfortix/blob/main/CHANGELOG.md)
+
+## Requirements
+
+- Python 3.10+
+- FortiOS 7.0+ (tested with 7.6.5)
+
+## Development Status
+
+**Beta** - All APIs are functional and tested, but considered beta until version 1.0.0 with comprehensive unit test coverage.
+
+## License
+
+Proprietary - See LICENSE file
+
