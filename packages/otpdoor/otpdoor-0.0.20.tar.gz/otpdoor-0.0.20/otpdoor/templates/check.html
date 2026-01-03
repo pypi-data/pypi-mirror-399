@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Granted - OTPdoor</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/_auth_style.css">
+    <style>
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+    </style>
+</head>
+
+<body class="{{ 'light-mode' if theme == 'light' else '' }}">
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="login-card" style="text-align: center;">
+        <span class="success-icon">✅</span>
+        <div class="status-badge">Authenticated</div>
+        <h1>Access Granted</h1>
+        {% if domain and domain != 'default' %}
+        <div class="domain-tag" style="margin: 0 auto 1.5rem;">{{ domain }}</div>
+        {% endif %}
+        <p class="subtitle">Your session is active and secure.</p>
+
+        <div
+            style="margin-top: 2rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.03); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+                This endpoint indicates that the gateway is correctly configured and your credentials are valid.
+            </p>
+        </div>
+
+        <div class="footer">
+            Powered by <a href="https://github.com/germanespinosa/otpdoor" target="_blank">OTPdoor</a>
+        </div>
+    </div>
+</body>
+
+</html>
