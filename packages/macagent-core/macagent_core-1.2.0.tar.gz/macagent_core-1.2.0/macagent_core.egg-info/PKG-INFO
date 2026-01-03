@@ -1,0 +1,78 @@
+Metadata-Version: 2.4
+Name: macagent-core
+Version: 1.2.0
+Summary: MacAgent Core - Free, open-source AI orchestration for macOS
+Author-email: Dallas McMillan <dallas@macagent.pro>
+License: MIT
+Project-URL: Homepage, https://macagent.pro
+Project-URL: Repository, https://github.com/midnightnow/macagent
+Project-URL: Documentation, https://github.com/midnightnow/macagent#readme
+Project-URL: Bug Tracker, https://github.com/midnightnow/macagent/issues
+Project-URL: Pro Version, https://macagent.pro
+Keywords: ai,agent,macos,automation,llm,siri
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: MacOS X
+Classifier: Operating System :: MacOS
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: full
+Requires-Dist: psutil>=5.9.0; extra == "full"
+Dynamic: license-file
+
+# MacAgent Core
+
+> **Free, open-source AI orchestration for macOS**
+
+MacAgent Core is a local-first, privacy-respecting AI assistant with mathematical audit integrity. Every action is cryptographically signed and tamper-evident.
+
+## Features
+
+- 🧠 **Local-First AI** - Uses Ollama locally. Your data never leaves your Mac.
+- 📊 **HMAC-SHA256 Audit Trail** - Cryptographically signed action logs
+- 🎙️ **Voice Control** - Siri integration with 21 natural commands
+- 🛡️ **5-Tier Safety** - Risk-assessed actions from auto-allow to voice verification
+
+## Installation
+
+```bash
+# Via pip (recommended)
+pip install macagent-core
+
+# Via Homebrew tap
+brew tap midnightnow/tools && brew install macagent
+```
+
+## Quick Start
+
+```bash
+# Check status
+macagent status
+
+# Run with local LLM
+macagent
+
+# Voice command via Siri
+macagent siri "open Documents in Finder"
+```
+
+## Requirements
+
+- macOS 12 (Monterey) or later
+- Apple Silicon (M1/M2/M3/M4)
+- Optional: Ollama for local LLM
+
+## License
+
+MIT License - See [LICENSE](LICENSE) for details.
+
+## Pro/Max/Ultra
+
+For advanced features like Tinhat EMF scanning, WiFi/Bluetooth imaging, OS4AI engine, and fleet management, see [macagent.pro](https://macagent.pro).
