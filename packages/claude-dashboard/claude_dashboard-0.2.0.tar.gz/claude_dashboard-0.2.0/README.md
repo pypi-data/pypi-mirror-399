@@ -1,0 +1,194 @@
+# Claude Dashboard
+
+Real-time CLI dashboard for Claude Code tool events with an integrated logging library for plugin developers.
+
+## Features
+
+- **Multi-file monitoring**: Watches all `.jsonl` files in the `.claude/logs/` directory
+- **Real-time updates**: Live dashboard refresh every second
+- **Separate sections**: Each log file displayed in its own section
+- **Tool statistics**: Aggregated statistics across all log files
+- **Color-coded tools**: Easy visual identification of different tools
+
+## Installation
+
+Using UV (recommended):
+
+```bash
+uv add claude-dashboard
+```
+
+Or install from source:
+
+```bash
+cd plugins/claude-dashboard
+uv pip install -e .
+```
+
+## CLI Usage
+
+### Basic Usage
+
+Run the dashboard from any directory containing a `.claude/logs/` folder:
+
+```bash
+claude-dash
+```
+
+### Options
+
+```bash
+# Show version
+claude-dash --version
+
+# Specify a custom logs directory
+claude-dash --logs-dir /path/to/logs
+
+# Watch a single log file
+claude-dash --log-file /path/to/file.jsonl
+```
+
+### Dashboard Layout
+
+The dashboard displays events from multiple log files in separate sections:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              Claude Code Observability Dashboard                 │
+├─────────────────────────────────────────────────────────────────┤
+│ observability                                                    │
+│ ┌─────────────────────────────────────────────────────────────┐ │
+│ │ Time     │ Type  │ Tool  │ Details                          │ │
+│ │ 14:32:01 │ Pre   │ Bash  │ git status                       │ │
+│ │ 14:32:02 │ Post  │ Bash  │ git status                       │ │
+│ └─────────────────────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────────────────────┤
+│ bash-safety                                                      │
+│ ┌─────────────────────────────────────────────────────────────┐ │
+│ │ Time     │ Type  │ Tool  │ Details                          │ │
+│ │ 14:32:01 │ warn  │ Bash  │ Blocked: rm -rf                  │ │
+│ └─────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Library Usage
+
+The `claude-dashboard` package also provides a logging library for plugin developers to write consistent JSONL logs.
+
+### Quick Start
+
+```python
+from pathlib import Path
+from claude_dashboard import get_logger, log_event
+import logging
+
+# Create a logger for your plugin
+logger = get_logger(
+    plugin_name="my-plugin",
+    log_file=Path(".claude/logs/my-plugin.jsonl")
+)
+
+# Log events using the standard logging interface
+logger.info("Plugin started", extra={"event": "startup"})
+
+logger.warning("Something needs attention", extra={
+    "event": "warning_issued",
+    "details": {"key": "value"}
+})
+
+# Or use the convenience function
+log_event(
+    logger,
+    level=logging.INFO,
+    message="Task completed",
+    event="task_complete",
+    duration_ms=150,
+    result="success"
+)
+```
+
+### API Reference
+
+#### `get_logger(plugin_name, log_file, level=DEBUG, max_bytes=None)`
+
+Create and configure a logger for a plugin.
+
+**Parameters:**
+- `plugin_name` (str): Identifier for the plugin (e.g., "bash-safety", "observability")
+- `log_file` (Path): Path to the JSONL log file
+- `level` (int): Logging level (default: `logging.DEBUG`)
+- `max_bytes` (int, optional): Max file size before rotation (not implemented yet)
+
+**Returns:** Configured `logging.Logger` instance
+
+**Example:**
+```python
+from pathlib import Path
+from claude_dashboard import get_logger
+
+logger = get_logger("my-plugin", Path(".claude/logs/my-plugin.jsonl"))
+```
+
+#### `log_event(logger, level, message, event, **kwargs)`
+
+Convenience function to log an event with standard fields.
+
+**Parameters:**
+- `logger` (Logger): Logger instance from `get_logger()`
+- `level` (int): Logging level (e.g., `logging.INFO`, `logging.WARNING`)
+- `message` (str): Human-readable message
+- `event` (str): Event type in snake_case (e.g., "command_blocked", "test_completed")
+- `**kwargs`: Additional plugin-specific fields
+
+**Example:**
+```python
+import logging
+from claude_dashboard import log_event
+
+log_event(
+    logger,
+    level=logging.WARNING,
+    message="Command blocked for safety",
+    event="command_blocked",
+    command="rm -rf /",
+    reasons=["dangerous_pattern"]
+)
+```
+
+#### `PluginJsonFormatter`
+
+Custom JSON formatter class that adds plugin name and ISO timestamp to every log record.
+
+**Fields added automatically:**
+- `timestamp`: ISO 8601 timestamp with timezone
+- `plugin`: Plugin name specified during logger creation
+- `level`: Log level (INFO, WARNING, etc.)
+- `event`: Event type (defaults to log level name if not provided)
+
+### Log Output Format
+
+Each log entry is a JSON object on its own line (JSONL format):
+
+```json
+{"timestamp": "2024-01-15T14:32:01.123456+00:00", "level": "INFO", "plugin": "my-plugin", "event": "startup", "message": "Plugin started"}
+{"timestamp": "2024-01-15T14:32:02.456789+00:00", "level": "WARNING", "plugin": "my-plugin", "event": "command_blocked", "message": "Blocked dangerous command", "command": "rm -rf /", "reasons": ["dangerous_pattern"]}
+```
+
+## Development
+
+### Running from source
+
+```bash
+cd plugins/claude-dashboard
+uv run claude-dash
+```
+
+### Running tests
+
+```bash
+uv run pytest
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
