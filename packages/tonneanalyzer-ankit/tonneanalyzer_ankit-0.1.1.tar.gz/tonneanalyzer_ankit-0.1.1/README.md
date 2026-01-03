@@ -1,0 +1,269 @@
+# tonneanalyzer-ankit
+
+A **hybrid rule + machine-learning tone analysis library**.
+
+This library analyzes **spoken or written text** across multiple **independent communicative tone axes** using:
+
+- deterministic linguistic rules (precision)
+- lightweight ML classifiers (robustness)
+- explicit rule–model fusion
+- negation-aware suppression
+
+The system is designed to be:
+- modular
+- interpretable
+- reproducible
+- production-safe
+
+This is **not** a large language model.
+
+---
+
+## Table of Contents
+
+- Installation
+- Python Version
+- Package Name vs Import Name
+- Project Structure
+- Core Concept
+- Supported Axes
+- Required Artifacts
+- Quick Start
+- Full Usage
+- Output Format
+- Negation Handling
+- Rule–Model Fusion
+- Design Constraints
+- What This Library Is / Is Not
+- Versioning
+- License
+
+---
+
+## Installation
+
+```bash
+pip install tonneanalyzer-ankit
+This installs the library code only.
+
+⚠️ Trained model artifacts are not downloaded automatically.
+You must provide them explicitly (see below).
+
+Python Version
+Python 3.8 or higher
+
+Tested on Python 3.9
+
+Package Name vs Import Name (IMPORTANT)
+Purpose	Name
+pip install name	tonneanalyzer-ankit
+Python package	tone
+Main class	tone.analyzer.ToneAnalyzer
+
+This separation is intentional and standard in Python packaging.
+
+Project Structure (after installation)
+The installed package provides:
+
+arduino
+Copy code
+tone/
+├── __init__.py
+├── analyzer.py        # public API
+├── fusion/            # rule–model fusion logic
+├── rules/             # deterministic linguistic rules
+└── models/            # ML classifier definitions
+You do not import from fusion, rules, or models directly.
+
+Core Concept
+Each tone axis is handled independently.
+
+For a given axis:
+
+A rule function produces a binary signal (0 or 1)
+
+A trained ML model produces a probability
+
+Both are combined using a weighted fusion rule
+
+Negation is applied when linguistically valid
+
+There is no shared label space and no shared classifier.
+
+Supported Axes (v1)
+Axis	Meaning
+Persuasive	Attempts to influence or convince
+Questioning	Interrogative intent
+Formal	Formal vs informal language
+Assertive	Forceful vs submissive tone
+Authoritative	Commanding vs collaborative
+Narrative	Story-like vs explanatory
+
+Each axis returns a boolean decision.
+
+Required Artifacts (MANDATORY)
+You must provide trained model artifacts in Joblib format.
+
+Required directory layout
+Copy code
+artifacts/
+├── persuasive_model.joblib
+├── questioning_model.joblib
+├── formal_model.joblib
+├── assertive_model.joblib
+├── authoritative_model.joblib
+└── narrative_model.joblib
+These files are loaded at runtime.
+
+The library does not train models automatically.
+
+Quick Start
+python
+Copy code
+from tone.analyzer import ToneAnalyzer
+
+analyzer = ToneAnalyzer("path/to/artifacts")
+
+result = analyzer.analyze(
+    "I strongly recommend using this approach."
+)
+
+print(result)
+Full Usage (Step by Step)
+1. Import
+python
+Copy code
+from tone.analyzer import ToneAnalyzer
+2. Initialize Analyzer
+python
+Copy code
+analyzer = ToneAnalyzer("path/to/artifacts")
+The path must exist
+
+All required .joblib files must be present
+
+Missing files raise FileNotFoundError
+
+3. Analyze Text
+python
+Copy code
+output = analyzer.analyze(
+    "I do not recommend this approach."
+)
+Output Format
+The output is a Python dictionary:
+
+python
+Copy code
+{
+  'persuasive': False,
+  'questioning': False,
+  'formal': False,
+  'assertive': False,
+  'authoritative': False,
+  'narrative': False
+}
+Each value is a boolean
+
+True means the axis is detected
+
+False means it is not detected
+
+Negation Handling
+Negation is applied selectively, only where linguistically valid.
+
+Example:
+
+graphql
+Copy code
+"I recommend this."
+→ persuasive = True
+
+"I do not recommend this."
+→ persuasive = False
+Negation is not applied to all axes blindly.
+
+Sarcasm is not handled in v1.
+
+Rule–Model Fusion
+For each axis:
+
+ini
+Copy code
+score = α * rule_signal + (1 − α) * model_probability
+decision = score ≥ threshold
+Where:
+
+α is axis-specific
+
+rules have higher priority than models
+
+models smooth noisy or ambiguous cases
+
+Fusion is deterministic.
+
+Design Constraints (Intentional)
+No deep learning models
+
+No transformer dependencies
+
+No shared embeddings across axes
+
+No global confidence score
+
+No auto-downloaded data
+
+No hidden state
+
+This is by design.
+
+What This Library IS
+A tone / intent analyzer
+
+Deterministic and inspectable
+
+Suitable for production pipelines
+
+Lightweight and fast
+
+Modular and extensible
+
+What This Library Is NOT
+❌ A large language model
+
+❌ A sentiment analyzer
+
+❌ A dialogue agent
+
+❌ A text generator
+
+❌ A black-box classifier
+
+Versioning
+0.1.x → documentation and stability
+
+0.2.x → new axes or features
+
+1.0.0 → stable public API
+
+PyPI versions are immutable.
+
+License
+MIT License.
+
+Author
+Ankit Ghosh
+
+yaml
+Copy code
+
+---
+
+### What to do next (exact steps)
+
+1. Save this as `README.md`
+2. Bump version in `pyproject.toml` (e.g. `0.1.1`)
+3. Run:
+   ```bash
+   python -m build
+   python -m twine upload dist/*
