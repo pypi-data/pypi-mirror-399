@@ -1,0 +1,12 @@
+﻿..
+   Template for the html base rendering
+
+   Modified from
+   https://github.com/sphinx-doc/sphinx/tree/master/sphinx/ext/autosummary/templates/autosummary/base.rst
+
+lbfgsb.styblinski\_tang\_grad
+=============================
+
+.. currentmodule:: lbfgsb
+
+.. autofunction:: styblinski_tang_grad
