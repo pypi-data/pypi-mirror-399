@@ -1,0 +1,173 @@
+Metadata-Version: 2.2
+Name: gllm-pipeline-binary
+Version: 0.4.29
+Summary: A library containing components related to Gen AI applications pipeline orchestration.
+Author-email: Dimitrij Ray <dimitrij.ray@gdplabs.id>, Henry Wicaksono <henry.wicaksono@gdplabs.id>, Kadek Denaya <kadek.d.r.diana@gdplabs.id>
+Requires-Python: <3.13,>=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: pydantic<2.12.0,>=2.11.7
+Requires-Dist: gllm-core-binary<0.4.0,>=0.3.0
+Requires-Dist: gllm-inference-binary<0.6.0,>=0.5.0
+Requires-Dist: aiohttp<3.13.0,>=3.12.14
+Requires-Dist: langgraph<0.7.0,>=0.6.0
+Requires-Dist: typing-extensions<5.0.0,>=4.5.0
+Provides-Extra: dev
+Requires-Dist: coverage<7.5.0,>=7.4.4; extra == "dev"
+Requires-Dist: mypy<1.16.0,>=1.15.0; extra == "dev"
+Requires-Dist: pre-commit<3.8.0,>=3.7.0; extra == "dev"
+Requires-Dist: pytest<8.2.0,>=8.1.1; extra == "dev"
+Requires-Dist: pytest-asyncio<0.24.0,>=0.23.6; extra == "dev"
+Requires-Dist: pytest-cov<5.1.0,>=5.0.0; extra == "dev"
+Requires-Dist: ruff<0.7.0,>=0.6.7; extra == "dev"
+Provides-Extra: cache
+Requires-Dist: gllm-datastore-binary[chroma]<0.6.0,>=0.5.0; extra == "cache"
+Provides-Extra: multimodal-router
+Requires-Dist: gllm-inference-binary[google]<0.6.0,>=0.5.0; extra == "multimodal-router"
+Provides-Extra: semantic-router
+Requires-Dist: azure-search-documents<12.0.0,>=11.5.1; extra == "semantic-router"
+Requires-Dist: semantic-router<0.2.0,>=0.1.0; extra == "semantic-router"
+
+# GLLM Pipeline
+
+## Description
+A library containing components related to Gen AI applications pipeline orchestration, including routers, steps, and utility functions for building and managing AI application workflows.
+
+---
+
+## Installation
+
+### Prerequisites
+
+Mandatory:
+1. Python 3.11+ — [Install here](https://www.python.org/downloads/)
+2. pip — [Install here](https://pip.pypa.io/en/stable/installation/)
+3. uv — [Install here](https://docs.astral.sh/uv/getting-started/installation/)
+
+Extras (required only for Artifact Registry installations):
+1. gcloud CLI (for authentication) — [Install here](https://cloud.google.com/sdk/docs/install), then log in using:
+   ```bash
+   gcloud auth login
+   ```
+
+---
+
+### Option 1: Install from Artifact Registry
+
+This option requires authentication via the `gcloud` CLI.
+
+```bash
+uv pip install \
+  --extra-index-url "https://oauth2accesstoken:$(gcloud auth print-access-token)@glsdk.gdplabs.id/gen-ai-internal/simple/" \
+  gllm-pipeline
+```
+
+---
+
+### Option 2: Install from PyPI
+
+This option requires no authentication.
+However, it installs the **binary wheel** version of the package, which is fully usable but **does not include source code**.
+
+```bash
+uv pip install gllm-pipeline-binary
+```
+
+---
+
+## Local Development Setup
+
+### Prerequisites
+
+1. Python 3.11+ — [Install here](https://www.python.org/downloads/)
+2. pip — [Install here](https://pip.pypa.io/en/stable/installation/)
+3. uv — [Install here](https://docs.astral.sh/uv/getting-started/installation/)
+4. gcloud CLI — [Install here](https://cloud.google.com/sdk/docs/install), then log in using:
+
+   ```bash
+   gcloud auth login
+   ```
+5. Git — [Install here](https://git-scm.com/downloads)
+6. Access to the [GDP Labs SDK GitHub repository](https://github.com/GDP-ADMIN/gl-sdk)
+
+---
+
+### 1. Clone Repository
+
+```bash
+git clone git@github.com:GDP-ADMIN/gl-sdk.git
+cd gl-sdk/libs/gllm-pipeline
+```
+
+---
+
+### 2. Setup Authentication
+
+Set the following environment variables to authenticate with internal package indexes:
+
+```bash
+export UV_INDEX_GEN_AI_INTERNAL_USERNAME=oauth2accesstoken
+export UV_INDEX_GEN_AI_INTERNAL_PASSWORD="$(gcloud auth print-access-token)"
+export UV_INDEX_GEN_AI_USERNAME=oauth2accesstoken
+export UV_INDEX_GEN_AI_PASSWORD="$(gcloud auth print-access-token)"
+```
+
+---
+
+### 3. Quick Setup
+
+Run:
+
+```bash
+make setup
+```
+
+---
+
+### 4. Activate Virtual Environment
+
+```bash
+source .venv/bin/activate
+```
+
+---
+
+## Local Development Utilities
+
+The following Makefile commands are available for quick operations:
+
+### Install uv
+
+```bash
+make install-uv
+```
+
+### Install Pre-Commit
+
+```bash
+make install-pre-commit
+```
+
+### Install Dependencies
+
+```bash
+make install
+```
+
+### Update Dependencies
+
+```bash
+make update
+```
+
+### Run Tests
+
+```bash
+make test
+```
+
+---
+
+## Contributing
+
+Please refer to the [Python Style Guide](https://docs.google.com/document/d/1uRggCrHnVfDPBnG641FyQBwUwLoFw0kTzNqRm92vUwM/edit?usp=sharing)
+for information about code style, documentation standards, and SCA requirements.
