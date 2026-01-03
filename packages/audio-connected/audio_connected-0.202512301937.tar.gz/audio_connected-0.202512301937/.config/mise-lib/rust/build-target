@@ -1,0 +1,53 @@
+#!/usr/bin/bash
+# [MISE] hide=true
+# [MISE] depends=["rust:setup"]
+# [USAGE] arg "[target]" help="Target triple" {
+# [USAGE]   choices "armv7-unknown-linux-gnueabihf" "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu"
+# [USAGE] }
+# [USAGE] flag "--release" help="Build release mode"
+
+set -o errexit
+set -o pipefail
+
+# Inserts version and target into filename before extension or at end if no extension
+insert_version_target() {
+  local filename="${1?}"
+  local version="${2?}"
+  local target="${3?}"
+  local base ext new_name
+
+  # Extract base and extension
+  if [[ "${filename}" =~ ^(.+)\.(.+)$ ]]; then
+    base="${BASH_REMATCH[1]}"
+    ext=".${BASH_REMATCH[2]}"
+    new_name="${base}.${version}.${target}${ext}"
+  else
+    new_name="${filename}.${version}.${target}"
+  fi
+  echo "${new_name}"
+}
+
+# shellcheck disable=SC2154
+case ${usage_target} in
+  armv7-unknown-linux-gnueabihf)
+    CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER="$(command -v "arm-linux-gnueabihf-gcc")"
+    export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER
+    ;;
+  aarch64-unknown-linux-gnu)
+    CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="$(command -v "aarch64-linux-gnu-gcc")"
+    export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER
+    ;;
+esac
+
+# shellcheck disable=SC2086
+cargo build ${usage_target:+--target} ${usage_target} ${usage_release:+--release}
+
+if [[ "${usage_target}" != "" ]]; then
+  for f in "target/${usage_target}/release/"*; do
+    if [[ -x "${f}" && -f "${f}" ]]; then
+      new_name="target/release/$(insert_version_target "$(basename "${f}")" "${MORTENLJ_MISE_LIB_VERSION:-0.0}" "${usage_target}")"
+      echo "Copying '${f}' to '${new_name}'"
+      cp "${f}" "${new_name}"
+    fi
+  done
+fi
