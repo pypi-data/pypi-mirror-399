@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iam-mfa"
+version = "0.1.0"
+authors = [{name = "Zagaran, Inc.", email = "info@zagaran.com"}]
+license = "MIT"
+description = "A command line tool to manage AWS CLI credentials with MFA (multi-factor authentication)"
+keywords = ["aws", "cli", "iam", "mfa"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+urls = {Homepage = "https://github.com/zagaran/iam-mfa"}
+requires-python = ">=3.6"
+dependencies = []
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.scripts]
+iam-mfa = "iam_mfa.iam_mfa:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages]
+find = {namespaces = false}
