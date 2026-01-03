@@ -1,0 +1,23 @@
+# Include the main documentation files in the source distribution.
+include README.md
+include LICENSE
+include CHANGELOG.md
+
+# --- Include tutorials as package data ---
+recursive-include pyfwg/tutorials *.ipynb *.xlsx *.epw *.py
+
+# --- Explicitly exclude unwanted directories ---
+prune pyfwg/wip
+prune pyfwg/tutorials/.ipynb_checkpoints
+prune pyfwg/tutorials/__pycache__
+prune pyfwg/tutorials/morphing_temp_results
+prune pyfwg/tutorials/morphing_temp_results_europe
+prune pyfwg/tutorials/epws/w_pattern/output
+prune pyfwg/tutorials/epws/wo_pattern/output
+prune tests
+
+# --- Global exclusions to keep the package clean ---
+global-exclude *.py[co]
+global-exclude .DS_Store
+global-exclude *~
+global-exclude *.swp
