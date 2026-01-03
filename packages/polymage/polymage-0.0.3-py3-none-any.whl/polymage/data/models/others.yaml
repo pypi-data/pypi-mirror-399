@@ -1,0 +1,50 @@
+smollm3-3b:
+  capabilities:
+  - text2text
+  - text2data
+  platforms:
+    huggingface:
+      internal_name: huggingfacetb/smollm3-3b:hf-inference
+      default_params: {}
+
+
+llama-4-scout-17b-16e-instruct:
+  capabilities:
+  - text2text
+  - text2data
+  - image2text
+  platforms:
+    groq:
+      internal_name: meta-llama/llama-4-scout-17b-16e-instruct
+      default_params: {}
+
+
+dreamshaper-8-lcm:
+  capabilities:
+  - text2image
+  platforms:
+    cloudflare:
+      internal_name: '@cf/lykon/dreamshaper-8-lcm'
+      default_params:
+        num_steps: 20
+        height: 1024
+        width: 1024
+        guidance: 2.0
+      platform_params:
+        output_type: bytes
+
+
+lucid-origin:
+  capabilities:
+  - text2image
+  platforms:
+    cloudflare:
+      internal_name: '@cf/leonardo/lucid-origin'
+      default_params:
+        num_steps: 40
+        height: 1120
+        width: 1120
+        guidance: 2.0
+      platform_params:
+        output_type: base64
+

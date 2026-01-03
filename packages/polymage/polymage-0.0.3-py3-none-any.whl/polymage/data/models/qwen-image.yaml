@@ -1,0 +1,29 @@
+#qwen-image:
+#  capabilities:
+#  - text2image
+#  platforms:
+
+
+qwen-image-edit-2511:
+  capabilities:
+  - text2image
+  - image2image
+  platforms:
+    drawthings:
+      internal_name: qwen_image_edit_2511_q8p.ckpt
+      default_params:
+        negative_prompt: ''
+        steps: 4
+        batch_count: 1
+        sampler: DPM++ 2M Trailing
+        seed: -1
+        hires_fix: false
+        tiled_decoding: false
+        clip_skip: 1
+        shift: 1.0
+        guidance_scale: 2.0
+        resolution_dependent_shift: true
+        loras:
+        - file: qwen_image_edit_2511_lightning_4_step_v1.0_lora_f16.ckpt
+          weight: 1
+          mode: all

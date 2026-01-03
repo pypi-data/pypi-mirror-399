@@ -1,0 +1,41 @@
+hidream-fast:
+  capabilities:
+  - text2image
+  platforms:
+    drawthings:
+      internal_name: hidream_i1_fast_q8p.ckpt
+      default_params:
+        negative_prompt: ''
+        steps: 16
+        batch_count: 1
+        sampler: DPM++ 2M Trailing
+        seed: -1
+        hires_fix: false
+        tiled_decoding: false
+        clip_skip: 1
+        shift: 1.0
+        guidance_scale: 2.0
+        resolution_dependent_shift: false
+        loras: []
+
+
+hidream-dev:
+  capabilities:
+  - text2image
+  platforms:
+    drawthings:
+      internal_name: hidream_i1_dev_q8p.ckpt
+      default_params:
+        negative_prompt: ''
+        steps: 20
+        batch_count: 1
+        sampler: DPM++ 2M Trailing
+        seed: -1
+        hires_fix: false
+        tiled_decoding: false
+        clip_skip: 1
+        shift: 1.0
+        guidance_scale: 2.0
+        resolution_dependent_shift: false
+        loras: []
+

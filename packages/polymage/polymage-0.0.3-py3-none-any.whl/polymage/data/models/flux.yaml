@@ -1,0 +1,73 @@
+flux-1-schnell:
+  capabilities:
+  - text2image
+  platforms:
+    huggingface:
+      internal_name: black-forest-labs/flux.1-schnell
+      default_params:
+        steps: 8
+    cloudflare:
+      internal_name: '@cf/black-forest-labs/flux-1-schnell'
+      default_params:
+        steps: 8
+      platform_params:
+        output_type: base64
+      drawthings:
+        internal_name: flux-1-schnell_q8p.ckpt
+        default_params:
+          negative_prompt: ''
+          steps: 8
+          batch_count: 1
+          sampler: DPM++ 2M Trailing
+          seed: -1
+          hires_fix: false
+          tiled_decoding: false
+          clip_skip: 1
+          shift: 1.0
+          guidance_scale: 2.0
+          resolution_dependent_shift: false
+          loras: []
+          
+flux-1-dev:
+  capabilities:
+  - text2image
+  platforms:
+    drawthings:
+      internal_name: flux_1_dev_q8p.ckpt
+      default_params:
+        negative_prompt: ''
+        steps: 20
+        batch_count: 1
+        sampler: DPM++ 2M Trailing
+        seed: -1
+        hires_fix: false
+        tiled_decoding: false
+        clip_skip: 1
+        shift: 1.0
+        guidance_scale: 2.0
+        resolution_dependent_shift: true
+        loras: []
+
+
+flux-2-dev:
+  capabilities:
+  - text2image
+  - image2image
+  platforms:
+    drawthings:
+      internal_name: flux_2_dev_q8p.ckpt
+      default_params:
+        negative_prompt: ''
+        steps: 20
+        batch_count: 1
+        sampler: DPM++ 2M Trailing
+        seed: -1
+        hires_fix: false
+        tiled_decoding: false
+        clip_skip: 1
+        shift: 1.0
+        guidance_scale: 2.0
+        resolution_dependent_shift: false
+        loras: []
+
+
