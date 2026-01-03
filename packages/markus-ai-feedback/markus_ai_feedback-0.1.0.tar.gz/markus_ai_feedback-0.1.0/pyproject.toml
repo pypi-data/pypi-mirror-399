@@ -1,0 +1,65 @@
+[project]
+name = "markus-ai-feedback"
+version = "0.1.0"
+authors = [
+    { name="Ricky Chen" },
+    { name="Sohee Goo" },
+    { name="Rolland He" },
+    { name="Mateo Naranjo" },
+    { name="Will Kukkamalla" },
+    { name="Nathan Taback" },
+    { name="Donny Wong" },
+]
+maintainers = [
+    { name="David Liu", email="david@cs.toronto.edu" },
+]
+description = "A package for generating AI feedback on student work"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "anthropic",
+    "dotenv",
+    "matplotlib",
+    "nbformat",
+    "ollama",
+    "openai",
+    "pillow",
+    "PyMuPDF",
+    "PyPDF2",
+    "requests",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit",
+    "pytest",
+]
+
+[project.scripts]
+cli-name = "ai_feedback.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/MarkUsProject/ai-autograding-feedback/"
+Issues = "https://github.com/MarkUsProject/ai-autograding-feedback/issues"
+
+[build-system]
+requires = ["uv_build>=0.9.21,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+data = { data = "ai_feedback/data" }
+module-name = "ai_feedback"
+module-root = ""
+
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
