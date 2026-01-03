@@ -1,0 +1,61 @@
+"""
+$class_name Pipeline Configuration
+
+Pipeline-specific constants and configuration values.
+
+This module imports from the project's utility modules (databases.py, tables.py, columns.py)
+to help you define pipeline-specific table configurations and constants.
+"""
+
+from typing import Dict, Final
+
+# Import project utilities - customize as needed
+from ...utils.databases import Database, Schema
+from ...utils.tables import TableConfig
+from ...utils.columns import MonthlyColumnConfig
+
+# TODO: Add pipeline-specific configuration
+# Examples:
+# - Table configurations using TableConfig
+# - Source and destination table definitions
+# - Date ranges and processing parameters
+# - Feature flags
+
+# Example table configurations using Dict[str, TableConfig]:
+# TABLE_CONFIGS: Dict[str, TableConfig] = {
+#     "source": TableConfig(
+#         database=Database.PRODUCTION,
+#         schema=Schema.RAW,
+#         table_name_template="source_data_{YYYY}",
+#         type="YEARLY",
+#         is_output=False
+#     ),
+#     "destination": TableConfig(
+#         database=Database.ANALYTICS,
+#         schema=Schema.PROCESSED,
+#         table_name_template="$pipeline_name_output",
+#         type="STABLE"
+#         is_output=True
+#     )
+# }
+
+# Example monthly column configurations using Dict[str, MonthlyColumnConfig]:
+# MONTHLY_COLUMNS: Dict[str, MonthlyColumnConfig] = {
+#     "revenue": MonthlyColumnConfig(
+#         prefix="rev_",
+#         length=12,
+#         format_type="currency",
+#         label_template="{month} Revenue"
+#     ),
+#     "units": MonthlyColumnConfig(
+#         prefix="units_",
+#         length=12,
+#         format_type="integer",
+#         label_template="{month} Units Sold",
+#         _output_prefix="unit_count_"
+#     )
+# }
+
+# Example constants:
+# PIPELINE_NAME: Final[str] = "$pipeline_name"
+# PROCESSING_START_DATE: Final[str] = "2024-01-01"
