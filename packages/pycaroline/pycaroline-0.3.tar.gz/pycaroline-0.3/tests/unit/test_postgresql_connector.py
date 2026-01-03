@@ -1,0 +1,248 @@
+"""Unit tests for PostgreSQL database connector."""
+
+import sys
+from unittest.mock import MagicMock, patch
+
+import polars as pl
+import pytest
+
+from pycaroline.connectors.base import ConnectionError, QueryError
+from pycaroline.connectors.factory import ConnectorFactory, DatabaseType
+
+
+class TestPostgreSQLConnector:
+    """Tests for PostgreSQLConnector class."""
+
+    def test_init_with_explicit_params(self):
+        """Test initialization with explicit parameters."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        conn = PostgreSQLConnector(
+            host="myhost",
+            port=5433,
+            user="myuser",
+            password="mypassword",
+            database="mydb",
+        )
+
+        assert conn.host == "myhost"
+        assert conn.port == 5433
+        assert conn.user == "myuser"
+        assert conn.password == "mypassword"
+        assert conn.database == "mydb"
+
+    def test_init_with_env_vars(self, monkeypatch):
+        """Test initialization with environment variables."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        monkeypatch.setenv("PGHOST", "envhost")
+        monkeypatch.setenv("PGPORT", "5434")
+        monkeypatch.setenv("PGUSER", "envuser")
+        monkeypatch.setenv("PGPASSWORD", "envpassword")
+        monkeypatch.setenv("PGDATABASE", "envdb")
+
+        conn = PostgreSQLConnector()
+
+        assert conn.host == "envhost"
+        assert conn.port == 5434
+        assert conn.user == "envuser"
+        assert conn.password == "envpassword"
+        assert conn.database == "envdb"
+
+    def test_init_defaults(self):
+        """Test default values."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        conn = PostgreSQLConnector()
+
+        assert conn.host == "localhost"
+        assert conn.port == 5432
+
+    def test_connect_success(self):
+        """Test successful connection."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        mock_psycopg2 = MagicMock()
+        mock_connection = MagicMock()
+        mock_connection.closed = False
+        mock_psycopg2.connect.return_value = mock_connection
+        mock_psycopg2.OperationalError = Exception
+
+        with patch.dict(sys.modules, {"psycopg2": mock_psycopg2}):
+            conn = PostgreSQLConnector(host="localhost", user="user", password="pass")
+            conn.connect()
+
+            assert conn.has_open_connection()
+            mock_psycopg2.connect.assert_called_once()
+
+    def test_connect_failure(self):
+        """Test connection failure."""
+        from psycopg2 import OperationalError
+
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        mock_psycopg2 = MagicMock()
+        mock_psycopg2.connect.side_effect = OperationalError("Connection refused")
+        mock_psycopg2.OperationalError = OperationalError
+
+        with patch.dict(sys.modules, {"psycopg2": mock_psycopg2}):
+            conn = PostgreSQLConnector(host="localhost", user="user", password="pass")
+
+            with pytest.raises(ConnectionError) as exc_info:
+                conn.connect()
+
+            assert "localhost" in str(exc_info.value)
+
+    def test_disconnect(self):
+        """Test disconnection."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        mock_psycopg2 = MagicMock()
+        mock_connection = MagicMock()
+        mock_connection.closed = False
+        mock_psycopg2.connect.return_value = mock_connection
+        mock_psycopg2.OperationalError = Exception
+
+        with patch.dict(sys.modules, {"psycopg2": mock_psycopg2}):
+            conn = PostgreSQLConnector(host="localhost", user="user", password="pass")
+            conn.connect()
+            assert conn.has_open_connection()
+
+            conn.disconnect()
+            mock_connection.close.assert_called_once()
+
+    def test_query_not_connected(self):
+        """Test query when not connected."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        conn = PostgreSQLConnector()
+
+        with pytest.raises(QueryError) as exc_info:
+            conn.query("SELECT 1")
+
+        assert "Not connected" in str(exc_info.value)
+
+    def test_query_success(self):
+        """Test successful query execution."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        mock_cursor = MagicMock()
+        mock_cursor.description = [("id",), ("name",)]
+        mock_cursor.fetchall.return_value = [(1, "Alice"), (2, "Bob")]
+
+        mock_connection = MagicMock()
+        mock_connection.closed = False
+        mock_connection.cursor.return_value = mock_cursor
+
+        mock_psycopg2 = MagicMock()
+        mock_psycopg2.connect.return_value = mock_connection
+        mock_psycopg2.OperationalError = Exception
+
+        with patch.dict(sys.modules, {"psycopg2": mock_psycopg2}):
+            conn = PostgreSQLConnector(host="localhost", user="user", password="pass")
+            conn.connect()
+            result = conn.query("SELECT id, name FROM users")
+
+            assert isinstance(result, pl.DataFrame)
+            assert result["id"].to_list() == [1, 2]
+            assert result["name"].to_list() == ["Alice", "Bob"]
+
+    def test_query_empty_result(self):
+        """Test query with empty result."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        mock_cursor = MagicMock()
+        mock_cursor.description = [("id",), ("name",)]
+        mock_cursor.fetchall.return_value = []
+
+        mock_connection = MagicMock()
+        mock_connection.closed = False
+        mock_connection.cursor.return_value = mock_cursor
+
+        mock_psycopg2 = MagicMock()
+        mock_psycopg2.connect.return_value = mock_connection
+        mock_psycopg2.OperationalError = Exception
+
+        with patch.dict(sys.modules, {"psycopg2": mock_psycopg2}):
+            conn = PostgreSQLConnector(host="localhost", user="user", password="pass")
+            conn.connect()
+            result = conn.query("SELECT id, name FROM users WHERE 1=0")
+
+            assert isinstance(result, pl.DataFrame)
+            assert len(result) == 0
+            assert "id" in result.columns
+            assert "name" in result.columns
+
+    def test_get_table(self):
+        """Test get_table method."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        mock_cursor = MagicMock()
+        mock_cursor.description = [("id",)]
+        mock_cursor.fetchall.return_value = [(1,), (2,)]
+
+        mock_connection = MagicMock()
+        mock_connection.closed = False
+        mock_connection.cursor.return_value = mock_cursor
+
+        mock_psycopg2 = MagicMock()
+        mock_psycopg2.connect.return_value = mock_connection
+        mock_psycopg2.OperationalError = Exception
+
+        with patch.dict(sys.modules, {"psycopg2": mock_psycopg2}):
+            conn = PostgreSQLConnector(host="localhost", user="user", password="pass")
+            conn.connect()
+            conn.get_table("users", schema="myschema", limit=10)
+
+            mock_cursor.execute.assert_called_once()
+            call_args = mock_cursor.execute.call_args[0][0]
+            assert '"myschema"."users"' in call_args
+            assert "LIMIT 10" in call_args
+
+    def test_get_table_default_schema(self):
+        """Test get_table with default public schema."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        mock_cursor = MagicMock()
+        mock_cursor.description = [("id",)]
+        mock_cursor.fetchall.return_value = [(1,)]
+
+        mock_connection = MagicMock()
+        mock_connection.closed = False
+        mock_connection.cursor.return_value = mock_cursor
+
+        mock_psycopg2 = MagicMock()
+        mock_psycopg2.connect.return_value = mock_connection
+        mock_psycopg2.OperationalError = Exception
+
+        with patch.dict(sys.modules, {"psycopg2": mock_psycopg2}):
+            conn = PostgreSQLConnector(host="localhost", user="user", password="pass")
+            conn.connect()
+            conn.get_table("users")
+
+            call_args = mock_cursor.execute.call_args[0][0]
+            assert '"public"."users"' in call_args
+
+    def test_factory_registration(self):
+        """Test PostgreSQL connector is registered with factory."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector  # noqa: F401
+
+        assert ConnectorFactory.is_registered(DatabaseType.POSTGRESQL)
+
+    def test_context_manager(self):
+        """Test context manager protocol."""
+        from pycaroline.connectors.postgresql import PostgreSQLConnector
+
+        mock_psycopg2 = MagicMock()
+        mock_connection = MagicMock()
+        mock_connection.closed = False
+        mock_psycopg2.connect.return_value = mock_connection
+        mock_psycopg2.OperationalError = Exception
+
+        with patch.dict(sys.modules, {"psycopg2": mock_psycopg2}):
+            with PostgreSQLConnector(
+                host="localhost", user="user", password="pass"
+            ) as conn:
+                assert conn.has_open_connection()
+
+            mock_connection.close.assert_called_once()
