@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "argocd-mcp-server"
+version = "0.1.0"
+description = "MCP server for ArgoCD GitOps continuous delivery integration"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    { name = "asklokesh", email = "asklokesh@example.com" }
+]
+dependencies = [
+    "httpx>=0.24.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "python-dotenv>=1.0.0",
+    "grpcio>=1.50.0",
+    "grpcio-tools>=1.50.0",
+    "protobuf>=4.0.0",
+    "pyyaml>=6.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.0",
+    "ruff>=0.1.0"
+]
+
+[project.scripts]
+argocd-mcp = "argocd_mcp.server:main"
+[tool.hatch.build.targets.wheel]
+packages = ["src/argocd_mcp"]
