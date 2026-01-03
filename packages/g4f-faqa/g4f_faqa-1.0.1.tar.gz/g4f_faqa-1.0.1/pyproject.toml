@@ -1,0 +1,25 @@
+[project]
+name = "g4f-faqa"
+version = "1.0.1"
+description = "A fun project for a friend"
+readme = "README.md"
+authors = [
+    { name = "M1778", email = "m1778.pc@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=2.3.3",
+    "g4f>=0.3.5.0",
+    "openpyxl>=3.1.5",
+    "tqdm>=4.67.1",
+    "python-dotenv>=1.2.1",
+    "aiohttp>=3.13.2",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
+[project.scripts]
+g4f-faqa = "g4f_faqa.main:main"
+[tool.setuptools.packages.find]
+where = ["src"]

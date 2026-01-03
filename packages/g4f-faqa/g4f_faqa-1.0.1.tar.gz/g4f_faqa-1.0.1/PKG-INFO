@@ -1,0 +1,22 @@
+Metadata-Version: 2.3
+Name: g4f-faqa
+Version: 1.0.1
+Summary: A fun project for a friend
+Author: M1778
+Author-email: M1778 <m1778.pc@gmail.com>
+Requires-Dist: pandas>=2.3.3
+Requires-Dist: g4f>=0.3.5.0
+Requires-Dist: openpyxl>=3.1.5
+Requires-Dist: tqdm>=4.67.1
+Requires-Dist: python-dotenv>=1.2.1
+Requires-Dist: aiohttp>=3.13.2
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+
+
+This program is used to process a batch of questions and generate answers based on AI models.
+The questions are fetched from an Excel file and the answers are stored in a SQLite database.
+The program uses asyncio to run the AI model and the SQLite database operations concurrently.
+The program also uses tqdm to display a progress bar.
+The AI model is configured using the AIConfig class.
+The SQLite database is configured using the DatabaseManager class.
