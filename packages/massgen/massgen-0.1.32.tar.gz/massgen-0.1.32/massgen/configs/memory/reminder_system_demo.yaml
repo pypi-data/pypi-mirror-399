@@ -1,0 +1,64 @@
+# System Reminders Demo Configuration
+#
+# Demonstrates the event-driven reminder system that injects <system-reminder>
+# tags into agent conversations when important events occur.
+#
+# Current reminder triggers:
+#   - High-priority task completion → Memory documentation reminder
+#
+# The reminder system uses XML format aligned with Claude Code:
+#   <system-reminder category="memory" priority="2">
+#   High-priority task completed! Document decisions...
+#   </system-reminder>
+#
+# Run with:
+#   massgen --config massgen/configs/memory/reminder_system_demo.yaml "Research the latest AI safety papers"
+#
+# To see reminders in action:
+#   1. Agent creates a task plan with high-priority tasks
+#   2. Agent completes a high-priority task (via update_task_status)
+#   3. System injects memory reminder prompting documentation
+#   4. Agent writes learnings to memory files
+#
+# SUPPORTED BACKENDS:
+#   - openai, chatcompletions, claude, claude_code, gemini, grok, inference, lmstudio, response
+#
+# UNSUPPORTED BACKENDS:
+#   - azure_openai (simplified implementation)
+#   - cli (CLI wrappers)
+#   - external (external agent processes)
+#
+# MODEL REQUIREMENTS:
+#   The reminder system depends on the agent properly using the task planning
+#   workflow (calling update_task_status to mark tasks complete). Weaker models
+#   (e.g., gpt-5-mini) may skip task status updates entirely, preventing
+#   reminder triggers. Use capable models like gpt-5, gemini-3-pro, or claude-sonnet
+#   for reliable reminder behavior.
+
+agents:
+  - id: "researcher"
+    backend:
+      # type: "gemini"
+      # model: "gemini-3-pro-preview"
+      # type: "openai"
+      # model: "gpt-5"
+      type: "claude_code"
+      model: "claude-opus-4-5-20251101"
+      cwd: "workspace"
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  coordination:
+    # Enable task planning (required for reminder triggers)
+    enable_agent_task_planning: true
+    # Write task plans to filesystem for transparency
+    task_planning_filesystem_mode: true
+
+    # Enable memory filesystem for agents to save learnings
+    enable_memory_filesystem_mode: true
+
+ui:
+  display_type: "rich_terminal"
+  logging_enabled: true

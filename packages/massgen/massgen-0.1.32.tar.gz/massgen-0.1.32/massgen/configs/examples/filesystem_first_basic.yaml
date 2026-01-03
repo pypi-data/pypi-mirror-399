@@ -1,0 +1,88 @@
+# Filesystem-First Mode Example
+#
+# This configuration demonstrates the new filesystem-based tool discovery paradigm.
+# Instead of injecting all MCP tools into context, tools are represented as files
+# that agents can discover using ripgrep/ast-grep and execute via code.
+#
+# Benefits:
+# - 98% context reduction (150K → 3K tokens)
+# - Attach 100+ MCP servers with zero context cost
+# - Agents discover tools on-demand
+# - One config works for any task
+
+# Global MassGen Configuration
+massgen:
+  # Enable filesystem-first mode (agents discover tools from filesystem)
+  execution_mode: "filesystem_first"
+
+  # Tools that remain in-context for immediate access (minimal set)
+  # Note: These must match actual MCP tool names
+  in_context_tools:
+    # Core filesystem operations (required for tool discovery)
+    filesystem:
+      - read_file
+      - write_file
+      - list_directory
+      - create_directory
+      - move_file
+      - get_file_info
+
+    # Command execution (required for filesystem-first paradigm)
+    command_execution:
+      - execute_command  # Actual MCP tool name from code execution server
+
+  # All other MCP servers (exposed as files in servers/, not in context)
+  # With filesystem-first, you can attach UNLIMITED servers!
+  available_mcp_servers:
+    # Productivity & Communication
+    - google-drive
+    - gmail
+    - slack
+    - notion
+
+    # Development
+    - github
+    - gitlab
+    - linear
+
+    # Databases
+    - postgres
+    - mongodb
+    - redis
+
+    # Add as many as you want - no context cost!
+
+  # Custom tools (exposed as files in tools/, not in context)
+  available_custom_tools:
+    - web.playwright_navigate
+    - web.screenshot
+    - multimodal.vision_understanding
+    # All 30+ custom tools available without context pollution
+
+  # Code execution configuration (REQUIRED for filesystem-first)
+  code_execution:
+    enabled: true
+    mode: "docker"  # Recommended for security
+
+  # Search tools for discovery
+  search_tools:
+    enable_ripgrep: true
+    enable_ast_grep: true
+    enable_semtools: false  # Optional, defer for now
+
+# Agent Configuration
+agents:
+  - id: "universal_agent"
+    backend:
+      type: "openai"
+      model: "gpt-4o"
+      enable_mcp_command_line: true  # Required for filesystem-first
+      command_line_execution_mode: "docker"
+      command_line_docker_image: "massgen/filesystem-first:latest"
+
+orchestrator:
+  display: true
+
+ui:
+  display_type: "rich_terminal"
+  logging_enabled: true

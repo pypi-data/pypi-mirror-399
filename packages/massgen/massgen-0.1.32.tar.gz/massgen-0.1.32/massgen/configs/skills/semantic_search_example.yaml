@@ -1,0 +1,105 @@
+# Semantic Search Configuration Example
+# This example shows how to enable semantic search for multi-agent workspaces.
+#
+# Semantic search allows agents to:
+#   - Search their own workspace by semantic meaning
+#   - Search across all agent workspaces
+#   - Find code/documentation even without exact keyword matches
+#
+# Prerequisites:
+#   - Install semantic search dependencies: pip install "massgen[semantic-search]"
+#     Or individually: pip install txtai[pipeline] tree-sitter tree-sitter-python tree-sitter-javascript tree-sitter-typescript
+#   - For local embeddings (default): No API key needed, uses Jina embeddings
+#   - For API embeddings: Set OPENAI_API_KEY
+#
+# Run with:
+#   uv run massgen --config massgen/configs/skills/semantic_search_example.yaml "Search for authentication logic in the codebase"
+
+agents:
+  - id: "researcher"
+    backend:
+      type: "openai"
+      model: "gpt-5-mini"
+      cwd: "workspace1"
+
+  - id: "implementer"
+    backend:
+      type: "openai"
+      model: "gpt-5-mini"
+      cwd: "workspace2"
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  # Context paths applied to all agents - gives read access to massgen codebase
+  # Note: Using a smaller subset for faster initial indexing
+  context_paths:
+    - path: "massgen/mcp_tools/semantic_search"
+      permission: "read"
+
+  coordination:
+    # Enable semantic search for all agents
+    enable_semantic_search: true
+
+    # Optional: Customize semantic search settings
+    semantic_search_config:
+      # Embedding backend: "local" (free, uses Jina) or "api" (uses OpenAI via LiteLLM)
+      embedding_backend: "local"
+
+      # Model for local embeddings - using smaller model for faster testing
+      # For production, use: "jinaai/jina-embeddings-v2-base-code"
+      local_model: "sentence-transformers/all-MiniLM-L6-v2"
+
+      # Model for API embeddings (if using "api" backend)
+      api_model: "text-embedding-3-small"
+
+      # Enable hybrid search (BM25 + semantic) for better results
+      hybrid: true
+
+      # Chunk size for text splitting (characters)
+      chunk_size: 1500
+
+      # Overlap between chunks
+      chunk_overlap: 200
+
+      # File patterns to index (glob patterns)
+      file_patterns:
+        - "*.py"
+        - "*.js"
+        - "*.ts"
+        - "*.tsx"
+        - "*.jsx"
+        - "*.md"
+        - "*.rst"
+        - "*.txt"
+        - "*.yaml"
+        - "*.yml"
+        - "*.json"
+        - "*.go"
+        - "*.rs"
+        - "*.java"
+        - "*.c"
+        - "*.cpp"
+        - "*.h"
+        - "*.hpp"
+
+# Example prompts to try:
+#
+# 1. Search own workspace:
+#    "Use semantic_search to find code related to database connections"
+#
+# 2. Search all agent workspaces:
+#    "Use semantic_search with scope='all' to find error handling patterns across all agents"
+#
+# 3. Search specific agents:
+#    "Use semantic_search with scope='researcher,implementer' to compare implementations"
+#
+# 4. Get top results per agent:
+#    "Use semantic_search with per_agent=True to see each agent's approach to authentication"
+#
+# 5. Refresh index after changes:
+#    "Use refresh_search_index to update the semantic search index"
+#
+# 6. Check index status:
+#    "Use get_search_index_status to see indexing statistics"

@@ -1,0 +1,77 @@
+# Test Configuration for Semantic Search Skills
+# This config tests that serena and semtools skills load and are accessible
+#
+# Test commands to verify skills:
+#   1. Test skill discovery:
+#      openskills list
+#
+#   2. Test skill loading:
+#      openskills read serena
+#      openskills read semtools
+#      openskills read file-search
+#
+# Run integration test:
+#   uv run massgen --config massgen/configs/skills/test_semantic_skills.yaml "List available skills and show me the serena skill content"
+
+agents:
+  - id: "skill_tester"
+    backend:
+      type: "claude"
+      model: "claude-sonnet-4-20250514"
+      cwd: "test_workspace"
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"
+    system_message: |
+      You are testing the semantic search skills system.
+
+      Your task is to verify that semantic search skills are properly loaded and accessible.
+
+      Available commands:
+      - execute_command("openskills list")  # List all available skills
+      - execute_command("openskills read serena")  # Read serena skill content
+      - execute_command("openskills read semtools")  # Read semtools skill content
+      - execute_command("openskills read file-search")  # Read file-search skill
+
+      When asked to test skills, execute these commands and report what you find.
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  coordination:
+    # Enable skills system
+    use_skills: true
+
+    # Enable all semantic search skills for testing
+    massgen_skills:
+      - "file-search"    # Baseline skill (always available)
+      - "serena"         # NEW: Symbol-level code understanding
+      - "semtools"       # NEW: Semantic search
+
+    # Skills discovery directory
+    skills_directory: ".agent/skills"
+
+    # Disable planning for simple tests
+    enable_agent_task_planning: false
+
+ui:
+  display_type: "simple"
+  logging_enabled: true
+
+# Test scenarios:
+#
+# 1. Skill Discovery Test:
+#    Query: "List all available skills"
+#    Expected: Should see file-search, serena, semtools
+#
+# 2. Skill Content Test:
+#    Query: "Show me the serena skill documentation"
+#    Expected: Should read and display serena SKILL.md content
+#
+# 3. Skill Usage Test:
+#    Query: "What's the difference between serena and semtools?"
+#    Expected: Agent reads both skills and explains differences
+#
+# 4. Integration Test:
+#    Query: "When should I use serena vs file-search?"
+#    Expected: Agent reads both skills and provides guidance

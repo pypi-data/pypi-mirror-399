@@ -1,0 +1,105 @@
+# Comprehensive Semantic Search Configuration
+# Combines Serena (MCP server) + Semtools (CLI commands) + file-search skill
+#
+# Prerequisites:
+#   - Docker mode: All tools pre-installed (rebuild: bash massgen/docker/build.sh)
+#   - Local mode:
+#     - uv: curl -LsSf https://astral.sh/uv/install.sh | sh
+#     - semtools: npm install -g @llamaindex/semtools
+#
+# Three-layer search approach:
+#   1. file-search (ripgrep/ast-grep) - Fast exact keyword/pattern matching
+#   2. serena (MCP server) - LSP-powered symbol navigation and refactoring
+#   3. semtools (CLI) - Semantic meaning-based search with embeddings
+#
+# Run with:
+#   uv run massgen --config massgen/configs/skills/semantic_search_comprehensive.yaml "Find and refactor all authentication code"
+
+agents:
+  - id: "semantic_code_navigator"
+    backend:
+      type: "claude"
+      model: "claude-sonnet-4-20250514"
+      cwd: "workspace_comprehensive"
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"  # or "local"
+
+      # Serena MCP Server - full LSP-powered toolkit
+      mcp_servers:
+        - name: "serena"
+          type: "stdio"
+          command: "uvx"
+          args: ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server"]
+
+    system_message: |
+      You are an expert code navigator with three complementary search capabilities:
+
+      ## 1. file-search skill (ripgrep + ast-grep)
+      For exact keyword and structural pattern matching:
+      - Fast text search: `rg "pattern" --type py`
+      - Structural search: `sg --pattern 'class $NAME { $$$ }'`
+      Use when: You know exact keywords or code patterns
+
+      ## 2. Serena (MCP tools - available directly)
+      For LSP-powered symbol operations:
+      - find_symbol: Locate class/function/variable definitions
+      - find_referencing_symbols: Find all symbol usages
+      - rename_symbol: Safe refactoring across codebase
+      - insert_after_symbol / insert_before_symbol: Precise insertions
+      - get_symbols_overview: See file structure
+      - onboarding: Understand project architecture
+      Use when: Working with symbols, refactoring, need IDE-like precision
+
+      ## 3. Semtools (CLI commands via bash)
+      For semantic meaning-based search:
+      - `search "concept" src/` - Find by meaning, not keywords
+      - `workspace use project` - Cache embeddings for speed
+      - `parse *.pdf` - Convert documents to searchable text
+      Use when: Exploring concepts, discovering similar code, don't know exact terms
+
+      ## Search Strategy
+      1. **Concept Discovery**: semtools → find relevant areas
+      2. **Symbol Precision**: Serena find_symbol → get exact definitions
+      3. **Impact Analysis**: Serena find_referencing_symbols → track usage
+      4. **Exact Patterns**: ripgrep/ast-grep → find specific code
+
+      ## Example Workflow
+      ```bash
+      # 1. Semantic discovery
+      search "authentication logic" src/
+
+      # 2. Find exact symbol (via Serena MCP tool)
+      # Use: find_symbol(name="AuthService", symbol_type="class")
+
+      # 3. Track all usages (via Serena MCP tool)
+      # Use: find_referencing_symbols(...)
+
+      # 4. Refactor safely (via Serena MCP tool)
+      # Use: rename_symbol(...) or replace_symbol_body(...)
+      ```
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  coordination:
+    # Enable skills system for file-search and semtools guidance
+    use_skills: true
+    massgen_skills:
+      - "file-search"  # ripgrep/ast-grep
+      - "semtools"     # Semantic search guidance
+
+    skills_directory: ".agent/skills"
+
+    enable_agent_task_planning: true
+    task_planning_filesystem_mode: true
+
+ui:
+  display_type: "simple"
+  logging_enabled: true
+
+# Example queries to try:
+# 1. "Find all authentication-related code and explain the architecture"
+# 2. "Search for rate limiting implementations and refactor them to use a common pattern"
+# 3. "Find all error handling patterns and add logging"
+# 4. "Discover similar functionality to UserService and consolidate it"

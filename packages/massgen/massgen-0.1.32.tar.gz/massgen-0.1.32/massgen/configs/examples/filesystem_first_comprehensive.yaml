@@ -1,0 +1,238 @@
+# Filesystem-First Mode - Comprehensive Example
+#
+# This demonstrates the proper paradigm:
+# - Core filesystem & code execution SERVERS in-context (for basic operations)
+# - Custom tools auto-discovered from custom tools directory
+# - MCP servers configured with proper installation commands
+# - Task execution mode enabled for task tracking
+# - Skills support for reusable workflows
+#
+# KEY CONCEPTS:
+# 1. in_context_tools: Specifies SERVERS (not individual tools) to keep in context
+#    - Use empty list [] to include ALL tools from that server
+#    - Only essential servers (filesystem, command_execution) should be here
+#
+# 2. mcp_servers: Configure actual MCP servers with installation commands
+#    - Each server needs: name, type, command, args
+#    - Servers NOT in in_context_tools are discoverable from filesystem
+#    - Zero context cost for discoverable servers!
+#
+# 3. custom_tools_directory: Points to directory with custom tools
+#    - MassGen auto-discovers all tools in this directory
+#    - No need to list individual tools
+#
+# PUBLICLY AVAILABLE MCP SERVERS (you can add):
+#   Weather: npx -y @fak111/weather-mcp
+#   Filesystem: npx -y @modelcontextprotocol/server-filesystem <directory>
+#   Brave Search: npx -y @modelcontextprotocol/server-brave-search (requires BRAVE_API_KEY)
+#   GitHub: npx -y @modelcontextprotocol/server-github (requires GITHUB_TOKEN)
+#   Google Drive: npx -y @modelcontextprotocol/server-gdrive (requires auth)
+#   Postgres: npx -y @modelcontextprotocol/server-postgres (requires DB connection)
+#   Puppeteer: npx -y @modelcontextprotocol/server-puppeteer
+#   Memory: npx -y @modelcontextprotocol/server-memory
+#   Fetch: npx -y @modelcontextprotocol/server-fetch
+#
+# See: https://github.com/modelcontextprotocol for more official servers
+# See: https://github.com/punkpeye/awesome-mcp-servers for community servers
+
+massgen:
+  # === CORE: Filesystem-First Mode ===
+  execution_mode: "filesystem_first"
+
+  # Shared filesystem location (contains servers/, tools/, skills/)
+  workspace_root: "shared_filesystem"
+
+  # Agent workspace parent (contains {agent_id}/memory/, tasks/, workspace/)
+  agent_workspaces: "workspaces"
+
+  # === IN-CONTEXT TOOLS ===
+  # Specify MCP SERVERS (not individual tools) that remain in-context
+  # Format: server_name: [list of specific tools OR empty list for ALL tools]
+  #
+  # BUILT-IN MCPs (auto-added, NOT in servers/ for discovery):
+  #   - filesystem: File read/write/search operations
+  #   - command_line: Code execution (docker/local, enabled by enable_mcp_command_line)
+  #   - workspace_tools: Workspace operations (copy, delete, compare)
+  #   - workspace: Workspace management
+  #   - planning: Task planning and tracking
+  #   - memory: Memory storage and retrieval
+  #   - skills: Community skills management
+  #
+  # EXTERNAL MCPs (added to servers/ for rg/ast-grep discovery):
+  #   - Any other MCP servers you configure below (weather, slack, etc.)
+  #   - Agents can discover these using: rg "weather" .massgen/shared_filesystem/servers/
+  #
+  in_context_tools:
+    # ALL filesystem operations (built-in, not in servers/)
+    filesystem: []  # Empty list = ALL tools from this server
+
+    # Note: command_line is auto-enabled by enable_mcp_command_line: true
+    # No need to list it in in_context_tools
+
+    # Optionally include other built-in servers
+    # workspace: []  # Workspace management (built-in)
+    # planning: []   # Task planning (built-in)
+    # memory: []     # Memory management (built-in)
+    # skills: []     # Skills management (built-in)
+
+  # === CUSTOM TOOLS ===
+  # Custom tools are auto-discovered from the custom tools directory
+  # No need to list them individually - MassGen scans the directory
+  custom_tools_directory: "massgen/configs/tools/custom_tools"  # Path to custom tools
+
+  # === CODE EXECUTION ===
+  # REQUIRED for filesystem-first mode
+  code_execution:
+    enabled: true
+    mode: "docker"  # Recommended for security
+    docker:
+      image: "massgen/mcp-runtime:latest"
+      network: "bridge"  # Allow network access for API calls
+
+  # === SEARCH TOOLS ===
+  # For tool discovery
+  search_tools:
+    enable_ripgrep: true    # Fast text search
+    enable_ast_grep: true   # Structural code search
+    enable_semtools: false  # Semantic search (future)
+
+  # === SKILLS ===
+  # Pre-installed skills from anthropics/skills repository
+  # Downloaded once, symlinked to every project
+  skills:
+    install_anthropic_skills: true  # Download official skills on first run
+    skills_directory: "~/.massgen/skills"  # Global skills location
+    auto_update: false  # Don't auto-update (user controls versions)
+
+  # === TASK EXECUTION MODE ===
+  # Store tasks in dedicated directory
+  task_execution:
+    enabled: true
+    task_directory: "tasks"  # Stores tasks as MD files
+    auto_create_tasks: true  # Agents can create task files
+    task_format: "markdown"  # Format: markdown or yaml
+
+# === AGENT CONFIGURATION ===
+agents:
+  - id: "research_agent"
+    backend:
+      type: "openai"
+      model: "gpt-5-nano"
+
+      # Workspace configuration
+      # In filesystem-first mode, this becomes .massgen/workspaces/research_agent/
+      cwd: "research_agent"
+
+      # MCP & Code Execution
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"
+      command_line_docker_image: "massgen/mcp-runtime:latest"
+      command_line_docker_network_mode: "bridge"
+
+      # === MCP SERVER CONFIGURATION ===
+      # Configure actual MCP servers with installation commands
+      # NOTE: In filesystem-first mode, only servers listed in in_context_tools
+      # will be loaded into context. Others can be discovered via filesystem.
+      #
+      # IMPORTANT: Built-in MCPs are AUTO-CONFIGURED!
+      # DO NOT manually configure these:
+      #   - filesystem: Auto-configured with restricted paths (workspace + shared_filesystem only)
+      #   - command_line: Auto-enabled by enable_mcp_command_line (docker/local execution)
+      #   - workspace_tools: Auto-configured for workspace operations
+      #
+      # Only configure EXTERNAL MCP servers here:
+      mcp_servers:
+        # Example: Weather MCP (discoverable from filesystem)
+        - name: "weather"
+          type: "stdio"
+          command: "npx"
+          args: ["-y", "@fak111/weather-mcp"]
+
+        # Example: Brave Search (discoverable from filesystem)
+        # - name: "brave_search"
+        #   type: "stdio"
+        #   command: "npx"
+        #   args: ["-y", "@modelcontextprotocol/server-brave-search"]
+        #   env:
+        #     BRAVE_API_KEY: "${BRAVE_API_KEY}"
+
+        # Add more MCP servers as needed
+        # They will be available for discovery without context cost!
+
+    # System message guides agent on filesystem-first paradigm
+    system_message: |
+      You are a research agent with access to a filesystem-first tool environment.
+
+      ## Tool Discovery
+      - List available MCP servers: `ls servers/`
+      - List custom tools: `ls tools/`
+      - List community skills: `ls skills/community/`
+      - Search for specific tools: `rg "keyword" servers/ tools/`
+
+      ## Tool Usage
+      When you need a tool:
+      1. Search for it: `rg "database" servers/` → finds postgres, mongodb, etc.
+      2. Read its docs: `cat servers/postgres/connect.py`
+      3. Import and use: `from servers.postgres import connect`
+
+      ## Task Management
+      Your tasks are stored in the `tasks/` directory as markdown files.
+      - Current task: Read `tasks/current.md`
+      - Create subtasks: Write new files in `tasks/`
+      - Mark complete: Move to `tasks/completed/`
+
+      ## Skills
+      Reusable workflows are in `skills/`:
+      - Community skills: `skills/community/`
+      - Your skills: `skills/research_agent/`
+
+      When you create a successful workflow, save it as a skill for reuse.
+
+  # - id: "coding_agent"
+  #   backend:
+  #     type: "openai"
+  #     model: "gpt-5-mini"
+  #     # In filesystem-first mode, this becomes .massgen/workspaces/coding_agent/
+  #     cwd: "coding_agent"
+  #     enable_mcp_command_line: true
+  #     command_line_execution_mode: "docker"
+  #     command_line_docker_image: "massgen/mcp-runtime:latest"
+  #     command_line_docker_network_mode: "bridge"
+
+  #     # MCP servers (same as research_agent for consistency)
+  #     # Note: Built-in MCPs (filesystem, command_line, workspace_tools) are auto-configured
+  #     mcp_servers:
+  #       - name: "weather"
+  #         type: "stdio"
+  #         command: "npx"
+  #         args: ["-y", "@fak111/weather-mcp"]
+
+  #   system_message: |
+  #     You are a coding agent with filesystem-first tool access.
+
+  #     Focus on using the right tools for the job:
+  #     - Need GitHub? `ls servers/github/`
+  #     - Need database? `rg "database" servers/`
+  #     - Need web scraping? `ls tools/web/`
+
+  #     All tools are available - you just need to discover and import them.
+
+# === ORCHESTRATION ===
+orchestrator:
+  display: true
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  # Coordination settings
+  max_new_answers_per_agent: 2
+  orchestrator_timeout_seconds: 1800  # 30 minutes
+
+  # Enable task planning with file persistence
+  coordination:
+    enable_agent_task_planning: true
+
+# === UI ===
+ui:
+  display_type: "rich_terminal"
+  logging_enabled: true
+  log_level: "INFO"

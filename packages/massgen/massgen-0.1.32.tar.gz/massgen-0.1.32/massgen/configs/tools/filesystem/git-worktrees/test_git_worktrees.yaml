@@ -1,0 +1,30 @@
+# Config to test git worktrees mode with isolated repos
+# Run with: uv run massgen --config massgen/configs/tools/filesystem/git-worktrees/test_git_worktrees.yaml "Create a website about Bob Dylan"
+
+agents:
+  - id: "agent_a"
+    backend:
+      type: "openai"
+      model: "gpt-5"
+      cwd: "workspace1"  # Required for filesystem mode
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"
+      use_git_worktrees: true  # Enable git worktrees with isolated repos
+
+  - id: "agent_b"
+    backend:
+      type: "gemini"
+      model: "gemini-2.5-pro"
+      cwd: "workspace2"  # Required for filesystem mode
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"
+      use_git_worktrees: true  # Enable git worktrees with isolated repos
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  # coordination:
+  #   # Enable task planning with filesystem mode
+  #   enable_agent_task_planning: true
+  #   task_planning_filesystem_mode: true

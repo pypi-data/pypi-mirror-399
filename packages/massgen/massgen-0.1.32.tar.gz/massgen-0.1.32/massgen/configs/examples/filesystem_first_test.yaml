@@ -1,0 +1,74 @@
+# Filesystem-First Mode Test Configuration
+#
+# Minimal config to test filesystem-first mode with just the built-in
+# filesystem MCP server (no external API keys needed).
+#
+# KEY CONCEPTS:
+# - in_context_tools: Specifies MCP SERVERS (not individual tools)
+# - Empty list [] = ALL tools from that server in-context
+# - MCP servers configured in agent backend section
+# - Custom tools auto-discovered from directory
+
+massgen:
+  execution_mode: "filesystem_first"
+
+  # Shared filesystem location (contains servers/, tools/, skills/)
+  workspace_root: ".massgen/shared_filesystem"
+
+  # Agent workspace parent (contains {agent_id}/memory/, tasks/, workspace/)
+  agent_workspaces: ".massgen/workspaces"
+
+  # === IN-CONTEXT TOOLS ===
+  # Specify MCP SERVERS (not individual tools) to keep in-context
+  # Empty list [] = ALL tools from that server
+  #
+  # BUILT-IN MCPs (auto-added, NOT in servers/ for discovery):
+  #   - filesystem: File read/write/search operations
+  #   - command_line: Code execution (docker/local, enabled by enable_mcp_command_line)
+  #   - workspace_tools: Workspace operations (copy, delete, compare)
+  #   - workspace: Workspace management
+  #   - planning: Task planning and tracking
+  #   - memory: Memory storage and retrieval
+  #   - skills: Community skills management
+  #
+  # EXTERNAL MCPs (added to servers/ for rg/ast-grep discovery):
+  #   - Any other MCP servers you configure (weather, slack, etc.)
+  #
+  in_context_tools:
+    filesystem: []  # ALL filesystem operations (built-in)
+    # Note: command_line is auto-enabled by enable_mcp_command_line: true
+
+  # Custom tools auto-discovered from directory
+  custom_tools_directory: "massgen/configs/tools/custom_tools"
+
+  code_execution:
+    enabled: true
+    mode: "docker"
+
+  search_tools:
+    enable_ripgrep: true
+    enable_ast_grep: true
+
+agents:
+  - id: "test_agent"
+    backend:
+      type: "openai"
+      model: "gpt-5-nano"
+      cwd: "test_workspace"
+      enable_mcp_command_line: true
+      command_line_execution_mode: "docker"
+      command_line_docker_image: "massgen/mcp-runtime:latest"
+      command_line_docker_network_mode: "none"  # No network needed for test
+
+orchestrator:
+  display: true
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  # Enable task planning with file persistence
+  coordination:
+    enable_agent_task_planning: true
+
+ui:
+  display_type: "rich_terminal"
+  logging_enabled: true

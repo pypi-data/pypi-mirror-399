@@ -1,0 +1,28 @@
+# Skills with Local Mode Configuration
+# This example shows how to use skills in local execution mode with built-in MassGen skills
+#
+# Prerequisites for local mode:
+#   - Install ripgrep: brew install ripgrep (macOS) or apt-get install ripgrep (Linux)
+#   - Install ast-grep: brew install ast-grep (macOS) or cargo install ast-grep (any platform)
+#
+# Run with:
+#   uv run massgen --config massgen/configs/skills/skills_local_mode.yaml "Find all function definitions in this codebase"
+
+agents:
+  - id: "researcher"
+    backend:
+      # type: "claude_code"
+      # model: "claude-sonnet-4-5-20250929"
+      type: "openai"
+      model: "gpt-5-mini"
+      cwd: "workspace1"
+      enable_mcp_command_line: true
+      command_line_execution_mode: "local"  # Use local mode (not Docker)
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  coordination:
+    # Enable skills system
+    use_skills: true

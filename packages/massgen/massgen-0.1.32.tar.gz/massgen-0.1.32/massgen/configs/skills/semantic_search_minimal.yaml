@@ -1,0 +1,30 @@
+# Minimal Semantic Search Test Configuration
+# Uses a very small directory for quick testing
+
+agents:
+  - id: "tester"
+    backend:
+      type: "openai"
+      model: "gpt-5-mini"
+      cwd: "workspace1"
+
+orchestrator:
+  snapshot_storage: "snapshots"
+  agent_temporary_workspace: "temp_workspaces"
+
+  # Very small context path for testing (just 7 files)
+  context_paths:
+    - path: "massgen/mcp_tools/semantic_search"
+      permission: "read"
+
+  coordination:
+    enable_semantic_search: true
+    semantic_search_config:
+      embedding_backend: "local"
+      # Small, fast model
+      local_model: "sentence-transformers/all-MiniLM-L6-v2"
+      hybrid: true
+      chunk_size: 1500
+      chunk_overlap: 200
+      file_patterns:
+        - "*.py"
