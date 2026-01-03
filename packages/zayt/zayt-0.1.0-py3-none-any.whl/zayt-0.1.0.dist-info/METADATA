@@ -1,0 +1,76 @@
+Metadata-Version: 2.1
+Name: zayt
+Version: 0.1.0
+Summary: ASGI Web Framework with Dependency Injection
+Keywords: asgi,framework,asyncio,web
+Author: Livio Ribeiro
+License: MIT
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: AsyncIO
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Project-URL: Source, https://codeberg.org/python-zayt/zayt
+Project-URL: Documentation, https://python-zayt.codeberg.page/zayt
+Requires-Python: >=3.11
+Requires-Dist: asgikit~=0.18.0
+Requires-Dist: python-dotenv~=1.2.1
+Requires-Dist: structlog~=25.5.0
+Provides-Extra: jinja
+Requires-Dist: jinja2~=3.1.6; extra == "jinja"
+Provides-Extra: sqlalchemy
+Requires-Dist: SQLAlchemy[asyncio]~=2.0.45; extra == "sqlalchemy"
+Provides-Extra: redis
+Requires-Dist: redis~=7.1.0; extra == "redis"
+Provides-Extra: memcached
+Requires-Dist: aiomcache~=0.8.2; extra == "memcached"
+Description-Content-Type: text/markdown
+
+# Project Zayt
+
+Zayt is a Python ASGI web framework built on top of [asgikit](https://pypi.org/project/asgikit/)
+and inspired by Spring Boot, AspNet, FastAPI and Go's net/http.
+
+It features a Dependency Injection system to help build robust and reliable applications.
+
+## Quick start
+
+Install `zayt` and `uvicorn` to run application:
+
+```shell
+pip install zayt uvicorn[standard]
+```
+
+Create a module called `application.py`:
+
+```shell
+touch application.py
+```
+
+Create a handler:
+
+```python
+from asgikit import Request
+from zayt.web import get
+
+
+@get
+async def hello(request: Request):
+    await request.respond_text("Hello, World!")
+```
+
+Run application with `uvicorn` (Zayt will automatically load `application.py`):
+
+```shell
+uvicorn zayt.run:app --reload
+```
