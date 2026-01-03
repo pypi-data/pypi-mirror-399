@@ -1,0 +1,34 @@
+resource/android/scrcpy-server: 1 file pushed, 0 skipped. 616.9 MB/s (233270 bytes in 0.000s)
+[server] INFO: Device: [OPPO] OPPO OPPO A59s (Android 5.1)
+[server] 2025-12-30 12:26:16.773 INFO: Start wait multi connection, version: 3.3.2.6
+[server] 2025-12-30 12:26:37.258 INFO: [video] on connect and current count = 0
+[server] 2025-12-30 12:26:37.259 INFO: Start screen streaming for FileDescriptor[27]
+[server] 2025-12-30 12:26:37.304 INFO: videoRate:3000000maxFps:25.0
+[server] DEBUG: Using video encoder: 'OMX.MTK.VIDEO.ENCODER.AVC'
+[server] DEBUG: Display: using SurfaceControl API
+[server] 2025-12-30 12:26:37.397 INFO: onNewVirtualDisplay: 0 position: 720x1280
+[server] 2025-12-30 12:26:44.910 ERROR: write video client FileDescriptor[27] with java.io.IOException: android.system.ErrnoException: write failed: EPIPE (Broken pipe)
+[server] 2025-12-30 12:26:44.983 WARN: encoder: release mediaCodec and capture
+[server] DEBUG: Screen streaming stopped
+[server] 2025-12-30 12:26:44.990 WARN: Screen streaming stopped
+[server] 2025-12-30 12:27:17.987 INFO: Start control for FileDescriptor[24]
+[server] 2025-12-30 12:27:18.061 ERROR: ctrl server stopped
+java.lang.RuntimeException: Can't create handler inside thread that has not called Looper.prepare()
+	at android.os.Handler.<init>(Handler.java:209)
+	at android.os.Handler.<init>(Handler.java:123)
+	at android.content.ClipboardManager$2.<init>(ClipboardManager.java:69)
+	at android.content.ClipboardManager.<init>(ClipboardManager.java:69)
+	at android.app.ContextImpl$13.createService(ContextImpl.java:493)
+	at android.app.ContextImpl$ServiceFetcher.getService(ContextImpl.java:359)
+	at android.app.ContextImpl.getSystemService(ContextImpl.java:2049)
+	at android.content.ContextWrapper.getSystemService(ContextWrapper.java:573)
+	at com.genymobile.scrcpy.FakeContext.getSystemService(FakeContext.java:106)
+	at com.genymobile.scrcpy.wrappers.ClipboardManager.create(ClipboardManager.java:12)
+	at com.genymobile.scrcpy.wrappers.ServiceManager.getClipboardManager(ServiceManager.java:89)
+	at com.genymobile.scrcpy.control.Controller.<init>(Controller.java:118)
+	at udt.UdtServer.handleCtrl(UdtServer.java:270)
+	at udt.UdtServer.access$000(UdtServer.java:56)
+	at udt.UdtServer$1$1.onConnect(UdtServer.java:162)
+	at udt.UdtServer.open(UdtServer.java:354)
+	at udt.UdtServer$1.run(UdtServer.java:157)
+	at java.lang.Thread.run(Thread.java:818)
