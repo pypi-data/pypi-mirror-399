@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mog-excel-to-pdf"
+version = "1.0.0"
+description = "Excel の複数シートをグループ選択して PDF に出力するツール"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+authors = [
+    {name = "mogwai"}
+]
+keywords = ["Excel", "PDF", "Windows", "COM", "spreadsheet", "export", "batch", "convert"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "pypdf>=4.0.0",
+    "pypdf2>=3.0.1",
+    "pywin32>=311",
+]
+
+[project.urls]
+Homepage = "https://github.com/mogwai-dev/mog-excel-to-pdf"
+Repository = "https://github.com/mogwai-dev/mog-excel-to-pdf"
+Issues = "https://github.com/mogwai-dev/mog-excel-to-pdf/issues"
+
+[project.scripts]
+mog-excel-to-pdf = "mog_excel_to_pdf:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mog_excel_to_pdf"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]

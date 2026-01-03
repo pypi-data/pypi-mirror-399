@@ -1,0 +1,24 @@
+# config.toml
+# 単一ファイル
+excel_path = "example.xlsx"
+# または複数ファイル（指定順に統合）
+# excel_path = ["file1.xlsx", "file2.xlsx"]
+
+sheets = "all"                # "all" または ["Sheet1", "Sheet2"] のようにリストで指定
+
+exclude_sheets = []
+
+# 出力フォルダ（省略時は最初の Excel ファイルと同じフォルダ）
+# output_dir = "pdf_out"
+
+# 出力ファイル名
+pdf_filename = "設計書.pdf"
+
+# ログファイルパス（省略時は出力フォルダ配下の excel_grouped_to_pdf.log）
+# log_file = "output.log"
+
+# 生成後にPDFを開く（省略可）
+open_after_publish = false
+
+# 非表示/VeryHiddenのシートも対象（既定: true）
+include_hidden = true
