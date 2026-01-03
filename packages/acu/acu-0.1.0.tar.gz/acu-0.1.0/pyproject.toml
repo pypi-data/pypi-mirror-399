@@ -1,0 +1,29 @@
+[project]
+    authors = [
+        { name = "Carlos Eduardo Ferreyra", email = "eduferreyraok@gmail.com" },
+    ]
+    dependencies = []
+    name = "acu"
+    readme = "README.md"
+    requires-python = ">=3.14"
+    version = "0.1.0"
+
+[project.scripts]
+    acu = "acu:main"
+
+[tool.maturin]
+    module-name     = "acu._core"
+    python-packages = ["acu"]
+    python-source   = "src"
+
+[tool.uv]
+    cache-keys = [
+        { file = "Cargo.lock" },
+        { file = "Cargo.toml" },
+        { file = "pyproject.toml" },
+        { file = "src/**/*.rs" },
+    ]
+
+[build-system]
+    build-backend = "maturin"
+    requires      = ["maturin>=1.0,<2.0"]

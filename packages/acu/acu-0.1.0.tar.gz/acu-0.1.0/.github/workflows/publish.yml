@@ -1,0 +1,33 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build sdist
+        run: |
+          pipx run maturin build --sdist --out dist/
+
+      - name: Build manylinux wheel
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/io \
+            -w /io \
+            ghcr.io/pyo3/maturin \
+            build --release -o /io/dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.13.0
+        with:
+          packages-dir: dist/
