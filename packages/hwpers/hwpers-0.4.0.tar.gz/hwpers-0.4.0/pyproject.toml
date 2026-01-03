@@ -1,0 +1,36 @@
+[build-system]
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "hwpers"
+version = "0.4.0"
+description = "Python bindings for hwpers - A library for reading and writing Korean Hangul Word Processor (HWP) files"
+readme = "README.md"
+license = { text = "MIT OR Apache-2.0" }
+authors = [{ name = "Indosaram" }]
+requires-python = ">=3.12"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Rust",
+    "Topic :: Text Processing :: General",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["hwp", "hangul", "korean", "document", "parser", "word-processor"]
+
+[project.urls]
+Homepage = "https://github.com/Indosaram/hwpers-py"
+Repository = "https://github.com/Indosaram/hwpers-py"
+Documentation = "https://github.com/Indosaram/hwpers-py#readme"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "hwpers.hwpers_py"

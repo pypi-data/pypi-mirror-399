@@ -1,0 +1,22 @@
+[package]
+name = "hwpers-py"
+version = "0.4.0"
+edition = "2021"
+authors = ["Indosaram"]
+description = "Python bindings for hwpers - A Rust library for parsing Korean Hangul Word Processor (HWP) files"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Indosaram/hwpers-py"
+keywords = ["hwp", "parser", "hangul", "document", "korean", "python"]
+readme = "README.md"
+
+[lib]
+name = "hwpers_py"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.27", features = ["extension-module"] }
+hwpers = "0.4.0"
+
+[profile.release]
+lto = true
+codegen-units = 1

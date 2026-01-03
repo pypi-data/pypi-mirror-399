@@ -1,0 +1,83 @@
+/* Dark mode - follows system preference */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --pdoc-background: #1e1e2e !important;
+        --text: #cdd6f4 !important;
+        --muted: #a6adc8 !important;
+        --link: #89b4fa !important;
+        --link-hover: #b4befe !important;
+        --code: #313244 !important;
+        --active: #45475a !important;
+        --accent: #313244 !important;
+        --accent2: #45475a !important;
+        --nav-hover: rgba(137, 180, 250, 0.1) !important;
+        --name: #89dceb !important;
+        --def: #a6e3a1 !important;
+        --annotation: #f9e2af !important;
+    }
+
+    html, body {
+        background-color: #1e1e2e !important;
+        color: #cdd6f4 !important;
+    }
+
+    nav.pdoc {
+        background-color: #181825 !important;
+        border-right-color: #45475a !important;
+    }
+
+    nav.pdoc a, nav.pdoc a:hover, nav.pdoc h2 {
+        color: #cdd6f4 !important;
+    }
+
+    nav.pdoc .class:before, nav.pdoc .function:after {
+        color: #a6adc8 !important;
+    }
+
+    nav.pdoc li:hover {
+        background-color: rgba(137, 180, 250, 0.1) !important;
+    }
+
+    .pdoc, .pdoc h1, .pdoc h2, .pdoc h3, .pdoc h4, .pdoc h5, .pdoc h6,
+    .pdoc p, .pdoc li, .pdoc td, .pdoc th {
+        color: #cdd6f4 !important;
+    }
+
+    .pdoc a { color: #89b4fa !important; }
+    .pdoc a:hover { color: #b4befe !important; }
+    .pdoc .muted, .pdoc .modulename { color: #a6adc8 !important; }
+    .pdoc .modulename a { color: #89b4fa !important; }
+
+    .pdoc pre {
+        background-color: #313244 !important;
+        border-color: #45475a !important;
+    }
+
+    .pdoc code {
+        background-color: #313244 !important;
+        color: #cdd6f4 !important;
+    }
+
+    .pdoc a > code { color: #89b4fa !important; }
+    .pdoc .attr { background-color: #313244 !important; }
+    .pdoc .name { color: #89dceb !important; }
+    .pdoc .def { color: #a6e3a1 !important; }
+    .pdoc .annotation { color: #f9e2af !important; }
+
+    /* Syntax highlighting */
+    .pdoc-code { background: #313244 !important; }
+    .pdoc-code .c, .pdoc-code .ch, .pdoc-code .cm, .pdoc-code .c1, .pdoc-code .cs { color: #6c7086 !important; }
+    .pdoc-code .k, .pdoc-code .kc, .pdoc-code .kd, .pdoc-code .kn, .pdoc-code .kp, .pdoc-code .kr { color: #cba6f7 !important; }
+    .pdoc-code .s, .pdoc-code .sa, .pdoc-code .sb, .pdoc-code .sc, .pdoc-code .s2, .pdoc-code .s1 { color: #a6e3a1 !important; }
+    .pdoc-code .nb, .pdoc-code .nf, .pdoc-code .fm { color: #89b4fa !important; }
+    .pdoc-code .nc, .pdoc-code .nn { color: #f9e2af !important; }
+    .pdoc-code .m, .pdoc-code .mi, .pdoc-code .mf { color: #fab387 !important; }
+    .pdoc-code .o, .pdoc-code .ow { color: #89dceb !important; }
+    .pdoc-code .p { color: #cdd6f4 !important; }
+    .pdoc-code .linenos { color: #6c7086 !important; }
+    .pdoc-code .err { border: none !important; }
+
+    .pdoc table th, .pdoc table td { border-color: #45475a !important; }
+    .pdoc table th { background-color: #313244 !important; }
+    .pdoc .view-source-button { color: #a6adc8 !important; }
+}
