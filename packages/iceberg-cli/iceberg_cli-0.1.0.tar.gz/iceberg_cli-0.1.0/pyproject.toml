@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iceberg-cli"
+version = "0.1.0"
+description = "A CLI for Iceberg REST Catalogs leveraging PyIceberg and DataFusion"
+readme = "README.md"
+authors = [
+  { name = "Alex Merced", email = "alex@alexmerced.com" },
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pyiceberg[datafusion]>=0.8.0",
+    "click>=8.1.0",
+    "rich>=13.0.0",
+    "ruamel.yaml>=0.17.0",
+]
+
+[project.optional-dependencies]
+s3 = ["pyiceberg[s3fs]"]
+adls = ["pyiceberg[adlfs]"]
+gcs = ["pyiceberg[gcsfs]"]
+glue = ["pyiceberg[glue]"]
+hive = ["pyiceberg[hive]"]
+sql = ["pyiceberg[sql-postgres]"]
+all = ["pyiceberg[s3fs,adlfs,gcsfs,glue,hive,sql-postgres]"]
+
+[project.scripts]
+iceberg = "iceberg_cli.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["iceberg_cli*"]
