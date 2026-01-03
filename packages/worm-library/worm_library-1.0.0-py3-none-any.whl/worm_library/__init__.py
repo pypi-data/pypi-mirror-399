@@ -1,0 +1,6 @@
+from .downloader import get_worm_tour, get_introduction_demo
+from .downloader import get_reaction_properties_demo, get_univariant_curve_demo
+from .downloader import get_intro_aqueous_speciation_demo, get_multi_aqueous_speciation_demo, get_charge_balance_demo, get_heterogeneous_equilibrium_demo, get_heterogeneous_equilibrium_gas_demo, get_alter_suppress_demo, get_custom_data0_demo, get_EQ3_demo, get_EQ6_demo, get_intro_mass_transfer_demo, get_mass_transfer_feature_demo, get_mixing_demo, get_speciation_datasets_demo, get_energy_supply_demo
+from .downloader import get_intro_aqorg_demo, get_aqorg_feature_demo, get_complicator_demo, get_estimate_HKF_demo
+from .downloader import get_workshop_demo, delete_all_demos
+from .downloader import get_Weeks_2025_demo, get_Trinh_2026_demo, get_whats_in_water_demo
