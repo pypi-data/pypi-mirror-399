@@ -1,0 +1,19 @@
+#!/bin/bash
+
+isPoetryInstalled=$(which poetry > /dev/null && echo $?)
+
+if [[ $isPoetryInstalled -eq 1 ]]; then
+  echo "poetry is not installed, cannot run python build"
+  exit 1
+fi
+
+echo "Current math3d version $(poetry version)"
+
+if [[ $# -eq 1 && "$1" == "patch_ver" ]]; then
+    echo "Upgrading patch version"
+    poetry version patch
+fi
+
+CMAKE_BUILD_PARALLEL_LEVEL=$(sysctl -n hw.ncpu) \
+CMAKE_ARGS="-DenableTesting=OFF" poetry run python -m build
+poetry run twine upload dist/*
