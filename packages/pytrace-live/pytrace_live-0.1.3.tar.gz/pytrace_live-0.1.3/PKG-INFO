@@ -1,0 +1,82 @@
+Metadata-Version: 2.4
+Name: pytrace-live
+Version: 0.1.3
+Summary: Live Python function execution tracer with timing and slow function detection
+Author-email: Python Tooling Engineer <engineer@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/yourusername/pytrace-live
+Project-URL: Repository, https://github.com/yourusername/pytrace-live
+Keywords: tracing,profiling,performance,debugging,cli
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Debuggers
+Classifier: Topic :: Software Development :: Testing
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: rich>=10.0.0
+Dynamic: license-file
+
+# pytrace-live
+
+A lightweight Python CLI tool that traces function execution in real-time, showing execution times and highlighting slow functions as your code runs.
+
+## Installation
+
+```bash
+pip install pytrace-live
+```
+
+## Usage
+
+Basic usage:
+
+```bash
+pytrace-live script.py
+```
+
+With custom slow threshold (default is 100ms):
+
+```bash
+pytrace-live script.py --threshold 200
+```
+
+## Example Output
+
+```
+→ load_config()              6 ms
+→ connect_db()             420 ms  ⚠ SLOW
+→ fetch_users()           1310 ms  🚨 VERY SLOW
+→ process_data()            45 ms
+→ save_results()           180 ms  ⚠ SLOW
+```
+
+**Color coding:**
+
+- Green: Normal execution (< threshold)
+- Yellow: Slow (≥ threshold) with ⚠ SLOW marker
+- Red: Very slow (≥ 5× threshold) with 🚨 VERY SLOW marker
+
+## Why Use This?
+
+- **Zero code changes**: Just run your script through pytrace-live
+- **Live feedback**: See performance bottlenecks as they happen
+- **Minimal overhead**: Uses Python's built-in profiling hooks
+- **Clean output**: Only shows your functions, filters out internal/stdlib calls
+
+Perfect for quick performance checks during development without setting up complex profiling tools.
+
+## Requirements
+
+- Python 3.9 or higher
+- `rich` (for terminal formatting)
+
+## License
+
+MIT License - see LICENSE file for details
