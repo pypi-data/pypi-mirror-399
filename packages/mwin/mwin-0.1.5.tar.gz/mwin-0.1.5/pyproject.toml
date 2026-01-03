@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mwin"
+version = "0.1.5"
+description = "Track OpenAI, Claude, Gemini and OpenAI-compatible models then give solutions to improve your agent system."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.3.0",
+    "more-itertools>=10.8.0",
+    "openai>=1.108.2",
+    "requests>=2.32.5",
+    "uuid6>=2025.0.1",
+]
+authors = [{name = "yanghui", email = "dasss90ovo@gmail.com"}]
+
+[project.urls]
+Homepage = "https://github.com/yanghui1-arch/mwin.git"
+
+[project.scripts]
+mwin = "mwin.cli:cli"
+
+[tool.setuptools.packages.find]
+where = ['.']
+include = ['mwin*']
