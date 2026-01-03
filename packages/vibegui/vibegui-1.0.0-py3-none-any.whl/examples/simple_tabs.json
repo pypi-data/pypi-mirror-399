@@ -1,0 +1,104 @@
+{
+  "window": {
+    "title": "Simple Tabbed Form",
+    "width": 600,
+    "height": 400
+  },
+  "use_tabs": true,
+  "fields": [
+    {
+      "name": "first_name",
+      "type": "text",
+      "label": "First Name",
+      "required": true
+    },
+    {
+      "name": "last_name",
+      "type": "text",
+      "label": "Last Name",
+      "required": true
+    },
+    {
+      "name": "email",
+      "type": "email",
+      "label": "Email",
+      "required": true
+    },
+    {
+      "name": "company",
+      "type": "text",
+      "label": "Company"
+    },
+    {
+      "name": "position",
+      "type": "text",
+      "label": "Position"
+    },
+    {
+      "name": "experience",
+      "type": "select",
+      "label": "Experience Level",
+      "options": ["Junior", "Mid-level", "Senior", "Expert"],
+      "default_value": "Mid-level"
+    },
+    {
+      "name": "years_experience",
+      "type": "int",
+      "label": "Years of Experience",
+      "min_value": 0,
+      "max_value": 50,
+      "default_value": 5,
+      "tooltip": "Number of years of professional experience"
+    },
+    {
+      "name": "salary",
+      "type": "float",
+      "label": "Expected Salary",
+      "min_value": 0.0,
+      "max_value": 999999.99,
+      "format_string": ".2f",
+      "default_value": 75000.00,
+      "tooltip": "Enter expected annual salary in dollars"
+    },
+    {
+      "name": "rating",
+      "type": "float",
+      "label": "Self Rating (1-10)",
+      "min_value": 1.0,
+      "max_value": 10.0,
+      "format_string": ".1f",
+      "default_value": 7.5,
+      "tooltip": "Rate your overall professional skill level"
+    }
+  ],
+  "tabs": [
+    {
+      "name": "personal",
+      "title": "Personal Info",
+      "layout": "form",
+      "fields": ["first_name", "last_name", "email"]
+    },
+    {
+      "name": "professional",
+      "title": "Professional Info",
+      "layout": "form",
+      "fields": ["company", "position", "experience", "years_experience", "salary", "rating"]
+    }
+  ],
+  "submit_button": true,
+  "submit_label": "Submit",
+  "cancel_button": true,
+  "custom_buttons": [
+    {
+      "name": "validate",
+      "label": "Validate",
+      "tooltip": "Validate form data before submission"
+    },
+    {
+      "name": "reset",
+      "label": "Reset",
+      "tooltip": "Reset form to default values",
+      "style": "background-color: #f39c12; color: white; padding: 6px 12px; border-radius: 3px;"
+    }
+  ]
+}
