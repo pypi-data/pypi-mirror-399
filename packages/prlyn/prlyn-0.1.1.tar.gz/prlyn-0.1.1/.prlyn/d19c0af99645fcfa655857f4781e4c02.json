@@ -1,0 +1,94 @@
+{
+  "raw_text": "You must always be concise. Under no circumstances should you use technical jargon. Here is the user input: ### {input} ###",
+  "clean_text": "You must always be concise. Under no circumstances should you use technical jargon. Here is the user input: ### {input} ###",
+  "placeholders": {},
+  "sentences": [
+    {
+      "text": "You must always be concise.",
+      "start_char": 0,
+      "end_char": 27,
+      "primary_label": "CONSTRAINT",
+      "secondary_labels": [],
+      "tokens": 6
+    },
+    {
+      "text": "Under no circumstances should you use technical jargon.",
+      "start_char": 28,
+      "end_char": 83,
+      "primary_label": "INSTRUCTION",
+      "secondary_labels": [
+        "CONSTRAINT"
+      ],
+      "tokens": 9
+    },
+    {
+      "text": "Here is the user input: ### {input} ###",
+      "start_char": 84,
+      "end_char": 123,
+      "primary_label": "CONTEXT",
+      "secondary_labels": [],
+      "tokens": 15
+    }
+  ],
+  "total_tokens": 27,
+  "ambiguity_score": {
+    "vague_term_density": 0.0,
+    "unresolved_coref_score": 0.25,
+    "hedging_density": 0.0,
+    "vague_terms_found": [],
+    "hedging_terms_found": []
+  },
+  "negative_constraints": [],
+  "position_score": {
+    "start_density": 0.5,
+    "middle_density": 0.5,
+    "end_density": 0.0,
+    "buried_instructions": [
+      1
+    ],
+    "score": 0.5
+  },
+  "efficiency_score": {
+    "actionable_token_ratio": 0.56,
+    "rating": "Good"
+  },
+  "readability_score": {
+    "flesch_reading_ease": 66.83,
+    "flesch_kincaid_grade": 5.51,
+    "avg_sentence_length": 6.33,
+    "avg_syllables_per_word": 1.58
+  },
+  "redundancy_score": {
+    "clusters": [],
+    "redundancy_count": 0
+  },
+  "contradictions": [],
+  "vulnerability_score": {
+    "vulnerability_zones": [],
+    "has_strong_delimiters": true,
+    "missing_defensive_anchors": [
+      "stay in character",
+      "must never",
+      "never explain"
+    ],
+    "reflexive_leakage_risks": [],
+    "score": 0.7999999999999999
+  },
+  "flow_score": {
+    "sentence_similarities": [
+      0.23663440346717834,
+      0.03700292855501175
+    ],
+    "disjointed_indices": [
+      0,
+      1
+    ],
+    "score": 0.13681866601109505
+  },
+  "strength_score": {
+    "imperative_density": 0.3333333333333333,
+    "weighted_strength_score": 0.7,
+    "weak_instructions": []
+  },
+  "model_name": "gpt-4"
+}
