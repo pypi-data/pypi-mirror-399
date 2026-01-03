@@ -1,0 +1,546 @@
+Metadata-Version: 2.4
+Name: keycase-agent-sdk
+Version: 0.1.0b2
+Summary: Python SDK for Keycase Agent execution and keyword integration
+Author: Apo
+Author-email: Keycase Team <support@keycase.io>
+Maintainer-email: Keycase Team <support@keycase.io>
+License: MIT
+Project-URL: Homepage, https://github.com/TharassKeycase/keycase-python-sdk
+Project-URL: Documentation, https://docs.keycase.io/python-agent
+Project-URL: Repository, https://github.com/TharassKeycase/keycase-python-sdk
+Project-URL: Issues, https://github.com/TharassKeycase/keycase-python-sdk/issues
+Project-URL: Changelog, https://github.com/TharassKeycase/keycase-python-sdk/blob/main/CHANGELOG.md
+Keywords: automation,testing,keyword-driven,test-automation,sdk,agent
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.31.0
+Requires-Dist: websocket-client>=1.7.0
+Requires-Dist: python-dotenv>=1.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: pytest-mock>=3.10.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: pre-commit>=3.0.0; extra == "dev"
+Requires-Dist: types-requests>=2.31.0; extra == "dev"
+Dynamic: author
+Dynamic: license-file
+Dynamic: requires-python
+
+# Keycase Python Agent
+
+A professional Python SDK for Keycase Agent execution and keyword integration. This agent connects to the Keycase automation platform to execute keyword-based automation flows.
+
+## Features
+
+- **WebSocket Communication**: Real-time connection to Keycase server
+- **Local Execution Mode**: Run execution plans locally without server connection
+- **Plugin Architecture**: Extensible keyword system with auto-discovery
+- **Robust Execution**: Threaded execution with graceful shutdown
+- **Automatic Reconnection**: Exponential backoff with circuit breaker pattern
+- **Token Management**: Automatic token refresh before expiry
+- **Type Safety**: Full type hints throughout codebase
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+
+## Prerequisites
+
+### Python Version
+
+- **Python 3.8 or higher** is required
+
+Check your Python version:
+
+```bash
+python --version
+# or
+python3 --version
+```
+
+### Platform-Specific Setup
+
+<details>
+<summary><strong>Windows</strong></summary>
+
+1. **Install Python** from [python.org](https://www.python.org/downloads/windows/) or via Windows Store
+
+2. **Verify pip is installed**:
+   ```cmd
+   python -m pip --version
+   ```
+
+3. **(Recommended) Create a virtual environment**:
+   ```cmd
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+
+4. **Install the package**:
+   ```cmd
+   pip install -e .
+   ```
+
+</details>
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+1. **Install Python** (if not already installed):
+   ```bash
+   # Using Homebrew (recommended)
+   brew install python@3.11
+
+   # Or download from python.org
+   ```
+
+2. **(Recommended) Create a virtual environment**:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install the package**:
+   ```bash
+   pip install -e .
+   ```
+
+</details>
+
+<details>
+<summary><strong>Linux (Ubuntu/Debian)</strong></summary>
+
+1. **Install Python and pip**:
+   ```bash
+   sudo apt update
+   sudo apt install python3 python3-pip python3-venv
+   ```
+
+2. **(Recommended) Create a virtual environment**:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install the package**:
+   ```bash
+   pip install -e .
+   ```
+
+</details>
+
+<details>
+<summary><strong>Linux (RHEL/CentOS/Fedora)</strong></summary>
+
+1. **Install Python and pip**:
+   ```bash
+   # Fedora
+   sudo dnf install python3 python3-pip
+
+   # RHEL/CentOS 8+
+   sudo dnf install python39 python39-pip
+   ```
+
+2. **(Recommended) Create a virtual environment**:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install the package**:
+   ```bash
+   pip install -e .
+   ```
+
+</details>
+
+## Installation
+
+### Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/TharassKeycase/keycase-python-sdk.git
+cd keycase-python-sdk
+
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install the package
+pip install -e .
+```
+
+### Development Installation
+
+For development with testing and code quality tools:
+
+```bash
+pip install -e ".[dev]"
+```
+
+This installs additional dependencies: pytest, black, isort, mypy, flake8, and more.
+
+## Configuration
+
+The agent uses AgentToken-based authentication. Get your AgentToken from the Keycase platform.
+
+### Required Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `HTTP_URL` | HTTP API base URL | `http://localhost:3000/api` |
+| `AGENT_TOKEN` | AgentToken from platform (must start with `agt_`) | `agt_NW6KGfsl3Re...` |
+| `AGENT_NAME` | Unique agent name within organization | `my-agent-01` |
+
+### Optional Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `AGENT_VERSION` | Agent version | `1.0.0` |
+| `AGENT_CAPABILITIES` | Comma-separated list of capabilities | `selenium,api` |
+| `AGENT_TAGS` | Comma-separated tags for categorization | `production,windows` |
+
+> **Note:** The WebSocket URL (`wsUrl`) and Agent ID (`agentId`) are now returned dynamically from the authentication response. You no longer need to configure these manually.
+
+### Setting Environment Variables
+
+<details>
+<summary><strong>Windows (Command Prompt)</strong></summary>
+
+```cmd
+set HTTP_URL=http://localhost:3000/api
+set AGENT_TOKEN=agt_your_token_here
+set AGENT_NAME=my-agent-01
+set AGENT_VERSION=1.0.0
+set AGENT_CAPABILITIES=selenium,api
+set AGENT_TAGS=production,windows
+```
+
+</details>
+
+<details>
+<summary><strong>Windows (PowerShell)</strong></summary>
+
+```powershell
+$env:HTTP_URL = "http://localhost:3000/api"
+$env:AGENT_TOKEN = "agt_your_token_here"
+$env:AGENT_NAME = "my-agent-01"
+$env:AGENT_VERSION = "1.0.0"
+$env:AGENT_CAPABILITIES = "selenium,api"
+$env:AGENT_TAGS = "production,windows"
+```
+
+</details>
+
+<details>
+<summary><strong>macOS / Linux</strong></summary>
+
+```bash
+export HTTP_URL="http://localhost:3000/api"
+export AGENT_TOKEN="agt_your_token_here"
+export AGENT_NAME="my-agent-01"
+export AGENT_VERSION="1.0.0"
+export AGENT_CAPABILITIES="selenium,api"
+export AGENT_TAGS="production,windows"
+```
+
+Or create a `.env` file in the project root:
+
+```env
+HTTP_URL=http://localhost:3000/api
+AGENT_TOKEN=agt_your_token_here
+AGENT_NAME=my-agent-01
+AGENT_VERSION=1.0.0
+AGENT_CAPABILITIES=selenium,api
+AGENT_TAGS=production,windows
+```
+
+</details>
+
+## Usage
+
+### Command Line
+
+```bash
+# Start the agent (uses environment variables)
+keycase-agent
+
+# Or run directly
+python main.py
+```
+
+### Programmatic Usage
+
+#### WebSocket Mode (Server Connection)
+
+```python
+from keycase_agent import KeycaseAgent, load_config, load_keywords
+
+# Load keywords from directory
+load_keywords()
+
+# Load configuration from environment
+config = load_config()
+
+# Create and start agent
+agent = KeycaseAgent(config)
+agent.start()
+```
+
+#### Local Mode (Standalone Execution)
+
+```python
+from keycase_agent import ExecutionManager, load_keywords
+
+# Load keywords
+load_keywords('path/to/keywords')
+
+# Create manager in local mode
+manager = ExecutionManager(mode='local')
+
+# Execute plan (dict or JSON string)
+execution_plan = {
+    "keywordInstances": [...],
+    "flows": [...]
+}
+results = manager.execute_local(execution_plan)
+
+print(results)
+```
+
+See [LOCAL_EXECUTION.md](LOCAL_EXECUTION.md) for complete local mode documentation.
+
+## Creating Custom Keywords
+
+Keywords are Python functions decorated with `@keyword`. You can also annotate parameters with `@param`, `@input_param`, and `@output_param` for documentation and validation.
+
+### Basic Keyword
+
+```python
+from keycase_agent import keyword
+
+@keyword("Add Numbers")
+def add_numbers(a: int, b: int) -> dict:
+    """Add two numbers together."""
+    return {"sum": a + b}
+```
+
+### Keyword with Parameter Annotations
+
+```python
+from keycase_agent import keyword, input_param, output_param
+
+@keyword("Calculate Sum")
+@input_param("a", type="number", required=True, description="First number")
+@input_param("b", type="number", required=True, description="Second number")
+@output_param("sum", type="number", description="The sum of a and b")
+@output_param("product", type="number", description="The product of a and b")
+def calculate(a: float, b: float) -> dict:
+    """Calculate sum and product of two numbers."""
+    return {
+        "sum": a + b,
+        "product": a * b,
+    }
+```
+
+### Parameter Decorator Options
+
+| Option | Type | Description | Status |
+|--------|------|-------------|--------|
+| `name` | str | Parameter name (must match function argument for inputs) | Supported |
+| `direction` | str | `"input"` or `"output"` | Supported |
+| `default` | any | Default value if not provided | Supported |
+| `description` | str | Human-readable description | Supported |
+| `choices` | list | List of allowed values (for dropdowns) | Supported |
+| `type` | str | Parameter type (`"string"`, `"number"`, etc.) | Planned |
+| `required` | bool | Whether the parameter is required | Planned |
+
+> **Note:** Options marked as "Planned" are accepted by the SDK for forward compatibility
+> but are not yet enforced by the Keycase platform. They will be fully supported in a future release.
+> See [ROADMAP.md](ROADMAP.md) for details.
+
+### Parameter with Choices (Dropdown)
+
+```python
+@keyword("Set Log Level")
+@input_param("level", type="string", required=True,
+             description="Logging level",
+             choices=["DEBUG", "INFO", "WARNING", "ERROR"])
+def set_log_level(level: str) -> dict:
+    return {"status": "ok"}
+```
+
+### Getting Keyword Schemas
+
+You can retrieve the schema for documentation or UI generation:
+
+```python
+from keycase_agent import get_keyword_schema, get_all_keyword_schemas
+
+# Get schema for a specific keyword
+schema = get_keyword_schema(calculate)
+print(schema)
+# {
+#     "name": "Calculate Sum",
+#     "function": "calculate",
+#     "params": [
+#         {"name": "a", "direction": "input", "type": "number", "required": true, ...},
+#         ...
+#     ]
+# }
+
+# Get all registered keyword schemas
+all_schemas = get_all_keyword_schemas()
+```
+
+Place your keyword files in a folder and load them with `load_keywords('your_folder')`.
+
+See the `examples/` folder for sample keyword implementations.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     KeycaseAgent                         │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
+│  │ AuthService │  │  WebSocket  │  │ ExecutionManager│  │
+│  │             │  │   Client    │  │                 │  │
+│  └─────────────┘  └─────────────┘  └─────────────────┘  │
+│         │                │                  │            │
+│         └────────────────┼──────────────────┘            │
+│                          │                               │
+│                  ┌───────▼───────┐                       │
+│                  │ Keyword       │                       │
+│                  │ Registry      │                       │
+│                  └───────────────┘                       │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Core Components
+
+| Component | Description |
+|-----------|-------------|
+| **KeycaseAgent** | Main orchestrator managing connections and execution |
+| **ExecutionManager** | Handles threaded execution of keyword flows |
+| **AuthService** | Manages authentication and automatic token refresh |
+| **WebSocketClient** | Handles real-time communication with reconnection |
+| **KeywordRegistry** | Stores and retrieves registered keyword functions |
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=keycase_agent --cov-report=html
+
+# Run specific test file
+pytest tests/test_execution_manager.py -v
+```
+
+### Code Quality
+
+```bash
+# Format code
+black keycase_agent/
+
+# Sort imports
+isort keycase_agent/
+
+# Type checking
+mypy keycase_agent/
+
+# Linting
+flake8 keycase_agent/
+
+# Run all checks
+black keycase_agent/ && isort keycase_agent/ && mypy keycase_agent/ && flake8 keycase_agent/
+```
+
+### Building Distribution
+
+```bash
+# Install build tools
+pip install build
+
+# Build package
+python -m build
+
+# Install built package
+pip install dist/keycase_agent_sdk-0.1.0-py3-none-any.whl
+```
+
+## Troubleshooting
+
+### Common Issues
+
+<details>
+<summary><strong>"No module named 'keycase_agent'"</strong></summary>
+
+Make sure you've installed the package:
+```bash
+pip install -e .
+```
+
+If using a virtual environment, ensure it's activated.
+
+</details>
+
+<details>
+<summary><strong>"Connection refused" or WebSocket errors</strong></summary>
+
+1. Verify the Keycase server is running
+2. Check `HTTP_URL` is correct
+3. Ensure no firewall is blocking the connection
+4. The WebSocket URL is returned from authentication - verify the server is returning a valid `wsUrl`
+
+</details>
+
+<details>
+<summary><strong>"Authentication failed"</strong></summary>
+
+1. Verify `AGENT_TOKEN` is correct and starts with `agt_`
+2. Check the token has not been revoked on the platform
+3. Ensure `AGENT_NAME` is unique within your organization
+4. Verify the token has the correct permissions
+
+</details>
+
+<details>
+<summary><strong>Keywords not found</strong></summary>
+
+1. Ensure keywords are in the `keywords/` directory
+2. Check the `@keyword` decorator is applied
+3. Verify keyword names match the execution plan
+
+</details>
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+- **Documentation**: [docs.keycase.io](https://docs.keycase.io)
+- **Issues**: [GitHub Issues](https://github.com/TharassKeycase/keycase-python-sdk/issues)
+- **Email**: support@keycase.io
