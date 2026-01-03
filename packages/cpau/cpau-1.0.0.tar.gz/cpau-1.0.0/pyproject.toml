@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cpau"
+version = "1.0.0"
+description = "Python library and CLI tools for City of Palo Alto Utilities meter data"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Joe Sinnott", email = "joe@jsinnott.net"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "requests>=2.31.0",
+    "coloredlogs>=15.0",
+    "humanfriendly>=10.0",
+    "playwright>=1.40.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-mock>=3.12.0",
+    "black",
+    "mypy",
+    "types-requests",
+]
+test = [
+    "pytest>=7.0",
+    "pytest-mock>=3.12.0",
+]
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+    "sphinx-autodoc-typehints>=1.24",
+]
+
+[project.scripts]
+cpau-electric = "cpau.cli:main_electric"
+cpau-water = "cpau.cli:main_water"
+cpau-availability = "cpau.cli:main_availability"
+
+[project.urls]
+Homepage = "https://github.com/jsinnott/cpau"
+Repository = "https://github.com/jsinnott/cpau.git"
+Issues = "https://github.com/jsinnott/cpau/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+cpau = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
