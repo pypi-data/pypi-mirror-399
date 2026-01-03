@@ -1,0 +1,99 @@
+Metadata-Version: 2.4
+Name: simdec
+Version: 1.5.0
+Summary: Sensitivity analysis using simulation decomposition
+Project-URL: homepage, https://www.simdec.fi/
+Project-URL: documentation, https://simdec.readthedocs.io
+Project-URL: source, https://github.com/Simulation-Decomposition/simdec-python
+Author: Pamphile Roy
+Maintainer: simdec contributors
+License-Expression: BSD-3-Clause
+License-File: LICENSE.txt
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Requires-Python: >=3.11
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: salib
+Requires-Dist: seaborn
+Provides-Extra: dashboard
+Requires-Dist: cryptography; extra == 'dashboard'
+Requires-Dist: panel>=1.4.5; extra == 'dashboard'
+Provides-Extra: dev
+Requires-Dist: accessible-pygments; extra == 'dev'
+Requires-Dist: cryptography; extra == 'dev'
+Requires-Dist: hatch; extra == 'dev'
+Requires-Dist: myst-nb; extra == 'dev'
+Requires-Dist: numpydoc; extra == 'dev'
+Requires-Dist: panel>=1.4.5; extra == 'dev'
+Requires-Dist: pre-commit; extra == 'dev'
+Requires-Dist: pydata-sphinx-theme; extra == 'dev'
+Requires-Dist: pytest; extra == 'dev'
+Requires-Dist: pytest-cov; extra == 'dev'
+Requires-Dist: sphinx; extra == 'dev'
+Requires-Dist: watchfiles; extra == 'dev'
+Provides-Extra: doc
+Requires-Dist: accessible-pygments; extra == 'doc'
+Requires-Dist: myst-nb; extra == 'doc'
+Requires-Dist: numpydoc; extra == 'doc'
+Requires-Dist: pydata-sphinx-theme; extra == 'doc'
+Requires-Dist: sphinx; extra == 'doc'
+Provides-Extra: test
+Requires-Dist: pytest; extra == 'test'
+Requires-Dist: pytest-cov; extra == 'test'
+Description-Content-Type: text/markdown
+
+> **Warning**
+> This library is under active development and things can change at anytime! Suggestions and help are greatly appreciated.
+
+
+
+![image](https://user-images.githubusercontent.com/37065157/233836694-5312496e-4ada-47cb-bc09-3bf8c00be135.png)
+
+<!---
+When public
+![image](https://raw.githubusercontent.com/Simulation-Decomposition/simdec-python/main/docs/_static/simdec_presentation.png)
+-->
+
+**Simulation decomposition** or **SimDec** is an uncertainty and sensitivity
+analysis method, which is based on Monte Carlo simulation. SimDec consists of
+three major parts:
+
+1. computing sensitivity indices,
+2. creating multi-variable scenarios and mapping the output values to them, and
+3. visualizing the scenarios on the output distribution by color-coding its segments.
+
+SimDec reveals the nature of causalities and interaction effects in the model.
+See our [publications](https://www.simdec.fi/publications) and join our
+[discord community](https://discord.gg/54SFcNsZS4).
+
+## Python API
+The library is distributed on PyPi and can be installed with:
+
+    pip install simdec
+
+## Dashboard
+A live dashboard is available at:
+
+https://simdec.io
+
+## Citations
+
+The algorithms and visualizations used in this package came primarily out of
+research at LUT University, Lappeenranta, Finland, and Stanford University,
+California, U.S., supported with grants from Business Finland, Wihuri
+Foundation, and Finnish Foundation for Economic Education.
+
+If you use SimDec in your research we would appreciate a citation to the
+following publications:
+
+- Kozlova, M., Moss, R. J., Yeomans, J. S., & Caers, J. (2024). Uncovering Heterogeneous Effects in Computational Models for Sustainable Decision-making. _Environmental Modelling & Software_, 171, 105898. [https://doi.org/10.1016/j.envsoft.2023.105898](https://doi.org/10.1016/j.envsoft.2023.105898)
+- Kozlova, M., Moss, R. J., Roy, P., Alam, A., & Yeomans, J. S. (2024). SimDec algorithm and guidelines for its usage and interpretation. In M. Kozlova & J. S. Yeomans (Eds.), _Sensitivity Analysis for Business, Technology, and Policymaking. Made Easy with Simulation Decomposition_. Routledge. [Available here](https://github.com/Simulation-Decomposition/SimDec-book/blob/74ce72c1d3dda650eba1c59e3b215a4bb35c6be0/chapters/02_SimDec_algorithm_and_instructions/Ch2.pdf).

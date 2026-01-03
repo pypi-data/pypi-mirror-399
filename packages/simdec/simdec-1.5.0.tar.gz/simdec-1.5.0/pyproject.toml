@@ -1,0 +1,93 @@
+[build-system]
+requires = ["hatchling>=1.14.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simdec"
+version = "1.5.0"
+description = "Sensitivity analysis using simulation decomposition"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "BSD-3-Clause"
+authors = [
+    { name = "Pamphile Roy" },
+]
+maintainers = [
+    { name = "simdec contributors" },
+]
+classifiers = [
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "SALib",
+    "seaborn",
+]
+
+[project.optional-dependencies]
+dashboard = [
+    "panel>=1.4.5",
+    "cryptography",
+]
+
+test = [
+    "pytest",
+    "pytest-cov",
+]
+
+doc = [
+    "sphinx",
+    "pydata-sphinx-theme",
+    "accessible-pygments",
+    "numpydoc",
+    "myst-nb",
+]
+
+dev = [
+    "simdec[doc,test,dashboard]",
+    "watchfiles",
+    "pre-commit",
+    "hatch",
+]
+
+[project.urls]
+homepage = "https://www.simdec.fi/"
+documentation = "https://simdec.readthedocs.io"
+source = "https://github.com/Simulation-Decomposition/simdec-python"
+
+[tool.hatch]
+build.targets.wheel.packages = ["src/simdec"]
+build.targets.sdist.exclude = [
+  ".github",
+  "docs",
+  "panel",
+  "tests",
+  "*.rst",
+  "*.yml",
+  ".*",
+  "Makefile",
+  "Dockerfile",
+]
+
+[project.entry-points."panel.auth"]
+custom_google = "simdec.auth:CustomGoogleLoginHandler"
+
+[tool.pytest.ini_options]
+addopts = "--durations 10"
+testpaths = [
+    "tests",
+]
+
+[tool.ruff.per-file-ignores]
+"**/__init__.py" = ["F403", "F405"]
