@@ -1,0 +1,40 @@
+[package]
+name = "spz-pywrapper"
+version = "0.0.1"
+edition = "2024"
+authors = ["See AUTHORS.md"]
+description = """SPZ file format handling for Python (in Rust)."""
+license = "MIT OR Apache-2.0"
+homepage = "https://github.com/Jackneill/spz"
+repository = "https://github.com/Jackneill/spz"
+readme = "README.md"
+keywords = [
+	"gaussian-splatting",
+	"point-cloud",
+	"3d",
+	"graphics",
+	"rendering",
+	"python",
+]
+categories = [
+	"graphics",
+	"game-development",
+	"rendering",
+	"rendering::data-formats",
+]
+publish = false
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[lib]
+name = "spz"
+crate-type = ["cdylib"]
+
+[dependencies]
+spz = { path = "../spz", default-features = false, features = [] }
+pyo3 = { version = "0.27", default-features = true, features = [] }
+numpy = { version = "0.27", default-features = true, features = [] }
+
+[dev-dependencies]
