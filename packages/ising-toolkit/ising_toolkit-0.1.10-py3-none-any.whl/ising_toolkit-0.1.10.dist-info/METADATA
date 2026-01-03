@@ -1,0 +1,101 @@
+Metadata-Version: 2.4
+Name: ising-toolkit
+Version: 0.1.10
+Summary: 用于调用玉盘伊辛云平台的SDK
+Author-email: 北京伊辛智能科技有限公司 <max@isingtech.com>
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Scientific/Engineering
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.21
+Requires-Dist: ising-sdk==1.0.9
+Dynamic: license-file
+
+
+# Ising Toolkit (v0.1.1)
+
+`ising-toolkit` 是一个为解决二次无约束二元优化 (QUBO) 和 Ising (伊辛) 模型问题而设计的 Python 工具包。
+
+它提供了一个清晰的高级 API，可以自动处理模型（`IsingModel`, `QUBOModel`）的预处理、在 Ising 和 QUBO 格式之间转换，并支持使用本地**模拟退火**或远程**伊辛云平台**进行求解。
+
+## 核心功能
+
+  * **模型定义**: 提供了 `IsingModel` 和 `QUBOModel` [ 两个高级类来构建您的问题。
+  * **自动预处理**:
+      * **IsingModel**: 自动将非零的 `h` 向量（外部磁场）通过引入**辅助自旋**来转换模型，使其符合纯粹的 Ising 求解器要求。
+      * **QUBOModel**: 自动将线性 `h` 向量合并到 `Q` 矩阵的对角线上，QUBO模型在计算时会先内部转化为IsingModel，因此其需要引入一个辅助自旋（求解器内部完成）。
+      * 所有模型都会自动验证输入并进行矩阵对称化。
+  * **模型转换**: 包含 `to_ising` 等工具函数，用于在 QUBO 和 Ising 模型之间轻松转换 。
+  * **双求解器支持**:
+      * `SimulatedAnnealingSolver`: 一个内置的、多副本并行的模拟退火求解器，用于快速本地测试。
+      * `IsingSolver`: 对接 "伊辛云平台" 的远程求解器，用于提交任务到光电伊辛机。
+  * **标准化的工作流**: 无论使用本地还是云端求解器，工作流都保持一致。
+
+## 📦 安装
+
+您可以直接使用 pip 安装：
+
+```bash
+pip install ising_toolkit
+```
+
+## 🚀 快速上手：求解最大割 (Max-Cut) 问题
+
+本示例将引导您完成一个 100 节点图的最大割问题求解。
+
+```python
+from ising_toolkit import IsingModel, QUBOModel, IsingSolver
+import numpy as np
+import time
+
+
+J = np.loadtxt("path/to/you/csv")
+model = IsingModel(J) # QUBO 问题换成QUBOModel
+
+solver = IsingSolver(api_key="api_key") 
+response = solver.solve(model=model, name="Test Task")
+
+#轮询等待计算完成
+while solver.get_result(response['taskId']) is None:
+    time.sleep(5)
+    print("等待任务完成...")
+    
+result = solver.get_result(response['taskId'])
+print(result.variables)
+print(result.energy)
+```
+### 2. 求解器 (Solvers)
+
+#### `SimulatedAnnealingSolver` (本地求解)
+在本地 CPU 上运行模拟退火。
+
+  * **如何初始化**: `SimulatedAnnealingSolver(agents=128, initial_temp=10.0, final_temp=0.1, cooling_rate=0.99, steps_per_temp=100)`
+  * **如何求解**: `.solve(ising_model)`
+  * **返回**: 一个字典，包含 `{'spins': np.ndarray, 'energy': float}`。
+
+<!-- end list -->
+
+```python
+# (接上文 ising_model 示例)
+local_solver = SimulatedAnnealingSolver(agents=64, steps_per_temp=50)
+result = local_solver.solve(ising_model)
+print(result['energy'])
+```
+
+#### `IsingSolver` (云平台求解)
+
+将问题提交到远程光电伊辛机。
+
+  * **如何初始化**: `IsingSolver(api_key: str)`
+  * **如何提交任务**: `.solve(ising_model, name: str)`
+      * 此方法会自动将 `ising_model.J` 和 `ising_model.h` 转换为 CSV 格式并上传。
+      * **返回**: 一个字典，包含 `{'success': bool, 'taskId': str}`。
+  * **如何获取结果**: `.get_result(task_id: str)`
+      * 轮询此方法直到任务完成。
+      * **返回**: 任务完成时，返回 `{'spins': np.ndarray, 'energy': float}`。如果任务仍在运行，返回 `None`。
+
+
+
