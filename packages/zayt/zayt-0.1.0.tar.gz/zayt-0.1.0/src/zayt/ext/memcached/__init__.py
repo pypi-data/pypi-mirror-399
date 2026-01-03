@@ -1,0 +1,17 @@
+from importlib.util import find_spec
+
+from zayt.conf.settings import Settings
+from zayt.di.container import Container
+
+from .service import make_service
+
+
+async def init_extension(container: Container, settings: Settings):
+    if find_spec("aiomcache") is None:
+        raise ModuleNotFoundError(
+            "Missing 'aiomcache'. Install 'zayt' with 'memcached' extra."
+        )
+
+    for name in settings.memcached:
+        service_factory = make_service(name)
+        container.register(service_factory)
