@@ -1,0 +1,169 @@
+status: complete
+priority: 1
+progress: 100
+next: Ready for production use
+type: dev
+checkpoint: v0.4.0 - 256 tests passing (53% coverage), GitHub Actions CI/CD configured
+
+# ═══════════════════════════════════════════════════════════════════
+# Nexus CLI - Knowledge Workflow for Research, Teaching, Writing
+# ═══════════════════════════════════════════════════════════════════
+
+🔧 Nexus CLI Development Status
+────────────────────────────────────────
+
+📍 LOCATION
+~/projects/dev-tools/nexus-cli/
+
+⏰ LAST UPDATED
+2025-12-25 - Test coverage expanded, CI/CD configured
+
+────────────────────────────────────────
+
+🎯 CURRENT STATUS
+**ALL PHASES COMPLETE - v0.4.0 PRODUCTION READY**
+
+Phase 9 test expansion completed:
+- ✅ 256 pytest tests passing (53% coverage, +10%)
+- ✅ GitHub Actions CI/CD configured (Python 3.11-3.13, Ubuntu/macOS)
+- ✅ PyPI publish workflow on release
+- ✅ QuartoManager tests (29 tests)
+- ✅ PDFExtractor tests (25 tests)
+- ✅ ZoteroClient tests (20+ tests)
+- ✅ MCP server with 17 tools
+- ✅ Validation, edge case, and integration tests
+- ✅ Claude Code plugin installed
+
+────────────────────────────────────────
+
+📊 PROGRESS
+
+Core Infrastructure:
+CLI Skeleton               ████████████████████ 100% ✅
+Configuration System       ████████████████████ 100% ✅
+Doctor Command             ████████████████████ 100% ✅
+Project Setup              ████████████████████ 100% ✅
+
+Domains:
+Phase 2: Knowledge         ████████████████████ 100% ✅
+Phase 3: Research          ████████████████████ 100% ✅
+Phase 4a: Teaching         ████████████████████ 100% ✅
+Phase 4b: Writing          ████████████████████ 100% ✅
+Phase 5: Claude Plugin     ████████████████████ 100% ✅
+Phase 6: Testing & Docs    ████████████████████ 100% ✅
+
+**Overall Progress**: 100% (v0.1.0 Release Ready)
+
+────────────────────────────────────────
+
+📋 ENHANCEMENTS COMPLETED (2025-12-25)
+
+v0.4.0 improvements (current):
+- [✅] Test coverage expanded (43% → 53%)
+- [✅] 256 tests total (79 new tests)
+- [✅] QuartoManager comprehensive tests
+- [✅] PDFExtractor with mock subprocess
+- [✅] ZoteroClient with mock SQLite database
+- [✅] GitHub Actions CI/CD configured
+
+v0.3.0 improvements:
+- [✅] 177 tests covering all domains
+- [✅] Validation tests for data models
+- [✅] Edge case and error handling
+- [✅] CLI integration tests
+
+v0.2.0 improvements:
+- [✅] MCP server for tool calling
+- [✅] PDF text extraction improvements
+- [✅] Vault graph visualization
+
+Future improvements:
+- [ ] Further test coverage improvements (target 80%)
+- [ ] MkDocs documentation site
+
+────────────────────────────────────────
+
+📊 TEST SUMMARY
+
+256 tests total, all passing (53% coverage):
+
+Core tests:
+- tests/test_config.py           - Config loading (3 tests)
+- tests/test_vault.py            - Vault operations (33 tests)
+- tests/test_manuscript.py       - Manuscript management (7 tests)
+- tests/test_bibliography.py     - Bibliography parsing (11 tests)
+- tests/test_courses.py          - Course management (10 tests)
+- tests/test_cli.py              - CLI commands (19 tests)
+- tests/test_zotero.py           - Zotero item (6 tests)
+- tests/test_pdf.py              - PDF document (4 tests)
+- tests/test_quarto.py           - Quarto project (4 tests)
+- tests/test_search.py           - Unified search (30 tests)
+
+Comprehensive tests:
+- tests/test_validation.py       - Data model validation (70 tests)
+- tests/test_cli_integration.py  - CLI integration (37 tests)
+- tests/test_edge_cases.py       - Edge cases & errors (46 tests)
+
+New in v0.4.0:
+- tests/test_quarto_manager.py   - QuartoManager (29 tests) ⭐ NEW
+- tests/test_pdf_extractor.py    - PDFExtractor (25 tests) ⭐ NEW
+- tests/test_zotero_client.py    - ZoteroClient (20+ tests) ⭐ NEW
+
+Coverage by module:
+- teaching/quarto.py: 91% | utils/config.py: 80%
+- research/pdf.py: 77% | writing/manuscript.py: 74%
+- research/zotero.py: 73% | writing/bibliography.py: 72%
+- teaching/courses.py: 70% | knowledge/vault.py: 66%
+- knowledge/search.py: 60%
+
+Run: `uv run pytest --cov=nexus`
+
+────────────────────────────────────────
+
+🔗 RELATED PROJECTS
+
+| Project | Location | Purpose |
+|---------|----------|---------|
+| Nexus MCP Server | ~/mcp-servers/nexus/ | MCP server with 17 tools ⭐ NEW |
+| Nexus (docs) | ~/projects/dev-tools/nexus/ | Architecture & vault template |
+| Scribe | ~/projects/dev-tools/scribe/ | Desktop capture app |
+| Statistical Research | ~/.claude/plugins/statistical-research/ | Existing plugin |
+
+────────────────────────────────────────
+
+💡 ARCHITECTURE
+
+**Claude Integration (No API Needed)**
+
+Four patterns:
+1. **MCP Server**: 17 tools via Model Context Protocol ⭐ NEW
+2. **Claude calls Nexus**: Claude runs `nexus` via Bash
+3. **Piping**: `nexus search | claude -p "summarize"`
+4. **Plugin skills**: Teach Claude how to use nexus
+
+**Four Domains**:
+- 🔬 Research: Zotero, PDFs, literature
+- 📚 Teaching: Courses, materials, Quarto
+- ✍️ Writing: Manuscripts, bibliography, LaTeX
+- 🧠 Knowledge: Vault, unified search
+
+────────────────────────────────────────
+
+📁 KEY FILES
+
+- nexus/cli.py                  - Main CLI (Typer) - 1800+ lines
+- nexus/utils/config.py         - Configuration
+- nexus/knowledge/vault.py      - VaultManager (Phase 2)
+- nexus/knowledge/search.py     - UnifiedSearch (Phase 2+3)
+- nexus/research/zotero.py      - ZoteroClient (Phase 3)
+- nexus/research/pdf.py         - PDFExtractor (Phase 3)
+- nexus/teaching/courses.py     - CourseManager (Phase 4a)
+- nexus/teaching/quarto.py      - QuartoManager (Phase 4a)
+- nexus/writing/manuscript.py   - ManuscriptManager (Phase 4b)
+- nexus/writing/bibliography.py - BibliographyManager (Phase 4b)
+- tests/                        - 58 pytest tests
+- pyproject.toml                - Project metadata
+- install.sh                    - Installation script
+- CLAUDE.md                     - Claude Code guidance
+- README.md                     - User documentation
+

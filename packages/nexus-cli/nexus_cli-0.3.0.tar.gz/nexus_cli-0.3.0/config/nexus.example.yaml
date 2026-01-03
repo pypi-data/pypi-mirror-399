@@ -1,0 +1,46 @@
+# Nexus CLI Configuration Example
+# Copy to ~/.config/nexus/config.yaml and customize
+
+# Zotero Library
+zotero:
+  database: ~/Zotero/zotero.sqlite
+  storage: ~/Zotero/storage
+
+# Obsidian Vault
+vault:
+  path: ~/Obsidian/Nexus
+  templates: ~/Obsidian/Nexus/_SYSTEM/templates
+
+# PDF Directories
+pdf:
+  directories:
+    - ~/Documents/Research/PDFs
+    - ~/Documents/Teaching/PDFs
+  index: ~/.nexus/pdf-index.db
+
+# Teaching
+teaching:
+  courses_dir: ~/projects/teaching
+  materials_dir: ~/Documents/Teaching
+
+# Writing
+writing:
+  manuscripts_dir: ~/projects/research
+  templates_dir: ~/.nexus/templates
+
+# R Integration
+r:
+  executable: /usr/local/bin/R
+  packages_dir: ~/projects/r-packages
+
+# Output Preferences
+output:
+  format: rich          # rich, json, plain
+  color: true
+  pager: false
+
+# Integrations
+integrations:
+  aiterm: true          # Enable aiterm integration
+  obsidian: true        # Enable Obsidian plugin
+  claude_plugin: true   # Install Claude Code plugin
