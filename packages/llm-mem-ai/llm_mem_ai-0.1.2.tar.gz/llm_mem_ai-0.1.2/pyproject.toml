@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-mem-ai"
+version = "0.1.2"
+authors = [{ name = "Jerry.s", email = "jsduan0813@gmail.com" }]
+description = "A LLM Memory Cache package"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+keywords = ["memory", "llm", "agent"]
+dependencies = [
+    "openai==2.14.0",
+    "pydantic==2.12.5",
+    "pymongo==4.15.5",
+    "requests==2.32.5",
+    "python-dotenv==1.2.1",
+    "qdrant-client==1.16.2",
+    "icecream==2.1.8"
+]
+
+[project.optional-dependencies]
+dev = ["pre-commit", "ruff==0.14.10", "import-linter==2.9", "pytest==9.0.2"]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/my-awesome-package"
+Repository = "https://github.com/yourusername/my-awesome-package"
+Documentation = "https://my-awesome-package.readthedocs.io/"
+"Bug Tracker" = "https://github.com/yourusername/my-awesome-package/issues"
+
+[project.scripts]
+my-command = "mem_ai.cli:main"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
