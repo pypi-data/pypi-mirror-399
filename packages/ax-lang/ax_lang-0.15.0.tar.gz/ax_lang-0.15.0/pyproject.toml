@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ax_lang"]
+
+[project]
+name = "ax-lang"
+version = "0.15.0"
+requires-python = ">=3.12"
+description = "axreldable programing language"
+readme = "README.md"
+license = { text = "MIT License" }
+authors = [
+    { name = "Aleksei Starikov", email = "aleksei.starikov.ax@gmail.com" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "antlr4-tools",
+    "antlr4-python3-runtime",
+    "click"
+]
+
+[project.urls]
+Repository = "https://github.com/axreldable/ax-lang"
+Issues = "https://github.com/axreldable/ax-lang/issues"
+
+[project.scripts]
+axlang = "ax_lang.cli.exec:cli"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+    "coverage",
+]
+doc = [
+    "mkdocs",
+    "mkdocstrings",
+    "mkdocstrings[python]",
+    "mkdocs-material",
+    "Pygments",
+    "mike",
+]
+dev = [
+    "black",
+    "isort",
+    "flake8",
+    "pre-commit",
+    "ruff",
+    "twine",
+    "build"
+]
+all = ["ax-lang[test,doc,dev]"]
+
+
+[tool.pytest.ini_options]
+minversion = "7.3"
+testpaths = "tests"
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+    "setup.py",
+    "ax_lang/__init__.py",
+    "ax_lang/version.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+]
+
+[tool.coverage.paths]
+source = [
+    "ax_lang/*",
+]
+[tool.coverage.html]
+directory = "coverage_reports"
