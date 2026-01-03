@@ -1,0 +1,225 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tfism"
+version = "0.9.5"
+description = "A lightweight, object-oriented Python state machine implementation with many extensions."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Tal Yarkoni", email = "tyarkoni@gmail.com" },
+]
+maintainers = [
+    { name = "Alexander Neumann", email = "aleneum@gmail.com" },
+]
+keywords = ["state machine", "statemachine", "fsm", "finite state machine"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+dependencies = [
+    # No runtime dependencies (six removed in Stage 2)
+]
+
+[project.optional-dependencies]
+diagrams = [
+    "pygraphviz",
+    "graphviz",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "pytest-runner",
+    "pytest-xdist",
+    "mock",
+    "dill",
+    "pycodestyle",
+    "mypy",
+    "types-mock",
+]
+test = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "pytest-runner",
+    "pytest-xdist",
+    "mock",
+    "dill",
+    "pycodestyle",
+]
+mypy = [
+    "mypy",
+    "types-mock",
+]
+# All optional dependencies for development
+all = [
+    "tfism[diagrams,dev,test,mypy]",
+]
+
+[project.urls]
+Homepage = "http://github.com/pytransitions/tfism"
+Documentation = "https://github.com/pytransitions/tfism"
+Repository = "https://github.com/pytransitions/tfism"
+"Bug Tracker" = "https://github.com/pytransitions/tfism/issues"
+"Source Code" = "https://github.com/pytransitions/tfism"
+Download = "https://github.com/pytransitions/tfism/archive/%s.tar.gz"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tfism"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"tfism/py.typed" = "tfism/py.typed"
+"tfism/data" = "tfism/data"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.venv",
+    "/venv",
+    "/env",
+    "/.nox",
+    "/__pycache__",
+    "/build",
+    "/dist",
+    "/*.pyc",
+    "/*.pyo",
+    "/*.pyd",
+    "/*.so",
+]
+
+[tool.hatch.build]
+include = [
+    "tfism/**/*.py",
+    "tfism/**/*.pyi",
+    "tfism/py.typed",
+    "tfism/data/**",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "pytest-runner",
+    "pytest-xdist",
+    "mock",
+    "dill",
+    "pycodestyle",
+    "mypy",
+    "types-mock",
+    "nox",
+    "poethepoet",
+    "ruff",
+    "bump-my-version",
+]
+
+[tool.mypy]
+python_version = "3.10"
+# Less strict configuration for gradual type adoption
+check_untyped_defs = false
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+warn_return_any = false
+warn_unused_configs = true
+strict_optional = true
+warn_unused_ignores = false
+warn_no_return = false
+warn_redundant_casts = false
+ignore_missing_imports = false
+
+# Per-module overrides
+[[tool.mypy.overrides]]
+module = "tfism.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+warn_unused_ignores = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.poe.tasks]
+# Environment setup
+install-dev = "uv pip install -e '.[all]'"
+install-all = "uv pip install -e '.[all]'"
+
+# Test tasks
+test = "uv run pytest -n auto tests/"
+test-cov = "uv run pytest --cov=tfism --cov-report=html --cov-report=term --cov-report=xml tests/"
+test-no-diagrams = "uv run pytest -n auto tests/ --ignore=tests/test_codestyle.py"
+
+# Type checking
+mypy = "uv run mypy --config-file mypy.ini --strict tfism"
+codestyle = "uv run pytest tests/test_codestyle.py"
+typecheck = ["mypy", "codestyle"]
+
+# Code quality
+lint = "uv run ruff check tfism/"
+format = "uv run ruff format tfism/"
+format-check = "uv run ruff format --check tfism/"
+
+# Nox sessions
+nox = "uv run nox"
+nox-mypy = "uv run nox -s mypy"
+nox-test = "uv run nox -s test"
+nox-test-no-diagrams = "uv run nox -s test_no_diagrams"
+
+# Version management
+# Show current version and possible bumps
+version-show = "uv run bump-my-version show"
+version-show-bump = "uv run bump-my-version show-bump"
+
+# Bump version parts (for official releases)
+version-bump-major = "uv run bump-my-version bump major"
+version-bump-minor = "uv run bump-my-version bump minor"
+version-bump-patch = "uv run bump-my-version bump patch"
+
+# Pre-release version management
+version-bump-dev = "uv run bump-my-version bump dev --no-commit --no-tag"
+version-bump-rc = "uv run bump-my-version bump rc --no-commit --no-tag"
+version-bump-rc-final = "uv run bump-my-version bump final"  # Remove pre-release tag
+
+# Release workflow (bump + commit + tag in one step)
+version-release-patch = "uv run bump-my-version bump patch"
+version-release-minor = "uv run bump-my-version bump minor"
+version-release-major = "uv run bump-my-version bump major"
+
+# Helpers
+version-dry-run = "uv run bump-my-version bump patch --dry-run -v"
+version-tag = "uv run bump-my-version tag"
+
+# Build and publish
+build = "uv build"
+publish = "uv publish"
+
+# Documentation
+serve-docs = "uv run mkdocs serve"
+
+# Help
+help = "uv run poe --help"
+
+[tool.coverage.run]
+source = ["tfism"]
+omit = ["*/tests/*", "*/test_*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
