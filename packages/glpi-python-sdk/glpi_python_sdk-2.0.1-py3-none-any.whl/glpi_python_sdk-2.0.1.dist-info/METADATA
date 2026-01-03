@@ -1,0 +1,218 @@
+Metadata-Version: 2.4
+Name: glpi-python-sdk
+Version: 2.0.1
+Summary: Modern Python SDK for GLPI REST API with sync/async support
+Project-URL: Homepage, https://github.com/codebunker/glpi-python-sdk
+Project-URL: Documentation, https://glpi-python-sdk.codebunker.net
+Project-URL: Repository, https://github.com/codebunker/glpi-python-sdk
+Project-URL: Issues, https://github.com/codebunker/glpi-python-sdk/issues
+Author-email: Tarcisio Miranda <eu@tarcisio.me>
+License-Expression: MIT
+Keywords: api,assets,async,fastapi,glpi,helpdesk,itsm,sdk,tickets
+Classifier: Development Status :: 4 - Beta
+Classifier: Framework :: FastAPI
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=3.10
+Requires-Dist: arrow>=1.3.0
+Requires-Dist: httpx>=0.25.0
+Requires-Dist: leopards>=0.1.3
+Requires-Dist: typing-extensions>=4.8.0
+Provides-Extra: all
+Requires-Dist: anyio>=4.0.0; extra == 'all'
+Requires-Dist: build>=1.0.0; extra == 'all'
+Requires-Dist: fastapi>=0.100.0; extra == 'all'
+Requires-Dist: httpx[http2]>=0.25.0; extra == 'all'
+Requires-Dist: mkdocs-material>=9.4.0; extra == 'all'
+Requires-Dist: mkdocs>=1.5.0; extra == 'all'
+Requires-Dist: mkdocstrings[python]>=0.23.0; extra == 'all'
+Requires-Dist: mypy>=1.6.0; extra == 'all'
+Requires-Dist: pre-commit>=3.5.0; extra == 'all'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'all'
+Requires-Dist: pytest-cov>=4.1.0; extra == 'all'
+Requires-Dist: pytest>=7.4.0; extra == 'all'
+Requires-Dist: ruff>=0.1.0; extra == 'all'
+Requires-Dist: twine>=4.0.0; extra == 'all'
+Provides-Extra: anyio
+Requires-Dist: anyio>=4.0.0; extra == 'anyio'
+Provides-Extra: dev
+Requires-Dist: build>=1.0.0; extra == 'dev'
+Requires-Dist: mypy>=1.6.0; extra == 'dev'
+Requires-Dist: pre-commit>=3.5.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.1.0; extra == 'dev'
+Requires-Dist: pytest>=7.4.0; extra == 'dev'
+Requires-Dist: ruff>=0.1.0; extra == 'dev'
+Requires-Dist: twine>=4.0.0; extra == 'dev'
+Provides-Extra: docs
+Requires-Dist: mkdocs-material>=9.4.0; extra == 'docs'
+Requires-Dist: mkdocs>=1.5.0; extra == 'docs'
+Requires-Dist: mkdocstrings[python]>=0.23.0; extra == 'docs'
+Provides-Extra: fastapi
+Requires-Dist: anyio>=4.0.0; extra == 'fastapi'
+Requires-Dist: fastapi>=0.100.0; extra == 'fastapi'
+Provides-Extra: http2
+Requires-Dist: httpx[http2]>=0.25.0; extra == 'http2'
+Description-Content-Type: text/markdown
+
+# GLPI Python SDK
+
+Modern Python SDK for GLPI REST API with sync/async support.
+
+> **Note:** This library was inspired by **py-glpi** and rewritten with modern Python practices, httpx support, and async capabilities.
+
+## Features
+
+- ✅ **Sync & Async** - Full support for synchronous and asynchronous operations
+- ✅ **httpx** - Modern HTTP client with HTTP/2 support
+- ✅ **FastAPI Ready** - Compatible with FastAPI and other async frameworks
+- ✅ **Configurable Timeout** - Full control over connection timeouts
+- ✅ **Auto Retry** - Automatic token renewal on 401/403
+- ✅ **Organized Exceptions** - Exceptions by category (auth, network, resource)
+- ✅ **Type Hints** - Fully typed for better DX
+
+## Installation
+
+```bash
+pip install glpi-python-sdk
+```
+
+With HTTP/2 support:
+
+```bash
+pip install glpi-python-sdk[http2]
+```
+
+For use with FastAPI:
+
+```bash
+pip install glpi-python-sdk[fastapi]
+```
+
+## Quick Start
+
+### Synchronous Mode
+
+```python
+from glpi_python_sdk import GLPISession
+
+# Basic authentication
+with GLPISession(
+    api_url="https://glpi.example.com/apirest.php",
+    app_token="your_app_token",
+    auth_type="basic",
+    user="admin",
+    password="password",
+    timeout=30.0
+) as glpi:
+    # Get all tickets
+    tickets = glpi.get_all_items("Ticket")
+    print(tickets.json())
+
+    # Get specific item
+    ticket = glpi.get_item("Ticket", 123)
+    print(ticket.json())
+```
+
+### Asynchronous Mode (FastAPI)
+
+```python
+from glpi_python_sdk import AsyncGLPISession
+
+async with AsyncGLPISession(
+    api_url="https://glpi.example.com/apirest.php",
+    app_token="your_app_token",
+    auth_type="user_token",
+    user_token="your_user_token"
+) as glpi:
+    tickets = await glpi.get_all_items("Ticket")
+    print(tickets.json())
+```
+
+### FastAPI Example
+
+```python
+from fastapi import FastAPI, Depends
+from glpi_python_sdk import AsyncGLPISession
+from contextlib import asynccontextmanager
+
+app = FastAPI()
+
+@asynccontextmanager
+async def get_glpi():
+    async with AsyncGLPISession(
+        api_url="https://glpi.example.com/apirest.php",
+        app_token="token",
+        auth_type="user_token",
+        user_token="user_token"
+    ) as session:
+        yield session
+
+@app.get("/tickets")
+async def list_tickets():
+    async with get_glpi() as glpi:
+        response = await glpi.get_all_items("Ticket")
+        return response.json()
+```
+
+## Configuration
+
+```python
+from glpi_python_sdk import GLPISession, ClientConfig
+
+session = GLPISession(
+    api_url="https://glpi.example.com/apirest.php",
+    app_token="app_token",
+    auth_type="basic",
+    user="admin",
+    password="password",
+    # Connection settings
+    timeout=30.0,           # Request timeout (seconds)
+    connect_timeout=10.0,   # Connection timeout (seconds)
+    verify_ssl=True,        # Verify SSL certificates
+    max_retries=3,          # Retries on failure
+    auto_refresh_token=True # Automatically refresh token
+)
+```
+
+## Exceptions
+
+```python
+from glpi_python_sdk import (
+    GLPIError,              # Base
+    AuthenticationError,    # Authentication errors
+    InvalidCredentialsError,
+    SessionTokenError,
+    UnauthorizedError,
+    ForbiddenError,
+    NetworkError,           # Network errors
+    ConnectionError,
+    TimeoutError,
+    ResourceError,          # Resource errors
+    ResourceNotFoundError,
+    ItemCreationError,
+)
+
+try:
+    ticket = glpi.get_item("Ticket", 99999)
+except ResourceNotFoundError as e:
+    print(f"Ticket not found: {e}")
+except NetworkError as e:
+    print(f"Connection error: {e}")
+```
+
+## Credits
+
+This library was inspired by [py-glpi](https://github.com/teclib/py-glpi) by Teclib.
+
+## License
+
+MIT
