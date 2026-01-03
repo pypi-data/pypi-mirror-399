@@ -1,0 +1,22 @@
+Source: moat-kv-ha
+Maintainer: Matthias Urlichs <matthias@urlichs.de>
+Section: python
+Priority: optional
+Build-Depends: dh-python, python3-all, debhelper (>= 13),
+  python3-setuptools,
+  python3-wheel,
+Standards-Version: 3.9.6
+Homepage: https://github.com/smurfix/disthass
+X-DH-Compat: 13
+
+Package: moat-kv-ha
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends},
+  moat-kv (>= 0.50),
+Conflicts: disthass
+Replaces: disthass
+Description: Link between Home Assistant and DistKV
+ Home Assistant talks via MQTT. MoaT-KV has a quite versatile MQTT adapter.
+ Thus we can store Home Assistant's entitiy configuration, plus their state,
+ plus the commands Home Assisant issues to get things to change their state,
+ in MoaT-KV.
