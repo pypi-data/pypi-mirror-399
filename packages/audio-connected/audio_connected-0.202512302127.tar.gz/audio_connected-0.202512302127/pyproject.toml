@@ -1,0 +1,39 @@
+[project]
+authors = [
+    {name = "Morten Lied Johansen", email = "mortenjo@ifi.uio.no"},
+]
+license = "MIT"
+requires-python = "<4.0,>=3.11"
+dependencies = [
+    "pulsectl<25.0.0,>=24.0.0",
+]
+name = "audio-connected"
+description = "Watches PulseAudio events for new sinks connected, and if the name matches the configured name, make that sink the default sink."
+readme = "README.rst"
+dynamic = [
+    "version",
+]
+
+[project.urls]
+Issues = "https://github.com/mortenlj/audio-connected/issues"
+Repository = "https://github.com/mortenlj/audio-connected"
+
+[project.scripts]
+audio-connected = "audio_connected:main"
+
+[dependency-groups]
+dev = [
+    "pytest==9.0.2",
+]
+
+[tool.ruff]
+line-length = 120
+
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]

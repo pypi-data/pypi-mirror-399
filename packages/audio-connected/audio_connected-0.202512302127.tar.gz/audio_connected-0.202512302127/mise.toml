@@ -1,0 +1,33 @@
+[tools]
+python = "3.14.0"
+uv = "latest"
+
+[tasks.fmt]
+description = "Format source"
+depends = ["python:fmt"]
+
+[tasks.fmt-check]
+description = "Check formatting"
+depends = ["python:fmt-check"]
+
+[tasks.lint]
+description = "Lint the project"
+depends = ["python:lint"]
+
+[tasks.lint-fix]
+description = "Run lint fixers"
+depends = ["python:lint-fix"]
+
+[tasks.ci]
+description = "Run CI tasks"
+depends = ["fmt-check", "lint"]
+
+[tasks.release-build]
+description = "Build the project"
+alias = "build"
+depends = ["python:build"]
+sources = ["audio_connected/**/*.py", "uv.lock", "pyproject.toml"]
+outputs = ["dist/audio_connected-*.tar.gz", "dist/audio_connected-*.whl"]
+
+[task_config]
+includes = [".config/mise-lib/virtual_tasks.toml", ".config/mise-lib"]
