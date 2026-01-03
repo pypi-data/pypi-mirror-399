@@ -1,0 +1,542 @@
+# Copyright (c) ZhangYundi.
+# Licensed under the MIT License. 
+# Created on 2025/10/27 14:13
+# Description:
+
+from __future__ import annotations
+
+import shutil
+from collections import defaultdict
+from enum import Enum
+from functools import partial
+from typing import Callable, Literal
+
+import logair
+import pandas as pd
+import polars as pl
+import polars.selectors as cs
+import xcals
+import ygo
+from varname import varname
+
+from .database import put, tb_path, scan, DB_PATH
+from .parse import parse_hive_partition_structure
+
+DEFAULT_DS_PATH = DB_PATH / "datasets"
+
+class InstrumentType(Enum):
+    STOCK = "Stock"  # 股票
+    ETF = "ETF"  #
+    CB = "ConvertibleBond"  # 可转债
+
+
+def complete_data(fn, date, save_path, partitions):
+    logger = logair.get_logger(__name__)
+    try:
+        data = fn()
+        if data is None:
+            # 保存数据的逻辑在fn中实现了
+            return
+        # 剔除以 `_` 开头的列
+        data = data.select(~cs.starts_with("_"))
+        if not isinstance(data, (pl.DataFrame, pl.LazyFrame)):
+            logger.error(f"{save_path}: Result of dataset.fn must be polars.DataFrame or polars.LazyFrame.")
+            return
+        if isinstance(data, pl.LazyFrame):
+            data = data.collect()
+        cols = data.columns
+        if "date" not in cols:
+            data = data.with_columns(pl.lit(date).alias("date")).select("date", *cols)
+        else:
+            data = data.cast({"date": pl.Utf8})
+        data = data.filter(date=date)
+        put(data, save_path, partitions=partitions)
+    except Exception as e:
+        logger.error(f"{save_path}: Error when complete data for {date}\n", exc_info=e)
+
+
+class Dataset:
+
+    def __init__(self,
+                 *depends: Dataset,
+                 fn: Callable[..., pl.DataFrame | pl.LazyFrame],
+                 tb: str = "",
+                 update_time: str = "",
+                 window: str = "1d",
+                 partitions: list[str] = None,
+                 is_hft: bool = False,
+                 frame: int = 1):
+        """
+
+        Parameters
+        ----------
+        depends: Dataset
+            底层依赖数据集
+        fn: str
+            数据集计算函数。如果要用到底层依赖数据集，则必须显示定义形参 `depend`
+        tb: str
+            数据集保存表格, 如果没有指定，默认 {lidb.DB_PATH}/datasets/
+        update_time: str
+            更新时间: 默认没有-实时更新，也就是可以取到当天值
+        partitions: list[str]
+            分区
+        is_hft: bool
+            是否是高频数据，如果是，则会按照asset进行分区存储，默认 False
+            hft定义为：时间步长 < 1min
+        window: str
+            配合depends使用，在取depends时，会回看window周期，最小单位为`d`。不足 `d` 的会往上取整为`1d`
+        frame: int
+            用于自动推断 数据名
+        """
+        self._depends = list(depends)
+        self._name = ""
+        self.fn = fn
+        self.fn_params_sig = ygo.fn_signature_params(fn)
+        self._is_depend = "depend" in self.fn_params_sig and len(self._depends) > 0
+        self._is_hft = is_hft
+        self._frame = frame
+        self.data_name = ""
+        try:
+            self.data_name = varname(frame, strict=False)
+        except Exception as e:
+            pass
+        if self.data_name:
+            self.data_name = self.data_name.replace('ds_', '')
+        if pd.Timedelta(window).days < 1:
+            window = "1d"
+        window_td = pd.Timedelta(window)
+        self._window = window
+        self._days = window_td.days
+        if window_td.seconds > 0:
+            self._days += 1
+        # 检测是否高频数据：如果是高频数据，则按照标的进行分区，高频的定义为时间差 < 60s
+        self._append_partitions = ["asset", "date"] if is_hft else ["date", ]
+        if partitions is not None:
+            partitions = [k for k in partitions if k not in self._append_partitions]
+            partitions = [*partitions, *self._append_partitions]
+        else:
+            # partitions = self._append_partitions
+            partitions = [k for k in self.fn_params_sig if k not in self._append_partitions and k != "depend"]
+            partitions = [*partitions, *self._append_partitions]
+        self.partitions = partitions
+        self._type_asset = "asset" in self.fn_params_sig
+        self.update_time = update_time
+        # 根据底层依赖调整update_time
+        if self._depends:
+            dep_ut = [ds.update_time for ds in self._depends]
+            dep_ut.append(update_time)
+            self.update_time = max(dep_ut)
+
+        self.tb = tb if tb else DEFAULT_DS_PATH / f"{self.data_name}"
+        self.save_path = tb_path(self.tb)
+        fn_params = ygo.fn_params(self.fn)
+        self.fn_params = {k: v for (k, v) in fn_params}
+        self.constraints = dict()
+        for k in self.partitions[:-len(self._append_partitions)]:
+            if k in self.fn_params:
+                v = self.fn_params[k]
+                if isinstance(v, (list, tuple)) and not isinstance(v, str):
+                    v = sorted(v)
+                self.constraints[k] = v
+                self.save_path = self.save_path / f"{k}={v}"
+
+    def is_empty(self, path) -> bool:
+        return not any(path.rglob("*.parquet"))
+
+    def __call__(self, *fn_args, **fn_kwargs):
+        # self.fn =
+        fn = partial(self.fn, *fn_args, **fn_kwargs)
+        ds = Dataset(*self._depends,
+                     fn=fn,
+                     tb=self.tb,
+                     partitions=self.partitions,
+                     update_time=self.update_time,
+                     is_hft=self._is_hft,
+                     window=self._window,
+                     frame=self._frame+1)
+        ds.data_name = self.data_name
+        return ds
+
+    def alias(self, new_name: str):
+        self._name = new_name
+        return self
+
+    def get_value(self, date, eager: bool = True, **constraints):
+        """
+        取值: 不保证未来数据
+        Parameters
+        ----------
+        date: str
+            取值日期
+        eager: bool
+        constraints: dict
+            取值的过滤条件
+
+        Returns
+        -------
+
+        """
+        logger = logair.get_logger(f"{__name__}.{self.__class__.__name__}")
+        _constraints = {k: v for k, v in constraints.items() if k in self.partitions}
+        _limits = {k: v for k, v in constraints.items() if k not in self.partitions}
+        search_path = self.save_path
+        for k, v in _constraints.items():
+            if isinstance(v, (list, tuple)) and not isinstance(v, str):
+                v = sorted(v)
+            search_path = search_path / f"{k}={v}"
+        search_path = search_path / f"date={date}"
+
+        # 处理空文件
+        for file_path in search_path.rglob("*.parquet"):
+            if file_path.stat().st_size == 0:
+                # 删除
+                logger.warning(f"{file_path}: Deleting empty file.")
+                file_path.unlink()
+
+        if not self.is_empty(search_path):
+            lf = scan(search_path).cast({"date": pl.Utf8})
+            try:
+                schema = lf.collect_schema()
+            except:
+                logger.warning(f"{search_path}: Failed to collect schema.")
+                # 删除该文件夹
+                shutil.rmtree(search_path)
+                return self.get_value(date=date, eager=eager, **constraints)
+            _limits = {k: v for k, v in constraints.items() if schema.get(k) is not None}
+            lf = lf.filter(date=date, **_limits)
+            if not eager:
+                return lf
+            data = lf.collect()
+            if not data.is_empty():
+                return data
+        fn = self.fn
+        save_path = self.save_path
+        if self._is_depend:
+            fn = partial(fn, depend=self._get_depends(date))
+        else:
+            fn = partial(fn, date=date)
+        if self._type_asset:
+            if "asset" in _constraints:
+                fn = ygo.delay(self.fn)(asset=_constraints["asset"])
+        if len(self.constraints) < len(self.partitions) - len(self._append_partitions):
+            # 如果分区指定的字段没有在Dataset定义中指定，需要在get_value中指定
+            params = dict()
+            for k in self.partitions[:-len(self._append_partitions)]:
+                if k not in self.constraints:
+                    v = constraints[k]
+                    params[k] = v
+                    save_path = save_path / f"{k}={v}"
+            fn = ygo.delay(self.fn)(**params)
+
+        today = xcals.today()
+        now = xcals.now()
+        if (date > today) or (date == today and now < self.update_time):
+            logger.warning(f"{self.tb}: {date} is not ready, waiting for {self.update_time}")
+            return
+        complete_data(fn, date, save_path, self._append_partitions)
+
+        lf = scan(search_path).cast({"date": pl.Utf8})
+        schema = lf.collect_schema()
+        _limits = {k: v for k, v in constraints.items() if schema.get(k) is not None}
+        lf = lf.filter(date=date, **_limits)
+        if not eager:
+            return lf
+        return lf.collect()
+
+    def get_pit(self, date: str, query_time: str, eager: bool = True, **contraints):
+        """取值：如果取值时间早于更新时间，则返回上一天的值"""
+        if not self.update_time:
+            return self.get_value(date, **contraints)
+        val_date = date
+        if query_time < self.update_time:
+            val_date = xcals.shift_tradeday(date, -1)
+        return self.get_value(val_date, eager=eager, **contraints).with_columns(date=pl.lit(date), )
+
+    def get_history(self,
+                    dateList: list[str],
+                    n_jobs: int = 5,
+                    backend: Literal["threading", "multiprocessing", "loky"] = "threading",
+                    eager: bool = True,
+                    rep_asset: str = "000001",  # 默认 000001
+                    **constraints):
+        """获取历史值: 不保证未来数据"""
+        _constraints = {k: v for k, v in constraints.items() if k in self.partitions}
+        search_path = self.save_path
+        for k, v in _constraints.items():
+            if isinstance(v, (list, tuple)) and not isinstance(v, str):
+                v = sorted(v)
+            search_path = search_path / f"{k}={v}"
+        if self.is_empty(search_path):
+            # 需要补全全部数据
+            missing_dates = dateList
+        else:
+            if not self._type_asset:
+                _search_path = self.save_path
+                for k, v in _constraints.items():
+                    if k != "asset":
+                        _search_path = _search_path / f"{k}={v}"
+                    else:
+                        _search_path = _search_path / f"asset={rep_asset}"
+                hive_info = parse_hive_partition_structure(_search_path)
+            else:
+                hive_info = parse_hive_partition_structure(search_path)
+            exist_dates = hive_info["date"].to_list()
+            missing_dates = set(dateList).difference(set(exist_dates))
+            missing_dates = sorted(list(missing_dates))
+        if missing_dates:
+            # 先逐个补齐 depends
+            _end_date = max(missing_dates)
+            _beg_date = min(missing_dates)
+            if self._days > 1:
+                _beg_date = xcals.shift_tradeday(_beg_date, -self._days)
+            _depend_dates = xcals.get_tradingdays(_beg_date, _end_date)
+            for depend in self._depends:
+                depend.get_history(_depend_dates, eager=False)
+            fn = self.fn
+            save_path = self.save_path
+
+            if self._type_asset:
+                if "asset" in _constraints:
+                    fn = ygo.delay(self.fn)(asset=_constraints["asset"])
+
+            if len(self.constraints) < len(self.partitions) - len(self._append_partitions):
+                params = dict()
+                for k in self.partitions[:-len(self._append_partitions)]:
+                    if k not in self.constraints:
+                        v = constraints[k]
+                        params[k] = v
+                        save_path = save_path / f"{k}={v}"
+                fn = ygo.delay(self.fn)(**params)
+
+            with ygo.pool(n_jobs=n_jobs, backend=backend) as go:
+                info_path = self.save_path
+                try:
+                    info_path = info_path.relative_to(DB_PATH)
+                except:
+                    pass
+                for date in missing_dates:
+                    if self._is_depend:
+                        fn = partial(fn, depend=self._get_depends(date))
+                    else:
+                        fn = partial(fn, date=date)
+                    go.submit(complete_data,
+                              job_name=f"Completing",
+                              postfix=info_path,
+                              leave=False)(fn=fn,
+                                           date=date,
+                                           save_path=save_path,
+                                           partitions=self._append_partitions, )
+                go.do()
+        data = scan(search_path, ).cast({"date": pl.Utf8}).filter(pl.col("date").is_in(dateList), **constraints)
+        data = data.sort("date")
+        if eager:
+            return data.collect()
+        return data
+
+    def _get_depends(self, date: str) -> pl.DataFrame | None:
+        # 获取依赖数据集数据
+        if not self._depends:
+            return None
+        end_date = date
+        beg_date = xcals.shift_tradeday(date, -self._days)
+        params = {
+            "ds_conf": dict(depend=self._depends),
+            "beg_date": beg_date,
+            "end_date": end_date,
+            "times": [self.update_time],
+            "show_progress": False,
+            "eager": True,
+        }
+        res = load_ds(**params)
+        return res["depend"]
+
+
+def loader(data_name: str,
+           ds: Dataset,
+           date_list: list[str],
+           prev_date_list: list[str],
+           prev_date_mapping: dict[str, str],
+           time: str,
+           **constraints) -> pl.LazyFrame:
+    if time < ds.update_time:
+        if len(prev_date_list) > 1:
+            lf = ds.get_history(prev_date_list, eager=False, **constraints)
+        else:
+            lf = ds.get_value(prev_date_list[0], eager=False, **constraints)
+    else:
+        if len(date_list) > 1:
+            lf = ds.get_history(date_list, eager=False, **constraints)
+        else:
+            lf = ds.get_value(date_list[0], eager=False, **constraints)
+    schema = lf.collect_schema()
+    include_time = schema.get("time") is not None
+    if time:
+        if include_time:
+            lf = lf.filter(time=time)
+        else:
+            lf = lf.with_columns(time=pl.lit(time))
+    if time < ds.update_time:
+        lf = lf.with_columns(date=pl.col("date").replace(prev_date_mapping))
+    keep = {"date", "time", "asset"}
+    if ds._name:
+        columns = lf.collect_schema().names()
+        rename_cols = set(columns).difference(keep)
+        if len(rename_cols) > 1:
+            lf = lf.rename({k: f"{ds._name}.{k}" for k in rename_cols})
+        else:
+            lf = lf.rename({k: ds._name for k in rename_cols})
+    return data_name, lf
+
+
+def load_ds(ds_conf: dict[str, list[Dataset]],
+            beg_date: str,
+            end_date: str,
+            times: list[str],
+            n_jobs: int = 7,
+            backend: Literal["threading", "multiprocessing", "loky"] = "threading",
+            show_progress: bool = True,
+            eager: bool = False,
+            **constraints) -> dict[str, pl.DataFrame | pl.LazyFrame]:
+    """
+    加载数据集
+    Parameters
+    ----------
+    ds_conf: dict[str, list[Dataset]]
+        数据集配置: key-data_name, value-list[Dataset]
+    beg_date: str
+        开始日期
+    end_date: str
+        结束日期
+    times: list[str]
+        取值时间
+    n_jobs: int
+        并发数量
+    backend: str
+    show_progress: bool
+    eager: bool
+        是否返回 DataFrame
+        - True: 返回DataFrame
+        - False: 返回LazyFrame
+    constraints
+        限制条件，比如 asset='000001'
+    Returns
+    -------
+    dict[str, polars.DataFrame | polars.LazyFrame]
+        - key: data_name
+        - value: polars.DataFrame
+
+    """
+    if beg_date > end_date:
+        raise ValueError("beg_date must be less than end_date")
+    date_list = xcals.get_tradingdays(beg_date, end_date)
+    beg_date, end_date = date_list[0], date_list[-1]
+    prev_date_list = xcals.get_tradingdays(xcals.shift_tradeday(beg_date, -1),
+                                           xcals.shift_tradeday(end_date, -1))
+    prev_date_mapping = {prev_date: date_list[i] for i, prev_date in enumerate(prev_date_list)}
+    results = defaultdict(list)
+    index = ("date", "time", "asset")
+    with ygo.pool(n_jobs=n_jobs,
+                  backend=backend,
+                  show_progress=show_progress) as go:
+        for data_name, ds_list in ds_conf.items():
+            for ds in ds_list:
+                _data_name = f"{data_name}:{ds.tb}"
+                for time in times:
+                    go.submit(loader,
+                              job_name="Loading",
+                              postfix=data_name, )(data_name=_data_name,
+                                                   ds=ds,
+                                                   date_list=date_list,
+                                                   prev_date_list=prev_date_list,
+                                                   prev_date_mapping=prev_date_mapping,
+                                                   time=time,
+                                                   **constraints)
+        for name, lf in go.do():
+            results[name].append(lf)
+    _LFs = {
+        name: (pl.concat(lfList, )
+               .select(*index,
+                       cs.exclude(index))
+               )
+        for name, lfList in results.items()}
+    LFs = defaultdict(list)
+    for name, lf in _LFs.items():
+        dn, _ = name.split(":")
+        LFs[dn].append(lf)
+    LFs = {
+        name: (pl.concat(lfList, how="align")
+               .sort(index)
+               .select(*index,
+                       cs.exclude(index))
+               )
+        for name, lfList in LFs.items()}
+
+    if not eager:
+        return LFs
+    return {
+        name: lf.collect()
+        for name, lf in LFs.items()
+    }
+
+
+class DataLoader:
+
+    def __init__(self, name: str):
+        self._name = name
+        self._index: tuple[str] = ("date", "time", "asset")
+        self._df: pl.LazyFrame | pl.DataFrame = None
+        # self._db: QDF = None
+
+    def get(self,
+            ds_list: list[Dataset],
+            beg_date: str,
+            end_date: str,
+            times: list[str],
+            eager: bool = False,
+            n_jobs: int = 11,
+            backend: Literal["threading", "multiprocessing", "loky"] = "threading",
+            **constraints):
+        """
+        添加数据集
+        Parameters
+        ----------
+        ds_list: list[Dataset]
+        beg_date: str
+        end_date: str
+        times: list[str]
+            加载的时间列表
+        eager: bool
+        n_jobs: int
+        backend: str
+        constraints
+
+        Returns
+        -------
+
+        """
+        lf = load_ds(ds_conf={self._name: ds_list},
+                     beg_date=beg_date,
+                     end_date=end_date,
+                     n_jobs=n_jobs,
+                     backend=backend,
+                     times=times,
+                     eager=eager,
+                     **constraints)
+        self._df = lf[self._name]
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def data(self) -> pl.DataFrame | None:
+        """返回全量数据"""
+        if isinstance(self._df, pl.LazyFrame):
+            self._df = self._df.collect()
+        return self._df
+
+    def add_data(self, df: pl.DataFrame | pl.LazyFrame):
+        """添加dataframe, index 保持为原有的 _df.index"""
+        if isinstance(df, pl.LazyFrame):
+            df = df.collect()
+        self._df = pl.concat([self._df, df], how="align").sort(self._index)
