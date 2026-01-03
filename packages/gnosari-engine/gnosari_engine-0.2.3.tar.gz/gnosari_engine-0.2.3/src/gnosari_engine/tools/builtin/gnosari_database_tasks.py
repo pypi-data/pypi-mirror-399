@@ -1,0 +1,682 @@
+"""
+Gnosari database tasks management tool with streaming support.
+
+Provides comprehensive task management capabilities including creation, updates,
+dependency management, and hierarchical task organization through direct database access.
+"""
+
+import logging
+import os
+from typing import Any, Optional, Dict, List
+
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
+
+from ...schemas.domain.execution import AgentRun
+from ...schemas.domain.tool import Tool
+from ...tools.streaming.interfaces import IStreamableTool, IToolStreamContext
+from ...tools.streaming.mixins import StreamableToolMixin, ProgressTracker
+from ...sessions.repositories.task_repository import TaskRepository
+from .base import BaseProviderAgnosticTool
+
+logger = logging.getLogger(__name__)
+
+
+class GnosariDatabaseTasksTool(StreamableToolMixin, BaseProviderAgnosticTool, IStreamableTool):
+    """
+    Gnosari database tasks management tool with comprehensive streaming support.
+
+    Enables creating, updating, and managing tasks directly in the database.
+    Supports task tree creation for hierarchical task organization.
+    Follows Open/Closed Principle: Extended with streaming without modification.
+    """
+
+    def __init__(self, tool_config: Tool, agent_run: AgentRun):
+        logger.info(f"🚀 GNOSARI_DATABASE_TASKS_TOOL - Initializing with config: {tool_config.id}")
+        print(f"🚀 GNOSARI_DATABASE_TASKS_TOOL - Initializing with config: {tool_config.id}")
+
+        # Initialize BaseProviderAgnosticTool first
+        BaseProviderAgnosticTool.__init__(self, tool_config)
+        # Initialize streaming components
+        StreamableToolMixin.__init__(self)
+        self.agent_run = agent_run
+        self._stream_context: IToolStreamContext | None = None
+        # Get database configuration
+        self.database_url = self._get_config_value(
+            "database_url",
+            "GNOSARI_DATABASE_URL",
+            "postgresql+asyncpg://gnosari_dev:dev_password_123@localhost:5432/gnosari_dev"
+        )
+
+        logger.info(f"🔧 GNOSARI_DATABASE_TASKS_TOOL - Config: database_url={self.database_url}")
+        print(f"🔧 GNOSARI_DATABASE_TASKS_TOOL - Config: database_url={self.database_url}")
+
+        # Initialize database components
+        self._engine: Optional[AsyncEngine] = None
+        self._session_factory: Optional[async_sessionmaker] = None
+        self._repository: Optional[TaskRepository] = None
+        self._setup_database()
+
+        logger.info(f"✅ GNOSARI_DATABASE_TASKS_TOOL - Successfully initialized")
+        print(f"✅ GNOSARI_DATABASE_TASKS_TOOL - Successfully initialized")
+
+    def _get_config_value(self, arg_key: str, env_key: str, default: str = None) -> str:
+        """Get configuration value from tool args or environment with fallback."""
+        # First try tool args
+        if self.args and arg_key in self.args:
+            return self.args[arg_key]
+
+        # Then try environment
+        env_value = os.getenv(env_key)
+        if env_value:
+            return env_value
+
+        # Finally use default
+        if default is not None:
+            return default
+
+        return None
+
+    def _setup_database(self) -> None:
+        """Set up database engine and repository."""
+        try:
+            # Initialize database engine
+            self._engine = create_async_engine(
+                self.database_url,
+                pool_size=20,
+                max_overflow=30,
+                pool_timeout=30,
+                pool_recycle=3600,
+                pool_pre_ping=True
+            )
+
+            # Async session factory
+            self._session_factory = async_sessionmaker(
+                self._engine,
+                expire_on_commit=False,
+                autoflush=True,
+                autocommit=False
+            )
+
+            # Initialize repository
+            self._repository = TaskRepository(self._session_factory)
+
+            logger.info(f"Database engine initialized successfully: {self.database_url}")
+        except Exception as e:
+            logger.error(f"Failed to initialize database engine: {e}")
+            raise
+
+    async def execute_core_logic(
+        self,
+        action: str,
+        task_id: Optional[int] = None,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        input_message: Optional[str] = None,
+        type: str = "task",
+        status: str = "pending",
+        tags: Optional[list[str]] = None,
+        assigned_team_identifier: Optional[str] = None,
+        assigned_agent_identifier: Optional[str] = None,
+        reporter_team_identifier: Optional[str] = None,
+        reporter_agent_identifier: Optional[str] = None,
+        parent_id: Optional[int] = None,
+        dependency_ids: Optional[list[int]] = None,
+        subtasks: Optional[list[dict]] = None,
+        skip: int = 0,
+        limit: int = 100,
+        **kwargs
+    ) -> str:
+        """
+        Execute Gnosari database task management operations with streaming support.
+
+        Args:
+            action: Operation to perform (create, get, list, update, delete, add_dependency, remove_dependency)
+            task_id: ID of task for get/update/delete operations
+            title: Task title (required for create)
+            description: Task description
+            input_message: Input message or requirements
+            type: Task type (bug, feature, task, improvement, research)
+            status: Task status (pending, in_progress, review, completed, cancelled)
+            tags: Tags for categorization
+            assigned_team_identifier: Team identifier assignment (required for create)
+            assigned_agent_identifier: Agent identifier assignment
+            reporter_team_identifier: Reporter team identifier
+            reporter_agent_identifier: Reporter agent identifier
+            parent_id: Parent task ID for subtasks
+            dependency_ids: List of dependency task IDs
+            subtasks: List of subtask definitions for tree creation
+            skip: Number of records to skip for list operations
+            limit: Maximum records to return for list operations
+            **kwargs: Additional parameters
+
+        Returns:
+            Formatted operation result or error message
+        """
+        logger.info(f"🎯 GNOSARI_DATABASE_TASKS_TOOL - Executing action: {action}")
+        print(f"🎯 GNOSARI_DATABASE_TASKS_TOOL - Executing action: {action} with args: title={title}, task_id={task_id}")
+        # Emit start event if streaming is available
+        await self._emit_start({
+            "action": action,
+            "task_id": task_id,
+            "operation": f"gnosari_database_task_{action}"
+        })
+
+        # Create progress tracker based on action complexity
+        total_steps = self._get_action_steps(action)
+        progress = ProgressTracker(self, total_steps=total_steps, operation_name=f"gnosari_database_task_{action}")
+
+        try:
+            # Step 1: Validate action and parameters
+            await progress.step("validating_parameters", {"action": action, "task_id": task_id})
+
+            # Get account_id and session_id from AgentRun
+            if not self.agent_run or not self.agent_run.metadata or not self.agent_run.metadata.account_id:
+                raise ValueError("account_id is required and must be provided via AgentRun.metadata.account_id")
+
+            account_id = self.agent_run.metadata.account_id
+            session_id = self.agent_run.metadata.session_id if self.agent_run.metadata else None
+
+            self._validate_action_parameters(action, task_id, title, assigned_team_identifier)
+
+            # Step 2: Prepare repository
+            await progress.step("preparing_repository", {"database_url": self.database_url})
+
+            if not self._repository:
+                raise RuntimeError("Database repository not initialized")
+
+            # Step 3: Execute specific action
+            await progress.step("executing_action", {"action": action})
+
+            if action == "create":
+                result = await self._create_task(
+                    account_id, session_id, title, description, input_message,
+                    type, status, tags, assigned_team_identifier, assigned_agent_identifier,
+                    reporter_team_identifier, reporter_agent_identifier, parent_id, dependency_ids,
+                    subtasks
+                )
+            elif action == "get":
+                result = await self._get_task(task_id, account_id)
+            elif action == "list":
+                result = await self._list_tasks(
+                    account_id, skip, limit, status, type,
+                    assigned_team_identifier, assigned_agent_identifier, parent_id
+                )
+            elif action == "update":
+                result = await self._update_task(
+                    task_id, account_id, title, description, status,
+                    assigned_agent_identifier, tags, dependency_ids
+                )
+            elif action == "delete":
+                result = await self._delete_task(task_id, account_id)
+            elif action == "add_dependency":
+                dependency_id = kwargs.get("dependency_id")
+                if not dependency_id:
+                    raise ValueError("dependency_id is required for add_dependency action")
+                result = await self._add_dependency(task_id, dependency_id, account_id)
+            elif action == "remove_dependency":
+                dependency_id = kwargs.get("dependency_id")
+                if not dependency_id:
+                    raise ValueError("dependency_id is required for remove_dependency action")
+                result = await self._remove_dependency(task_id, dependency_id, account_id)
+            else:
+                raise ValueError(f"Unsupported action: {action}")
+
+            # Step 4: Format and emit results
+            await progress.step("formatting_results", {"action": action, "success": True})
+            formatted_result = self._format_task_result(result, action)
+
+            # Emit intermediate result
+            await self._emit_result({
+                "action": action,
+                "task_id": task_id,
+                "success": True,
+                "result_type": result.__class__.__name__
+            })
+
+            # Complete progress tracking
+            await progress.complete({
+                "action": action,
+                "task_id": task_id,
+                "success": True,
+                "result_size": len(formatted_result)
+            })
+
+            return formatted_result
+
+        except Exception as e:
+            error_details = f"Error executing database task {action}: {str(e)}"
+            logger.error(f"Error executing Gnosari database task action {action}: {e}", exc_info=True)
+            await self._emit_error(e)
+            return error_details
+
+    def _get_action_steps(self, action: str) -> int:
+        """Get number of steps for progress tracking based on action complexity."""
+        step_mapping = {
+            "create": 4,
+            "get": 4,
+            "list": 4,
+            "update": 4,
+            "delete": 4,
+            "add_dependency": 4,
+            "remove_dependency": 4
+        }
+        return step_mapping.get(action, 4)
+
+    def _validate_action_parameters(
+        self,
+        action: str,
+        task_id: Optional[int],
+        title: Optional[str],
+        assigned_team_identifier: Optional[str]
+    ) -> None:
+        """Validate required parameters for each action."""
+        if action in ["get", "update", "delete", "add_dependency", "remove_dependency"] and not task_id:
+            raise ValueError(f"task_id is required for {action} action")
+
+        if action == "create":
+            if not title:
+                raise ValueError("title is required for create action")
+            if not assigned_team_identifier:
+                raise ValueError("assigned_team_identifier is required for create action")
+
+    async def _create_task(
+        self,
+        account_id: int,
+        session_id: Optional[str],
+        title: str,
+        description: Optional[str],
+        input_message: Optional[str],
+        type: str,
+        status: str,
+        tags: Optional[list[str]],
+        assigned_team_identifier: str,
+        assigned_agent_identifier: Optional[str],
+        reporter_team_identifier: Optional[str],
+        reporter_agent_identifier: Optional[str],
+        parent_id: Optional[int],
+        dependency_ids: Optional[list[int]],
+        subtasks: Optional[list[dict]]
+    ) -> dict:
+        """Create a new task (with optional subtasks for tree creation)."""
+        # Resolve team identifier to team_id
+        assigned_team_id = await self._repository.resolve_team_id(assigned_team_identifier, account_id)
+        if not assigned_team_id:
+            raise ValueError(f"Team with identifier '{assigned_team_identifier}' not found for account {account_id}")
+
+        # Resolve agent identifier if provided
+        assigned_agent_id = None
+        if assigned_agent_identifier:
+            assigned_agent_id = await self._repository.resolve_agent_id(assigned_agent_identifier, account_id)
+            if not assigned_agent_id:
+                logger.warning(f"Agent with identifier '{assigned_agent_identifier}' not found for account {account_id}")
+
+        # Resolve reporter team identifier if provided
+        reporter_team_id = None
+        if reporter_team_identifier:
+            reporter_team_id = await self._repository.resolve_team_id(reporter_team_identifier, account_id)
+        elif self.agent_run and self.agent_run.team:
+            # Use team from AgentRun context
+            team_identifier = getattr(self.agent_run.team, 'identifier', None)
+            if team_identifier:
+                reporter_team_id = await self._repository.resolve_team_id(team_identifier, account_id)
+                reporter_team_identifier = team_identifier
+
+        # Resolve reporter agent identifier if provided
+        reporter_agent_id = None
+        if reporter_agent_identifier:
+            reporter_agent_id = await self._repository.resolve_agent_id(reporter_agent_identifier, account_id)
+        elif self.agent_run:
+            # Use agent from AgentRun context
+            agent_identifier = getattr(self.agent_run, 'agent_identifier', None) or \
+                              getattr(self.agent_run.metadata, 'agent_identifier', None)
+            if agent_identifier:
+                reporter_agent_id = await self._repository.resolve_agent_id(agent_identifier, account_id)
+                reporter_agent_identifier = agent_identifier
+
+        # Build task data
+        task_data = {
+            "title": title,
+            "type": type,
+            "status": status,
+            "tags": tags or [],
+            "account_id": account_id,
+            "assigned_team_id": assigned_team_id,
+            "assigned_team_identifier": assigned_team_identifier
+        }
+
+        # Add optional fields
+        if description:
+            task_data["description"] = description
+        if input_message:
+            task_data["input_message"] = input_message
+        if session_id:
+            task_data["session_id"] = session_id
+        if assigned_agent_id:
+            task_data["assigned_agent_id"] = assigned_agent_id
+        if assigned_agent_identifier:
+            task_data["assigned_agent_identifier"] = assigned_agent_identifier
+        if reporter_team_id:
+            task_data["reporter_team_id"] = reporter_team_id
+        if reporter_team_identifier:
+            task_data["reporter_team_identifier"] = reporter_team_identifier
+        if reporter_agent_id:
+            task_data["reporter_agent_id"] = reporter_agent_id
+        if reporter_agent_identifier:
+            task_data["reporter_agent_identifier"] = reporter_agent_identifier
+        if parent_id:
+            task_data["parent_id"] = parent_id
+
+        # Create task (with optional subtasks)
+        if subtasks:
+            # Create task tree
+            result = await self._repository.create_task_tree(task_data, subtasks, account_id)
+        else:
+            # Create single task
+            result = await self._repository.create_task(task_data)
+
+            # Handle dependencies if provided
+            if dependency_ids:
+                task_id = result['id']
+                for dep_id in dependency_ids:
+                    await self._repository.add_dependency(task_id, dep_id, account_id)
+
+        return result
+
+    async def _get_task(self, task_id: int, account_id: int) -> dict:
+        """Get a specific task by ID."""
+        result = await self._repository.get_task(task_id, account_id)
+        if not result:
+            raise ValueError(f"Task {task_id} not found")
+        return result
+
+    async def _list_tasks(
+        self,
+        account_id: int,
+        skip: int,
+        limit: int,
+        status: Optional[str],
+        type: Optional[str],
+        assigned_team_identifier: Optional[str],
+        assigned_agent_identifier: Optional[str],
+        parent_id: Optional[int]
+    ) -> list[dict]:
+        """List tasks with optional filtering."""
+        # Resolve identifiers to IDs
+        assigned_team_id = None
+        if assigned_team_identifier:
+            assigned_team_id = await self._repository.resolve_team_id(assigned_team_identifier, account_id)
+
+        assigned_agent_id = None
+        if assigned_agent_identifier:
+            assigned_agent_id = await self._repository.resolve_agent_id(assigned_agent_identifier, account_id)
+
+        return await self._repository.list_tasks(
+            account_id, skip, limit, status, type,
+            assigned_team_id, assigned_agent_id, parent_id
+        )
+
+    async def _update_task(
+        self,
+        task_id: int,
+        account_id: int,
+        title: Optional[str],
+        description: Optional[str],
+        status: Optional[str],
+        assigned_agent_identifier: Optional[str],
+        tags: Optional[list[str]],
+        dependency_ids: Optional[list[int]]
+    ) -> dict:
+        """Update an existing task."""
+        update_data = {}
+
+        # Add fields to update
+        if title:
+            update_data["title"] = title
+        if description:
+            update_data["description"] = description
+        if status:
+            update_data["status"] = status
+        if tags:
+            update_data["tags"] = tags
+
+        # Resolve agent identifier if provided
+        if assigned_agent_identifier is not None:
+            if assigned_agent_identifier:
+                agent_id = await self._repository.resolve_agent_id(assigned_agent_identifier, account_id)
+                if agent_id:
+                    update_data["assigned_agent_id"] = agent_id
+                    update_data["assigned_agent_identifier"] = assigned_agent_identifier
+            else:
+                # Allow clearing assignment
+                update_data["assigned_agent_id"] = None
+                update_data["assigned_agent_identifier"] = None
+
+        result = await self._repository.update_task(task_id, account_id, update_data)
+        if not result:
+            raise ValueError(f"Task {task_id} not found")
+
+        # Handle dependencies if provided (this replaces all dependencies)
+        # Note: For production, you might want a separate update_dependencies action
+
+        return result
+
+    async def _delete_task(self, task_id: int, account_id: int) -> dict:
+        """Delete a task."""
+        success = await self._repository.delete_task(task_id, account_id)
+        if not success:
+            raise ValueError(f"Task {task_id} not found or already deleted")
+        return {"message": f"Task {task_id} deleted successfully"}
+
+    async def _add_dependency(self, task_id: int, dependency_id: int, account_id: int) -> dict:
+        """Add a dependency to a task."""
+        success = await self._repository.add_dependency(task_id, dependency_id, account_id)
+        if not success:
+            raise ValueError(f"Failed to add dependency: task {task_id} or dependency {dependency_id} not found")
+        return {"message": f"Dependency {dependency_id} added to task {task_id}"}
+
+    async def _remove_dependency(self, task_id: int, dependency_id: int, account_id: int) -> dict:
+        """Remove a dependency from a task."""
+        success = await self._repository.remove_dependency(task_id, dependency_id, account_id)
+        if not success:
+            raise ValueError(f"Dependency {dependency_id} not found for task {task_id}")
+        return {"message": f"Dependency {dependency_id} removed from task {task_id}"}
+
+    def _format_task_result(self, result: Any, action: str) -> str:
+        """Format task operation results for LLM consumption."""
+        if action == "delete" or action in ["add_dependency", "remove_dependency"]:
+            return f"Operation completed successfully: {result.get('message', 'Success')}"
+
+        if action == "list":
+            if not result:
+                return "No tasks found matching the criteria."
+
+            formatted_tasks = []
+            for task in result:
+                task_info = self._format_single_task(task)
+                formatted_tasks.append(task_info)
+
+            return f"Found {len(result)} tasks:\n\n" + "\n\n".join(formatted_tasks)
+
+        # Single task (create, get, update)
+        if isinstance(result, dict):
+            return self._format_single_task(result)
+
+        return str(result)
+
+    def _format_single_task(self, task: dict) -> str:
+        """Format a single task for display."""
+        formatted = f"Task #{task.get('id')}: {task.get('title', 'Untitled')}\n"
+        formatted += f"Status: {task.get('status', 'unknown')}\n"
+        formatted += f"Type: {task.get('type', 'task')}\n"
+
+        if task.get('description'):
+            formatted += f"Description: {task['description']}\n"
+
+        if task.get('input_message'):
+            formatted += f"Input: {task['input_message']}\n"
+
+        if task.get('tags'):
+            formatted += f"Tags: {', '.join(task['tags'])}\n"
+
+        # Team and agent assignments
+        if task.get('assigned_team_identifier'):
+            formatted += f"Assigned Team: {task['assigned_team_identifier']} (ID: {task.get('assigned_team_id')})\n"
+
+        if task.get('assigned_agent_identifier'):
+            formatted += f"Assigned Agent: {task['assigned_agent_identifier']} (ID: {task.get('assigned_agent_id')})\n"
+
+        # Reporter info
+        if task.get('reporter_team_identifier'):
+            formatted += f"Reporter Team: {task['reporter_team_identifier']}\n"
+
+        if task.get('reporter_agent_identifier'):
+            formatted += f"Reporter Agent: {task['reporter_agent_identifier']}\n"
+
+        # Parent and subtasks
+        if task.get('parent_id'):
+            formatted += f"Parent Task: #{task['parent_id']}\n"
+
+        if task.get('subtasks'):
+            formatted += f"Subtasks: {len(task['subtasks'])} subtask(s)\n"
+            for subtask in task['subtasks']:
+                formatted += f"  - #{subtask['id']}: {subtask.get('title', 'Untitled')} ({subtask.get('status', 'unknown')})\n"
+
+        # Session ID
+        if task.get('session_id'):
+            formatted += f"Session ID: {task['session_id']}\n"
+
+        formatted += f"Created: {task.get('created_at', 'Unknown')}\n"
+        formatted += f"Updated: {task.get('updated_at', 'Unknown')}"
+
+        return formatted
+
+    def get_input_schema(self) -> dict[str, Any]:
+        """Get input schema for Gnosari database tasks tool."""
+        return {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "description": "Action to perform",
+                    "enum": ["create", "get", "list", "update", "delete", "add_dependency", "remove_dependency"]
+                },
+                "task_id": {
+                    "type": "integer",
+                    "description": "Task ID (required for get, update, delete, dependency operations)"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Task title (required for create)"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Task description"
+                },
+                "input_message": {
+                    "type": "string",
+                    "description": "Input message or requirements"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Task type",
+                    "enum": ["bug", "feature", "task", "improvement", "research"],
+                    "default": "task"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Task status",
+                    "enum": ["pending", "in_progress", "review", "completed", "cancelled"],
+                    "default": "pending"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Tags for categorization"
+                },
+                "assigned_team_identifier": {
+                    "type": "string",
+                    "description": "Team identifier assignment (required for create)"
+                },
+                "assigned_agent_identifier": {
+                    "type": "string",
+                    "description": "Agent identifier assignment"
+                },
+                "reporter_team_identifier": {
+                    "type": "string",
+                    "description": "Reporter team identifier"
+                },
+                "reporter_agent_identifier": {
+                    "type": "string",
+                    "description": "Reporter agent identifier"
+                },
+                "parent_id": {
+                    "type": "integer",
+                    "description": "Parent task ID for subtasks"
+                },
+                "dependency_ids": {
+                    "type": "array",
+                    "items": {"type": "integer"},
+                    "description": "List of dependency task IDs"
+                },
+                "dependency_id": {
+                    "type": "integer",
+                    "description": "Single dependency ID for add/remove dependency operations"
+                },
+                "subtasks": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "title": {"type": "string"},
+                            "description": {"type": "string"},
+                            "input_message": {"type": "string"},
+                            "type": {"type": "string", "enum": ["bug", "feature", "task", "improvement", "research"], "default": "task"},
+                            "status": {"type": "string", "enum": ["pending", "in_progress", "review", "completed", "cancelled"], "default": "pending"},
+                            "tags": {"type": "array", "items": {"type": "string"}, "default": []},
+                            "assigned_team_identifier": {"type": "string"},
+                            "assigned_agent_identifier": {"type": "string"}
+                        },
+                        "required": ["title", "assigned_team_identifier"]
+                    },
+                    "description": "List of subtasks to create in a tree structure (only for create action)"
+                },
+                "skip": {
+                    "type": "integer",
+                    "description": "Number of records to skip for list operations",
+                    "default": 0
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Maximum records to return for list operations",
+                    "default": 100
+                }
+            },
+            "required": ["action"]
+        }
+
+    def get_output_schema(self) -> dict[str, Any]:
+        """Get output schema for Gnosari database tasks tool."""
+        return {
+            "type": "string",
+            "description": "Formatted task operation result or error message"
+        }
+
+    # IStreamableTool interface methods
+    def supports_streaming(self) -> bool:
+        """Gnosari database tasks tool supports streaming."""
+        return True
+
+    def set_stream_context(self, context: IToolStreamContext) -> None:
+        """Set streaming context for this tool."""
+        self._stream_context = context
+        # Also set in the mixin
+        super().set_stream_context(context)
+
+    def _get_tool_name(self) -> str:
+        """Get tool name for streaming events."""
+        return self.name or "gnosari_database_tasks"
+
+    async def cleanup(self) -> None:
+        """Clean up database connections."""
+        if self._engine:
+            await self._engine.dispose()
