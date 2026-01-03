@@ -1,0 +1,158 @@
+Metadata-Version: 2.3
+Name: semcore-structuredlogger
+Version: 0.2.2
+Summary: A structured logger based on structlog
+Author: imeakpan
+Author-email: imeakpan <the.ime.akpan@gmail.com>
+License: MIT
+Requires-Dist: structlog>=25.5.0
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# Semcore Structured Logger
+
+[![PyPI version](https://img.shields.io/pypi/v/semcore-structuredlogger.svg)](https://pypi.org/project/semcore-structuredlogger/)
+[![Python](https://img.shields.io/pypi/pyversions/semcore-structuredlogger.svg)](https://pypi.org/project/semcore-structuredlogger/)
+[![License](https://img.shields.io/pypi/l/semcore-structuredlogger.svg)](https://pypi.org/project/semcore-structuredlogger/)
+
+A Python package that provides structured logging capabilities with contextual information binding, built on top of [structlog](https://www.structlog.org/). Perfect for AWS Glue jobs, microservices, and any application requiring structured, searchable logs.
+
+## Features
+
+- **🔧 Structured Logging**: Log events with structured data using JSON format
+- **📎 Context Binding**: Attach application metadata and context to all log messages
+- **⚡ Easy Integration**: Simple API for initializing and using loggers
+- **☁️ Cloud Ready**: Designed to work seamlessly with AWS Glue jobs and cloud environments
+- **📋 Rich Context**: Automatic inclusion of timestamps, log levels, and call site information
+
+## Installation
+
+Install from PyPI:
+
+```bash 
+pip install semcore-structuredlogger
+```
+
+## Quick Start
+
+### Basic Usage
+
+``` python
+from semcore_structuredlogger import StructuredLogger
+
+# Initialize logger with application metadata
+app_info = { 'app_prefix': 'ETL', 'app_description': 'data_processing_pipeline', 'app_type': 'aws_glue_job' }
+logger = StructuredLogger(**name**, app_info)
+
+# Log events with structured data
+logger.log.info('Job started', job_id='123', status='running') 
+logger.log.info('Data processed', records_count=1000, duration_ms=5000) 
+logger.log.error('Processing failed', error_code='E001', table='users')
+```
+
+### Context Binding
+
+Bind context that persists across multiple log calls:
+
+``` python
+# Create a bound logger with persistent context
+bound_logger = logger.log.bind(user_id='user_123', session_id='sess_456')
+bound_logger.info('User logged in', action='login') 
+bound_logger.info('Data fetched', action='data_fetch', records=250) 
+bound_logger.warning('Rate limit approaching', current_requests=95, limit=100)
+```
+### Sample Output
+``` json
+ { 
+    "event": "Data processed", 
+    "level": "info", 
+    "timestamp": "2024-01-15T10:30:45.123456Z", 
+    "func_name": "process_data", 
+    "process_name": "MainProcess",
+    "app_prefix": "ETL", 
+    "app_description": "data_extraction_pipeline", 
+    "app_type": "aws_glue_job", 
+    "records_count": 1000, 
+    "duration_ms": 5000 
+ }
+ ```
+
+## API Reference
+
+### StructuredLogger
+
+The main logger class that provides structured logging capabilities.
+
+#### Constructor
+
+``` python 
+StructuredLogger(name: str, app_info: dict)
+```
+
+**Parameters:**
+- `name` (str): Logger name, typically `__name__` of your module
+- `app_info` (dict): Application metadata that will be included in all log messages
+
+**Common `app_info` fields:**
+- `app_prefix`: Short application identifier
+- `app_description`: Human-readable description
+- `app_type`: Type of application (e.g., 'glue_job', 'api', 'batch')
+- `version`: Application version
+- `environment`: Runtime environment (e.g., 'dev', 'staging', 'prod')
+
+#### Methods
+
+The logger exposes a `log` attribute that provides all standard logging methods:
+
+- `logger.log.debug(message, **kwargs)`: Debug-level logging
+- `logger.log.info(message, **kwargs)`: Info-level logging
+- `logger.log.warning(message, **kwargs)`: Warning-level logging
+- `logger.log.error(message, **kwargs)`: Error-level logging
+- `logger.log.critical(message, **kwargs)`: Critical-level logging
+- `logger.log.bind(**kwargs)`: Create a bound logger with persistent context
+
+## Use Cases
+
+### AWS Glue Jobs
+
+``` python
+from semcore_structuredlogger import StructuredLogger
+
+# Perfect for AWS Glue job logging
+app_info = { 'app_prefix': 'ETL', 'app_description': 'daily_sales_processing', 'app_type': 'glue_job', 'version': '1.2.0' }
+logger = StructuredLogger(**name**, app_info) 
+logger.log.info('Glue job started', job_run_id='jr_123abc')
+```
+
+### Microservices
+
+``` python
+# Great for microservice logging
+app_info = { 'app_prefix': 'USER-SVC', 'app_description': 'User management service', 'app_type': 'microservice', 'version': '2.1.0', 'environment': 'production' }
+logger = StructuredLogger(**name**, app_info)
+```
+
+## Requirements
+
+- Python >= 3.10
+- structlog >= 25.5.0
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Changelog
+
+### 0.2.2
+- Basic structured logging functionality
+- Context binding support
+- AWS Glue job compatibility
+- AWS Lambda compatibility
+
+---
+
+**Built with ❤️ using [structlog](https://www.structlog.org/)**
