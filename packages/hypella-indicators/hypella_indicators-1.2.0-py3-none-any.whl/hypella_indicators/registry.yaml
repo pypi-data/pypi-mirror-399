@@ -1,0 +1,116 @@
+# Hypella Indicator Registry
+indicators:
+  rsi:
+    latest: "1.0.0"
+    label: "RSI"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.rsi.RSI"
+        description: "Relative Strength Index"
+        arguments:
+          period:
+            type: int
+            default: 14
+            label: "Length"
+            description: "Number of periods for RSI calculation"
+  rsi_sma:
+    latest: "1.0.0"
+    label: "RSI SMA"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.rsi_sma.RSISMA"
+        description: "Simple Moving Average of RSI"
+        arguments:
+          rsi_period:
+            type: int
+            default: 14
+            label: "RSI Length"
+            description: "RSI Lookback period"
+          sma_period:
+            type: int
+            default: 14
+            label: "Smoothing Length"
+            description: "Simple Moving Average period"
+  sma:
+    latest: "1.0.0"
+    label: "SMA"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.sma.SMA"
+        description: "Simple Moving Average"
+        arguments:
+          period:
+            type: int
+            default: 9
+            label: "Length"
+            description: "Moving Average period"
+  ema:
+    latest: "1.0.0"
+    label: "EMA"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.ema.EMA"
+        description: "Exponential Moving Average"
+        arguments:
+          period:
+            type: int
+            default: 9
+            label: "Length"
+            description: "Exponential Moving Average period"
+  volume_sma:
+    latest: "1.0.0"
+    label: "Volume SMA"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.volume_sma.VolumeSMA"
+        description: "Simple Moving Average of Volume"
+        arguments:
+          period:
+            type: int
+            default: 20
+            label: "MA Length"
+            description: "Volume SMA period"
+  bb:
+    latest: "1.0.0"
+    label: "Bollinger Bands"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.bb.BollingerBands"
+        description: "Bollinger Bands"
+        arguments:
+          period:
+            type: int
+            default: 20
+            label: "Length"
+            description: "Bollinger Bands period"
+          std_dev:
+            type: float
+            default: 2.0
+            label: "Multiplier"
+            description: "Standard Deviation Multiplier"
+  atr:
+    latest: "1.0.0"
+    label: "ATR"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.atr.ATR"
+        description: "Average True Range"
+        arguments:
+          period:
+            type: int
+            default: 14
+            label: "Length"
+            description: "Number of periods for ATR calculation"
+  adx:
+    latest: "1.0.0"
+    label: "ADX"
+    versions:
+      "1.0.0":
+        class: "hypella_indicators.indicators.adx.ADX"
+        description: "Average Directional Index"
+        arguments:
+          period:
+            type: int
+            default: 14
+            label: "Length"
+            description: "Number of periods for ADX calculation"
