@@ -1,0 +1,1 @@
+import{Q as r}from"./B5F5EDKu.js";function u(){return{showSuccess:(n,o)=>{r.success(n,{duration:o?.duration,action:o?.action})},showError:(n,o)=>{r.error(n,{duration:o?.duration,action:o?.action})},showInfo:(n,o)=>{r.info(n,{duration:o?.duration,action:o?.action})},showWarning:(n,o)=>{r.warning(n,{duration:o?.duration,action:o?.action})}}}export{u};
