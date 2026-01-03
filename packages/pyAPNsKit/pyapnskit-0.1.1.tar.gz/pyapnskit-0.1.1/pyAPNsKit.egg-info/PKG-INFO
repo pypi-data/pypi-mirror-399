@@ -1,0 +1,92 @@
+Metadata-Version: 2.4
+Name: pyAPNsKit
+Version: 0.1.1
+Summary: Send requests to Apple Push Notification service (APNs) to push notifications to users.
+Author: Zonglin Phineas Guo
+License: Apache
+Project-URL: Source, https://github.com/guoPhineas/pyAPNsKit/
+Project-URL: Tracker, https://github.com/guoPhineas/pyAPNsKit/issues/
+Classifier: Topic :: Software Development
+Classifier: Environment :: Web Environment
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: Apache Software License
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: anyio==4.12.0
+Requires-Dist: certifi==2025.11.12
+Requires-Dist: cffi==2.0.0
+Requires-Dist: cryptography==46.0.3
+Requires-Dist: h11==0.16.0
+Requires-Dist: h2==4.3.0
+Requires-Dist: hpack==4.1.0
+Requires-Dist: httpcore==1.0.9
+Requires-Dist: httpx==0.28.1
+Requires-Dist: hyperframe==6.1.0
+Requires-Dist: idna==3.11
+Requires-Dist: pycparser==2.23
+Requires-Dist: PyJWT==2.10.1
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: license
+Dynamic: license-file
+Dynamic: project-url
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# pyAPNsKit
+
+> Send requests to Apple Push Notification service (APNs) to push notifications to users via HTTP/2, token-based
+
+
+
+```Shell
+pip install pyAPNsKit
+```
+
+
+
+## Get Started
+
+Quickly push information to devices
+
+```Python
+from pyAPNsKit import apns
+
+p8key=""
+with open('AuthKey_KeyID.p8','r') as p8file:
+    p8key=p8file.read()
+client=apns.Client("teamID","App_BundleID","KeyID",p8key)
+isSuccess=server.sendAlert('deviceID','title','subtitle','message',sound=True)
+```
+
+> [!NOTE]
+>
+> For parameters, their acquisition methods, and instructions, please refer to the [Apple Developer Document](https://developer.apple.com/documentation/usernotifications/setting-up-a-remote-notification-server)
+
+
+
+## Customized
+
+```Python
+from pyAPNsKit import apns,APNsHeader,APNsBody,types
+
+p8key=""
+with open('AuthKey_KeyID.p8','r') as p8file:
+    p8key=p8file.read()
+
+apnsHeader=APNsHeader.APNsHeader("teamID","topic","KeyID",p8key,types.PushType.alert)
+isSuccess=apns.pushByDeviceToken('deviceID',
+               apnsHeader
+                .withAPNsCollapse('Collapse')
+               ,
+               APNsBody.APNsBody()
+                .withAlert("title","sub","message")
+                .withSound()
+             # ,isSandbox=True
+)
+```
+
