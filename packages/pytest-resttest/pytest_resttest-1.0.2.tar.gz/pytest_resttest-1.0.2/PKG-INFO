@@ -1,0 +1,768 @@
+Metadata-Version: 2.4
+Name: pytest-resttest
+Version: 1.0.2
+Summary: A REST API testing framework for Python, as plugin for pytest. Uses simple and readable YAML files for specifying test cases.
+License-Expression: MIT
+License-File: LICENSE
+Author: Michal Kuchta
+Author-email: niximor@gmail.com
+Requires-Python: >=3.13,<4.0.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Testing
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Dist: asgi-lifespan (>=2.1.0,<3.0.0)
+Requires-Dist: assertpy (>=1.1,<2.0)
+Requires-Dist: gcm-asyncdb (>=2.3.0,<3.0.0)
+Requires-Dist: httpx (>=0.28.1,<0.29.0)
+Requires-Dist: isodate (>=0.7.2,<0.8.0)
+Requires-Dist: jinja2 (>=3.1.6,<4.0.0)
+Requires-Dist: orjson (>=3.11.5,<4.0.0)
+Requires-Dist: pydantic (>=2.11.7,<3.0.0)
+Requires-Dist: ruamel-yaml (>=0.18.14,<0.19.0)
+Requires-Dist: termcolor (>=3.1.0,<4.0.0)
+Project-URL: Homepage, https://gitlab.com/gcm-cz/pytest-resttest
+Project-URL: Issues, https://gitlab.com/gcm-cz/pytest-resttest/-/issues
+Project-URL: Repository, https://gitlab.com/gcm-cz/pytest-resttest
+Description-Content-Type: text/markdown
+
+# pytest-resttest
+
+A REST API testing framework for Python, as plugin for pytest. Intended to be used for creating
+integration tests for RESTful APIs.
+
+## Main concepts
+
+- Each test suite is defined in a separate YAML file.
+- Test suite consists of multiple test cases executed in defined order.
+- Test suite can be executed separately of other suites, it should not be dependent on other suite results.
+- Individual tests in the suite cannot be executed separately.
+
+## Usage
+
+1. Install the package using your preferred package manager, e.g. `pip install pytest-resttest`.
+
+2. Create a test suite in YAML format.
+   ```yaml
+   name: My test suite
+   defaults:
+     target: http://localhost:8000/api
+   tests:
+     - name: Test case 1
+       method: GET
+       endpoint: /
+       status: 200
+       response: "Hello world!"
+   ```
+   Save it as `test_hello.yaml`.
+  
+3. Execute the tests by calling `pytest`. The tests are discovered automatically, the same way as pytest discovers Python tests. 
+
+## Test suite file reference
+
+Basic structure:
+
+```yaml
+name: Test suite name
+defaults: Optional default values common for all tests
+fixtures: Optional fixtures applied to the test suite
+include: Optional list of other test suites to include in this suite
+tests: List of test cases.
+```
+
+### `defaults`
+
+Optional section to define default values for the test cases in the suite. It can include:
+- `target`: The target application against which the tests are executed. This can of course be overriden for each individual
+  test case.
+- `headers`: Default headers to be sent with each request.
+- `params`: Default query parameters to be sent with each request.
+
+### `defaults:target`
+
+Base URL for the API
+
+Can be either a full URL to the server:
+```yaml
+defaults:
+  target: http://localhost:8080/api
+```
+  
+Or an import specification for the ASGI application:
+```yaml
+defaults:
+  target:
+    app: my_project.server:app
+```
+
+### `defaults:headers`
+
+Default request headers to be sent with each request. These headers are always sent, each test can then include additional
+headers.
+
+Can be specified as mapping:
+```yaml
+defaults:
+  headers:
+    X-My-Header: header value
+```
+
+or as a list of tuples, which allows to specify multiple headers with the same name:
+```yaml
+defaults:
+  headers:
+    - ["X-My-Header", "header value"]
+    - ["X-My-Header", "another header value"]
+```
+
+### `defaults:cookies`
+
+Default cookies to be sent with each request. These cookies are always sent, each test can then include additional cookies.
+Can be specified as mapping:
+```yaml
+defaults:
+  cookies:
+    my_cookie: cookie value
+```
+
+or as a list of tuples, which allows to specify multiple cookies with the same name:
+```yaml
+defaults:
+  cookies:
+    - ["my_cookie", "cookie value"]
+    - ["my_cookie", "another cookie value"]
+```
+
+### `fixtures`
+
+Optional section to define fixtures that are applied to the test suite. Fixtures can be used to set up or tear down the
+environment for the test suite.
+
+### `fixtures::CleanDB`
+
+Predefined fixture that can be used to cleanup the database before or after the test suite execution.
+
+#### Parameters
+
+- `target` (required)
+
+  The database target, the same as for `test::DatabaseQuery`.
+
+- `queries` (required)
+
+  List of SQL queries to be executed to clean the database. All the queries are executed in a single transaction.
+
+- `mode` (optional, default: 'before')
+
+  Defines when the fixture is executed:
+  - `before`: The fixture is executed before the test suite.
+  - `after`: The fixture is executed after the test suite.
+  - `both`: The fixture is executed both before and after the test suite.
+
+### `fixtures::Evaluate`
+
+Predefined fixture that can be used to evaluate Jinja2 expressions before the test suite execution. Intended use-case
+is to pre-fill some values in the test suite's `storedResult`, that can then be used in the tests.
+
+### Parameters
+
+- `template` (required)
+
+    The Jinja2 template to be evaluated.
+
+#### Custom fixtures
+
+You can programatically define your own fixtures in Python code and register them with the `pytest-resttest` framework.
+
+```python
+from pytest_resttest import Suite, FixtureType
+
+async def my_fixture():
+    # Setup code here
+    yield
+    # Teardown code here
+
+# Register the fixture with the pytest-resttest
+Suite.register_fixture("my_setup", FixtureType.SUITE, my_fixture)
+```
+
+The usage is then straightforward:
+```yaml
+fixtures:
+  - my_setup
+```
+
+The fixture can also accept parameters, which needs to be specified as Pydantic model in the Python code:
+
+```python
+from pytest_resttest import Suite, FixtureType
+from pydantic import BaseModel
+
+class MyFixtureParams(BaseModel):
+    param1: str
+    param2: int
+
+async def my_fixture(params: MyFixtureParams):
+    # Setup code here
+    yield
+    # Teardown code here
+
+Suite.register_fixture("my_setup", FixtureType.SUITE, my_fixture, MyFixtureParams)
+```
+
+And the usage in the YAML file is as follows:
+```yaml
+fixtures:
+  - name: my_setup
+    params:
+      param1: value1
+      param2: 42
+```
+
+### `include`
+
+The test suite can include other YAML test suites, which are then merged with the specification of the suite. This allows to have
+unified setup for a group of test suites, or to reuse common test cases across multiple suites.
+
+```yaml
+# test_my_suite.yaml
+name: My test suite
+
+include:
+  - setup.yaml
+  - cleanup.yaml
+
+tests:
+  - name: Test case 1
+    method: GET
+    endpoint: /endpoint1
+    status: 200
+    response: "Response for endpoint 1"
+```
+
+```yaml
+# setup.yaml
+name: Default options
+defaults:
+  target: http://localhost:8000/api
+```
+
+```yaml
+# cleanup.yaml
+name: Cleanup the environment
+
+fixtures:
+  - name: CleanDB
+    params:
+      target:
+        host: localhost
+        port: 3306
+        database: "my_test_db"
+      queries:
+        - "DELETE FROM `users` WHERE `id` <> 1"
+        - "TRUNCATE TABLE `products`"
+        
+tests:
+  - name: Initialize the application
+    method: POST
+    endpoint: /initialize
+    status: 200
+    response: "Application initialized"
+```
+
+The resulting test suite (`test_my_suite.yaml`) will look like this:
+
+```yaml
+name: My test suite
+defaults:
+  target: http://localhost:8000/api
+fixtures:
+  - name: CleanDB
+    params:
+      target:
+        host: localhost
+        port: 3306
+        database: "my_test_db"
+      queries:
+        - "DELETE FROM `users` WHERE `id` <> 1"
+        - "TRUNCATE TABLE `products`"
+tests:
+  - name: Initialize the application
+    method: POST
+    endpoint: /initialize
+    status: 200
+    response: "Application initialized"
+  - name: Test case 1
+    method: GET
+    endpoint: /endpoint1
+    status: 200
+    response: "Response for endpoint 1"
+```
+
+### `include:file`
+
+A file name to include. The path is relative to the file where the include is defined. Symlinks are resolved.
+
+### `tests`
+
+A collection of test cases to be executed in the suite. Each test has some common properties:
+
+### `tests[]:name` (required)
+
+Name of the test case. This is used for reporting and debugging purposes. The test name should be short, as it is used as an
+identifier.
+
+### `tests[]:desc` or `tests[]:description` (optional)
+
+Optional description of the test case. Can describe in more detail what the test case does, what side effects
+it has and what outcome should be expected.
+
+### `tests[]:skip` (optional, default: `false`)
+
+Set to `true` to skip the test case. This can be used to temporarily disable a test case without removing it from the suite.
+
+
+### `tests::http`
+
+The test case is executed as an HTTP request. The following properties are available.
+
+```yaml
+tests:
+- name: Test case 1```
+  method: GET
+  endpoint: /api/resource
+  status: 200
+  response: "Expected response"
+```
+
+#### `tests::http:target`
+
+The target application or server where the test case should be executed. This can be either a HTTP(s) URL or an import
+specification for the ASGI application.
+
+```yaml
+target: http://localhost:8000/api
+```
+
+```yaml
+target:
+  app: my_project.server:app
+```
+
+When not specified, suite's `defaults:target` is used.
+
+#### `tests::http:endpoint` (required)
+
+The endpoint URL where to send the request.
+
+#### `tests::http:method` (required)
+
+HTTP method to use for the request.
+
+#### `tests::http:headers` (optional)
+Additional headers to be sent with the request. These headers are merged with the default headers defined in the suite.
+
+Can be specified as mapping:
+```yaml
+headers:
+  X-My-Header: header value
+  X-Other-Header:
+    - header value 1
+    - header value 2 
+```
+
+When headers are also specified in default suite configuration as mapping, 
+
+or as a list of tuples:
+```yaml
+headers:
+  - ["X-My-Header", "header value"]
+  - ["X-Other-Header", "header value 1"]
+  - ["X-Other-Header", "header value 2"]
+```
+
+#### `tests::http:cookies` (optional)
+Additional cookies to be sent with the request. These cookies are merged with the default cookies defined in the suite.
+
+Can be specified as mapping:
+```yaml
+cookies:
+  my_cookie: cookie value
+```
+
+or as a list of tuples:
+```yaml
+cookies:
+  - ["my_cookie", "cookie value"]
+```
+
+#### `tests::http:query` (optional)
+
+Additional query parameters to be sent with the request.
+
+Can be specified as mapping:
+```yaml
+query:
+  param1: value1
+  param2: value2
+  param3:
+    - value3
+    - value4
+```
+
+or as a list of tuples:
+```yaml
+query:
+  - ["param1", "value1"]
+  - ["param2", "value2"]
+  - ["param3", "value3"]
+  - ["param3", "value4"]
+```
+
+#### `tests::http:body` (optional)
+
+A raw data to send as the request body.
+
+#### `tests::http:json` (optional)
+
+Specifies data of the request body, that will be serialized to JSON.
+
+#### `tests::http:form` (optional)
+
+Specifies data of the request body, that will be serialized as `application/x-www-form-urlencoded`.
+Expects mapping of form fields to form values.
+
+The mapping can contain multiple values for the same field as a list of values.
+
+#### `tests::http:status` (optional)
+
+Expected HTTP status code of the response. If specifed, actual returned status code is compared with this value. If the values
+does not match, the test will fail.
+
+#### `tests::http:response` (optional)
+
+Expected response body of the request. If specified, actual response body is compared with this value. If the values do not match,
+the test will fail.
+
+#### `tests::http:response_headers` (optional)
+
+Expected response headers of the request. If specified, actual response headers are compared with this value.
+If the value of any specified header does not match, the test will fail.
+
+Accepts the same format as `tests::http:headers` request parameter, i.e. either a mapping or a list of tuples.
+
+#### `tests::http:response_cookies` (optional)
+
+Expected response cookies of the request. If specified, actual response cookies are compared with this value.
+If the value of any specified cookie does not match, the test will fail.
+
+Accepts the same format as `tests::http:cookies` request parameter, i.e. either a mapping or a list of tuples.
+
+#### `tests::http:partial` (optional, default: true)
+
+If set to `true`, the test will assume that only partial response structure is provided in the test case. Any extra fields
+(recursively) in the actual response are ignored.
+
+Set to `false` to require that the actual response matches the expected response exactly. Any additional fields
+are then reported as a test failure.
+
+### `tests::dbQuery`
+
+Execute a database query and check the result.
+
+#### `tests::dbQuery:target` (required)
+
+The target database. Can be either import specification or the database connection configuration.
+
+```yaml
+target:
+  import: my_project.connectors:db
+```
+
+```yaml
+target:
+  host: localhost              # optional, defaults to 'localhost'
+  port: 3306                   # optional, defaults to 3306
+  user: root                   # optional, defaults to 'root'
+  password: secret-password    # optional, defaults to ''
+  database: my_test_db         # optional, defaults to ''
+  charset: utf8mb4             # optional, defaults to 'utf8mb4'
+```
+
+#### `tests::dbQuery:queries` (required)
+
+A list of SQL queries to be executed. Each query can be a string or a dictionary with the following properties:
+
+- `query` (required)
+
+  The SQL query to be executed. This is a required property. Can contain `%s` placeholders for parameters specified in the
+  `args` property.
+
+- `args` (optional)
+
+  Optional arguments to be passed to the query. This is expected to be a list of params, which will be substitued into the query
+  in place of `%s` placeholders. The values are automatically escaped to prevent SQL injection.
+
+#### `tests::dbQuery:responses` (optional)
+
+If specified, describes the expected responses for each query in the `queries` list. The responses are compared against the actual
+results of the queries. If the actual results do not match the expected responses, the test will fail.
+
+```yaml
+target:
+  import: my_project.connectors:db
+queries:
+  - query: "SELECT `id`, `username` FROM `users` WHERE `id` = %s"
+    args: [1]
+  - query: "SELECT `id`, `name`, `price` FROM `products` WHERE `price` > %s"
+    args: [100]
+responses:
+  - - id: 1
+      username: "testuser"
+  - - id: 5142
+      name: "Expensive Product"
+      price: 150.0
+    - id: 8613
+      name: "Another Expensive Product"
+      price: 200.0
+```
+
+### `tests::sleep`
+
+Waits for a specified amount of seconds. Always succeeds.
+
+#### `tests::sleep:sleep` (required)
+
+The amount of seconds to wait. Can be a floating point number to specify sub-second precision.
+
+
+### `tests::evaluate`
+
+Evaluates a Jinja2 template and compare it with desired result (which also can be template).
+
+#### `tests::evaluate:template` (required)
+
+The Jinja2 template to be evaluated.
+
+#### `tests::evaluate:result` (required)
+
+The desired result of the template evaluation. If the actual result does not match this value, the test will fail.
+
+```yaml
+template: |-
+    {% set total = 0 %}
+    {% for i in range(1, 6) %}
+        {% set total = total + i %}
+    {% endfor %}
+    {{ total }}
+result: 15
+```
+
+### Custom test types
+
+You can programatically define your own test type in a Python code and register them within the `pytest-resttest` framework.
+
+```python
+from pytest_resttest import Suite, BaseTest
+from contextlib import AsyncExitStack
+from typing import Any
+
+class MyCustomTest(BaseTest):
+    # The test type is actually a Pydantic model, so it can define properties that will be parsed from the YAML test suite.
+    # These arguments are validated for correct structure and types and are then available when executing the test.
+    argument: str
+    
+    async def __call__(self, suite: Suite, exit_stack: AsyncExitStack, context: dict[str, Any]) -> None:
+        # Execute the test. Any exception raised is considered a test failure, no exception raised is considered a success.
+        assert self.argument == "test"
+
+
+# Register the custom test type with the `pytest-resttest` framework. Since now, the test type will be available in the suites.
+Suite.register_test_type(MyCustomTest)
+```
+
+**Note:** Test type matching is done by trying to validate the test case against all the test type models, in the order they
+were defined.
+
+## Jinja2 in the test suites
+
+Nearly all test arguments can be templated using [Jinja2](https://pypi.org/project/Jinja2/) syntax. This allows to dynamically
+generate values based on the test context, which can be useful for parameterizing tests or generating dynamic data.
+
+The template can render lists, objects, strings, numbers etc. It utilizes Jinja2's
+[Native Python Types](https://jinja.palletsprojects.com/en/stable/nativetypes/) support, with slight modifications to work 
+seamlessly without needing to convert the values from strings.
+
+For example template
+```{{ ["Hello", "world", 42, 3.14, True, None, {"key": "value"} ] }}``` will simply render as
+```["Hello", "world", 42, 3.14, True, None, {"key": "value"} ]```, which is then compared against the actual response value.
+
+
+On top of standard Jinja2 [filters](https://jinja.palletsprojects.com/en/stable/templates/#list-of-builtin-filters),
+[tests](https://jinja.palletsprojects.com/en/stable/templates/#list-of-builtin-tests) and
+[global functions](https://jinja.palletsprojects.com/en/stable/templates/#list-of-global-functions), the following
+extensions are available:
+
+### Filters
+
+- `datetime`
+
+  Converts a string to a Python's datetime object. The string is expected to be in ISO 8601 format (e.g. `2023-10-01T12:00:00Z`).
+
+- `date`
+
+  Converts a string to a Python's date object. The string is expected to be in ISO 8601 format (e.g. `2023-10-01`).
+
+- `time`
+ 
+  Converts a string to a Python's time object. The string is expected to be in ISO 8601 format (e.g. `12:00:00`).
+
+- `timedelta`
+
+  Converts a string to a Python's timedelta object. The string is expected to be in ISO 8601 format (e.g. `P1DT2H3M4S`).
+
+- `isoformat`
+
+  Converts a Python's datetime, date or time object to a string in ISO 8601 format.
+
+- `regex_match`
+
+  Returns `true` if the string matches the regular expression, `false` otherwise.
+
+- `regex_search`
+
+  Returns `true` if the regex pattern is found anywhere in the string, `false` otherwise.
+
+- `store`
+
+  Returns the value as is, but also stores it in the test suite's `storedResult` under the specified key. The stored value can
+  then be used in other tests in the same suite. The key is specified as an argument to the filter, e.g.
+  `{{ "value" | store("my_key") }}`. That value will then be available in the test suite's `storedResult` as
+  `{{ storedResult.my_key }}`.
+
+- `unsorted`
+
+  Converts a list to unsorted list, meaning that when matching it against other list, the order of items
+  does not matter. This is useful for comparing lists where the order of items is not important or is not deterministic.
+
+- `partial_list`
+
+  Converts a list to a partial list, meaning that when matching it against other list, the order of items does not matter
+  and the actual list can contain additional items not present in the expected list. This is useful for matching only certain
+  items in a list, while ignoring the rest.
+
+- `url`
+
+  Converts a string to an URL by utilizing the `urllib.parse.urlsplit` function.
+
+- `qs`
+
+  Parses a query string into a dictionary. The query string is expected to be in the format of `key1=value&key2=value`.
+  The result after applying this filter is a dictionary, where each key is a query parameter and the value is the corresponding
+  value: `{'key1': 'value1', 'key2': 'value2'}`.
+
+  If the filter input is dictionary, it will serialize the dictionary into a query string.
+
+- `qsl`
+
+  Parses a query string into a list of tuples. The query string is expected to be in the format of `key1=value&key2=value`. The
+  result after applying this filter is a list of tuples, where each tuple contains the key and value of the query parameter:
+  `[('key1', 'value1'), ('key2', 'value2')]`.
+
+  If the filter input is a list of tuples, it will serialize the list into a query string.
+
+### Globals
+
+- `datetime` - Python's `datetime` class.
+- `date` - Python's `date` class.
+- `time` - Python's `time` class.
+- `timedelta` - Python's `timedelta` class.
+- `timezone` - Python's `timezone` class.
+- `ZoneInfo` - Python's `ZoneInfo` class.
+- `now()` - Returns the current datetime (as Python's datetime) in UTC timezone.
+- `store(value: str, key: str)` - Same as `store` filter, but as a global function. It can be used to store values in the test
+  suite's `storedResult` dictionary.
+
+  Usage: `{{ store("value", "my_key") }}`. The stored value is returned.
+- `string` - Python's `string` module.
+- `random(alphabet: str[], length: int=1)` - Returns string consisting of randomly selected items from specified sequence.
+  Usage: `{{ random(['a', 'b', 'c'], 5) }}`. This will return a random sequence consisting of 5 characters, each
+  randomly selected from the list `['a', 'b', 'c']`. The result is a string of length 5, e.g. `abacb`.
+- `assert_that` - `assert_that` function from the `assertpy` library.
+
+### Tests
+
+- `datetime` - Returns `true` if the value is a Python's datetime object, `false` otherwise.
+- `date` - Returns `true` if the value is a Python's date object, `false` otherwise.
+- `time` - Returns `true` if the value is a Python's time object, `false` otherwise.
+- `timedelta` - Returns `true` if the value is a Python's timedelta object, `false` otherwise.
+- `in_last` - Returns `true` if the value is a Python's datetime object and it is within the last specified amount of time.
+  Usage: `{{ value | in_last(seconds=60) }}`. This will return `true` if the value is a datetime object and it is within the last
+  60 seconds.
+- `tzaware` - Returns `true` if the value is a Python's datetime object and it is timezone aware, `false` otherwise.
+- `array` - Returns `true` if the value is a list, tuple or other iterable. `false` otherwise.
+
+  **Note**: This is very similar to the built-in Jinja2 `iterable` test, but it does not consider strings or bytes as iterable.
+- `regex_match` - Returns `true` if the value matches the regular expression, `false` otherwise.
+  Usage: `{{ value is regex_match("pattern") }}`. The pattern is a string containing the regular expression to match against.
+
+  This is similar to the `regex_match` filter.
+- `regex_search` - Returns `true` if the value contains the regular expression, `false` otherwise.
+  Usage: `{{ value is regex_search("pattern") }}`. The pattern is a string containing the regular expression to search for.
+
+  This is similar to the `regex_search` filter.
+
+### Jinja2 in responses
+
+You can use Jinja2 templating in the expected response body of the test case, status code, response headers, response cookies and
+generally any response-related field.
+
+Based on test type and the specific field, the following variables are available in the template:
+  - `cookies` - the response cookies of the HTTP test execution. Available only in the `response_cookies` field.
+  - `fixtures` - contains mapping of fixture name to the results of executing fixtures.
+  - `headers` - the response headers of the HTTP test execution. Available only in the `response_headers` field.
+  - `request` - the request arguments of the HTTP request performed by the test. Available only in the response fields.
+  - `response` - the whole response object of the HTTP test execution.
+  - `storedResult` - a dictionary containing the values previously stored using `store` function or filter. Shared across all the
+    tests in single suite, not shared across different suites.
+  - `suite` - current test suite being executed
+  - `test` - current test case being executed
+  - `value` - actual value of currently examined field. Only for fields that are being evaluated against response of the test
+    execution.
+  - `values` - the response body of the HTTP test execution. Available only in the `response` field.
+
+The semantics of test evaluation is as follows:
+  
+- If the template evaluates as a bool, `True` means the test passes, `False` means the test fails.
+- If the template evaluates to anything else than bool, that evaluated value is then compared against the actual value of the 
+  examined field.
+
+### Jinja2 example:
+
+```yaml
+name: Test suite demonstrating Jinja2 templating
+defaults:
+  target: http://localhost:8000/
+tests:
+  - name: Create an user
+    method: POST
+    endpoint: /users
+    json:
+      username: "{{ random(string.letters + string.digits, 5) | store('userName') }}"
+    status: 201
+    response:
+      id: "{{ value is integer | store('userId') }}"
+      username: "{{ storedResult.userName }}"
+      created: "{{ value | datetime | store('userCreated') is in_last(seconds=5) }}"
+  - name: Get the user
+    method: GET
+    endpoint: "/users/{{ storedResult.userId }}"
+    status: 200
+    response:
+      id: "{{ storedResult.userId }}"
+      username: "{{ storedResult.userName }}"
+      created: "{{ value | datetime == storedResult.userCreated }}"
+```
+

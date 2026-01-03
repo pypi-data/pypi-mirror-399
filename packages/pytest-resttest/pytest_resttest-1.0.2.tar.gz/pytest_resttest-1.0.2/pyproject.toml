@@ -1,0 +1,126 @@
+[project]
+name = "pytest-resttest"
+version = "v1.0.2"
+description = "A REST API testing framework for Python, as plugin for pytest. Uses simple and readable YAML files for specifying test cases."
+authors = [
+    { name = "Michal Kuchta", email = "niximor@gmail.com" }
+]
+license = "MIT"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Testing",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+readme = "README.md"
+requires-python = ">=3.13,<4.0.0"
+dependencies = [
+    "pydantic (>=2.11.7,<3.0.0)",
+    "gcm-asyncdb (>=2.3.0,<3.0.0)",
+    "jinja2 (>=3.1.6,<4.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "termcolor (>=3.1.0,<4.0.0)",
+    "ruamel-yaml (>=0.18.14,<0.19.0)",
+    "assertpy (>=1.1,<2.0)",
+    "isodate (>=0.7.2,<0.8.0)",
+    "asgi-lifespan (>=2.1.0,<3.0.0)",
+    "orjson (>=3.11.5,<4.0.0)",
+]
+
+[tool.poetry.urls]
+Homepage = "https://gitlab.com/gcm-cz/pytest-resttest"
+Repository = "https://gitlab.com/gcm-cz/pytest-resttest"
+Issues = "https://gitlab.com/gcm-cz/pytest-resttest/-/issues"
+
+[project.entry-points.pytest11]
+myproject = "pytest_resttest.pytest_hooks"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+types-jinja2 = "^2.11.9"
+types-assertpy = "^1"
+pytest = "^9"
+mypy = "^1"
+ruff = "^0"
+pylint = "^4"
+fastapi = "^0"
+pytest-asyncio = "^1"
+pytest-cov = "^7"
+pylint-pydantic = "^0.4.1"
+
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 130
+max-args = 8
+max-positional-arguments = 8
+disable = [
+    "missing-module-docstring",
+    "too-few-public-methods",
+    "duplicate-code",
+    "invalid-name",
+]
+enable = [
+    "useless-suppression"
+]
+load-plugins = [
+    "pylint.extensions.no_self_use",
+    "pylint_pydantic",
+]
+extension-pkg-allow-list = [
+    "orjson"
+]
+
+[tool.mypy]
+# more informative output
+pretty = true
+show_error_codes = true
+show_error_context = true
+
+# stricter rules
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_any_generics = true
+check_untyped_defs = true
+
+# relaxing rules
+strict_optional = false
+follow_imports = "silent"
+disable_error_code = [
+    "import-untyped",
+]
+
+
+[tool.ruff]
+line-length = 130
+
+[tool.ruff.lint]
+# see https://docs.astral.sh/ruff/rules/ for more information about what checks each option adds
+select = [
+    "UP",
+    "F", # pyflakes
+    "E", # pycodestyle (former pep8) error
+    "W", # pycodestyle (former pep8) warning
+    "I", # isort
+    "N", # pep8-naming
+    "RUF", # RUFF's own rules
+    "B", # flake8-bugbear
+    "S", # flake8-bandit
+    "A", # flake8-builtins
+    "ASYNC", # flake8-async
+    "DTZ", # flake8-datetimez
+    "YTT", # flake8-annotations
+    "C4", # flake8-comprehension
+    "G", # flake8-logging-format
+]
+ignore = [
+    "N818", # https://docs.astral.sh/ruff/rules/error-suffix-on-exception-name/
+    "S608", # https://docs.astral.sh/ruff/rules/hardcoded-sql-expression/
+]
