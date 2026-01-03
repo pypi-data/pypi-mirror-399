@@ -1,0 +1,378 @@
+Metadata-Version: 2.4
+Name: insta-collect
+Version: 0.1.1
+Summary:  Modular Instagram Data Collector
+Author-email: Alam Mahadika <alam.mahadika.psm@umy.ac.id>
+License: MIT
+Project-URL: Homepage, https://github.com/Alammahadika/insta-collect
+Keywords: instagram,scraper,hashtag,comments,Posting
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: beautifulsoup4>=4.12.2
+Requires-Dist: lxml>=4.9.3
+Requires-Dist: pandas>=2.1.0
+Requires-Dist: openpyxl>=3.1.2
+Requires-Dist: requests>=2.31.0
+Requires-Dist: tqdm>=4.65.0
+
+# instacollect: Modular Instagram Data Collector
+
+## Project Status: In Development
+
+This project is currently under active development. The core functionality for hashtag photo scraping is stable, but features for collecting comments, user data, and managing large-scale video/Reel scraping are planned for future releases.
+
+***
+
+## Project Overview
+
+Insta-Collect is a simple, modular Python project utilizing **Playwright** for web automation and data extraction from Instagram. The goal is to provide a versatile tool for collecting structured data for analysis and research purposes.
+
+The current focus is on building a robust method for retrieving photo-based posts via hashtags.
+
+***
+
+## Current Key Features (v1.0)
+
+* **Hashtag Scraping:** Core functionality for targeted data collection based on hashtags.
+* **Accurate Data Capture:** Collects **Caption**, **Username**, **Timestamp**, and **Post URL**.
+* **Content Filtering:** Automatically excludes Video and Reels content to maintain data consistency in photo-focused outputs.
+* **Session Management:** Supports using a `cookies.json` file to bypass the Instagram Login Wall and mitigate rate limits.
+* **Output:** Saves results to structured **JSON** files.
+
+***
+
+## Future Plans (Roadmap)
+
+We plan to expand the capabilities of Insta-Collect to include:
+
+* **Comment Scraping:** Retrieving all comments associated with a scraped post.
+* **User Profile Data:** Collecting biographical information and post metadata from specific user profiles.
+* **Video/Reel Support:** Implementing a separate, more complex logic to handle video-based content.
+* **CSV & XLXS Output:** Adding an option to save data in CSV and XLSX format.
+
+***
+## Naming Conventions: _ vs - in Python Projects
+| Context | Use | Example |
+|------|------|------|
+| Package name (PyPI / GitHub) | `-` (hyphen) | insta-collect |
+| Python package directory | `_` (underscore) | insta_collect |
+| Python import statement | `_` (underscore) | import insta_collect |
+| CLI execution via module | `_` (underscore) | python -m insta_collect.cli |
+| Script / file name | flexible | insta-collect.py |
+
+## Setup and Installation
+
+Install **insta-collect** using `pip`:
+```bash
+pip install insta-collect
+```
+### or
+```bash
+pip install git+https://github.com/Alammahadika/insta-collect.git
+```
+
+### Playwright Setup (Required)
+
+`insta-collect` relies on **Playwright** for browser automation.  
+After installation, install the required browser binaries once:
+
+```bash
+playwright install
+```
+
+### Prepare Cookies (Highly Recommended)
+
+To avoid being blocked or receiving `null` data when scraping many posts, it is strongly recommended to use a logged-in Instagram session.
+
+Steps:
+
+- Export your Instagram session cookies from your browser
+- Save the file as `cookies.json`
+- Place it in your working directory
+
+**Important:**  
+Add `cookies.json` to `.gitignore` to prevent leaking credentials.
+
+---
+
+## How to Run the Scraper
+
+Once installed, the scraper is available as a **CLI command**.
+
+### Available Arguments
+
+| Argument | Description | Required | Example |
+|--------|------------|----------|---------|
+| `--tag` | Hashtag to scrape (without `#`) | Yes | `donaldtrump` |
+| `--limit` | Number of PHOTO posts to scrape | No (default: 7) | `7` |
+| `--cookie` | Path to `cookies.json` | No (recommended) | `cookies.json` |
+
+### Example Usage
+```bash
+cd /Users/mymac/Desktop/insta-collect
+```
+```bash
+insta-collect --tag donaldtrump --limit 7
+```
+
+
+```json
+[
+  {
+    "url": "https://www.instagram.com/p/DS3UWMfCRA5/",
+    "caption": "El presidente de Estados Unidos, Donald Trump, y el primer ministro de Israel, Benjamín Netanyahu, iniciaron este lunes en Florida una reunión marcada por elogios y por la apuesta por el desarme de Hamás como vía para desbloquear la segunda fase del plan de paz y alto el fuego en Gaza, en medio de persistentes tensiones de seguridad en la región.\n\n\"Pero tiene que haber un desarme; ya sabes, tenemos que desarmar a Hamás\", dijo Trump en una breve rueda de prensa conjunta en la que alabó el \"trabajo fenomenal\" de Netanyahu.\n\n\"Así que una de las cosas de las que sin duda hablaremos es que tiene que haber un desarme de Hamás\", enfatizó Trump.\n\nAmplía esta y otras informaciones en el enlace de nuestro portal web www.cdn.com.do. Síguenos en Instagram CDN 37.\n\n#CDN #CDN37 #Noticias #NoticiasRD #RepúblicaDominicana #DonaldTrump #BenjamínNetanyahu #Reunión #Florida #Desarme #Hamás #AltoalFuego #Gaza\".",
+    "caption_status": "long_text",
+    "timestamp": "2025-12-29T22:35:50.000Z",
+    "is_video": false,
+    "hashtags": [
+      "CDN",
+      "CDN37",
+      "Noticias",
+      "NoticiasRD",
+      "RepúblicaDominicana",
+      "DonaldTrump",
+      "BenjamínNetanyahu",
+      "Reunión",
+      "Florida",
+      "Desarme",
+      "Hamás",
+      "AltoalFuego",
+      "Gaza"
+    ],
+    "mentions": [],
+    "source_tag": "donaldtrump"
+  },
+  {
+    "url": "https://www.instagram.com/p/DBensNZOwIq/",
+    "caption": "Unhinged. Unfit. Unchecked. \n\nOnce again, Donald Trump is telling us that he wants unchecked power and total loyalty, which he will use to implement his dangerous Project 2025 agenda and roll back our civil rights. \n\nIt’s URGENT that we do everything we can to stop Donald Trump on Election Day. Take action now at the link in our bio.\n\n#LGBTQ #TransRights #DonaldTrump #Project2025 #OutForHarrisWalz\".",
+    "caption_status": "short_text",
+    "timestamp": "2024-10-23T19:30:11.000Z",
+    "is_video": false,
+    "hashtags": [
+      "LGBTQ",
+      "TransRights",
+      "DonaldTrump",
+      "Project2025",
+      "OutForHarrisWalz"
+    ],
+    "mentions": [],
+    "source_tag": "donaldtrump"
+  },
+  {
+    "url": "https://www.instagram.com/p/DSYXlzkjeIW/",
+    "caption": "🔴 O comentador ultraconservador norte-americano Tucker Carlson afirmou que os congressistas foram informados que o Presidente Donald Trump declarará guerra à Venezuela num discurso ao país esta madrugada de quarta-feira (18).\n\nSaiba mais no site do @jornalexpresso, pelo link na bio. \n\n📷 Anna Moneymaker/@gettyimages \n\n#EUA #trump #guerra #venezuela #donaldtrump\".",
+    "caption_status": "short_text",
+    "timestamp": "2025-12-17T22:07:43.000Z",
+    "is_video": false,
+    "hashtags": [
+      "EUA",
+      "trump",
+      "guerra",
+      "venezuela",
+      "donaldtrump"
+    ],
+    "mentions": [
+      "jornalexpresso",
+      "gettyimages"
+    ],
+    "source_tag": "donaldtrump"
+  },
+  {
+    "url": "https://www.instagram.com/p/DPPdbklAYwM/",
+    "caption": "Donald Trump hoping he doesn't catch COVID again after RFK Jr. sneezes next to him 😭\n\nFollow us for more @ikyfl.tv \n\n#ig #Like #ikyfltv #covid #covid19españa #screaming #Trending #Viral #trump #Explore #igposts #ikyfl #black #donaldtrump #theshaderoom #rfkjr #wildinout #wildin #ripmeouttheplastic #ripmeouttheplasticibeenactinbrandnew❤️‍🔥💃🏽 #bruh #aintnoway #saysikerightnow #fypシ  #fyp #explorepage #sneezing #robertfkennedyjr #imweak\".",
+    "caption_status": "short_text",
+    "timestamp": null,
+    "is_video": false,
+    "hashtags": [
+      "ig",
+      "Like",
+      "ikyfltv",
+      "covid",
+      "covid19españa",
+      "screaming",
+      "Trending",
+      "Viral",
+      "trump",
+      "Explore",
+      "igposts",
+      "ikyfl",
+      "black",
+      "donaldtrump",
+      "theshaderoom",
+      "rfkjr",
+      "wildinout",
+      "wildin",
+      "ripmeouttheplastic",
+      "ripmeouttheplasticibeenactinbrandnew",
+      "bruh",
+      "aintnoway",
+      "saysikerightnow",
+      "fypシ",
+      "fyp",
+      "explorepage",
+      "sneezing",
+      "robertfkennedyjr",
+      "imweak"
+    ],
+    "mentions": [
+      "ikyfl"
+    ],
+    "source_tag": "donaldtrump"
+  },
+  {
+    "url": "https://www.instagram.com/p/CrVuUBbN5bQ/",
+    "caption": "Following the new charges against US ex-President Donald Trump, he reportedly flew to Afghanistan, and US President Joe Biden traveled to Afghanistan on a mission to bring Donald Trump back to the United States. They were both photographed celebrating Eid with local Afghans while doing the Afghan traditional dance Attan.\n\nNote: This post is a satire❗️\n\nSource: AI generated Images from twitter \n#TheAfghan #Afghanistan #donaldtrump #joebiden\".",
+    "caption_status": "short_text",
+    "timestamp": "2023-04-22T13:04:10.000Z",
+    "is_video": false,
+    "hashtags": [
+      "TheAfghan",
+      "Afghanistan",
+      "donaldtrump",
+      "joebiden"
+    ],
+    "mentions": [],
+    "source_tag": "donaldtrump"
+  },
+  {
+    "url": "https://www.instagram.com/p/CMvfMl3ouVw/",
+    "caption": "I'm here to collect my mf angsty endgame.\n\nac : qixanity (sc)  sc : voidlilt + fnecherry  cc : nat\n\n🎵 Eenie Meenie- Sean Kingston & Justin Bieber\n👨‍❤️‍💋‍👨 Brump ( Donald Trump + Joe Biden )\n💻 Adobe After Effects\".",
+    "caption_status": "short_text",
+    "timestamp": "2021-04-24T13:06:51.000Z",
+    "is_video": false,
+    "hashtags": [],
+    "mentions": [],
+    "source_tag": "donaldtrump"
+  },
+
+  {
+    "url": "https://www.instagram.com/p/DS3MmgOCTBl/",
+    "caption": "O presidente dos Estados Unidos, Donald Trump, confirmou nesta segunda-feira (29) que forças americanas atacaram uma instalação usada pelo narcotráfico na Venezuela. Segundo Trump, o ataque ocorreu na semana passada e provocou uma “grande explosão” na área do cais onde, segundo ele, embarcações carregavam drogas.\n\nAo falar com jornalistas, Trump afirmou que a área atingida “não existe mais”, mas não esclareceu se novas ações contra o país estão previstas. O presidente também se recusou a informar se a operação foi conduzida pelas Forças Armadas ou pela Agência Central de Inteligência, limitando-se a dizer que o ataque ocorreu ao longo da costa venezuelana.\n\nA ação já havia sido mencionada por Trump em entrevista à rádio WABC, na sexta-feira (26), mas sem confirmação do local. No domingo (28), o The New York Times informou que integrantes do governo americano apontaram que o alvo era uma instalação do narcotráfico na Venezuela. Este é o primeiro ataque confirmado em território venezuelano desde o início da pressão dos EUA contra o governo de Nicolás Maduro. Até o momento, o Pentágono e o governo venezuelano não se pronunciaram.\n\n🧑‍💻 Confira na JP News e Panflix\n📌 Siga o nosso perfil @jovempannews\n\n#EUA #Venezuela #DonaldTrump #Ataque #JovemPanNews\".",
+    "caption_status": "long_text",
+    "timestamp": "2025-12-29T21:30:31.000Z",
+    "is_video": false,
+    "hashtags": [
+      "EUA",
+      "Venezuela",
+      "DonaldTrump",
+      "Ataque",
+      "JovemPanNews"
+    ],
+    "mentions": [
+      "jovempannews"
+    ],
+    "source_tag": "donaldtrump"
+  },
+
+]
+
+```
+
+***
+
+## Behind the Scenes: How the Scraper Works
+
+When executed, the script uses the Playwright browser to automate the following steps:
+
+1.  **Session Resumption:** Loads `cookies.json` to automatically resume your logged-in Instagram session.
+2.  **Hashtag Scan:** Navigates to the hashtag page and automatically scrolls to collect post links up to the specified limit.
+3.  **Data Extraction:** Visits each individual post URL and uses multiple strategies (Meta Tags and selectors) to scrape the Caption, Username, and Timestamp.
+4.  **Filtering:** Filters the final dataset to only include photo/carousel posts, removing all video content.
+
+***
+
+
+## How to Collect Comments from HTML
+
+In addition to live scraping via Playwright, **Insta-Collect** also supports parsing Instagram comments directly from a previously saved HTML file.
+
+This feature is useful when:
+- Download the [Instagram HTML](https://www.instagram.com/p/CDPloKlAy5j/) file you want to analyze (e.g., obama.html).
+- Place it in a folder where you have read/write access (e.g., Desktop, Downloads, or a dedicated project folder).
+- Run the CLI from the folder containing your HTML file:
+
+### Supported Outputs
+- **JSON** (default)
+- **XLSX (Excel)**  
+Both files are saved automatically without additional flags.
+
+---
+
+### Example Usage
+
+```bash
+cd ~/path/to/your/html
+```
+
+```bash
+insta_collect % python3 insta-collect.py obama.html --preview 20
+```
+
+### Terminal Output
+
+```text
+[+] Total entries saved: 239
+[+] JSON output: instagram_comments.json
+[+] XLSX output: instagram_comments.xlsx
+
+--- PREVIEW ---
+1. @oprahdaily: oprahdailyVerifiedEdited•282wFormer presidents@barackobama, Bill Clinton, and George W. Bush will be
+2. @oprahdaily: Former presidents@barackobama, Bill Clinton, and George W. Bush will be attending and participating 
+3. @roar_242424: This is the REASON APPA I ALIVE. Thank you APPA!!! God Bless You and it’s been a long day and always
+4. @southernmommaa: President Bush! President Obama! 🩷💙🇺🇸🙏
+5. @lo__s___: Clinton is the best president in this pic
+6. @wumi_18: Clinton the better person!!
+7. @benmary01: Every achievement starts with a decision to try ignorance destorys so many opportunities I'm a victi
+8. @allmyvapesaredead: All thinking about the children they’re going to have for lunch
+9. @collinsolivedenise: What our country needs again real leadership
+10. @shay_nevagivup54: Ayyyyyyeeee my fav 2 guys Guess who
+11. @co______d: This is the top 3 of the worst presidents we’ve ever had right here. They are even in order 🤔
+12. @cozmosmom: Three leaders.  Where the hell was our current President???
+13. @maria._.regina_: On their way for some pizza and hotdogs
+14. @johnf990: So a communist and rapist and a globalist....
+15. @therealbunbun40: 3 great president's
+16. @downeypeggy: 🍕🍕🍕🍕🍕🍕🍕💉👦🏽👦🏽👦🏽👦🏽👧🏽👧🏽👧🏽👧🏽👧🏽👧🏽👧🏽
+17. @chalkbody0utlineofme: 3 turkeys who gobbled much more than their share
+18. @mohhco: All the pedophiles in ONE picture!!!
+19. @primo_18__: Epsteins island crew
+20. @mason.con1: No surprise he's a nonce
+...
+239. @rrrobino1: Hoping frump doesn’t go... and NO, not even his wife! No need. RIP John Lewis. You are finely represented by these three Presidents and your family🙏🏻
+```
+
+### Output Files
+
+After execution, the following files are generated automatically:
+
+- `instagram_comments.json`
+- `instagram_comments.xlsx`
+
+### Data Fields
+
+Each comment entry contains structured fields such as:
+
+- `username`
+- `comment_text`
+- `timestamp` (if available)
+- `source_file`
+
+### Use Cases
+
+This output is immediately usable for:
+
+- Qualitative discourse analysis  
+- Sentiment analysis  
+- Network / actor mapping  
+- Archival research workflows  
+
+### Notes
+
+- No Bash scripting or manual file handling is required  
+- Output filenames are generated automatically  
+- Preview mode does not affect saved data  
+- This feature is currently **experimental** and may evolve in future releases  
+
+## Ethical Use Notice
+
+This tool is intended strictly for academic research, journalism, and public-interest analysis.
+Users are responsible for complying with Instagram’s Terms of Service and applicable laws.
