@@ -1,0 +1,998 @@
+package com.spirent.service.execution.protocol;
+
+// Protocol buffer compiler will generate code for serializing, parsing, and performing other common operations on message types.
+// This code is extremely highly optimized.
+option optimize_for = SPEED;
+
+enum ReportResult {
+	// successful
+	PASS = 0;
+	// unknown pass/fail
+	INDETERMINATE = 1;
+	// unsuccessful
+	FAIL = 2;
+	// test self-aborted (e.g., due to analysis rule)
+	ABORT = 3;
+	// bad things happened (e.g., could not obtain a reservation)
+	ERROR = 4;
+	// test was told to cancel
+	CANCEL = 5;
+}
+
+// A union type where the required "type" field identifies the field that's set.
+message ExecutionMessage {
+
+	enum Type {
+
+		////////
+		//
+		// EXECUTION MESSAGES
+		//
+		////////
+
+		CANCEL_MESSAGE = 1;
+		HEARTBEAT_MESSAGE = 2;
+		INIT_MESSAGE = 3;
+		INIT_MESSAGE_ACK = 34;
+		INVOKE_ACK = 4;
+		INVOKE_MESSAGE = 5;
+		INVOKE_RESPONSE = 6;
+		REPORT_MESSAGE = 7;
+		STEP_MESSAGE = 8;
+		TERMINATE_MESSAGE = 9;
+		TOKEN_MESSAGE = 10;
+		EXECUTION_ISSUE_MESSAGE = 11;
+		AGENT_STATUS_MESSAGE = 28;
+		EXTRACTED_DATA_MESSAGE = 31;
+
+		////////
+		//
+		// SESSION CONTROL MESSAGES
+		//
+		////////
+
+		NEW_SESSION_MESSAGE = 12;
+		NEW_SESSION_RESPONSE = 13;
+		SEND_TERMINAL_DATA_MESSAGE = 14;
+		SEND_TERMINAL_DATA_RESPONSE = 15;
+		SESSION_ACTION_MESSAGE = 16;
+		SESSION_ACTION_RESPONSE = 17;
+		LIST_PROJECTS = 18;
+		LIST_PROJECTS_RESPONSE = 19;
+		QUERY_PROJECT = 20;
+		QUERY_PROJECT_RESPONSE = 21;
+		QUERY_SESSION = 22;
+		QUERY_SESSION_RESPONSE = 23;
+		QUERY_TEST_CASE = 24;
+		QUERY_TEST_CASE_RESPONSE = 25;
+		TEST_CASE_PROCEDURE = 26;
+		TEST_CASE_PROCEDURE_RESPONSE = 27;
+		SESSION_TERMINATED = 29;
+		SESSION_ACTION_CAPTURE = 30;
+		ENCRYPT = 32;
+		ENCRYPT_RESPONSE = 33;
+	}
+
+	// Identifies which field is filled in.
+	required Type type = 1;
+
+	////////
+	//
+	// EXECUTION MESSAGES
+	//
+	////////
+
+	optional CancelMessage cancelMessage = 2;
+	optional HeartbeatMessage heartbeatMessage = 3;
+	optional InitMessage initMessage = 4;
+	optional InitMessageAck initMessageAck = 35;
+	optional InvokeAck invokeAck = 5;
+	optional InvokeMessage invokeMessage = 6;
+	optional InvokeResponse invokeResponse = 7;
+	optional ReportMessage reportMessage = 8;
+	optional StepMessage stepMessage = 9;
+	optional TerminateMessage terminateMessage = 10;
+	optional TokenMessage tokenMessage = 11;
+	optional ExecutionIssueMessage executionIssueMessage = 12;
+	optional AgentStatusMessage agentStatusMessage = 29;
+	optional ExtractedDataMessage extractedDataMessage = 32;
+
+	////////
+	//
+	// SESSION CONTROL MESSAGES
+	//
+	////////
+
+	optional NewSession newSessionMessage = 13;
+	optional NewSessionResponse newSessionResponse = 14;
+	optional SendTerminalData sendTerminalDataMessage = 15;
+	optional SendTerminalDataResponse sendTerminalDataResponse = 16;
+	optional SessionAction sessionActionMessage = 17;
+	optional SessionActionResponse sessionActionResponse = 18;
+	optional ListProjects listProjects = 19;
+	optional ListProjectsResponse listProjectsResponse = 20;
+	optional QueryProject queryProject = 21;
+	optional QueryProjectResponse queryProjectResponse = 22;
+	optional QuerySession querySession = 23;
+	optional QuerySessionResponse querySessionResponse = 24;
+	optional QueryTestCase queryTestCase = 25;
+	optional QueryTestCaseResponse queryTestCaseResponse = 26;
+	optional TestCaseProcedure testCaseProcedure = 27;
+	optional TestCaseProcedureResponse testCaseProcedureResponse = 28;
+	optional SessionTerminated sessionTerminated = 30;
+	optional SessionActionCapture sessionActionCapture = 31;
+	optional Encrypt encrypt = 33;
+	optional EncryptResponse encryptResponse = 34;
+}
+
+// Produced internally by the execution report ingestion pipeline. E.g., to provide notification about an agent that is not sending messages/non-responsive.
+message AgentStatusMessage {
+	// globally unique identifier of the agent
+	required string agentId = 1;
+	// when last message was received from the agent
+	optional uint64 lastActivity = 2;
+	// when the InitMessage was received from the agent
+	optional uint64 onlineSince = 3;
+	// sessionId is defined when the Agent is performing a test execution
+	optional string sessionId = 4;
+	// time when the agent was determined to be unresponsive
+	optional uint64 unresponsiveTime = 5;
+}
+
+// Sent by the service to request cancellation. Agent is expected to reply with an InvokeResponse.
+message CancelMessage {
+	// ID of the session to cancel. The session ID must be equal to the reportId provided in the InvokeMessage.
+	required string sessionId = 1;
+}
+
+
+// Message that is streamed from Agent as execution issues occur.
+message ExecutionIssueMessage {
+
+	enum Severity {
+		ERROR = 0;
+		INFORMATION = 1;
+		PASS = 2;
+		WARNING = 3;
+	}
+
+	// What test case file is associated with the issue. e.g., "project://test_project/test_cases/myTest.fftc"
+	required string fileUri = 1;
+	// Issues are ordered within their parent. This index is unique only within the context of its reportId/stepId pair.
+	required uint32 issueIndex = 2;
+	// Where in a test case the issue occurred as defined at authoring time, rather than at runtime. e.g., "/procedures/0/steps/1"
+	required string location = 3;
+	// An informational message.
+	optional string message = 4;
+	// e.g., "analysis"
+	optional string originator = 5;
+	// Useful for display purposes, as well as mining quick call libraries for troublesome procedures. e.g., "main"
+	optional string procedureName = 6;
+	// The ID of the report.
+	required string reportId = 7;
+	// The ID of the session. e.g., "s1"
+	required string sessionId = 8;
+	// info, warning, error
+	optional Severity severity = 9 [default = INFORMATION];
+	// Executed step ID. e.g., "1.2.1"
+	required string stepId = 10;
+	// Step id of executable step in test case. e.g., "1.2.1"
+	required string testCaseStepId = 11;
+	optional uint64 line = 12;
+	optional uint64 startCol = 13;
+	optional uint64 endCol = 14;
+	optional uint64 lineCount = 15;
+	// Sequentially sorts issues in the order of their occurrence within the overall test case.
+	optional uint64 sequenceNum = 16;
+	// The time when the issue occurred. Represents milliseconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
+	optional uint64 issueTime = 17;
+	// Indicator of SLC session error, if specified Execution issue should be delivered to SLC Topics
+	optional bool _slcSessionIssue = 18 [default = false];
+	optional string type = 19 [default = "issue"];
+}
+
+// A measurement extracted during test execution.
+message ExtractedDataMessage {
+	// The ID of the execution that extracted the measurement.
+	required string reportId = 1;
+	// Executed step ID. e.g., "1.2.1"
+	optional string executedStep = 2;
+	// Step id of executable step in test case. e.g., "1.2.1"
+	optional string executableStep = 3;
+	// The time when the measurement occurred represented as a relative offset in seconds since the start of the test.
+	optional double time = 4;
+	// Numeric value of the measurement, if applicable. When set no other valXXX field should be set.
+	optional double valNum = 5;
+	// Numeric array value of the measurement, if applicable. When set no other valXXX field should be set.
+	repeated double valNumAry = 6;
+	// String value of the measurement, if applicable. When set no other valXXX field should be set.
+	optional string valStr = 7;
+	// String array value of the measurement, if applicable. When set no other valXXX field should be set.
+	repeated string valStrAry = 8;
+	// The name of the extracted data.
+	required string tag = 10;
+	// The time when the measurement was submitted, represented as milliseconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
+	required uint64 dataCollectionTime = 11;
+	optional string type = 12 [default = "extdata2"];
+}
+
+
+message HeartbeatMessage {
+	// Memory usage as a percentage available to the agent process. A negative value indicates memory usage information is unavailable.
+	optional double memoryUsage = 1 [default = -1];
+	// Returns the "recent cpu usage" for the Agent process. See Java's OperatingSystemMXBean.getProcessCpuLoad() for further details. A negative value indicates process cpu load information is unavailable.
+	optional double processCpuLoad = 2 [default = -1];
+	// Returns the "recent cpu usage" for the whole system. See Java's OperatingSystemMXBean.getSystemCpuLoad() for further details. A negative value indicates system cpu load information is unavailable.
+	optional double systemCpuLoad = 3 [default = -1];
+}
+
+
+// Sent by the Agent upon receipt of an InvokeMessage. The session ID can be used to cancel the execution.
+message InvokeAck {
+	// The session ID must be equal to the reportId provided in the InvokeMessage.
+	required string sessionId = 1;
+	// Represents milliseconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
+	optional uint64 startTime = 2;
+}
+
+
+// A parameter.
+message Param {
+	required string name = 1;
+	optional string value = 2;
+	// Params may be nested
+	repeated Param parameters = 3;
+	optional bool masked = 4 [default = false];
+	// Type of the param, primarily used to indicate if the parameter is a SECRET.
+	optional string type = 5;
+	// Description of the parameter
+	optional string description = 6;
+}
+
+
+// Sent by the service to request execution. Agent is expected to reply with an InvokeAck and finally with an InvokeResponse. URIs are UTF-8 encoded and not escaped.
+message InvokeMessage {
+
+	enum DetailLevel {
+		// nothing but the report-level details, including status/result.
+		REPORT_ONLY = 0;
+		// report-level details and ERROR-level execution issues
+		ERROR_ISSUES_ONLY = 1;
+		// report-level details and ERROR-level execution issues and any steps associated with those issues
+		ERROR_ISSUES_WITH_STEPS = 2;
+		// report-level details and all execution issues and steps that have an error
+		ALL_ISSUES_ERROR_STEPS = 3;
+		// report-level details and all execution issues and steps
+		ALL_ISSUES_ALL_STEPS = 4;
+		// only failed steps and at the end of execution if test case passed send the last step response in full
+		LAST_RESPONSE = 5;
+	}
+
+	message Header {
+		required string name = 1;
+		required string value = 2;
+	}
+
+	message Reservation {
+		// ID used to lookup all information about the reservation
+		required string reservationId = 1;
+		// location of reservation API endpoint, e.g., https://somehost/velocity/api
+		required string reservationVelocityUrl = 2;
+	}
+
+	required TokenMessage token = 1;
+	repeated Header header = 2;
+	required string reportId = 3;
+	repeated string dependencyUri = 4;
+	repeated string paramFileUri = 5;
+	repeated Param parameters = 6;
+	// Information about the reservation to use during execution. Not present if testbedUri is set.
+	optional Reservation reservation = 7;
+	// URI of the topology to reserve. Not present when reservation information is provided.
+	optional string testbedUri = 8;
+	required string testCaseUri = 9;
+	optional DetailLevel detailLevel = 10 [default = ALL_ISSUES_ALL_STEPS];
+}
+
+
+// Sent by the Agent when initially establishing a connection with the service.
+message InitMessage {
+
+	message Capability {
+		required string name = 1;
+		required string value = 2;
+	}
+
+	message Restriction {
+		required string name = 1;
+		required string value = 2;
+	}
+
+	// A globally unique identifier of the agent
+	required string agentId = 1;
+	// The name of the agent
+	required string agentName = 2;
+	required string protocolVersion = 3 [default = "9.0.0"];
+	// Capabilities of the agent.
+	repeated Capability capability = 4;
+	// Defined when an agent already has an execution in-progress which may be the case when a loss of connection occurred. The session ID must be equal to the reportId provided in the InvokeMessage.
+	optional string sessionId = 5;
+	// Restrictions on executions that may run on the agent.
+	repeated Restriction restriction = 6;
+	// Agent key for authentication
+	optional string agentKey = 7;
+}
+
+// Sent by service when InitMessage is received
+message InitMessageAck {
+	message ConfigSettings {
+		required string name = 1;
+		required string value = 2;
+	}
+
+	// Message to indicate whether request succeeded or failed
+	required string message = 1;
+	// Settings associated with initialization of Storage API
+	repeated ConfigSettings configSettings = 2;
+	// Key generated by the server once the agent is initialized
+	optional string agentKey = 3;
+}
+
+
+// Sent by the Agent as the last message in response to an InvokeMessage.
+message InvokeResponse {
+
+	message Error {
+		required int32 code = 1;
+		optional string message = 2;
+	}
+
+	required ReportResult reportResult = 1;
+	// Represents milliseconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
+	required uint64 startTime = 2;
+	// Represents milliseconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
+	required uint64 endTime = 3;
+	// The session ID must be equal to the reportId provided in the InvokeMessage.
+	required string sessionId = 4;
+	optional Error error = 5;
+	// set to true when it is detected that the InvokeResponse is reporting conclusion of an execution known to have previously concluded
+	optional bool isDuplicate = 6 [default = false];
+}
+
+
+// Sent by the Agent to inform the service of an imminent shutdown of the Agent.
+message TerminateMessage {
+	optional string cause = 1;
+}
+
+
+// Included in InvokeMessage. Stand-alone Token messages may periodically be sent to the Agent to update the refresh token.
+message TokenMessage {
+	required string token = 1;
+}
+
+// Message sent by the Agent to create or update report metadata.
+message ReportMessage {
+
+	// The possible states of an execution.
+	enum ExecutionState {
+		// Execution stopped prior to being done.
+		ABORTED = 0;
+		// Was executing, agent is not responding.
+		AGENT_NOT_RESPONDING = 1;
+		// Execution done.
+		COMPLETED = 2;
+		// Being sent to an agent.
+		DISPATCHING = 3;
+		// Known to be running on agent.
+		IN_PROGRESS = 4;
+		// In execution queue.
+		NOT_BEGUN = 5;
+		// Could not execute.
+		START_FAILED = 6;
+	}
+
+	// Identifies the report to update or the child report to create. If the ReportMessage identifies a new child report then the agent assigns the ID using UUID.randomUUID().toString().
+	required string reportId = 1;
+	// Represents milliseconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
+	optional uint64 startTime = 2;
+	// Represents milliseconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
+	optional uint64 endTime = 3;
+	optional string parentStepIndex = 4;
+	// The ID of the parent report. This must be included when initially creating a new child report.
+	optional string parentReportId = 5;
+	// The path of the child test that was invoked. The Execution Service will handle conversion of paths like: project://foo.itar/path/bar.fftc to: repository/foo/path/bar.fftc
+	optional string testPath = 6;
+	optional string testId = 7;
+	// The result of the execution.
+	optional ReportResult result = 8;
+	optional double percentageComplete = 9;
+	// The Agent sets this to indicate what parameters were used when invoking a child test.
+	repeated Param parameters = 10;
+	// Status of the execution, generally derived and set internally by the execution report ingestion pipeline, not by the Agent itself.
+	optional ExecutionState status = 11;
+	optional string agentHost = 12;
+	optional string agentId = 13;
+	optional string agentName = 14;
+	optional uint64 dispatchTime = 15;
+	optional string executionLastUnsatisfiedCondition = 16;
+	optional string failureReason = 17;
+	optional bool isReservationBySvc = 18;
+	optional string token = 19;
+	optional string topologyReservationId = 20;
+	optional string callbackURL = 21;
+	optional uint64 createTime = 22;
+	enum DetailLevel {
+		// nothing but the report-level details, including status/result.
+		REPORT_ONLY = 0;
+		// report-level details and ERROR-level execution issues
+		ERROR_ISSUES_ONLY = 1;
+		// report-level details and ERROR-level execution issues and any steps associated with those issues
+		ERROR_ISSUES_WITH_STEPS = 2;
+		// report-level details and all execution issues and steps that have an error
+		ALL_ISSUES_ERROR_STEPS = 3;
+		// report-level details and all execution issues and steps
+		ALL_ISSUES_ALL_STEPS = 4;
+		// only failed steps and at the end of execution if test case passed send the last step response in full
+		LAST_RESPONSE = 5;
+	}
+	optional DetailLevel detailLevel = 23 [default = ALL_ISSUES_ALL_STEPS];
+	optional string domain = 24;
+	message KeyValue {
+		required string name = 1;
+		required string value = 2;
+	}
+	repeated KeyValue ignoredRequirements = 25;
+	optional bool discardReport = 26;
+	optional bool isRunlistFirst = 27;
+	optional bool isRunlistLast = 28;
+	optional uint64 latestUpdateTime = 29;
+	repeated KeyValue mergedRequirements = 30;
+	optional uint64 oldPk = 31;
+	optional string parameterFilePath = 32;
+	optional string reportFileCompressionType = 33;
+	optional string reportFileSource = 34;
+	optional string reportFormat = 35;
+	repeated KeyValue requirements = 36;
+	optional string reservationId = 37;
+	optional string testCategory = 38;
+	optional string topologyId = 39;
+	optional string topologyPath = 40;
+	optional string topologyVersionId = 41;
+	optional string userId = 42;
+	optional string localTopology = 43;
+	optional string namespace = 44;
+	optional string testCaseName = 45;
+	optional string repository = 46;
+	optional string reportIdPath = 47;
+	optional string description = 48;
+	optional string headline = 49;
+	optional string owner = 50;
+	// The version this report was saved as. The value is fixed and only changes when a new software version changes report attributes. Thus the value matches the software version of last report model attribute change.
+	optional string reportVersion = 51;
+	// The unique ID that was assigned to the runlist instance when it is queued, n/a when not related to a runlist
+	optional string runlistGuid = 52;
+	// Used to correlate a test execution with an item in a runlist instance, n/a when not related to a runlist
+	optional string runlistItemId = 53;
+	// The path of the executed runlist of the form {repositoryName}/{runlistPath}, n/a when not related to a runlist
+	optional string runlistPath = 54;
+	optional string topologyName = 55;
+}
+
+
+// The reportId and stepId together uniquely identify a StepMessage.
+message StepMessage {
+
+	enum StepResult {
+		ABORTED = 0;
+		FAILED = 1;
+		SKIPPED = 2;
+		SUCCESS = 3;
+		TIMEOUT = 4;
+	}
+
+	message Action {
+		// name of the action, e.g., "event"
+		required string action = 1;
+		// string form of what the action is, as rendered on the agent, e.g., "OnExecutionStarted"
+		optional string description = 2;
+		// actions can be nested
+		repeated Action actions = 3;
+	}
+
+	message StepResponseDetails {
+
+		message Alias {
+
+			message Argument {
+				// argument name
+				required string name = 1;
+				// how the possible values of the argument can be found, e.g., "mapped/Tabular/table1/table/row/key"
+				optional string valuesQuery = 2;
+				optional string interpretAs = 3;
+			}
+
+			// alias name as defined by the mapper or user
+			required string name = 1;
+			// how the structured data would be queried by the agent via XPath
+			optional string queryFormat = 2;
+			// list of arguments
+			repeated Argument arguments = 3;
+			// XPath version which should be used to evaluate the alias
+			optional string xPathVersion = 4 [default = "1.0"];
+		}
+
+		message AnalysisRule {
+			// string describing the extractor type. Could be "regex", "contains", "query", etc.
+			optional string extractor = 1;
+			// collapsed information derived on the agent side from the rule
+			optional string description = 2;
+			// collapsed information on the result of this branch. Since this information describes what actually fired, either whenTrue or whenFalse will be null
+			optional string whenTrue = 3;
+			// same as whenTrue
+			optional string whenFalse = 4;
+			// list of actions taken as a result of this rule firing
+			repeated Action actions = 5;
+		}
+
+		message StructuredData {
+
+			message Item {
+				// defined by the mapper
+				optional string name = 1;
+				// positional information if provided for a enclosing block or terminal token; allows highlighting of area within the textual response
+				optional int32 line = 2;
+				// positional information if provided for a enclosing block or terminal token; allows highlighting of area within the textual response
+				optional int32 lineCount = 3;
+				// positional information if provided for a enclosing block or terminal token; allows highlighting of area within the textual response
+				optional int32 startCol = 4;
+				// positional information if provided for a enclosing block or terminal token; allows highlighting of area within the textual response
+				optional int32 endCol = 5;
+				// if a terminal token, the actual value of the token
+				optional string value = 6;
+				// list of nested items as defined by the mapper
+				repeated Item items = 7;
+			}
+
+			// name of the mapper type (currently regex, table, block)
+			required string map = 8;
+			// reference to the response map used if not auto-mapped
+			optional string responseMapUri = 9;
+			//
+			repeated Item items = 10;
+		}
+
+		// True when the structured data was derived from auto mappers. If not, then each map will state what response map it used.
+		optional bool isAutoMapped = 1 [default = false];
+		// escaped body of the response
+		optional string body = 2;
+		repeated Action postProcessing = 3;
+		// Analysis rules that fired. Most of the structure is collapsed in favor of displayable strings.
+		repeated AnalysisRule analysisRules = 4;
+		repeated StructuredData structuredData = 5;
+		repeated Alias aliases = 6;
+	}
+
+	required string reportId = 1;
+	// executed step id, e.g., "1.2.1"
+	required string stepId = 2;
+	// e.g., "1.2"
+	optional string parentStepId = 3;
+	// step id of executable step in test case, e.g., "1.2.1"
+	required string testCaseStepId = 4;
+	optional int32 threadId = 5;
+	// e.g., "s1"
+	optional string sessionId = 6;
+	// "resolved application id", e.g., "com.fnfr.svt.applications.tclsh" - used to render icon, etc.
+	optional string sessionType = 7;
+	// e.g., "main"
+	optional string procedure = 8;
+	// all are resolved - what was sent to the device, e.g., "command"
+	optional string action = 9;
+	optional string context = 10;
+	optional string target = 11;
+	// e.g., "puts Hello"
+	optional string command = 12;
+	optional double startOffset = 13;
+	optional double duration = 14;
+	optional bool emulated = 15 [default = false];
+	optional StepResult stepResult = 16;
+	// The step response details, which may be large and are generally transmitted by other means and no longer via protobuf message as of release v7.1.0.
+	optional StepResponseDetails details = 17;
+	// The rendered property group. It contains the serialized XML of the property group object for this step. Meant to be kept as opaque data by Velocity.
+	optional string properties = 18;
+	// Sequentially sorts steps in the order of their execution.
+	optional uint64 sequenceNum = 19;
+	optional string type = 20 [default = "step"];
+}
+
+////////
+//
+// SESSION CONTROL MESSAGES
+//
+////////
+
+// A union type consisting of the messages that are exchanged between service and client. The required "type" field identifies the field that's set.
+message ClientSessionControlMessage {
+
+	enum Type {
+		INIT_MESSAGE = 1;
+		INIT_RESPONSE = 2;
+		NEW_SESSION_MESSAGE = 3;
+		NEW_SESSION_RESPONSE = 4;
+		SEND_TERMINAL_DATA_MESSAGE = 5;
+		SEND_TERMINAL_DATA_RESPONSE = 6;
+		SESSION_ACTION_MESSAGE = 7;
+		SESSION_ACTION_RESPONSE = 8;
+		SESSION_TERMINATED = 9;
+		LIST_PROJECTS = 10;
+		LIST_PROJECTS_RESPONSE = 11;
+		QUERY_PROJECT = 12;
+		QUERY_PROJECT_RESPONSE = 13;
+		QUERY_SESSION = 14;
+		QUERY_SESSION_RESPONSE = 15;
+		QUERY_TEST_CASE = 16;
+		QUERY_TEST_CASE_RESPONSE = 17;
+		TEST_CASE_PROCEDURE = 18;
+		TEST_CASE_PROCEDURE_RESPONSE = 19;
+		SESSION_ACTION_CAPTURE = 20;
+	}
+
+	// Identifies which field is filled in.
+	required Type type = 1;
+
+	optional Init initMessage = 2;
+	optional InitResponse initResponse = 3;
+	optional NewSession newSessionMessage = 4;
+	optional NewSessionResponse newSessionResponse = 5;
+	optional SendTerminalData sendTerminalDataMessage = 6;
+	optional SendTerminalDataResponse sendTerminalDataResponse = 7;
+	optional SessionAction sessionActionMessage = 8;
+	optional SessionActionResponse sessionActionResponse = 9;
+	optional SessionTerminated sessionTerminatedMessage = 10;
+	optional ListProjects listProjectsMessage = 11;
+	optional ListProjectsResponse listProjectsResponse = 12;
+	optional QueryProject queryProjectMessage = 13;
+	optional QueryProjectResponse queryProjectResponse = 14;
+	optional QuerySession querySession = 15;
+	optional QuerySessionResponse querySessionResponse = 16;
+	optional QueryTestCase queryTestCase = 17;
+	optional QueryTestCaseResponse queryTestCaseResponse = 18;
+	optional TestCaseProcedure testCaseProcedure = 19;
+	optional TestCaseProcedureResponse testCaseProcedureResponse = 20;
+	optional SessionActionCapture sessionActionCapture = 21;
+}
+
+// Sent by a client upon initiation of the connection.
+message Init {
+
+	required string token = 1;
+	required string version = 2;
+}
+
+// Service reply to Init message.
+message InitResponse {
+
+	required string status = 1 [default = "success"];
+	required string version = 2;
+}
+
+message ListProjects {
+}
+
+message ListProjectsResponse {
+
+	// Is a list of project names that are accessible to the current user (if authenticated through Velocity) within the applicable context.
+	// For a local agent it should list all projects that are available within the ITAR_PATH.
+	// For a iTest GUI instance it should list all projects in the workspace.
+	// For Velocity, it should list all projects available within all repos that the user has access to.
+	// When working through Velocity the names include the repo path ('/main/') within them. When working outside of Velocity only the project name will be returned. I.e. 'my_project'.
+	repeated string projects = 1;
+}
+
+message PropertiesGroup {
+	// A list of session or step properties
+	message Property {
+
+		required string name = 1;
+		required string value = 2;
+	}
+
+	required string name = 1;
+	repeated Property properties = 2;
+	repeated PropertiesGroup children = 3;
+}
+
+message NewSession {
+
+	message Header {
+		required string name = 1;
+		required string value = 2;
+	}
+
+	message Requirement {
+		required string name = 1;
+		required string value = 2;
+	}
+
+	// GUID used to track this new session; generated by the execution service
+	required string sessionId = 1;
+	// e.g., "project://my_project/sessions/ssh_session.ffsp"
+	// e.g., "project://my_project/sessions/ssh_session.ffsp"
+	// e.g., "velocity://topologyName/deviceId#sessionId"
+	required string sessionUri = 2;
+	// e.g., ["/main/my_project.itar"]
+	repeated string dependencyUri = 3;
+	// collection of HTTP headers to be used in agent-Velocity interactions
+	repeated Header header = 4;
+	// a parameter file URI
+	repeated string paramFileUri = 5;
+	repeated Requirement requirement = 6;
+	// Session properties for a built-in session type; maps directly to session properties group
+	optional PropertiesGroup properties = 7;
+	// a Response map library URI (Project uri). e.g., "project://my_project/"
+	optional string responseMapLib = 8;
+	optional bool disableSlcCapture = 9 [default = false];
+}
+
+message QueryProject {
+
+	// Name of the project to query.
+	required string project = 1;
+	// true if session profiles should be listed (default is true)
+	optional bool sessionProfiles = 2 [default = true];
+	// true if topologies should be listed (default is true)
+	optional bool topologies = 3 [default = true];
+	// true if parameter files should be listed (default is false)
+	optional bool parameterFiles = 4 [default = false];
+	// true if response maps should be listed (default is false)
+	optional bool responseMaps = 5 [default = false];
+	// Name of a specific QuickCall to show information about.
+	// If specified, then only that QuickCall will be shown.
+	optional string specificQC = 6;
+	// true if test cases should be listed (default is true)
+	optional bool testCases = 7 [default = true];
+}
+
+message QueryProjectResponse {
+
+	message Topology {
+
+		message Device {
+			required string name = 1;
+			repeated string sessions = 2;
+		}
+
+		required string name = 1;
+		repeated Device devices = 2;
+	}
+
+	// Name of the project to query.
+	required string project = 1;
+	repeated string sessionProfiles = 2;
+	repeated Topology topologies = 3;
+	repeated string parameterFiles = 4;
+	repeated string responseMaps = 5;
+	repeated string testCases = 6;
+}
+
+enum SessionStepResult {
+	ABORTED = 0;
+	FAILED = 1;
+	SKIPPED = 2;
+	SUCCESS = 3;
+	TIMEOUT = 4;
+}
+
+message NewSessionResponse {
+
+	// GUID used to track the session
+	required string sessionId = 1;
+	optional double duration = 2;
+	optional SessionStepResult stepResult = 3 [default = SUCCESS];
+	// structure for response details
+	optional StepMessage.StepResponseDetails details = 4;
+	// rue if the session allows direct terminal interaction
+	optional bool allowTerminal = 5 [default = true];
+	optional string agentId = 6; // Will be used to track session in SLC
+}
+
+message SendTerminalData {
+
+	// GUID used to track the session
+	required string sessionId = 1;
+	// JSON encoded and will be interpreted by the session as appropriate.
+	optional string data = 2;
+}
+
+message SendTerminalDataResponse {
+
+	message Capture {
+
+		// string form of the full command sent to the target (i.e. "set value foo")
+		optional string action = 1;
+		// JSON encoding of the full capture properties from the agent.
+		optional string response = 2;
+	}
+
+	// GUID used to track the session
+	required string sessionId = 1;
+	// JSON encoded terminal data from the session.
+	optional string data = 2;
+	// If the interaction with the session resulted in a complete action/response
+	optional Capture capture = 3;
+}
+
+message SessionAction {
+
+	enum ResponseModeMap {
+		// use auto response mapping only
+		AUTO = 0;
+		// use configured response map, otherwise do auto-mapping if no response map found
+		DEFAULT = 1;
+		// use the specified response map given in the URI in responseMap
+		FILE = 2;
+		// use the response map library configured for the session; if value provided for responseMap, then that is the name of the map to use in that library.
+		LIBRARY = 3;
+		OFF = 4;
+	}
+
+	// GUID used to track the session
+	required string sessionId = 1;
+	// Name of the action to be invoked or the name of the QuickCall to be invoked on the session. "close" is a legal action and will result in closing the session, as if a "close" step were encountered in a test case.
+	required string action = 2;
+	// String command to be sent as part of the action. QuickCalls do not use command, instead they use only parameters.
+	optional string command = 3;
+	// Set of parameters to be passed to the action/QuickCall.
+	repeated Param parameters = 4;
+	optional ResponseModeMap responseMapMode = 5 [default = DEFAULT];
+	// Name of a response map within a response map library.
+	optional string responseMap = 6;
+	// A list of step properties
+	optional PropertiesGroup properties = 7;
+}
+
+message SessionActionResponse {
+
+	// GUID used to track the session
+	required string sessionId = 1;
+	optional uint64 startTime = 7;
+	optional double duration = 2;
+	optional SessionStepResult stepResult = 3 [default = SUCCESS];
+	// structure for response details
+	optional StepMessage.StepResponseDetails details = 4;
+
+	// Structure for nested step details
+	enum SessionActionUpdateStatus {
+		STARTED = 0;
+		COMPLETED = 1;
+	}
+	message SessionActionUpdate {
+		optional SessionAction action = 1; // Required for Start status.
+		required SessionActionResponse.SessionActionUpdateStatus status = 2;
+		required string stepId = 3; // A step id in format 1.2.3.4 with 1.2.3 as parent for this stepId
+	}
+	optional SessionActionResponse.SessionActionUpdate nestedActionDetails = 5;
+
+	// Used to identifi
+	message SessionResponseChunkDetails {
+		required uint64 count = 1;  // A number of chunks
+		required uint64 index = 2;  // Current index in chunks
+		required string messageId = 3; // Unified identifier to identif messages with chunks.
+	}
+
+	optional SessionResponseChunkDetails chunkDetails = 6;
+
+	optional string executionId = 8;
+}
+
+message SessionActionCapture {
+	// Capture step with all information required
+
+	required SessionAction action = 1;
+	required SessionActionResponse response =  2;
+	required string sessionUri = 3;
+	required string token = 4;
+
+	// Helper fields
+	optional string deviceName = 5; // device name
+	optional string sessionName = 6; // Name of session in session Launcher
+	optional string userId = 7; // uniq user id
+	optional string userName = 8; // user name
+	optional string sessionType = 9; // type of session SSH/Telnet/etc
+}
+
+// Sent if the agent terminates the connection abnormally. The session is considered closed. Not sent when the client issues a close command via the SessionAction message.
+message SessionTerminated {
+
+	enum Status {
+		AGENT_TERMINATED = 1;
+		CLIENT_DISCONNECT = 2;
+		SESSION_DISCONNECT = 3;
+	}
+
+	required Status status = 1 [default = AGENT_TERMINATED];
+	optional string sessionId = 2;
+}
+
+message QuerySession {
+
+	// e.g., "project://my_project/sessions/ssh_session.ffsp"
+	required string sessionUri = 1;
+
+	// Name of a specific QuickCall to show information about.
+	// If specified, then only that QuickCall will be shown.
+	optional string specificQC = 2;
+}
+
+message QuerySessionResponse {
+
+	message QuickCall {
+
+		message Argument {
+			required string name = 1;
+			optional string description = 2;
+			optional string defaultValue = 3;
+			optional bool required = 4 [default = false];
+		}
+
+		required string name = 1;
+		repeated Argument args = 2;
+		optional string description = 3;
+		optional string uri = 4;
+	}
+
+	repeated QuickCall quickCall = 2;
+}
+
+message QueryTestCase {
+
+	// e.g., "project://my_project/test_cases/test_case.fftc"
+	required string testCaseUri = 1;
+}
+
+message QueryTestCaseResponse {
+
+	message Procedure {
+
+		message Argument {
+			required string name = 1;
+			optional string description = 2;
+			optional string defaultValue = 3;
+		}
+
+		required string name = 1;
+		repeated Argument args = 2;
+		optional string description = 3;
+	}
+
+	repeated Procedure procedures = 2;
+}
+
+message TestCaseProcedure {
+
+	// e.g., "project://my_project/test_cases/test_case.fftc#procedure"
+	required string procedureUri = 1;
+	// Set of parameters to be passed to the procedure.
+	repeated Param parameters = 2;
+	// URI of the topology to reserve.
+	optional string testbedUri = 3;
+	// A list of step properties
+	optional PropertiesGroup properties = 4;
+}
+
+message TestCaseProcedureResponse {
+
+	optional double duration = 1;
+	optional StepMessage.StepResult stepResult = 2 [default = SUCCESS];
+	// structure for response details
+	optional StepMessage.StepResponseDetails details = 3;
+}
+
+message Encrypt {
+	required string value = 1;
+}
+
+message EncryptResponse {
+	required string value = 1;
+}
