@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "iflow-mcp_jackkuo666_mcp-server-google-scholar"
+version = "0.1.0"
+description = "An MCP server for searching and retrieving articles from Google Scholar"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.4.1",
+    "scholarly>=1.7.0",
+    "asyncio>=3.4.3",
+]
+
+[project.scripts]
+google-scholar-server = "google_scholar_server:mcp"
+
+[tool.hatch.build.targets.wheel]
+packages = ["google_scholar_server.py", "google_scholar_web_search.py"]
