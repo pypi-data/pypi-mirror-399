@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=65.5.0", "wheel", "cython>=0.29"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mkmsg"
+version = "0.0.9"
+description = "Python library to send WhatsApp messages, emails, HTML emails, and generate OTPs"
+readme = "README.md"
+requires-python = ">=3.7"
+authors = [{ name = "Mohamed", email = "youremail@example.com" }]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+keywords = ["whatsapp", "email", "otp", "messaging"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mkmsg*"]
