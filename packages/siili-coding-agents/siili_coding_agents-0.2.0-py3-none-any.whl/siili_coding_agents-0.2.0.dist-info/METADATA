@@ -1,0 +1,84 @@
+Metadata-Version: 2.4
+Name: siili-coding-agents
+Version: 0.2.0
+Summary: Pre-built coding agents for AI-assisted software development
+Project-URL: Homepage, https://github.com/siilisolutions/siili-ai-sdk
+Project-URL: Repository, https://github.com/siilisolutions/siili-ai-sdk
+Author-email: Siili Solutions Oyj <info@siili.com>
+License-Expression: MIT
+Keywords: agents,ai,claude,coding,cursor,developer-tools
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development
+Requires-Python: >=3.10
+Requires-Dist: anyio>=4.0.0
+Requires-Dist: claude-code-sdk>=0.0.14
+Requires-Dist: python-dotenv>=1.0.1
+Requires-Dist: siili-ai-sdk>=0.2.0
+Requires-Dist: typer>=0.9.0
+Provides-Extra: dev
+Requires-Dist: ruff; extra == 'dev'
+Requires-Dist: ty; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# Siili Coding Agents
+
+Pre-built coding agents powered by [siili-ai-sdk](https://pypi.org/project/siili-ai-sdk/) for AI-assisted software development.
+
+## Features
+
+- **Claude Code Agent**: Wrapper for Claude Code SDK with streaming support
+- **Cursor Agent**: Integration with Cursor AI editor
+- **SDK Integration**: Built on siili-ai-sdk for consistent streaming and message handling
+
+## Installation
+
+```bash
+pip install siili-coding-agents
+```
+
+## Quick Start
+
+### Claude Code Agent
+
+```python
+import anyio
+from siili_coding_agents import ClaudeAgent, ClaudeCodeOptions
+
+async def main():
+    agent = ClaudeAgent(
+        options=ClaudeCodeOptions(cwd="."),
+        yolo=True  # Bypass permission prompts
+    )
+    
+    async for block in agent.stream_blocks("Create a hello world script"):
+        print(block)
+
+anyio.run(main)
+```
+
+### Synchronous Usage
+
+```python
+from siili_coding_agents import ClaudeAgent
+
+agent = ClaudeAgent()
+agent.run("Fix the bug in main.py")
+```
+
+## Requirements
+
+- Python 3.10+
+- [siili-ai-sdk](https://pypi.org/project/siili-ai-sdk/) >= 0.2.0
+- Claude Code SDK
+
+## License
+
+MIT License - Copyright (c) 2025 Siili Solutions Oyj
+
