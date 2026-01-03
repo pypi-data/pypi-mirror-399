@@ -1,0 +1,201 @@
+from __future__ import absolute_import, print_function
+
+import importlib
+import inspect
+import json
+import enum
+from pathlib import Path
+from collections import defaultdict
+from functools import cache
+
+
+def get_type_fullname(typ: type) -> str:
+    typename = getattr(typ, "__qualname__", typ.__name__)
+    module_name = getattr(typ, "__module__", None)
+    assert module_name is not None, typ
+    if module_name != "builtins":
+        typename = f"{module_name}.{typename}"
+    return typename
+
+
+class PySideHelper:
+    def __init__(self, pyside_package) -> None:
+        self.pyside_package = pyside_package
+
+    def is_pyside_obj(self, typ: type) -> bool:
+        return typ.__module__.split(".")[0] in self.pyside_package
+
+    @cache
+    def is_flag(self, typ: type) -> bool:
+        """A flag enum
+
+        is_flag(PySide2.QtCore.QDir.Filter) is True
+        is_flag(PySide6.QtCore.QDir.Filter) is True
+        """
+        if self.pyside_package == "PySide6":
+            # FIXME: flag groups such as PySide6.QtCore.QDir.Filters will return True here
+            return isinstance(typ, type) and issubclass(typ, enum.Flag)
+        else:
+            # in PySide2, the type of a flag item is a flag
+            return self.is_flag_item_type(typ)
+
+    @cache
+    def is_enum(self, typ: type) -> bool:
+        """An enum
+
+        unlike flags, enums cannot be combined.
+
+        is_enum(PySide2.QtCore.QLocale.Language) is True
+        is_enum(PySide6.QtCore.QLocale.Language) is True
+        """
+        if self.pyside_package == "PySide6":
+            # FIXME: flag groups such as PySide6.QtCore.QDir.Filters will return True here
+            return isinstance(typ, type) and issubclass(typ, enum.Enum)
+        else:
+            return (
+                hasattr(typ, "__pos__")
+                and not hasattr(typ, "__invert__")
+                and self.is_pyside_obj(typ)
+                and typ.__bases__ == (object,)
+            )
+
+    def is_enum_item(self, obj: object) -> bool:
+        """An individual enum item
+
+        e.g.
+
+        is_enum_item(PySide2.QtCore.QLocale.Language.Abkhazian) is True
+        is_enum_item(PySide6.QtCore.QLocale.Language.Abkhazian) is True
+        """
+        if self.pyside_package == "PySide6":
+            return isinstance(obj, enum.Enum) and not isinstance(obj, enum.Flag)
+        else:
+            return self.is_enum(type(obj))
+
+    @cache
+    def is_flag_group(self, typ: type) -> bool:
+        """The result of joining two flag items
+
+        In PySide6, with the switch to enum.Enum, the group and enum are the same
+        object.
+
+        e.g. PySide2.QtCore.QDir.Filters
+        """
+        if self.pyside_package == "PySide6":
+            return False
+        else:
+            return (
+                hasattr(typ, "__invert__")
+                and not hasattr(typ, "values")
+                and self.is_pyside_obj(typ)
+                and typ.__bases__ == (object,)
+            )
+
+    @cache
+    def is_flag_item_type(self, typ: type) -> bool:
+        """The type of an individual flag item
+
+        e.g.
+
+        is_flag_item_type(type(PySide2.QtCore.QDir.Filter.AllDirs)) is True
+        is_flag_item_type(type(PySide6.QtCore.QDir.Filter.AllDirs)) is True
+        """
+        if self.pyside_package == "PySide6":
+            return isinstance(typ, type) and issubclass(typ, enum.Enum)
+        else:
+            return (
+                hasattr(typ, "__invert__")
+                and hasattr(typ, "values")
+                and self.is_pyside_obj(typ)
+                and typ.__bases__ == (object,)
+            )
+
+    def is_flag_item(self, obj: object) -> bool:
+        """An individual flag item
+
+        e.g.
+
+        is_flag_item(PySide2.QtCore.QDir.Filter.AllDirs) is True
+        is_flag_item(PySide6.QtCore.QDir.Filter.AllDirs) is True
+        """
+        if self.pyside_package == "PySide6":
+            return isinstance(obj, enum.Flag)
+        else:
+            return self.is_flag_item_type(type(obj))
+
+    def get_enum_kind(self, obj):
+        typ = None
+        if self.is_flag_item(obj):
+            typ = "flag_item"
+        elif self.is_enum_item(obj):
+            typ = "enum_item"
+        else:
+            if isinstance(obj, type):
+                if self.is_flag(obj):
+                    typ = "flag"
+                elif self.is_enum(obj):
+                    typ = "enum"
+                elif self.is_flag_group(obj):
+                    typ = "flag_group"
+        return typ
+
+
+def dump_enums():
+    import PySide2
+
+    helper = PySideHelper("PySide2")
+
+    mapping: dict[str, str] = {}
+
+    for module_name in PySide2.__all__:
+        module = importlib.import_module(f"PySide2.{module_name}")
+        for top_name, top_member in inspect.getmembers(module):
+            if (
+                not isinstance(top_member, type)
+                or PySide2.QtCore.Qt.__bases__[0].__name__ != "Object"
+            ):
+                continue
+
+            flags = defaultdict(set)
+            for name, member in inspect.getmembers(top_member):
+                # print(f"{name:40}", helper.get_enum_kind(member))
+
+                if isinstance(member, type) and (
+                    helper.is_flag(member) or helper.is_enum(member)
+                ):
+                    flag_name = name
+                    for child_name in dir(member):
+                        child = getattr(member, child_name)
+                        if helper.is_flag_item(child) or helper.is_enum_item(child):
+                            flags[child_name].add(flag_name)
+
+            if flags:
+                print(f"{module_name}.{top_name} has {len(flags)} flags")
+                for name, member in inspect.getmembers(top_member):
+                    if helper.is_flag_item(member) or helper.is_enum_item(member):
+                        full_name = f"{module_name}.{top_name}.{name}"
+                        matches = list(flags[name])
+                        if len(matches) > 1:
+                            print(
+                                f"WARNING: {full_name} has more than one match: {matches}"
+                            )
+                            continue
+                        elif len(matches) == 0:
+                            print(f"WARNING: {full_name} has no matches")
+                            continue
+
+                        mapping[f"{module_name}.{top_name}.{name}"] = f"{module_name}.{top_name}.{matches[0]}.{name}"
+
+                        if helper.is_flag_item(member):
+                            group_type = type(member | member)
+                            # rename the group to
+                            mapping[f"{module_name}.{top_name}.{group_type.__name__}"] = f"{module_name}.{top_name}.{matches[0]}"
+
+
+    output = Path(__file__).parent.joinpath("enum-mappings.json")
+    with open(output, "w") as f:
+        json.dump(mapping, f, indent=4)
+
+
+if __name__ == "__main__":
+    dump_enums()
