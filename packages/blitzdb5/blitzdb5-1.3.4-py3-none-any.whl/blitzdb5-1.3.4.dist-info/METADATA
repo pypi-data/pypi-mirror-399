@@ -1,0 +1,83 @@
+Metadata-Version: 2.4
+Name: blitzdb5
+Version: 1.3.4
+Summary: A document-oriented database written purely in Python.
+License: MIT
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Topic :: Database
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+Requires-Dist: orjson
+Dynamic: license-file
+
+# BlitzDB5
+
+Modern Python 3 port of the original BlitzDB document store. BlitzDB5 keeps the file‑backed, Mongo‑style API while refreshing serialization, type hints, and packaging for current runtimes.
+
+## Requirements
+
+- Python 3.9+
+- `orjson` (installed via `pyproject.toml`)
+- Optional backends: `pymongo` for MongoDB, `sqlalchemy` + driver (e.g. `psycopg2-binary`) for SQL
+
+## Installation
+
+```bash
+git clone https://gitlab.com/sunsolution/blitzdb5.git
+cd blitzdb5
+pip install .
+```
+
+## Quick Start (File Backend)
+
+```python
+from blitzdb.backends.file.backend import Backend
+from blitzdb.document import Document
+
+class User(Document):
+    pass
+
+backend = Backend("./database")          # uses JSON serializer by default
+backend.register(User)
+
+user = User({"name": "Alice", "age": 30})
+backend.save(user)
+backend.commit()                         # flush indexes to disk
+
+found = backend.get(User, {"name": "Alice"})
+print(found)
+```
+
+## Backends at a Glance
+
+- File (default): No external services, transactional index writes, JSON/Pickle serializers.
+- MongoDB: Uses `pymongo`, best for multi‑process or cloud setups.
+- SQL (experimental): SQLAlchemy powered; useful when you already depend on relational storage.
+
+## Transactions & Autocommit
+
+- File backend is transactional; call `begin()`, `commit()`, `rollback()`.
+- `autocommit=True` is supported but rebuilds all indexes after each write and is slower on large datasets.
+
+## Indexing
+
+```python
+backend.create_index(User, {"key": "email"}, unique=True)
+backend.filter(User, {"email": {"$regex": "^a.*@example.com"}})
+```
+
+- Primary key indexes are created automatically when a collection is registered.
+- Ephemeral (in‑memory) indexes are created automatically for queried fields.
+
+## Serialization
+
+- Choose the on‑disk serializer via `Backend(..., serialize="json" | "pickle")`.
+- Config is stored in `config.json` alongside the database so readers and writers stay in sync.
+
+## Development Notes
+
+- This repo currently ships without an automated test suite; exercise critical flows manually after changes.
+- Packaging reads `README.md` (this file) as defined in `pyproject.toml`.
+
+
