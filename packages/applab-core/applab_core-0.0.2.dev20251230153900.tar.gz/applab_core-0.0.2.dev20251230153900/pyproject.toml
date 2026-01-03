@@ -1,0 +1,45 @@
+[project]
+name = "applab-core"
+version = "0.0.2dev20251230153900"
+# dynamic = ["version"] # todo 后面用 dynamic 替换掉 version 字段
+license = { text = "MIT" }
+
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "Chen Peng" }]
+urls = { "homepage" = "https://github.com/chen56/applab" }
+
+requires-python = ">=3.12"
+dependencies = [
+    "cyclopts>=4.4.0",
+    "pydantic>=2.12.5",
+    "requests>=2.32.5",
+    "rich>=14.2.0",
+    "tencentcloud-sdk-python-common>=3.1.12",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.15,<0.10.0"]
+# uv_build默认就使用 src/ 布局，不需要额外配置
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "keyring>=25.7.0",
+    "pytest>=9.0.1",
+]
+
+[project.scripts]
+applab = "applab.core._cli.main:main"
+
+#################################################################################
+# uv PEP 420 namespace 子项目配置
+#################################################################################
+
+[tool.uv.build-backend]
+# 开启命名空间支持 PEP 420
+# https://docs.astral.sh/uv/concepts/build-backend/#namespace-packages
+# namespace = true 会导致uv关掉安全检查，没搞懂啥意思，反正够乱的
+namespace = false
+# PEP 420命名空间的module名需改为'.'分割，避免默认的'applab-core'
+module-name = "applab.core"
