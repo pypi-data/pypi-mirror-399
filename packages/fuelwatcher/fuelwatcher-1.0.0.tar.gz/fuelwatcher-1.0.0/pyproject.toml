@@ -1,0 +1,44 @@
+[project]
+name = "fuelwatcher"
+version = "1.0.0"
+description = "A simple python module that scrapes XML data from the government of Western Australia's FuelWatch website that makes parsing a breeze."
+authors = [{name = "Daniel Michaels", email = "dan@danielms.site"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.28.2",
+    "fake-useragent>=1.5.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/danielmichaels/fuelwatcher"
+Repository = "https://github.com/danielmichaels/fuelwatcher"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=2.21.0",
+    "pytest>=7.2.0",
+    "ruff>=0.8.0",
+    "ty>=0.0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["fuelwatcher"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"fuelwatcher/fuelwatch.py" = ["E501"]  # Allow long user-agent strings
+
+[tool.ruff.lint.isort]
+known-first-party = ["fuelwatcher"]
