@@ -1,0 +1,975 @@
+"""
+Typed streaming events system following SOLID principles.
+
+This module provides a comprehensive event system for streaming execution events
+with proper type safety and extensibility following the Open/Closed Principle.
+"""
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Generic, TypeVar, Union
+import time
+
+# Type variable for event data
+T = TypeVar('T')
+
+
+class EventType(Enum):
+    """Enumeration of all supported event types."""
+    
+    # Core execution events
+    AGENT_STARTED = "agent_started"
+    AGENT_COMPLETED = "agent_completed"
+    AGENT_ERROR = "agent_error"
+    AGENT_UPDATED = "agent_updated"
+    
+    TEAM_STARTED = "team_started"
+    TEAM_COMPLETED = "team_completed"
+    TEAM_ERROR = "team_error"
+    
+    # Text streaming events
+    TEXT_DELTA = "text_delta"
+    TEXT_COMPLETE = "text_complete"
+    
+    # Tool execution events
+    TOOL_CALL = "tool_call"
+    TOOL_CALL_DELTA = "tool_call_delta"
+    TOOL_RESULT = "tool_result"
+    TOOL_ERROR = "tool_error"
+    
+    # Message events
+    MESSAGE_OUTPUT = "message_output"
+    MESSAGE_COMPLETE = "message_complete"
+    
+    # Response events
+    RESPONSE_CREATED = "response_created"
+    RESPONSE_IN_PROGRESS = "response_in_progress"
+    RESPONSE_COMPLETE = "response_complete"
+    
+    # Debug and monitoring events
+    DEBUG_INFO = "debug_info"
+    EVENT_ERROR = "event_error"
+    UNKNOWN_EVENT = "unknown_event"
+
+
+@dataclass
+class BaseEventData(ABC):
+    """
+    Base class for all event data following Single Responsibility Principle.
+    Each specific event data class handles only its own data validation and serialization.
+    """
+    provider: str = field(default="unknown")
+    original_event: Any | None = None
+    
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    @abstractmethod
+    def to_dict(self) -> dict[str, Any]:
+        """Convert event data to dictionary representation."""
+        pass
+
+
+class StreamEvent(Generic[T]):
+    """
+    Generic streaming event class following Open/Closed Principle.
+    
+    This class is open for extension (new event types) but closed for modification.
+    The Generic typing provides compile-time type safety for event data.
+    """
+    
+    def __init__(
+        self,
+        event_type: Union[EventType, str],
+        data: T,
+        timestamp: float | None = None,
+        session_id: str | None = None,
+        agent_id: str | None = None
+    ):
+        """
+        Initialize a streaming event.
+        
+        Args:
+            event_type: Type of the event
+            data: Typed event data
+            timestamp: Event timestamp (defaults to current time)
+            session_id: Optional session identifier
+            agent_id: Optional agent identifier
+        """
+        self.event_type = event_type.value if isinstance(event_type, EventType) else event_type
+        self.data = data
+        self.timestamp = timestamp or time.time()
+        self.session_id = session_id
+        self.agent_id = agent_id
+    
+    def to_dict(self) -> dict[str, Any]:
+        """Convert event to dictionary representation."""
+        result = {
+            "event_type": self.event_type,
+            "timestamp": self.timestamp,
+        }
+        
+        if self.session_id:
+            result["session_id"] = self.session_id
+            
+        if self.agent_id:
+            result["agent_id"] = self.agent_id
+        
+        # Handle data serialization based on type
+        if hasattr(self.data, 'to_dict'):
+            result["data"] = self.data.to_dict()
+        elif isinstance(self.data, dict):
+            result["data"] = self.data
+        else:
+            result["data"] = {"value": self.data}
+            
+        return result
+    
+    def __repr__(self) -> str:
+        return f"StreamEvent(type={self.event_type}, data={self.data}, timestamp={self.timestamp})"
+
+
+# ============================================================================
+# Agent Execution Events
+# ============================================================================
+
+@dataclass
+class AgentStartedData:
+    """Data for agent started events."""
+    message: str
+    session_id: str
+    provider: str = "unknown"
+    model: str | None = None
+    original_event: Any | None = None
+    
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "message": self.message,
+            "session_id": self.session_id,
+            "model": self.model,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class AgentCompletedData:
+    """Data for agent completed events."""
+    status: str
+    session_id: str
+    provider: str = "unknown"
+    output: str | None = None
+    original_event: Any | None = None
+    
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "status": self.status,
+            "session_id": self.session_id,
+            "output": self.output,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class AgentErrorData:
+    """Data for agent error events."""
+    error: str = field()
+    session_id: str | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "error": self.error,
+            "session_id": self.session_id,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class AgentUpdatedData:
+    """Data for agent updated events."""
+    agent_name: str = field()
+    updates: dict[str, Any] | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "agent_name": self.agent_name,
+            "updates": self.updates or {},
+            "provider": self.provider
+        })
+
+
+# ============================================================================
+# Team Execution Events
+# ============================================================================
+
+@dataclass
+class TeamStartedData:
+    """Data for team started events."""
+    team_id: str = field()
+    message: str = field()
+    stream: bool = False
+    debug: bool = False
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "team_id": self.team_id,
+            "message": self.message,
+            "stream": self.stream,
+            "debug": self.debug,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class TeamCompletedData:
+    """Data for team completed events."""
+    team_id: str = field()
+    status: str = field()
+    result: str | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "team_id": self.team_id,
+            "status": self.status,
+            "result": self.result,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class TeamErrorData:
+    """Data for team error events."""
+    team_id: str = field()
+    error: str = field()
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "team_id": self.team_id,
+            "error": self.error,
+            "provider": self.provider
+        })
+
+
+# ============================================================================
+# Text Streaming Events
+# ============================================================================
+
+@dataclass
+class TextDeltaData:
+    """Data for streaming text delta events."""
+    delta: str = field()
+    content_index: int = 0
+    item_id: str | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "delta": self.delta,
+            "content_index": self.content_index,
+            "item_id": self.item_id,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class TextCompleteData:
+    """Data for text completion events."""
+    content: str = field()
+    item_id: str | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "content": self.content,
+            "item_id": self.item_id,
+            "provider": self.provider
+        })
+
+
+# ============================================================================
+# Tool Execution Events
+# ============================================================================
+
+@dataclass
+class ToolCallData:
+    """Data for tool call events."""
+    tool_name: str = field()
+    call_id: str = field()
+    arguments: dict[str, Any] | str | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "tool_name": self.tool_name,
+            "call_id": self.call_id,
+            "arguments": self.arguments,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class ToolCallDeltaData:
+    """Data for tool call argument delta events."""
+    delta: str = field()
+    call_id: str = field()
+    item_id: str | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "delta": self.delta,
+            "call_id": self.call_id,
+            "item_id": self.item_id,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class ToolResultData:
+    """Data for tool result events."""
+    content: str = field()
+    call_id: str | None = None
+    tool_name: str | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "content": self.content,
+            "call_id": self.call_id,
+            "tool_name": self.tool_name,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class ToolErrorData:
+    """Data for tool error events."""
+    error: str = field()
+    tool_name: str | None = None
+    call_id: str | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "error": self.error,
+            "tool_name": self.tool_name,
+            "call_id": self.call_id,
+            "provider": self.provider
+        })
+
+
+# ============================================================================
+# Message Events
+# ============================================================================
+
+@dataclass
+class MessageOutputData:
+    """Data for message output events."""
+    content: str = field()
+    item_id: str | None = None
+    role: str = "assistant"
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "content": self.content,
+            "item_id": self.item_id,
+            "role": self.role,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class MessageCompleteData:
+    """Data for message completion events."""
+    content: str = field()
+    item_id: str | None = None
+    role: str = "assistant"
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "content": self.content,
+            "item_id": self.item_id,
+            "role": self.role,
+            "provider": self.provider
+        })
+
+
+# ============================================================================
+# Response Events
+# ============================================================================
+
+@dataclass
+class ResponseCreatedData:
+    """Data for response created events."""
+    response_id: str = field()
+    model: str | None = None
+    temperature: float | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "response_id": self.response_id,
+            "model": self.model,
+            "temperature": self.temperature,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class ResponseInProgressData:
+    """Data for response in progress events."""
+    response_id: str = field()
+    status: str = "in_progress"
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "response_id": self.response_id,
+            "status": self.status,
+            "provider": self.provider
+        })
+
+
+@dataclass
+class ResponseCompleteData:
+    """Data for response complete events."""
+    response_id: str = field()
+    status: str = "completed"
+    usage: dict[str, Any] | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "response_id": self.response_id,
+            "status": self.status,
+            "usage": self.usage,
+            "provider": self.provider
+        })
+
+
+# ============================================================================
+# Debug and Error Events
+# ============================================================================
+
+@dataclass
+class DebugInfoData:
+    """Data for debug information events."""
+    message: str = field()
+    context: dict[str, Any] | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "message": self.message,
+            "context": self.context or {},
+            "provider": self.provider
+        })
+
+
+@dataclass
+class EventErrorData:
+    """Data for event processing error events."""
+    error: str = field()
+    event_type: str | None = None
+    original_data: dict[str, Any] | None = None
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "error": self.error,
+            "event_type": self.event_type,
+            "original_data": self.original_data or {},
+            "provider": self.provider
+        })
+
+
+@dataclass
+class UnknownEventData:
+    """Data for unknown event types."""
+    event_type: str = field()
+    raw_data: dict[str, Any] | str = field()
+    provider: str = "unknown"
+    original_event: Any | None = None
+
+    def _add_original_event_to_dict(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Helper method to add original_event to dictionary if present."""
+        if self.original_event is not None:
+            data["original_event"] = str(self.original_event)
+        return data
+    
+    
+    def to_dict(self) -> dict[str, Any]:
+        return self._add_original_event_to_dict({
+            "event_type": self.event_type,
+            "raw_data": self.raw_data,
+            "provider": self.provider
+        })
+
+
+# ============================================================================
+# Type Aliases for Common Event Types
+# ============================================================================
+
+# Agent Events
+AgentStartedEvent = StreamEvent[AgentStartedData]
+AgentCompletedEvent = StreamEvent[AgentCompletedData]
+AgentErrorEvent = StreamEvent[AgentErrorData]
+AgentUpdatedEvent = StreamEvent[AgentUpdatedData]
+
+# Team Events
+TeamStartedEvent = StreamEvent[TeamStartedData]
+TeamCompletedEvent = StreamEvent[TeamCompletedData]
+TeamErrorEvent = StreamEvent[TeamErrorData]
+
+# Text Events
+TextDeltaEvent = StreamEvent[TextDeltaData]
+TextCompleteEvent = StreamEvent[TextCompleteData]
+
+# Tool Events
+ToolCallEvent = StreamEvent[ToolCallData]
+ToolCallDeltaEvent = StreamEvent[ToolCallDeltaData]
+ToolResultEvent = StreamEvent[ToolResultData]
+ToolErrorEvent = StreamEvent[ToolErrorData]
+
+# Message Events
+MessageOutputEvent = StreamEvent[MessageOutputData]
+MessageCompleteEvent = StreamEvent[MessageCompleteData]
+
+# Response Events
+ResponseCreatedEvent = StreamEvent[ResponseCreatedData]
+ResponseInProgressEvent = StreamEvent[ResponseInProgressData]
+ResponseCompleteEvent = StreamEvent[ResponseCompleteData]
+
+# Debug Events
+DebugInfoEvent = StreamEvent[DebugInfoData]
+EventErrorEvent = StreamEvent[EventErrorData]
+UnknownEventEvent = StreamEvent[UnknownEventData]
+
+
+# ============================================================================
+# Event Factory Functions Following Factory Pattern
+# ============================================================================
+
+class EventFactory:
+    """
+    Factory class for creating typed events following the Factory Pattern.
+    Provides a centralized way to create events with proper typing.
+    """
+    
+    @staticmethod
+    def create_agent_started(
+        message: str,
+        session_id: str,
+        provider: str = "openai",
+        model: str | None = None,
+        agent_id: str | None = None
+    ) -> AgentStartedEvent:
+        """Create an agent started event."""
+        data = AgentStartedData(
+            message=message,
+            session_id=session_id,
+            model=model,
+            provider=provider
+        )
+        return StreamEvent(EventType.AGENT_STARTED, data, agent_id=agent_id)
+    
+    @staticmethod
+    def create_agent_completed(
+        status: str,
+        session_id: str,
+        provider: str = "openai",
+        output: str | None = None,
+        agent_id: str | None = None
+    ) -> AgentCompletedEvent:
+        """Create an agent completed event."""
+        data = AgentCompletedData(
+            status=status,
+            session_id=session_id,
+            output=output,
+            provider=provider
+        )
+        return StreamEvent(EventType.AGENT_COMPLETED, data, agent_id=agent_id)
+    
+    @staticmethod
+    def create_agent_error(
+        error: str,
+        provider: str = "openai",
+        session_id: str | None = None,
+        agent_id: str | None = None
+    ) -> AgentErrorEvent:
+        """Create an agent error event."""
+        data = AgentErrorData(
+            error=error,
+            session_id=session_id,
+            provider=provider
+        )
+        return StreamEvent(EventType.AGENT_ERROR, data, agent_id=agent_id)
+    
+    @staticmethod
+    def create_agent_updated(
+        agent_name: str,
+        provider: str = "openai",
+        updates: dict[str, Any] | None = None,
+        agent_id: str | None = None
+    ) -> AgentUpdatedEvent:
+        """Create an agent updated event."""
+        data = AgentUpdatedData(
+            agent_name=agent_name,
+            updates=updates,
+            provider=provider
+        )
+        return StreamEvent(EventType.AGENT_UPDATED, data, agent_id=agent_id)
+    
+    @staticmethod
+    def create_team_started(
+        team_id: str,
+        message: str,
+        provider: str = "openai",
+        stream: bool = False,
+        debug: bool = False
+    ) -> TeamStartedEvent:
+        """Create a team started event."""
+        data = TeamStartedData(
+            team_id=team_id,
+            message=message,
+            stream=stream,
+            debug=debug,
+            provider=provider
+        )
+        return StreamEvent(EventType.TEAM_STARTED, data)
+    
+    @staticmethod
+    def create_team_completed(
+        team_id: str,
+        status: str,
+        provider: str = "openai",
+        result: str | None = None
+    ) -> TeamCompletedEvent:
+        """Create a team completed event."""
+        data = TeamCompletedData(
+            team_id=team_id,
+            status=status,
+            result=result,
+            provider=provider
+        )
+        return StreamEvent(EventType.TEAM_COMPLETED, data)
+    
+    @staticmethod
+    def create_team_error(
+        team_id: str,
+        error: str,
+        provider: str = "openai"
+    ) -> TeamErrorEvent:
+        """Create a team error event."""
+        data = TeamErrorData(
+            team_id=team_id,
+            error=error,
+            provider=provider
+        )
+        return StreamEvent(EventType.TEAM_ERROR, data)
+    
+    @staticmethod
+    def create_text_delta(
+        delta: str,
+        provider: str = "openai",
+        content_index: int = 0,
+        item_id: str | None = None,
+        session_id: str | None = None,
+        original_event: Any | None = None
+    ) -> TextDeltaEvent:
+        """Create a text delta event."""
+        data = TextDeltaData(
+            delta=delta,
+            content_index=content_index,
+            item_id=item_id,
+            provider=provider,
+            original_event=original_event
+        )
+        return StreamEvent(EventType.TEXT_DELTA, data, session_id=session_id)
+    
+    @staticmethod
+    def create_tool_call(
+        tool_name: str,
+        call_id: str,
+        provider: str = "openai",
+        arguments: dict[str, Any] | str | None = None,
+        session_id: str | None = None,
+        original_event: Any | None = None
+    ) -> ToolCallEvent:
+        """Create a tool call event."""
+        data = ToolCallData(
+            tool_name=tool_name,
+            call_id=call_id,
+            arguments=arguments,
+            provider=provider,
+            original_event=original_event
+        )
+        return StreamEvent(EventType.TOOL_CALL, data, session_id=session_id)
+    
+    @staticmethod
+    def create_tool_call_delta(
+        delta: str,
+        call_id: str,
+        provider: str = "openai",
+        item_id: str | None = None,
+        session_id: str | None = None
+    ) -> ToolCallDeltaEvent:
+        """Create a tool call delta event."""
+        data = ToolCallDeltaData(
+            delta=delta,
+            call_id=call_id,
+            item_id=item_id,
+            provider=provider
+        )
+        return StreamEvent(EventType.TOOL_CALL_DELTA, data, session_id=session_id)
+    
+    @staticmethod
+    def create_tool_result(
+        content: str,
+        provider: str = "openai",
+        call_id: str | None = None,
+        tool_name: str | None = None,
+        session_id: str | None = None,
+        original_event: Any | None = None
+    ) -> ToolResultEvent:
+        """Create a tool result event."""
+        data = ToolResultData(
+            content=content,
+            call_id=call_id,
+            tool_name=tool_name,
+            provider=provider,
+            original_event=original_event
+        )
+        return StreamEvent(EventType.TOOL_RESULT, data, session_id=session_id)
+    
+    @staticmethod
+    def create_message_output(
+        content: str,
+        provider: str = "openai",
+        item_id: str | None = None,
+        role: str = "assistant",
+        session_id: str | None = None,
+        original_event: Any | None = None
+    ) -> MessageOutputEvent:
+        """Create a message output event."""
+        data = MessageOutputData(
+            content=content,
+            item_id=item_id,
+            role=role,
+            provider=provider,
+            original_event=original_event
+        )
+        return StreamEvent(EventType.MESSAGE_OUTPUT, data, session_id=session_id)
+    
+    @staticmethod
+    def create_event_error(
+        error: str,
+        provider: str = "openai",
+        event_type: str | None = None,
+        original_data: dict[str, Any] | None = None,
+        session_id: str | None = None
+    ) -> EventErrorEvent:
+        """Create an event error event."""
+        data = EventErrorData(
+            error=error,
+            event_type=event_type,
+            original_data=original_data,
+            provider=provider
+        )
+        return StreamEvent(EventType.EVENT_ERROR, data, session_id=session_id)
+    
+    @staticmethod
+    def create_unknown_event(
+        event_type: str,
+        raw_data: dict[str, Any] | str,
+        provider: str = "openai",
+        session_id: str | None = None
+    ) -> UnknownEventEvent:
+        """Create an unknown event."""
+        data = UnknownEventData(
+            event_type=event_type,
+            raw_data=raw_data,
+            provider=provider
+        )
+        return StreamEvent(EventType.UNKNOWN_EVENT, data, session_id=session_id)
+    
+    @staticmethod
+    def create_debug_info(
+        message: str,
+        provider: str = "openai",
+        context: dict[str, Any] | None = None,
+        session_id: str | None = None
+    ) -> DebugInfoEvent:
+        """Create a debug info event."""
+        data = DebugInfoData(
+            message=message,
+            context=context,
+            provider=provider
+        )
+        return StreamEvent(EventType.DEBUG_INFO, data, session_id=session_id)
