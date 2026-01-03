@@ -1,0 +1,29 @@
+[project]
+name = "ny2026"
+version = "1.0.9"
+description = "A countdown to 2026 in your terminal"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [
+    {name = "Will McGugan", email = "willmcgugan@gmail.com"}
+]
+dependencies = [
+    "rich>=14.2.0",
+    "numpy>=2.4.0",
+    "sounddevice>=0.5.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/willmcgugan/ny2026"
+Repository = "https://github.com/willmcgugan/ny2026"
+
+[project.scripts]
+ny2026 = "main:main"
+
+[build-system]
+requires = ["hatchling==1.28.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
