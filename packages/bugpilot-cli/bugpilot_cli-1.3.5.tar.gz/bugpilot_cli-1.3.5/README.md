@@ -1,0 +1,114 @@
+# BugPilot CLI
+
+AI-Powered Autonomous Penetration Testing Tool
+
+**Version**: 1.4.0  
+**Author**: LAKSHMIKANTHAN K (letchupkt)  
+**Status**: Production Ready  
+
+---
+
+## Overview
+
+BugPilot CLI is an AI-powered command-line tool for penetration testing and security research. It combines the power of multiple AI models with built-in security knowledge tools.
+
+## Features
+
+- Multiple LLM support (Gemini, Groq, Claude, OpenAI, Ollama)
+- Two operating modes: Forge (interactive) and Hacker (autonomous)
+- Built-in CVE database lookup
+- OWASP Top 10 2021 reference
+- Auto-update system
+- Rich terminal UI with 7 themes
+- Session management and export
+- Persistent operating modes
+
+## Quick Start
+
+### Installation
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run BugPilot
+python -m bugpilot
+```
+
+### First Time Setup
+
+1. Add API key to `settings.yaml` or environment variable
+2. Run `/settings` to configure
+3. Type `/help` to see all commands
+
+## Commands
+
+```
+/help          - Show all commands
+/settings      - Configure settings
+/update        - Check for updates
+/cve <ID>      - Look up CVE information
+/owasp [ID]    - Get OWASP Top 10 info
+/mode          - Switch operating modes
+/clear         - Clear screen
+/exit          - Exit BugPilot
+```
+
+## Examples
+
+### Look up a CVE
+```bash
+/cve CVE-2021-44228
+```
+
+### Search for product vulnerabilities
+```bash
+/cve search apache 2.4.49
+```
+
+### Get OWASP Top 10 info
+```bash
+/owasp A03
+```
+
+###Update BugPilot
+```bash
+/update check
+/update install
+```
+
+## Architecture
+
+BugPilot uses a hybrid execution model:
+- Regex-based command parsing for CLI commands
+- Direct Python function calls for tools (CVE, OWASP, etc.)
+- LLM integration for AI-powered analysis
+- Optional MCP support available
+
+## Documentation
+
+- `QUICKSTART.md` - Detailed quick start guide
+- `SECURITY_TOOLS.md` - CVE and OWASP tools documentation
+- `FINAL_PROJECT_STATUS.md` - Complete project status
+
+## Requirements
+
+- Python 3.8+
+- See `requirements.txt` for full list
+- API key for at least one LLM provider
+
+## License
+
+See LICENSE file
+
+## Contributing
+
+Contributions welcome! Please ensure all tests pass before submitting.
+
+## Support
+
+For issues and questions, refer to the documentation in the `docs_archive` folder or create an issue.
+
+---
+
+**Happy Hunting!**

@@ -1,0 +1,85 @@
+llm:
+  default_provider: groq
+  models:
+    intent_detection:
+      provider: groq
+      model: llama-3.3-70b-versatile
+      temperature: 0.3
+      max_tokens: 1024
+    reasoning:
+      provider: groq
+      model: llama-3.3-70b-versatile
+      temperature: 0.7
+      max_tokens: 8192
+    execution_analysis:
+      provider: groq
+      model: llama-3.3-70b-versatile
+      temperature: 0.5
+      max_tokens: 4096
+    reporting:
+      provider: groq
+      model: llama-3.3-70b-versatile
+      temperature: 0.6
+      max_tokens: 8192
+api_keys:
+  gemini: ''
+  groq: ''
+  openai: ''
+  claude: ''
+  groq_active: ''
+safety:
+  require_confirmation: false
+  dangerous_commands:
+  - rm -rf
+  - del /f
+  - format
+  - mkfs.
+  - dd if=
+  - '> /dev/'
+  - shutdown
+  - reboot
+  max_tool_calls: 10
+  timeout_seconds: 90
+modes:
+  default: hacker
+  forge:
+    max_steps: 3
+    auto_analyze: true
+  hacker:
+    max_iterations: 20
+    enable_autonomous: true
+    enable_mcp: true
+context:
+  max_tokens: 8000
+  max_history: 50
+  save_conversations: true
+session:
+  auto_save: true
+  save_dir: .bugpilot_sessions
+  export_format: markdown
+tools:
+  enable_mcp: true
+  mcp_servers: []
+  builtin:
+  - nmap
+  - nuclei
+  - whatweb
+  - curl
+  - dig
+  - whois
+  auto_install: false
+knowledge:
+  cve_api: https://cve.circl.lu/api/cve/
+  mitre_api: https://cveawg.mitre.org/api/cve/
+  owasp_url: https://owasp.org/Top10/
+  cache_duration: 86400
+ui:
+  theme: neon
+  show_status_bar: true
+  typing_effect: true
+  typing_speed: 150
+  markdown_rendering: true
+logging:
+  level: INFO
+  file: .bugpilot.log
+  console: true
