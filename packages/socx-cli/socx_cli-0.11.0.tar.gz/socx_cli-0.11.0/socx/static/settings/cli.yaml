@@ -1,0 +1,38 @@
+cli:
+  params:
+    color: true
+    debug: false
+    configure: true
+    verbosity: ERROR
+    config_files: []
+
+  command:
+    options_metavar: "[options]"
+    context_settings:
+      allow_interspersed_args: true
+
+  group:
+    options_metavar: "[options]"
+    subcommand_metavar: "<subcommand> [args]..."
+    no_args_is_help: true
+    context_settings: &socx-cli-context-settings
+      auto_envvar_prefix: "SOCX_"
+      help_option_names:
+        - -h
+        - --help
+      allow_extra_args: true
+      ignore_unknown_options: true
+      allow_interspersed_args: false
+
+  option_panels:
+    - name: Flags
+      options:
+        - --color
+        - --configure
+
+    - name: Options
+      options:
+        - --help
+        - --debug
+        - --verbosity
+        - --config-file
