@@ -1,0 +1,225 @@
+Metadata-Version: 2.4
+Name: vvuq-mcp
+Version: 2.1.0
+Summary: Verification, Validation & Uncertainty Quantification MCP for marketplace contracts
+Author-email: Dirk Englund <englund@mit.edu>
+License: MIT
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: aiofiles>=24.0.0
+Requires-Dist: fastapi>=0.100.0
+Requires-Dist: fastmcp>=2.0.0
+Requires-Dist: neo4j>=6.0.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: pydantic-settings>=2.0.0
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: slowapi>=0.1.9
+Requires-Dist: uvicorn>=0.30.0
+Requires-Dist: httpx>=0.24.0
+Requires-Dist: google-cloud-secret-manager>=2.16.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
+Requires-Dist: pytest-cov>=6.0.0; extra == "dev"
+Requires-Dist: pytest-timeout>=2.3.0; extra == "dev"
+Requires-Dist: pytest-mock>=3.14.0; extra == "dev"
+Requires-Dist: pytest-benchmark>=4.0.0; extra == "dev"
+Requires-Dist: ruff>=0.8.0; extra == "dev"
+Requires-Dist: pyright>=1.1.0; extra == "dev"
+
+# VVUQ-MCP: Verification, Validation & Uncertainty Quantification
+
+**MCP Server for automated marketplace contract verification**
+
+## Overview
+
+VVUQ-MCP is a FastMCP server that acts as an automated judge for marketplace contracts. It verifies formal proofs (starting with Lean4), validates contract fulfillment, and executes cryptographic payments.
+
+## Features
+
+- **Tiered Dependency Management** - Dynamic workspace provisioning with deterministic caching
+- **Server-Side Context Injection** - Secure injection of versioned assumption contexts (e.g. `Physics:v1.0.0`)
+- **Lean4 Proof Verification** - Compile and verify proofs against contract claims
+- **Cryptographic Payments** - Secure payment settlement with audit trail
+- **Neo4j Integration** - Contract storage and query
+- **MCP Protocol** - Standard interface for AI agents
+- **n8n Integration** - Workflow automation with webhook-based marketplace operations (see `n8n_integration/`)
+
+## Quick Start
+
+```bash
+# Setup
+python -m venv .venv
+source .venv/bin/activate
+pip install vvuq-mcp
+# Or for development: pip install -e ".[dev]"
+
+# Run MCP server
+# Automatically manages its own workspaces directory
+python -m vvuq_mcp.server
+
+# Run tests
+pytest tests/ -v
+```
+
+## Architecture
+
+See `VVUQ_MCP_ARCHITECTURE.md` (in mcp-marketplace repo) for complete architecture documentation.
+
+**Core components:**
+- `server.py` - FastMCP server with 4 core tools
+- `workspaces/` - Tiered Dependency Manager (Refactored v2.0)
+    - `path_generator.py` - Deterministic SHA256 path generation
+    - `provisioner.py` - Dynamic lakefile generation and mathlib downloading
+- `verifiers/lean4.py` - Lean4 compilation and verification with context injection
+- `payments/ledger.py` - Simple cryptographic ledger
+- `storage/neo4j_client.py` - Async Neo4j integration
+
+## MCP Tools
+
+### verify_lean4_proof
+Verify a Lean4 proof against a contract claim.
+
+**Input:**
+```python
+{
+  "contract_id": "lean4-uuid-123",
+  "claim_id": 1,
+  "proof_code": "theorem my_theorem : ... := by ...",
+  "dependencies": ["Mathlib.Data.Nat.Basic"],
+  "mathlib_version": "v4.15.0",           # Optional: Pin specific version
+  "assumption_contexts": ["Physics:v1.0.0"] # Optional: Inject specific context
+}
+```
+
+**Output:**
+```python
+{
+  "verdict": "ACCEPTED",  # or REJECTED/ERROR
+  "matches_claim": true,
+  "payment_executed": {...},
+  "verification_time_ms": 4823
+}
+```
+
+### submit_contract_proof
+Submit a proof file for verification (convenience wrapper).
+
+### get_contract_requirements
+Retrieve contract requirements for a specific contract.
+
+### query_verification_history
+Query past verification attempts and outcomes.
+
+## Development
+
+### TDD Workflow
+```bash
+# 1. Write test FIRST (RED)
+pytest tests/unit/test_lean4_verifier.py::test_new_feature -v
+
+# 2. Implement (GREEN)
+# Edit src/vvuq_mcp/verifiers/lean4.py
+
+# 3. Verify
+pytest tests/unit/test_lean4_verifier.py::test_new_feature -v
+
+# 4. Refactor
+```
+
+### Running Tests
+```bash
+# All tests
+pytest tests/ -v
+
+# Unit tests only (fast)
+pytest tests/unit/ -v
+
+# Integration tests (require Neo4j)
+pytest tests/integration/ -v
+
+# E2E Tests (Real filesystem/network)
+pytest tests/e2e/ -v --slow
+
+# With coverage
+pytest tests/ -v --cov=vvuq_mcp --cov-report=term-missing
+```
+
+## Configuration
+
+Create `.env` file:
+```bash
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=your_password
+
+# Optional customizations
+# WORKSPACES_DIR=./workspaces (default: ~/.vvuq/workspaces)
+# MAX_CONCURRENT_PROVISIONS=3
+# MAX_TOTAL_WORKSPACES=50
+
+PAYMENT_SECRET_KEY=<generate with: python -c "import secrets; print(secrets.token_hex(32))">
+PAYMENT_LEDGER_MODE=simple
+```
+
+## Security (Hardened v2.0)
+
+- **Command Injection Prevention** - Strict regex validation (`^[a-f0-9]{40}$` or `^v\d+...`) for version inputs.
+- **Path Traversal Prevention** - `pathlib` sandboxing and regex validation for context injection.
+- **Sandboxed Execution** - Lean4 compilation in isolated, hashed directories.
+- **Resource Limits** - Semaphore-based concurrency limits (MAX_CONCURRENT_PROVISIONS).
+- **Integrity Checks** - Lockfiles (`.vvuq_contexts`) verify workspace consistency.
+
+## n8n Integration (NEW)
+
+VVUQ-MCP now includes a complete n8n workflow automation integration for webhook-based marketplace operations.
+
+### Features
+- **6 Marketplace Operations**: create_contract, query_contracts, get_contract, submit_proof, get_verification_history, process_payment
+- **Input Validation**: Catches incomplete proofs ('sorry' keyword), missing required fields
+- **Authentication**: X-API-Key header + HMAC-SHA256 signature support
+- **Production Ready**: 38 tests passing, all security issues fixed
+
+### Quick Start
+```bash
+# Start n8n
+docker run -d --name n8n -p 5678:5678 n8nio/n8n
+
+# Import workflow
+# See n8n_integration/QUICKSTART.md
+
+# Test webhook
+curl -X POST http://localhost:5678/webhook/vvuq \
+  -H "Content-Type: application/json" \
+  -d '{"operation": "query_contracts", "status": "OPEN"}'
+```
+
+### Documentation
+- **Quick Start**: `n8n_integration/QUICKSTART.md`
+- **Full README**: `n8n_integration/README.md`
+- **Test Report**: `n8n_integration/FINAL_TEST_REPORT_202512300723.md`
+
+### Test Results
+```bash
+pytest tests/critic-generated/test_n8n*.py -q
+
+Result: 88 passed, 18 failed (expected - non-n8n security markers)
+N8N Tests: 38/38 passing (100%)
+```
+
+---
+
+## Status
+
+**Phase:** Production (v2.0.1)
+**Progress:** 100% (Tiered Dependency Management, Security Hardening, n8n Integration Complete)
+**Latest**: n8n workflow automation integration (Dec 30, 2024)
+**Next:** Continuous Maintenance
+
+## License
+
+MIT
+
+## Contact
+
+Dirk Englund - englund@mit.edu
