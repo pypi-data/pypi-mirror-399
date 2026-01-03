@@ -1,0 +1,386 @@
+# MizbanCloud Python SDK
+
+Official Python SDK for interacting with MizbanCloud CDN and Cloud APIs.
+
+## Requirements
+
+- Python 3.8 or higher
+
+## Installation
+
+### pip
+
+```bash
+pip install mizbancloud-sdk
+```
+
+### From source
+
+```bash
+git clone https://github.com/mizbancloud/python-sdk.git
+cd python-sdk
+pip install -e .
+```
+
+## Quick Start
+
+```python
+from mizbancloud import MizbanCloudClient, MizbanCloudConfig
+
+# Create client instance
+client = MizbanCloudClient(MizbanCloudConfig(
+    base_url="https://auth.mizbancloud.com"
+))
+
+# Set API token
+client.set_token("your-api-token")
+
+# List CDN domains
+domains = client.cdn.list_domains()
+
+# List cloud servers
+servers = client.cloud.list_servers()
+
+# Don't forget to close when done
+client.close()
+```
+
+### Using Context Manager
+
+```python
+from mizbancloud import MizbanCloudClient
+
+with MizbanCloudClient() as client:
+    client.set_token("your-api-token")
+    domains = client.cdn.list_domains()
+```
+
+## Configuration
+
+```python
+from mizbancloud import MizbanCloudClient, MizbanCloudConfig
+
+config = MizbanCloudConfig(
+    base_url="https://auth.mizbancloud.com",  # API base URL
+    timeout=30,                                # Request timeout in seconds
+    language="en",                             # Response language: "en" or "fa"
+    headers={"X-Custom-Header": "value"},      # Additional headers
+)
+
+client = MizbanCloudClient(config)
+```
+
+## Modules
+
+### Auth Module
+
+Token management and wallet operations.
+
+```python
+# Set API token
+client.auth.set_api_token("your-token")
+
+# Get current token
+token = client.auth.get_api_token()
+
+# Clear token
+client.auth.clear_api_token()
+
+# Get wallet balance
+wallet = client.auth.get_wallet()
+```
+
+### CDN Module
+
+Complete CDN management: domains, DNS, SSL, cache, security, WAF, page rules, and more.
+
+#### Domains
+
+```python
+# List all domains
+domains = client.cdn.list_domains()
+
+# Get domain details
+domain = client.cdn.get_domain(domain_id)
+
+# Add a new domain
+result = client.cdn.add_domain({"domain": "example.com"})
+
+# Delete domain (requires SMS confirmation)
+client.cdn.send_delete_confirm_code(domain_id)
+client.cdn.delete_domain(domain_id, confirm_code)
+
+# Get domain usage/analytics
+usage = client.cdn.get_usage(domain_id)
+```
+
+#### DNS Records
+
+```python
+# List DNS records
+records = client.cdn.list_dns_records(domain_id)
+
+# Add DNS record
+record = client.cdn.add_dns_record(domain_id, {
+    "type": "A",
+    "name": "www",
+    "value": "1.2.3.4",
+    "ttl": 3600,
+    "proxied": True
+})
+
+# Update DNS record
+client.cdn.update_dns_record(domain_id, record_id, {"value": "5.6.7.8"})
+
+# Delete DNS record
+client.cdn.delete_dns_record(domain_id, record_id)
+
+# Enable DNSSEC
+client.cdn.set_dnssec(domain_id, True)
+```
+
+#### SSL/HTTPS
+
+```python
+# List SSL certificates
+certs = client.cdn.list_ssl(domain_id)
+
+# Request free SSL (Let's Encrypt)
+client.cdn.request_free_ssl(domain_id)
+
+# Add custom SSL certificate
+client.cdn.add_custom_ssl(domain_id, {
+    "certificate": "-----BEGIN CERTIFICATE-----...",
+    "private_key": "-----BEGIN PRIVATE KEY-----..."
+})
+
+# Configure HSTS
+client.cdn.set_hsts(domain_id, {
+    "enabled": True,
+    "max_age": 31536000,
+    "include_subdomains": True
+})
+
+# Enable HTTPS redirect
+client.cdn.set_https_redirect(domain_id, True)
+```
+
+#### Cache
+
+```python
+# Get cache settings
+settings = client.cdn.get_cache_settings(domain_id)
+
+# Set cache mode
+client.cdn.set_cache_mode(domain_id, "aggressive")
+
+# Set cache TTL
+client.cdn.set_cache_ttl(domain_id, 86400)
+
+# Enable developer mode (bypass cache)
+client.cdn.set_developer_mode(domain_id, True)
+
+# Purge all cache
+client.cdn.purge_cache(domain_id, {"purge_all": True})
+```
+
+#### DDoS Protection
+
+```python
+# Get DDoS settings
+settings = client.cdn.get_ddos_settings(domain_id)
+
+# Set DDoS settings
+client.cdn.set_ddos_settings(domain_id, {"mode": "high"})
+```
+
+#### Firewall & WAF
+
+```python
+# Get firewall configs
+configs = client.cdn.get_firewall_configs(domain_id)
+
+# Get WAF settings
+waf = client.cdn.get_waf_settings(domain_id)
+
+# Set WAF settings
+client.cdn.set_waf_settings(domain_id, {
+    "enabled": True,
+    "mode": "block"
+})
+```
+
+### Cloud Module
+
+Complete IaaS management: servers, firewall, networks, volumes, snapshots, SSH keys.
+
+#### Servers
+
+```python
+# List all servers
+servers = client.cloud.list_servers()
+
+# Get server details
+server = client.cloud.get_server(server_id)
+
+# Create a new server
+new_server = client.cloud.create_server({
+    "name": "my-server",
+    "datacenter_id": 1,
+    "os_id": 1,
+    "cpu": 2,
+    "ram": 4096,
+    "disk": 50
+})
+
+# Rename server
+client.cloud.rename_server(server_id, "new-name")
+
+# Delete server
+client.cloud.delete_server(server_id)
+```
+
+#### Power Management
+
+```python
+# Power on
+client.cloud.power_on(server_id)
+
+# Power off (hard)
+client.cloud.power_off(server_id)
+
+# Reboot (hard)
+client.cloud.reboot(server_id)
+
+# Restart (soft/graceful)
+client.cloud.restart(server_id)
+```
+
+#### Security Groups (Firewall)
+
+```python
+# List security groups
+groups = client.cloud.list_security_groups()
+
+# Create security group
+group = client.cloud.create_security_group({"name": "web-servers"})
+
+# Add security rule
+client.cloud.add_security_rule({
+    "security_group_id": group_id,
+    "direction": "ingress",
+    "protocol": "tcp",
+    "port_range_min": 80,
+    "port_range_max": 80,
+    "remote_ip_prefix": "0.0.0.0/0"
+})
+```
+
+#### Volumes
+
+```python
+# List volumes
+volumes = client.cloud.list_volumes()
+
+# Create volume
+volume = client.cloud.create_volume({
+    "name": "data-volume",
+    "size": 100,
+    "datacenter_id": 1
+})
+
+# Attach volume to server
+client.cloud.attach_volume({
+    "volume_id": volume_id,
+    "server_id": server_id
+})
+```
+
+#### SSH Keys
+
+```python
+# List SSH keys
+keys = client.cloud.list_ssh_keys()
+
+# Create SSH key
+key = client.cloud.create_ssh_key({
+    "name": "my-key",
+    "public_key": "ssh-rsa AAAA..."
+})
+
+# Generate random SSH key pair
+key_pair = client.cloud.generate_random_ssh_key()
+```
+
+### Statics Module
+
+Static catalog data for server creation.
+
+```python
+# List available datacenters
+datacenters = client.statics.list_datacenters()
+
+# List available operating systems
+os_list = client.statics.list_operating_systems()
+
+# Get cache time options
+cache_times = client.statics.get_cache_times()
+```
+
+## Error Handling
+
+```python
+from mizbancloud import MizbanCloudClient, MizbanCloudException
+
+try:
+    with MizbanCloudClient() as client:
+        client.set_token("your-token")
+        domains = client.cdn.list_domains()
+except MizbanCloudException as e:
+    print(f"Error: {e.message}")
+    print(f"Status Code: {e.status_code}")
+
+    # Get validation errors
+    if e.fields:
+        for field, error in e.fields.items():
+            print(f"  {field}: {error}")
+```
+
+## Language Support
+
+```python
+# Set language for API responses
+client.set_language("fa")  # Persian
+client.set_language("en")  # English (default)
+
+# Get current language
+lang = client.get_language()
+```
+
+## Authentication Status
+
+```python
+# Check if authenticated
+if client.is_authenticated():
+    print("Token is set")
+
+# Get current token
+token = client.get_token()
+```
+
+## Development
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run tests with coverage
+pytest --cov=mizbancloud
+```
+
+## License
+
+MIT License
