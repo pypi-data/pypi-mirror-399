@@ -1,0 +1,41 @@
+{% extends base_template_name %}
+{% load i18n %}
+
+{% block content %}
+	<h1>{% translate 'Cart' %}</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>{% translate 'Preview' %}</th>
+                <th>{% translate 'Product' %}</th>
+                <th>{% translate 'Product code' %}</th>
+                <th>{% translate 'Price' %}</th>
+                <th>{% translate 'Count' %}</th>
+                <th>{% translate 'Cost' %}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+                <tr>
+                    <th><img src="/media/{{ item.product.preview }}" alt="{{ item.product.name }}"></th>
+                    <th>{{ item.product.name }}</th>
+                    <th>{{ item.product.code }}</th>
+                    <th>{{ item.product.price }}</th>
+                    <th>
+                        <input type="number" value="{{ item.quantity }}" min="1">
+                    </th>
+                    <th>{{ item.total_price }}</th>
+                    <th>{% include 'internet_shop/svg/svg/x.svg' %}</th>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">Итого:</td>
+                <td colspan="2">{{ cart.total_price }}</td>
+            </tr>
+        </tfoot>
+    </table>
+    <script src="{%  %}"></script>
+{% endblock %}
