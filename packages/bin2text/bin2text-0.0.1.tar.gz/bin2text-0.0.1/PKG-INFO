@@ -1,0 +1,89 @@
+Metadata-Version: 2.2
+Name: bin2text
+Version: 0.0.1
+Summary: A Cython project with scikit-build
+Author-Email: Mohammad Raziei <mohammadraziei1375@gmail.com>
+License: MIT
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Project-URL: Homepage, https://github.com/mohammadraziei/bin2text
+Project-URL: Bug Tracker, https://github.com/mohammadraziei/bin2text/issues
+Project-URL: Document, https://mohammadraziei.github.io/bin2text
+Requires-Python: >=3.8
+Requires-Dist: numpy>=1.20
+Requires-Dist: click>=8.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-xdist>=3.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: black>=23.0; extra == "dev"
+Requires-Dist: isort>=5.0; extra == "dev"
+Requires-Dist: flake8>=6.0; extra == "dev"
+Description-Content-Type: text/markdown
+
+# bin2text
+
+A Cython project with scikit-build
+
+## Overview
+
+This project provides Python bindings for the [libcurl](https://curl.se/libcurl/) library, enabling HTTP client capabilities in Python with native performance through Cython integration.
+
+**Note:** This project is not just for Python developers! C++ developers can also use the pre-built libcurl library included in this package instead of building libcurl from source.
+
+## Features
+
+- Python bindings for libcurl HTTP client
+- Built with Cython for optimal performance
+- CMake integration via scikit-build
+- Support for HTTP/HTTPS protocols
+- Test-driven development approach
+
+## Installation
+
+```bash
+pip install bin2text
+```
+
+For the latest development version:
+```bash
+pip install git+https://github.com/mohammadraziei/bin2text.git
+```
+
+## Quick Start
+
+### Basic HTTP Request
+
+```python
+from bin2text import curl
+
+# Create a curl instance
+c = curl.Curl()
+
+# Perform a GET request
+response = c.get("https://httpbin.org/get")
+print(response.status_code)
+print(response.text)
+
+# Perform a POST request
+response = c.post("https://httpbin.org/post", data={"key": "value"})
+print(response.json())
+```
+
+## Development
+
+Run tests:
+```bash
+pytest -n auto
+```
+
+## License
+
+MIT License
