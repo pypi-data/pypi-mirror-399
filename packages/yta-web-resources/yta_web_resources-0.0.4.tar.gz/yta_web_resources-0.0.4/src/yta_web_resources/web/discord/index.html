@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Discord Message Renderer</title>
+
+  <style>
+    :root {
+      --scale: 1.5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background: transparent;
+      font-family: "gg sans", -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      padding: calc(24px * var(--scale));
+    }
+
+    .layout {
+      display: flex;
+      gap: calc(32px * var(--scale));
+      align-items: flex-start;
+    }
+
+    /* =========================
+       FORM
+       ========================= */
+    .form {
+      width: calc(320px * var(--scale));
+      padding: calc(16px * var(--scale));
+      background: #f5f5f5;
+      border-radius: calc(8px * var(--scale));
+    }
+
+    .form h2 {
+      font-size: calc(16px * var(--scale));
+      margin-bottom: calc(12px * var(--scale));
+      color: #333;
+    }
+
+    .field {
+      margin-bottom: calc(12px * var(--scale));
+    }
+
+    .field label {
+      display: block;
+      font-size: calc(12px * var(--scale));
+      font-weight: 600;
+      color: #555;
+      margin-bottom: calc(4px * var(--scale));
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      font-size: calc(13px * var(--scale));
+      padding: calc(6px * var(--scale)) calc(8px * var(--scale));
+      border-radius: calc(4px * var(--scale));
+      border: 1px solid #ccc;
+      font-family: inherit;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: calc(80px * var(--scale));
+    }
+
+    /* =========================
+       DISCORD MESSAGE
+       ========================= */
+    /* #discord-message {
+      width: calc(512px * var(--scale));
+      padding: calc(16px * var(--scale));
+      background: #313338;
+      border-radius: calc(8px * var(--scale));
+      color: #dbdee1;
+    } */
+    #discord-message {
+        width: calc(512px * var(--scale));
+        padding: calc(16px * var(--scale));
+        background: #313338;
+        border-radius: 0; /* ← eliminar */
+        color: #dbdee1;
+    }
+
+
+    .message {
+      display: flex;
+      gap: calc(12px * var(--scale));
+      align-items: flex-start;
+    }
+
+    .avatar {
+      width: calc(40px * var(--scale));
+      height: calc(40px * var(--scale));
+      border-radius: 50%;
+      background: #5865f2;
+      color: #fff;
+      font-weight: 700;
+      font-size: calc(16px * var(--scale));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .content {
+      flex: 1;
+    }
+
+    .header {
+      display: flex;
+      align-items: baseline;
+      gap: calc(8px * var(--scale));
+    }
+
+    .username {
+      font-size: calc(14px * var(--scale));
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .timestamp {
+      font-size: calc(12px * var(--scale));
+      color: #949ba4;
+    }
+
+    .text {
+      margin-top: calc(4px * var(--scale));
+      font-size: calc(14px * var(--scale));
+      line-height: 1.4;
+      white-space: pre-wrap;
+      color: #dbdee1;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <!-- =========================
+       FORM
+       ========================= -->
+  <div class="form">
+    <h2>Parámetros</h2>
+
+    <div class="field">
+      <label>Nombre de usuario</label>
+      <input id="f-username">
+    </div>
+
+    <div class="field">
+      <label>Avatar (URL, opcional)</label>
+      <input id="f-avatar">
+    </div>
+
+    <div class="field">
+      <label>Mensaje</label>
+      <textarea id="f-message"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Hora</label>
+      <input id="f-time">
+    </div>
+  </div>
+
+  <!-- =========================
+       DISCORD MESSAGE
+       ========================= -->
+  <div id="discord-message">
+    <div class="message">
+      <div class="avatar" id="avatar">?</div>
+
+      <div class="content">
+        <div class="header">
+          <span class="username" id="username"></span>
+          <span class="timestamp" id="timestamp"></span>
+        </div>
+
+        <div class="text" id="message"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+
+  const fields = {
+    username: ["f-username", "username"],
+    avatar: ["f-avatar", "avatar"],
+    message: ["f-message", "message"],
+    time: ["f-time", "timestamp"]
+  };
+
+  function setValue(key, value) {
+    const [inputId, targetId] = fields[key];
+    document.getElementById(inputId).value = value;
+
+    if (key === "avatar") {
+      const avatar = document.getElementById("avatar");
+      if (value) {
+        avatar.style.backgroundImage = `url(${value})`;
+        avatar.textContent = "";
+      } else {
+        avatar.style.backgroundImage = "";
+      }
+      return;
+    }
+
+    document.getElementById(targetId).textContent = value;
+
+    // This will set the initial letter as avatar
+    if (key === "username" && value) {
+      document.getElementById("avatar").textContent =
+        value.charAt(0).toUpperCase();
+    }
+  }
+
+  // Init from query
+  for (const key in fields) {
+    if (params.has(key)) {
+      setValue(key, params.get(key));
+    }
+  }
+
+  // Live binding
+  for (const key in fields) {
+    const [inputId] = fields[key];
+    document.getElementById(inputId).addEventListener("input", e => {
+      setValue(key, e.target.value);
+    });
+  }
+
+  // Defaults
+  if (!params.toString()) {
+    setValue("username", "María");
+    setValue("message", "Hola, este es un mensaje cualquiera en Discord.");
+    setValue(
+      "time",
+      new Date().toLocaleTimeString("es-ES", {
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+    );
+  }
+</script>
+
+</body>
+</html>
