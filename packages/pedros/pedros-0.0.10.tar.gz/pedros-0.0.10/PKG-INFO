@@ -1,0 +1,267 @@
+Metadata-Version: 2.4
+Name: pedros
+Version: 0.0.10
+Summary: Small utility package for my projects.
+Author: Pierre LAPOLLA
+License: MIT License
+        
+        Copyright (c) [2025] [Pierre LAPOLLA]
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+License-File: LICENSE
+Requires-Python: >=3.10
+Requires-Dist: wrapt>=2.0.1
+Description-Content-Type: text/markdown
+
+# Pedros
+
+[![PyPI](https://img.shields.io/pypi/v/pedros)](https://pypi.org/project/pedros/)  
+
+A small package of reusable utilities for Python projects.
+
+## Features
+
+🔧 **Easy-to-use API** - All functions available directly from `pedros` package
+
+📦 **Dependency Management** - Smart detection of optional dependencies with graceful fallbacks
+
+🎯 **Core Utilities**:
+
+- `check_dependency(name: str) -> bool` - Check if a Python package is available
+- `setup_logging(level: int = logging.INFO) -> None` - Configure logging with optional Rich support
+- `get_logger(name: str = None) -> logging.Logger` - Get a pre-configured logger instance
+- `progbar(iterable, *, backend: str = "auto", **kwargs) -> Iterable` - Progress bar with multiple backend support
+- `timed(func) -> func` - Decorator to measure and log function execution time
+
+🚀 **Key Benefits**:
+
+- **Zero Configuration** - Works out of the box with sensible defaults
+- **Flexible Backends** - Auto-detects best available progress bar (rich or tqdm)
+- **Type Safe** - Comprehensive type hints throughout
+- **Async Support** - Works with both synchronous and asynchronous functions
+- **Production Ready** - Robust error handling and logging
+
+## Installation
+
+```bash
+  pip install pedros
+```
+
+## Quickstart
+
+### Easy Import API
+
+All main functions are available directly from the `pedros` package:
+
+```python
+from pedros import check_dependency, setup_logging, get_logger, progbar, timed
+```
+
+### Logger
+
+Basic usage:
+```python
+from pedros import get_logger
+
+logger = get_logger()
+logger.info("This is an info message")
+```
+
+Advanced configuration:
+```python
+import logging
+from pedros import setup_logging, get_logger
+
+# Configure logging level
+setup_logging(logging.DEBUG)
+
+# Get a custom-named logger
+logger = get_logger("my_app")
+
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+```
+
+### Progress Bar
+
+Simple usage:
+
+```python
+from pedros import progbar
+
+# Auto-detects best available backend (rich or tqdm)
+for item in progbar([1, 2, 3, 4, 5]):
+    # Process item
+    pass
+```
+
+With specific backend:
+
+```python
+from pedros import progbar
+
+# Force specific backend
+for item in progbar(range(100), backend="tqdm", desc="Processing"):
+    # Process item
+    pass
+```
+
+### Timed Decorator
+
+Measure function execution time:
+
+```python
+from pedros import timed
+
+@timed
+def process_data():
+    # Your function implementation
+    return "result"
+
+result = process_data()  # Automatically logs execution time
+```
+
+Access timing information:
+```python
+@timed
+def my_function():
+    # Function implementation
+    pass
+
+my_function()
+elapsed_time = getattr(my_function, "__last_elapsed__")
+print(f"Function took {elapsed_time} seconds")
+```
+
+### Dependency Checking
+
+Check if optional dependencies are available:
+
+```python
+from pedros import check_dependency
+
+if check_dependency("rich"):
+    print("Rich is available!")
+else:
+    print("Rich is not installed")
+```
+
+## Examples
+
+### Complete Usage Example
+
+```python
+import logging
+from pedros import check_dependency, setup_logging, get_logger, progbar, timed
+
+# Configure logging
+setup_logging(logging.DEBUG)
+logger = get_logger("my_app")
+
+# Check for optional dependencies
+if check_dependency("rich"):
+    logger.info("Rich is available for enhanced logging")
+
+# Use progress bar
+logger.info("Starting data processing...")
+data = range(100)
+
+@timed
+def process_items(items):
+    """Process items with progress tracking."""
+    processed = []
+    for item in progbar(items, desc="Processing items"):
+        # Simulate work
+        processed.append(item * 2)
+    return processed
+
+result = process_items(data)
+logger.info(f"Processed {len(result)} items")
+
+# Access timing information
+elapsed = getattr(process_items, "__last_elapsed__")
+logger.info(f"Processing took {elapsed:.2f} seconds")
+```
+
+### Advanced Progress Bar Usage
+
+```python
+from pedros import progbar
+
+# Different backend options
+for item in progbar(range(50), backend="rich", description="Rich progress"):
+    pass
+
+for item in progbar(range(50), backend="tqdm", desc="TQDM progress"):
+    pass
+
+# Disable progress bar
+for item in progbar(range(50), backend="none"):
+    pass
+```
+
+### Logging Configuration
+
+```python
+import logging
+from pedros import setup_logging, get_logger
+
+# Different logging levels
+setup_logging(logging.WARNING)  # Only warnings and errors
+logger = get_logger("production")
+
+setup_logging(logging.DEBUG)   # All messages including debug
+debug_logger = get_logger("development")
+
+# Logger hierarchy
+parent_logger = get_logger("app")
+child_logger = get_logger("app.module")
+```
+
+## Installation
+
+### Basic Installation
+
+```bash
+pip install pedros
+```
+
+### With Optional Dependencies
+
+For enhanced functionality, install with optional dependencies:
+
+```bash
+pip install pedros[rich]    # For rich logging and progress bars
+pip install pedros[tqdm]    # For tqdm progress bars
+pip install pedros[all]     # All optional dependencies
+```
+
+## License
+
+This project is licensed under the MIT [License](LICENSE).
+
+## Contributing
+
+Contributions are welcome! Please open issues or pull requests on GitHub.
+
+## Support
+
+For questions or support, please open a GitHub issue.
