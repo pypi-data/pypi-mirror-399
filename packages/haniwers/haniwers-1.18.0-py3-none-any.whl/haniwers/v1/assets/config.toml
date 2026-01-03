@@ -1,0 +1,126 @@
+# Haniwers v1 Configuration Template
+# This template shows all available configuration options for data acquisition,
+# threshold scanning, and testing. Customize for your OSECHI detector setup.
+#
+# Configuration precedence (highest to lowest):
+#
+# 1. CLI options (e.g., haniwers-v1 daq --port /dev/ttyUSB0)
+# 2. Environment variables (e.g., HANIWERS_DEVICE_PORT)
+# 3. This configuration file
+# 4. Built-in defaults
+#
+# ============================================================================
+# INPUT DEVICE LAYER ([device] for hardware, [mocker] for testing)
+# ============================================================================
+# Port selection:
+#   - port = "auto"          Auto-detect OSECHI detector port (recommended)
+#   - port = "/dev/ttyUSB0"  Explicit port (macOS: /dev/cu.usbserial-*, Linux: /dev/ttyUSB*, Windows: COM3)
+#
+# Port priority (highest to lowest):
+#   1. CLI option: haniwers-v1 daq --port /dev/ttyUSB0
+#   2. Environment variable: HANIWERS_DEVICE_PORT=/dev/ttyUSB0
+#   3. This config file (port = "auto" or explicit path)
+# ============================================================================
+
+[device]
+# Real OSECHI detector via serial port connection
+label = "device"   # or YOUR_OSECHI_NAME
+port = "auto"     # auto-detection or explicit port path
+baudrate = 115200
+timeout = 1.0
+
+[mocker]
+# Mock device for testing without hardware
+label = "mocker"
+port = "/dev/null"
+baudrate = 115200
+timeout = 1.0
+# Mock device specific configuration
+csv_path = ""                 # Leave empty for random data generation
+shuffle = false               # Randomize event order
+speed = 1.0                   # Playback speed multiplier (1.0=real-time, 10.0=10x faster)
+jitter = 0.0                  # Timing variation in seconds
+loop = true                   # Repeat CSV data when reaching end
+
+# ============================================================================
+# SENSOR CONFIGURATION (3 channels: top, middle, bottom)
+# ============================================================================
+# NOTE: All sensors must have the same nsteps and step_size values.
+# Only the center threshold value differs between channels.
+# Example: nsteps=10 (10 steps above and below center value)
+#          step_size=1 (1 unit increment between measurements)
+# ============================================================================
+[sensors.ch1]
+id = 1
+name = "ch1"
+label = "top"
+center = 300
+nsteps = 10
+step_size = 1
+threshold = "none"
+
+[sensors.ch2]
+id = 2
+name = "ch2"
+label = "mid"
+center = 310
+nsteps = 10
+step_size = 1
+threshold = "none"
+
+[sensors.ch3]
+id = 3
+name = "ch3"
+label = "btm"
+center = 320
+nsteps = 10
+step_size = 1
+threshold = "none"
+
+# ============================================================================
+# OUTPUT PROCESSING LAYER
+# ============================================================================
+# NOTE: The [sampler] section is the unified configuration for data sampling.
+#       The [daq] and [scan] sections are deprecated and will be removed in
+#       future releases. Please migrate to [sampler] for new configurations.
+# ============================================================================
+
+# [daq] will be deprecated in future releases. use [sampler]
+[daq]
+# Data acquisition: collect events at fixed threshold
+label = "daq"
+workspace = "."
+filename_prefix = "osechi_data"
+filename_suffix = ".csv"
+events_per_file = 1000
+number_of_files = 10000
+stream_mode = true
+
+# [scan] will be deprecated in future releases. use [sampler]
+[scan]
+# Threshold scanning: systematically vary threshold to measure efficiency
+label = "scan"
+workspace = "."
+filename_prefix = "scan_data"
+filename_suffix = ".csv"
+events_per_file = 1000
+number_of_files = 10000
+duration = 10.0
+stream_mode = false
+suppress_threshold = 1000
+max_retry = 3
+
+[sampler]
+label = "sampler"
+mode = "count_based"  # or "time_based"
+stream_mode = true    # true for long-term measurement
+workspace = "."       # use current directory by default
+filename_prefix = "osechi_data"
+filename_suffix = ".csv"
+events_per_file = 1000
+number_of_files = 10000
+# settings for threshold
+max_retry = 3              # max retries
+# settings for threshold scan
+duration = 10.0            # measurement interval when scanning
+suppress_threshold = 1000  #
