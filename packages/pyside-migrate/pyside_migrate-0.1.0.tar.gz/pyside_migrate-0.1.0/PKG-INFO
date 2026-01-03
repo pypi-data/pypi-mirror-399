@@ -1,0 +1,169 @@
+Metadata-Version: 2.4
+Name: pyside-migrate
+Version: 0.1.0
+Summary: Command-line tool to migrate PySide2 code to PySide6
+Author: Chad Dombrova
+License: MIT
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Code Generators
+Requires-Python: >=3.10
+Requires-Dist: libcst>=1.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# PySide Migrate
+
+A command-line tool for migrating PySide2 code to PySide6, specifically focusing on enum namespace changes.
+
+## Overview
+
+PySide6 introduced breaking changes to how Qt enums are accessed. In PySide2, many enums were accessed directly through the Qt namespace (e.g., `Qt.AlignCenter`). In PySide6, these enums have been moved to their specific enum classes (e.g., `Qt.AlignmentFlag.AlignCenter`).
+
+This tool automates the migration process by transforming your PySide2 code to use the correct PySide6 enum syntax.
+
+## Installation
+
+### Using uv (recommended)
+
+```bash
+uv pip install pyside-migrate
+```
+
+### Using pip
+
+```bash
+pip install pyside-migrate
+```
+
+### Development installation
+
+```bash
+git clone <repository-url>
+cd pyside_migrate
+uv pip install -e ".[dev]"
+```
+
+## Usage
+
+### As a libcst codemod
+
+The tool is built on top of libcst's codemod framework. To run it on your codebase:
+
+```bash
+python -m libcst.tool codemod pyside_migrate.enum_codemod.MigrateEnumsCommand /path/to/your/code
+```
+
+### Examples
+
+#### Before migration:
+
+```python
+from PySide2.QtCore import Qt
+
+alignment = Qt.AlignCenter
+button = Qt.LeftButton
+flags = Qt.AlignLeft | Qt.AlignTop
+```
+
+#### After migration:
+
+```python
+from PySide2.QtCore import Qt
+
+alignment = Qt.AlignmentFlag.AlignCenter
+button = Qt.MouseButton.LeftButton
+flags = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+```
+
+## Supported Transformations
+
+The tool handles migrations for a wide variety of Qt enums, including:
+
+- **Alignment flags**: `Qt.AlignCenter` → `Qt.AlignmentFlag.AlignCenter`
+- **Mouse buttons**: `Qt.LeftButton` → `Qt.MouseButton.LeftButton`
+- **Keyboard modifiers**: `Qt.ControlModifier` → `Qt.KeyboardModifier.ControlModifier`
+- **Orientations**: `Qt.Horizontal` → `Qt.Orientation.Horizontal`
+- **Window types**: `Qt.Window` → `Qt.WindowType.Window`
+- **Item flags**: `Qt.ItemIsSelectable` → `Qt.ItemFlag.ItemIsSelectable`
+- **Dock widget areas**: `Qt.LeftDockWidgetArea` → `Qt.DockWidgetArea.LeftDockWidgetArea`
+- **Drop actions**: `Qt.CopyAction` → `Qt.DropAction.CopyAction`
+- And many more...
+
+The full mapping of enums is defined in `src/pyside_migrate/enum-mappings.json`.
+
+## Import Pattern Support
+
+The tool correctly handles various import patterns:
+
+```python
+# Direct import
+from PySide2.QtCore import Qt
+alignment = Qt.AlignCenter  # → Qt.AlignmentFlag.AlignCenter
+
+# Module import
+from PySide2 import QtCore
+alignment = QtCore.Qt.AlignCenter  # → QtCore.Qt.AlignmentFlag.AlignCenter
+
+# Fully qualified
+import PySide2.QtCore
+alignment = PySide2.QtCore.Qt.AlignCenter  # → PySide2.QtCore.Qt.AlignmentFlag.AlignCenter
+
+# Aliased imports
+from PySide2.QtCore import Qt as QtNamespace
+alignment = QtNamespace.AlignCenter  # → QtNamespace.AlignmentFlag.AlignCenter
+```
+
+## Development
+
+### Running tests
+
+Using uv:
+
+```bash
+uv run pytest
+```
+
+Or with pytest directly:
+
+```bash
+pytest
+```
+
+### Running tests with coverage
+
+```bash
+pytest --cov=pyside_migrate --cov-report=html
+```
+
+## Requirements
+
+- Python 3.10 or higher
+- libcst 1.0.0 or higher
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Known Limitations
+
+- The tool currently focuses on enum migrations and does not handle other PySide2 to PySide6 breaking changes
+- Only enums defined in `enum-mappings.json` will be transformed
+- The tool preserves import statements; you'll still need to manually update `PySide2` imports to `PySide6` after running the enum migrations
+
+## Roadmap
+
+- [ ] Add support for automatic PySide2 → PySide6 import rewriting
+- [ ] Expand enum mappings to cover additional Qt enums
+- [ ] Add support for other PySide2 to PySide6 breaking changes
+- [ ] Create a standalone CLI command for easier usage
