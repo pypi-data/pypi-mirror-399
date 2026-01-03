@@ -1,0 +1,102 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "document-ai-toolkit"
+version = "0.1.0"
+description = "Comprehensive document processing toolkit for AI/ML applications"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Pranay M" }
+]
+keywords = [
+    "document-processing",
+    "pdf-extraction",
+    "ocr",
+    "table-extraction",
+    "nlp",
+    "ai",
+    "machine-learning",
+    "text-extraction",
+    "document-ai"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: General",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.8"
+dependencies = []
+
+[project.optional-dependencies]
+pdf = [
+    "PyMuPDF>=1.23.0",
+    "pdfplumber>=0.10.0",
+]
+ocr = [
+    "pytesseract>=0.3.10",
+    "Pillow>=10.0.0",
+]
+docx = [
+    "python-docx>=1.0.0",
+]
+ml = [
+    "transformers>=4.30.0",
+    "torch>=2.0.0",
+]
+all = [
+    "document-ai-toolkit[pdf,ocr,docx,ml]",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/pranaym/document-ai-toolkit"
+Documentation = "https://github.com/pranaym/document-ai-toolkit#readme"
+Repository = "https://github.com/pranaym/document-ai-toolkit"
+Issues = "https://github.com/pranaym/document-ai-toolkit/issues"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/document_ai_toolkit"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
