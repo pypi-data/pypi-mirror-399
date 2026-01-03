@@ -1,0 +1,46 @@
+# Dockerfile for building Linux static libraries on any platform
+# Base image: Ubuntu 22.04 LTS with build essentials
+FROM ubuntu:22.04
+
+# Prevent interactive prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    git \
+    wget \
+    curl \
+    zip \
+    unzip \
+    pkg-config \
+    libssl-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Rust toolchain
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal && \
+    chmod -R a+w $RUSTUP_HOME $CARGO_HOME
+
+# Set environment variables
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
+# Verify installations
+RUN echo "=== Build Tools Verification ===" && \
+    gcc --version && \
+    g++ --version && \
+    cmake --version && \
+    rustc --version && \
+    cargo --version
+
+# Set working directory
+WORKDIR /workspace
+
+# Entry point - execute build script
+ENTRYPOINT ["/bin/bash", "-c"]
