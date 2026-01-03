@@ -1,0 +1,1319 @@
+╭────────────────────────────────── Workflow Execution Overview ───────────────────────────────────╮
+│  Workflow Name     Arista backup config                                                          │
+│  Dry Run           No                                                                            │
+│  Hosts Count       4                                                                             │
+│  Failure Strategy  skip-failed                                                                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+Execution started at: 01:20:00.180
+
+Running task: netmiko_send_command_env
+--------------------------------------------------------------------------------
+Task: netmiko_send_command_env | Host: leaf2 | Hostname: 172.29.163.104 | Status: Success
+01:20:00.181 - 01:20:00.538 (357ms)
+
+Output:
+! Command: show running-config
+! device: leaf2 (cEOSLab, EOS-4.35.0F-44171508.4350F (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$zdaHV8cmHgj5ki/g$t/pC5YFdQuNN9byCdjg29vpFQi6ATSpPuyCw7TBzulzEAlf/8kYDLsYdImdy46tAe7/mdm.5HTbGThKlgWIL8/
+username batman privilege 15 role network-admin secret sha512 $6$uWp04uvFtQijFfeR$/J7Fa1QA/lmrTrUtsH420KWrNPiWNEcAXsDZl1wBNykXoULfkvdpGxBURZpjntr6Yq6ZMiboRr4SOndxaFXSL0
+!
+management api http-commands
+   no protocol https
+   protocol http
+   no shutdown
+!
+ip igmp snooping interface-restart-query 2000 
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+no queue-monitor length
+!
+hostname leaf2
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+management cvx
+   service debug
+      no shutdown
+!
+aaa authorization exec default local
+!
+cvx
+   service debug
+      no shutdown
+!
+interface Ethernet1
+   no switchport
+   ip address 10.0.1.9/30
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Ethernet2
+   no switchport
+   ip address 10.0.1.13/30
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Loopback0
+   ip address 10.0.0.2/32
+   bfd interval 300 min_rx 300 multiplier 3
+!
+interface Management0
+   ip address 172.29.163.104/24
+!
+ip routing
+no ip hardware fib next-hop sharing
+!
+ip route 0.0.0.0/0 172.29.163.1
+!
+monitor telemetry postcard policy
+   ingress sample rate 32768
+!
+qos map dscp 8 9 10 11 12 13 14 15 to traffic-class 0
+qos map dscp 0 1 2 3 4 5 6 7 to traffic-class 1
+qos map dscp 16 17 18 19 20 21 22 23 to traffic-class 2
+qos map dscp 24 25 26 27 28 29 30 31 to traffic-class 3
+qos map dscp 32 33 34 35 36 37 38 39 to traffic-class 4
+qos map dscp 40 41 42 43 44 45 46 47 to traffic-class 5
+qos map dscp 48 49 50 51 52 53 54 55 to traffic-class 6
+qos map dscp 56 57 58 59 60 61 62 63 to traffic-class 7
+!
+router bgp 65000
+   vpn layer-3 export paths all
+   router-id 10.0.0.2
+   no bgp fec skip in-place update
+   no bgp fec in-place update event drain-undrain
+   no bgp fec in-place update event peer-init
+   maximum-paths 1 ecmp 128
+   no bgp bestpath next-hop resolution tunnel nexthop-group ecmp disabled
+   no bgp bestpath next-hop igp-cost igp-preference post-metric
+   no bgp next-hop-unchanged
+   neighbor 10.0.0.11 remote-as 65001
+   no neighbor 10.0.0.11 next-hop-unchanged
+   no neighbor 10.0.0.11 allowas-in
+   neighbor 10.0.0.11 additional-paths receive
+   no neighbor 10.0.0.11 additional-paths send
+   neighbor 10.0.0.11 enforce-first-as
+   neighbor 10.0.0.11 maximum-advertised-routes 0
+   neighbor 10.0.0.12 remote-as 65002
+   no neighbor 10.0.0.12 next-hop-unchanged
+   no neighbor 10.0.0.12 allowas-in
+   neighbor 10.0.0.12 additional-paths receive
+   no neighbor 10.0.0.12 additional-paths send
+   neighbor 10.0.0.12 enforce-first-as
+   neighbor 10.0.0.12 maximum-advertised-routes 0
+   network 10.0.0.2/32
+   !
+   address-family evpn
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   address-family ipv4
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop address-family ipv6
+      no neighbor 10.0.0.11 next-hop-unchanged
+      no neighbor 10.0.0.11 next-hop-self
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop address-family ipv6
+      no neighbor 10.0.0.12 next-hop-unchanged
+      no neighbor 10.0.0.12 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv4 labeled-unicast
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      no neighbor 10.0.0.11 next-hop-self
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+      no neighbor 10.0.0.12 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv4 multicast
+      bgp additional-paths receive
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   address-family ipv6
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      no neighbor 10.0.0.11 next-hop-self
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+      no neighbor 10.0.0.12 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv6 labeled-unicast
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      no neighbor 10.0.0.11 next-hop-self
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+      no neighbor 10.0.0.12 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv6 multicast
+      bgp additional-paths receive
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   address-family path-selection
+      bgp additional-paths receive
+      no bgp additional-paths send
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+   !
+   address-family vpn-ipv4
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop address-family ipv6
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop address-family ipv6
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   address-family vpn-ipv6
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   vrf default
+      neighbor 10.0.0.11 route-target export evpn ipv4 filter
+      neighbor 10.0.0.11 route-target export evpn ipv6 filter
+      neighbor 10.0.0.11 route-target export vpn-ipv4 filter
+      neighbor 10.0.0.11 route-target export vpn-ipv6 filter
+      neighbor 10.0.0.12 route-target export evpn ipv4 filter
+      neighbor 10.0.0.12 route-target export evpn ipv6 filter
+      neighbor 10.0.0.12 route-target export vpn-ipv4 filter
+      neighbor 10.0.0.12 route-target export vpn-ipv6 filter
+      !
+      address-family ipv4
+         neighbor 10.0.0.11 route-target export evpn ipv4 filter
+         neighbor 10.0.0.11 route-target export vpn-ipv4 filter
+         neighbor 10.0.0.12 route-target export evpn ipv4 filter
+         neighbor 10.0.0.12 route-target export vpn-ipv4 filter
+      !
+      address-family ipv6
+         neighbor 10.0.0.11 route-target export evpn ipv6 filter
+         neighbor 10.0.0.11 route-target export vpn-ipv6 filter
+         neighbor 10.0.0.12 route-target export evpn ipv6 filter
+         neighbor 10.0.0.12 route-target export vpn-ipv6 filter
+!
+router general
+   segment-routing
+!
+router kernel
+   address-family ipv4
+   !
+   address-family ipv6
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+router ospf 1
+   router-id 10.0.0.2
+   network 10.0.0.2/32 area 0.0.0.0
+   network 10.0.1.8/30 area 0.0.0.0
+   network 10.0.1.12/30 area 0.0.0.0
+   max-lsa 12000
+   maximum-paths 128
+!
+management ssh
+   authentication mode password
+!
+end
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Task: netmiko_send_command_env | Host: leaf1 | Hostname: 172.29.163.103 | Status: Success
+01:20:00.181 - 01:20:00.541 (360ms)
+
+Output:
+! Command: show running-config
+! device: leaf1 (cEOSLab, EOS-4.35.0F-44171508.4350F (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$oigsWdjgpoCSnx1p$ZcWRqt6tIeltlZ5zPGidrGNE8oUeCOR5pRKNYy/cX4Rnr4Ri2n1CmyAXWt8K28yLg1N1J1cWG2kFef2ImRKdG0
+username batman privilege 15 role network-admin secret sha512 $6$69tIXBP532ey8OiH$DWbEDxkSKD6ggBoQ0eunX23WaaL.Ebhb61LoMwkqoEukeRDpLncDcGqpKvme5V6U7YOsYlmlFlJegUVM8sZ3I0
+!
+management api http-commands
+   no protocol https
+   protocol http
+   no shutdown
+!
+ip igmp snooping interface-restart-query 2000 
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+no queue-monitor length
+!
+hostname leaf1
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+management cvx
+   service debug
+      no shutdown
+!
+aaa authorization exec default local
+!
+cvx
+   service debug
+      no shutdown
+!
+interface Ethernet1
+   no switchport
+   ip address 10.0.1.1/30
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Ethernet2
+   no switchport
+   ip address 10.0.1.5/30
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Loopback0
+   ip address 10.0.0.1/32
+   bfd interval 300 min_rx 300 multiplier 3
+!
+interface Management0
+   ip address 172.29.163.103/24
+!
+ip routing
+no ip hardware fib next-hop sharing
+!
+ip route 0.0.0.0/0 172.29.163.1
+!
+qos map dscp 8 9 10 11 12 13 14 15 to traffic-class 0
+qos map dscp 0 1 2 3 4 5 6 7 to traffic-class 1
+qos map dscp 16 17 18 19 20 21 22 23 to traffic-class 2
+qos map dscp 24 25 26 27 28 29 30 31 to traffic-class 3
+qos map dscp 32 33 34 35 36 37 38 39 to traffic-class 4
+qos map dscp 40 41 42 43 44 45 46 47 to traffic-class 5
+qos map dscp 48 49 50 51 52 53 54 55 to traffic-class 6
+qos map dscp 56 57 58 59 60 61 62 63 to traffic-class 7
+!
+router bgp 65000
+   vpn layer-3 export paths all
+   router-id 10.0.0.1
+   no bgp fec skip in-place update
+   no bgp fec in-place update event drain-undrain
+   no bgp fec in-place update event peer-init
+   maximum-paths 1 ecmp 128
+   no bgp bestpath next-hop resolution tunnel nexthop-group ecmp disabled
+   no bgp bestpath next-hop igp-cost igp-preference post-metric
+   no bgp next-hop-unchanged
+   neighbor 10.0.0.11 remote-as 65001
+   no neighbor 10.0.0.11 next-hop-unchanged
+   no neighbor 10.0.0.11 allowas-in
+   neighbor 10.0.0.11 additional-paths receive
+   no neighbor 10.0.0.11 additional-paths send
+   neighbor 10.0.0.11 enforce-first-as
+   neighbor 10.0.0.11 maximum-advertised-routes 0
+   neighbor 10.0.0.12 remote-as 65002
+   no neighbor 10.0.0.12 next-hop-unchanged
+   no neighbor 10.0.0.12 allowas-in
+   neighbor 10.0.0.12 additional-paths receive
+   no neighbor 10.0.0.12 additional-paths send
+   neighbor 10.0.0.12 enforce-first-as
+   neighbor 10.0.0.12 maximum-advertised-routes 0
+   network 10.0.0.1/32
+   !
+   address-family evpn
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   address-family ipv4
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop address-family ipv6
+      no neighbor 10.0.0.11 next-hop-unchanged
+      no neighbor 10.0.0.11 next-hop-self
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop address-family ipv6
+      no neighbor 10.0.0.12 next-hop-unchanged
+      no neighbor 10.0.0.12 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv4 labeled-unicast
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      no neighbor 10.0.0.11 next-hop-self
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+      no neighbor 10.0.0.12 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv4 multicast
+      bgp additional-paths receive
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   address-family ipv6
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      no neighbor 10.0.0.11 next-hop-self
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+      no neighbor 10.0.0.12 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv6 labeled-unicast
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      no neighbor 10.0.0.11 next-hop-self
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+      no neighbor 10.0.0.12 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv6 multicast
+      bgp additional-paths receive
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   address-family path-selection
+      bgp additional-paths receive
+      no bgp additional-paths send
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+   !
+   address-family vpn-ipv4
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop address-family ipv6
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop address-family ipv6
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   address-family vpn-ipv6
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.11 additional-paths receive
+      no neighbor 10.0.0.11 additional-paths send
+      no neighbor 10.0.0.11 next-hop-unchanged
+      neighbor 10.0.0.12 additional-paths receive
+      no neighbor 10.0.0.12 additional-paths send
+      no neighbor 10.0.0.12 next-hop-unchanged
+   !
+   vrf default
+      neighbor 10.0.0.11 route-target export evpn ipv4 filter
+      neighbor 10.0.0.11 route-target export evpn ipv6 filter
+      neighbor 10.0.0.11 route-target export vpn-ipv4 filter
+      neighbor 10.0.0.11 route-target export vpn-ipv6 filter
+      neighbor 10.0.0.12 route-target export evpn ipv4 filter
+      neighbor 10.0.0.12 route-target export evpn ipv6 filter
+      neighbor 10.0.0.12 route-target export vpn-ipv4 filter
+      neighbor 10.0.0.12 route-target export vpn-ipv6 filter
+      !
+      address-family ipv4
+         neighbor 10.0.0.11 route-target export evpn ipv4 filter
+         neighbor 10.0.0.11 route-target export vpn-ipv4 filter
+         neighbor 10.0.0.12 route-target export evpn ipv4 filter
+         neighbor 10.0.0.12 route-target export vpn-ipv4 filter
+      !
+      address-family ipv6
+         neighbor 10.0.0.11 route-target export evpn ipv6 filter
+         neighbor 10.0.0.11 route-target export vpn-ipv6 filter
+         neighbor 10.0.0.12 route-target export evpn ipv6 filter
+         neighbor 10.0.0.12 route-target export vpn-ipv6 filter
+!
+router general
+   segment-routing
+!
+router kernel
+   address-family ipv4
+   !
+   address-family ipv6
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+router ospf 1
+   router-id 10.0.0.1
+   network 10.0.0.1/32 area 0.0.0.0
+   network 10.0.1.0/30 area 0.0.0.0
+   network 10.0.1.4/30 area 0.0.0.0
+   max-lsa 12000
+   maximum-paths 128
+!
+management ssh
+   authentication mode password
+!
+end
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Task: netmiko_send_command_env | Host: spine2 | Hostname: 172.29.163.102 | Status: Success
+01:20:00.181 - 01:20:00.542 (361ms)
+
+Output:
+! Command: show running-config
+! device: spine2 (cEOSLab, EOS-4.35.0F-44171508.4350F (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$9dGpP8fWzmA1Mhp3$AJKiJQhpz4u529r2XzsSBXPvR2bNQ2pKkfj3OkBHYUJwr9TmzEkK4R0OPIPHDTB7SWNe6PP/qSb/uraCHjBQ6/
+username batman privilege 15 role network-admin secret sha512 $6$ubPi67yPJu99CZKL$oN0zzGHijttia2p/gvJQkmpMgKVEH5Qhn/eTGaLi77agNOFokXyEE4N67NxG1d9VpFfXuxx.8jhpuCpQtaSxE1
+!
+management api http-commands
+   no protocol https
+   protocol http
+   no shutdown
+!
+ip igmp snooping interface-restart-query 2000 
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+no queue-monitor length
+!
+hostname spine2
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+management cvx
+   service debug
+      no shutdown
+!
+aaa authorization exec default local
+!
+cvx
+   service debug
+      no shutdown
+!
+interface Ethernet1
+   no switchport
+   ip address 10.0.1.6/30
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Ethernet2
+   no switchport
+   ip address 10.0.1.14/30
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Ethernet3
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Ethernet4
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Loopback0
+   ip address 10.0.0.12/32
+   bfd interval 300 min_rx 300 multiplier 3
+!
+interface Management0
+   ip address 172.29.163.102/24
+!
+ip routing
+no ip hardware fib next-hop sharing
+!
+ip route 0.0.0.0/0 172.29.163.1
+!
+qos map dscp 8 9 10 11 12 13 14 15 to traffic-class 0
+qos map dscp 0 1 2 3 4 5 6 7 to traffic-class 1
+qos map dscp 16 17 18 19 20 21 22 23 to traffic-class 2
+qos map dscp 24 25 26 27 28 29 30 31 to traffic-class 3
+qos map dscp 32 33 34 35 36 37 38 39 to traffic-class 4
+qos map dscp 40 41 42 43 44 45 46 47 to traffic-class 5
+qos map dscp 48 49 50 51 52 53 54 55 to traffic-class 6
+qos map dscp 56 57 58 59 60 61 62 63 to traffic-class 7
+!
+router bgp 65002
+   vpn layer-3 export paths all
+   router-id 10.0.0.12
+   no bgp fec skip in-place update
+   no bgp fec in-place update event drain-undrain
+   no bgp fec in-place update event peer-init
+   maximum-paths 1 ecmp 128
+   no bgp bestpath next-hop resolution tunnel nexthop-group ecmp disabled
+   no bgp bestpath next-hop igp-cost igp-preference post-metric
+   no bgp next-hop-unchanged
+   neighbor 10.0.0.1 remote-as 65000
+   no neighbor 10.0.0.1 next-hop-unchanged
+   no neighbor 10.0.0.1 allowas-in
+   neighbor 10.0.0.1 additional-paths receive
+   no neighbor 10.0.0.1 additional-paths send
+   neighbor 10.0.0.1 enforce-first-as
+   neighbor 10.0.0.1 maximum-advertised-routes 0
+   neighbor 10.0.0.2 remote-as 65000
+   no neighbor 10.0.0.2 next-hop-unchanged
+   no neighbor 10.0.0.2 allowas-in
+   neighbor 10.0.0.2 additional-paths receive
+   no neighbor 10.0.0.2 additional-paths send
+   neighbor 10.0.0.2 enforce-first-as
+   neighbor 10.0.0.2 maximum-advertised-routes 0
+   network 10.0.0.12/32
+   !
+   address-family evpn
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   address-family ipv4
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop address-family ipv6
+      no neighbor 10.0.0.1 next-hop-unchanged
+      no neighbor 10.0.0.1 next-hop-self
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop address-family ipv6
+      no neighbor 10.0.0.2 next-hop-unchanged
+      no neighbor 10.0.0.2 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv4 labeled-unicast
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      no neighbor 10.0.0.1 next-hop-self
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+      no neighbor 10.0.0.2 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv4 multicast
+      bgp additional-paths receive
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   address-family ipv6
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      no neighbor 10.0.0.1 next-hop-self
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+      no neighbor 10.0.0.2 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv6 labeled-unicast
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      no neighbor 10.0.0.1 next-hop-self
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+      no neighbor 10.0.0.2 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv6 multicast
+      bgp additional-paths receive
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   address-family path-selection
+      bgp additional-paths receive
+      no bgp additional-paths send
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+   !
+   address-family vpn-ipv4
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop address-family ipv6
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop address-family ipv6
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   address-family vpn-ipv6
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   vrf default
+      neighbor 10.0.0.1 route-target export evpn ipv4 filter
+      neighbor 10.0.0.1 route-target export evpn ipv6 filter
+      neighbor 10.0.0.1 route-target export vpn-ipv4 filter
+      neighbor 10.0.0.1 route-target export vpn-ipv6 filter
+      neighbor 10.0.0.2 route-target export evpn ipv4 filter
+      neighbor 10.0.0.2 route-target export evpn ipv6 filter
+      neighbor 10.0.0.2 route-target export vpn-ipv4 filter
+      neighbor 10.0.0.2 route-target export vpn-ipv6 filter
+      !
+      address-family ipv4
+         neighbor 10.0.0.1 route-target export evpn ipv4 filter
+         neighbor 10.0.0.1 route-target export vpn-ipv4 filter
+         neighbor 10.0.0.2 route-target export evpn ipv4 filter
+         neighbor 10.0.0.2 route-target export vpn-ipv4 filter
+      !
+      address-family ipv6
+         neighbor 10.0.0.1 route-target export evpn ipv6 filter
+         neighbor 10.0.0.1 route-target export vpn-ipv6 filter
+         neighbor 10.0.0.2 route-target export evpn ipv6 filter
+         neighbor 10.0.0.2 route-target export vpn-ipv6 filter
+!
+router general
+   segment-routing
+!
+router kernel
+   address-family ipv4
+   !
+   address-family ipv6
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+router ospf 1
+   router-id 10.0.0.12
+   network 10.0.0.12/32 area 0.0.0.0
+   network 10.0.1.4/30 area 0.0.0.0
+   network 10.0.1.12/30 area 0.0.0.0
+   max-lsa 12000
+   maximum-paths 128
+!
+management ssh
+   authentication mode password
+!
+end
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Task: netmiko_send_command_env | Host: spine1 | Hostname: 172.29.163.101 | Status: Success
+01:20:00.181 - 01:20:00.553 (372ms)
+
+Output:
+! Command: show running-config
+! device: spine1 (cEOSLab, EOS-4.35.0F-44171508.4350F (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$xeoJQqcfLvx5pWE4$Bwnb6Qcr7n4omhM51133ow/KanPiSi8Zn557kg1ArcPRva8ckdfP7uvHnxxmil0l2h8xOf7Ox6A1Ulfxz0ffN0
+username batman privilege 15 role network-admin secret sha512 $6$RHZr857flawMIjZ2$YTZ2x5M6uhjMS3QHhXLvaO636DxqMJfYIHmbK830IpuxHRwsWkI/ZoCMUF0qqPBVZyCWZ1KTaZ3cg0VtgSc/H.
+!
+management api http-commands
+   no protocol https
+   protocol http
+   no shutdown
+!
+ip igmp snooping interface-restart-query 2000 
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+no queue-monitor length
+!
+hostname spine1
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+management cvx
+   service debug
+      no shutdown
+!
+aaa authorization exec default local
+!
+cvx
+   service debug
+      no shutdown
+!
+interface Ethernet1
+   no switchport
+   ip address 10.0.1.2/30
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Ethernet2
+   no switchport
+   ip address 10.0.1.10/30
+   bfd interval 300 min_rx 300 multiplier 3
+   qos cos 0
+   qos dscp 0
+!
+interface Loopback0
+   ip address 10.0.0.11/32
+   bfd interval 300 min_rx 300 multiplier 3
+!
+interface Management0
+   ip address 172.29.163.101/24
+!
+ip routing
+no ip hardware fib next-hop sharing
+!
+ip route 0.0.0.0/0 172.29.163.1
+!
+qos map dscp 8 9 10 11 12 13 14 15 to traffic-class 0
+qos map dscp 0 1 2 3 4 5 6 7 to traffic-class 1
+qos map dscp 16 17 18 19 20 21 22 23 to traffic-class 2
+qos map dscp 24 25 26 27 28 29 30 31 to traffic-class 3
+qos map dscp 32 33 34 35 36 37 38 39 to traffic-class 4
+qos map dscp 40 41 42 43 44 45 46 47 to traffic-class 5
+qos map dscp 48 49 50 51 52 53 54 55 to traffic-class 6
+qos map dscp 56 57 58 59 60 61 62 63 to traffic-class 7
+!
+router bgp 65001
+   vpn layer-3 export paths all
+   router-id 10.0.0.11
+   no bgp fec skip in-place update
+   no bgp fec in-place update event drain-undrain
+   no bgp fec in-place update event peer-init
+   maximum-paths 1 ecmp 128
+   no bgp bestpath next-hop resolution tunnel nexthop-group ecmp disabled
+   no bgp bestpath next-hop igp-cost igp-preference post-metric
+   no bgp next-hop-unchanged
+   neighbor 10.0.0.1 remote-as 65000
+   no neighbor 10.0.0.1 next-hop-unchanged
+   no neighbor 10.0.0.1 allowas-in
+   neighbor 10.0.0.1 additional-paths receive
+   no neighbor 10.0.0.1 additional-paths send
+   neighbor 10.0.0.1 enforce-first-as
+   neighbor 10.0.0.1 maximum-advertised-routes 0
+   neighbor 10.0.0.2 remote-as 65000
+   no neighbor 10.0.0.2 next-hop-unchanged
+   no neighbor 10.0.0.2 allowas-in
+   neighbor 10.0.0.2 additional-paths receive
+   no neighbor 10.0.0.2 additional-paths send
+   neighbor 10.0.0.2 enforce-first-as
+   neighbor 10.0.0.2 maximum-advertised-routes 0
+   network 10.0.0.11/32
+   !
+   address-family evpn
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   address-family ipv4
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop address-family ipv6
+      no neighbor 10.0.0.1 next-hop-unchanged
+      no neighbor 10.0.0.1 next-hop-self
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop address-family ipv6
+      no neighbor 10.0.0.2 next-hop-unchanged
+      no neighbor 10.0.0.2 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv4 labeled-unicast
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      no neighbor 10.0.0.1 next-hop-self
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+      no neighbor 10.0.0.2 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv4 multicast
+      bgp additional-paths receive
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   address-family ipv6
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      no neighbor 10.0.0.1 next-hop-self
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+      no neighbor 10.0.0.2 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv6 labeled-unicast
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      no neighbor default next-hop-self
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      no neighbor 10.0.0.1 next-hop-self
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+      no neighbor 10.0.0.2 next-hop-self
+      aigp-session ibgp
+      aigp-session confederation
+      no aigp-session ebgp
+   !
+   address-family ipv6 multicast
+      bgp additional-paths receive
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   address-family path-selection
+      bgp additional-paths receive
+      no bgp additional-paths send
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+   !
+   address-family vpn-ipv4
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop address-family ipv6
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop address-family ipv6
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   address-family vpn-ipv6
+      bgp additional-paths receive
+      no bgp additional-paths send
+      no bgp next-hop-unchanged
+      neighbor 10.0.0.1 additional-paths receive
+      no neighbor 10.0.0.1 additional-paths send
+      no neighbor 10.0.0.1 next-hop-unchanged
+      neighbor 10.0.0.2 additional-paths receive
+      no neighbor 10.0.0.2 additional-paths send
+      no neighbor 10.0.0.2 next-hop-unchanged
+   !
+   vrf default
+      neighbor 10.0.0.1 route-target export evpn ipv4 filter
+      neighbor 10.0.0.1 route-target export evpn ipv6 filter
+      neighbor 10.0.0.1 route-target export vpn-ipv4 filter
+      neighbor 10.0.0.1 route-target export vpn-ipv6 filter
+      neighbor 10.0.0.2 route-target export evpn ipv4 filter
+      neighbor 10.0.0.2 route-target export evpn ipv6 filter
+      neighbor 10.0.0.2 route-target export vpn-ipv4 filter
+      neighbor 10.0.0.2 route-target export vpn-ipv6 filter
+      !
+      address-family ipv4
+         neighbor 10.0.0.1 route-target export evpn ipv4 filter
+         neighbor 10.0.0.1 route-target export vpn-ipv4 filter
+         neighbor 10.0.0.2 route-target export evpn ipv4 filter
+         neighbor 10.0.0.2 route-target export vpn-ipv4 filter
+      !
+      address-family ipv6
+         neighbor 10.0.0.1 route-target export evpn ipv6 filter
+         neighbor 10.0.0.1 route-target export vpn-ipv6 filter
+         neighbor 10.0.0.2 route-target export evpn ipv6 filter
+         neighbor 10.0.0.2 route-target export vpn-ipv6 filter
+!
+router general
+   segment-routing
+!
+router kernel
+   address-family ipv4
+   !
+   address-family ipv6
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+router ospf 1
+   router-id 10.0.0.11
+   network 10.0.0.11/32 area 0.0.0.0
+   network 10.0.1.0/30 area 0.0.0.0
+   network 10.0.1.8/30 area 0.0.0.0
+   max-lsa 12000
+   maximum-paths 128
+!
+management ssh
+   authentication mode password
+!
+end
+--------------------------------------------------------------------------------
+
+Running task: write_file
+--------------------------------------------------------------------------------
+Task: write_file | Host: spine1 | Hostname: 172.29.163.101 | Status: Success
+01:20:00.562 - 01:20:00.563 (1ms)
+
+Output:
+{'path': 'backups/spine1.txt'}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Task: write_file | Host: leaf2 | Hostname: 172.29.163.104 | Status: Success
+01:20:00.561 - 01:20:00.563 (2ms)
+
+Output:
+{'path': 'backups/leaf2.txt'}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Task: write_file | Host: leaf1 | Hostname: 172.29.163.103 | Status: Success
+01:20:00.561 - 01:20:00.563 (2ms)
+
+Output:
+{'path': 'backups/leaf1.txt'}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Task: write_file | Host: spine2 | Hostname: 172.29.163.102 | Status: Success
+01:20:00.562 - 01:20:00.563 (1ms)
+
+Output:
+{'path': 'backups/spine2.txt'}
+--------------------------------------------------------------------------------
+
+Running task: netmiko_send_command_env
+--------------------------------------------------------------------------------
+Task: netmiko_send_command_env | Host: spine1 | Hostname: 172.29.163.101 | Status: Success
+01:20:00.565 - 01:20:00.919 (354ms)
+
+Output:
+Arista cEOSLab
+Hardware version: 
+Serial number: 9C6B78D17757C6214ADF265A1FFCE6AB
+Hardware MAC address: 001c.735f.4004
+System MAC address: 001c.735f.4004
+
+Software image version: 4.35.0F-44171508.4350F (engineering build)
+Architecture: aarch64
+Internal build version: 4.35.0F-44171508.4350F
+Internal build ID: 1590b466-01fd-4715-aa06-a0cf4c9a9e4a
+Image format version: 1.0
+Image optimization: None
+
+Kernel version: 6.17.8-orbstack-00308-g8f9c941121b1
+
+Uptime: 3 days, 7 hours and 37 minutes
+Total memory: 51365672 kB
+Free memory: 38512432 kB
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Task: netmiko_send_command_env | Host: spine2 | Hostname: 172.29.163.102 | Status: Success
+01:20:00.565 - 01:20:00.920 (355ms)
+
+Output:
+Arista cEOSLab
+Hardware version: 
+Serial number: 0A21439DF40A3C058D7BED962B28DE07
+Hardware MAC address: 001c.73f9.b016
+System MAC address: 001c.73f9.b016
+
+Software image version: 4.35.0F-44171508.4350F (engineering build)
+Architecture: aarch64
+Internal build version: 4.35.0F-44171508.4350F
+Internal build ID: 1590b466-01fd-4715-aa06-a0cf4c9a9e4a
+Image format version: 1.0
+Image optimization: None
+
+Kernel version: 6.17.8-orbstack-00308-g8f9c941121b1
+
+Uptime: 3 days, 7 hours and 37 minutes
+Total memory: 51365672 kB
+Free memory: 38512432 kB
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Task: netmiko_send_command_env | Host: leaf1 | Hostname: 172.29.163.103 | Status: Success
+01:20:00.564 - 01:20:00.920 (356ms)
+
+Output:
+Arista cEOSLab
+Hardware version: 
+Serial number: A948CF482A7824BE2B8670852FE944D0
+Hardware MAC address: 001c.7363.2ae5
+System MAC address: 001c.7363.2ae5
+
+Software image version: 4.35.0F-44171508.4350F (engineering build)
+Architecture: aarch64
+Internal build version: 4.35.0F-44171508.4350F
+Internal build ID: 1590b466-01fd-4715-aa06-a0cf4c9a9e4a
+Image format version: 1.0
+Image optimization: None
+
+Kernel version: 6.17.8-orbstack-00308-g8f9c941121b1
+
+Uptime: 3 days, 7 hours and 37 minutes
+Total memory: 51365672 kB
+Free memory: 38512432 kB
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Task: netmiko_send_command_env | Host: leaf2 | Hostname: 172.29.163.104 | Status: Success
+01:20:00.564 - 01:20:00.921 (357ms)
+
+Output:
+Arista cEOSLab
+Hardware version: 
+Serial number: B52161D7BFE389565CF42B5F1CC4F08F
+Hardware MAC address: 001c.735e.5606
+System MAC address: 001c.735e.5606
+
+Software image version: 4.35.0F-44171508.4350F (engineering build)
+Architecture: aarch64
+Internal build version: 4.35.0F-44171508.4350F
+Internal build ID: 1590b466-01fd-4715-aa06-a0cf4c9a9e4a
+Image format version: 1.0
+Image optimization: None
+
+Kernel version: 6.17.8-orbstack-00308-g8f9c941121b1
+
+Uptime: 3 days, 7 hours and 37 minutes
+Total memory: 51365672 kB
+Free memory: 38512432 kB
+
+--------------------------------------------------------------------------------
+
+
+
+━━━ EXECUTION SUMMARY ━━━
+
+Time Statistics:
+  Started at:  01:20:00.180
+  Finished at: 01:20:00.922
+  Duration:    742ms (0.74 seconds)
+
+Task Statistics:
+  Unique Tasks:    3
+  Task Executions: 12
+
+Execution Results:
+  Successful:  12 (100.0%)
+  Failed:      0 (0.0%)
+
+                                          
+

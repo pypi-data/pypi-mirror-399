@@ -1,0 +1,12 @@
+**Branch Proposal**  
+- `refactor/settings-path-handling`
+
+**Assessment**  
+- settings.py: Model already resolves relative paths when created via `NornFlowSettings.load`, but many fields and tests/docs still rely on `local_*_dirs` naming. Renaming to `local_tasks`, `local_workflows`, etc. means touching the constants (`NORNFLOW_SETTINGS_OPTIONAL`), validators, all catalog discovery code (NornFlow class, `NornFlowBuilder`, CLI `show`), and tests/docs. Viable but wide impact; risk comes from missing one of the numerous references. Gain: cleaner naming and alignment with CLI samples.  
+- Path handling: Loader currently handles relative → absolute by leveraging `_base_dir`. Direct instantiation leaves paths untouched. Goal wants both absolute and relative support regardless of naming, which is already true through `.load`. Need to ensure every consumer (catalog discovery, CLI samples) respects the resolved values and doesn’t reconstruct paths from constants. Mostly confirmatory work with extra tests to cover the renamed fields.  
+- CLI init (init.py): Today it copies samples based on static constants from `cli/constants.py`, ignoring what settings say. After renaming, we should make init inspect a `NornFlowSettings` instance and create directories using the resolved paths. Must review helper functions such as `create_default_directories`, `setup_sample_content`, and the banner messaging so they derive destinations from settings instead of hard-coded `TASKS_DIR`, etc. Feasible; improves behavior because init aligns with project-specific settings.
+
+**High-Level Steps**  
+1. Update settings model and constants to adopt the shorter `local_*` names; adjust tests, builder, catalogs, CLI references, and docs accordingly.  
+2. Reconfirm path-resolution behavior under new names: audit usages, ensure `.load` continues to produce absolute paths, and extend tests to guard both loader and direct-instantiation expectations.  
+3. Refactor CLI init workflow to hydrate a settings object early, derive directories from its resolved paths, and ensure sample-copy helpers operate on those paths instead of `TASKS_DIR`/`WORKFLOWS_DIR` constants.

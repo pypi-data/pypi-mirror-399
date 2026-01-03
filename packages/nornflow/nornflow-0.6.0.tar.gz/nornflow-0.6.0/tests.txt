@@ -1,0 +1,567 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.8, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/andrelima/Personal/portfolio_projects/nornflow
+configfile: pyproject.toml
+plugins: anyio-4.12.0, cov-7.0.0
+collected 627 items
+
+tests/unit/blueprints/test_blueprint_expander.py ..........              [  1%]
+tests/unit/blueprints/test_blueprint_resolver.py .....................   [  4%]
+tests/unit/builtins/test_filters.py .........                            [  6%]
+tests/unit/builtins/test_if_hook.py .......F.....................        [ 11%]
+tests/unit/builtins/test_set_to_hook.py ...................              [ 14%]
+tests/unit/builtins/test_shush_hook.py ...................F..........    [ 18%]
+tests/unit/builtins/test_tasks.py .......                                [ 19%]
+tests/unit/builtins/test_utils.py ...................................    [ 25%]
+tests/unit/cli/test_init.py ..............                               [ 27%]
+tests/unit/cli/test_run.py ............................................. [ 34%]
+................................                                         [ 40%]
+tests/unit/cli/test_show.py .....F...F........                           [ 42%]
+tests/unit/core/test_catalogs.py ................                        [ 45%]
+tests/unit/core/test_failure_strategies.py ............................. [ 50%]
+...........                                                              [ 51%]
+tests/unit/core/test_nornflow.py .................................       [ 57%]
+tests/unit/core/test_nornir_manager.py ...........                       [ 58%]
+tests/unit/core/test_nornir_manager_filtering.py .....                   [ 59%]
+tests/unit/core/test_processors.py ......                                [ 60%]
+tests/unit/core/test_workflow_filtering.py ...........                   [ 62%]
+tests/unit/hooks/test_base.py ................                           [ 64%]
+tests/unit/hooks/test_jinja2_mixin.py ...F...........                    [ 67%]
+tests/unit/hooks/test_loader.py ......                                   [ 68%]
+tests/unit/models/test_base_model.py ...                                 [ 68%]
+tests/unit/models/test_hookable_model.py ....                            [ 69%]
+tests/unit/models/test_task_model.py ........                            [ 70%]
+tests/unit/models/test_workflow_model.py ........                        [ 71%]
+tests/unit/settings/test_settings.py .................                   [ 74%]
+tests/unit/vars/test_e2e_var_system.py ..                                [ 74%]
+tests/unit/vars/test_error_conditions.py ......                          [ 75%]
+tests/unit/vars/test_host_namespace.py .....                             [ 76%]
+tests/unit/vars/test_host_proxy.py ........                              [ 77%]
+tests/unit/vars/test_jinja_filters.py .................................. [ 83%]
+........................................................................ [ 94%]
+............                                                             [ 96%]
+tests/unit/vars/test_manager.py .......                                  [ 97%]
+tests/unit/vars/test_processors.py .............                         [100%]
+
+=================================== FAILURES ===================================
+_________ TestIfHook.test_execute_hook_validations_valid_jinja_string __________
+
+self = <nornflow.vars.jinja2_utils.Jinja2EnvironmentManager object at 0x10c83e150>
+template_str = "{{ host.platform == 'ios' }}", context = {}
+error_context = "hook 'if' validation"
+
+    def render_template(self, template_str: str, context: dict[str, Any], error_context: str = "") -> str:
+        """Render a Jinja2 template string with the provided context.
+    
+        Args:
+            template_str: The Jinja2 template string to render.
+            context: Dictionary of variables to use in template rendering.
+            error_context: Description of where this template is being used.
+    
+        Returns:
+            The rendered template string.
+    
+        Raises:
+            VariableError: If template contains undefined variables.
+            TemplateError: If template has syntax errors or other rendering issues.
+        """
+        try:
+            template = self.env.from_string(template_str)
+>           return template.render(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+
+nornflow/vars/jinja2_utils.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/jinja2/environment.py:1295: in render
+    self.environment.handle_exception()
+.venv/lib/python3.12/site-packages/jinja2/environment.py:942: in handle_exception
+    raise rewrite_traceback_stack(source=source)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <jinja2.environment.Environment object at 0x10c83e180>, obj = Undefined
+attribute = 'platform'
+
+    def getattr(self, obj: t.Any, attribute: str) -> t.Any:
+        """Get an item or attribute of an object but prefer the attribute.
+        Unlike :meth:`getitem` the attribute *must* be a string.
+        """
+        try:
+>           return getattr(obj, attribute)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+E           jinja2.exceptions.UndefinedError: 'host' is undefined
+
+.venv/lib/python3.12/site-packages/jinja2/environment.py:490: UndefinedError
+
+The above exception was the direct cause of the following exception:
+
+self = <nornflow.builtins.hooks.if_hook.IfHook object at 0x10c83f020>
+task_model = <MagicMock id='4504940528'>
+
+    def _validate_jinja2_string(self, task_model: "TaskModel") -> None:
+        """Validate that string value is a proper Jinja2 expression.
+    
+        Args:
+            task_model: The task model being validated
+    
+        Raises:
+            HookValidationError: If string is empty or has syntax errors
+        """
+        if not self.value.strip():
+            raise HookValidationError(
+                self.hook_name,
+                [("empty_expression", f"Task '{task_model.name}': Jinja2 expression cannot be empty")],
+            )
+    
+        try:
+            manager = Jinja2EnvironmentManager()
+>           manager.render_template(self.value, {}, f"hook '{self.hook_name}' validation")
+
+nornflow/hooks/mixins.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <nornflow.vars.jinja2_utils.Jinja2EnvironmentManager object at 0x10c83e150>
+template_str = "{{ host.platform == 'ios' }}", context = {}
+error_context = "hook 'if' validation"
+
+    def render_template(self, template_str: str, context: dict[str, Any], error_context: str = "") -> str:
+        """Render a Jinja2 template string with the provided context.
+    
+        Args:
+            template_str: The Jinja2 template string to render.
+            context: Dictionary of variables to use in template rendering.
+            error_context: Description of where this template is being used.
+    
+        Returns:
+            The rendered template string.
+    
+        Raises:
+            VariableError: If template contains undefined variables.
+            TemplateError: If template has syntax errors or other rendering issues.
+        """
+        try:
+            template = self.env.from_string(template_str)
+            return template.render(context)
+        except UndefinedError as e:
+            context_info = f" ({error_context})" if error_context else ""
+>           raise VariableError(f"Undefined variable in template{context_info}: {e}") from e
+E           nornflow.vars.exceptions.VariableError: Undefined variable in template (hook 'if' validation): 'host' is undefined
+
+nornflow/vars/jinja2_utils.py:54: VariableError
+
+The above exception was the direct cause of the following exception:
+
+self = <test_if_hook.TestIfHook object at 0x10c411af0>
+
+    def test_execute_hook_validations_valid_jinja_string(self):
+        """Test validation passes for valid Jinja2 expression."""
+        hook = IfHook("{{ host.platform == 'ios' }}")
+        mock_task_model = MagicMock()
+    
+>       hook.execute_hook_validations(mock_task_model)
+
+tests/unit/builtins/test_if_hook.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+nornflow/builtins/hooks/if_hook.py:122: in execute_hook_validations
+    super().execute_hook_validations(task_model)
+nornflow/hooks/base.py:178: in execute_hook_validations
+    super().execute_hook_validations(task_model)
+nornflow/hooks/mixins.py:67: in execute_hook_validations
+    self._validate_jinja2_string(task_model)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <nornflow.builtins.hooks.if_hook.IfHook object at 0x10c83f020>
+task_model = <MagicMock id='4504940528'>
+
+    def _validate_jinja2_string(self, task_model: "TaskModel") -> None:
+        """Validate that string value is a proper Jinja2 expression.
+    
+        Args:
+            task_model: The task model being validated
+    
+        Raises:
+            HookValidationError: If string is empty or has syntax errors
+        """
+        if not self.value.strip():
+            raise HookValidationError(
+                self.hook_name,
+                [("empty_expression", f"Task '{task_model.name}': Jinja2 expression cannot be empty")],
+            )
+    
+        try:
+            manager = Jinja2EnvironmentManager()
+            manager.render_template(self.value, {}, f"hook '{self.hook_name}' validation")
+        except Exception as e:
+>           raise HookValidationError(
+                self.hook_name,
+                [("jinja2_validation", f"Task '{task_model.name}': Jinja2 expression validation failed: {e}")],
+            ) from e
+E           nornflow.hooks.exceptions.HookValidationError: Hook 'if' validation failed: jinja2_validation: Task '<MagicMock name='mock.name' id='4504935632'>': Jinja2 expression validation failed: Undefined variable in template (hook 'if' validation): 'host' is undefined
+
+nornflow/hooks/mixins.py:91: HookValidationError
+____________ TestShushHook.test_validate_string_with_jinja2_markers ____________
+
+self = <nornflow.vars.jinja2_utils.Jinja2EnvironmentManager object at 0x10c8aecc0>
+template_str = '{{ some_var }}', context = {}
+error_context = "hook 'shush' validation"
+
+    def render_template(self, template_str: str, context: dict[str, Any], error_context: str = "") -> str:
+        """Render a Jinja2 template string with the provided context.
+    
+        Args:
+            template_str: The Jinja2 template string to render.
+            context: Dictionary of variables to use in template rendering.
+            error_context: Description of where this template is being used.
+    
+        Returns:
+            The rendered template string.
+    
+        Raises:
+            VariableError: If template contains undefined variables.
+            TemplateError: If template has syntax errors or other rendering issues.
+        """
+        try:
+            template = self.env.from_string(template_str)
+>           return template.render(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+
+nornflow/vars/jinja2_utils.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/jinja2/environment.py:1295: in render
+    self.environment.handle_exception()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <jinja2.environment.Environment object at 0x10c8aede0>, source = None
+
+    def handle_exception(self, source: t.Optional[str] = None) -> "te.NoReturn":
+        """Exception handling helper.  This is used internally to either raise
+        rewritten exceptions or return a rendered traceback for the template.
+        """
+        from .debug import rewrite_traceback_stack
+    
+>       raise rewrite_traceback_stack(source=source)
+E       jinja2.exceptions.UndefinedError: 'some_var' is undefined
+
+.venv/lib/python3.12/site-packages/jinja2/environment.py:942: UndefinedError
+
+The above exception was the direct cause of the following exception:
+
+self = <nornflow.builtins.hooks.shush.ShushHook object at 0x10c88bb00>
+task_model = TaskModel(hooks=None, id=1, name='test_task', args={})
+
+    def _validate_jinja2_string(self, task_model: "TaskModel") -> None:
+        """Validate that string value is a proper Jinja2 expression.
+    
+        Args:
+            task_model: The task model being validated
+    
+        Raises:
+            HookValidationError: If string is empty or has syntax errors
+        """
+        if not self.value.strip():
+            raise HookValidationError(
+                self.hook_name,
+                [("empty_expression", f"Task '{task_model.name}': Jinja2 expression cannot be empty")],
+            )
+    
+        try:
+            manager = Jinja2EnvironmentManager()
+>           manager.render_template(self.value, {}, f"hook '{self.hook_name}' validation")
+
+nornflow/hooks/mixins.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <nornflow.vars.jinja2_utils.Jinja2EnvironmentManager object at 0x10c8aecc0>
+template_str = '{{ some_var }}', context = {}
+error_context = "hook 'shush' validation"
+
+    def render_template(self, template_str: str, context: dict[str, Any], error_context: str = "") -> str:
+        """Render a Jinja2 template string with the provided context.
+    
+        Args:
+            template_str: The Jinja2 template string to render.
+            context: Dictionary of variables to use in template rendering.
+            error_context: Description of where this template is being used.
+    
+        Returns:
+            The rendered template string.
+    
+        Raises:
+            VariableError: If template contains undefined variables.
+            TemplateError: If template has syntax errors or other rendering issues.
+        """
+        try:
+            template = self.env.from_string(template_str)
+            return template.render(context)
+        except UndefinedError as e:
+            context_info = f" ({error_context})" if error_context else ""
+>           raise VariableError(f"Undefined variable in template{context_info}: {e}") from e
+E           nornflow.vars.exceptions.VariableError: Undefined variable in template (hook 'shush' validation): 'some_var' is undefined
+
+nornflow/vars/jinja2_utils.py:54: VariableError
+
+The above exception was the direct cause of the following exception:
+
+self = <test_shush_hook.TestShushHook object at 0x10c432e40>
+
+    def test_validate_string_with_jinja2_markers(self):
+        """Test validation passes for string values with Jinja2 markers."""
+        from nornflow.models import TaskModel
+    
+        hook = ShushHook("{{ some_var }}")
+        task_model = TaskModel.create({"name": "test_task", "args": {}})
+    
+>       hook.execute_hook_validations(task_model)
+
+tests/unit/builtins/test_shush_hook.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+nornflow/hooks/base.py:178: in execute_hook_validations
+    super().execute_hook_validations(task_model)
+nornflow/hooks/mixins.py:67: in execute_hook_validations
+    self._validate_jinja2_string(task_model)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <nornflow.builtins.hooks.shush.ShushHook object at 0x10c88bb00>
+task_model = TaskModel(hooks=None, id=1, name='test_task', args={})
+
+    def _validate_jinja2_string(self, task_model: "TaskModel") -> None:
+        """Validate that string value is a proper Jinja2 expression.
+    
+        Args:
+            task_model: The task model being validated
+    
+        Raises:
+            HookValidationError: If string is empty or has syntax errors
+        """
+        if not self.value.strip():
+            raise HookValidationError(
+                self.hook_name,
+                [("empty_expression", f"Task '{task_model.name}': Jinja2 expression cannot be empty")],
+            )
+    
+        try:
+            manager = Jinja2EnvironmentManager()
+            manager.render_template(self.value, {}, f"hook '{self.hook_name}' validation")
+        except Exception as e:
+>           raise HookValidationError(
+                self.hook_name,
+                [("jinja2_validation", f"Task '{task_model.name}': Jinja2 expression validation failed: {e}")],
+            ) from e
+E           nornflow.hooks.exceptions.HookValidationError: Hook 'shush' validation failed: jinja2_validation: Task 'test_task': Jinja2 expression validation failed: Undefined variable in template (hook 'shush' validation): 'some_var' is undefined
+
+nornflow/hooks/mixins.py:91: HookValidationError
+______________________ TestShowCommand.test_show_no_flags ______________________
+
+self = <tests.unit.cli.test_show.TestShowCommand object at 0x10c5f10d0>
+mock_builder = <MagicMock name='NornFlowBuilder' id='4505310400'>
+
+    @patch("nornflow.cli.show.NornFlowBuilder")
+    def test_show_no_flags(self, mock_builder):
+        """Test 'show' with no flags raises an error."""
+        mock_ctx = MagicMock()
+        mock_ctx.obj = {}
+    
+>       with pytest.raises(typer.BadParameter):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'click.exceptions.BadParameter'>
+
+tests/unit/cli/test_show.py:176: Failed
+______________________ TestShowHelpers.test_show_catalog _______________________
+
+self = <tests.unit.cli.test_show.TestShowHelpers object at 0x10c5f0cb0>
+mock_show_table = <MagicMock name='show_formatted_table' id='4507933664'>
+
+    @patch("nornflow.cli.show.show_formatted_table")
+    def test_show_catalog(self, mock_show_table):
+        """Test show_catalog calls show_formatted_table with correct parameters."""
+        mock_nornflow = MagicMock()
+    
+        show_catalog(mock_nornflow)
+    
+>       assert mock_show_table.call_count == 3
+E       AssertionError: assert 4 == 3
+E        +  where 4 = <MagicMock name='show_formatted_table' id='4507933664'>.call_count
+
+tests/unit/cli/test_show.py:259: AssertionError
+_________ TestJinja2ResolvableMixin.test_validate_jinja2_string_valid __________
+
+self = <nornflow.vars.jinja2_utils.Jinja2EnvironmentManager object at 0x10dd2f470>
+template_str = '{{ var }}', context = {}
+error_context = "hook 'jinja2_mixin_test_hook' validation"
+
+    def render_template(self, template_str: str, context: dict[str, Any], error_context: str = "") -> str:
+        """Render a Jinja2 template string with the provided context.
+    
+        Args:
+            template_str: The Jinja2 template string to render.
+            context: Dictionary of variables to use in template rendering.
+            error_context: Description of where this template is being used.
+    
+        Returns:
+            The rendered template string.
+    
+        Raises:
+            VariableError: If template contains undefined variables.
+            TemplateError: If template has syntax errors or other rendering issues.
+        """
+        try:
+            template = self.env.from_string(template_str)
+>           return template.render(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+
+nornflow/vars/jinja2_utils.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/jinja2/environment.py:1295: in render
+    self.environment.handle_exception()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <jinja2.environment.Environment object at 0x10dd2f290>, source = None
+
+    def handle_exception(self, source: t.Optional[str] = None) -> "te.NoReturn":
+        """Exception handling helper.  This is used internally to either raise
+        rewritten exceptions or return a rendered traceback for the template.
+        """
+        from .debug import rewrite_traceback_stack
+    
+>       raise rewrite_traceback_stack(source=source)
+E       jinja2.exceptions.UndefinedError: 'var' is undefined
+
+.venv/lib/python3.12/site-packages/jinja2/environment.py:942: UndefinedError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.unit.hooks.test_jinja2_mixin.Jinja2MixinTestHook object at 0x10dd2c2c0>
+task_model = <MagicMock id='4526883856'>
+
+    def _validate_jinja2_string(self, task_model: "TaskModel") -> None:
+        """Validate that string value is a proper Jinja2 expression.
+    
+        Args:
+            task_model: The task model being validated
+    
+        Raises:
+            HookValidationError: If string is empty or has syntax errors
+        """
+        if not self.value.strip():
+            raise HookValidationError(
+                self.hook_name,
+                [("empty_expression", f"Task '{task_model.name}': Jinja2 expression cannot be empty")],
+            )
+    
+        try:
+            manager = Jinja2EnvironmentManager()
+>           manager.render_template(self.value, {}, f"hook '{self.hook_name}' validation")
+
+nornflow/hooks/mixins.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <nornflow.vars.jinja2_utils.Jinja2EnvironmentManager object at 0x10dd2f470>
+template_str = '{{ var }}', context = {}
+error_context = "hook 'jinja2_mixin_test_hook' validation"
+
+    def render_template(self, template_str: str, context: dict[str, Any], error_context: str = "") -> str:
+        """Render a Jinja2 template string with the provided context.
+    
+        Args:
+            template_str: The Jinja2 template string to render.
+            context: Dictionary of variables to use in template rendering.
+            error_context: Description of where this template is being used.
+    
+        Returns:
+            The rendered template string.
+    
+        Raises:
+            VariableError: If template contains undefined variables.
+            TemplateError: If template has syntax errors or other rendering issues.
+        """
+        try:
+            template = self.env.from_string(template_str)
+            return template.render(context)
+        except UndefinedError as e:
+            context_info = f" ({error_context})" if error_context else ""
+>           raise VariableError(f"Undefined variable in template{context_info}: {e}") from e
+E           nornflow.vars.exceptions.VariableError: Undefined variable in template (hook 'jinja2_mixin_test_hook' validation): 'var' is undefined
+
+nornflow/vars/jinja2_utils.py:54: VariableError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.unit.hooks.test_jinja2_mixin.TestJinja2ResolvableMixin object at 0x10c6c8ad0>
+
+    def test_validate_jinja2_string_valid(self):
+        """Test validation passes for valid Jinja2 string."""
+        hook = Jinja2MixinTestHook("{{ var }}")
+        mock_task_model = MagicMock()
+    
+        # Should not raise
+>       hook.execute_hook_validations(mock_task_model)
+
+tests/unit/hooks/test_jinja2_mixin.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+nornflow/hooks/base.py:178: in execute_hook_validations
+    super().execute_hook_validations(task_model)
+nornflow/hooks/mixins.py:67: in execute_hook_validations
+    self._validate_jinja2_string(task_model)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <tests.unit.hooks.test_jinja2_mixin.Jinja2MixinTestHook object at 0x10dd2c2c0>
+task_model = <MagicMock id='4526883856'>
+
+    def _validate_jinja2_string(self, task_model: "TaskModel") -> None:
+        """Validate that string value is a proper Jinja2 expression.
+    
+        Args:
+            task_model: The task model being validated
+    
+        Raises:
+            HookValidationError: If string is empty or has syntax errors
+        """
+        if not self.value.strip():
+            raise HookValidationError(
+                self.hook_name,
+                [("empty_expression", f"Task '{task_model.name}': Jinja2 expression cannot be empty")],
+            )
+    
+        try:
+            manager = Jinja2EnvironmentManager()
+            manager.render_template(self.value, {}, f"hook '{self.hook_name}' validation")
+        except Exception as e:
+>           raise HookValidationError(
+                self.hook_name,
+                [("jinja2_validation", f"Task '{task_model.name}': Jinja2 expression validation failed: {e}")],
+            ) from e
+E           nornflow.hooks.exceptions.HookValidationError: Hook 'jinja2_mixin_test_hook' validation failed: jinja2_validation: Task '<MagicMock name='mock.name' id='4526883184'>': Jinja2 expression validation failed: Undefined variable in template (hook 'jinja2_mixin_test_hook' validation): 'var' is undefined
+
+nornflow/hooks/mixins.py:91: HookValidationError
+=============================== warnings summary ===============================
+tests/unit/builtins/test_shush_hook.py: 2 warnings
+tests/unit/core/test_nornflow.py: 15 warnings
+tests/unit/models/test_base_model.py: 2 warnings
+tests/unit/models/test_task_model.py: 2 warnings
+tests/unit/models/test_workflow_model.py: 13 warnings
+  /Users/andrelima/Personal/portfolio_projects/nornflow/nornflow/models/validators.py:88: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
+    all_fields = set(instance.model_fields.keys())
+
+tests/unit/builtins/test_shush_hook.py: 2 warnings
+tests/unit/core/test_nornflow.py: 8 warnings
+tests/unit/models/test_task_model.py: 2 warnings
+tests/unit/models/test_workflow_model.py: 7 warnings
+  /Users/andrelima/Personal/portfolio_projects/nornflow/nornflow/models/validators.py:26: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
+    task_model_fields = set(task.model_fields.keys())
+
+tests/unit/vars/test_jinja_filters.py::TestJinjaFilters::test_string_manipulation_filters
+tests/unit/vars/test_jinja_filters.py::TestCustomFilters::test_regex_replace_with_groups
+  /Users/andrelima/Personal/portfolio_projects/nornflow/.venv/lib/python3.12/site-packages/jinja2/lexer.py:654: DeprecationWarning: invalid escape sequence '\d'
+    .decode("unicode-escape")
+
+tests/unit/vars/test_jinja_filters.py::TestCustomFilters::test_regex_replace_multiple_groups
+  /Users/andrelima/Personal/portfolio_projects/nornflow/.venv/lib/python3.12/site-packages/jinja2/lexer.py:654: DeprecationWarning: invalid escape sequence '\w'
+    .decode("unicode-escape")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/builtins/test_if_hook.py::TestIfHook::test_execute_hook_validations_valid_jinja_string
+FAILED tests/unit/builtins/test_shush_hook.py::TestShushHook::test_validate_string_with_jinja2_markers
+FAILED tests/unit/cli/test_show.py::TestShowCommand::test_show_no_flags - Fai...
+FAILED tests/unit/cli/test_show.py::TestShowHelpers::test_show_catalog - Asse...
+FAILED tests/unit/hooks/test_jinja2_mixin.py::TestJinja2ResolvableMixin::test_validate_jinja2_string_valid
+================== 5 failed, 622 passed, 56 warnings in 1.28s ==================
