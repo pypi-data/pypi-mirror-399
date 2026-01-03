@@ -1,0 +1,30 @@
+from __future__ import annotations
+from pydantic import NonPositiveInt
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from cidc_api.models.db.stage1.base_orm import BaseORM
+from cidc_api.models.types import UberonAnatomicalTerm, ICDO3MorphologicalCode, ICDO3MorphologicalTerm, MalignancyStatus
+
+
+class OtherMalignancyORM(BaseORM):
+    __tablename__ = "other_malignancy"
+    __repr_attrs__ = ["other_malignancy_id", "primary_disease_site"]
+    __table_args__ = {"schema": "stage1"}
+    __data_category__ = "other_malignancy"
+
+    other_malignancy_id: Mapped[int] = mapped_column(primary_key=True)
+    medical_history_id: Mapped[int] = mapped_column(
+        ForeignKey("stage1.medical_history.medical_history_id", ondelete="CASCADE")
+    )
+
+    other_malignancy_primary_disease_site: Mapped[UberonAnatomicalTerm]
+    other_malignancy_morphological_code: Mapped[ICDO3MorphologicalCode | None]
+    other_malignancy_morphological_term: Mapped[ICDO3MorphologicalTerm | None]
+    other_malignancy_description: Mapped[str | None]
+    other_malignancy_days_since_diagnosis: Mapped[NonPositiveInt | None]
+    other_malignancy_status: Mapped[MalignancyStatus | None]
+
+    medical_history: Mapped[MedicalHistoryORM] = relationship(
+        back_populates="other_malignancies", cascade="all, delete"
+    )
