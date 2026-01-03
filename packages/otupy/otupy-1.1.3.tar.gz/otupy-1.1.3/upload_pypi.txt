@@ -1,0 +1,9 @@
+# Build the distribution
+% python3 -m pip install --upgrade build # If not installed yet
+% python3 -m build # Run in the same directory as pyproject.toml 
+
+# Upload to pytest:
+% python3 -m twine upload --repository testpypi dist/*
+
+# Upload to pypi:
+% python3 -m twine upload  dist/otupy-1.1.0* # To upload just a specific release

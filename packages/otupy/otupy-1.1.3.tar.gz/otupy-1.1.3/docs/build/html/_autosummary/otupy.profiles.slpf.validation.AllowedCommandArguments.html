@@ -1,0 +1,168 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>otupy.profiles.slpf.validation.AllowedCommandArguments &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="otupy.profiles.slpf.validation.fillin_allowed_command_arguments" href="otupy.profiles.slpf.validation.fillin_allowed_command_arguments.html" />
+    <link rel="prev" title="otupy.profiles.slpf.validation.AllowedCommandTarget" href="otupy.profiles.slpf.validation.AllowedCommandTarget.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="otupy.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="otupy.actuators.html">otupy.actuators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.html">otupy.apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.core.html">otupy.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.encoders.html">otupy.encoders</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="otupy.profiles.html">otupy.profiles</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="otupy.profiles.ctxd.html">otupy.profiles.ctxd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.profiles.dumb.html">otupy.profiles.dumb</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="otupy.profiles.slpf.html">otupy.profiles.slpf</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="otupy.profiles.slpf.actuator.html">otupy.profiles.slpf.actuator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.profiles.slpf.args.html">otupy.profiles.slpf.args</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.profiles.slpf.data.html">otupy.profiles.slpf.data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.profiles.slpf.profile.html">otupy.profiles.slpf.profile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.profiles.slpf.results.html">otupy.profiles.slpf.results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.profiles.slpf.targets.html">otupy.profiles.slpf.targets</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="otupy.profiles.slpf.validation.html">otupy.profiles.slpf.validation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.transfers.html">otupy.transfers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.types.html">otupy.types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.utils.html">otupy.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Building the documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="otupy.html">otupy</a></li>
+          <li class="breadcrumb-item"><a href="otupy.profiles.html">otupy.profiles</a></li>
+          <li class="breadcrumb-item"><a href="otupy.profiles.slpf.html">otupy.profiles.slpf</a></li>
+          <li class="breadcrumb-item"><a href="otupy.profiles.slpf.validation.html">otupy.profiles.slpf.validation</a></li>
+      <li class="breadcrumb-item active">otupy.profiles.slpf.validation.AllowedCommandArguments</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="otupy-profiles-slpf-validation-allowedcommandarguments">
+<h1>otupy.profiles.slpf.validation.AllowedCommandArguments<a class="headerlink" href="#otupy-profiles-slpf-validation-allowedcommandarguments" title="Link to this heading"></a></h1>
+<dl class="py data">
+<dt class="sig sig-object py" id="otupy.profiles.slpf.validation.AllowedCommandArguments">
+<span class="sig-name descname"><span class="pre">AllowedCommandArguments</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{(allow,</span> <span class="pre">ipv4_connection):</span> <span class="pre">['response_requested',</span> <span class="pre">'start_time',</span> <span class="pre">'stop_time',</span> <span class="pre">'duration',</span> <span class="pre">'persistent',</span> <span class="pre">'direction',</span> <span class="pre">'insert_rule',</span> <span class="pre">'drop_process'],</span> <span class="pre">(allow,</span> <span class="pre">ipv4_net):</span> <span class="pre">['response_requested',</span> <span class="pre">'start_time',</span> <span class="pre">'stop_time',</span> <span class="pre">'duration',</span> <span class="pre">'persistent',</span> <span class="pre">'direction',</span> <span class="pre">'insert_rule',</span> <span class="pre">'drop_process'],</span> <span class="pre">(delete,</span> <span class="pre">slpf:rule_number):</span> <span class="pre">['response_requested',</span> <span class="pre">'start_time'],</span> <span class="pre">(deny,</span> <span class="pre">ipv4_connection):</span> <span class="pre">['response_requested',</span> <span class="pre">'start_time',</span> <span class="pre">'stop_time',</span> <span class="pre">'duration',</span> <span class="pre">'persistent',</span> <span class="pre">'direction',</span> <span class="pre">'insert_rule',</span> <span class="pre">'drop_process'],</span> <span class="pre">(deny,</span> <span class="pre">ipv4_net):</span> <span class="pre">['response_requested',</span> <span class="pre">'start_time',</span> <span class="pre">'stop_time',</span> <span class="pre">'duration',</span> <span class="pre">'persistent',</span> <span class="pre">'direction',</span> <span class="pre">'insert_rule',</span> <span class="pre">'drop_process'],</span> <span class="pre">(query,</span> <span class="pre">features):</span> <span class="pre">['response_requested'],</span> <span class="pre">(update,</span> <span class="pre">file):</span> <span class="pre">['response_requested',</span> <span class="pre">'start_time']}</span></em><a class="headerlink" href="#otupy.profiles.slpf.validation.AllowedCommandArguments" title="Link to this definition"></a></dt>
+<dd><p>List of allowed <cite>Args</cite> for each <cite>Action</cite></p>
+<p>Command Arguments Matrix (Table 2.3.2): valid Command/Arguments pairs.
+An argument value of ‘None’ means the argument is valid for any supported target (see Table 2.3.1).
+See Sec. 2.3.1-2.3.5 for the behaviour to be implemented in the actuators.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="otupy.profiles.slpf.validation.AllowedCommandTarget.html" class="btn btn-neutral float-left" title="otupy.profiles.slpf.validation.AllowedCommandTarget" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="otupy.profiles.slpf.validation.fillin_allowed_command_arguments.html" class="btn btn-neutral float-right" title="otupy.profiles.slpf.validation.fillin_allowed_command_arguments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

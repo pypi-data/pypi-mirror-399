@@ -1,0 +1,223 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>otupy: OpenC2 Utilities for Python &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Background" href="background.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/otupy.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Building the documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">otupy: OpenC2 Utilities for Python</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="otupy-openc2-utilities-for-python">
+<h1>otupy: OpenC2 Utilities for Python<a class="headerlink" href="#otupy-openc2-utilities-for-python" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">otupy</span></code> (/’əʊtu:paɪ/) is an open-source implementation of the OpenC2
+language written in Python.</p>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">otupy</span></code> is explicitly designed with flexibility
+and extensibility in mind, meaning that additional profiles and
+actuators can be added without impacting the core library itself. For
+this reason, it is particullary suited for:</p>
+<ul class="simple">
+<li><p>developers that are looking for a common interface to control their remote cybersecurity functions;</p></li>
+<li><p>researchers that design new profiles for cybersecurity functions;</p></li>
+<li><p>system integrators that need a common language for their cybersecurity frameworks.</p></li>
+</ul>
+<p>Usage and extension of <code class="docutils literal notranslate"><span class="pre">otupy</span></code> have a shallow learning curve because data
+structures are explicitly designed to follow the language specification.
+Differently from many other implementations publicly available,
+introducing new transfer protocols, new message encoding formats, new
+profiles, and new implementations of actuators does not require
+modification to the core package; these extensions are easily to
+introduce because they largely reflect the language specification, hence
+minimal comprehension of the <code class="docutils literal notranslate"><span class="pre">otupy</span></code> is required to getting started.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">otupy</span></code> currently provides:</p>
+<ul class="simple">
+<li><p>the implementation of the core functions that implement the OpenC2 Architecture and Language Specification;</p></li>
+<li><p>the implementation of the json encoder according to the the <a class="reference external" href="https://docs.oasis-open.org/openc2/oc2ls/v1.0/cs02/oc2ls-v1.0-cs02.pdf">Language Specification</a></p></li>
+<li><p>the implementation of additional encoders for validation and demonstration: YAML, XML, and CBOR;</p></li>
+<li><p>the implementation of the HTTP transfer protocol compliant with the <a class="reference external" href="https://docs.oasis-open.org/openc2/open-impl-https/v1.1/cs01/open-impl-https-v1.1-cs01.pdf">OpenC2 Specification for Transfer over HTTPS</a></p></li>
+<li><p>the implementation of the MQTT transfer protocol compliant with the <a class="reference external" href="https://docs.oasis-open.org/openc2/transf-mqtt/v1.0/cs01/transf-mqtt-v1.0-cs01.pdf">OpenC2 Specification for Transfer over MQTT</a></p></li>
+<li><p>the definition of the SLPF profile according to the <a class="reference external" href="https://docs.oasis-open.org/openc2/oc2slpf/v1.0/cs01/oc2slpf-v1.0-cs01.pdf">OpenC2 Profile for Stateless Packet Filtering</a></p></li>
+<li><p>a dumb implementation of an actuator for the SLPF profile.</p></li>
+</ul>
+</section>
+<section id="compatibility">
+<h2>Compatibility<a class="headerlink" href="#compatibility" title="Link to this heading"></a></h2>
+<p>Python 3.9+ is required to run <code class="docutils literal notranslate"><span class="pre">otupy</span></code> (Python 3.11 was used for development).</p>
+</section>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+</div>
+</section>
+<section id="applications">
+<h2>Applications<a class="headerlink" href="#applications" title="Link to this heading"></a></h2>
+<p>There are a few OpenC2-based applications provided with <code class="docutils literal notranslate"><span class="pre">otupy</span></code>:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+</div>
+</section>
+<section id="advanced-usage">
+<h2>Advanced usage<a class="headerlink" href="#advanced-usage" title="Link to this heading"></a></h2>
+<p>Advanced usage of <code class="docutils literal notranslate"><span class="pre">otupy</span></code> requires knowledge of its data
+structures and functions. Data structures are very straightforward to
+learn, because they strictly follow the definition and requirements in
+the common Language Specification and Profile extensions.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/otupy.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Building the documentation</a></li>
+</ul>
+</div>
+</section>
+<section id="extensions">
+<h2>Extensions<a class="headerlink" href="#extensions" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">otupy</span></code> comes with several extensions and use cases:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+</div>
+</section>
+<section id="additional-notes">
+<h2>Additional notes<a class="headerlink" href="#additional-notes" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Licence</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="background.html" class="btn btn-neutral float-right" title="Background" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2. Data model &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3. Command Components" href="3__command_components.html" />
+    <link rel="prev" title="1. Goals of Context Discovery" href="1__goals_of_context_discovery.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_autosummary/otupy.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Building the documentation</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="ctxd.html">Context Discovery Actuator Profile</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="1__goals_of_context_discovery.html">1. Goals of Context Discovery</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2. Data model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3__command_components.html">3. Command Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4__response_components.html">4 Response Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5__ctxd_data_types.html">5 CTXD Data Types</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="ctxd.html">Context Discovery Actuator Profile</a></li>
+      <li class="breadcrumb-item active">2. Data model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="data-model">
+<h1>2. Data model<a class="headerlink" href="#data-model" title="Link to this heading"></a></h1>
+<p>The main purpose for the Context Discovery profile is to return a description
+of the execution environment, including digital services and the relationships
+between them. Hence, the data model of the returned data revolves around two
+key concepts:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.service.Service.html#otupy.profiles.ctxd.data.service.Service" title="otupy.profiles.ctxd.data.service.Service"><code class="xref py py-class docutils literal notranslate"><span class="pre">Service</span></code></a>:</dt><dd><p>A Service is any
+kind of digital resource which can be identified and linked to other
+resources. It can be a software, an application, a repository,
+an infrastructure, a network, a device, and anything else may be
+subject to cyber-attacks. Its description includes location,
+subservices, owner, release version. Most of the relevant information
+concerning the description of the service are indeed embedded
+in the <a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.service_type.ServiceType.html#otupy.profiles.ctxd.data.service_type.ServiceType" title="otupy.profiles.ctxd.data.service_type.ServiceType"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceType</span></code></a>, since they
+are specific to the service type. The current assumption is that
+there is only one CTXD actuator that provides the service description
+through the <a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.service.Service.html#otupy.profiles.ctxd.data.service.Service" title="otupy.profiles.ctxd.data.service.Service"><code class="xref py py-class docutils literal notranslate"><span class="pre">Service</span></code></a> object,
+to avoid the risk of having multiple versions to merge.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.link.Link.html#otupy.profiles.ctxd.data.link.Link" title="otupy.profiles.ctxd.data.link.Link"><code class="xref py py-class docutils literal notranslate"><span class="pre">Link</span></code></a>:</dt><dd><p>A link is a relationship
+between two or more services. The <a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.link.Link.html#otupy.profiles.ctxd.data.link.Link" title="otupy.profiles.ctxd.data.link.Link"><code class="xref py py-class docutils literal notranslate"><span class="pre">Link</span></code></a>
+object describes the relationship between one
+<a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.link.Link.html#otupy.profiles.ctxd.data.link.Link.name" title="otupy.profiles.ctxd.data.link.Link.name"><code class="xref py py-attr docutils literal notranslate"><span class="pre">name</span></code></a> which is always
+described by the current actuator and one or more
+<a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.link.Link.html#otupy.profiles.ctxd.data.link.Link.peers" title="otupy.profiles.ctxd.data.link.Link.peers"><code class="xref py py-attr docutils literal notranslate"><span class="pre">peers</span></code></a> which might be described
+by the same actuator or another one. In the last case, the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Peer</span></code> object might include
+a <a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.consumer.Consumer.html#otupy.profiles.ctxd.data.consumer.Consumer" title="otupy.profiles.ctxd.data.consumer.Consumer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Consumer</span></code></a> object that describes
+the endpoint where the whole service description can be retrieved
+(this object will not be present if the consumer does not know where
+to find this description or no ctxd consumer is avaiable to describe
+such service, i.e., it is an hidden node in the chain).
+It is responsibility of the producer that performs the discovery to
+query another consumer to build the whole service chain (there is no
+caching). Similar to the <a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.service.Service.html#otupy.profiles.ctxd.data.service.Service" title="otupy.profiles.ctxd.data.service.Service"><code class="xref py py-class docutils literal notranslate"><span class="pre">Service</span></code></a>:
+object, also for the <a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.link.Link.html#otupy.profiles.ctxd.data.link.Link" title="otupy.profiles.ctxd.data.link.Link"><code class="xref py py-class docutils literal notranslate"><span class="pre">Link</span></code></a> most
+of the descriptive elements are indeed in the
+<a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.link_type.LinkType.html#otupy.profiles.ctxd.data.link_type.LinkType" title="otupy.profiles.ctxd.data.link_type.LinkType"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinkType</span></code></a>, since they are specific
+of differente link types. Finally, note that multiple peers can
+be provided (e.g., multiple VMs controlled by the same software, or
+hosted on the same hypervisor), but this does not preclude implementations
+to alternatively returns different <a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.link.Link.html#otupy.profiles.ctxd.data.link.Link" title="otupy.profiles.ctxd.data.link.Link"><code class="xref py py-class docutils literal notranslate"><span class="pre">Link</span></code></a>
+objects for each peer. As last remark, the concept of peer also
+includes security functions managed by other profiles (e.g., slpf).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Additionally, one more class is relevant to locate the actuator responsible
+for external services and security functions:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><a class="reference internal" href="../_autosummary/otupy.profiles.ctxd.data.consumer.Consumer.html#otupy.profiles.ctxd.data.consumer.Consumer" title="otupy.profiles.ctxd.data.consumer.Consumer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Consumer</span></code></a>:</dt><dd><p>This object provides
+information about a consumer endpoint. Indeed, it includes both
+communication parameters (IP address, endpoint, serialization, transfer)
+as well as the profile and specifiers of the actuator. In case some
+parameter is not provided, it could be assumed as the default values
+(JSON over HTTPS).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<figure class="align-default">
+<img alt="Context Discovery data model" src="../_images/ctxd-datamodel.png" />
+</figure>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="1__goals_of_context_discovery.html" class="btn btn-neutral float-left" title="1. Goals of Context Discovery" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="3__command_components.html" class="btn btn-neutral float-right" title="3. Command Components" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+ctxd-kubernetes-example:
+  actuator: "ctxd-kubernetes"
+  profile: "x-ctxd"
+  owner: "tnt-lab"
+  specifiers:
+    domain: null
+    asset_id: "ctxd-kubernetes-example"
+  auth:
+    api_key: "eyJhbGciOiJSUzI1NiIsImtpZCI6IkdSTVl5RjZPYXc2NzZXc09fX19PcENzZnAtYWFXaVZvVGtwTjhVTmpMd1kifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJjdHhkLXNlcnZpY2UtdG9rZW4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiY3R4ZC1zZXJ2aWNlIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiODgwZmY4ZWQtOWJhOC00NWU0LWI2MDUtY2RjYjdjOTNhNzc5Iiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmN0eGQtc2VydmljZSJ9.5NZt_rxA-vLdXrt7MB6ymKprL_gE5jOYvr78GvKcz0uF3DhiEXL-vGNkY7mz3yrGL7oI6SRNfczDEsuqgRJxeSxgzRvuIenePeRmJg1OgRFDUxRrNI7leA8dzvTIiKAfWlrDiQB8uoKv_8PhsIYs6nUHUxo_JapirpGE2Kx-rm8hGdK7Qj7MrOtiOUg0uLF-pnXtvy95pP1BztI-b2f39-8mSwuERS-v9Tz94I5ggv01sf5GDzDum-hFYCGZl9RdppkdECMpAITWaDBqSjnyG1fOE1mvNfukFjb1IUh9OABXfK3_F9xJP69yItmn3ptKPwvdSrHsGPpexsX1qTfinQ"
+    host: "https://130.251.17.131:6443"
+  config:
+    cacert: "/etc/ssl/certs/kubernetes.crt"
+    namespaces:
+#      - my5gtestbed
+      - default
+  peers:
+    - service_name: 
+        local: kube0
+      consumer:
+        host: "kube0"
+        port: 8080
+        actuator:
+          asset_id: "ctxd-kube0"
+    - service_name: kubernetes-networkpolicies
+      consumer:
+        host: "127.0.0.1"
+        port: 8080
+        profile: slpf
+        actuator:
+          asset_id: "np"  

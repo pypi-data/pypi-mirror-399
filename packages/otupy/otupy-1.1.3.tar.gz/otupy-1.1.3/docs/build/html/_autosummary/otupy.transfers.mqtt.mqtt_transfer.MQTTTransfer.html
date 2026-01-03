@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="otupy.transfers.mqtt.mqtt_transfer.OpenC2Role" href="otupy.transfers.mqtt.mqtt_transfer.OpenC2Role.html" />
+    <link rel="prev" title="otupy.transfers.mqtt.mqtt_transfer.logger" href="otupy.transfers.mqtt.mqtt_transfer.logger.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="otupy.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="otupy.actuators.html">otupy.actuators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.html">otupy.apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.core.html">otupy.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.encoders.html">otupy.encoders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.profiles.html">otupy.profiles</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="otupy.transfers.html">otupy.transfers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="otupy.transfers.http.html">otupy.transfers.http</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="otupy.transfers.mqtt.html">otupy.transfers.mqtt</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="otupy.transfers.mqtt.message.html">otupy.transfers.mqtt.message</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="otupy.transfers.mqtt.mqtt_transfer.html">otupy.transfers.mqtt.mqtt_transfer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.types.html">otupy.types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.utils.html">otupy.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Building the documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="otupy.html">otupy</a></li>
+          <li class="breadcrumb-item"><a href="otupy.transfers.html">otupy.transfers</a></li>
+          <li class="breadcrumb-item"><a href="otupy.transfers.mqtt.html">otupy.transfers.mqtt</a></li>
+          <li class="breadcrumb-item"><a href="otupy.transfers.mqtt.mqtt_transfer.html">otupy.transfers.mqtt.mqtt_transfer</a></li>
+      <li class="breadcrumb-item active">otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="otupy-transfers-mqtt-mqtt-transfer-mqtttransfer">
+<h1>otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer<a class="headerlink" href="#otupy-transfers-mqtt-mqtt-transfer-mqtttransfer" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MQTTTransfer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">broker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1883</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usessl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="otupy.core.transfer.Transferclass.html#otupy.core.transfer.Transfer" title="otupy.core.transfer.Transfer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Transfer</span></code></a></p>
+<p>MQTT Transfer Protocol</p>
+<p>This class provides an implementation of the Specification. It builds on the paho library.</p>
+<p>Use <cite>MQTTTransfer</cite> to build OpenC2 communication stacks in <cite>Producer</cite> and <cite>Consumer</cite>.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_connect</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.on_message" title="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.on_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_message</span></code></a></p></td>
+<td><p>Service callback on receiving data from MQTT subscribed topics</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_publish</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_subscribe</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.receive" title="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.receive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">receive</span></code></a></p></td>
+<td><p>Listen for incoming messages</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.send" title="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.send"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send</span></code></a></p></td>
+<td><p>Sends OpenC2 message</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.MQTTUserData">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MQTTUserData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Event" title="(in Python v3.14)"><span class="pre">Event</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_msgs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.MQTTUserData" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Define the data structure to exchange data with MQTT thread</p>
+<p>It will include 
+- a list of (received) messages
+- the number of expected messages
+- an event to signal all expected messages were received</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.MQTTUserData.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Event" title="(in Python v3.14)"><span class="pre">Event</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_msgs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.MQTTUserData.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize MQTTUserData</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">broker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1883</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usessl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.__init__" title="Link to this definition"></a></dt>
+<dd><p>Builds the <cite>MQTTTransfer</cite> instance</p>
+<p>The <cite>broker</cite> and <cite>port</cite> parameters are used to select theh MQTT Broker.
+This implementation only supports TCP as transport protocol.</p>
+<p>The topics to be subscribed or used for publishing will be automatically derived.
+If no <cite>device_id</cite> is provided, the device-specific topic will not be subscribed.
+The Specification does not cover the generation of device identifiers (Sec. 2.2); additionally,
+it is not clear why the Consumer’s topic is denoted as <cite>device_id</cite> while the Producer’s topic as
+<cite>producer_id</cite>. This implementation uses the same identifiers already present in the <cite>Message</cite> metadata
+(namely, <cite>From</cite> and <cite>To</cite> fields) (Sec. 2.4.2). Note that both Consumers and Producers are expected to
+<em>always</em> include their identifiers in the <cite>From</cite> field (Sec. 2.4.2), so this argument is mandatory
+for the MQTT transfer.</p>
+<p>According to Sec. 3.1.8:
+- Consumer SHALL subscribe to topics for all actuator devices, all-commands topic, individual topic for device
+- Producer SHALL subscribe to the general response topic
+- Producer SHOULD subscribe to their individual topic
+Therefore, 
+1) the <cite>profiles</cite> and <cite>device_id</cite> arguments are mandatory for Consumers;
+2) the <cite>device_id</cite> could be optional for Producers, but it is mandatory in this implementation because of the above requirement on the <cite>From</cite> field.
+This implementation will always subscribe all topics for Consumers/Producers.</p>
+<p>For sending data, the <cite>send()</cite> method will wait at most <cite>response_timeout</cite> secodns before returning. 
+In case the Commands are sent to specific devices, it will return as soon as all of them have answered.
+If the Command is broadcast to all APs or to all devices, it will return after the above timeout. The
+same will happen if the message is sent to specific devices, but they do not include their identifier in 
+the <cite>Message.from</cite> field, as required by the standard.</p>
+<p>For receiving data, the <cite>receive()</cite> method will keep MQTT message for at least <cite>response_timeout</cite>  seconds
+for detecting and discarding duplicates. Duplicates received after <cite>response_timeout</cite> seconds are not 
+guaranteed to be correctly detected as such.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broker</strong> – Hostname or IP address of the MQTT Broker</p></li>
+<li><p><strong>port</strong> – Transport port of the MQTT Broker</p></li>
+<li><p><strong>device_id</strong> – OpenC2 device identifier to be used in topic name for the specific actuator (mandatory)</p></li>
+<li><p><strong>profiles</strong> – list of profile names for actuators running on the Consumer (will be ignored by the Producer)</p></li>
+<li><p><strong>username</strong> – Username to connect to MQTT broker</p></li>
+<li><p><strong>password</strong> – Password to connect to MQTT broker</p></li>
+<li><p><strong>client_id</strong> – Client identifier to connect to MQTT broker</p></li>
+<li><p><strong>response_timeout</strong> – Timeout to wait for responses to commands from multiple devices (for Producers). 
+Timeout to detect duplicates of commands from multiple topics (for Consumers).</p></li>
+<li><p><strong>usessl</strong> – Enable (<cite>True</cite>) or disable (<cite>False</cite>) SSL. Internal use only. Do not set this argument,
+use the <cite>MQTTSTransfer</cite> instead.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.on_message">
+<span class="sig-name descname"><span class="pre">on_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">userdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.on_message" title="Link to this definition"></a></dt>
+<dd><p>Service callback on receiving data from MQTT subscribed topics</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.receive">
+<span class="sig-name descname"><span class="pre">receive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.receive" title="Link to this definition"></a></dt>
+<dd><p>Listen for incoming messages</p>
+<p>This method implements the <a class="reference internal" href="otupy.core.transfer.Transferclass.html#otupy.core.transfer.Transfer" title="otupy.core.transfer.Transfer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Transfer</span></code></a> interface 
+to listen for and receive OpenC2 messages.
+Note that only Consumers can use this method (it will fail if a Producer invokes it).</p>
+<p>The internal implementation uses Paho MQTT client. The method invokes the <cite>callback</cite>
+for each received message, which must be provided by a <cite>Consumer</cite> to properly dispatch 
+<a class="reference internal" href="otupy.core.command.Command.html#otupy.core.command.Command" title="otupy.core.command.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a>s to the relevant server(s). 
+It also takes an <a class="reference internal" href="otupy.core.encoder.Encoder.html#otupy.core.encoder.Encoder" title="otupy.core.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">Encoder</span></code></a> that is used to create
+responses to <cite>Command</cite>s encoded with unknown encoders.</p>
+<p>This implemnetation sends the response to the device-specific topic, if available from
+the command (it SHOULD be available according to the Specification requirements, but
+we want to be be safe and robust about buggy implementations).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>callback</strong> – The function that is invoked to process OpenC2 messages.</p></li>
+<li><p><strong>encoder</strong> – Default <cite>Encoder</cite> instance to respond to unknown or wrong messages.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.transfers.mqtt.mqtt_transfer.MQTTTransfer.send" title="Link to this definition"></a></dt>
+<dd><p>Sends OpenC2 message</p>
+<p>This method implements the required <cite>Transfer</cite> interface to send message to an OpenC2 server.
+Note that this method can be used by Producers only (it will fail if a Consumer invokes it)</p>
+<p>The MQTT specification does not dictate to which topic the messages are sent.
+This implementation follows a “polite” approach, which avoids flooding Consumers by publishing
+the messages over an unnecessary number of topics. The approach is to follow the filters the 
+<cite>Producer</cite> may have set on the message, by implementing the following logic:
+1. If msg.to is present, send the message to all devices in this field
+2. If msg.to is not present, send the message to the profile in the Command 
+3. If no profile is given, broadcast the message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> – The message to send (otupy <cite>Message</cite>).</p></li>
+<li><p><strong>encoder</strong> – The encoder to use for encoding the <cite>msg</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An list of OpenC2  responses (<cite>Response</cite>).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="otupy.transfers.mqtt.mqtt_transfer.logger.html" class="btn btn-neutral float-left" title="otupy.transfers.mqtt.mqtt_transfer.logger" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="otupy.transfers.mqtt.mqtt_transfer.OpenC2Role.html" class="btn btn-neutral float-right" title="otupy.transfers.mqtt.mqtt_transfer.OpenC2Role" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

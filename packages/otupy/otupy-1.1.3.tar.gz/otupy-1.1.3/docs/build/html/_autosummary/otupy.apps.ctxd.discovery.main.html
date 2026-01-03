@@ -1,0 +1,164 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>otupy.apps.ctxd.discovery.main &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="otupy.apps.ctxd.discovery.parse_and_default" href="otupy.apps.ctxd.discovery.parse_and_default.html" />
+    <link rel="prev" title="otupy.apps.ctxd.discovery.loop" href="otupy.apps.ctxd.discovery.loop.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="otupy.apps.ctxd.html">Context Discovery</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.ctxd.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.ctxd.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.ctxd.html#run">Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.ctxd.html#code-reference">Code reference</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="otupy.apps.ctxd.discovery.html">otupy.apps.ctxd.discovery</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.JSONSCHEMA.html">otupy.apps.ctxd.discovery.JSONSCHEMA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.defaults.html">otupy.apps.ctxd.discovery.defaults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.add_resource.html">otupy.apps.ctxd.discovery.add_resource</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.connect_to_publishers.html">otupy.apps.ctxd.discovery.connect_to_publishers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.disconnect_from_publishers.html">otupy.apps.ctxd.discovery.disconnect_from_publishers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.discover.html">otupy.apps.ctxd.discovery.discover</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.discovery.html">otupy.apps.ctxd.discovery.discovery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.loop.html">otupy.apps.ctxd.discovery.loop</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">otupy.apps.ctxd.discovery.main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#otupy.apps.ctxd.discovery.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.parse_and_default.html">otupy.apps.ctxd.discovery.parse_and_default</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.publish_data.html">otupy.apps.ctxd.discovery.publish_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.apps.ctxd.discovery.set_defaults.html">otupy.apps.ctxd.discovery.set_defaults</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="otupy.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Building the documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="otupy.apps.ctxd.html">otupy.apps.ctxd</a></li>
+          <li class="breadcrumb-item"><a href="otupy.apps.ctxd.discovery.html">otupy.apps.ctxd.discovery</a></li>
+      <li class="breadcrumb-item active">otupy.apps.ctxd.discovery.main</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="otupy-apps-ctxd-discovery-main">
+<h1>otupy.apps.ctxd.discovery.main<a class="headerlink" href="#otupy-apps-ctxd-discovery-main" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="otupy.apps.ctxd.discovery.main">
+<span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#otupy.apps.ctxd.discovery.main" title="Link to this definition"></a></dt>
+<dd><p>The main function</p>
+<p>Loads configuration file, parses it, and run the discovery loop.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="otupy.apps.ctxd.discovery.loop.html" class="btn btn-neutral float-left" title="otupy.apps.ctxd.discovery.loop" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="otupy.apps.ctxd.discovery.parse_and_default.html" class="btn btn-neutral float-right" title="otupy.apps.ctxd.discovery.parse_and_default" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

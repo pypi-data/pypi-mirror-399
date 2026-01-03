@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="otupy.actuators.ctxd.ctxd_actuator_openstack" href="otupy.actuators.ctxd.ctxd_actuator_openstack.html" />
+    <link rel="prev" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes" href="otupy.actuators.ctxd.ctxd_actuator_kubernetes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="otupy.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="otupy.actuators.html">otupy.actuators</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="otupy.actuators.ctxd.html">otupy.actuators.ctxd</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="otupy.actuators.ctxd.ctxd_actuator.html">otupy.actuators.ctxd.ctxd_actuator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.actuators.ctxd.ctxd_actuator_docker.html">otupy.actuators.ctxd.ctxd_actuator_docker</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="otupy.actuators.ctxd.ctxd_actuator_kubernetes.html">otupy.actuators.ctxd.ctxd_actuator_kubernetes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.actuators.ctxd.ctxd_actuator_openstack.html">otupy.actuators.ctxd.ctxd_actuator_openstack</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.actuators.slpf.html">otupy.actuators.slpf</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.html">otupy.apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.core.html">otupy.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.encoders.html">otupy.encoders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.profiles.html">otupy.profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.transfers.html">otupy.transfers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.types.html">otupy.types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.utils.html">otupy.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Building the documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="otupy.html">otupy</a></li>
+          <li class="breadcrumb-item"><a href="otupy.actuators.html">otupy.actuators</a></li>
+          <li class="breadcrumb-item"><a href="otupy.actuators.ctxd.html">otupy.actuators.ctxd</a></li>
+          <li class="breadcrumb-item"><a href="otupy.actuators.ctxd.ctxd_actuator_kubernetes.html">otupy.actuators.ctxd.ctxd_actuator_kubernetes</a></li>
+      <li class="breadcrumb-item active">otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="otupy-actuators-ctxd-ctxd-actuator-kubernetes-ctxdactuator-kubernetes">
+<h1>otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes<a class="headerlink" href="#otupy-actuators-ctxd-ctxd-actuator-kubernetes-ctxdactuator-kubernetes" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CTXDActuator_kubernetes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auth</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="otupy.actuators.ctxd.ctxd_actuator.CTXDActuator.html#otupy.actuators.ctxd.ctxd_actuator.CTXDActuator" title="otupy.actuators.ctxd.ctxd_actuator.CTXDActuator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CTXDActuator</span></code></a></p>
+<p>Kubernetes Actuator Manager</p>
+<p>Extend the base <cite>CTDXActuator</cite> to retrieve services and links for a Kubernetes cluster. Currently discovery is mostly limited to pods,
+nodes, and containers. It should be extended in future releases with additional resources (e.g., services and file systems).</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.discover_links" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.discover_links"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_links</span></code></a></p></td>
+<td><p>Automatically discover links between Kubernetes components</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.discover_services" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.discover_services"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_services</span></code></a></p></td>
+<td><p>Discovers K8S services</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.get_consumer" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.get_consumer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_consumer</span></code></a></p></td>
+<td><p>Returns consumer data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.get_services" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.get_services"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_services</span></code></a></p></td>
+<td><p>Returns the list of current services</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.query" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.query"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query</span></code></a></p></td>
+<td><p>Query action</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.run" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a></p></td>
+<td><p>Entry point for running commands</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">api_client</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">config_file</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kube_context</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.links" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.links"><code class="xref py py-obj docutils literal notranslate"><span class="pre">links</span></code></a></p></td>
+<td><p>It identifies the type of the service</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.namespace" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.namespace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">namespace</span></code></a></p></td>
+<td><p>Namespaces list</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.services" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.services"><code class="xref py py-obj docutils literal notranslate"><span class="pre">services</span></code></a></p></td>
+<td><p>Name of the service</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auth</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialization</p>
+<p>The necessary parameters are:
+- auth: Authentication information to connect to a Kubernetes cluster
+Optional parameters:
+- namespaces: List of namespaces which resources are to be discovered. If not provided, resources from all namespaces will be discovered.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.discover_links">
+<span class="sig-name descname"><span class="pre">discover_links</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.discover_links" title="Link to this definition"></a></dt>
+<dd><p>Automatically discover links between Kubernetes components</p>
+<p>The current implementation discovers links between:
+- Kubernetes and nodes
+- Kubernetes  and pods 
+- Pods and containers
+- Network Policy firewall and pods</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.discover_services">
+<span class="sig-name descname"><span class="pre">discover_services</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.discover_services" title="Link to this definition"></a></dt>
+<dd><p>Discovers K8S services</p>
+<p>Implements the required method to discover services. Currently it discover:
+- K8S base services (e.g., dns)
+- Pods in selected namespaces
+- Nodes
+- Namespaces available</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.get_consumer">
+<span class="sig-name descname"><span class="pre">get_consumer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="otupy.profiles.ctxd.data.name.Name.html#otupy.profiles.ctxd.data.name.Name" title="otupy.profiles.ctxd.data.name.Name"><span class="pre">Name</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="otupy.profiles.ctxd.data.consumer.Consumer.html#otupy.profiles.ctxd.data.consumer.Consumer" title="otupy.profiles.ctxd.data.consumer.Consumer"><span class="pre">Consumer</span></a></span></span><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.get_consumer" title="Link to this definition"></a></dt>
+<dd><p>Returns consumer data</p>
+<p>Returns the <cite>Consumer</cite> data for the selected service name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>service_name</strong> – name of the service which consumer is searched.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The consumer serving the given service, if any, None otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.get_services">
+<span class="sig-name descname"><span class="pre">get_services</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="otupy.profiles.ctxd.data.name.Name.html#otupy.profiles.ctxd.data.name.Name" title="otupy.profiles.ctxd.data.name.Name"><span class="pre">Name</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="otupy.profiles.ctxd.data.service_type.ServiceType.html#otupy.profiles.ctxd.data.service_type.ServiceType" title="otupy.profiles.ctxd.data.service_type.ServiceType"><span class="pre">ServiceType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.get_services" title="Link to this definition"></a></dt>
+<dd><p>Returns the list of current services</p>
+<p>Returns the list of discovered services. Filter by name and type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The name of the service to retrieve (all if not set).</p></li>
+<li><p><strong>filter</strong> – The type of service (given by a void instance of <cite>ServiceType</cite>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of services that match the searching criteria.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.links">
+<span class="sig-name descname"><span class="pre">links</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ArrayOf</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.links" title="Link to this definition"></a></dt>
+<dd><p>It identifies the type of the service</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.namespace">
+<span class="sig-name descname"><span class="pre">namespace</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.namespace" title="Link to this definition"></a></dt>
+<dd><p>Namespaces list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.query" title="Link to this definition"></a></dt>
+<dd><p>Query action</p>
+<p>This method implements the <cite>query</cite> action.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmd</strong> – The <cite>Command</cite> including <cite>Target</cite> and optional <cite>Args</cite>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <cite>Response</cite> including the result of the query and appropriate status code and messages.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.run" title="Link to this definition"></a></dt>
+<dd><p>Entry point for running commands</p>
+<p>This is the actuator entry point to receive OpenC2 commands from the otupy <cite>Consumer</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cmd</strong> – A <cite>Command</cite> in the format of the otupy framework.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>Response</cite> to the provided command.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.services">
+<span class="sig-name descname"><span class="pre">services</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ArrayOf</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#otupy.actuators.ctxd.ctxd_actuator_kubernetes.CTXDActuator_kubernetes.services" title="Link to this definition"></a></dt>
+<dd><p>Name of the service</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="otupy.actuators.ctxd.ctxd_actuator_kubernetes.html" class="btn btn-neutral float-left" title="otupy.actuators.ctxd.ctxd_actuator_kubernetes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="otupy.actuators.ctxd.ctxd_actuator_openstack.html" class="btn btn-neutral float-right" title="otupy.actuators.ctxd.ctxd_actuator_openstack" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

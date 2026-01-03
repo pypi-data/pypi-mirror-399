@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Define new profiles (language extensions) &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Implement concrete actuators" href="actuators.html" />
+    <link rel="prev" title="Adding new transfer protocols" href="transfer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="_autosummary/otupy.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developerguide.html">Developer guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developingextensions.html">Developing extensions</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="encoding.html">Adding new encoding formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transfer.html">Adding new transfer protocols</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Define new profiles (language extensions)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-new-actuator-profiles">Add new actuator profiles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#define-the-profile">Define the profile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-the-actuator-specifier">Create the actuator specifier</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#define-new-types">Define new types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#define-new-targets">Define new targets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extend-map-based-types">Extend Map-based types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#recursive-definitions">Recursive definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#syntax-validation">Syntax validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#export-modules-and-data">Export modules and data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="actuators.html">Implement concrete actuators</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Building the documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="developingextensions.html">Developing extensions</a></li>
+      <li class="breadcrumb-item active">Define new profiles (language extensions)</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="define-new-profiles-language-extensions">
+<h1>Define new profiles (language extensions)<a class="headerlink" href="#define-new-profiles-language-extensions" title="Link to this heading"></a></h1>
+<p>Language extensions are typically defined as part of the definition of an Actuator profile. The following elements can be extended:</p>
+<ul class="simple">
+<li><p>targets;</p></li>
+<li><p>arguments;</p></li>
+<li><p>response results;</p></li>
+<li><p>actuator properties (already covered in the <a class="reference external" href="https://github.com/mattereppe/openc2/blob/main/docs/developingextensions.md#create-the-actuator-specifiers">specifier</a> Section).</p></li>
+</ul>
+<p>The list of <code class="docutils literal notranslate"><span class="pre">Actions</span></code> MUST NOT be extended (see Sec. 3.1.4 of the
+<a class="reference external" href="https://docs.oasis-open.org/openc2/oc2ls/v1.0/cs02/oc2ls-v1.0-cs02.pdf">Language
+Specification</a>).</p>
+<p>It is strongly recommended to follow the same naming conventions as
+adopted by <code class="docutils literal notranslate"><span class="pre">otupy</span></code> (see the <a class="reference external" href="https://github.com/mattereppe/openc2/blob/main/docs/developerguide.md#naming-conventions">Developer
+Guide</a>).</p>
+<section id="add-new-actuator-profiles">
+<h2>Add new actuator profiles<a class="headerlink" href="#add-new-actuator-profiles" title="Link to this heading"></a></h2>
+<p>To add a new profile within <code class="docutils literal notranslate"><span class="pre">otupy</span></code> source code, create a new
+directory in the <code class="docutils literal notranslate"><span class="pre">src/otupy/profiles</span></code> folder. Preferably name the
+folder with the nsid of the profile to be developed (e.g., <code class="docutils literal notranslate"><span class="pre">slpf</span></code> for
+the Statless Packet Filter profile).</p>
+<section id="define-the-profile">
+<h3>Define the profile<a class="headerlink" href="#define-the-profile" title="Link to this heading"></a></h3>
+<p>A Profile is identified by its namespace identifier and a unique name.
+Although there are not specific data structure defined by the
+specification, <code class="docutils literal notranslate"><span class="pre">otupy</span></code> wrap this information in a <code class="docutils literal notranslate"><span class="pre">Profile</span></code> class.
+The idea is to keep track of all profiles available within the system.</p>
+<p>When a new profile is being defined, a new class can be defined and
+derived from the base base <code class="docutils literal notranslate"><span class="pre">Profile</span></code> class. It must be registered as a
+new profile by the <code class="docutils literal notranslate"><span class="pre">&#64;extension</span></code> decorator. Just define the <code class="docutils literal notranslate"><span class="pre">nsid</span></code>
+and <code class="docutils literal notranslate"><span class="pre">name</span></code> class attributes in the new profile. This is an example of
+profile definition for the SLPF:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">otupy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">oc2</span>
+
+<span class="n">nsid</span> <span class="o">=</span> <span class="s1">&#39;slpf&#39;</span>
+
+<span class="nd">@oc2</span><span class="o">.</span><span class="n">extension</span><span class="p">(</span><span class="n">nsid</span> <span class="o">=</span> <span class="n">nsid</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Profile</span><span class="p">(</span><span class="n">oc2</span><span class="o">.</span><span class="n">Profile</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; SLPF Profile</span>
+
+<span class="sd">        Defines the namespace identifier and the name of the SLPF Profile.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nsid</span> <span class="o">=</span> <span class="n">nsid</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;http://docs.oasis-open.org/openc2/oc2slpf/v1.0/oc2slpf-v1.0.md&#39;</span>
+</pre></div>
+</div>
+<p>(see below for additional information about the <code class="docutils literal notranslate"><span class="pre">extension</span></code>
+decorator.)</p>
+</section>
+<section id="create-the-actuator-specifier">
+<h3>Create the actuator specifier<a class="headerlink" href="#create-the-actuator-specifier" title="Link to this heading"></a></h3>
+<p>The core specification does not dictate the internal structure of an
+<code class="docutils literal notranslate"><span class="pre">Actuator</span></code>. Indeed, the <code class="docutils literal notranslate"><span class="pre">Actuator</span></code> field in the <code class="docutils literal notranslate"><span class="pre">Command</span></code> can be
+assigned different types, depending on the specific actuator profile. A
+new type must therefore be defined for each actuator profile, and it
+must be declared as such to allow otupy to correctly encode/decode
+it. The <em>specifiers</em> are the structure of any <code class="docutils literal notranslate"><span class="pre">Actuator</span></code> that
+implements the profile. They are defined by the Profile Specification
+(e.g., see <a class="reference external" href="https://docs.oasis-open.org/openc2/oc2slpf/v1.0/cs01/oc2slpf-v1.0-cs01.pdf">Sec.
+2.1.4</a>
+for the SLPF specifier).</p>
+<p>To declare a Actuator specifier, use the <code class="docutils literal notranslate"><span class="pre">&#64;actuator</span></code> decorator. This
+decorator automatically registers the new <code class="docutils literal notranslate"><span class="pre">Actuator</span></code>, enriches its
+definition with internal data, and makes it available to both
+<code class="docutils literal notranslate"><span class="pre">Producer</span></code>s and <code class="docutils literal notranslate"><span class="pre">Consumer</span></code>s. The following is an example for the
+SLPF actuator:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@oc2</span><span class="o">.</span><span class="n">actuator</span><span class="p">(</span><span class="n">nsid</span><span class="o">=</span><span class="n">Profile</span><span class="o">.</span><span class="n">nsid</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Specifiers</span><span class="p">(</span><span class="n">oc2</span><span class="o">.</span><span class="n">Map</span><span class="p">):</span>
+    <span class="n">fieldtypes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">named_group</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">asset_id</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">asset_tuple</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>In this case, the actuator specifiers are derived from <code class="docutils literal notranslate"><span class="pre">Map</span></code>,
+according to the definition in the SLPF specification (see the <a class="reference external" href="userguide.md">User
+Guide</a> for <code class="docutils literal notranslate"><span class="pre">Map</span></code> documentation).</p>
+<p>The specifier definition should also implement the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method
+to initialize class instances. It is also recommended to define a
+<code class="docutils literal notranslate"><span class="pre">__str__</span></code> function to provide a human-readable representation of the
+actuator profile in log messages.</p>
+</section>
+</section>
+<section id="define-new-types">
+<h2>Define new types<a class="headerlink" href="#define-new-types" title="Link to this heading"></a></h2>
+<p>Adding new types can be done within each new Profile. Beaware that new
+types usually needs to support the “copy-constructor”, i.e., they must
+support initialization from an object of the same type.</p>
+</section>
+<section id="define-new-targets">
+<h2>Define new targets<a class="headerlink" href="#define-new-targets" title="Link to this heading"></a></h2>
+<p>Targets are just specific OpenC2 data types that can be used as
+<code class="docutils literal notranslate"><span class="pre">Target</span></code> in <code class="docutils literal notranslate"><span class="pre">Command</span></code>s. Any data type can be made a <code class="docutils literal notranslate"><span class="pre">Target</span></code> by
+decorating it with the <code class="docutils literal notranslate"><span class="pre">&#64;target(name,</span> <span class="pre">nsid)</span></code> tag. This decorator
+automatically manages all the stuff to register new targets in
+<code class="docutils literal notranslate"><span class="pre">otupy</span></code>. It takes two arguments, namely:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: the name associated to each type (e.g., see Sec. 3.3.1.2 in the <a class="reference external" href="https://docs.oasis-open.org/openc2/oc2ls/v1.0/cs02/oc2ls-v1.0-cs02.pdf">Language Specification</a>);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nsid</span></code>: the namespace identifier of the profile that defines the <code class="docutils literal notranslate"><span class="pre">Target</span></code> (default to <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means a <code class="docutils literal notranslate"><span class="pre">Target</span></code> defined in the</p></li>
+</ul>
+<p>core specification).</p>
+<p>This is an example for the SLPF profile:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@target</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;rule_number&#39;</span><span class="p">,</span> <span class="n">nsid</span><span class="o">=</span><span class="n">Profile</span><span class="o">.</span><span class="n">nsid</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RuleID</span><span class="p">(</span><span class="nb">int</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>(note that the <code class="docutils literal notranslate"><span class="pre">&#64;target</span></code> decorator must be imported with its namespace
+according to common Python rules.)</p>
+</section>
+<section id="extend-map-based-types">
+<h2>Extend Map-based types<a class="headerlink" href="#extend-map-based-types" title="Link to this heading"></a></h2>
+<p>Extensions are currently possible for <code class="docutils literal notranslate"><span class="pre">Map</span></code> and derived base
+structures (<code class="docutils literal notranslate"><span class="pre">MapOf</span></code>). For instance, both arguments (<code class="docutils literal notranslate"><span class="pre">Args</span></code>) and
+response results (<code class="docutils literal notranslate"><span class="pre">Results</span></code>) are currently extensible. To make
+additional data types extensible, they must be decorated with the
+<code class="docutils literal notranslate"><span class="pre">&#64;extensible</span></code> tag.</p>
+<p>An extension must be declared with the <code class="docutils literal notranslate"><span class="pre">&#64;extension(nsid)</span></code> decorator,
+where <code class="docutils literal notranslate"><span class="pre">nsid</span></code> is an argument that provides the namespace identifier
+where the extension is defined. Then, the extension class is derived
+from the base class. The extension must define only the additional
+fields that are not included in the base type.</p>
+<p>The following is a generic example for an extension (<code class="docutils literal notranslate"><span class="pre">Ext</span></code>) of the
+base type (<code class="docutils literal notranslate"><span class="pre">Base</span></code>) in the namespace <code class="docutils literal notranslate"><span class="pre">xxxx</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@extension</span><span class="p">(</span><span class="n">nsid</span><span class="o">=</span><span class="s1">&#39;xxxx&#39;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Ext</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+   <span class="n">fieldtypes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;new_field&#39;</span><span class="p">:</span> <span class="n">new_field_type</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>The decorator manages all additional fields and declaration that are
+necessary to use the extension in <code class="docutils literal notranslate"><span class="pre">otupy</span></code>.</p>
+<p>It is possible (and this is the preferred approach) to define the
+extension with the same name of the base class. By proper referring to
+base and extended elements within the corresponding namespace, name
+collisions are avoided and the naming remains more uniform. For
+instance, the Args element and its extension could be unambigously
+referred to in the code in the following way:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">otupy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">oc2</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">otupy.profiles.slpf</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">slpf</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="n">Args</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>        <span class="c1"># &lt;- This instantiate the base Args class</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">slpf</span><span class="o">.</span><span class="n">Args</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>   <span class="c1"># &lt;- This instantiate the extended Args class derived in the slpf profile</span>
+</pre></div>
+</div>
+<p>The extension of <code class="docutils literal notranslate"><span class="pre">Args</span></code> and <code class="docutils literal notranslate"><span class="pre">Results</span></code> will likely be based on
+additional structures. Define them as well in the profile folder. As
+best practice, data and target types should be defined in two different
+modules (datatypes and targettypes, respecitvely, see the <a class="reference external" href="https://github.com/mattereppe/openc2/blob/main/docs/developerguide.md">Developer
+guide</a>.</p>
+</section>
+<section id="recursive-definitions">
+<h2>Recursive definitions<a class="headerlink" href="#recursive-definitions" title="Link to this heading"></a></h2>
+<p>There may singular cases where an object is recursive, namely it
+contains another object of the same time. Such an example is represented
+by the <code class="docutils literal notranslate"><span class="pre">Process</span></code> target, which internally may carry an instance of its
+parent. However, Python does not allow to define such types in a
+straighforward way.</p>
+<p>Recursion should be used with care, to avoid infinite or anyway too deep
+dependencies. <code class="docutils literal notranslate"><span class="pre">otupy</span></code> addresses this issue by providing a specific
+design pattern. It is based on the Python <code class="docutils literal notranslate"><span class="pre">typing.Self</span></code> annotation and
+the <code class="docutils literal notranslate"><span class="pre">&#64;make_recursive</span></code> decorator provided by some <code class="docutils literal notranslate"><span class="pre">otupy</span></code> classes
+(e.g., <code class="docutils literal notranslate"><span class="pre">Map</span></code>). The design pattern entails the following step - use the
+<code class="docutils literal notranslate"><span class="pre">typing.Self</span></code> annotation for any field that should be instantiated to
+the same class in which it is defined; - use the <code class="docutils literal notranslate"><span class="pre">&#64;make_recursive</span></code>
+decorator in front of the class definition.</p>
+<p>This is an example for the <code class="docutils literal notranslate"><span class="pre">Process</span></code> target:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+<span class="o">...</span>
+<span class="nd">@Map</span><span class="o">.</span><span class="n">make_recursive</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Process</span><span class="p">(</span><span class="n">Map</span><span class="p">):</span>
+   <span class="n">fieldtypes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pid&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;cwd&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;executable&#39;</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">b</span><span class="o">&gt;</span><span class="n">Self</span><span class="o">&lt;/</span><span class="n">b</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;command_line&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>As a result, the <code class="docutils literal notranslate"><span class="pre">Map</span></code> class has the following <code class="docutils literal notranslate"><span class="pre">fieldtypes</span></code>
+definition:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">fieldtypes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pid&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;cwd&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;executable&#39;</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">b</span><span class="o">&gt;</span><span class="n">Process</span><span class="o">&lt;/</span><span class="n">b</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;command_line&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;make_recursive</span></code> decorator is implemented for each base type
+(e.g., <code class="docutils literal notranslate"><span class="pre">Map</span></code>). Check the code documentation to know what base types
+actually implement this helper.</p>
+</section>
+<section id="syntax-validation">
+<h2>Syntax validation<a class="headerlink" href="#syntax-validation" title="Link to this heading"></a></h2>
+<p>Profiles are likely to restrict the possible combination of <code class="docutils literal notranslate"><span class="pre">Actions</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Target</span></code>, and <code class="docutils literal notranslate"><span class="pre">Args</span></code>. Since these restrictions are common to all
+<a href="#id1"><span class="problematic" id="id2">``</span></a>Actuator``s, they can be defined only once within the profile.
+Specific functions must be exported to perform the validation; the
+internal implementation does not need to follow any specific template.
+Note, however, that actuators are not expected to implement any possible
+Action/Target pair and support all Arguments described by the profile.
+For this reason, behind profile validation, each specific actuator will
+implement its internal validation.</p>
+</section>
+<section id="export-modules-and-data">
+<h2>Export modules and data<a class="headerlink" href="#export-modules-and-data" title="Link to this heading"></a></h2>
+<p>Even if this step is not strictly required, it is recommended to pack
+every new definition under the main profile namespace. This simplifies
+access to exported data and structures. This operation can be done by
+importing all data, classes, and functions to be exported in the
+<code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> module. Such elements can then be imported and used in a
+very simple and natural way under their profile namespace (which is very
+similar to what expected by the specifications):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">otupy.profiles.slpf</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">slpf</span>
+
+<span class="n">Command</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">slpf</span><span class="o">.</span><span class="n">rule_number</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">slpf</span><span class="o">.</span><span class="n">Args</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="transfer.html" class="btn btn-neutral float-left" title="Adding new transfer protocols" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="actuators.html" class="btn btn-neutral float-right" title="Implement concrete actuators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

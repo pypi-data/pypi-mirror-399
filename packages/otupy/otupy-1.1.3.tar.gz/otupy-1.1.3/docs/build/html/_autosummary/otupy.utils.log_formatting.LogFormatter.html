@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>otupy.utils.log_formatting.LogFormatter &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="otupy.utils.media_types" href="otupy.utils.media_types.html" />
+    <link rel="prev" title="otupy.utils.log_formatting" href="otupy.utils.log_formatting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="otupy.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="otupy.actuators.html">otupy.actuators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.html">otupy.apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.core.html">otupy.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.encoders.html">otupy.encoders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.profiles.html">otupy.profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.transfers.html">otupy.transfers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.types.html">otupy.types</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="otupy.utils.html">otupy.utils</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="otupy.utils.log_formatting.html">otupy.utils.log_formatting</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">otupy.utils.log_formatting.LogFormatter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.utils.media_types.html">otupy.utils.media_types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.utils.type_conversion.html">otupy.utils.type_conversion</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Building the documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="otupy.html">otupy</a></li>
+          <li class="breadcrumb-item"><a href="otupy.utils.html">otupy.utils</a></li>
+          <li class="breadcrumb-item"><a href="otupy.utils.log_formatting.html">otupy.utils.log_formatting</a></li>
+      <li class="breadcrumb-item active">otupy.utils.log_formatting.LogFormatter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="otupy-utils-log-formatting-logformatter">
+<h1>otupy.utils.log_formatting.LogFormatter<a class="headerlink" href="#otupy-utils-log-formatting-logformatter" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="otupy.utils.log_formatting.LogFormatter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LogFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datefmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.utils.log_formatting.LogFormatter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Formatter" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Formatter</span></code></a></p>
+<p>Colored logging formatter</p>
+<p>The colormap is fixed, but the user can select which fields to include:
+- datetime: date and time of the log
+- module name: the name of the module that generated the log
+The level and message are always included and cannot be omitted.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.utils.log_formatting.LogFormatter.converter" title="otupy.utils.log_formatting.LogFormatter.converter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">converter</span></code></a></p></td>
+<td><p>localtime([seconds]) -&gt; (tm_year,tm_mon,tm_mday,tm_hour,tm_min,</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.utils.log_formatting.LogFormatter.format" title="otupy.utils.log_formatting.LogFormatter.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format</span></code></a></p></td>
+<td><p>Color the record according to the log level</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.utils.log_formatting.LogFormatter.formatException" title="otupy.utils.log_formatting.LogFormatter.formatException"><code class="xref py py-obj docutils literal notranslate"><span class="pre">formatException</span></code></a></p></td>
+<td><p>Format and return the specified exception information as a string.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">formatMessage</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.utils.log_formatting.LogFormatter.formatStack" title="otupy.utils.log_formatting.LogFormatter.formatStack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">formatStack</span></code></a></p></td>
+<td><p>This method is provided as an extension point for specialized formatting of stack information.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.utils.log_formatting.LogFormatter.formatTime" title="otupy.utils.log_formatting.LogFormatter.formatTime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">formatTime</span></code></a></p></td>
+<td><p>This function is invoked when (asctime) is used in the format string</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.utils.log_formatting.LogFormatter.usesTime" title="otupy.utils.log_formatting.LogFormatter.usesTime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">usesTime</span></code></a></p></td>
+<td><p>Check if the format uses the creation time of the record.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">blue</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_msec_format</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_time_format</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">green</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">grey</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">highlight_red</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">red</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">yellow</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.utils.log_formatting.LogFormatter.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datefmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.utils.log_formatting.LogFormatter.__init__" title="Link to this definition"></a></dt>
+<dd><p>Set the custom format</p>
+<p>Select which optional fields will be included.
+:param datetime: Set to <cite>False</cite> to disable date/time indication.
+:param name: Set to <cite>False</cite> to diable module name indication.
+:param datefmt: Format the date according to this string. Takes common</p>
+<blockquote>
+<div><p>time.strftime specifiers, plus the ‘%t’ which gives the timestamp.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.utils.log_formatting.LogFormatter.converter">
+<span class="sig-name descname"><span class="pre">converter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#otupy.utils.log_formatting.LogFormatter.converter" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>localtime([seconds]) -&gt; (tm_year,tm_mon,tm_mday,tm_hour,tm_min,</dt><dd><p>tm_sec,tm_wday,tm_yday,tm_isdst)</p>
+</dd>
+</dl>
+<p>Convert seconds since the Epoch to a time tuple expressing local time.
+When ‘seconds’ is not passed in, convert the current time instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.utils.log_formatting.LogFormatter.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.utils.log_formatting.LogFormatter.format" title="Link to this definition"></a></dt>
+<dd><p>Color the record according to the log level</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.utils.log_formatting.LogFormatter.formatException">
+<span class="sig-name descname"><span class="pre">formatException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ei</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.utils.log_formatting.LogFormatter.formatException" title="Link to this definition"></a></dt>
+<dd><p>Format and return the specified exception information as a string.</p>
+<p>This default implementation just uses
+traceback.print_exception()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.utils.log_formatting.LogFormatter.formatStack">
+<span class="sig-name descname"><span class="pre">formatStack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.utils.log_formatting.LogFormatter.formatStack" title="Link to this definition"></a></dt>
+<dd><p>This method is provided as an extension point for specialized
+formatting of stack information.</p>
+<p>The input data is a string as returned from a call to
+<a class="reference external" href="https://docs.python.org/3/library/traceback.html#traceback.print_stack" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">traceback.print_stack()</span></code></a>, but with the last trailing newline
+removed.</p>
+<p>The base implementation just returns the value passed in.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.utils.log_formatting.LogFormatter.formatTime">
+<span class="sig-name descname"><span class="pre">formatTime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datefmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.utils.log_formatting.LogFormatter.formatTime" title="Link to this definition"></a></dt>
+<dd><p>This function is invoked when (asctime) is used in the format string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.utils.log_formatting.LogFormatter.usesTime">
+<span class="sig-name descname"><span class="pre">usesTime</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#otupy.utils.log_formatting.LogFormatter.usesTime" title="Link to this definition"></a></dt>
+<dd><p>Check if the format uses the creation time of the record.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="otupy.utils.log_formatting.html" class="btn btn-neutral float-left" title="otupy.utils.log_formatting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="otupy.utils.media_types.html" class="btn btn-neutral float-right" title="otupy.utils.media_types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

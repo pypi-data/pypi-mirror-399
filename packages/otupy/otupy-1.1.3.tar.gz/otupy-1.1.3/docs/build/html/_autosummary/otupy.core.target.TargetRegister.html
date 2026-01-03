@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>otupy.core.target.TargetRegister &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="otupy.core.transfer" href="otupy.core.transfer.html" />
+    <link rel="prev" title="otupy.core.target.Target" href="otupy.core.target.Targetclass.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="otupy.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="otupy.actuators.html">otupy.actuators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.html">otupy.apps</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="otupy.core.html">otupy.core</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.actions.html">otupy.core.actions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.actuator.html">otupy.core.actuator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.args.html">otupy.core.args</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.command.html">otupy.core.command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.consumer.html">otupy.core.consumer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.content.html">otupy.core.content</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.content_type.html">otupy.core.content_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.encoder.html">otupy.core.encoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.extensions.html">otupy.core.extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.message.html">otupy.core.message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.producer.html">otupy.core.producer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.profile.html">otupy.core.profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.register.html">otupy.core.register</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.response.html">otupy.core.response</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.results.html">otupy.core.results</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="otupy.core.target.html">otupy.core.target</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="otupy.core.target.targetfun.html">otupy.core.target.target</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.core.target.Targetclass.html">otupy.core.target.Target</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">otupy.core.target.TargetRegister</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.transfer.html">otupy.core.transfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.core.version.html">otupy.core.version</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.encoders.html">otupy.encoders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.profiles.html">otupy.profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.transfers.html">otupy.transfers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.types.html">otupy.types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.utils.html">otupy.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Building the documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="otupy.html">otupy</a></li>
+          <li class="breadcrumb-item"><a href="otupy.core.html">otupy.core</a></li>
+          <li class="breadcrumb-item"><a href="otupy.core.target.html">otupy.core.target</a></li>
+      <li class="breadcrumb-item active">otupy.core.target.TargetRegister</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="otupy-core-target-targetregister">
+<h1>otupy.core.target.TargetRegister<a class="headerlink" href="#otupy-core-target-targetregister" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TargetRegister</span></span><a class="headerlink" href="#otupy.core.target.TargetRegister" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="otupy.core.register.Register.html#otupy.core.register.Register" title="otupy.core.register.Register"><code class="xref py py-class docutils literal notranslate"><span class="pre">Register</span></code></a></p>
+<p>Target registration</p>
+<p>This class registers all available <cite>Target`s, both provided by the otupy and by Profiles.
+The extension of the base class `Register</cite> is necessary to add the nsid prefix in front of the
+<cite>Target</cite> name.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.add" title="otupy.core.target.TargetRegister.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a></p></td>
+<td><p>Add a new <cite>Target</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.clear" title="otupy.core.target.TargetRegister.clear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear</span></code></a></p></td>
+<td><p>D.clear() -&gt; None.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.copy" title="otupy.core.target.TargetRegister.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<td><p>D.copy() -&gt; a shallow copy of D</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.fromkeys" title="otupy.core.target.TargetRegister.fromkeys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fromkeys</span></code></a></p></td>
+<td><p>Create a new dictionary with keys from iterable and values set to value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.get" title="otupy.core.target.TargetRegister.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a></p></td>
+<td><p>Get element by name</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.getName" title="otupy.core.target.TargetRegister.getName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getName</span></code></a></p></td>
+<td><p>Get the name of a element</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.items" title="otupy.core.target.TargetRegister.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code></a></p></td>
+<td><p>D.items() -&gt; a set-like object providing a view on D's items</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.keys" title="otupy.core.target.TargetRegister.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></a></p></td>
+<td><p>D.keys() -&gt; a set-like object providing a view on D's keys</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.pop" title="otupy.core.target.TargetRegister.pop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code></a></p></td>
+<td><p>D.pop(k[,d]) -&gt; v, remove specified key and return the corresponding value.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.popitem" title="otupy.core.target.TargetRegister.popitem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">popitem</span></code></a></p></td>
+<td><p>Remove and return a (key, value) pair as a 2-tuple.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.setdefault" title="otupy.core.target.TargetRegister.setdefault"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setdefault</span></code></a></p></td>
+<td><p>Insert key with a value of default if key is not in the dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.update" title="otupy.core.target.TargetRegister.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a></p></td>
+<td><p>D.update([E, ]**F) -&gt; None.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.core.target.TargetRegister.values" title="otupy.core.target.TargetRegister.values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">values</span></code></a></p></td>
+<td><p>D.values() -&gt; an object providing a view on D's values</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.core.target.TargetRegister.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.core.target.TargetRegister.add" title="Link to this definition"></a></dt>
+<dd><p>Add a new <cite>Target</cite></p>
+<p>Register a new <cite>Target</cite> and make it available within the system. This method is expected to
+be called by any <cite>Profile</cite> that defines additional <cite>Target`s. Additionally, the name is added 
+to the Target enumeration `TargetEnum</cite>.</p>
+<p>This method throw an Exception if the <cite>Target</cite> is already registered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The name used for the <cite>Target</cite>.</p></li>
+<li><p><strong>target</strong> – The class that defines the <cite>Target</cite>.</p></li>
+<li><p><strong>identifier</strong> – A numeric value associated to the standard by the Specification.</p></li>
+<li><p><strong>nsid</strong> – The Namespace Identifier where the <cite>Target</cite> is defined. It is prepended to the target <cite>name</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">D.</span></span></span><a class="headerlink" href="#otupy.core.target.TargetRegister.clear" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">shallow</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">D</span></span></span><a class="headerlink" href="#otupy.core.target.TargetRegister.copy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.fromkeys">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromkeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.core.target.TargetRegister.fromkeys" title="Link to this definition"></a></dt>
+<dd><p>Create a new dictionary with keys from iterable and values set to value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.core.target.TargetRegister.get" title="Link to this definition"></a></dt>
+<dd><p>Get element by name</p>
+<p>Throws an exception if the given name does not correspond to any registered element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> – The name of the element to return.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The class  corresponding to the given name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.getName">
+<span class="sig-name descname"><span class="pre">getName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">register</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.core.target.TargetRegister.getName" title="Link to this definition"></a></dt>
+<dd><p>Get the name of a element</p>
+<p>Given a class element, this method returns its name (the name it was registered with. 
+Note that the returned name include the namespace prefix.</p>
+<p>Throws an exception if the given element is not registered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>register</strong> – The class element to look for.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A string with the name of the element.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">items</span></span></span><a class="headerlink" href="#otupy.core.target.TargetRegister.items" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">keys</span></span></span><a class="headerlink" href="#otupy.core.target.TargetRegister.keys" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span></span></span><a class="headerlink" href="#otupy.core.target.TargetRegister.pop" title="Link to this definition"></a></dt>
+<dd><p>If the key is not found, return the default if given; otherwise,
+raise a KeyError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.popitem">
+<span class="sig-name descname"><span class="pre">popitem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#otupy.core.target.TargetRegister.popitem" title="Link to this definition"></a></dt>
+<dd><p>Remove and return a (key, value) pair as a 2-tuple.</p>
+<p>Pairs are returned in LIFO (last-in, first-out) order.
+Raises KeyError if the dict is empty.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.setdefault">
+<span class="sig-name descname"><span class="pre">setdefault</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.core.target.TargetRegister.setdefault" title="Link to this definition"></a></dt>
+<dd><p>Insert key with a value of default if key is not in the dictionary.</p>
+<p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <span class="optional">]</span><em class="sig-param"><span class="n"><span class="pre">**F</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">dict/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span></span></span><a class="headerlink" href="#otupy.core.target.TargetRegister.update" title="Link to this definition"></a></dt>
+<dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+In either case, this is followed by: for k in F:  D[k] = F[k]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.core.target.TargetRegister.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">values</span></span></span><a class="headerlink" href="#otupy.core.target.TargetRegister.values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="otupy.core.target.Targetclass.html" class="btn btn-neutral float-left" title="otupy.core.target.Target" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="otupy.core.transfer.html" class="btn btn-neutral float-right" title="otupy.core.transfer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

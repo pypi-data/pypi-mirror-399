@@ -1,0 +1,17 @@
+Admin:
+	user: root
+	pass: M!r4nd@
+
+Miranda:
+	user: miranda
+	pass: miranda2025
+
+Run Docker container:
+% docker run --name mongo -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=root  -e MONGO_INITDB_ROOT_PASSWORD='M!r4nd@'   -d amd64/mongo:4.4
+
+Check content:
+% mongosh --username miranda
+> use miranda
+> db.contextdata.find()
+
+[contextdata is the document name]

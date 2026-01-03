@@ -1,0 +1,400 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>otupy.types.targets.features.Features &mdash; otupy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="otupy.types.targets.file" href="otupy.types.targets.file.html" />
+    <link rel="prev" title="otupy.types.targets.features" href="otupy.types.targets.features.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            otupy
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../download.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.connector.html">MIRANDA Connector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="otupy.apps.ctxd.html">Context Discovery</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="otupy.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="otupy.actuators.html">otupy.actuators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.apps.html">otupy.apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.core.html">otupy.core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.encoders.html">otupy.encoders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.profiles.html">otupy.profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.transfers.html">otupy.transfers</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="otupy.types.html">otupy.types</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="otupy.types.base.html">otupy.types.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otupy.types.data.html">otupy.types.data</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="otupy.types.targets.html">otupy.types.targets</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.artifact.html">otupy.types.targets.artifact</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.command_id.html">otupy.types.targets.command_id</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.device.html">otupy.types.targets.device</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.domain_name.html">otupy.types.targets.domain_name</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.email_addr.html">otupy.types.targets.email_addr</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="otupy.types.targets.features.html">otupy.types.targets.features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.file.html">otupy.types.targets.file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.idn_domain_name.html">otupy.types.targets.idn_domain_name</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.idn_email_addr.html">otupy.types.targets.idn_email_addr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.ipv4_connection.html">otupy.types.targets.ipv4_connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.ipv4_net.html">otupy.types.targets.ipv4_net</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.ipv6_connection.html">otupy.types.targets.ipv6_connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.ipv6_net.html">otupy.types.targets.ipv6_net</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.iri.html">otupy.types.targets.iri</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.mac_addr.html">otupy.types.targets.mac_addr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.process.html">otupy.types.targets.process</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.properties.html">otupy.types.targets.properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="otupy.types.targets.uri.html">otupy.types.targets.uri</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="otupy.utils.html">otupy.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developerguide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developingextensions.html">Developing extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging for <code class="docutils literal notranslate"><span class="pre">otupy</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Building the documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ctxd/ctxd.html">Context Discovery Actuator Profile</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../relateddocuments.html">OpenC2 specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors and acknowledgment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licence</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">otupy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="otupy.html">otupy</a></li>
+          <li class="breadcrumb-item"><a href="otupy.types.html">otupy.types</a></li>
+          <li class="breadcrumb-item"><a href="otupy.types.targets.html">otupy.types.targets</a></li>
+          <li class="breadcrumb-item"><a href="otupy.types.targets.features.html">otupy.types.targets.features</a></li>
+      <li class="breadcrumb-item active">otupy.types.targets.features.Features</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="otupy-types-targets-features-features">
+<h1>otupy.types.targets.features.Features<a class="headerlink" href="#otupy-types-targets-features-features" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayOf</span></code></p>
+<p>OpenC2 Features</p>
+<p>Implements the <cite>features</cite> target (Section 3.4.1.5).
+Just defines an <a class="reference internal" href="otupy.types.base.array_of.ArrayOf.html#otupy.types.base.array_of.ArrayOf" title="otupy.types.base.array_of.ArrayOf"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArrayOf</span></code></a> :py:class`~otupy.types.data.Feature`.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.append" title="otupy.types.targets.features.Features.append"><code class="xref py py-obj docutils literal notranslate"><span class="pre">append</span></code></a></p></td>
+<td><p>Append object to the end of the list.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.clear" title="otupy.types.targets.features.Features.clear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear</span></code></a></p></td>
+<td><p>Remove all items from list.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.copy" title="otupy.types.targets.features.Features.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<td><p>Return a shallow copy of the list.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.count" title="otupy.types.targets.features.Features.count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code></a></p></td>
+<td><p>Return number of occurrences of value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.extend" title="otupy.types.targets.features.Features.extend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extend</span></code></a></p></td>
+<td><p>Extend list by appending elements from the iterable.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.fromdict" title="otupy.types.targets.features.Features.fromdict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fromdict</span></code></a></p></td>
+<td><p>Builds instance from dictionary</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.index" title="otupy.types.targets.features.Features.index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></a></p></td>
+<td><p>Return first index of value.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.insert" title="otupy.types.targets.features.Features.insert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert</span></code></a></p></td>
+<td><p>Insert object before index.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.pop" title="otupy.types.targets.features.Features.pop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code></a></p></td>
+<td><p>Remove and return item at index (default last).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.remove" title="otupy.types.targets.features.Features.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a></p></td>
+<td><p>Remove first occurrence of value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.reverse" title="otupy.types.targets.features.Features.reverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reverse</span></code></a></p></td>
+<td><p>Reverse <em>IN PLACE</em>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.sort" title="otupy.types.targets.features.Features.sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort</span></code></a></p></td>
+<td><p>Sort the list in ascending order and return None.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.todict" title="otupy.types.targets.features.Features.todict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">todict</span></code></a></p></td>
+<td><p>Converts to dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.validate" title="otupy.types.targets.features.Features.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a></p></td>
+<td><p>Validate the list</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#otupy.types.targets.features.Features.fieldtypes" title="otupy.types.targets.features.Features.fieldtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fieldtypes</span></code></a></p></td>
+<td><p>Field types</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.__add__">
+<span class="sig-name descname"><span class="pre">__add__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.__add__" title="Link to this definition"></a></dt>
+<dd><p>Return self+value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.__init__" title="Link to this definition"></a></dt>
+<dd><p><cite>Array</cite> initialization</p>
+<p><code class="docutils literal notranslate"><span class="pre">Array</span></code>s are initialized the same way as lists. They only take as input an interable (<code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">tuple</span></code>,
+<code class="docutils literal notranslate"><span class="pre">dict</span></code>, or another <code class="docutils literal notranslate"><span class="pre">Array</span></code>/<code class="docutils literal notranslate"><span class="pre">ArrayOf</span></code>). Initialization with scalars is not allowed. In this case, 
+a <cite>tuple</cite> must be used (mind to add the trailing comma even with a single value!)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> – The <code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, <code class="docutils literal notranslate"><span class="pre">Array</span></code>, <code class="docutils literal notranslate"><span class="pre">ArrayOf</span></code> used to initialize. May be empty.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.__mul__">
+<span class="sig-name descname"><span class="pre">__mul__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.__mul__" title="Link to this definition"></a></dt>
+<dd><p>Return self*value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.append" title="Link to this definition"></a></dt>
+<dd><p>Append object to the end of the list.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.clear" title="Link to this definition"></a></dt>
+<dd><p>Remove all items from list.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.copy" title="Link to this definition"></a></dt>
+<dd><p>Return a shallow copy of the list.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.count" title="Link to this definition"></a></dt>
+<dd><p>Return number of occurrences of value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.extend">
+<span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.extend" title="Link to this definition"></a></dt>
+<dd><p>Extend list by appending elements from the iterable.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.fieldtype">
+<span class="sig-name descname"><span class="pre">fieldtype</span></span><a class="headerlink" href="#otupy.types.targets.features.Features.fieldtype" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="otupy.types.data.feature.Feature.html#otupy.types.data.feature.Feature" title="otupy.types.data.feature.Feature"><code class="xref py py-class docutils literal notranslate"><span class="pre">Feature</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.fieldtypes">
+<span class="sig-name descname"><span class="pre">fieldtypes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#otupy.types.targets.features.Features.fieldtypes" title="Link to this definition"></a></dt>
+<dd><p>Field types</p>
+<p>A <cite>dictionary</cite> which keys are field names and which values are the corresponding classes.
+Must be provided by any derived class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.fromdict">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fromdict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.fromdict" title="Link to this definition"></a></dt>
+<dd><p>Builds instance from dictionary</p>
+<p>It is used during deserialization to create an otupy instance from the text message.
+It takes an <a class="reference internal" href="otupy.core.encoder.Encoder.html#otupy.core.encoder.Encoder" title="otupy.core.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">Encoder</span></code></a> instance that is used to recursively build instances of the inner
+objects (the <a class="reference internal" href="otupy.core.encoder.Encoder.html#otupy.core.encoder.Encoder" title="otupy.core.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">Encoder</span></code></a> provides standard methods to create instances of base objects like
+strings, integers, boolean).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lis</strong> – The intermediary dictionary representation from which the object is built.</p></li>
+<li><p><strong>e</strong> – The <code class="xref py py-class docutils literal notranslate"><span class="pre">:py:class:`~otupy.core.encoder.Encoder</span></code> that is being used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An instance of this class initialized from the dictionary values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.index" title="Link to this definition"></a></dt>
+<dd><p>Return first index of value.</p>
+<p>Raises ValueError if the value is not present.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.insert">
+<span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.insert" title="Link to this definition"></a></dt>
+<dd><p>Insert object before index.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.pop" title="Link to this definition"></a></dt>
+<dd><p>Remove and return item at index (default last).</p>
+<p>Raises IndexError if list is empty or index is out of range.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.remove" title="Link to this definition"></a></dt>
+<dd><p>Remove first occurrence of value.</p>
+<p>Raises ValueError if the value is not present.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.reverse">
+<span class="sig-name descname"><span class="pre">reverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.reverse" title="Link to this definition"></a></dt>
+<dd><p>Reverse <em>IN PLACE</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.sort">
+<span class="sig-name descname"><span class="pre">sort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.sort" title="Link to this definition"></a></dt>
+<dd><p>Sort the list in ascending order and return None.</p>
+<p>The sort is in-place (i.e. the list itself is modified) and stable (i.e. the
+order of two equal elements is maintained).</p>
+<p>If a key function is given, apply it once to each list item and sort them,
+ascending or descending, according to their function values.</p>
+<p>The reverse flag can be set to sort in descending order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.todict">
+<span class="sig-name descname"><span class="pre">todict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.todict" title="Link to this definition"></a></dt>
+<dd><p>Converts to dictionary</p>
+<p>It is used to convert this object to an intermediary representation during 
+serialization. It takes an <a class="reference internal" href="otupy.core.encoder.Encoder.html#otupy.core.encoder.Encoder" title="otupy.core.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">Encoder</span></code></a> argument that is used to recursively
+serialize inner data and structures (the <a class="reference internal" href="otupy.core.encoder.Encoder.html#otupy.core.encoder.Encoder" title="otupy.core.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">Encoder</span></code></a> provides standard methods
+for converting base types to dictionaries)..</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>e</strong> – The <a class="reference internal" href="otupy.core.encoder.Encoder.html#otupy.core.encoder.Encoder" title="otupy.core.encoder.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">Encoder</span></code></a> that is being used.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary compliants to the Language Specification’s serialization
+rules.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="otupy.types.targets.features.Features.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#otupy.types.targets.features.Features.validate" title="Link to this definition"></a></dt>
+<dd><p>Validate the list</p>
+<p>Validation checks the types of the item and the size of the array. By properly combining the options,
+validation may include only a specific aspect.
+:param types: Set to <cite>True</cite> to validate the types of element in the list (Default: <cite>True</cite>).
+:param num_min: Set to the minimun number of elements; 0 to disable (Default: 0).
+:param num_max: Set to the maximun number of elements; None to disable (Default: None).
+:return: True if every required condition is satisfied. Otherwise, a <cite>ValueError</cite> Exception is raised.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="otupy.types.targets.features.html" class="btn btn-neutral float-left" title="otupy.types.targets.features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="otupy.types.targets.file.html" class="btn btn-neutral float-right" title="otupy.types.targets.file" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Matteo Repetto.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

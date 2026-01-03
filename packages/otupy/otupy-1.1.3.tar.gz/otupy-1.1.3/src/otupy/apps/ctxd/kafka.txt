@@ -1,0 +1,53 @@
+Run the kafka docker image:
+% docker run -d --name=kafka -p 9092:9092 apache/kafka
+
+Run the kafka docker image accessible from the external network
+% docker run -d  --name=kafka -p 29092:29092 -e KAFKA_NODE_ID=1  -e KAFKA_PROCESS_ROLES="broker,controller" -e KAFKA_LISTENERS="PLAINTEXT://localhost:9092,EXTERNAL://0.0.0.0:29092,CONTROLLER://localhost:9093" -e KAFKA_ADVERTISED_LISTENERS="PLAINTEXT://localhost:9092,EXTERNAL://abete.tnt-lab.local:29092" -e KAFKA_CONTROLLER_LISTENER_NAMES="CONTROLLER" -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP="CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT" -e KAFKA_CONTROLLER_QUORUM_VOTERS="1@localhost:9093" -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 -e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 -e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1 -e KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0 -e KAFKA_NUM_PARTITIONS=3 apache/kafka
+
+Run with SSL enabled:
+% sudo docker run -d  --name=kafka -p 29092:29092 -e KAFKA_NODE_ID=1  -e KAFKA_PROCESS_ROLES="broker,controller" -e KAFKA_LISTENERS="PLAINTEXT://localhost:9092,SSL://localhost:9094,EXTERNAL://0.0.0.0:29092,CONTROLLER://localhost:9093" -e KAFKA_ADVERTISED_LISTENERS="PLAINTEXT://localhost:9092,SSL://localhost:9094,EXTERNAL://abete.tnt-lab.local:29092" -e KAFKA_CONTROLLER_LISTENER_NAMES="CONTROLLER" -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP="CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL,EXTERNAL:SSL" -e KAFKA_CONTROLLER_QUORUM_VOTERS="1@localhost:9093" -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 -e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1 -e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1 -e KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0 -e KAFKA_NUM_PARTITIONS=3 -e KAFKA_SSL_KEYSTORE_FILENAME="server.jks" -e KAFKA_SSL_KEYSTORE_CREDENTIALS="ssl_creds" -e KAFKA_SSL_KEY_CREDENTIALS="ssl_creds" -e KAFKA_TRUSTORE_FILENAME="trustore.jks" -e KAFKA_SSL_TRUSTORE_CREDENTIALS="ssl_creds" -e KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITH="" -v .:/etc/kafka/secrets apache/kafka
+
+(See instructions to create trustore: https://medium.com/@pukarlamichhane567/secure-your-apache-kafka-a-complete-guide-to-ssl-tls-setup-with-docker-1d07d250f258)
+
+
+Get a cluster id:
+% docker exec -ti kafka /opt/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server :9092
+
+Create the "kafka-topic-test" topic:
+% docker exec -ti kafka /opt/kafka/bin/kafka-topics.sh --create --topic kafka-topic-test --bootstrap-server localhost:9092
+
+Write data to a topic (and create it, if I correctly understood)
+%  docker exec -ti kafka /opt/kafka/bin/kafka-console-producer.sh --bootstrap-server :9092 --topic demo
+
+Read messages from topic "demo":
+%  docker exec -ti kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server :9092 --topic demo --from-beginning
+
+Read messages from topic "demo" with SSL:
+% sudo docker exec kafka /opt/kafka/bin/kafka-console-consumer.sh   --bootstrap-server localhost:29092   --topic demo   --from-beginning   --max-messages 10   --consumer-property security.protocol=SSL   --consumer-property ssl.truststore.location=/etc/kafka/secrets/truststore.jks   --consumer-property ssl.truststore.password=password   --consumer-property ssl.endpoint.identification.algorithm=""
+
+
+
+
+
+### Example for python client
+from kafka import KafkaProducer
+import json
+
+producer = KafkaProducer(bootstrap_servers='172.17.0.11:29092',
+		security_protocol='SSL',
+		ssl_check_hostname=False,
+		ssl_cafile='ca-cert',
+		value_serializer=lambda v: json.dumps(v).encode('utf - 8'))
+#producer.send('demo', b'Hello, Kafka!')
+
+data = {
+	"product_id": 123,
+	"product_name": "Smartphone",
+	"price": 599.99
+}
+
+producer.send('demo', value=data)
+
+producer.flush()
+producer.close()
+
