@@ -1,0 +1,157 @@
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
+name = "haniwers"
+version = "1.18.5"
+description = "Analysis tool for TanQ/FunQ project"
+authors = [
+    {name = "Shota Takahashi (KMI)", email = "shotakaha@kmi.nagoya-u.ac.jp"},
+]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["muon"]
+dependencies = [
+    # CLI framework and configuration
+    "typer>=0.15.2",
+    "pydantic>=2.7.1",
+    "python-dotenv>=1.0.1",
+    "platformdirs>=4.2.2",
+    "deprecated>=1.2.14",
+
+    # Serial communication and hardware
+    "pyserial>=3.5",
+    "esptool>=4.8.1",
+
+    # Data processing
+    "pandas>=2.2.3",
+    "polars>=1.5.0",
+
+    # Scientific computing
+    "scipy>=1.11.1",
+
+    # Date/time handling
+    "pendulum>=3.0.0",
+
+    # Utilities
+    "loguru>=0.7.0",
+]
+
+[project.optional-dependencies]
+# Analysis tools (threshold fitting visualization)
+analysis = [
+    "hvplot>=0.11.0",
+]
+
+# Visualization tools (notebook analysis)
+viz = [
+    "plotly>=6.0.1",
+    "altair>=5.2.0",
+    "vl-convert-python>=1.1.0",
+    "matplotlib>=3.8.4",
+]
+
+# Complete optional dependencies (analysis + visualization)
+all = [
+    "hvplot>=0.11.0",
+    "plotly>=6.0.1",
+    "altair>=5.2.0",
+    "vl-convert-python>=1.1.0",
+    "matplotlib>=3.8.4",
+]
+
+# Development extras (notebooks + debugging)
+notebooks = [
+    "hvplot>=0.11.0",
+    "plotly>=6.0.1",
+    "altair>=5.2.0",
+    "vl-convert-python>=1.1.0",
+    "matplotlib>=3.8.4",
+    "icecream>=2.1.2",
+]
+
+
+[project.urls]
+homepage = "https://qumasan.gitlab.io/haniwers/docs/"
+repository = "https://gitlab.com/qumasan/haniwers/"
+
+[project.scripts]
+haniwers = "haniwers.v1.cli:app"
+haniwers-v1 = "haniwers.v1.cli:app"
+haniwers-v2 = "haniwers.v2.cli:app"
+haniwers-ng = "haniwers.cli:app"
+
+[tool]
+
+[tool.poetry]
+packages = [{ include = "haniwers", from = "src" }]
+
+[tool.poetry.group.docs.dependencies]
+sphinx = ">=7.0.0"
+sphinx-copybutton = ">=0.5.2"
+jupyterlab-myst = ">=2.0.2"
+sphinx-autobuild = ">=2024.2.4"
+sphinx-autodoc2 = ">=0.5.0"
+mystmd = ">=1.3.25"
+nodeenv = ">=1.9.1"
+sphinx-book-theme = ">=1.1.4"
+myst-parser = ">=4.0.1"
+linkify-it-py = ">=2.0.0"
+markdown-it-py = ">=3.0.0"
+
+[tool.poetry.group.dev.dependencies]
+build = ">=1.0.3"
+commitizen = ">=4.0.0"
+ipykernel = ">=6.29.5"
+pre-commit = ">=3.5.0"
+pytest = ">=8.3.3"
+pytest-cov = "^6.1.1"
+pytest-mock = ">=3.10.0"
+ruff = ">=0.11.4"
+jupytext = ">=1.16.0"
+
+[tool.ruff]
+line-length = 100
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "1.18.5"
+tag_format = "$version"
+version_scheme = "semver"
+update_changelog_on_bump = true
+version_files = [
+    "pyproject.toml:version",
+    "src/haniwers/v1/__init__.py:__version__",
+    # "src/haniwers/v2/__init__.py:__version__",  # Enable when v2 is ready
+]
+
+[tool.coverage.run]
+branch = true
+source = ["haniwers"]
+
+[tool.coverage.report]
+omit = [
+    "tests/*",
+    "**/__init__.py",
+]
+
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "local: tests that should only run locally (slow, probabilistic, or resource-intensive)",
+    "slow: tests that take more than 1 second to run (informational)",
+    "statistical: tests that involve randomness and may occasionally fail (informational)",
+    "benchmark: tests that measure performance, timing, or stress characteristics (timing-sensitive)",
+]
+addopts = [
+    "-m", "not local",
+    #"--cov=haniwers.v1",
+    #"--cov-report=term",
+    #"--cov-report=html",
+]
