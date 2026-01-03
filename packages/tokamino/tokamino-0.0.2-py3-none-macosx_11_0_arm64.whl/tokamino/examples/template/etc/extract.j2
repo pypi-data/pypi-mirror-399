@@ -1,0 +1,15 @@
+Extract the following information from the text below:
+{% for field in fields %}
+- {{field}}
+{% endfor %}
+
+Text:
+{{text}}
+
+Return the result as JSON with the following format:
+{
+{% for field in fields %}
+  "{{field}}": "..."{% if not loop.last %},{% endif %}
+
+{% endfor %}
+}
