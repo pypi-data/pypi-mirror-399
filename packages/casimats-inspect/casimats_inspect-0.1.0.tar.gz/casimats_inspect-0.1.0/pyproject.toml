@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "casimats-inspect"
+version = "0.1.0"
+dependencies = [
+    "inspect-ai"
+]
+
+# This registers the extension so Inspect finds it automatically
+[project.entry-points.inspect_ai]
+casimats = "casimats_inspect.provider"
