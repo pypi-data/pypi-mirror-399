@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-release-notes"
+version = "1.0.1"
+description = "使用大语言模型根据 git 差异文件生成变更日志的工具"
+readme = "README.md"
+authors = [
+    {name = "pooneyy", email = "85266337+pooneyy@users.noreply.github.com"}
+]
+license = {text = "MIT"}
+keywords = ["changelog", "git", "ai", "LLM", "release-notes", "automation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Version Control :: Git",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "openai>=2.14.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/pooneyy/llm-release-notes"
+BugTracker = "https://github.com/pooneyy/llm-release-notes/issues"
+Documentation = "https://github.com/pooneyy/llm-release-notes/blob/main/README.md"
+
+[project.scripts]
+llm-release-notes = "llm_release_notes.generator:main"
+gen-changelog = "llm_release_notes.generator:main"
