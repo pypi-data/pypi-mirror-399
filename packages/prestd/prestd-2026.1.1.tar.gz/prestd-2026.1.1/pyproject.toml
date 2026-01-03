@@ -1,0 +1,18 @@
+[project]
+name = "prestd"
+version = "2026.01.1"
+description = "prestd is a Python SDK for pRESTd that provides a fluent, typed, and ergonomic (sync and async) API for interacting with Postgres backed REST endpoints."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2.12.5",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.12.0",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=7.0.0",
+]
