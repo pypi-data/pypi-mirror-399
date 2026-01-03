@@ -1,0 +1,56 @@
+Metadata-Version: 2.4
+Name: onfire
+Version: 0.1.1
+Summary: AAFire-style terminal fire in pure Python + curses.
+Author: Code
+License: MIT
+Keywords: aafire,ascii,curses,fire,terminal
+Classifier: Environment :: Console :: Curses
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Artistic Software
+Classifier: Topic :: Games/Entertainment
+Requires-Python: >=3.10
+Requires-Dist: psutil>=7.2.1
+Provides-Extra: windows
+Requires-Dist: windows-curses>=2.3.2; extra == 'windows'
+Description-Content-Type: text/markdown
+
+# onfire
+
+A tiny **aafire-style** terminal flame effect in pure Python + `curses`, with optional 256-color gradients and Unicode shading blocks.
+
+## Installation
+Simply install with pipx:
+```bash
+pipx install onfire
+```
+
+## Run (dev)
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+onfire
+```
+
+Or without installing:
+
+```bash
+python -m termsite.onfire
+```
+
+## Keys
+
+- `q` / `Esc`: quit
+- `s`: cycle character sets (shade → solid → ascii)
+- `c`: toggle color on/off
+- `[` / `]`: decrease/increase wind (left/right)
+
+## Options
+
+- `--fps`: target render rate (frames per second)
+- `--speed`: simulation speed (steps per frame), independent of FPS; fractional values slow things down, larger values accelerate the fire diffusion
+- `--special cpu|ram`: scale speed and visible flame height based on live CPU or RAM usage percent
