@@ -1,0 +1,247 @@
+Metadata-Version: 2.4
+Name: siili-ai-sdk
+Version: 0.2.0
+Summary: Python SDK for building AI agents with multi-LLM support, streaming, and production-ready infrastructure
+Project-URL: Homepage, https://github.com/siilisolutions/siili-ai-sdk
+Project-URL: Repository, https://github.com/siilisolutions/siili-ai-sdk
+Project-URL: Documentation, https://github.com/siilisolutions/siili-ai-sdk#readme
+Author-email: Siili Solutions Oyj <info@siili.com>
+License-Expression: MIT
+Keywords: agents,ai,anthropic,claude,gpt,langchain,llm,openai,streaming
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.10
+Requires-Dist: aioconsole>=0.8.1
+Requires-Dist: azure-storage-blob
+Requires-Dist: crawl4ai>=0.7.4
+Requires-Dist: cryptography>=41.0.0
+Requires-Dist: dotenv>=0.9.9
+Requires-Dist: fastapi>=0.115.12
+Requires-Dist: httpx>=0.25.0
+Requires-Dist: langchain-anthropic>=1.3.0
+Requires-Dist: langchain-core>=1.2.0
+Requires-Dist: langchain-google-genai>=4.0.0
+Requires-Dist: langchain-ollama>=0.3.0
+Requires-Dist: langchain-openai>=1.1.0
+Requires-Dist: langchain-tavily>=0.2.15
+Requires-Dist: langchain>=1.2.0
+Requires-Dist: langgraph>=1.0.0
+Requires-Dist: pandas-stubs
+Requires-Dist: pandas>=2.0.3
+Requires-Dist: pyjwt>=2.8.0
+Requires-Dist: pytest-asyncio>=0.21.1
+Requires-Dist: pytest-cov>=4.1.0
+Requires-Dist: pytest-mock>=3.11.1
+Requires-Dist: pytest>=7.4.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: restrictedpython>=8.0
+Requires-Dist: rich>=14.0.0
+Requires-Dist: uvicorn>=0.33.0
+Provides-Extra: dev
+Requires-Dist: black; extra == 'dev'
+Requires-Dist: mypy; extra == 'dev'
+Requires-Dist: ruff; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# Siili AI SDK 
+
+A Python SDK for building AI agents with multi-LLM support, streaming capabilities, and production-ready infrastructure.
+
+## Features
+
+- **Multi-LLM Support**: OpenAI, Anthropic, Google, Azure models
+- **Streaming**: Real-time response streaming
+- **Tools**: Custom tool integration with LangChain
+- **Production Ready**: FastAPI server with REST/SSE APIs
+- **Type Safe**: Full type annotations
+
+## Quick Start
+
+### Simple Agent
+
+```python
+from dotenv import load_dotenv
+from siili_ai_sdk.agent.base_agent import BaseAgent
+
+class HelloAgent(BaseAgent):
+    def __init__(self):
+        super().__init__(system_prompt="You're an unhelpful assistant that cant resist constantly talking about cats.")
+
+if __name__ == "__main__":
+    load_dotenv()
+    agent = HelloAgent()
+    print(agent.get_response_text("Hello"))
+```
+
+### Agent with Tools + FastAPI Server
+
+```python
+from typing import List
+import uvicorn
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from siili_ai_sdk.agent.base_agent import BaseAgent
+from siili_ai_sdk.tools.tool_provider import ToolProvider, tool, BaseTool
+from siili_ai_sdk.server.api.routers.api_builder import ApiBuilder
+from siili_ai_sdk.models.model_registry import ModelRegistry
+
+load_dotenv()
+
+app = FastAPI(title="Agent SDK Backend Example", version="0.0.1")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class DemoTool(ToolProvider):
+    def get_tools(self) -> List[BaseTool]:
+        @tool
+        def get_secret_greeting() -> str:
+            """Returns the users secret greeting."""
+            return "kikkelis kokkelis"
+
+        @tool
+        def get_user_name() -> str:
+            """Returns the users name."""
+            return "Seppo Hovi"
+
+        return [get_secret_greeting, get_user_name]
+
+class DemoAgent(BaseAgent):
+    def get_tool_providers(self) -> List[ToolProvider]:
+        return [DemoTool()]
+
+@app.on_event("startup")
+async def startup_event():
+    agent = DemoAgent(llm_model=ModelRegistry.CLAUDE_4_SONNET)
+    api_builder = ApiBuilder.local(agent=agent)
+    thread_router = api_builder.build_thread_router()
+    app.include_router(thread_router)
+
+def run_server():
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
+
+if __name__ == "__main__":
+    run_server()
+```
+
+## Configuration
+
+Set up your environment variables:
+
+```bash
+# API Keys
+ANTHROPIC_API_KEY=your-anthropic-key
+OPENAI_API_KEY=your-openai-key  
+GOOGLE_API_KEY=your-google-key
+
+# Azure (optional)
+AZURE_API_KEY=your-azure-key
+AZURE_ENDPOINT=https://your-resource.openai.azure.com/
+```
+
+## Available Models
+
+```python
+from siili_ai_sdk.models.model_registry import ModelRegistry
+
+# Use model registry for easy access
+ModelRegistry.CLAUDE_4_SONNET
+ModelRegistry.GPT_4_1
+ModelRegistry.GEMINI_2_5_FLASH
+ModelRegistry.O4_MINI
+
+# Or use aliases
+ModelRegistry.from_name("sonnet")      # -> CLAUDE_4_SONNET
+ModelRegistry.from_name("gpt 4.1")     # -> GPT_4_1
+```
+
+## More Usage Examples
+
+### Streaming Response
+
+```python
+async def stream_example():
+    agent = DemoAgent()
+    async for chunk in agent.get_response_stream("Write a story"):
+        print(chunk.content, end="", flush=True)
+```
+
+### Structured Response
+
+```python
+from pydantic import BaseModel
+
+class Recipe(BaseModel):
+    name: str
+    ingredients: list[str]
+    instructions: list[str]
+
+response = agent.get_structured_response("Create a pasta recipe", Recipe)
+print(f"Recipe: {response.name}")
+```
+
+### Interactive CLI
+
+```python
+agent = DemoAgent()
+agent.run_cli()  # Starts interactive chat
+```
+
+## API Endpoints
+
+When running the FastAPI server:
+
+```bash
+# Health check
+GET /health
+
+# Create thread
+POST /threads
+
+# Send message (streaming)
+POST /threads/{thread_id}/messages/stream
+
+# Get messages
+GET /threads/{thread_id}/messages
+```
+
+## Development
+
+```bash
+# Setup
+./setup.sh
+
+# Run tests
+make test
+
+# Format code
+ruff check --fix
+ruff format
+```
+
+## Project Structure
+
+```
+siili_ai_sdk/
+├── agent/          # Core agent implementations
+├── llm/            # LangChain service and streaming
+├── models/         # LLM providers and configuration
+├── thread/         # Conversation management
+├── tools/          # Tool system
+├── server/         # FastAPI server infrastructure
+└── utils/          # Shared utilities
+```
+
