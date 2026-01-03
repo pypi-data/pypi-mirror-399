@@ -1,0 +1,47 @@
+[project]
+name = "toony-2do"
+version = "0.1.1"
+description = "A beautiful, interactive terminal todo application with TUI and CLI interfaces"
+readme = "README.md"
+authors = [
+    { name = "Marjan Ahmed", email = "marjan.ahmed08@yahoo.com" }
+]
+license = { text = "MIT" }
+keywords = ["todo", "cli", "tui", "terminal", "task-manager", "productivity", "textual"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.12.5",
+    "pyfiglet>=1.0.2",
+    "rich>=14.2.0",
+    "textual>=6.11.0",
+    "typer>=0.15.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/marjan-ahmed/evolution-todo-sdd"
+Repository = "https://github.com/marjan-ahmed/evolution-todo-sdd"
+Issues = "https://github.com/marjan-ahmed/evolution-todo-sdd/issues"
+
+[project.scripts]
+toony-2do = "phase_1_cli.main:cli_app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/phase_1_cli"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
