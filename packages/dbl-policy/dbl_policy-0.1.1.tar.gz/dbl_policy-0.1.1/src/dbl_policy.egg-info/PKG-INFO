@@ -1,0 +1,80 @@
+Metadata-Version: 2.4
+Name: dbl-policy
+Version: 0.1.1
+Summary: Deterministic policy evaluation layer for dbl-core
+Author-email: Lukas Pfister <228201683+lukaspfisterch@users.noreply.github.com>
+License: MIT
+Project-URL: Repository, https://github.com/lukaspfisterch/dbl-policy
+Project-URL: Issues, https://github.com/lukaspfisterch/dbl-policy/issues
+Keywords: dbl,policy,governance,deterministic
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Typing :: Typed
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: dbl-core<0.4,>=0.3
+Provides-Extra: test
+Requires-Dist: pytest<9,>=8; extra == "test"
+Provides-Extra: dev
+Requires-Dist: pytest<9,>=8; extra == "dev"
+Requires-Dist: ruff<1,>=0.5; extra == "dev"
+Requires-Dist: mypy<2,>=1.10; extra == "dev"
+Dynamic: license-file
+
+# DBL Policy
+
+DBL Policy provides deterministic, tenant-scoped policy evaluation that produces DECISION events only. It does not execute tasks.
+
+## Scope
+- Policy decisions derived only from authoritative inputs.
+- No execution, no orchestration, no IO side effects.
+
+## Contract
+- docs/dbl_policy_contract.md
+
+## Install
+
+```bash
+pip install dbl-policy
+```
+
+Requires `dbl-core>=0.3.0`, Python 3.11+.
+
+## Usage
+
+```python
+from dbl_policy import (
+    PolicyContext,
+    PolicyDecision,
+    PolicyId,
+    PolicyVersion,
+    TenantId,
+    DecisionOutcome,
+    decision_to_dbl_event,
+)
+
+context = PolicyContext(
+    tenant_id=TenantId("tenant-1"),
+    inputs={"use_case": "llm-generate"},
+)
+
+decision = PolicyDecision(
+    outcome=DecisionOutcome.ALLOW,
+    reason_code="ok",
+    policy_id=PolicyId("example"),
+    policy_version=PolicyVersion("1.0.0"),
+    tenant_id=context.tenant_id,
+)
+
+event = decision_to_dbl_event(decision, correlation_id="c1")
+```
+
+## License
+
+MIT License. See LICENSE.
