@@ -1,0 +1,231 @@
+Metadata-Version: 2.4
+Name: llamaindex-agentserver-adapter
+Version: 0.1.0
+Summary: LlamaIndex Workflows adapter for Azure AI Agent Server
+Project-URL: Homepage, https://github.com/yourusername/llamaindex-agentserver-adapter
+Project-URL: Documentation, https://github.com/yourusername/llamaindex-agentserver-adapter#readme
+Project-URL: Repository, https://github.com/yourusername/llamaindex-agentserver-adapter
+Project-URL: Issues, https://github.com/yourusername/llamaindex-agentserver-adapter/issues
+Author-email: Your Name <your.email@example.com>
+License: MIT
+License-File: LICENSE
+Keywords: agents,ai,azure,llama-index,llamaindex,workflows
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.10
+Requires-Dist: azure-ai-agentserver-core>=1.0.0b1
+Requires-Dist: llama-index-core>=0.12.0
+Requires-Dist: llama-index-workflows>=0.1.0
+Provides-Extra: all
+Requires-Dist: llama-index-llms-azure-openai>=0.3.0; extra == 'all'
+Requires-Dist: llama-index-llms-openai>=0.3.0; extra == 'all'
+Requires-Dist: mypy>=1.0.0; extra == 'all'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'all'
+Requires-Dist: pytest>=7.0.0; extra == 'all'
+Requires-Dist: ruff>=0.1.0; extra == 'all'
+Provides-Extra: azure-openai
+Requires-Dist: llama-index-llms-azure-openai>=0.3.0; extra == 'azure-openai'
+Provides-Extra: dev
+Requires-Dist: mypy>=1.0.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.1.0; extra == 'dev'
+Provides-Extra: openai
+Requires-Dist: llama-index-llms-openai>=0.3.0; extra == 'openai'
+Description-Content-Type: text/markdown
+
+# LlamaIndex Agent Server Adapter
+
+[![PyPI version](https://badge.fury.io/py/llamaindex-agentserver-adapter.svg)](https://badge.fury.io/py/llamaindex-agentserver-adapter)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+An adapter for hosting [LlamaIndex Workflows](https://docs.llamaindex.ai/en/stable/module_guides/workflow/) as Azure AI Agent Server endpoints.
+
+## Installation
+
+```bash
+pip install llamaindex-agentserver-adapter
+```
+
+With OpenAI support:
+```bash
+pip install llamaindex-agentserver-adapter[openai]
+```
+
+With Azure OpenAI support:
+```bash
+pip install llamaindex-agentserver-adapter[azure-openai]
+```
+
+## Quick Start
+
+```python
+from workflows import Workflow, step
+from workflows.events import StartEvent, StopEvent
+from llamaindex_agentserver import from_workflow
+
+
+class MyWorkflow(Workflow):
+    @step
+    async def process(self, ev: StartEvent) -> StopEvent:
+        user_input = ev.input
+        return StopEvent(result=f"Processed: {user_input}")
+
+
+# Create and run the adapter
+workflow = MyWorkflow(timeout=60)
+adapter = from_workflow(workflow)
+adapter.run(port=8088)
+```
+
+## Features
+
+- **HTTP Endpoints**: Exposes your workflow via `/runs` and `/responses` endpoints
+- **Streaming Support**: Full support for streaming responses using Server-Sent Events
+- **Human-in-the-Loop**: Support for `InputRequiredEvent` and `HumanResponseEvent` patterns
+- **Tracing**: Integration with Azure Application Insights and OpenTelemetry
+- **Health Checks**: Built-in `/liveness` and `/readiness` endpoints
+
+## API Reference
+
+### `from_workflow(workflow, state_converter=None, timeout=None)`
+
+Creates an adapter for a LlamaIndex Workflow.
+
+**Parameters:**
+- `workflow`: The LlamaIndex Workflow instance to adapt
+- `state_converter`: Optional custom state converter for non-standard input/output formats
+- `timeout`: Optional timeout override for workflow execution
+
+**Returns:** A `LlamaIndexWorkflowAdapter` instance
+
+### Request Format
+
+The adapter accepts requests in the OpenAI Responses API format:
+
+```json
+{
+  "input": "Hello, world!",
+  "instructions": "You are a helpful assistant.",
+  "stream": false,
+  "metadata": {}
+}
+```
+
+Or with structured messages:
+
+```json
+{
+  "input": [
+    {"type": "message", "role": "user", "content": "Hello!"},
+    {"type": "message", "role": "assistant", "content": "Hi there!"},
+    {"type": "message", "role": "user", "content": "How are you?"}
+  ],
+  "stream": true
+}
+```
+
+### Testing Your Server
+
+```bash
+# Non-streaming request
+curl -X POST http://localhost:8088/runs \
+  -H "Content-Type: application/json" \
+  -d '{"input": "Hello, how are you?"}'
+
+# Streaming request
+curl -X POST http://localhost:8088/runs \
+  -H "Content-Type: application/json" \
+  -d '{"input": "Tell me a story", "stream": true}'
+
+# Health check
+curl http://localhost:8088/liveness
+```
+
+## Custom State Converter
+
+For workflows with custom input/output requirements, implement a custom state converter:
+
+```python
+from llamaindex_agentserver.models import LlamaIndexWorkflowStateConverter
+
+
+class MyStateConverter(LlamaIndexWorkflowStateConverter):
+    def supports_streaming(self, context):
+        return True
+
+    def request_to_workflow_input(self, context):
+        # Convert request to your workflow's expected input format
+        return {"custom_input": context.request.get("input")}
+
+    def result_to_response(self, result, context):
+        # Convert workflow result to Response object
+        ...
+
+    async def stream_to_response_stream(self, event_stream, context):
+        # Convert streaming events to response stream events
+        ...
+
+
+adapter = from_workflow(workflow, state_converter=MyStateConverter())
+```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `DEFAULT_AD_PORT` | Default server port (default: 8088) |
+| `_AGENT_RUNTIME_APP_INSIGHTS_CONNECTION_STRING` | Application Insights connection string |
+| `OTEL_EXPORTER_ENDPOINT` | OpenTelemetry exporter endpoint |
+| `AGENT_DEBUG_ERRORS` | Set to "true" to include full error details |
+| `AGENT_LOG_LEVEL` | Logging level (default: INFO) |
+
+## Examples
+
+See the [examples/](examples/) directory:
+
+- [`simple_workflow.py`](examples/simple_workflow.py) - Basic chat workflow with LLM
+- [`hitl_workflow.py`](examples/hitl_workflow.py) - Human-in-the-loop approval workflow
+
+## Requirements
+
+- Python 3.10+
+- `azure-ai-agentserver-core` (Azure AI Agent Server core library)
+- `llama-index-core` and `llama-index-workflows`
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/llamaindex-agentserver-adapter.git
+cd llamaindex-agentserver-adapter
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Format code
+ruff format .
+
+# Lint
+ruff check .
+```
+
+## License
+
+MIT License - See [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

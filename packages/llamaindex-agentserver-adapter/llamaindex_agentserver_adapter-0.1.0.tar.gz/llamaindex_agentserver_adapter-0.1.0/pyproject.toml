@@ -1,0 +1,80 @@
+[project]
+name = "llamaindex-agentserver-adapter"
+version = "0.1.0"
+description = "LlamaIndex Workflows adapter for Azure AI Agent Server"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = ["azure", "llama-index", "llamaindex", "workflows", "agents", "ai"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "azure-ai-agentserver-core>=1.0.0b1",
+    "llama-index-core>=0.12.0",
+    "llama-index-workflows>=0.1.0",
+]
+
+[project.optional-dependencies]
+openai = [
+    "llama-index-llms-openai>=0.3.0",
+]
+azure-openai = [
+    "llama-index-llms-azure-openai>=0.3.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+all = [
+    "llamaindex-agentserver-adapter[openai,azure-openai,dev]",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/llamaindex-agentserver-adapter"
+Documentation = "https://github.com/yourusername/llamaindex-agentserver-adapter#readme"
+Repository = "https://github.com/yourusername/llamaindex-agentserver-adapter"
+Issues = "https://github.com/yourusername/llamaindex-agentserver-adapter/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/llamaindex_agentserver"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I", "W"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["llamaindex_agentserver"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
