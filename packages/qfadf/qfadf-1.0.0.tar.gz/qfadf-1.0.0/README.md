@@ -1,0 +1,255 @@
+# QFADF - Quantile Fourier ADF Unit Root Test
+
+[![Python Version](https://img.shields.io/pypi/pyversions/qfadf.svg)](https://pypi.org/project/qfadf/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A Python implementation of the Quantile Fourier ADF unit root test proposed by Li & Zheng (2018), which is robust to both non-Gaussian conditions and smooth structural changes.
+
+## Reference
+
+**Li, H., & Zheng, C. (2018). Unit root quantile autoregression testing with smooth structural changes. *Finance Research Letters*, 25, 83-89.**
+
+[DOI: 10.1016/j.frl.2017.10.008](http://dx.doi.org/10.1016/j.frl.2017.10.008)
+
+## Features
+
+- **Quantile Fourier ADF Test** (`qr_fourier_adf`): Unit root test at a specified quantile with Fourier approximation for structural changes
+- **Bootstrap Critical Values** (`qr_fourier_adf_bootstrap`): Bootstrap procedure for finite-sample critical values
+- **QKS and QCM Statistics** (`qks_qcm_statistics`): Quantile Kolmogorov-Smirnov and Cramér-von Mises tests over a range of quantiles
+- **Optimal Frequency Selection** (`estimate_optimal_k`): Data-driven selection of Fourier frequency
+- **Pre-computed Critical Values**: Based on extensive Monte Carlo simulations
+- **Publication-ready Output**: LaTeX tables and formatted results
+
+## Installation
+
+### From PyPI (when available)
+
+```bash
+pip install qfadf
+```
+
+### From Source
+
+```bash
+git clone https://github.com/merwanroudane/quantilefourierunitroot.git
+cd quantilefourierunitroot
+pip install -e .
+```
+
+### Dependencies
+
+- Python >= 3.8
+- NumPy >= 1.20.0
+- Pandas >= 1.3.0
+- SciPy >= 1.7.0
+- Matplotlib >= 3.4.0 (optional, for plotting)
+
+## Quick Start
+
+### Basic Unit Root Test
+
+```python
+import numpy as np
+from qfadf import qr_fourier_adf
+
+# Generate a random walk (unit root process)
+np.random.seed(42)
+y = np.cumsum(np.random.randn(200))
+
+# Perform test at median (tau=0.5)
+results = qr_fourier_adf(y, model=1, tau=0.5, k=3, pmax=8)
+
+# Output:
+# ======================================================================
+#          QUANTILE FOURIER ADF UNIT ROOT TEST
+#          Li & Zheng (2018, Finance Research Letters)
+# ======================================================================
+#   Model:                Constant
+#   Fourier frequency k:  3
+#   Lags (pmax):          8
+#   Sample size:          191
+# ----------------------------------------------------------------------
+#   Test Results:
+# ----------------------------------------------------------------------
+#   Quantile (τ):         0.500
+#   ρ(τ):                 0.998xxx
+#   t_f(τ) statistic:     -1.xxxx
+# ----------------------------------------------------------------------
+```
+
+### Bootstrap Critical Values
+
+```python
+from qfadf import qr_fourier_adf_bootstrap
+
+# Bootstrap for critical values (recommended for inference)
+boot_results = qr_fourier_adf_bootstrap(
+    y, 
+    model=1, 
+    tau=0.5, 
+    n_boot=1000,
+    random_state=42
+)
+
+# Access results
+print(f"Test statistic: {boot_results['tn']:.4f}")
+print(f"Bootstrap p-value: {boot_results['p_value']:.4f}")
+print(f"Critical values (1%, 5%, 10%): {boot_results['cv']}")
+print(f"Reject H0 at 5%: {boot_results['reject_5pct']}")
+```
+
+### Multiple Quantiles Analysis
+
+```python
+from qfadf import qr_fourier_adf, qks_qcm_statistics, multiple_quantile_results_table
+
+# Test at multiple quantiles
+tau_values = [0.1, 0.25, 0.5, 0.75, 0.9]
+results_list = []
+
+for tau in tau_values:
+    result = qr_fourier_adf(y, model=1, tau=tau, print_results=False)
+    results_list.append(result)
+
+# Create comparison table
+comparison_df = multiple_quantile_results_table(results_list)
+print(comparison_df)
+
+# QKS and QCM statistics
+qks_qcm = qks_qcm_statistics(y, model=1, tau_range=(0.1, 0.9))
+print(f"QKS_f: {qks_qcm['QKS_f']:.4f}")
+print(f"QCM_f: {qks_qcm['QCM_f']:.4f}")
+```
+
+### Optimal Fourier Frequency
+
+```python
+from qfadf import estimate_optimal_k
+
+# Estimate optimal k using residual sum of squares criterion
+k_opt = estimate_optimal_k(y, model=1, tau=0.5, k_max=5)
+print(f"Optimal Fourier frequency: k = {k_opt}")
+```
+
+## Model Specifications
+
+### Model 1: Constant Only
+
+$$y_t = \phi \tilde{y}_{t-1} + \alpha_0 + \alpha_k \sin(2\pi kt/T) + \beta_k \cos(2\pi kt/T) + \mu_t$$
+
+### Model 2: Constant and Trend
+
+$$y_t = \phi \tilde{y}_{t-1} + \alpha_0 + \alpha_k \sin(2\pi kt/T) + \beta_k \cos(2\pi kt/T) + \gamma t + \mu_t$$
+
+## Test Statistics
+
+### t_f(τ) Statistic
+
+The quantile t-ratio test statistic at quantile τ:
+
+$$t_f(\tau) = \frac{\hat{f}(F^{-1}(\tau))}{\sqrt{\tau(1-\tau)}} (Y'_{-1} M_x Y_{-1})^{1/2} (\hat{\phi} - 1)$$
+
+### QKS_f Statistic
+
+$$QKS_f = \sup_{\tau \in \mathcal{T}} |t_f(\tau)|$$
+
+### QCM_f Statistic
+
+$$QCM_f = \int_{\tau \in \mathcal{T}} t_f(\tau)^2 d\tau$$
+
+## API Reference
+
+### Main Functions
+
+| Function | Description |
+|----------|-------------|
+| `qr_fourier_adf()` | Main test function for single quantile |
+| `qr_fourier_adf_bootstrap()` | Bootstrap procedure for critical values |
+| `qks_qcm_statistics()` | QKS and QCM tests over quantile range |
+| `estimate_optimal_k()` | Optimal Fourier frequency selection |
+
+### Critical Values
+
+| Function | Description |
+|----------|-------------|
+| `get_critical_values()` | Get pre-computed critical values |
+| `simulate_critical_values()` | Monte Carlo simulation for critical values |
+| `print_critical_value_table()` | Print formatted critical value table |
+
+### Utilities
+
+| Function | Description |
+|----------|-------------|
+| `prepare_data()` | Data preprocessing |
+| `adf_lag_selection()` | Automatic lag selection |
+| `format_results_latex()` | Export results as LaTeX table |
+| `plot_quantile_results()` | Visualization of results |
+
+## Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `y` | - | Time series data (1D array) |
+| `model` | 1 | 1: constant, 2: constant + trend |
+| `tau` | 0.5 | Quantile level (0 < τ < 1) |
+| `pmax` | 8 | Maximum lag order for Δy |
+| `k` | 3 | Fourier frequency (1 ≤ k ≤ 5) |
+| `n_boot` | 1000 | Number of bootstrap replications |
+
+## Output
+
+The test returns a dictionary with:
+
+- `tn`: Test statistic t_f(τ)
+- `rho_tau`: Estimated AR coefficient ρ(τ)
+- `tau`: Quantile level
+- `model`: Model specification
+- `k`: Fourier frequency
+- `n`: Effective sample size
+- `cv`: Critical values (if bootstrap)
+- `p_value`: Bootstrap p-value (if bootstrap)
+- `reject_*pct`: Decision at various significance levels
+
+## Citation
+
+If you use this package in your research, please cite:
+
+```bibtex
+@article{li2018unit,
+  title={Unit root quantile autoregression testing with smooth structural changes},
+  author={Li, Haiqi and Zheng, Chaowen},
+  journal={Finance Research Letters},
+  volume={25},
+  pages={83--89},
+  year={2018},
+  publisher={Elsevier},
+  doi={10.1016/j.frl.2017.10.008}
+}
+```
+
+## Author
+
+**Dr Merwan Roudane**
+- Email: merwanroudane920@gmail.com
+- GitHub: [https://github.com/merwanroudane/quantilefourierunitroot](https://github.com/merwanroudane/quantilefourierunitroot)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Related Packages
+
+- Original GAUSS code by Saban Nazlioglu (TSPDLIB)
+- [statsmodels](https://www.statsmodels.org/) - Standard ADF tests
+- [arch](https://arch.readthedocs.io/) - Unit root tests with various specifications
+
+## Changelog
+
+### Version 1.0.0 (2025)
+
+- Initial release
+- Implementation of QR-Fourier-ADF test
+- Bootstrap critical values
+- QKS and QCM statistics
+- Pre-computed critical value tables
+- Comprehensive documentation

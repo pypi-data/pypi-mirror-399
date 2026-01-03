@@ -1,0 +1,132 @@
+[build-system]
+requires = ["setuptools>=61.0,<75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qfadf"
+version = "1.0.0"
+description = "Quantile Fourier ADF Unit Root Test - Li & Zheng (2018)"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Dr Merwan Roudane", email = "merwanroudane920@gmail.com"}
+]
+maintainers = [
+    {name = "Dr Merwan Roudane", email = "merwanroudane920@gmail.com"}
+]
+keywords = [
+    "econometrics",
+    "unit root test",
+    "quantile regression",
+    "time series",
+    "fourier",
+    "structural breaks",
+    "cointegration",
+    "stationarity"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Scientific/Engineering :: Information Analysis"
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.20.0",
+    "pandas>=1.3.0",
+    "scipy>=1.7.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=3.0.0",
+    "black>=22.0.0",
+    "isort>=5.10.0",
+    "flake8>=4.0.0",
+    "mypy>=0.950"
+]
+docs = [
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "numpydoc>=1.1.0"
+]
+plot = [
+    "matplotlib>=3.4.0"
+]
+all = [
+    "qfadf[dev,docs,plot]"
+]
+
+[project.urls]
+Homepage = "https://github.com/merwanroudane/quantilefourierunitroot"
+Documentation = "https://github.com/merwanroudane/quantilefourierunitroot#readme"
+Repository = "https://github.com/merwanroudane/quantilefourierunitroot"
+Issues = "https://github.com/merwanroudane/quantilefourierunitroot/issues"
+Changelog = "https://github.com/merwanroudane/quantilefourierunitroot/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+packages = ["qfadf"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["qfadf"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests"
+]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.coverage.run]
+source = ["qfadf"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:"
+]
