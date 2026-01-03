@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name="pctheory"
+version = "0.0.43"
+authors = [
+    { name="Jeffrey Martin", email="jmartin@jeffreymartincomposer.com" },
+]
+description = "A package with functionality for atonal music theory"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "networkx",
+    "pyvis",
+]
+license = "MIT AND (Apache-2.0 OR BSD-2-Clause)"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Operating System :: OS Independent"
+]
+
+[project.urls]
+"Homepage" = "https://fleximeter.github.io/pctheory.html"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pctheory = ["data/*.json"]
