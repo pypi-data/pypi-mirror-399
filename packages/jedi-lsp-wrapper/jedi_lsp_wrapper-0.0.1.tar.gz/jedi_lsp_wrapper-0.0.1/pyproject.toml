@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jedi-lsp-wrapper"
+dynamic = ["version"]
+description = "Python LSP service wrapper based on Jedi."
+license = { file = "LICENSE" }
+authors = [{ name = "sweetbrulee", email = "sparrowking002@gmail.com" }]
+requires-python = "==3.13.*"
+dependencies = ["jedi", "docstring-to-markdown"]
+keywords = ["lsp", "jedi"]
+
+[project.urls]
+Homepage = "https://github.com/algo-visualizer/pylsp"
+Repository = "https://github.com/algo-visualizer/pylsp.git"
+Issues = "https://github.com/algo-visualizer/pylsp/issues"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
+fallback_version = "0.0.0"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lsp"]
+
+[tool.uv]
+python-preference = "only-managed"
