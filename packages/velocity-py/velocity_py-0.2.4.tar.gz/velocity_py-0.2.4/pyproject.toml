@@ -1,0 +1,39 @@
+[project]
+name = "velocity-py"
+version = "0.2.4"
+description = "A high-performance scaffolding tool for strictly typed Python projects."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "questionary>=2.0.0",
+    "rich>=13.0.0",
+    "typer>=0.9.0",
+]
+authors = [
+    { name = "Zakhar Aleksandruk", email = "aleksandrukzakhar@icloud.com" }
+]
+
+[project.scripts]
+velocity-py = "velocity_py.main:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["velocity_py"]
+
+[dependency-groups]
+dev = [
+    "poethepoet>=0.24.0",
+    "ruff>=0.1.0",
+    "ty>=0.0.8",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B"]
+fixable = ["ALL"]
