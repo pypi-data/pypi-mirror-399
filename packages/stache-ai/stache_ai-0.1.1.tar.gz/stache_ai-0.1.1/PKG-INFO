@@ -1,0 +1,263 @@
+Metadata-Version: 2.4
+Name: stache-ai
+Version: 0.1.1
+Summary: Personal AI-powered knowledge base with RAG
+Author: Stache Contributors
+License: MIT
+Project-URL: Homepage, https://github.com/stache-ai/stache-ai
+Project-URL: Documentation, https://github.com/stache-ai/stache#readme
+Project-URL: Repository, https://github.com/stache-ai/stache-ai
+Project-URL: Issues, https://github.com/stache-ai/stache/issues
+Keywords: stache,rag,ai,knowledge-base,llm,vector-database,semantic-search
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.109.0
+Requires-Dist: uvicorn[standard]>=0.27.0
+Requires-Dist: python-multipart>=0.0.6
+Requires-Dist: pypdf2>=3.0.1
+Requires-Dist: pdfplumber>=0.10.3
+Requires-Dist: ebooklib>=0.18
+Requires-Dist: python-docx>=1.1.0
+Requires-Dist: python-pptx>=0.6.23
+Requires-Dist: beautifulsoup4>=4.12.3
+Requires-Dist: lxml>=5.1.0
+Requires-Dist: markdown>=3.5.2
+Requires-Dist: webvtt-py>=0.4.6
+Requires-Dist: python-dotenv>=1.0.1
+Requires-Dist: tiktoken>=0.5.2
+Requires-Dist: pydantic>=2.7.0
+Requires-Dist: pydantic-settings>=2.3.0
+Requires-Dist: click>=8.1.7
+Requires-Dist: rich>=13.7.0
+Requires-Dist: tqdm>=4.66.1
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: httpx>=0.25.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Provides-Extra: aws
+Requires-Dist: stache-ai-s3vectors>=0.1.0; extra == "aws"
+Requires-Dist: stache-ai-dynamodb>=0.1.0; extra == "aws"
+Requires-Dist: stache-ai-bedrock>=0.1.0; extra == "aws"
+Provides-Extra: ollama
+Requires-Dist: stache-ai-ollama>=0.1.0; extra == "ollama"
+Provides-Extra: openai
+Requires-Dist: stache-ai-openai>=0.1.0; extra == "openai"
+
+# stache-ai
+
+A Python library for building AI-powered knowledge bases using Retrieval-Augmented Generation (RAG).
+
+## Overview
+
+stache-ai provides a pluggable framework for ingesting documents, storing embeddings, and executing semantic search with optional reranking. It includes support for multiple vector databases, LLM providers, embedding models, and document formats.
+
+## Installation
+
+Install the core package:
+
+```bash
+pip install stache-ai
+```
+
+## Quick Start
+
+```python
+from stache_ai.rag.pipeline import get_pipeline
+
+# Get the pipeline (uses configured providers)
+pipeline = get_pipeline()
+
+# Ingest text
+result = pipeline.ingest_text(
+    text="Your knowledge base content here",
+    metadata={"source": "example"}
+)
+print(f"Created {result['chunks_created']} chunks")
+
+# Search
+results = pipeline.query(
+    question="What is this about?",
+    top_k=5
+)
+for source in results['sources']:
+    print(f"- {source['text'][:100]}...")
+```
+
+## Provider Packages
+
+stache-ai uses a provider pattern to support different backends. Install optional provider packages to enable specific functionality:
+
+### AWS Providers
+
+```bash
+pip install "stache-ai[aws]"
+```
+
+Includes:
+- `stache-ai-s3vectors` - Amazon S3 Vectors for semantic search
+- `stache-ai-dynamodb` - Amazon DynamoDB for namespace and document index storage
+- `stache-ai-bedrock` - Amazon Bedrock for LLMs and embeddings
+
+### Ollama
+
+```bash
+pip install "stache-ai[ollama]"
+```
+
+Includes:
+- `stache-ai-ollama` - Ollama for local LLM and embedding models
+
+### OpenAI
+
+```bash
+pip install "stache-ai[openai]"
+```
+
+Includes:
+- `stache-ai-openai` - OpenAI for GPT models and embeddings
+
+## Configuration
+
+Configure stache-ai via environment variables or a `.env` file:
+
+```bash
+# Vector Database
+VECTORDB_PROVIDER=s3vectors
+VECTORDB_S3_REGION=us-east-1
+VECTORDB_S3_INDEX_NAME=stache
+
+# Embeddings
+EMBEDDING_PROVIDER=bedrock
+EMBEDDING_MODEL=cohere.embed-english-v3
+
+# Namespaces
+NAMESPACE_PROVIDER=dynamodb
+NAMESPACE_DYNAMODB_TABLE=stache-namespaces
+
+# LLM
+LLM_PROVIDER=bedrock
+LLM_MODEL=anthropic.claude-3-5-sonnet-20241022-v2:0
+
+# Optional features
+ENABLE_DOCUMENT_INDEX=true
+EMBEDDING_AUTO_SPLIT_ENABLED=true
+```
+
+See `src/stache_ai/config.py` for all available options.
+
+## Usage Examples
+
+### Document Chunking
+
+```python
+from stache_ai.chunking import ChunkingStrategy
+
+# Recursive character-level chunking
+chunks = ChunkingStrategy.create(
+    strategy="recursive",
+    chunk_size=1024,
+    chunk_overlap=100
+).chunk("Your document text")
+
+for chunk in chunks:
+    print(chunk)
+```
+
+### Filtering Results
+
+```python
+# Search with metadata filter
+results = pipeline.query(
+    question="API documentation",
+    filter={"source": "docs"}
+)
+```
+
+### Namespace Isolation
+
+```python
+# Ingest to a specific namespace
+pipeline.ingest_text(
+    text="Project A data",
+    namespace="project-a"
+)
+
+# Search within a namespace
+results = pipeline.query(
+    question="Find related content",
+    namespace="project-a"
+)
+```
+
+## API Server
+
+Run a FastAPI server for HTTP access:
+
+```bash
+pip install stache-ai[dev]
+python -m stache_ai.api.main
+```
+
+Server exposes endpoints for:
+- `/api/query` - Semantic search
+- `/api/capture` - Text ingestion
+- `/api/namespaces` - Manage namespaces
+- `/api/documents` - List and retrieve documents
+- `/api/upload` - Upload files (PDF, DOCX, etc.)
+
+## CLI Tools
+
+### Admin CLI (stache-admin)
+
+```bash
+# Import documents from a directory
+stache-import /path/to/documents --namespace my-docs
+
+# List namespaces
+stache-admin namespace-list
+
+# View vector statistics
+stache-admin vectors stats
+```
+
+### User CLI (stache-tools)
+
+For search, ingest, and MCP server, install [stache-tools](https://github.com/stache-ai/stache-tools):
+
+```bash
+pip install stache-tools
+
+# Search
+stache search "your query"
+
+# Ingest text
+stache ingest -t "your text" -n namespace
+```
+
+## Testing
+
+```bash
+pip install stache-ai[dev]
+pytest
+```
+
+## Documentation
+
+- [GitHub Repository](https://github.com/stache-ai/stache-ai)
+- [Architecture Guide](https://github.com/stache-ai/stache-ai/tree/main/docs)
+
+## License
+
+MIT
