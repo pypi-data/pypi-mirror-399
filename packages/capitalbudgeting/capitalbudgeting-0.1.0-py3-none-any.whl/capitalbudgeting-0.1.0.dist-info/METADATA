@@ -1,0 +1,83 @@
+Metadata-Version: 2.4
+Name: capitalbudgeting
+Version: 0.1.0
+Summary: Indicators for capital budgeting: npv, irr, mirr, ipp, etc
+Author-email: Rho Zhang <rhozhang@163.com>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/rhozhang/capitalbudgeting
+Project-URL: Issues, https://github.com/rhozhang/capitalbudgeting/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# Indicators Used Frequently in Capital Budgeting
+
+- regular cash flows: The 1st value of cfs is negative (investment), other values of cash flows are positive
+- irregular cash flows: The signs of cash flows change more than once
+
+## Attributes
+
+- cfs: cash flows
+- irregular: bool
+
+## Methods
+
+- npv(): net present value
+- irr(): internal rate of return
+- mirr(): modified internal rate of return
+- ipp(): investment payback period 
+
+## npv
+
+Given a series of cash flows (cfs) and discount rate (r), npv is the present value at r of all cash flows.
+
+$$
+\text{npv} = \sum_{t = 0}^n \frac{\text{cf}_t}{(1 + r) ^ t}
+$$
+
+NB: Differring from npv in finance, function npv() in MS Excel does not take account the 1st value of cfs
+
+## irr
+
+Given a series of cash flows (cfs), irr is the discount rate at which the present value of all cash flows equals 0
+
+$$
+\sum_{t = 0}^n \frac{\text{cf}_t}{(1 + r) ^ t} = 0
+$$
+
+## mirr
+
+The modified internal rate of return (MIRR) is a measure of the profitability of a project or other investment.
+
+It assumes that positive cash flows are reinvested at the firm's cost of capital and that the initial outlays are financed at the firm's financing cost.
+
+By contrast, the traditional internal rate of return (IRR) assumes the cash flows from a project are reinvested at the IRR itself. 
+
+NB: regular cfs or irregular cfs (signs of cash flows change more than once) are all ok
+
+$$
+\text{mirr} = (\frac{\text{future values of positive cfs}}{\text{present value of negative cfs}}) ^ {1/n} - 1
+$$
+
+## ipp
+
+IPP is the time to pay back the investment
+
+## Usage
+
+```
+from capitalbudgeting import CapitalBudgeting as CapBud
+
+cb = CapBud([-100, 21, 21, 24, 23, 32, 25])
+print(cb.npv(0.09))
+print(cb.irr())
+print(cb.mirr(0.05))
+print(cb.ipp())
+```
+
+## References
+
+- <https://www.investopedia.com/terms/m/mirr.asp>
