@@ -1,0 +1,128 @@
+## minilineplot
+
+minilineplot.py is a single Python module, with no dependencies, producing an SVG image of a chart with one or more plotted lines.
+
+The chart has a left vertical axis and a bottom horizontal axis, grid lines are possible,
+
+Two classes are defined.
+
+**Line**, containing x,y points which creates a line to be plotted 
+
+**Axis** which creates the axis, and to which Line objects can be added.
+
+The Axis class has methods to create an svg string suitable for embedding in an html document
+it can also create an svg image, either as a bytes object, or saved to a file.
+
+# Line
+
+Arguments
+
+*values*  a list of x,y tuples
+
+*color*  an SVG color of the line
+
+*stroke*  line width, 1 for a thin line.
+
+*label*  A label string for a key, if not given, the key will not be drawn
+
+
+If the Axis 'xstrings' argument is set as strings along the x axis,
+for example months of the year, then the Line values tuples should be:
+x  is a percentage along the x axis, y is the actual value.
+
+so [(0,59), (100,28)]  is a line from
+
+the extreme left (0%) value 59 to the extreme right (100%) value 28
+
+If the Axis x axis is defined as numbers rather than strings then each (x,y) tuple should be the numeric values to be plotted.
+
+color is an SVG color, using standard strings such as
+
+Color Names: "red", "blue" etc.
+
+Hex Codes: "#FF0000" for red.
+
+RGB/RGBA: "rgb(255,0,0)" or "rgba(255,0,0,0.5)" (with opacity).
+
+HSL/HSLA: "hsl(0,100%,50%)" or "hsla(0,100%,50%,0.5)" (hue, saturation, lightness, alpha)
+
+
+# Axis
+
+Arguments
+
+*lines* list of Line objects
+
+*fontsize*  default 24
+
+*imagewidth*  default 800
+
+*imageheight* default 600
+
+*xstrings* A list of strings used as the x axis values, use for text values such as months, etc.,
+
+If any strings are set in xstrings, the following xaxis numbers are ignored
+
+*xformat* default string ".2f" Sets how the x axis numbers are formatted.
+
+*xmin* default 0, the minimum x value
+
+*xmax* default 10, the maximum x value
+
+*xintervals* default 5, the interval spacing of values along the x axis, 5 would be five intervals and six values.
+
+The y axis is always just numbers
+
+*yformat* default string ".2f" Sets how the y axis numbers are formatted.
+
+*ymin* default 0, the minimum y value
+
+*ymax* default 10, the maximum y value
+
+*yintervals* default 5, the interval spacing of values along the y axis, 5 would be five intervals and six values.
+
+*title* default "", A string printed at the top of the chart
+
+*description* default "", A string printed at the bottom of the chart
+
+*verticalgrid* default 1
+
+0 is no vertical grid lines, 1 is a line for every x axis interval, 2 is a line for every second interval etc.,
+
+*horzontalgrid* default 1
+
+0 is no horizontal grid lines, 1 is a line for every y axis interval, 2 is a line for every second interval etc.,
+
+The following colors are SVG colors, using standard strings
+
+*gridcol* default "grey" Color of the chart grid
+
+*axiscol* default "black" Color of axis, title and description
+
+*chartbackcol* default "white" the background colour of the chart
+
+*backcol* default "white" The background colour of the whole image
+
+xformat and yformat are strings describing how numbers are printed, for example the string ".2f" gives a number to two decimal places
+
+Methods
+
+*to_string(xml_declaration = False)*
+
+Return a string SVG object. If xml_declaration is True, an xml tag will be included in the returned string which is usually required when creating an svg image file but not required if embedding the code directly into an html document,
+
+*to_bytes(xml_declaration = True)*
+
+Return a bytes SVG object.
+
+*to_file(filepath)*
+
+Save the plot to an svg image file
+
+To install, simply copy minilineplot.py to your own project files, or just cut and paste the contents. The code is public domain.
+
+Note, to keep things simple there is no data validation, so lines with values outside the axis will not be caught, it is rubbish in = rubbish out.
+
+![Test image](https://github.com/bernie-skipole/minilineplot/blob/main/test.svg)
+
+
