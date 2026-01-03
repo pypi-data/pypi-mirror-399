@@ -1,0 +1,57 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "rmskin-builder"
+requires-python = ">=3.9"
+description = "A script that will attempt to assemble a validating Rainmeter skin package for quick and easy distribution on Github."
+readme = "README.md"
+keywords = ["rainmeter", "rainmeter-skin", "packaging"]
+license = "MIT"
+authors = [
+    { name = "Brendan Doherty", email = "2bndy5@gmail.com" },
+]
+classifiers = [
+    # https://pypi.org/pypi?%3Aaction=list_classifiers
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: System :: Archiving :: Packaging",
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["version"]
+
+[project.scripts]
+rmskin-builder = "rmskin_builder:main"
+
+[project.urls]
+source =  "https://github.com/2bndy5/rmskin-action"
+tracker = "https://github.com/2bndy5/rmskin-action/issues"
+
+# ... other project metadata fields as specified in:
+#     https://packaging.python.org/en/latest/specifications/declaring-project-metadata/
+
+[tool.maturin]
+features = ["py-binding"]
+exclude = [
+    "tests/**",
+    ".config/*",
+    "nurfile",
+    "cspell.config.yml",
+    ".pre-commit-config.yaml",
+    "CONTRIBUTING.md",
+    "action*",
+]
+
+
+[tool.mypy]
+show_error_codes = true
+show_column_numbers = true
+ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "maturin>=1.9.1",
+    "pre-commit>=4.2.0",
+    "pytest>=8.4.1",
+]
