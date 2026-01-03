@@ -1,0 +1,158 @@
+Metadata-Version: 2.1
+Name: jupyter_viewer
+Version: 1.0.1
+Summary: 🪐 👀 Jupyter Viewer.
+Project-URL: Homepage, https://github.com/datalayer/jupyter-viewer
+Project-URL: Bug Tracker, https://github.com/datalayer/jupyter-viewer/issues
+Project-URL: Repository, https://github.com/datalayer/jupyter-viewer.git
+Author-email: Datalayer <info@datalayer.io>
+License: BSD 3-Clause License
+        
+        Copyright (c) 2022, Datalayer
+        All rights reserved.
+        
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are met:
+        
+        1. Redistributions of source code must retain the above copyright notice, this
+           list of conditions and the following disclaimer.
+        
+        2. Redistributions in binary form must reproduce the above copyright notice,
+           this list of conditions and the following disclaimer in the documentation
+           and/or other materials provided with the distribution.
+        
+        3. Neither the name of the copyright holder nor the names of its
+           contributors may be used to endorse or promote products derived from
+           this software without specific prior written permission.
+        
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+        AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+        IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+        FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+        SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+        CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+        OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+License-File: LICENSE
+Classifier: Framework :: Jupyter
+Classifier: Framework :: Jupyter :: JupyterLab
+Classifier: Framework :: Jupyter :: JupyterLab :: 4
+Classifier: Framework :: Jupyter :: JupyterLab :: Extensions
+Classifier: Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.9
+Requires-Dist: jupyter-server<3,>=2.10
+Provides-Extra: test
+Requires-Dist: coverage; extra == 'test'
+Requires-Dist: pytest; extra == 'test'
+Requires-Dist: pytest-asyncio; extra == 'test'
+Requires-Dist: pytest-cov; extra == 'test'
+Requires-Dist: pytest-jupyter; extra == 'test'
+Requires-Dist: pytest-tornasync; extra == 'test'
+Description-Content-Type: text/markdown
+
+[![Datalayer](https://assets.datalayer.tech/datalayer-25.svg)](https://datalayer.io)
+
+[![Become a Sponsor](https://img.shields.io/static/v1?label=Become%20a%20Sponsor&message=%E2%9D%A4&logo=GitHub&style=flat&color=1ABC9C)](https://github.com/sponsors/datalayer)
+
+# 🪐 👀 Jupyter Viewer
+
+> A revisited [NbViewer](https://nbviewer.org) as a modern Web application to view Jupyter notebooks.
+
+[NbViewer](https://nbviewer.org) is built on top of the [GitHub nbviewer repository](https://github.com/jupyter/nbviewer) and has been useful for many data scientists since years.
+
+Jupyter Viewer takes over the concept of easy visualisation and brings it to the Web application developers with React.js components to render Notebooks without any Kernel. It is also available as JupyterLab extension.
+
+You can try on <a href="https://viewer.datalayer.tech" target="_blank">https://viewer.datalayer.tech</a>.
+
+The documentation lives on <a href="https://jupyter-viewer.datalayer.tech" target="_blank">https://jupyter-viewer.datalayer.tech</a>.
+
+If needed, Users can connect the static view to a Kernel and make it executable.
+
+## Usage
+
+This repository packages the [Jupyter UI Viewer](https://jupyter-ui.datalayer.tech/docs/components/viewer) component as a JupyterLab extension. Install and launch with the following commands (you will need Python installed on your machine).
+
+```bash
+pip install jupyter_viewer
+jupyter viewer
+```
+
+After launching, enjoy the 👀 views on http://localhost:8888/jupyter_viewer (served by Jupyter).
+
+<div align="center" style="text-align: center">
+  <img alt="Jupyter Viewer" src="https://datalayer-jupyter-examples.s3.amazonaws.com/jupyter-viewer.gif" />
+</div>
+
+You can view a Notebook hosted on GitHub using the following pattern: `http://localhost:8888/github/{account}/{repo}/{branch}/{path}`
+
+```bash
+# For example...
+open http://localhost:8888/jupyter_viewer/github/datalayer/examples/main/pytorch-gpu/pytorch-gpu-example.ipynb
+```
+
+## Develop
+
+Develop the Web application.
+
+```bash
+npm i
+npm run start
+```
+
+```bash
+# Browse the Webpack server.
+open http://localhost:3063
+open http://localhost:3063/github/datalayer/examples/main/pytorch-gpu/pytorch-gpu-example.ipynb
+```
+
+Develop the Jupyter Server
+
+```bash
+pip install -e .[test]
+jupyter viewer
+```
+
+Browse the Jupyter Server.
+
+```bash
+open http://localhost:8888/jupyter_viewer
+open http://localhost:8888/jupyter_viewer/github/datalayer/examples/main/pytorch-gpu/pytorch-gpu-example.ipynb
+```
+
+Develop the JupyterLab extension.
+
+```bash
+pip install -e .[test]
+jupyter labextension develop . --overwrite
+jupyter labextension list
+jupyter server extension list
+npm run jupyterlab
+```
+
+```bash
+# Browse JupyterLab.
+open http://localhost:8888
+```
+
+## Publish
+
+```bash
+make publish
+open https://viewer.datalayer.tech
+open https://viewer.datalayer.tech/github/datalayer/examples/main/pytorch-gpu/pytorch-gpu-example.ipynb
+```
+
+## Releases
+
+Jupyter Viewer is released as a python package in [PyPI](https://pypi.org/project/jupyter-viewer).
