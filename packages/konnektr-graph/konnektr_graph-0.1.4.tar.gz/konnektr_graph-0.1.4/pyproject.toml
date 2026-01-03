@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "konnektr-graph"
+version = "0.1.4"
+authors = [{ name = "Konnektr", email = "info@konnektr.io" }]
+description = "Konnektr Graph SDK for Python"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = ["requests>=2.28.0", "aiohttp>=3.8.0"]
+
+[project.optional-dependencies]
+docs = ["pydoc-markdown[novella]>=4.8.2"]
+
+[project.urls]
+"Homepage" = "https://github.com/konnektr-io/graph-client-sdk-python"
+"Bug Tracker" = "https://github.com/konnektr-io/graph-client-sdk-python/issues"
+
+[tool.setuptools.packages.find]
+include = ["konnektr_graph*"]
+
+[tool.setuptools.package-data]
+konnektr_graph = ["py.typed"]
