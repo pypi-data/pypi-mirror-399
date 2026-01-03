@@ -1,0 +1,15 @@
+[project]
+name = "iruff"
+version = "0.1.0"
+description = "A small wrapper CLI for ruff that sorts imports and formats Python code in one command."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ruff>=0.14.10",
+]
+
+[project.scripts]
+iruff = "iruff.__main__:main"
+
+[tool.uv]
+package = true
