@@ -1,0 +1,101 @@
+Metadata-Version: 2.4
+Name: windgrib
+Version: 0.2.4
+Summary: A Python package for working with GRIB weather data files
+Home-page: https://github.com/yorfy/windgrib
+Author: yorfy
+Author-email: yorfy <your.email@example.com>
+Project-URL: Homepage, https://github.com/yorfy/windgrib
+Project-URL: Bug Tracker, https://github.com/yorfy/windgrib/issues
+Project-URL: Documentation, https://github.com/yorfy/windgrib
+Keywords: grib,weather,meteorology,data,forecast,weather-data,gfs,ecmwf
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Atmospheric Science
+Classifier: Development Status :: 3 - Alpha
+Classifier: Natural Language :: English
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: pandas>=1.3.0
+Requires-Dist: xarray>=0.20.0
+Requires-Dist: s3fs>=2021.11.0
+Requires-Dist: requests>=2.26.0
+Requires-Dist: tqdm>=4.62.0
+Requires-Dist: cfgrib>=0.9.10.0
+Requires-Dist: dask>=2021.11.0
+Requires-Dist: netCDF4>=1.6.0
+Dynamic: license-file
+
+# WindGrib
+
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.2.0-orange.svg)](https://pypi.org/project/windgrib/)
+
+A Python library for downloading, reading, and processing meteorological data in GRIB format.
+
+## 🌍 Overview
+
+WindGrib focuses on efficient wind data extraction and targeted variable downloading from meteorological models. Key features include:
+
+- **Subset-Based Downloads**: Download only specific variables using GRIB index files
+- **Automatic Latest Data**: Retrieves the most recent available forecast data
+- **Smart Caching**: Intelligent caching with incremental download completion
+- **Multi-Model Support**: GFS Wave, ECMWF IFS, and custom model definitions
+
+## 🚀 Installation
+
+```bash
+pip install windgrib
+```
+
+## 📈 Basic Usage
+
+```python
+from windgrib import Grib
+import numpy as np
+
+# Download GFS wind data
+grib = Grib(model='gfswave')
+grib.download()
+
+# Access wind data
+wind_data = grib['wind']
+
+# Calculate wind speed
+wind_speed = np.sqrt(wind_data.u**2 + wind_data.v**2)
+print(f"Average speed: {wind_speed.mean().values:.2f} m/s")
+```
+
+## 📚 Documentation
+
+For complete documentation, examples, and advanced usage:
+
+**[📖 View Full Documentation](docs/index.md)**
+
+- [Usage Examples](docs/usage_examples.md) - Practical examples with working code
+- [Technical Guide](docs/technical_guide.md) - Implementation details for developers
+- [Custom Models](docs/custom_models.md) - Guide for extending WindGrib
+
+## 🤝 Contributing
+
+Contributions are welcome! See our [contribution guide](CONTRIBUTING.md) for more information.
+
+## 📜 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+---
+
+© 2025 WindGrib. All rights reserved.
