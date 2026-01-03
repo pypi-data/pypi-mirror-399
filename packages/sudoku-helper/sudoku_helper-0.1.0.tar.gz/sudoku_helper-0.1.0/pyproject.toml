@@ -1,0 +1,37 @@
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+name = "sudoku-helper"
+version = "0.1.0"
+description = "A Python library for solving and validating Sudoku puzzles."
+authors = ["Suez Dirie <suez.dirie@hotmail.com>"]
+readme = "README.md"
+packages = [{ include = "sudoku_helper", from = "src" }]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  ".",
+  "src",
+]
+testpaths = [
+    "tests",
+]
+
+
+[tool.poetry.dev-dependencies]
+pytest = ">=9.0.2"
+flake8 = "*"
+
+
+[tool.flake8]
+exclude = ["venv", ".venv"]
