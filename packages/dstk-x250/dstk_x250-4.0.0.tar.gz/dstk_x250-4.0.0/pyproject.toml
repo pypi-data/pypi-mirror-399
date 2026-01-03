@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dstk_x250"
+description = "Package d'utilitaires pour les projets de data science."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Cyrile Delestre", email = "cyrile.ufr.orsay@gmail.com" }
+]
+requires-python = ">=3.5"
+dependencies = [
+    "joblib",
+    "numpy",
+    "scikit-learn>=1.1.1",
+    "pandas",
+    "tqdm"
+]
+
+# on dit qu'on ne fige pas la version ici
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = ["dstk"]
+
+[tool.setuptools.package-dir]
+dstk = "dstk"
+
+[tool.setuptools.dynamic]
+version = {attr = "dstk.__version__"}
