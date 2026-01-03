@@ -1,0 +1,55 @@
+Metadata-Version: 2.1
+Name: git-hooks-1c
+Version: 9.10.8
+Summary: Git hooks utilities for 1C:Enterprise
+Keywords: 1c,git,pre-commit,v8reader,v8unpack,gcomp
+Author-Email: Cujoko <cujoko@gmail.com>
+License: MIT
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: Russian
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development
+Classifier: Topic :: Utilities
+Project-URL: repository, https://github.com/Cujoko-Dev/git-hooks-1c
+Requires-Python: >=3.10
+Requires-Dist: cjk-commons<4.0.0,>=3.6.3
+Requires-Dist: fleep>=1.0.1
+Requires-Dist: loguru>=0.6.0
+Requires-Dist: parse-1c-build<6.0.0,>=5.15.2
+Requires-Dist: plumbum>=1.8.1
+Description-Content-Type: text/markdown
+
+Набор утилит для перехватчиков (hooks) Git для работы с 1С
+===
+
+Что делает
+---
+
+При установке пакета в каталоге скриптов интерпретатора Python создаётся исполняемый файл *gh1c.exe*. Смотри список 
+поддерживаемых команд в составе.
+
+Требования
+---
+
+- Windows
+- Python 3.7 и выше. Каталоги интерпретатора и скриптов Python должны быть прописаны в переменной окружения Path
+- Пакеты virtualenv и virtualenvwrapper-win
+- Пакет [parse-1c-build][1] с необходимыми настройками
+
+Состав
+---
+
+- *install.py* — скрипт, создающий хуки в *.git/hooks* проекта. Запускается командой *install*.
+- *uninstall.py* — скрипт, удаляющий хуки из *.git/hooks* проекта. Запускается командой *uninstall*.
+- *pre-commit.sample* — образец hook-скрипта, запускающего *pre-commit-1c.bat*
+- *pre_commit.py* — скрипт для разборки *epf*-, *erf*-, *ert*- и *md*-файлов с помощью пакета 
+[parse-1c-build][1] в каталоги, которые затем добавляются в индекс и помещаются в git-репозиторий. Запускается командой 
+*pre_commit*.
+
+[1]: https://github.com/Cujoko/parse-1c-build
