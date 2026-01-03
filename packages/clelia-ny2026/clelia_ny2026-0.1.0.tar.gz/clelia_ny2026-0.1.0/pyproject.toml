@@ -1,0 +1,26 @@
+[build-system]
+requires = ["uv_build>=0.9.10,<0.10.0"]
+build-backend = "uv_build"
+
+[project]
+name = "clelia-ny2026"
+version = "0.1.0"
+description = "Happy new year from Clelia!"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "rich>=14.2.0",
+]
+
+[project.scripts]
+cleny = "clelia_ny2026.new_year:main"
+
+[tool.uv.build-backend]
+module-name = "clelia_ny2026"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.1",
+    "ruff>=0.14.10",
+    "ty>=0.0.8",
+]
