@@ -1,0 +1,71 @@
+from enum import Enum
+
+
+class Type(Enum):
+    """
+    Basic target types.
+    """
+    EXECUTABLE = "EXECUTABLE"
+    STATIC_LIBRARY = "STATIC"
+    SHARED_LIBRARY = "SHARED"
+    MODULE_LIBRARY = "MODULE"
+    OBJECT_LIBRARY = "OBJECT"
+    INTERFACE_LIBRARY = "INTERFACE"
+
+
+class Scope(Enum):
+    """
+    Scope of action.
+
+    Some functions expect to accept an enumeration value indicating their scope of action.
+    - `PUBLIC` means that the item is visible to itself and all targets that depend on it.
+    - `PRIVATE` means that the item is only visible to itself.
+    - `INTERFACE` A means that the item is only visible to its dependencies.
+    """
+    PUBLIC = "PUBLIC"
+    PRIVATE = "PRIVATE"
+    INTERFACE = "INTERFACE"
+
+
+class Generator(Enum):
+    """
+    All supported generators.
+    """
+    VS2022 = "Visual Studio 17 2022"
+    VS2019 = "Visual Studio 16 2019"
+    VS2017 = "Visual Studio 15 2017"
+    VS2015 = "Visual Studio 14 2015"
+    VS2013 = "Visual Studio 12 2013"
+    VS2008 = "Visual Studio 9 2008"
+    Borland = "Borland Makefiles"
+    NMake = "NMake Makefiles"
+    NMakeJOM = "NMake Makefiles JOM"
+    MSYS = "MSYS Makefiles"
+    MinGW = "MinGW Makefiles"
+    GreenHills = "Green Hills MULTI"
+    UnixMake = "Unix Makefiles"
+    Ninja = "Ninja"
+    NinjaMulti = "Ninja Multi-Config"
+    Watcom = "Watcom WMake"
+    CodeBlocks = "CodeBlocks - MinGW Makefiles"
+    CodeBlocksNMake = "CodeBlocks - NMake Makefiles"
+    CodeBlocksNMakeJOM = "CodeBlocks - NMake Makefiles JOM"
+    CodeBlocksNinja = "CodeBlocks - Ninja"
+    CodeBlocksUnix = "CodeBlocks - Unix Makefiles"
+    CodeLite = "CodeLite - MinGW Makefiles"
+    CodeLiteNMake = "CodeLite - NMake Makefiles"
+    CodeLiteNinja = "CodeLite - Ninja"
+    CodeLiteUnix = "CodeLite - Unix Makefiles"
+    EclipseCDT4 = "Eclipse CDT4 - MinGW Makefiles"
+    EclipseCDT4NMake = "Eclipse CDT4 - NMake Makefiles"
+    EclipseCDT4Ninja = "Eclipse CDT4 - Ninja"
+    EclipseCDT4Unix = "Eclipse CDT4 - Unix Makefiles"
+    Kate = "Kate - MinGW Makefiles"
+    KateNMake = "Kate - NMake Makefiles"
+    KateNinja = "Kate - Ninja"
+    KateNinjaMulti = "Kate - Ninja Multi-Config"
+    KateUnix = "Kate - Unix Makefiles"
+    SublimeText2 = "Sublime Text 2 - MinGW Makefiles"
+    SublimeText2NMake = "Sublime Text 2 - NMake Makefiles"
+    SublimeText2Ninja = "Sublime Text 2 - Ninja"
+    SublimeText2Unix = "Sublime Text 2 - Unix Makefiles"
