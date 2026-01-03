@@ -1,0 +1,40 @@
+[project]
+name = "flint-markdown-viewer"
+version = "0.1.0"
+description = "Flint: A premium terminal-based Markdown viewer with interactive tables, high-res images, and Obsidian-style callouts."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {file = "LICENSE"}
+authors = [
+    { name = "Pratik Munot <munotpratik2009@gmail.com>" }
+]
+keywords = ["markdown", "tui", "textual", "viewer", "mermaid", "obsidian", "flint"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Topic :: Text Processing :: Markup :: Markdown",
+]
+dependencies = [
+    "mermaid-py>=0.8.1",
+    "pillow>=10.4.0",
+    "platformdirs>=4.0.0",
+    "requests>=2.31.0",
+    "term-image>=0.7.2",
+    "textual>=0.86.0",
+    "textual-image[textual]>=0.8.4",
+]
+
+[project.scripts]
+flint = "flint:main"
+
+[tool.setuptools]
+packages = ["flint"]
+
+[tool.setuptools.package-data]
+flint = ["styles/*.tcss", "styles.tcss"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
