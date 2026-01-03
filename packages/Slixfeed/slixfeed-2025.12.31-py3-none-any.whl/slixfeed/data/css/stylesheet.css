@@ -1,0 +1,296 @@
+/*
+
+TODO
+
+pubsub: news.movim.eu
+  node: fake-news
+  item: fdef84f5-e3e1-41ea-9b68-af4bb9130f77
+ title: #14October2023EpochEclipse
+  date: Fri, 15 Jan 2021 20:24:46
+
+*/
+
+* {
+  color: #eee;
+  max-width: 100%;
+}
+
+/*
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+*/
+
+body {
+  background: #000;
+}
+
+code, pre {
+  overflow: auto;
+  max-height: 100%;
+  max-width: 100%; }
+
+img, svg, video {
+  display: block;
+  max-height: 500px;
+  width: auto;
+  height: auto;
+}
+
+h1#title, h2#subtitle, #actions, #references {
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 140%;
+}
+
+h5.related > a {
+  margin-right: 5px;
+  text-decoration: none;
+  user-select: none;
+
+}
+
+h3.title > a {
+  display: block;
+  padding-top: 50px;
+}
+
+#actions, #references {
+  border-bottom: 1px solid #eee;
+  line-height: 150%;
+  padding: 10px;
+  user-select: none;
+}
+
+#actions > *, #references * {
+  letter-spacing: 5px;
+  margin: 5px;
+  text-decoration: none;
+}
+
+#header, #menu {
+  line-height: 120%;
+  padding-bottom: 20px;
+}
+
+#menu > h3 {
+  padding-left: 2%;
+}
+
+#menu > ol > li {
+  padding: 5px;
+}
+
+#references {
+  margin-top: 5em;
+  border-top: 1px solid #eee;
+}
+
+#articles {
+  min-height: 80vh;
+  display: flex;
+}
+
+#articles #journal {
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 2%;
+  min-width: 350px;
+  padding-bottom: 0.67em;
+  width: 20%;
+}
+
+#journal {
+  margin: auto;
+  padding-top: 50px;
+}
+
+#articles > ul {
+  margin: auto;
+  margin-left: 2%;
+  margin-top: 2%;
+}
+
+#articles #journal ol,
+#articles #journal ul {
+  /* height: 500px; */
+  line-height: 160%;
+  overflow: auto;
+  word-wrap: break-word;
+}
+
+#articles div.content {
+  font-size: 120%;
+  line-height: 200%;
+  margin: auto;
+  padding-left: 2%;
+  padding-right: 10%;
+  /* text-align: justify; */
+  white-space: break-spaces;
+  word-wrap: break-word;
+}
+
+#articles div.entry {
+  padding-bottom: 0.67em;
+}
+
+#selection-page {
+  background: #000;
+  bottom: 0;
+  left: 0;
+  line-height: 200%;
+  overflow: overlay;
+  position: fixed;
+  right: 0;
+  text-align: center;
+  top: 0;
+}
+
+#selection-page p {
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+#selection-page span {
+  display: inline-grid;
+  margin: 2%
+}
+
+#selection-page img {
+  height: 128px;
+  margin-bottom: 20%;
+  margin-top: 20%;
+  width: 128px;
+}
+
+#selection-page #selection {
+  margin-bottom: 2%;
+}
+
+#selection-page #return {
+  /* font-style: italic; */
+  margin: auto;
+}
+
+#selection-link, #selection-page #return {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.content[type='text'] {
+  white-space: pre-wrap;
+}
+
+#articles div.entry span.tags {
+  display: inline-flex;
+  /* display: ruby; */
+  flex-wrap: wrap;
+}
+
+#articles div.entry span.tags > div {
+  margin: 5px;
+}
+
+.enclosures {
+  cursor: help;
+  direction: ltr;
+  margin: 5px auto 15px 1%;
+  padding: 15px;
+  padding: 1em;
+  /* background: #222;
+  border: 1px solid GrayText;
+  border-radius: 4px;
+  border-radius: .5em;
+  color: #525c66;
+  border-left: double;
+  max-width: 40%; */
+}
+
+.enclosure a {
+  margin: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enclosure > span[icon='atom']:after,
+.enclosure > span[icon='html5']:after,
+.enclosure > span[icon='rss']:after {
+  content: '📰';
+  margin:3px;
+}
+
+.enclosure > span.audio:after {
+  content: ' (Audio file) ';
+}
+
+.enclosure > span[icon='audio']:after{
+  content: '🎼️';
+  margin: 3px;
+}
+
+.enclosure > span:after {
+  content: ' (Document file) ';
+}
+
+.enclosure > span[icon]:after {
+  content: '📄️';
+  margin: 3px;
+}
+
+.enclosure > span.executable:after{
+  content: ' (Executable file) ';
+}
+
+.enclosure > span[icon='executable']:after {
+  content: '📦️';
+  margin: 3px;
+}
+
+.enclosure > span.image:after {
+  content: ' (Image file) ';
+}
+
+.enclosure > span[icon='image']:after {
+  content: '🖼️';
+  margin: 3px;
+}
+
+.enclosure > span.video:after {
+  content: ' (Video file) ';
+}
+
+.enclosure > span[icon='video']:after {
+  content: '📽️';
+  margin:3px;
+}
+
+#note, #small {
+  line-height: 30px;
+  margin: auto;
+  margin-top: 0.67em;
+  max-width: 80%;
+  padding: 10px;
+  text-align: center;
+  user-select: none;
+}
+
+#small {
+  font-size: 80%;
+}
+
+@media (max-width: 1550px) {
+  #articles {
+    display: unset;
+  }
+
+  #articles #journal {
+    margin-right: unset;
+    min-width: unset;
+    width: unset;
+  }
+}

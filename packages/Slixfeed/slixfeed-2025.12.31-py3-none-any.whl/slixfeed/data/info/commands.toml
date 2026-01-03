@@ -1,0 +1,308 @@
+# SPDX-FileCopyrightText: 2025 Schimon Jehudah <https://schapps.woodpeckersnest.eu/slixfeed/>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+[all]
+all = """
+all
+Show all options.
+"""
+
+[action]
+url = """
+<url>
+Add given <url> to subscription list (prefix http. Default).
+"""
+add = """
+add <url> <title>
+Add given <url> to subscription list (no feed validity check). Parameter <title> is optional.
+"""
+next = """
+next <number>
+Send next <number> of updates.
+"""
+
+[backup]
+opml = """
+export opml
+Send an OPML file with feeds.
+"""
+md = """
+export md
+Send a Markdown file with feeds.
+"""
+# html = """
+# backup news html
+# Send an HTML formatted file of your news items.
+# """
+# md = """
+# backup news md
+# Send a Markdown file of your news items.
+# """
+# text = """
+# backup news text
+# Send a Plain Text file of your news items.
+# """
+
+[bookmarks]
+bookmark = """
+bookmark [+|-] <muc>
+Groupchat to add or remove.
+'+' appends to, '-' removes from.
+"""
+bookmarks = """
+bookmarks
+List bookmarked groupchats.
+"""
+
+[custom]
+new = """
+new
+Send only new items of newly added feeds.
+"""
+old = """
+old
+Send all items of newly added feeds.
+"""
+
+[document]
+content = """
+content <id>/<url> <type>
+Send a readability (arc90) version of an article as file. Specify <id> or <url> and <type>.
+Supported types are ePUB, HTML, MD and PDF (default).
+"""
+page = """
+page <id>/<url> <type>
+Send an article as file. Specify <id> or <url> and <type>.
+Supported types are ePUB, HTML, MD and PDF (default).
+"""
+
+[filters]
+allow = """
+allow [+|-] <keyword>
+Keywords to allow
+comma-separated keywords
+'+' appends to, '-' removes from.
+"""
+deny = """
+deny [+|-] <keyword>
+Keywords to block
+comma-separated keywords
+'+' appends to, '-' removes from.
+"""
+clear_allow = """
+clear allow
+Reset allow list.
+"""
+clear_deny = """
+clear deny
+Reset deny list.
+"""
+
+[groupchat]
+uri = """
+<muc>
+Join groupchat by a given <muc> (prefix xmpp).
+"""
+join = """
+join <muc>
+Join groupchat by a given <muc>.
+"""
+leave = """
+goodbye
+Leave groupchat and delete it from bookmarks.
+"""
+
+[manual]
+all = """
+help all
+Print a complete list of commands.
+"""
+help = """
+help
+Print list of command types.
+"""
+command = """
+help key command
+Print command usage and description.
+"""
+info = """
+info
+Print information page.
+"""
+key = """
+help <key>
+Print list of commands for selected command type.
+"""
+
+# [mastership]
+# demaster = """
+# demaster <nick>
+# Remove master privilege from a given <nick>.
+# """
+# mastership = """
+# mastership <nick>
+# Add master privilege to a given <nick>.
+# """
+# ownership = """
+# ownership <nick>
+# Transfer ownership to a given <nick>.
+# """
+
+[message]
+interval = """
+interval <minutes>
+Set interval update to every given <minutes>.
+"""
+length = """
+length <number>
+Set maximum length of news item description. (0 for no limit)
+"""
+media = """
+media [off|on]
+Attach media (i.e. audio, image, video) to messages when available.
+"""
+quantum = """
+quantum <number>
+Set amount of updates per message by a given <number>.
+"""
+random = """
+random [off|on]
+Send messages by random order instead of date.
+"""
+
+[modification]
+archive = """
+archive <number>
+Number of news items to archive (maximum value 500).
+"""
+default = """
+default
+Restore default settings.
+"""
+disable = """
+disable <id>
+Disable updates for feed of a given <id>.
+"""
+enable = """
+enable <id>
+Enable updates for feed of a given <id>.
+"""
+rename = """
+rename <id> <name>
+Rename feed of a given <id> with a new <name>.
+"""
+remove = """
+remove <id>
+Remove feed of from subscription list by a given <id>.
+"""
+reset = """
+reset
+Mark all entries as read and remove all archived entries.
+"""
+reset_url = """
+reset <url>
+Mark entries of a given <url> as read and remove all its archived entries.
+"""
+start = """
+start
+Enable bot and send updates.
+"""
+stop = """
+stop
+Disable bot and stop updates.
+"""
+
+[options]
+options = """
+options
+List options.
+"""
+
+[preview]
+read = """
+read <url>
+Display recent 5 titles of a given <url>.
+"""
+read_num = """
+read <url> <index>
+Display specified entry number from a given <url> by a given <index>.
+"""
+
+[pubsub]
+pubsub = """
+pubsub [off|on]
+Designate JID as PubSub service.
+"""
+
+[search]
+feeds = """
+feeds
+List all subscriptions.
+"""
+feeds_keyword = """
+feeds <text>
+Search subscriptions by given <text>.
+"""
+search = """
+search <text>
+Search news items by given <text>.
+"""
+recent = """
+recent <number>
+List recent <number> news items (max. 50).
+"""
+
+[send]
+send = """
+send <jid> <url> <node>
+Send feeds to a given JID.
+"""
+
+[session]
+session = """
+session <jid>
+Start a configuration session of a given JID.
+"""
+
+[statistics]
+stats = """
+stats
+Show general statistics.
+"""
+
+[list]
+blacklist = """
+blacklist
+List all blacklisted JIDs.
+"""
+blacklist_action = """
+blacklist [add|delete] <jid>
+Manage allowed list.
+"""
+whitelist = """
+whitelist
+List all whitelisted JIDs.
+"""
+whitelist_action = """
+whitelist [add|delete] <jid>
+Manage denied list.
+"""
+# analyses = """
+# analyses
+# Show report and statistics of feeds.
+# """
+# obsolete = """
+# obsolete
+# List feeds that are not available.
+# """
+# unread = """
+# unread
+# Print number of unread news items.
+# """
+
+# [token]
+# activate = """
+# activate <code>
+# Activate a token to command bot by a given <code>.
+# """

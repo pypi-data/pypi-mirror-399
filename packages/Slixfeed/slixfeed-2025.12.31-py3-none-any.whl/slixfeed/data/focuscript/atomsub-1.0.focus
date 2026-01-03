@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="focuscript.xslt" type="text/xsl"?>
+<focus version="1.3" xmlns="http://diggy.i2p/focus">
+  <configuration>
+    <condition>//pubsub:item</condition>
+    <!-- Scripts to execute -->
+    <execute moment="end"
+             name=""/>
+    <execute moment="load"
+             name=""/>
+    <execute moment="start"
+             name=""/>
+    <interval unit="hour">48</interval>
+    <!-- Domains to apply -->
+    <match>xmpp:*/*</match>
+  </configuration>
+  <metadata>
+    <author>Mysteriously Unknown</author>
+    <contributor>Atom Advisory Board</contributor>
+    <contributor>XSLT Advisory Council</contributor>
+    <description>Transform Atom Over XMPP documents into standard Atom 1.0 documents.</description>
+    <icon>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=icon.svg&amp;xl=1128</icon>
+    <identifier>i2p.diggy.atomsub1atom1</identifier>
+    <image>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=image.svg&amp;xl=1128</image>
+    <license code="public-domain">Public Domain</license>
+    <link href="http://diggy.i2p/focuscript/atomsub1atom1"
+          rel="homesite"
+          title="Atom Over XMPP to Atom"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/support"
+          rel="support"
+          title="Help and support (The Focus)"
+          type="application/xhtml+xml"/>
+    <link href="http://diggy.i2p/focuscript/atomsub1atom1.focus"
+          rel="install"
+          type="application/focus+xml"/>
+    <link href="http://diggy.i2p/focuscript/atomsub1atom1.focus.meta"
+          rel="update"
+          type="application/xml"/>
+    <logo>magnet:?xt=urn:md5:adac2c035e465a4057b7a77c5ccf40b8&amp;dn=logo.svg&amp;xl=1128</logo>
+    <mimetype>application/pubsub+xml</mimetype>
+    <revision>1.0</revision>
+    <rights license="pd">This document is at the Public Domain.</rights>
+    <subject>The purpose of this Focuscript is to convert Atom Over XMPP documents to standard Atom 1.0 documents, to facilitate and further accessibility of documents and information to syndication software such as Liferea, NetNewsWire, QuiteRSS, RSSOwl, et cetera.</subject>
+    <title>Atom Over XMPP to Atom 1.0</title>
+    <version>Atom 1.0</version>
+  </metadata>
+  <stylesheet>
+
+    <xsl:transform version="1.0"
+                   xmlns="http://www.w3.org/2005/Atom"
+                   xmlns:atom="http://www.w3.org/2005/Atom"
+                   xmlns:pubsub="http://jabber.org/protocol/pubsub"
+                   xmlns:xml="http://www.w3.org/XML/1998/namespace"
+                   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+      <xsl:output encoding="UTF-8"
+                  indent="yes"
+                  media-type="application/atom+xml"
+                  method="xml"
+                  version="1.0"/>
+
+      <xsl:strip-space elements="*"/>
+
+      <!-- Remove element atom:generator -->
+      <xsl:template match="atom:generator"/>
+
+      <xsl:template match="atom:feed">
+        <xsl:copy>
+          <xsl:apply-templates select="@*|node()"/>
+          <!-- Append element atom:generator -->
+          <generator uri="https://git.xmpp-it.net/sch/Focus"
+                    version="1.0">The Focus</generator>
+          <!-- Append element atom:title -->
+          <title>Friendica syndicated conversation</title>
+          <!-- Append element atom:subtitle -->
+          <subtitle>An Atom Over XMPP Syndication Feed</subtitle>
+        </xsl:copy>
+      </xsl:template>
+
+      <!-- atom:title -->
+      <xsl:template match="atom:title">
+        <xsl:element name="title">
+          <xsl:copy-of select="text()"/>
+        </xsl:element>
+      </xsl:template>
+
+      <!-- Copy all other nodes. -->
+      <xsl:template match="@*|node()">
+        <xsl:copy>
+          <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+      </xsl:template>
+
+    </xsl:transform>
+
+  </stylesheet>
+</focus>

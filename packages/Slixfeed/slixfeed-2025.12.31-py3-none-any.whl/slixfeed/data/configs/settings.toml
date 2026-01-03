@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: 2025 Schimon Jehudah <https://schapps.woodpeckersnest.eu/slixfeed/>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# This file lists default settings per database.
+# See file /usr/share/slixfeed/settings.toml
+
+[default]
+#[default.boolean]
+document = 0 # Deliver textual content in a file
+enabled = 1  # Work status (Value 0 to disable)
+filter = 0   # Enable filters (Value 1 to enable)
+media = 0    # Deliver media (audio, image, video) when available
+finished = 0 # A message which indicates of the amount of time of a done task (Value 1 to enable)
+old = 0      # Mark entries of newly added entries as unread
+omemo = 0    # Encrypt messages with OMEMO
+random = 0   # Pick items randomly
+
+# Presences
+status_away = 0    # Send messages upon status away
+status_chat = 1    # Send messages upon status chat
+status_dnd = 0     # Send messages upon status busy
+status_offline = 0 # Send messages upon status offline
+status_online = 1  # Send messages upon status online
+status_xa = 0      # Send messages upon status extended away
+
+#[default.numeric]
+amount = 1     # Amount of entries per update
+archive = 50   # Maximum items to archive (0 - 500)
+entries = 10   # Maximum entries per subscription (5 - 20)
+check = 120    # Source check interval (recommended 120; minimum 30)
+interval = 300 # Update interval (Minimum value 10)
+length = 280   # Maximum length of summary (Value 0 to disable)
+
+#[default.textual]
+# Message styling
+# * title = Title of item
+# * summary = Summary of item
+# * link = Link of item
+# * feed_title = Title of news source
+# * ix = Index of item
+formatting = """
+{ix}. {title}
+> {summary}
+{link}
+{feed_title} [{feed_id}]
+"""
+
+[configuration]
+# Protocol to interact with.
+interface = "xmpp"
+# IPC (BSD/UDS) POSIX sockets.
+ipc = 1
+
+[selectors]
+allow = 0
+deny = 0
+
+[network]
+http_proxy = ""             # Example: http://127.0.0.1:8118
+user_agent = "Slixfeed/0.1" # Default Slixfeed/0.1
+clearnet = 0                # Policed DNS system (not recommended)
+i2p = 1                     # I2P mixnet system (recommended)
+ipfs = 1                    # IPFS DHT system (safer)
+loki = 1                    # Loki mixnet system (safer)
+tor = 1                     # Tor semi-mixnet system (not recommended)
+yggdrasil = 1               # Yggdrasil mixnet system (safer)
