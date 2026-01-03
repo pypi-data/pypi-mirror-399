@@ -1,0 +1,92 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "fastmssql"
+version = "0.5.0"
+
+description = "A high-performance async Python library for Microsoft SQL Server built on Rust for heavy workloads and low latency."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Rivendael", email = "riverb514@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Rust",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+keywords = [
+    "mssql", "sqlserver", "sql-server", "database", "async", "asynchronous", "rust", "python", "driver", "client", "pooling", "high-performance", "bulk-insert", "batch", "tokio", "bb8", "pyO3", "cross-platform", "windows", "linux", "macos", "ssl", "tls", "connection-pool", "data-ingestion", "low-latency"
+]
+
+[project.urls]
+Homepage = "https://github.com/Rivendael/FastMssql"
+Repository = "https://github.com/Rivendael/FastMssql"
+"Bug Tracker" = "https://github.com/Rivendael/FastMssql/issues"
+Documentation = "https://github.com/Rivendael/FastMssql#readme"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "psutil>=7.1.1",  # For memory and process monitoring in stress tests
+]
+
+[tool.maturin]
+features = ["pyo3/abi3-py310"]
+module-name = "fastmssql"
+python-source = "python"
+include = ["fastmssql.pyi"]
+
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Test markers
+markers = [
+    "asyncio: marks tests as async tests",
+    "integration: marks tests that require a database connection",
+    "performance: marks tests that measure performance characteristics", 
+    "stress: marks tests that perform stress testing",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+]
+
+# Logging configuration
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+# Test configuration
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "-ra"
+]
+
+# Filter warnings
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
