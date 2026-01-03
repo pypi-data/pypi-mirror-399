@@ -1,0 +1,36 @@
+The Meson build system
+Version: 1.10.0
+Source dir: /project
+Build dir: /project/meson_build
+Build type: native build
+Project name: wisdem
+Project version: undefined
+C compiler for the host machine: cc (gcc 14.2.0 "cc (Alpine 14.2.0) 14.2.0")
+C linker for the host machine: cc ld.bfd 2.44
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Fortran compiler for the host machine: gfortran (gcc 14.2.0 "GNU Fortran (Alpine 14.2.0) 14.2.0")
+Fortran linker for the host machine: gfortran ld.bfd 2.44
+Library m found: YES
+Program python found: YES (/opt/python/cp310-cp310/bin/python)
+Found pkg-config: YES (/usr/bin/pkg-config) 2.4.3
+Run-time dependency python found: YES 3.10
+meson.build:40: WARNING: Project targets '>= 0.60' but uses feature deprecated since '0.55.0': ExternalProgram.path. use ExternalProgram.full_path() instead
+Message: /opt/python/cp310-cp310/bin/python
+Message: /project/meson_build/./
+Run-time dependency python found: YES 3.10
+wisdem/ccblade/meson.build:8: WARNING: Project targets '>= 0.60' but uses feature introduced in '0.63.0': python_installation.extension_module with implicit dependency on python. use python_installation.dependency()
+Build targets in project: 4
+WARNING: Project specifies a minimum meson_version '>= 0.60' but uses features which were added in newer versions:
+ * 0.63.0: {'python_installation.extension_module with implicit dependency on python'}
+WARNING: Deprecated features used:
+ * 0.55.0: {'ExternalProgram.path'}
+
+wisdem undefined
+
+  User defined options
+    prefix           : /project/meson_build
+    python.platlibdir: .
+    python.purelibdir: .
+
+Found ninja-1.13.0.git.kitware.jobserver-pipe-1 at /opt/python/cp310-cp310/bin/ninja
