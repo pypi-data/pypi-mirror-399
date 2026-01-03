@@ -1,0 +1,120 @@
+Metadata-Version: 2.4
+Name: ZenAuth-server
+Version: 0.1.0
+Summary: A user authentication and management library.
+Author-email: Yusuke KITAGAWA <tonosama_kaeru@icloud.com>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/MeiRakuPapa/ZenAuth
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: ZenAuth
+Requires-Dist: zenhtml
+Requires-Dist: pyyaml
+Requires-Dist: passlib[bcrypt]
+Requires-Dist: sqlalchemy
+Requires-Dist: typing-extensions
+Requires-Dist: fastapi
+Requires-Dist: pydantic
+Requires-Dist: pydantic-settings
+Requires-Dist: requests
+Requires-Dist: python-jose
+Requires-Dist: python-dotenv
+Requires-Dist: bcrypt<4.0.0
+Requires-Dist: uvicorn
+Requires-Dist: python-multipart
+Provides-Extra: test
+Requires-Dist: pytest; extra == "test"
+Requires-Dist: pytest-cov; extra == "test"
+Requires-Dist: pytest-mock; extra == "test"
+Requires-Dist: httpx; extra == "test"
+Provides-Extra: dev
+Requires-Dist: autopep8; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: debugpy; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Requires-Dist: mypy-extensions; extra == "dev"
+Requires-Dist: ipython; extra == "dev"
+Requires-Dist: build; extra == "dev"
+Requires-Dist: twine; extra == "dev"
+Requires-Dist: isort; extra == "dev"
+Requires-Dist: pre-commit; extra == "dev"
+Requires-Dist: faker; extra == "dev"
+Requires-Dist: aiosqlite; extra == "dev"
+Dynamic: license-file
+
+# ZenAuth-server
+
+Server-side components for the ZenAuth monorepo.
+
+日本語: see `README_ja.md`.
+
+For how to run the server (Uvicorn) and environment variables, see the repository root README.
+
+- Repository: https://github.com/MeiRakuPapa/ZenAuth
+
+## Bulk import (CSV)
+
+You can bulk create/update users/apps/roles/scopes from CSV.
+
+Script:
+
+- `server/src/scripts/import_csv.py`
+
+### Usage
+
+```bash
+python server/src/scripts/import_csv.py \
+	--dsn "sqlite+pysqlite:////absolute/path/to/zenauth.sqlite3" \
+	--roles roles.csv \
+	--scopes scopes.csv \
+	--apps apps.csv \
+	--users users.csv
+```
+
+- `--mode create` fails if a record already exists.
+- `--mode upsert` (default) creates or updates.
+
+### CSV formats
+
+#### roles.csv
+
+Headers:
+
+- `role_name` (required)
+- `display_name` (optional, defaults to `role_name`)
+- `description` (optional)
+- `scopes` (optional, comma-separated scope names; binds scopes to the role)
+
+#### scopes.csv
+
+Headers:
+
+- `scope_name` (required)
+- `display_name` (optional, defaults to `scope_name`)
+- `description` (optional)
+- `roles` (optional, comma-separated role names; binds roles to the scope)
+
+#### apps.csv
+
+Headers:
+
+- `app_id` (required)
+- `display_name` (optional)
+- `description` (optional)
+- `return_to` (required; absolute http(s) URL or absolute path starting with `/`)
+
+#### users.csv
+
+Headers:
+
+- `user_name` (required)
+- `password` (required for new users)
+- `roles` (optional, comma-separated role names)
+- `real_name` (optional)
+- `division` (optional)
+- `description` (optional)
+- `policy_epoch` (optional; used for new users; default=1)
+
+If passwords are already hashed (bcrypt), pass `--password-already-hashed`.
