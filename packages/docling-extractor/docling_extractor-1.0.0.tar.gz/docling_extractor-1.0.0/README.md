@@ -1,0 +1,261 @@
+# Docling Extractor
+
+Production-grade document extraction library with intelligent fallback chain for robust PDF processing.
+
+## Overview
+
+Docling Extractor provides a reliable pipeline for extracting text, tables, images, and structured content from PDF documents. The library automatically detects document type (scanned vs. digital) and applies the appropriate extraction method with fallback support.
+
+## Key Features
+
+**Intelligent PDF Detection**
+- Automatically identifies scanned vs. digital PDFs
+- Routes documents to optimal extraction method
+
+**Robust Fallback Chain**
+
+For Digital PDFs:
+1. Docling - Advanced layout analysis with table/image extraction
+2. PyMuPDF - Fast text extraction with basic structure  
+3. pdfplumber - Table-focused extraction
+4. Raw text - Binary extraction as last resort
+
+For Scanned PDFs:
+1. Tesseract OCR - Text recognition
+2. PyMuPDF - Image extraction with minimal text
+
+**Production Ready**
+- 90-second timeout protection with process termination
+- Databricks optimized for distributed processing
+- Structured output (pages, sections, tables, images, formulas)
+- Comprehensive error handling and logging
+
+## Installation
+
+Basic installation (PyMuPDF + pdfplumber):
+```bash
+pip install docling-extractor
+```
+
+Full installation (includes Docling and Tesseract):
+```bash
+pip install docling-extractor[full]
+```
+
+**Note:** Tesseract requires system installation:
+```bash
+# Ubuntu/Debian
+sudo apt-get install tesseract-ocr
+
+# macOS
+brew install tesseract
+
+# Windows
+# Download from: https://github.com/UB-Mannheim/tesseract/wiki
+```
+
+## Quick Start
+
+### Basic Usage
+
+```python
+from docling_extractor import extract_single_document
+
+# Extract a document
+result = extract_single_document(
+    input_path="/path/to/document.pdf",
+    output_dir="/path/to/output",
+    document_id="doc_001"
+)
+
+# Access extracted content
+print(f"Status: {result['registry']['processing_status']}")
+print(f"Pages extracted: {len(result['pages'])}")
+print(f"Tables found: {len(result['tables'])}")
+print(f"Tools used: {result['registry']['tools_used']}")
+
+# Get page text
+for page in result['pages']:
+    print(f"Page {page['page_number']}: {page['text'][:100]}...")
+```
+
+### Working with Different Document Types
+
+```python
+# Digital PDF (uses Docling -> PyMuPDF -> pdfplumber chain)
+result = extract_single_document(
+    input_path="digital_document.pdf",
+    output_dir="./output"
+)
+
+# Scanned PDF (uses Tesseract -> PyMuPDF chain)
+result = extract_single_document(
+    input_path="scanned_document.pdf",
+    output_dir="./output"
+)
+```
+
+### Accessing Structured Data
+
+```python
+result = extract_single_document(
+    input_path="document.pdf",
+    output_dir="./output",
+    document_id="my_doc"
+)
+
+# Pages
+for page in result['pages']:
+    print(f"Page {page['page_number']}")
+    print(page['text'])
+
+# Tables
+for table in result['tables']:
+    print(f"Table on page {table['page_number']}")
+    print(f"Dimensions: {table['row_count']}x{table['column_count']}")
+    
+# Images
+for img in result['images']:
+    print(f"Image saved to: {img['image_path']}")
+    print(f"Size: {img['width']}x{img['height']}")
+
+# Sections (from Docling)
+for section in result['sections']:
+    print(f"Section type: {section['section_type']}")
+    print(f"Content: {section['content_text'][:100]}...")
+```
+
+## Output Structure
+
+The extraction result contains:
+
+```python
+{
+    'registry': {
+        'protocol_id': 'document_id',
+        'document_id': 'document_id',
+        'processing_status': 'success',  # or 'failed'
+        'page_count': 10,
+        'tools_used': ['docling'],  # or ['pymupdf'], ['pdfplumber'], etc.
+        'error_message': '',
+        'processed_at': '2024-12-31T12:00:00'
+    },
+    'pages': [
+        {
+            'document_id': 'doc_id',
+            'protocol_id': 'doc_id',
+            'page_number': 1,
+            'text': 'extracted text...',
+            'source_path': '/path/to/file.pdf'
+        }
+    ],
+    'tables': [...],
+    'images': [...],
+    'sections': [...],
+    'formulas': [...],
+    'errors': [...]
+}
+```
+
+## Use Cases
+
+**Clinical Trials & Regulatory Documents**
+- Extract data from clinical trial protocols
+- Process regulatory submission documents
+- Handle ICH-GCP compliant document structures
+
+**Research & Academic Papers**
+- Extract structured content from research papers
+- Preserve table and figure information
+- Handle multi-column layouts
+
+**Financial Documents**
+- Process annual reports and filings
+- Extract tables from financial statements
+- Handle scanned historical documents
+
+**Enterprise Document Processing**
+- Batch processing with Databricks integration
+- Reliable extraction with fallback support
+- Structured output for downstream NLP/ML
+
+## Advanced Configuration
+
+### Using Docling Directly
+
+```python
+from docling_extractor import DoclingExtractor
+
+extractor = DoclingExtractor(output_dir="./output")
+result = extractor.extract(
+    path="document.pdf",
+    doc_id="my_document"
+)
+```
+
+### Checking PDF Type
+
+```python
+from docling_extractor import is_scanned_pdf
+
+if is_scanned_pdf("document.pdf"):
+    print("Scanned PDF - will use OCR")
+else:
+    print("Digital PDF - will use text extraction")
+```
+
+## Performance
+
+Typical processing times (single-threaded):
+- Digital PDF (10 pages): 5-15 seconds
+- Scanned PDF (10 pages): 30-60 seconds
+- Timeout: 90 seconds (configurable in code)
+
+For Databricks distributed processing, use `extract_single_document` with Spark UDFs.
+
+## Requirements
+
+**Core Dependencies:**
+- Python >= 3.8
+- PyMuPDF >= 1.23.0
+- pdfplumber >= 0.10.0
+
+**Optional Dependencies:**
+- docling >= 2.0.0 (for advanced extraction)
+- docling-core >= 2.0.0
+- pytesseract >= 0.3.10 (for OCR)
+
+## Troubleshooting
+
+**Docling timeout issues:**
+The library includes a 90-second hard timeout with process termination. If Docling hangs, it will automatically fall back to PyMuPDF.
+
+**OCR not working:**
+Ensure Tesseract is installed system-wide. Check with:
+```bash
+tesseract --version
+```
+
+**Read-only filesystem (Databricks):**
+The library is designed for Databricks' read-only site-packages. Docling OCR is disabled by default to avoid RapidOCR filesystem issues.
+
+## License
+
+MIT License - see LICENSE file for details
+
+## Author
+
+Nalini Panwar - [LinkedIn](https://www.linkedin.com/in/nalinipanwar/) | [GitHub](https://github.com/panwarnalini-hub)
+
+## Contributing
+
+Contributions welcome. Please open an issue or submit a pull request at:
+https://github.com/panwarnalini-hub/clinical-doc-pipelines
+
+## Acknowledgments
+
+Built with:
+- [Docling](https://github.com/DS4SD/docling) - IBM Research document understanding
+- [PyMuPDF](https://pymupdf.readthedocs.io/) - Fast PDF processing
+- [pdfplumber](https://github.com/jsvine/pdfplumber) - Table extraction
+- [Tesseract](https://github.com/tesseract-ocr/tesseract) - OCR engine

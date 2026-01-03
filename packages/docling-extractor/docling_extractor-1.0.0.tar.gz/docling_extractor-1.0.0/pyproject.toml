@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docling-extractor"
+version = "1.0.0"
+description = "Production-grade document extraction with intelligent fallback chain: Docling -> PyMuPDF -> pdfplumber -> Tesseract"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Nalini Panwar", email = "panwarnalini@gmail.com"}
+]
+maintainers = [
+    {name = "Nalini Panwar", email = "panwarnalini@gmail.com"}
+]
+keywords = [
+    "document-extraction",
+    "pdf-processing",
+    "docling",
+    "ocr",
+    "data-engineering",
+    "clinical-trials",
+    "nlp",
+    "databricks"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Text Processing",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "PyMuPDF>=1.23.0",
+    "pdfplumber>=0.10.0",
+]
+
+[project.optional-dependencies]
+full = [
+    "docling>=2.0.0",
+    "docling-core>=2.0.0",
+    "pytesseract>=0.3.10",
+]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/panwarnalini-hub/clinical-doc-pipelines"
+Documentation = "https://github.com/panwarnalini-hub/clinical-doc-pipelines/blob/main/README.md"
+Repository = "https://github.com/panwarnalini-hub/clinical-doc-pipelines"
+"Bug Tracker" = "https://github.com/panwarnalini-hub/clinical-doc-pipelines/issues"
+
+[tool.setuptools]
+packages = ["docling_extractor"]
