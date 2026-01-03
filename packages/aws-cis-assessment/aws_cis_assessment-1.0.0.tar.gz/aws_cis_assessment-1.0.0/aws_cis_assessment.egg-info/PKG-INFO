@@ -1,0 +1,135 @@
+Metadata-Version: 2.4
+Name: aws-cis-assessment
+Version: 1.0.0
+Summary: Comprehensive AWS CIS Controls compliance assessment tool
+Author-email: AWS CIS Assessment Team <security@example.com>
+Maintainer-email: AWS CIS Assessment Team <security@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/example/aws-cis-assessment
+Project-URL: Documentation, https://aws-cis-assessment.readthedocs.io/
+Project-URL: Repository, https://github.com/example/aws-cis-assessment.git
+Project-URL: Bug Reports, https://github.com/example/aws-cis-assessment/issues
+Project-URL: Changelog, https://github.com/example/aws-cis-assessment/blob/main/CHANGELOG.md
+Keywords: aws,security,compliance,cis,controls,assessment,audit
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: System Administrators
+Classifier: Intended Audience :: Information Technology
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Security
+Classifier: Topic :: System :: Systems Administration
+Classifier: Environment :: Console
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: boto3<2.0.0,>=1.26.0
+Requires-Dist: PyYAML<7.0,>=6.0
+Requires-Dist: click<9.0,>=8.0
+Requires-Dist: jinja2<4.0,>=3.0
+Requires-Dist: tabulate<1.0,>=0.9.0
+Provides-Extra: dev
+Requires-Dist: pytest<8.0,>=7.0.0; extra == "dev"
+Requires-Dist: pytest-mock<4.0,>=3.10.0; extra == "dev"
+Requires-Dist: pytest-cov<5.0,>=4.0.0; extra == "dev"
+Requires-Dist: black<24.0,>=22.0.0; extra == "dev"
+Requires-Dist: flake8<7.0,>=5.0.0; extra == "dev"
+Requires-Dist: hypothesis<7.0,>=6.0.0; extra == "dev"
+Requires-Dist: mypy<2.0,>=1.0.0; extra == "dev"
+Requires-Dist: bandit<2.0,>=1.7.0; extra == "dev"
+Requires-Dist: safety<3.0,>=2.0.0; extra == "dev"
+Provides-Extra: test
+Requires-Dist: pytest<8.0,>=7.0.0; extra == "test"
+Requires-Dist: pytest-mock<4.0,>=3.10.0; extra == "test"
+Requires-Dist: pytest-cov<5.0,>=4.0.0; extra == "test"
+Requires-Dist: hypothesis<7.0,>=6.0.0; extra == "test"
+Provides-Extra: security
+Requires-Dist: bandit<2.0,>=1.7.0; extra == "security"
+Requires-Dist: safety<3.0,>=2.0.0; extra == "security"
+
+# AWS CIS Controls Compliance Assessment Tool
+
+A comprehensive tool for evaluating AWS account configurations against CIS Controls Implementation Groups (IG1, IG2, IG3) using AWS Config rule specifications without requiring AWS Config to be enabled.
+
+## Features
+
+- **Comprehensive Coverage**: Evaluates 100+ AWS Config rules mapped to CIS Controls
+- **Implementation Groups**: Supports IG1 (Essential Cyber Hygiene), IG2 (Enhanced Security), and IG3 (Advanced Security)
+- **Multiple Output Formats**: JSON, HTML, and CSV reports with detailed remediation guidance
+- **No AWS Config Required**: Uses direct AWS API calls based on Config rule specifications
+- **Enterprise Ready**: Handles large-scale assessments with proper error handling and performance optimization
+
+## Quick Start
+
+### Installation
+
+```bash
+pip install aws-cis-assessment
+```
+
+### Basic Usage
+
+```bash
+# Run assessment for all Implementation Groups
+aws-cis-assess --profile my-aws-profile --regions us-east-1,us-west-2
+
+# Run assessment for specific Implementation Group
+aws-cis-assess --implementation-groups IG1 --output-format json
+
+# Generate HTML report
+aws-cis-assess --output-format html --output-file compliance-report.html
+```
+
+## Implementation Groups
+
+### IG1 - Essential Cyber Hygiene (56 Config Rules)
+- Asset Inventory and Management
+- Basic Access Controls
+- Secure Configuration Baselines
+- Password Management
+
+### IG2 - Enhanced Security (+30 Config Rules)
+- Encryption in Transit and at Rest
+- Advanced Access Controls
+- Vulnerability Management
+- Network Security
+
+### IG3 - Advanced Security (+20 Config Rules)
+- Sensitive Data Logging
+- Network Segmentation
+- Application Security
+- Advanced Monitoring
+
+## Requirements
+
+- Python 3.8+
+- AWS credentials configured (via AWS CLI, environment variables, or IAM roles)
+- Read-only permissions for AWS services being assessed
+
+## Development
+
+```bash
+# Clone repository
+git clone <repository-url>
+cd aws-cis-assessment
+
+# Install development dependencies
+pip install -r requirements.txt
+
+# Run tests
+pytest
+
+# Run with coverage
+pytest --cov=aws_cis_assessment
+
+# Format code
+black aws_cis_assessment/
+flake8 aws_cis_assessment/
+```
+
+## License
+
+MIT License - see LICENSE file for details.
