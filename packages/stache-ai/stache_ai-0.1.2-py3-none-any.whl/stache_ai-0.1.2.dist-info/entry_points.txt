@@ -1,0 +1,28 @@
+[console_scripts]
+stache-admin = stache_ai.cli:cli
+stache-import = stache_ai.cli.import_cmd:import_directory
+
+[stache.chunking]
+character = stache_ai.chunking.character:CharacterChunkingStrategy
+hierarchical = stache_ai.chunking.hierarchical:HierarchicalChunkingStrategy
+markdown = stache_ai.chunking.markdown:MarkdownChunkingStrategy
+recursive = stache_ai.chunking.recursive:RecursiveChunkingStrategy
+semantic = stache_ai.chunking.semantic:SemanticChunkingStrategy
+transcript = stache_ai.chunking.transcript:TranscriptChunkingStrategy
+
+[stache.embeddings]
+fallback = stache_ai.providers.embeddings.fallback:FallbackEmbeddingProvider
+
+[stache.llm]
+fallback = stache_ai.providers.llm.fallback:FallbackLLMProvider
+none = stache_ai.providers.llm.none:NoneLLMProvider
+
+[stache.loader]
+pdf = stache_ai.loaders.pdf:PdfLoader
+text = stache_ai.loaders.text:TextLoader
+
+[stache.namespace]
+sqlite = stache_ai.providers.namespace.sqlite:SQLiteNamespaceProvider
+
+[stache.reranker]
+simple = stache_ai.providers.reranker.simple:SimpleReranker
