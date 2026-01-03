@@ -1,0 +1,38 @@
+Metadata-Version: 2.3
+Name: sjaicom_google_patents
+Version: 0.1.11
+Summary: Add your description here
+Author: dats
+Author-email: dats <2292303916@qq.com>
+Requires-Dist: fastmcp>=2.14.1
+Requires-Dist: pydantic>=2.12.5
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: requests>=2.31.0
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+Google Patents MCP Service
+A Model Context Protocol (MCP) server that provides patent search capabilities using Google Patents (via SerpApi).
+
+Designed for AI Agents to perform professional patent analysis, landscape verification, and prior art search.
+
+Features
+Patent Search: Search patents by keywords, country, date, status, assignee, etc.
+Smart Interaction: Includes UI state management tools for "Human-in-the-loop" confirmation flows.
+Structured Data: Returns clean, normalized JSON data optimized for LLM consumption.
+Installation
+Using uvx (Recommended)
+uvx sjaicom-google-patents
+Using pip
+pip install sjaicom-google-patents
+python -m sjaicom_google_patents
+Configuration
+This service requires the following environment variables:
+
+SERPAPI_KEY: Your SerpApi API key (Get one at https://serpapi.com/)
+Tools
+search_patents: Main tool for searching patents.
+Inputs: keywords, country_codes, status (GRANT/APPLICATION), date_range, etc.
+update_ui_state: Tool for managing conversational UI state (for frontend integration).
+License
+MIT

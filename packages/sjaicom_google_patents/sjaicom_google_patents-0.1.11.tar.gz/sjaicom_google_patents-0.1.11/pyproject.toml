@@ -1,0 +1,22 @@
+[project]
+name = "sjaicom_google_patents"
+version = "0.1.11"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "dats", email = "2292303916@qq.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=2.14.1",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+]
+
+[project.scripts]
+sjaicom_google_patents = "sjaicom_google_patents.main:main"
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
