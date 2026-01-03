@@ -1,0 +1,767 @@
+# Heisenberg CLI
+
+Command line interface for publishing and managing Data Agents on Heisenberg.
+
+## Overview
+
+Heisenberg CLI enables you to package your Python code and publish it to **Cook** as a **Data Agent**. Once published, the Data Agent serves as a template from which new instances can be spawned. When a Data Agent is instantiated, the instance is submitted to the **Dispatcher** for scheduling and execution on the Heisenberg network.
+
+### Architecture Flow
+
+```
+┌─────────────────┐     ┌─────────────┐     ┌────────────────┐     ┌───────────┐
+│  Your Code      │────▶│   Cook      │────▶│  Dispatcher    │────▶│  Network  │
+│  (Local)        │     │  (Registry) │     │  (Scheduler)   │     │  (Exec)   │
+└─────────────────┘     └─────────────┘     └────────────────┘     └───────────┘
+       │                       │                    │
+       │ publish               │ instantiate &      │ schedule &
+       │                       │ submit             │ execute
+       ▼                       ▼                    ▼
+   Package &              Data Agent           Data Agent
+   Upload to S3           Instance             Running
+```
+
+1. **Publish**: Your code is packaged, uploaded to S3, and registered with Cook as a Data Agent template
+2. **Instantiate**: Users can create new instances of the Data Agent through Cook
+3. **Submit**: When instantiated, the Data Agent instance is submitted to the Dispatcher for scheduling and execution on the network
+
+## Installation
+
+```bash
+pip install heisenberg-cli
+```
+
+Or install from source:
+
+```bash
+cd heisenberg-cli
+poetry install
+```
+
+## Quick Start
+
+1. **Configure your credentials**:
+
+   ```bash
+   heisenberg-cli configure
+   ```
+
+2. **Create a new project**:
+
+   ```bash
+   heisenberg-cli create-project my-recommender
+   ```
+
+3. **Publish your project as a Data Agent**:
+
+   ```bash
+   heisenberg-cli publish ./my-recommender --name my-recommender --version 1.0.0
+   ```
+
+4. **Check Data Agent status**:
+
+   ```bash
+   heisenberg-cli job-status <job-id>
+   ```
+
+## Commands
+
+### `configure`
+
+Set up credentials and settings interactively. Configuration is saved to `~/.codemanager.toml`.
+
+```bash
+heisenberg-cli configure
+```
+
+This command will prompt you for all required settings. Below is a detailed explanation of each configuration option.
+
+#### AWS S3 Configuration
+
+Your code package is uploaded to S3 before being registered with Cook.
+
+| Setting | Description | Example |
+|---------|-------------|---------|
+| `bucket` | S3 bucket name for storing code packages | `my-heisenberg-bucket` |
+| `prefix` | Key prefix for uploaded packages | `code` (packages stored at `s3://bucket/code/...`) |
+| `aws_access_key_id` | AWS access key with S3 write permissions | `AKIAIOSFODNN7EXAMPLE` |
+| `aws_secret_access_key` | AWS secret key (entered securely, hidden) | `wJalrXUtnFEMI/K7MDENG/...` |
+| `aws_region` | AWS region where the bucket is located | `us-east-1` |
+
+#### Cook API Configuration
+
+Cook is the Data Agent registry service. You need Cook API credentials to publish and manage Data Agents.
+
+| Setting | Description | Example |
+|---------|-------------|---------|
+| `api_base_url` | Cook API base URL | `https://cook.heisenberg.example.com/api/v1` |
+| `api_auth_token` | Cook authentication token (entered securely, hidden) | `eyJhbGciOiJIUzI1NiIs...` |
+
+**How to obtain Cook credentials:**
+
+1. Log in to your Cook dashboard
+2. Navigate to **Settings** → **API Tokens**
+3. Generate a new token with `data-agent:write` permissions
+4. Copy the token and use it during configuration
+
+#### Code Settings
+
+Configure how your code is packaged and executed.
+
+| Setting | Description | Example |
+|---------|-------------|---------|
+| `main_file_path` | Entry point file (relative to project root) | `main.py` or `packages/recommender/main.ipynb` |
+| `env_file_path` | Environment variables file | `.env` |
+| `ignore_file` | Patterns for files to exclude (like `.gitignore`) | `.jobignore` |
+| `data_size` | Estimated data size in bytes (for resource allocation) | `1000000` (1 MB) |
+| `complexity_factor` | Code complexity (1-1000) for resource allocation | `1.0` |
+
+#### Execution Schedule Configuration
+
+Define when and how the Data Agent should run when instantiated.
+
+| Setting | Description | Example |
+|---------|-------------|---------|
+| `schedule_mode` | `once` for single run, `cron` for recurring | `once` |
+| `start_time` | When to start (ISO format, empty for immediate) | `2024-01-15T10:00` |
+| `until` | When to stop recurring jobs (empty for no end) | `2024-12-31T23:59` |
+| `interval` | Minutes between runs (for recurring) | `60` (hourly) |
+| `cron_expression` | Cron schedule (alternative to interval) | `0 0 * * *` (daily at midnight) |
+| `run_overlap` | Allow overlapping runs | `true` or `false` |
+
+#### Executor Configuration
+
+Configure which executor should run your Data Agent on the Heisenberg network.
+
+| Setting | Description | Example |
+|---------|-------------|---------|
+| `executor_label` | Label of the executor to run the Data Agent on | `gpu-executor`, `high-memory` |
+
+**What is an Executor?**
+
+An executor is a compute node in the Heisenberg network that runs Data Agent instances. Different executors may have different capabilities:
+
+- **Default executor**: Standard compute resources, suitable for most workloads
+- **GPU executors**: For machine learning and data-intensive workloads
+- **High-memory executors**: For workloads requiring large amounts of RAM
+- **Custom executors**: Organization-specific executors with specialized configurations
+
+Leave empty to use the default executor, or specify a label to target a specific executor type.
+
+#### Data Agent Configuration
+
+Configure metadata and categorization for your Data Agent.
+
+| Setting | Description | Example |
+|---------|-------------|---------|
+| `is_blueprint` | Whether this Data Agent is a blueprint (template for other agents) | `true` or `false` |
+| `table_name` | Database table name for the Data Agent output | `user_recommendations` |
+| `tags` | Comma-separated tags for categorizing the Data Agent | `ml,recommendation,prod` |
+| `filter_statement` | SQL-like filter statement for data filtering | `status = 'active' AND created_at > '2024-01-01'` |
+
+**What is a Blueprint?**
+
+A blueprint is a special type of Data Agent that serves as a template for creating other Data Agents. When `is_blueprint` is set to `true`:
+
+- The Data Agent can be used as a base template
+- Other Data Agents can inherit its configuration
+- It's typically not instantiated directly but serves as a reusable pattern
+
+**Tags**
+
+Tags help organize and filter Data Agents in Cook. Use them to:
+
+- Categorize by type (e.g., `ml`, `etl`, `analytics`)
+- Mark environment (e.g., `prod`, `staging`, `dev`)
+- Indicate team ownership (e.g., `team-data`, `team-ml`)
+- Add any custom categorization relevant to your organization
+
+**Filter Statement**
+
+The `filter_statement` allows you to define SQL-like conditions for filtering data that the Data Agent processes. This is useful when you want to limit the scope of data processing without modifying the code.
+
+#### Retrieval LLM Configuration
+
+Configure an optional Language Model (LLM) for retrieval/inference capabilities within your Data Agent. This is configured under `[data_agent.retrieval_llm]`.
+
+| Setting | Description | Example |
+|---------|-------------|---------|
+| `name` | Name for the LLM configuration | `my-gpt4-config` |
+| `system_prompt` | System prompt for the LLM | `You are a helpful assistant...` |
+| `provider` | LLM provider name | `openai`, `anthropic`, `azure` |
+| `model_name` | Model identifier | `gpt-4`, `claude-3-opus`, `gpt-4-turbo` |
+| `directives` | Additional directives/instructions for the LLM | `Always respond in JSON format` |
+
+**When to Use Retrieval LLM**
+
+Configure a retrieval LLM when your Data Agent needs to:
+
+- Generate natural language responses or summaries
+- Perform text classification or sentiment analysis
+- Extract structured information from unstructured text
+- Make AI-powered decisions within the data pipeline
+
+All LLM fields are optional. Leave them empty if your Data Agent doesn't require LLM capabilities.
+
+#### Configuration File Structure
+
+After running `configure`, your `~/.codemanager.toml` will look like:
+
+```toml
+[aws]
+bucket = "my-heisenberg-bucket"
+prefix = "code"
+access_key_id = "AKIAIOSFODNN7EXAMPLE"
+secret_access_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+region = "us-east-1"
+expiration = 86400  # Pre-signed URL expiration in seconds
+
+[api]
+# Cook API settings
+base_url = "https://cook.heisenberg.example.com/api/v1"
+auth_token = "your-cook-auth-token"
+
+[code]
+main_file = "packages/recommender/__init__.py"
+env_file = ".env"
+ignore_file = ".jobignore"
+data_size = 1000000
+complexity_factor = 1.0
+obfuscate_code = "false"
+
+[execution.plan]
+schedule_mode = "once"
+start_time = ""
+until = ""
+cron_expression = ""
+interval = 0
+run_overlap = "true"
+
+[executor]
+label = ""  # Leave empty for default executor, or specify e.g., "gpu-executor"
+
+[data_agent]
+is_blueprint = false
+table_name = ""
+tags = ""  # Comma-separated, e.g., "ml,recommendation,prod"
+filter_statement = ""  # SQL-like filter, e.g., "status = 'active'"
+
+[data_agent.retrieval_llm]
+name = ""  # Name for the LLM config
+system_prompt = ""  # System prompt for the LLM
+provider = ""  # e.g., "openai", "anthropic", "azure"
+model_name = ""  # e.g., "gpt-4", "claude-3-opus"
+directives = ""  # Additional directives for the LLM
+```
+
+#### Multiple Environments
+
+You can maintain separate configurations for different environments:
+
+```bash
+# Development
+heisenberg-cli configure --config-file ~/.heisenberg-dev.toml
+
+# Production
+heisenberg-cli configure --config-file ~/.heisenberg-prod.toml
+
+# Use specific config when publishing
+heisenberg-cli publish ./my-project -n my-agent -v 1.0.0 -f ~/.heisenberg-prod.toml
+```
+
+---
+
+### `create-project`
+
+Scaffold a new Heisenberg project from a template.
+
+```bash
+heisenberg-cli create-project <name> [--usecase <template>]
+```
+
+#### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `name` | Name of the project to create |
+
+#### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--usecase` | `recommendation` | Project template to use |
+
+#### Available Templates
+
+- `recommendation` - Recommender system template with Jupyter notebook support
+
+#### Example
+
+```bash
+# Create a recommendation project
+heisenberg-cli create-project my-recommender
+
+# Create with explicit template
+heisenberg-cli create-project my-project --usecase recommendation
+```
+
+#### Generated Project Structure
+
+```
+my-project/
+├── packages/
+│   └── recommender/
+│       ├── __init__.py      # Main recommender logic
+│       └── main.ipynb       # Jupyter notebook entry point
+├── my-project/
+│   ├── config.py            # Project configuration
+│   └── .env                 # Environment variables
+├── data/                    # Data directory
+├── pyproject.toml           # Poetry project file
+├── README.md                # Project documentation
+└── .jobignore               # Files to exclude from packaging
+```
+
+---
+
+### `inspect`
+
+Analyze code complexity and calculate a complexity factor for resource allocation.
+
+```bash
+heisenberg-cli inspect <directory> [--config-file <path>]
+```
+
+#### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `directory` | Directory containing the code to inspect |
+
+#### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--config-file` | `~/.codemanager.toml` | Path to the configuration file |
+
+#### Example
+
+```bash
+heisenberg-cli inspect ./my-project
+```
+
+The complexity factor is automatically saved to your config file under `[code].complexity_factor`.
+
+---
+
+### `publish`
+
+Package your code and publish it to Cook as a Data Agent. This is the main command for deploying your code to the Heisenberg network.
+
+```bash
+heisenberg-cli publish <directory> --name <name> --version <version> [options]
+```
+
+#### What is a Data Agent?
+
+A **Data Agent** is a packaged, versioned unit of code that can be executed on the Heisenberg network. When you publish:
+
+1. Your code becomes a **Data Agent template** registered in Cook
+2. Users (or automated systems) can **instantiate** new Data Agents from this template
+3. Each instance is **submitted to the Dispatcher** for scheduling and execution on the network
+4. Multiple instances can run concurrently with different parameters
+
+#### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `directory` | Path to the project directory containing the code to publish |
+
+#### Required Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--name` | `-n` | Unique name for the Data Agent (used to identify it in Cook) |
+| `--version` | `-v` | Semantic version of the Data Agent (e.g., `0.1.0`, `1.0.0`) |
+
+#### Optional Parameters
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--confidential-level` | `-c` | `default` | Security level for data handling |
+| `--execution-mode` | `-e` | `single` | How the agent executes on the network |
+| `--config` | `-f` | `~/.codemanager.toml` | Path to configuration file |
+| `--extract-features` | | `false` | Extract features from FeatureView's saver schema |
+
+#### Execution Modes
+
+The execution mode determines how your Data Agent runs on the Heisenberg network:
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `single` | Run as a single instance on one node | Simple data processing, small datasets |
+| `cluster` | Distributed execution across multiple nodes | Large-scale data processing, parallel workloads |
+| `stream` | Real-time streaming execution | Continuous data processing, event-driven workloads |
+
+#### Confidentiality Levels
+
+The confidentiality level determines how sensitive data is handled:
+
+| Level | Description | Data Handling |
+|-------|-------------|---------------|
+| `default` | Standard security | Normal encryption, standard access controls |
+| `internal` | Internal use only | Enhanced encryption, restricted network access |
+| `confidential` | Sensitive data | Strong encryption, audit logging, limited retention |
+| `secret` | Highest security | Maximum encryption, air-gapped execution, strict compliance |
+
+#### Feature Extraction
+
+When `--extract-features` is enabled, the CLI scans your project for `FeatureView` classes and extracts feature definitions from their saver's schema. This metadata is sent to Cook along with your Data Agent.
+
+**How it works:**
+
+1. The CLI scans Python files in your project directory
+2. It identifies classes that inherit from `FeatureView`
+3. For each FeatureView, it accesses the `saver` attribute
+4. From the saver's `save_configs`, it extracts the `Schema` definitions
+5. Each `Col` in the schema becomes a feature definition
+
+**Feature format sent to Cook:**
+
+| Field | Description |
+|-------|-------------|
+| `name` | Database column name (from `Col.to` or `Col.original`) |
+| `label` | Human-readable label (auto-generated from name) |
+| `description` | Feature description (empty by default) |
+| `version` | Same as the Data Agent version |
+| `has_limited_values` | Whether the feature has a finite set of values |
+| `type` | Value type: `integer`, `string`, `float`, `boolean`, `date`, `date_time`, `uuid`, `vector`, `list` |
+
+**Example FeatureView with extractable features:**
+
+```python
+class MyFeatureView(FeatureView):
+    name = "My Feature View"
+
+    saver = SQLDBSaver(
+        url=os.getenv("DB_URL"),
+        save_configs=[
+            SaveConfig(
+                sf_key="default",
+                table="features_table",
+                schema=Schema(
+                    cols=[
+                        Col("user_id", is_id=True),           # Skipped (ID column)
+                        Col("score", dtype="float64"),         # Extracted as float
+                        Col("category", dtype="string"),       # Extracted as string
+                        Col("created_at", dtype="datetime64"), # Extracted as date_time
+                    ]
+                ),
+            )
+        ],
+    )
+```
+
+#### The Publish Process
+
+When you run `publish`, the following happens:
+
+```
+Step 1: Package Creation
+├── Scan directory for files
+├── Apply .jobignore patterns
+├── Calculate code hash for versioning
+└── Create compressed package
+
+Step 2: Code Obfuscation (if enabled)
+├── Run PyArmor on Python files
+└── Protect intellectual property
+
+Step 3: Environment Encryption
+├── Read .env file
+├── Encrypt with AES-256
+└── Embed encryption keys in metadata
+
+Step 4: S3 Upload
+├── Generate unique identifier
+├── Upload package to S3 bucket
+└── Generate pre-signed URL for Cook
+
+Step 5: Register with Cook
+├── Send metadata to Cook API
+├── Register as Data Agent template
+├── Receive Job ID for tracking
+└── Data Agent now available for instantiation
+
+Step 6: Display Summary
+└── Show table with all details
+```
+
+#### Data Agent Lifecycle
+
+After publishing, your Data Agent follows this lifecycle:
+
+```
+┌──────────────┐
+│   PUBLISHED  │ ─── Data Agent registered in Cook
+└──────┬───────┘
+       │
+       │ instantiate (via Cook API or UI)
+       ▼
+┌──────────────┐
+│   PENDING    │ ─── Instance created, waiting to be submitted
+└──────┬───────┘
+       │
+       │ submit (Instance submitted to Dispatcher)
+       ▼
+┌──────────────┐
+│   RUNNING    │ ─── Executing on Heisenberg network
+└──────┬───────┘
+       │
+       ├─────────────────┐
+       ▼                 ▼
+┌──────────────┐  ┌──────────────┐
+│  COMPLETED   │  │   FAILED     │
+└──────────────┘  └──────────────┘
+```
+
+#### Examples
+
+```bash
+# Basic publish - creates a Data Agent template in Cook
+heisenberg-cli publish ./my-project --name my-recommender --version 1.0.0
+
+# Short form
+heisenberg-cli publish ./my-project -n my-recommender -v 1.0.0
+
+# Publish with cluster execution mode for large-scale processing
+heisenberg-cli publish ./my-project -n my-recommender -v 1.0.0 -e cluster
+
+# Publish with confidential data handling
+heisenberg-cli publish ./my-project -n my-recommender -v 1.0.0 -c confidential
+
+# Publish with custom config file (e.g., production Cook instance)
+heisenberg-cli publish ./my-project -n my-recommender -v 1.0.0 -f ~/.heisenberg-prod.toml
+
+# Publish with feature extraction from FeatureView savers
+heisenberg-cli publish ./my-project -n my-recommender -v 1.0.0 --extract-features
+
+# Full example with all options
+heisenberg-cli publish ./my-project \
+  --name my-production-recommender \
+  --version 2.0.0 \
+  --execution-mode cluster \
+  --confidential-level internal \
+  --config ~/.heisenberg-prod.toml
+```
+
+#### Output
+
+On successful publish, you'll see a summary table:
+
+```
+┌─────────────────────────────────────────────────┐
+│               Publish Summary                   │
+├─────────────┬───────────────────────────────────┤
+│ Property    │ Value                             │
+├─────────────┼───────────────────────────────────┤
+│ Name        │ my-recommender                    │
+│ Version     │ 1.0.0                             │
+│ Hash        │ abc123def456789...                │
+│ S3 Location │ s3://bucket/code/my-recommender/  │
+│ Job ID      │ 550e8400-e29b-41d4-a716-44665544  │
+│ Status      │ published                         │
+└─────────────┴───────────────────────────────────┘
+
+✓ Data Agent published to Cook successfully!
+  - Use the Job ID to track status: heisenberg-cli job-status 550e8400-e29b-41d4-a716-44665544
+  - Instantiate via Cook API or dashboard to run on the network
+```
+
+#### What Happens Next?
+
+After publishing:
+
+1. **Your Data Agent is registered in Cook** - It appears in the Cook dashboard as a template
+2. **Users can instantiate it** - Through Cook API or UI, new instances can be created
+3. **Instance submitted to Dispatcher** - When instantiated, the instance is submitted to the Dispatcher for scheduling
+4. **Execution on Heisenberg** - The Dispatcher schedules execution and your code runs on the network
+5. **Results returned** - Output is collected and made available through Cook
+
+#### Configuration Dependencies
+
+The publish command reads the following from your config file:
+
+| Config Section | Keys Used | Purpose |
+|----------------|-----------|---------|
+| `[aws]` | `bucket`, `prefix`, `access_key_id`, `secret_access_key`, `region`, `expiration` | S3 storage for code package |
+| `[api]` | `base_url`, `auth_token` | Cook API for Data Agent registration |
+| `[code]` | `main_file`, `env_file`, `data_size`, `complexity_factor`, `obfuscate_code` | Packaging settings |
+| `[execution.plan]` | `schedule_mode`, `start_time`, `until`, `cron_expression`, `interval`, `run_overlap` | Scheduling behavior |
+
+#### Versioning Best Practices
+
+- Use **semantic versioning**: `MAJOR.MINOR.PATCH`
+- Increment **MAJOR** for breaking changes
+- Increment **MINOR** for new features
+- Increment **PATCH** for bug fixes
+- Each version creates a new Data Agent template (old versions remain available)
+
+---
+
+### `job-status`
+
+Check the current status of a published Data Agent or its instances.
+
+```bash
+heisenberg-cli job-status <job-id> [options]
+```
+
+#### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `job-id` | The unique job ID (returned when you publish or instantiate) |
+
+#### Options
+
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--config` | `-f` | `~/.codemanager.toml` | Path to configuration file |
+| `--api-url` | | From config | Override Cook API base URL |
+| `--api-token` | | From config | Override Cook API auth token |
+
+#### Examples
+
+```bash
+# Check status using config file
+heisenberg-cli job-status 550e8400-e29b-41d4-a716-446655440000
+
+# With custom config
+heisenberg-cli job-status abc123 -f ./my-config.toml
+
+# Override Cook API settings directly
+heisenberg-cli job-status abc123 --api-url https://cook.example.com/api/v1 --api-token mytoken
+```
+
+---
+
+## The `.jobignore` File
+
+Similar to `.gitignore`, the `.jobignore` file specifies which files and directories should be excluded from the Data Agent package.
+
+### Example `.jobignore`
+
+```gitignore
+# Dependencies and virtual environments
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+
+# Test files
+tests/
+test_*.py
+
+# Documentation
+docs/
+*.md
+
+# Data files (if large)
+data/*.csv
+data/*.json
+
+# Local configuration
+.env.local
+*.local.toml
+```
+
+### Default Patterns
+
+If no `.jobignore` file is present, the following patterns are excluded by default:
+
+- `__pycache__/`
+- `*.pyc`
+- `.git/`
+- `.venv/`
+- `venv/`
+
+---
+
+## Global Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--verbose` | `-V` | Enable verbose output for debugging |
+| `--help` | | Show help message |
+
+```bash
+# Enable verbose mode
+heisenberg-cli -V publish ./my-project -n my-agent -v 1.0.0
+
+# Get help
+heisenberg-cli --help
+heisenberg-cli publish --help
+```
+
+---
+
+## Exit Codes
+
+| Code | Description |
+|------|-------------|
+| 0 | Success |
+| 1 | General error (API error, unexpected error) |
+| 2 | Configuration error (missing or invalid config) |
+
+---
+
+## Troubleshooting
+
+### "Config file not found"
+
+Run `heisenberg-cli configure` to create the configuration file.
+
+### "Config file is malformed"
+
+Check your `~/.codemanager.toml` for TOML syntax errors. Common issues:
+
+- Missing quotes around strings
+- Unclosed brackets
+- Invalid characters
+
+### Cook API Errors
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| 401 Unauthorized | Invalid or expired Cook auth token | Generate a new token in Cook dashboard |
+| 403 Forbidden | Token lacks required permissions | Request `data-agent:write` permission |
+| 404 Not Found | Job ID doesn't exist in Cook | Verify the Job ID is correct |
+| 5xx Server Error | Cook service issue | Wait and retry, or contact support |
+
+### S3 Upload Failures
+
+- Verify AWS credentials are correct
+- Check bucket name and region match your config
+- Ensure your IAM user has `s3:PutObject` and `s3:GetObject` permissions
+- Check that the bucket policy allows uploads from your IP
+
+### Data Agent Not Running
+
+If your Data Agent is published but instances aren't running:
+
+1. Check if the Data Agent is correctly registered in Cook dashboard
+2. Verify the Dispatcher service is running
+3. Check execution schedule settings
+4. Review logs in Cook for instantiation errors
+
+---
+
+## License
+
+Commercial - see LICENSE.txt
