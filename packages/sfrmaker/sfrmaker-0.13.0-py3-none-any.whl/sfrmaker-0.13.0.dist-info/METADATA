@@ -1,0 +1,142 @@
+Metadata-Version: 2.4
+Name: sfrmaker
+Version: 0.13.0
+Summary: Rapid construction of MODFLOW SFR Package input from hydrography data
+Author-email: Andrew Leaf <aleaf@usgs.gov>, Mike Fienen <mnfienen@usgs.gov>, Howard Reeves <hwreeves@usgs.gov>
+License: License
+        =======
+        
+        Unless otherwise noted, This project is in the public domain in the United
+        States because it contains materials that originally came from the United
+        States Geological Survey, an agency of the United States Department of
+        Interior. For more information, see the official USGS copyright policy at
+        https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+        
+        Additionally, we waive copyright and related rights in the work
+        worldwide through the CC0 1.0 Universal public domain dedication.
+        
+        
+        CC0 1.0 Universal Summary
+        -------------------------
+        
+        This is a human-readable summary of the
+        [Legal Code (read the full text)][1].
+        
+        
+        ### No Copyright
+        
+        The person who associated a work with this deed has dedicated the work to
+        the public domain by waiving all of his or her rights to the work worldwide
+        under copyright law, including all related and neighboring rights, to the
+        extent allowed by law.
+        
+        You can copy, modify, distribute and perform the work, even for commercial
+        purposes, all without asking permission.
+        
+        
+        ### Other Information
+        
+        In no way are the patent or trademark rights of any person affected by CC0,
+        nor are the rights that other persons may have in the work or in how the
+        work is used, such as publicity or privacy rights.
+        
+        Unless expressly stated otherwise, the person who associated a work with
+        this deed makes no warranties about the work, and disclaims liability for
+        all uses of the work, to the fullest extent permitted by applicable law.
+        When using or citing the work, you should not imply endorsement by the
+        author or the affirmer.
+        
+        
+        
+        [1]: https://creativecommons.org/publicdomain/zero/1.0/legalcode
+        
+Project-URL: documentation, https://doi-usgs.github.io/sfrmaker/latest/
+Project-URL: repository, https://github.com/doi-usgs/sfrmaker
+Keywords: MODFLOW,groundwater,hydrogeology
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Scientific/Engineering :: Hydrology
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+Requires-Dist: geopandas
+Requires-Dist: gis-utils
+Requires-Dist: fiona
+Requires-Dist: flopy
+Requires-Dist: modflow-export
+Requires-Dist: netcdf4
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: pyproj
+Requires-Dist: pyyaml
+Requires-Dist: rasterio
+Requires-Dist: rasterstats
+Requires-Dist: rtree
+Requires-Dist: scipy
+Requires-Dist: shapely
+Requires-Dist: xarray
+Provides-Extra: optional
+Requires-Dist: matplotlib; extra == "optional"
+Provides-Extra: test
+Requires-Dist: codecov; extra == "test"
+Requires-Dist: coverage; extra == "test"
+Requires-Dist: pytest; extra == "test"
+Requires-Dist: pytest-timeout; extra == "test"
+Provides-Extra: docs
+Requires-Dist: matplotlib; extra == "docs"
+Requires-Dist: modflow-export[optional]; extra == "docs"
+Requires-Dist: ipython[kernel]; extra == "docs"
+Requires-Dist: sphinx; extra == "docs"
+Requires-Dist: numpydoc; extra == "docs"
+Requires-Dist: nbsphinx; extra == "docs"
+Requires-Dist: sphinx-copybutton; extra == "docs"
+Requires-Dist: sphinx-rtd-theme; extra == "docs"
+Dynamic: license-file
+
+SFRmaker
+===
+SFRmaker is a python package for automating construction of stream flow routing networks from hydrography data. Hydrography are input from a polyline shapefile and intersected with a structured grid defined using a shapefile or a Flopy `StructuredGrid` instance. Attribute data are supplied via `.dbf` files (NHDPlus input option) or via specified fields in the hydrography shapefile. Line fragments representing intersections between the flowlines and model grid cells are converted to SFR reaches using the supplied attribute data. MODFLOW-NWT/2005 or MODFLOW-6 SFR package input can then be written, along with shapefiles for visualizing the SFR package dataset.
+
+
+### Version 0.13
+
+![Tests](https://github.com/doi-usgs/sfrmaker/workflows/Tests/badge.svg)
+[![Coverage Status](https://codecov.io/github/doi-usgs/SFRmaker/coverage.svg?branch=develop)](https://codecov.io/github/doi-usgs/SFRmaker/coverage.svg?branch=develop)
+[![PyPI version](https://badge.fury.io/py/sfrmaker.svg)](https://badge.fury.io/py/sfrmaker)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/sfrmaker.svg)](https://anaconda.org/conda-forge/sfrmaker)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+
+Getting Started
+----------------------------------------------- 
+See the [SFRmaker documentation](https://doi-usgs.github.io/sfrmaker/latest/index.html)
+
+
+Installation
+-----------------------------------------------
+See the [Installation Instructions](https://doi-usgs.github.io/sfrmaker/latest/installation.html)
+
+How to cite
+--------------
+###### Citations for SFRmaker
+
+Leaf, A.T., Fienen, M.N. and Reeves, H.W. (2021), SFRmaker and Linesink-Maker: Rapid Construction of Streamflow Routing Networks from Hydrography Data. Groundwater, 59: 761-771. https://doi.org/10.1111/gwat.13095
+
+Leaf, A.T., 2023, Automated construction of Streamflow-Routing networks for MODFLOW—Application in the Mississippi Embayment region: U.S. Geological Survey Scientific Investigations Report 2023–5051, 28 p., https://doi.org/10.3133/sir20235051.
+
+###### Software/Code citation for SFRmaker (IP-122355):
+Leaf, A.T., Fienen, M.N. and Reeves, H.W., 2021, SFRmaker version 0.7.1: U.S. Geological Survey Software Release, 29 Jan. 2021, [https://doi.org/10.5066/P9U2T031](https://doi.org/10.5066/P9U2T031)
+
+Disclaimer
+----------
+
+This software is preliminary or provisional and is subject to revision. It is
+being provided to meet the need for timely best science. The software has not
+received final approval by the U.S. Geological Survey (USGS). No warranty,
+expressed or implied, is made by the USGS or the U.S. Government as to the
+functionality of the software and related material nor shall the fact of release
+constitute any such warranty. The software is provided on the condition that
+neither the USGS nor the U.S. Government shall be held liable for any damages
+resulting from the authorized or unauthorized use of the software. It is the responsibility of the user to check the accuracy of the results.
+
+Any use of trade, firm, or product names is for descriptive purposes only and does not imply endorsement by the U.S. Government.
