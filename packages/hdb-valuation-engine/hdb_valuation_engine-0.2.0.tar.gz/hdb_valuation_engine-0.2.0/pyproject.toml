@@ -1,0 +1,92 @@
+[tool.poetry]
+name = "hdb-valuation-engine"
+version = "0.2.0"
+description = "Singapore Public Housing (HDB) Valuation Engine using geospatial accessibility scoring."
+authors = ["Mansib \"Xenix\" Miraj"]
+readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/theMansib/hdb-valuation-engine"
+repository = "https://github.com/theMansib/hdb-valuation-engine"
+keywords = ["HDB", "Singapore", "real-estate", "valuation", "geospatial", "MRT", "KDTree", "transport", "LRT", "data-analysis"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Financial and Insurance Industry",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Scientific/Engineering :: GIS",
+]
+# Include package data (PEP 561 type information)
+packages = [{include = "hdb_valuation_engine"}]
+include = ["hdb_valuation_engine/py.typed"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.1"
+numpy = "^1.26"
+scikit-learn = "^1.2"
+requests = "^2.31"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0"
+pytest-cov = "^4.0"
+pyarrow = "^16.0"
+black = "^24.0"
+ruff = "^0.6.0"
+
+[tool.poetry.scripts]
+# Console entry point for CLI
+hdb-valuation-engine = "hdb_valuation_engine.hdb_valuation_engine:main"
+
+# Black configuration (PEP 8 formatting)
+[tool.black]
+line-length = 120
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# Ruff configuration (PEP 8 linting)
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "ISC", "PIE", "PYI", "Q", "RET", "SIM", "TID", "ARG", "PLE", "PLW"]
+ignore = ["E501"]  # Line length handled by black
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=hdb_valuation_engine --cov-report=term-missing --cov-report=html"
+
+# MyPy configuration (PEP 484 type checking)
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Gradual typing
+ignore_missing_imports = true
+
+[build-system]
+requires = ["poetry-core>=1.7.0"]
+build-backend = "poetry.core.masonry.api"
