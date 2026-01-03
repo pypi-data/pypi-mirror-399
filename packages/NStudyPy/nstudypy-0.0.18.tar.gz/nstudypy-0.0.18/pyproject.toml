@@ -1,0 +1,29 @@
+[project]
+name = "NStudyPy"
+dynamic = ["version", "dependencies"]
+authors = [
+  { name="Jack Li", email="lizhq08@gmail.com" },
+]
+maintainers = [
+    {name = "Jack Li contributors"},
+]
+description = "A NStudyPy useful tools"
+readme = "README.md"
+keywords = ["NStudyPy", "tools"]
+requires-python = ">=3.9"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "src.NStudyPy.__version__"}
+dependencies = {file = ["requirements.txt"]}
+
+[project.urls]
+"Homepage" = "https://nstudy.org"
+"Documentation" = "https://hub.nstudy.org"
+"Bug Tracker" = "https://github.com/lizhq/NStudyPy/issues"
