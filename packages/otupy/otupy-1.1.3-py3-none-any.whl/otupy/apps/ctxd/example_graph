@@ -1,0 +1,17 @@
+digraph example_graph {
+	graph [rankdir=LR]
+	openstack [label=OpenStack]
+	{
+		rank=min
+		"os-fw"
+		kubernetes
+		openstack
+	}
+	{
+		rank=same
+		"kube-fw"
+		kube0
+		kube1
+		kube2
+	}
+}
