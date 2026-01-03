@@ -1,0 +1,157 @@
+[build-system]
+requires = ["uv_build>=0.9.0"]
+build-backend = "uv_build"
+
+[project]
+name = "fastpubsub"
+description = "A high performance FastAPI-based message consumer framework for PubSub"
+readme = "README.md"
+version = "0.7.1"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = [
+    "click>=8.2.1",
+    "fastapi[standard-no-fastapi-cloud-cli]>=0.120.2",
+    "google-api-core>=2.25.1",
+    "google-cloud-pubsub>=2.31.1",
+    "pydantic-settings>=2.10.1",
+    "rich-toolkit>=0.15.0",
+    "typer>=0.16.0",
+    "uvicorn>=0.35.0",
+]
+
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development",
+    "Topic :: System :: Networking",
+    "Topic :: System :: Distributed Computing",
+    "Typing :: Typed",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Environment :: Web Environment",
+    "Framework :: AsyncIO",
+    "Framework :: Pydantic",
+    "Framework :: Pydantic :: 2",
+]
+
+
+[project.scripts]
+fastpubsub = "fastpubsub.cli.main:app"
+
+
+[dependency-groups]
+lint = [
+    "ruff==0.14.10",
+    "mypy==1.19.1",
+    "bandit==1.9.2",
+    "codespell==2.4.1",
+]
+
+test = [
+    "coverage>=7.10.0",
+    "pytest>=8.4.0",
+    "pytest-asyncio>=1.1.0",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "pytest-xdist>=3.8.0",
+    "pytest-timeout>=2.4.0",
+    "pytest-randomly>=4.0.0",
+]
+
+dev = [
+    {include-group = "lint"},
+    {include-group = "test"},
+    "pre-commit==4.3.0",
+]
+
+
+[tool.pytest.ini_options]
+pythonpath = "."
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+python_files = ["test_*.py"]
+minversion = "7.0"
+timeout = 30
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "-ra",
+    "-q",
+]
+testpaths = ["tests"]
+markers = [
+    "pubsub: Google PubSub specific tests",
+    "connected: Tests requiring PubSub emulator connection",
+    "slow: Long-running tests (>5 seconds)",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["fastpubsub"]
+omit = ["**/__init__.py", "**/__about__.py", "**/__main__.py", "*/testing.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+skip_covered = true
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "@abstractmethod",
+]
+
+[tool.mypy]
+strict = true
+strict_bytes = true
+local_partial_types = true
+ignore_missing_imports = true
+
+# from https://blog.wolt.com/engineering/2021/09/30/professional-grade-mypy-configuration/
+disallow_untyped_defs = true
+no_implicit_optional = true
+check_untyped_defs = true
+warn_return_any = true
+show_error_codes = true
+warn_unused_ignores = true
+
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+disallow_any_unimported = false
+
+[tool.ruff]
+line-length = 100
+exclude = ["**/__about__.py"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["E", "W", "D", "I", "C4", "UP", "F", "B", "ARG"]
+extend-ignore = ["B008", "B006", "ARG001", "ARG002"]
+per-file-ignores = { "tests/*" = ["D"], "examples/*" = ["D"] }
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.uv]
+package = true
+
+[tool.uv.build-backend]
+module-root = ""
