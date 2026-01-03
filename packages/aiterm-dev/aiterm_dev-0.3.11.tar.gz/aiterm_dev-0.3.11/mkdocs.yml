@@ -1,0 +1,157 @@
+site_name: aiterm
+site_description: AI-powered terminal optimizer for Claude Code and Gemini CLI workflows
+site_author: Data-Wise
+site_url: https://data-wise.github.io/aiterm
+
+repo_name: Data-Wise/aiterm
+repo_url: https://github.com/Data-Wise/aiterm
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    # adhd-focus preset: forest green (#2d6a4f), sage accent (#40916c)
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - tables
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  # ============================================
+  # TIER 1: ESSENTIALS (Quick Access)
+  # ============================================
+  - Home: index.md
+  - Get Started:
+      - Quick Install: QUICK-START.md
+      - First Steps: GETTING-STARTED.md
+      - Install Guide: getting-started/installation.md
+      - Shell Completion: guide/shell-completion.md
+  - Reference Card: REFCARD.md
+
+  # ============================================
+  # TIER 2: CORE FEATURES
+  # ============================================
+  - Features:
+      - Context Detection: guide/context-detection.md
+      - Profile Switching: guide/profiles.md
+      - Terminal Support: guide/terminals.md
+      - Status Bar: guide/status-bar.md
+      - Session Coordination: guide/sessions.md
+      - IDE Integration: guide/ide-integration.md
+      - Workflows: guide/workflows.md
+      - Triggers: guide/triggers.md
+
+  # ============================================
+  # TIER 3: INTEGRATIONS (Separate Menu!)
+  # ============================================
+  - Integrations:
+      - Overview: guides/AITERM-INTEGRATION.md
+      - Claude Code:
+          - Guide: guide/claude-integration.md
+          - Commands: reference/REFCARD-CLAUDE.md
+          - Tutorial: CLAUDE-CODE-TUTORIAL.md
+          - Capabilities: reference/CLAUDE-CODE-CAPABILITIES.md
+      - MCP Servers:
+          - Guide: MCP-INTEGRATION.md
+          - Commands: reference/REFCARD-MCP.md
+      - OpenCode:
+          - Guide: reference/REFCARD-OPENCODE.md
+          - Agent Testing: guides/OPENCODE-AGENT-TESTING.md
+      - Gemini CLI:
+          - Reference: gemini-cli/GEMINI_REFCARD.md
+          - Tutorial: gemini-cli/GEMINI_TUTORIAL.md
+          - ADHD Prompts: gemini-cli/PROMPT_ENGINEERING_ADHD.md
+          - Workflow: gemini-cli/WORKFLOW_GUIDE.md
+
+  # ============================================
+  # TIER 4: REFERENCE (Streamlined)
+  # ============================================
+  - Reference:
+      - All Commands: reference/commands.md
+      - Configuration: reference/configuration.md
+      - Context Types: reference/REFCARD-CONTEXT.md
+      - Hooks: reference/REFCARD-HOOKS.md
+      - Sessions: reference/REFCARD-SESSIONS.md
+      - IDE Reference: reference/REFCARD-IDE.md
+      - Troubleshooting: reference/troubleshooting.md
+
+  # ============================================
+  # TIER 5: GUIDES (Tutorials & Deep Dives)
+  # ============================================
+  - Guides:
+      - Complete User Guide: guides/AITERM-USER-GUIDE.md
+      - Git Worktrees: guides/GIT-WORKTREES-GUIDE.md
+      - Troubleshooting Guide: troubleshooting/AITERM-TROUBLESHOOTING.md
+      - Video Walkthrough: guides/VIDEO-WALKTHROUGH.md
+
+  # ============================================
+  # TIER 6: DEVELOPMENT (Developers Only)
+  # ============================================
+  - Development:
+      - Architecture: architecture/AITERM-ARCHITECTURE.md
+      - Technical Design: reference/ARCHITECTURE.md
+      - RForge Backend: architecture/RFORGE-UNIVERSAL-BACKEND.md
+      - API Reference: api/AITERM-API.md
+      - Implementation: AITERM-IMPLEMENTATION-SUMMARY.md
+      - Contributing: development/contributing.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Data-Wise
