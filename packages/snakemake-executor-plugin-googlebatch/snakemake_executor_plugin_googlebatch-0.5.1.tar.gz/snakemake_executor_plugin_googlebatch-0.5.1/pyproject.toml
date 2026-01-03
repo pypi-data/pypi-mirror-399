@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "snakemake-executor-plugin-googlebatch"
+version = "0.5.1"
+description = ""
+authors = [
+    "Vanessa Sochat <sochat1@llnl.gov>",
+    "Johannes Koester <johannes.koester@uni-due.de>",
+    "Tadas Bareikis <tadas@vugene.com>"
+]
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/snakemake/snakemake-executor-plugin-googlebatch"
+documentation = "https://snakemake.github.io/snakemake-plugin-catalog/plugins/executor/googlebatch.html"
+keywords = ["snakemake", "plugin", "executor", "cloud", "google-batch"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+google-cloud-batch = "^0.17.1"
+requests = "^2.31.0"
+google-api-core = "^2.12.0"
+google-cloud-storage = "^2.12.0"
+snakemake-interface-common = "^1.14.0"
+snakemake-interface-executor-plugins = "^9.0.0"
+jinja2 = "^3.1.2"
+google-cloud-logging = "^3.11.4"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.0"
+flake8 = "^6.1.0"
+coverage = "^7.3.1"
+pytest = "^7.4.2"
+snakemake = "^8.30.0"
+snakemake-storage-plugin-s3 = "^0.3.1"
+
+[tool.coverage.run]
+omit = [".*", "*/site-packages/*", "Snakefile"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
