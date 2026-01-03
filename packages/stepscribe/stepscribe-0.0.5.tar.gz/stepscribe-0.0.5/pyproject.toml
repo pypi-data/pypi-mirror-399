@@ -1,0 +1,136 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+build-backend = "flit_core.buildapi"
+requires = ["flit_core>=3.4,<4"]
+
+# This is configuration specific to the `flit` build backend.
+# If you are using a different build backend, you will need to change this.
+[tool.flit.sdist]
+exclude = ["docs/*", "dist/*", "scripts/*", "examples/*"]
+
+[tool.flit.module]
+name="stepscribe"
+
+[project]
+name = "stepscribe"
+version = "0.0.5"
+description = "Write AWS Step Function State Machines in python and export to AWS States Language JSON. Allows for easy reuse of states or state components as well as generating complex state machines from simple pieces. Integrates with other tools like Pulumi to easily have a single python definition of the state machine that can generate specific JSON for multiple AWS environments."
+readme = "README.md"
+authors = [{ name = "Jason Preszler", email = "jpreszler+stepscribe@gmail.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.42.14",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.1",
+    "pytest",
+]
+
+[metadata]
+description-file = 'README.md'
+
+[project.urls]
+Homepage = "https://github.com/DataVimDev/StepScribe"
+"Bug Reports" = "https://github.com/DataVimDev/StepScribe/issues"
+"Source" = "https://github.com/DataVimDev/StepScribe"
+
+[tool.black]
+line_length = 88
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
+
+[tool.pytest.ini_options]
+addopts = [
+    "-vv",
+    "--strict-markers",
+    "--strict-config",
+    "--doctest-modules",
+]
+testpaths = "tests/"
+markers = [
+    "integration: mark as an integration test.",
+    "slow: mark test as slow.",
+]
+python_functions = "*_test"
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "W", "I", "N"]
+
+# Never enforce `E501` (line length violations).
+# Ignore B006: mutable default arguments
+# D203 blank line before class docstring conflicts with black
+# D211 and D212 conflict with other rules
+# D407 wants dashed links after Args and Returns which aren't part of Google DocStyle
+ignore = ["E501", "D203", "D211", "D212", "D407", "B006"]
+
+# Avoid trying to fix flake8-bugbear (`B`) violations.
+unfixable = ["B"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Enable auto-formatting of code examples in docstrings. Markdown,
+# reStructuredText code/literal blocks and doctests are all supported.
+#
+# This is currently disabled by default, but it is planned for this
+# to be opt-out in the future.
+docstring-code-format = false
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
+docstring-code-line-length = "dynamic"
+
+# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.
+[per-file-ignores]
+"__init__.py" = ["E402", "F401"]
+"path/to/file.py" = ["E402"]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".env",
+    ".git",
+    ".github",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
