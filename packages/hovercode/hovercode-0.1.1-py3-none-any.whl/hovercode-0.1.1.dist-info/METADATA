@@ -1,0 +1,101 @@
+Metadata-Version: 2.4
+Name: hovercode
+Version: 0.1.1
+Summary: Typed Python client for the Hovercode QR code API.
+Author: Hovercode
+License-Expression: MIT
+Project-URL: Homepage, https://theperrygroup.github.io/hovercode/
+Project-URL: Source, https://github.com/theperrygroup/hovercode
+Project-URL: Issues, https://github.com/theperrygroup/hovercode/issues
+Project-URL: Changelog, https://github.com/theperrygroup/hovercode/releases
+Keywords: hovercode,qr,qrcode,api,client
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Typing :: Typed
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.32.4
+Requires-Dist: typing-extensions>=4.12.2
+Provides-Extra: dev
+Requires-Dist: bandit>=1.7.10; extra == "dev"
+Requires-Dist: black>=24.10.0; extra == "dev"
+Requires-Dist: build>=1.2.2; extra == "dev"
+Requires-Dist: flake8>=7.1.1; extra == "dev"
+Requires-Dist: isort>=5.13.2; extra == "dev"
+Requires-Dist: mypy>=1.13.0; extra == "dev"
+Requires-Dist: pip-audit>=2.7.3; extra == "dev"
+Requires-Dist: pytest>=8.3.3; extra == "dev"
+Requires-Dist: pytest-cov>=5.0.0; extra == "dev"
+Requires-Dist: pytest-mock>=3.14.0; extra == "dev"
+Requires-Dist: responses>=0.25.3; extra == "dev"
+Requires-Dist: types-requests>=2.32.0; extra == "dev"
+Requires-Dist: twine>=5.1.1; extra == "dev"
+Provides-Extra: dotenv
+Requires-Dist: python-dotenv>=1.0.1; extra == "dotenv"
+Provides-Extra: docs
+Requires-Dist: mkdocs>=1.6.1; extra == "docs"
+Requires-Dist: mkdocs-material>=9.5.39; extra == "docs"
+Requires-Dist: mkdocstrings[python]>=0.26.1; extra == "docs"
+Requires-Dist: mkdocs-minify-plugin>=0.8.0; extra == "docs"
+Requires-Dist: pymdown-extensions>=10.11.2; extra == "docs"
+Dynamic: license-file
+
+## Hovercode Python SDK
+
+Typed Python client for the Hovercode API (dynamic and static QR codes).
+
+### Documentation
+
+Project documentation is published on GitHub Pages: `https://theperrygroup.github.io/hovercode/`
+
+### Installation
+
+```bash
+python -m pip install hovercode
+```
+
+### Authentication
+
+Hovercode uses token authentication. Provide your token either:
+
+- Via environment variable `HOVERCODE_API_TOKEN`, or
+- By passing `api_token=` to `HovercodeClient`.
+
+### Quickstart
+
+```python
+from hovercode import HovercodeClient
+
+client = HovercodeClient()  # reads HOVERCODE_API_TOKEN
+
+qr = client.hovercodes.create(
+    workspace="YOUR-WORKSPACE-ID",
+    qr_data="https://twitter.com/hovercodeHQ",
+    primary_color="#1DA1F2",
+)
+
+print(qr["id"])
+print(qr["svg"][:80])
+```
+
+### Common operations
+
+```python
+qr_full = client.hovercodes.get_hovercode(qr["id"])
+activity = client.hovercodes.get_activity(qr["id"], page_size=50)
+
+client.hovercodes.update(qr["id"], display_name="New name")
+client.hovercodes.delete_hovercode(qr["id"])
+```
+
+### Notes
+
+- Do not call the Hovercode API from a browser client (it would expose your token).
+
