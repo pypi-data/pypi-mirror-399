@@ -1,0 +1,428 @@
+import inspect
+import warnings
+from typing import Optional, Union
+
+import httpx
+import pendulum
+from pydantic_extra_types.pendulum_dt import Date, DateTime
+
+from watcher.auth import AuthenticationError, _create_auth_provider, _sign_aws_request
+from watcher.exceptions import WatcherNetworkError, handle_http_error
+from watcher.http_client import ProductionHTTPClient
+from watcher.models.address_lineage import _AddressLineagePostInput
+from watcher.models.execution import (
+    ETLResult,
+    ExecutionResult,
+    WatcherContext,
+    _EndPipelineExecutionInput,
+    _StartPipelineExecutionInput,
+)
+from watcher.models.pipeline import (
+    PipelineConfig,
+    SyncedPipelineConfig,
+    _PipelineInput,
+    _PipelineResponse,
+    _PipelineWithResponse,
+)
+
+
+class Watcher:
+    def __init__(self, base_url: str, auth: Optional[str] = None):
+        """
+        Initialize the Watcher client.
+
+        Args:
+            base_url: Base URL for the Watcher API
+            auth: Authentication configuration. Can be:
+                  - None: Auto-detect cloud environment
+                  - str: Bearer token or GCP service account file path
+        """
+        self.base_url = base_url
+        self.client = ProductionHTTPClient(base_url=base_url)
+        self.auth_provider = _create_auth_provider(auth, http_client=self.client)
+
+    def _make_request(self, method: str, endpoint: str, **kwargs):
+        """Make an HTTP request with proper error handling."""
+        # Add authentication headers
+        auth_headers = self.auth_provider.get_headers()
+
+        # Handle AWS signing if needed
+        if "X-AWS-Auth" in auth_headers:
+            # Remove the AWS auth signal header
+            auth_headers.pop("X-AWS-Auth")
+
+            # Sign the request with AWS credentials
+            try:
+                signed_headers = _sign_aws_request(
+                    method=method,
+                    url=f"{self.base_url}{endpoint}",
+                    headers=auth_headers,
+                    cache=self.auth_provider.get_cache(),
+                    http_client=self.client,
+                    body=kwargs.get("data", ""),
+                    region="us-east-1",
+                )
+                auth_headers.update(signed_headers)
+            except Exception as e:
+                raise AuthenticationError(f"Failed to sign AWS request: {e}")
+
+        if "headers" in kwargs:
+            kwargs["headers"].update(auth_headers)
+        else:
+            kwargs["headers"] = auth_headers
+
+        try:
+            response = self.client.request_with_retry(method, endpoint, **kwargs)
+            response.raise_for_status()
+            return response
+        except httpx.HTTPStatusError as e:
+            raise handle_http_error(e)
+        except httpx.RequestError as e:
+            raise WatcherNetworkError(f"Network error: {e}")
+
+    def sync_pipeline_config(self, config: PipelineConfig) -> SyncedPipelineConfig:
+        """
+        Sync a pipeline config to the Watcher framework.
+        If the pipeline is not active, raise a warning.
+        If the pipeline watermark is not set, use the default watermark.
+        If the pipeline load_lineage is true, sync the address lineage.
+        Return the pipeline config.
+        """
+        pipeline_input = _PipelineInput(
+            **config.pipeline.model_dump(),
+            next_watermark=config.next_watermark,
+        )
+        pipeline_response = self._make_request(
+            "POST",
+            "/pipeline",
+            json=pipeline_input.model_dump(exclude_unset=True),
+        )
+        pipeline_endpoint_response = _PipelineResponse(**(pipeline_response.json()))
+        if pipeline_endpoint_response.active is False:
+            warnings.warn(
+                f"Pipeline '{config.pipeline.name}' (ID: {pipeline_endpoint_response.id}) is not active. "
+                f"Sync operations skipped. Check pipeline status in the Watcher framework."
+            )
+            return SyncedPipelineConfig(
+                pipeline=_PipelineWithResponse(
+                    **config.pipeline.model_dump(),
+                    id=pipeline_endpoint_response.id,
+                    active=False,
+                ),
+                address_lineage=config.address_lineage,
+                watermark=None,
+                default_watermark=config.default_watermark,
+                next_watermark=config.next_watermark,
+            )
+
+        if pipeline_endpoint_response.watermark is None:
+            watermark = config.default_watermark
+        else:
+            watermark = pipeline_endpoint_response.watermark
+
+        if pipeline_endpoint_response.load_lineage:
+            address_lineage_data = _AddressLineagePostInput(
+                pipeline_id=pipeline_endpoint_response.id,
+                **config.address_lineage.model_dump(exclude_unset=True),
+            )
+
+            self._make_request(
+                "POST",
+                "/address_lineage",
+                json=address_lineage_data.model_dump(exclude_unset=True),
+            )
+
+        return SyncedPipelineConfig(
+            pipeline=_PipelineWithResponse(
+                **config.pipeline.model_dump(),
+                id=pipeline_endpoint_response.id,
+                active=True,
+            ),
+            address_lineage=config.address_lineage,
+            default_watermark=config.default_watermark,
+            next_watermark=config.next_watermark,
+            watermark=watermark,
+        )
+
+    def track_pipeline_execution(
+        self,
+        pipeline_id: int,
+        active: bool,
+        parent_execution_id: Optional[int] = None,
+        watermark: Optional[Union[str, int, DateTime, Date]] = None,
+        next_watermark: Optional[Union[str, int, DateTime, Date]] = None,
+    ):
+        """
+        Decorator to track pipeline execution.
+        Start the pipeline execution, and end it when the function is done.
+
+        The decorated function must return ETLResult or a model that inherits from ETLResult.
+        The ETLResult.completed_successfully field determines if the execution succeeded or failed.
+
+        Exception Handling:
+        - Unexpected exceptions (not handled by your ETL function) are logged as failures and re-raised
+        - ETL function logic failures should be handled by returning ETLResult(completed_successfully=False)
+        - You can handle errors however you want - just set completed_successfully appropriately
+
+        Example:
+            @watcher.track_pipeline_execution(pipeline_id=123)
+            def my_etl_pipeline(watcher_context: WatcherContext):
+                try:
+                    # Your ETL logic
+                    result = do_etl_work()
+                    if result.success:
+                        return ETLResult(completed_successfully=True, inserts=100)
+                    else:
+                        return ETLResult(completed_successfully=False, execution_metadata={"error": result.error})
+                except Exception as e:
+                    # Handle unexpected errors
+                    return ETLResult(completed_successfully=False, execution_metadata={"exception": str(e)})
+        """
+
+        def decorator(func):
+            def wrapper(*args, **kwargs):
+                if active is False:
+                    warnings.warn(
+                        f"Pipeline {pipeline_id} is not active - aborting execution"
+                    )
+                    return None
+
+                start_execution = {
+                    "pipeline_id": pipeline_id,
+                    "start_date": pendulum.now("UTC").isoformat(),
+                }
+                if parent_execution_id is not None:
+                    start_execution["parent_id"] = parent_execution_id
+                if watermark is not None:
+                    start_execution["watermark"] = watermark
+                if next_watermark is not None:
+                    start_execution["next_watermark"] = next_watermark
+
+                start_response = self._make_request(
+                    "POST",
+                    "/start_pipeline_execution",
+                    json=start_execution,
+                )
+                execution_id = start_response.json()["id"]
+
+                try:
+                    sig = inspect.signature(func)
+                    if "watcher_context" in sig.parameters:
+                        watcher_context = WatcherContext(
+                            execution_id=execution_id,
+                            pipeline_id=pipeline_id,
+                            watermark=watermark,
+                            next_watermark=next_watermark,
+                        )
+                        result = func(watcher_context, *args, **kwargs)
+                    else:
+                        result = func(*args, **kwargs)
+
+                    # Validate result is ETLResult or inherits from it
+                    if not isinstance(result, ETLResult):
+                        raise ValueError(
+                            f"Function must return ETLResult or a model that inherits from ETLResult. "
+                            f"Got: {type(result).__name__}"
+                        )
+
+                    end_payload_data = {
+                        "id": execution_id,
+                        "end_date": pendulum.now("UTC"),
+                        "completed_successfully": result.completed_successfully,
+                    }
+
+                    for field in ETLResult.model_fields:
+                        if field == "completed_successfully":
+                            continue  # Already handled above
+                        value = getattr(result, field)
+                        if value is not None:
+                            end_payload_data[field] = value
+
+                    end_payload = _EndPipelineExecutionInput(**end_payload_data)
+
+                    self._make_request(
+                        "POST",
+                        "/end_pipeline_execution",
+                        json=end_payload.model_dump(mode="json", exclude_unset=True),
+                    )
+
+                    return ExecutionResult(execution_id=execution_id, result=result)
+
+                except Exception as e:
+                    error_payload = _EndPipelineExecutionInput(
+                        id=execution_id,
+                        end_date=pendulum.now("UTC"),
+                        completed_successfully=False,
+                    )
+
+                    self._make_request(
+                        "POST",
+                        "/end_pipeline_execution",
+                        json=error_payload.model_dump(mode="json", exclude_unset=True),
+                    )
+                    raise e
+
+            return wrapper
+
+        return decorator
+
+    def track_child_pipeline_execution(
+        self,
+        pipeline_id: int,
+        active: bool,
+        parent_execution_id: int,
+        func,
+        watermark: Optional[Union[str, int, DateTime, Date]] = None,
+        next_watermark: Optional[Union[str, int, DateTime, Date]] = None,
+        *args,
+        **kwargs,
+    ):
+        """Track a child execution. Call a function and capture its ETLResult."""
+        if active is False:
+            warnings.warn(f"Pipeline {pipeline_id} is not active - aborting execution")
+            return None
+
+        start_execution = {
+            "pipeline_id": pipeline_id,
+            "parent_id": parent_execution_id,
+            "start_date": pendulum.now("UTC").isoformat(),
+        }
+        if watermark is not None:
+            start_execution["watermark"] = watermark
+        if next_watermark is not None:
+            start_execution["next_watermark"] = next_watermark
+
+        start_response = self._make_request(
+            "POST",
+            "/start_pipeline_execution",
+            json=start_execution,
+        )
+        execution_id = start_response.json()["id"]
+
+        try:
+            # Check if function expects WatcherContext (same as decorator)
+            sig = inspect.signature(func)
+            if "watcher_context" in sig.parameters:
+                watcher_context = WatcherContext(
+                    execution_id=execution_id,
+                    pipeline_id=pipeline_id,
+                    watermark=watermark,
+                    next_watermark=next_watermark,
+                )
+                result = func(watcher_context, *args, **kwargs)
+            else:
+                result = func(*args, **kwargs)
+
+            # Validate result is ETLResult or inherits from it
+            if not isinstance(result, ETLResult):
+                raise ValueError(
+                    f"Function must return ETLResult or a model that inherits from ETLResult. "
+                    f"Got: {type(result).__name__}"
+                )
+
+            # End execution with actual ETLResult data (same as decorator)
+            end_payload_data = {
+                "id": execution_id,
+                "end_date": pendulum.now("UTC"),
+                "completed_successfully": result.completed_successfully,
+            }
+
+            for field in ETLResult.model_fields:
+                if field == "completed_successfully":
+                    continue  # Already handled above
+                value = getattr(result, field)
+                if value is not None:
+                    end_payload_data[field] = value
+
+            end_payload = _EndPipelineExecutionInput(**end_payload_data)
+
+            self._make_request(
+                "POST",
+                "/end_pipeline_execution",
+                json=end_payload.model_dump(mode="json", exclude_unset=True),
+            )
+
+            return ExecutionResult(execution_id=execution_id, result=result)
+
+        except Exception as e:
+            # Failure - end execution (same as decorator)
+            error_payload = _EndPipelineExecutionInput(
+                id=execution_id,
+                end_date=pendulum.now("UTC"),
+                completed_successfully=False,
+            )
+            self._make_request(
+                "POST",
+                "/end_pipeline_execution",
+                json=error_payload.model_dump(mode="json", exclude_unset=True),
+            )
+            raise e
+
+    def start_pipeline_execution(
+        self,
+        pipeline_id: int,
+        start_date: Optional[DateTime] = None,
+        watermark: Optional[Union[str, int, DateTime, Date]] = None,
+        next_watermark: Optional[Union[str, int, DateTime, Date]] = None,
+        parent_execution_id: Optional[int] = None,
+    ):
+        execution_input = {
+            "pipeline_id": pipeline_id,
+            "start_date": start_date,
+            "watermark": watermark,
+            "next_watermark": next_watermark,
+            "parent_execution_id": parent_execution_id,
+        }
+        execution_input = _StartPipelineExecutionInput(**execution_input).model_dump(
+            mode="json", exclude_unset=True
+        )
+        execution_response = self._make_request(
+            "POST", "/start_pipeline_execution", json=execution_input
+        )
+        return execution_response.json()["id"]
+
+    def end_pipeline_execution(
+        self,
+        execution_id: int,
+        completed_successfully: bool,
+        end_date: Optional[DateTime] = None,
+        inserts: Optional[int] = None,
+        updates: Optional[int] = None,
+        soft_deletes: Optional[int] = None,
+        total_rows: Optional[int] = None,
+        execution_metadata: Optional[dict] = None,
+    ):
+        end_execution = {
+            "id": execution_id,
+            "end_date": end_date,
+            "completed_successfully": completed_successfully,
+            "inserts": inserts,
+            "updates": updates,
+            "soft_deletes": soft_deletes,
+            "total_rows": total_rows,
+            "execution_metadata": execution_metadata,
+        }
+        end_execution = _EndPipelineExecutionInput(**end_execution).model_dump(
+            mode="json", exclude_unset=True
+        )
+        self._make_request("POST", "/end_pipeline_execution", json=end_execution)
+
+    def update_pipeline_next_watermark(
+        self, pipeline_id: int, next_watermark: Union[str, int, DateTime, Date]
+    ):
+        next_watermark_input = {
+            "pipeline_id": pipeline_id,
+            "next_watermark": next_watermark,
+        }
+        self._make_request("PATCH", "/pipeline", json=next_watermark_input)
+
+    def trigger_timeliness_check(self, lookback_minutes: int):
+        self._make_request(
+            "POST", "/timeliness", json={"lookback_minutes": lookback_minutes}
+        )
+
+    def trigger_freshness_check(self):
+        self._make_request("POST", "/freshness")
+
+    def trigger_celery_queue_check(self):
+        self._make_request("POST", "/celery/monitor-queue")
