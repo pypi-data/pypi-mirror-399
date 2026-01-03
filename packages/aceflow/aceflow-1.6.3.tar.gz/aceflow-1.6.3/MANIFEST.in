@@ -1,0 +1,10 @@
+include README.md
+include requirements.txt
+include pyproject.toml
+
+# Include C source files
+recursive-include aceflow/core/c_core *.c *.h
+
+# Include Rust source files (if you want to distribute them)
+recursive-include aceflow-core *
+include aceflow-core/Cargo.toml
