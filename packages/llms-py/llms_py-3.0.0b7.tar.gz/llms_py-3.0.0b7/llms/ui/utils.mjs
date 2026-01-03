@@ -1,0 +1,212 @@
+import { toRaw } from "vue"
+import { rightPart } from "@servicestack/client"
+
+export function toJsonArray(json) {
+    try {
+        return json ? JSON.parse(json) : []
+    } catch (e) {
+        return []
+    }
+}
+
+export function toJsonObject(json) {
+    try {
+        return json ? JSON.parse(json) : null
+    } catch (e) {
+        return null
+    }
+}
+
+export function storageArray(key, save) {
+    if (save && Array.isArray(save)) {
+        localStorage.setItem(key, JSON.stringify(save))
+    }
+    return toJsonArray(localStorage.getItem(key)) ?? []
+}
+
+export function storageObject(key, save) {
+    if (typeof save == 'object') {
+        localStorage.setItem(key, JSON.stringify(save))
+    }
+    return toJsonObject(localStorage.getItem(key)) ?? {}
+}
+
+export function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file) //= "data:…;base64,…"
+        reader.onload = () => {
+            resolve(rightPart(reader.result, ',')) // strip prefix
+        }
+        reader.onerror = err => reject(err)
+    })
+}
+
+export function fileToDataUri(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file) //= "data:…;base64,…"
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = err => reject(err)
+    })
+}
+
+export function serializedClone(obj) {
+    try {
+        return JSON.parse(JSON.stringify(obj))
+    } catch (e) {
+        console.warn('Deep cloning failed, returning original value:', e)
+        return obj
+    }
+}
+
+export function deepClone(o) {
+    if (o === null || typeof o !== 'object') return o
+
+    // Handle Array objects
+    if (Array.isArray(o)) {
+        return o.map(x => deepClone(x))
+    }
+
+    if (typeof structuredClone === 'function') { // available (modern browsers, Node.js 17+)
+        try {
+            return structuredClone(o)
+        } catch (e) {
+            console.warn('structuredClone failed, falling back to JSON:', e)
+            console.log(o)
+            // console.log(JSON.stringify(o, undefined, 2))
+        }
+    }
+
+    // Fallback to JSON stringify/parse for older environments
+    return serializedClone(o)
+}
+
+export function toModelInfo(model) {
+    if (!model) return undefined
+    const props = ['id', 'name', 'provider', 'cost', 'modalities']
+    const to = {}
+    props.forEach(k => to[k] = toRaw(model[k]))
+    return deepClone(to)
+}
+
+export function pluralize(word, count) {
+    return count === 1 ? word : word + 's'
+}
+
+const currFmt2 = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })
+const currFmt6 = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 6 })
+
+export function tokenCost(price, tokens = 1) {
+    if (!price) return ''
+    var ret = currFmt2.format(parseFloat(price) * tokens)
+    return ret.endsWith('.00') ? ret.slice(0, -3) : ret
+}
+export function tokenCostLong(price, tokens = 1) {
+    if (!price) return ''
+    const ret = currFmt6.format(parseFloat(price) * tokens)
+    return ret.endsWith('.000000') ? ret.slice(0, -7) : ret
+}
+export function formatCost(cost) {
+    if (!cost) return ''
+    return currFmt2.format(parseFloat(cost))
+}
+
+// Accessible in views via $fmt
+export function utilsFormatters() {
+    function relativeTime(timestamp) {
+        const now = new Date()
+        const date = new Date(timestamp)
+        const diffInSeconds = Math.floor((now - date) / 1000)
+
+        if (diffInSeconds < 60) return 'Just now'
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`
+
+        return date.toLocaleDateString()
+    }
+    function costLong(cost) {
+        if (!cost) return ''
+        const ret = currFmt6.format(parseFloat(cost))
+        return ret.endsWith('.000000') ? ret.slice(0, -7) : ret
+    }
+    function statsTitle(stats) {
+        let title = []
+        // Each stat on its own line
+        if (stats.cost) {
+            title.push(`Total Cost: ${costLong(stats.cost)}`)
+        }
+        if (stats.inputTokens) {
+            title.push(`Input Tokens: ${stats.inputTokens}`)
+        }
+        if (stats.outputTokens) {
+            title.push(`Output Tokens: ${stats.outputTokens}`)
+        }
+        if (stats.requests) {
+            title.push(`Requests: ${stats.requests}`)
+        }
+        if (stats.duration) {
+            title.push(`Duration: ${stats.duration}ms`)
+        }
+        return title.join('\n')
+    }
+
+    function time(timestamp) {
+        return new Date(timestamp).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+    }
+
+    function shortDate(ts) {
+        if (!ts) return ''
+        const date = typeof ts === 'number' ? new Date(ts * 1000) : new Date(ts)
+        return date.toLocaleDateString(undefined, {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        })
+    }
+
+
+    return {
+        currFmt: currFmt2,
+        tokenCost,
+        tokenCostLong,
+        cost: formatCost,
+        costLong,
+        statsTitle,
+        relativeTime,
+        time,
+        pluralize,
+        shortDate,
+    }
+}
+
+/**
+ * Returns an ever-increasing unique integer id.
+ */
+export const nextId = (() => {
+    let last = 0               // cache of the last id that was handed out
+    return () => {
+        const now = Date.now() // current millisecond timestamp
+        last = (now > last) ? now : last + 1
+        return last
+    }
+})();
+
+export function utilsFunctions() {
+    return {
+        nextId,
+        toJsonArray,
+        toJsonObject,
+        storageArray,
+        storageObject,
+        fileToBase64,
+        fileToDataUri,
+        serializedClone,
+        deepClone,
+        toModelInfo,
+        pluralize,
+    }
+}
+
