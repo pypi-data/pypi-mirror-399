@@ -1,0 +1,202 @@
+Metadata-Version: 2.3
+Name: art_adk
+Version: 0.0.1
+Summary: Python SDK for ART WebSocket platform with sync/async support
+Keywords: websocket,realtime,art,adk,messaging,pubsub
+Author: Aiotrix Private Limited
+License: MIT
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Communications
+Requires-Dist: aiohttp>=3.8.0
+Requires-Dist: websockets>=10.0,<15.0
+Requires-Dist: pynacl>=1.5.0
+Requires-Python: >=3.8
+Project-URL: Homepage, https://arealtimetech.com
+Description-Content-Type: text/markdown
+
+# Python ADK (ART Development Kit)
+
+The **Python ADK** enables your applications to connect and communicate with the [**ART (A Realtime Tech)**](https://arealtimetech.com/) platform in real-time. It supports both **synchronous** and **asynchronous** modes for seamless integration into any Python project.
+
+This SDK provides everything needed to authenticate clients, establish secure connections, subscribe to channels, exchange encrypted messages, and manage collaborative real-time data — all with minimal setup.
+
+---
+
+## Documentation
+
+For complete documentation, and detailed guides, visit:
+
+- **[Python ADK Documentation](https://docs.arealtimetech.com/docs/adk/python/installation)** - Installation, authentication, and getting started.
+
+---
+
+## Installation
+
+Install the Python ADK via pip:
+
+```bash
+pip install art_adk
+```
+
+**Requirements:**
+- Python 3.8+
+- `websockets`
+- `aiohttp` (for async operations)
+- `pynacl` (for encryption)
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Before using the Python ADK, you need:
+
+1. **Client Credentials** - Sign up at the [ART Live Dashboard](https://dev.arealtimetech.com/sign-up) and [generate your client credentials](https://docs.arealtimetech.com/docs/getting-started/client-config). Add the `adk-service.json` file to your project root:
+
+```json
+{
+  "Client-ID": "YOUR_CLIENT_ID",
+  "Client-Secret": "YOUR_CLIENT_SECRET",
+  "Org-Title": "YOUR_ORG",
+  "ProjectKey": "YOUR_PROJECT_KEY",
+  "Environment": "YOUR_ENV_NAME"
+}
+```
+
+2. **Passcode for Authentication** - Before connecting, you need to obtain a passcode. See the [authentication guide](https://docs.arealtimetech.com/docs/adk/python/installation#4-get-passcode) for detailed steps on obtaining your passcode via `get_security_code()`.
+
+3. **Start Building** - Use the obtained passcode as `AuthToken` in your config (see Quick Start examples below).
+
+For complete guides on authentication, channels, encryption, and advanced features, visit the [**Python ADK Documentation**](https://docs.arealtimetech.com/docs/adk/python/installation).
+
+---
+
+## Quick Start
+
+### Synchronous Usage
+
+**Option 1: Context Manager**
+
+```python
+from art_adk import Adk
+import os
+
+config = {
+    "ROOT": os.getcwd(),
+    "Uri": "dev.arealtimetech.com/ws",
+    "AuthToken": "your_passcode"  # Obtain via get_security_code()
+}
+
+# Automatic connection management
+with Adk(config) as adk:
+    # Subscribe to a channel
+    subscription = adk.subscribe("my-channel")
+
+    # Listen for messages
+    subscription.listen(lambda data: print(f"Received: {data}"))
+
+    # Send a message
+    subscription.push("message", {"text": "Hello from ART!"})
+```
+
+**Option 2: Manual Connection**
+
+```python
+from art_adk import Adk
+import os
+
+config = {
+    "ROOT": os.getcwd(),
+    "Uri": "dev.arealtimetech.com/ws",
+    "AuthToken": "your_passcode"
+}
+
+adk = Adk(config)
+adk.connect()
+
+# Subscribe and interact
+subscription = adk.subscribe("my-channel")
+subscription.push("message", {"text": "Hello!"})
+
+# Clean up
+adk.disconnect()
+```
+
+---
+
+### Asynchronous Usage
+
+**Option 1: Async Context Manager**
+
+```python
+from art_adk import AsyncAdk
+import asyncio
+import os
+
+async def main():
+    config = {
+        "ROOT": os.getcwd(),
+        "Uri": "dev.arealtimetech.com/ws",
+        "AuthToken": "your_passcode"
+    }
+
+    # Automatic async connection management
+    async with AsyncAdk(config) as adk:
+        # Subscribe to a channel
+        subscription = await adk.subscribe("my-channel")
+
+        # Listen for messages
+        subscription.listen(lambda data: print(f"Received: {data}"))
+
+        # Send a message
+        await subscription.push("message", {"text": "Hello from ART!"})
+
+asyncio.run(main())
+```
+
+**Option 2: Manual Async Connection**
+
+```python
+from art_adk import AsyncAdk
+import asyncio
+import os
+
+async def main():
+    config = {
+        "ROOT": os.getcwd(),
+        "Uri": "dev.arealtimetech.com/ws",
+        "AuthToken": "your_passcode"
+    }
+
+    adk = AsyncAdk(config)
+    await adk.connect()
+
+    # Subscribe and interact
+    subscription = await adk.subscribe("my-channel")
+    await subscription.push("message", {"text": "Hello!"})
+
+    # Clean up
+    await adk.disconnect()
+
+asyncio.run(main())
+```
+
+---
+
+## Support & Resources
+
+- **Documentation:** [https://docs.arealtimetech.com](https://docs.arealtimetech.com)
+- **Support:** support@arealtimetech.com
+- **Website:** [https://arealtimetech.com](https://arealtimetech.com)
+
+---
