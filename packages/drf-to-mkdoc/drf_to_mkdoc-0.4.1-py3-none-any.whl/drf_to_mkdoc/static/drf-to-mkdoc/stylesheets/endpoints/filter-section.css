@@ -1,0 +1,409 @@
+/* Filter Section - Fixed Layout */
+.filter-section,
+.filter-sidebar {
+    background: linear-gradient(135deg, #e0f2ff, #ffffff);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box; /* Prevents overflow */
+    position: relative; /* Ensures proper positioning */
+    z-index: 1; /* Prevents overlap with other elements */
+}
+
+.filter-sidebar.collapsed {
+    /* Add styles for collapsed state if needed */
+    overflow: hidden;
+}
+
+.filter-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0; /* Prevents flex items from overflowing */
+}
+
+.filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.filter-input,
+.filter-select {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 13px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+    appearance: none;
+    background-image: none;
+    min-height: 32px; /* Consistent height */
+}
+
+.filter-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Dark mode dropdown arrow */
+[data-md-color-scheme="slate"] .filter-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23cccccc' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Dark mode focus shadow */
+[data-md-color-scheme="slate"] .filter-input:focus,
+[data-md-color-scheme="slate"] .filter-select:focus {
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+.filter-input:hover,
+.filter-select:hover {
+    border-color: var(--accent-primary);
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 12px;
+}
+
+.filter-settings,
+.filter-clear {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 80px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.filter-settings {
+    background: var(--accent-primary);
+    color: #fff;
+}
+
+.filter-settings .icon {
+    font-size: 16px;
+}
+
+.filter-clear {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.filter-settings:hover {
+    background: var(--accent-secondary);
+    transform: translateY(-1px);
+}
+
+.filter-clear:hover {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+/* Dark mode clear button hover */
+[data-md-color-scheme="slate"] .filter-clear:hover {
+    background: rgba(96, 165, 250, 0.1);
+}
+
+.filter-settings:active,
+.filter-clear:active {
+    transform: translateY(0);
+}
+
+.filter-results {
+    margin-top: 10px;
+    font-size: 11px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Main content layout to prevent overlap */
+.main-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .filter-actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .filter-settings,
+    .filter-clear {
+        width: 100%;
+    }
+
+    .filter-sidebar {
+        padding: 10px 12px;
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-title {
+        font-size: 14px;
+    }
+
+    .filter-input,
+    .filter-select {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Ensure proper spacing with endpoint cards */
+.endpoints-grid {
+    margin-top: 16px;
+    clear: both;
+}
+
+/* Fix any potential z-index issues */
+.filter-sidebar {
+    position: relative;
+    z-index: 10;
+}
+
+.endpoint-card {
+    position: relative;
+    z-index: 1;
+}
+
+/* Permissions Filter Enhancements */
+.permissions-filter-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.permissions-dropdown-trigger {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+    min-height: 40px;
+    box-sizing: border-box;
+}
+
+.permissions-dropdown-trigger:hover {
+    border-color: var(--accent-primary);
+}
+
+.permissions-dropdown-trigger.open {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Dark mode permissions trigger open state */
+[data-md-color-scheme="slate"] .permissions-dropdown-trigger.open {
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+.permissions-trigger-text {
+    flex: 1;
+    text-align: left;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.permissions-trigger-arrow {
+    font-size: 12px;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.permissions-dropdown-trigger.open .permissions-trigger-arrow {
+    transform: rotate(180deg);
+}
+
+.permissions-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 400px;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+/* Dark mode dropdown shadow */
+[data-md-color-scheme="slate"] .permissions-dropdown {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.permissions-dropdown.open {
+    display: flex;
+}
+
+.permissions-search {
+    width: 100%;
+    margin: 0;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 8px 8px 0 0;
+    padding: 10px 12px;
+}
+
+.permissions-checkbox-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.permissions-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    user-select: none;
+}
+
+.permissions-checkbox-item:hover {
+    background-color: rgba(59, 130, 246, 0.08);
+}
+
+/* Dark mode checkbox item hover */
+[data-md-color-scheme="slate"] .permissions-checkbox-item:hover {
+    background-color: rgba(96, 165, 250, 0.15);
+}
+
+.permissions-checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--accent-primary);
+    flex-shrink: 0;
+}
+
+.permissions-checkbox-label {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.permissions-checkbox-item input[type="checkbox"]:checked + .permissions-checkbox-label {
+    font-weight: 600;
+    color: var(--accent-primary);
+}
+
+.permissions-checkbox-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.permissions-checkbox-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.permissions-checkbox-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.permissions-checkbox-list::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Dark mode scrollbar */
+[data-md-color-scheme="slate"] .permissions-checkbox-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-md-color-scheme="slate"] .permissions-checkbox-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+}
+
+[data-md-color-scheme="slate"] .permissions-checkbox-list::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Dark mode filter sidebar - beautiful gradient background */
+[data-md-color-scheme="slate"] .filter-section,
+[data-md-color-scheme="slate"] .filter-sidebar {
+    background: linear-gradient(135deg, #2d3a4a, #1a1a1a);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}

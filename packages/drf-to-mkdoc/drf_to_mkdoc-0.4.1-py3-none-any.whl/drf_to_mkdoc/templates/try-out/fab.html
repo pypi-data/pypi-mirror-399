@@ -1,0 +1,51 @@
+<!-- Try Out Floating Action Button -->
+<div class="try-out-fab-container">
+    <button 
+        class="try-out-fab" 
+        role="button" 
+        tabindex="0" 
+        aria-label="Open Try It Out"
+        aria-expanded="false"
+        onclick="TryOutSidebar.openTryOut()"
+        data-tooltip="Try out this endpoint"
+    >
+        <div class="fab-content">
+            <span class="fab-icon">🚀</span>
+            <span class="fab-text">try-it-out</span>
+        </div>
+    </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fab = document.querySelector('.try-out-fab');
+
+    // Keyboard shortcut
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.code === 'Space') {
+            e.preventDefault();
+            TryOutSidebar.openTryOut();
+            
+            // Animate the FAB
+            fab.classList.add('keyboard-triggered');
+            setTimeout(() => fab.classList.remove('keyboard-triggered'), 200);
+        }
+    });
+
+    // Show/hide shortcut hint
+    let hintTimeout;
+    const shortcutHint = document.querySelector('.shortcut-hint');
+    if (shortcutHint) {
+        fab.addEventListener('mouseenter', function() {
+            clearTimeout(hintTimeout);
+            shortcutHint.classList.add('visible');
+        });
+
+        fab.addEventListener('mouseleave', function() {
+            hintTimeout = setTimeout(() => {
+                shortcutHint.classList.remove('visible');
+            }, 500);
+        });
+    }
+});
+</script>
