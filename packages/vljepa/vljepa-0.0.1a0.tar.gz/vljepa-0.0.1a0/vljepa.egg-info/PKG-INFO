@@ -1,0 +1,37 @@
+Metadata-Version: 2.4
+Name: vljepa
+Version: 0.0.1a0
+Summary: VL-JEPA (https://arxiv.org/abs/2512.10942)
+Home-page: https://github.com/JosefAlbers/vljepa
+Author: J Joe
+Author-email: albersj66@gmail.com
+License: Apache-2.0
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: mlx==0.30.1; platform_system == "Darwin"
+Requires-Dist: transformers
+Requires-Dist: datasets
+Requires-Dist: numpy
+Requires-Dist: Pillow
+Provides-Extra: cuda
+Requires-Dist: mlx[cuda]; extra == "cuda"
+Provides-Extra: cpu
+Requires-Dist: mlx[cpu]; extra == "cpu"
+Provides-Extra: no-mlx
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: license-file
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: summary
+
+# VL-JEPA
+
+A simplified, educational implementation of the [VL-JEPA (Vision-Language Joint Embedding Predictive Architecture)](https://arxiv.org/abs/2512.10942) paper, built on Apple MLX.
+
+Adapts the **PaliGemma** VLM into a JEPA architecture (for now).
+
