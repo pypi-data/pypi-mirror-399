@@ -1,0 +1,50 @@
+Metadata-Version: 2.4
+Name: imsize
+Version: 1.9.0
+Summary: Lightning-fast extraction of basic image metadata
+Project-URL: Homepage, http://github.com/toaarnio/imsize
+Author-email: Tomi Aarnio <tomi.p.aarnio@gmail.com>
+License-File: LICENSE
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.10
+Requires-Dist: numpy>=2.2.0
+Requires-Dist: pyexiftool>=0.5.6
+Requires-Dist: pyexiv2>=2.15.0
+Requires-Dist: rawpy>=0.25.0
+Requires-Dist: sympy>=1.14.0
+Description-Content-Type: text/markdown
+
+# imsize
+
+[![Build Status](https://travis-ci.com/toaarnio/imsize.svg?branch=master)](https://travis-ci.com/github/toaarnio/imsize)
+
+Lightning-fast extraction of image dimensions & bit depth. Tested on Python 3.8+ and Ubuntu 22.04.
+
+Supports PGM / PPM / PNM / PFM / PNG / BMP / JPG / TIFF / INSP / EXR / HDR / DNG / CR2 / NEF / RAW / NPY.
+
+**Installing on Linux:**
+```
+pip install imsize
+```
+
+**Documentation:**
+```
+pydoc imsize
+```
+
+**Command-line usage:**
+```
+imsize --help
+```
+
+**Building & installing from source:**
+```
+make install
+```
+
+**Building & releasing to PyPI:**
+```
+make release
+```
