@@ -1,0 +1,102 @@
+[project]
+name = "nulapack"
+dynamic = ['version']
+description = "NUmerical Linear Algebra PACKage"
+readme = "README.md"
+authors = [{ name = "Saud Zahir", email = "m.saud.zahir@gmail.com" }]
+license = "GPL-3.0-or-later"
+keywords = [
+    "numerical",
+    "linear",
+    "algebra",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    'Programming Language :: Fortran',
+    'Programming Language :: C',
+    'Programming Language :: C++',
+    "Programming Language :: Python",
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: POSIX',
+    'Operating System :: Unix',
+    'Operating System :: MacOS',
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+]
+
+dependencies = [
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff==0.14.9",
+]
+
+[build-system]
+requires = [
+    "meson-python",
+    "numpy",
+    "packaging",
+    "setuptools_scm>=8"
+]
+build-backend = "mesonpy"
+
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
+local_scheme = "no-local-version"
+
+[tool.ruff]
+
+required-version = "==0.14.9"
+line-length = 100
+indent-width = 4
+output-format = "grouped"
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors (PEP 8 style guide violations)
+    "W",   # pycodestyle warnings (e.g., extra spaces, indentation issues)
+    "C",   # Complexity checks (e.g., McCabe complexity, comprehensions)
+    "N",   # Naming convention checks (e.g., PEP 8 variable and function names)
+    "F",   # Pyflakes errors (e.g., unused imports, undefined variables)
+    "I",   # isort (Ensures imports are sorted properly)
+    "B",   # flake8-bugbear (Detects likely bugs and bad practices)
+    "TID", # flake8-tidy-imports (Checks for banned or misplaced imports)
+    "UP",  # pyupgrade (Automatically updates old Python syntax)
+    "YTT", # flake8-2020 (Detects outdated Python 2/3 compatibility issues)
+    "FLY", # flynt (Converts old-style string formatting to f-strings)
+    "RUF", # Ruff-specific rules (Additional optimizations and best practices)
+]
+
+ignore = [
+    "B006",    # Do not use mutable data structures for argument defaults.
+    "C408",    # Unnecessary `dict` call.
+    "C419",    # Unnecessary list comprehension.
+    "C901",    # Function is too complex.
+    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`.
+    "N802",    # Function name {name} should be lowercase
+    "N815",    # Variable {name} in class scope should not be mixedCase
+    "N816",    # Global scope should not be mixedCase
+    "N999",    # Invalid module name
+]
+
+isort.lines-after-imports = 2
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402"]
+"**/{tests,docs,tools}/*" = ["E402"]
+
+[tool.ruff.format]
+quote-style = "double"  # Options: "single" or "double".
+indent-style = "space"  # Options: "space" or "tab".
+line-ending = "auto"    # Options: "auto", "LF", "CRLF", or "CR".
+docstring-code-format = true
+docstring-code-line-length = "dynamic"

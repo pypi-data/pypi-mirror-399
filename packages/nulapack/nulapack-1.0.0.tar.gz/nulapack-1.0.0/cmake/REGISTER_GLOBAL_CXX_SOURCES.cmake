@@ -1,0 +1,5 @@
+macro(REGISTER_GLOBAL_CXX_SOURCES VARIABLE)
+    file(GLOB CXX_SOURCES *.cpp *.cc *.cxx *.C)
+    get_property(CURRENT GLOBAL PROPERTY ${VARIABLE})
+    set_property(GLOBAL PROPERTY ${VARIABLE} "${CURRENT}" "${CXX_SOURCES}")
+endmacro()

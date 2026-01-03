@@ -1,0 +1,5 @@
+macro(REGISTER_GLOBAL_FORTRAN_SOURCES VARIABLE)
+    file(GLOB F_SOURCES *.f *.f90 *.f95)
+    get_property(CURRENT GLOBAL PROPERTY ${VARIABLE})
+    set_property(GLOBAL PROPERTY ${VARIABLE} "${CURRENT}" "${F_SOURCES}")
+endmacro()

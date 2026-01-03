@@ -1,0 +1,124 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake gfortran build-essential
+
+    - name: Install dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install cmake mingw
+        setx PATH "%PATH%;C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install meson meson-python ninja numpy pytest
+
+    - name: Check compilers
+      run: |
+        gcc --version
+        g++ --version
+        gfortran --version
+
+    - name: Build project
+      run: |
+        python bin/build.py build
+
+    - name: Build and test project
+      run: |
+        python bin/build.py test --build-tests --with-py
+
+    - name: Install Python package (dev)
+      run: |
+        python bin/build.py develop --build-tests --with-py
+
+    - name: Run Python tests
+      if: always()
+      run: pytest -s -v tests/
+
+    - name: Upload build artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-${{ matrix.os }}-py${{ matrix.python-version }}
+        path: |
+          build/
+          bin/test_*
+          lib/
+          dist/
+          .mesonpy/
+          build.log
+        retention-days: 5
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install linting tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff==0.14.9
+
+    - name: Run Ruff
+      run: |
+        ruff format --check
+        ruff check .
+
+  documentation:
+    name: Generate Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y doxygen graphviz
+
+    - name: Generate documentation
+      run: python bin/build.py doxygen
+
+    - name: Upload documentation artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation
+        path: html/
+        retention-days: 30

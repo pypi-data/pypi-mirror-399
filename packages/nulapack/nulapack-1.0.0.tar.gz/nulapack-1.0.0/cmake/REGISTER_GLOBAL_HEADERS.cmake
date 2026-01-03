@@ -1,0 +1,5 @@
+macro(REGISTER_GLOBAL_HEADERS VARIABLE)
+    file(GLOB HEADERS *.h *.hpp)
+    get_property(CURRENT GLOBAL PROPERTY ${VARIABLE})
+    set_property(GLOBAL PROPERTY ${VARIABLE} "${CURRENT}" "${HEADERS}")
+endmacro()
