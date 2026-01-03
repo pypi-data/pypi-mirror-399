@@ -1,0 +1,20 @@
+{
+  "project_name": "my-awesome-package",
+  "package_name": "{{ cookiecutter.project_name.lower().replace('-', '_').replace(' ', '_') }}",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace('_', '-').replace(' ', '-') }}",
+  "main_class": "{{ cookiecutter.project_name.replace('_', '-').split('-') | map('title') | join('') }}",
+  "author_name": "Your Name",
+  "author_email": "your.email@example.com",
+  "github_username": "USERNAME",
+  "project_description": "A Python package: {{ cookiecutter.project_name }}",
+  "main_functionality": "provides core functionality",
+  "additional_description": "",
+  "python_version": "3.8",
+  "platforms": "Windows, macOS, Linux",
+  "license": "MIT",
+  "utility_class": "Utility",
+  "integration_class": "Integration",
+  "utility_function": "utility_function",
+  "version": "0.1.0"
+}
+
