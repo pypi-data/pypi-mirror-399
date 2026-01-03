@@ -1,0 +1,54 @@
+{
+  "total_events": 4,
+  "traces": 1,
+  "date_range": {
+    "start": "2025-12-30T07:37:12.173000+00:00",
+    "end": "2025-12-30T07:37:12.174000+00:00"
+  },
+  "by_event_type": {
+    "span_start": 1,
+    "llm_call": 2,
+    "span_end": 1
+  },
+  "by_model": {
+    "weird-model": 2
+  },
+  "by_purpose": {
+    "general": 2,
+    "testing": 2
+  },
+  "by_classification": {
+    "internal": 4
+  },
+  "violations": [
+    {
+      "timestamp": "2025-12-30T07:37:12.173+00:00",
+      "model": "weird-model",
+      "policy": "model_registry.unknown_model",
+      "message": "Model 'weird-model' not found in registry"
+    }
+  ],
+  "errors": [],
+  "token_usage": {
+    "total_prompt_tokens": 0,
+    "total_completion_tokens": 0,
+    "total_tokens": 0,
+    "by_model": {
+      "weird-model": {
+        "prompt": 0,
+        "completion": 0,
+        "total": 0
+      }
+    }
+  },
+  "model_compliance": {
+    "allowed_models_used": [],
+    "forbidden_models_blocked": [
+      "weird-model"
+    ],
+    "unknown_models_used": [
+      "weird-model"
+    ],
+    "unused_allowlist_patterns": []
+  }
+}

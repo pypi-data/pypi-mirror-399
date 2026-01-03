@@ -1,0 +1,164 @@
+{
+  "bundle_version": "2.0.0",
+  "bundle_type": "trust_proof",
+  "generated_at": "2025-12-30T04:07:45.876613+00:00",
+  "trace_info": {
+    "trace_id": "trc_0019B6D70CC15E2762D4ED30D3",
+    "project_name": "unknown",
+    "environment": "development"
+  },
+  "chain_proof": {
+    "verification_status": "verified",
+    "verification_errors": [],
+    "first_hash": "sha256:ec635ab3ab6e3027bf0d3cf3d1326fad67af9648c38d414cce2e79c6254f0011",
+    "last_hash": "sha256:16c939f7889aa3303490854b2ae7bccbd94f3aa591bbadb838f644a15f1a92e8",
+    "chain_length": 4,
+    "events_verified": 4,
+    "verified_at": "2025-12-30T04:07:45.876420+00:00",
+    "merkle_root": "sha256:b3cd6c73b1a03717132715f9792a77aac181354d7a64295a24453593f8ee10be"
+  },
+  "events_digest": {
+    "total_events": 4,
+    "events_sha256": "sha256:2998e7ded21df6f7718962207b675132d9a507bc1555fab1a2fcb9bfb6255366",
+    "events_included": true,
+    "events_url": null
+  },
+  "events": [
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70C1E92334F527AAC61",
+      "event_type": "span_start",
+      "trace_id": "trc_0019B6D70CC15E2762D4ED30D3",
+      "span_id": "spn_0019B6D70C63E51DE386329715",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "registry_trace",
+        "metadata": {}
+      },
+      "event_sequence": 1,
+      "timestamp": "2025-12-30T04:07:45.869+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": null,
+      "event_hash": "sha256:ec635ab3ab6e3027bf0d3cf3d1326fad67af9648c38d414cce2e79c6254f0011"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70C1AC95B9FF78DE7BE",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D70CC15E2762D4ED30D3",
+      "span_id": "spn_0019B6D70CA66C0A26DBB5F3C9",
+      "parent_span_id": "spn_0019B6D70C63E51DE386329715",
+      "data_classification": "internal",
+      "purpose": "testing",
+      "reason": null,
+      "body": {
+        "model": "weird-model",
+        "policy_name": "model_registry.unknown_model",
+        "message": "Model 'weird-model' not found in registry",
+        "status": "policy_violation",
+        "error": null
+      },
+      "event_sequence": 2,
+      "timestamp": "2025-12-30T04:07:45.869+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:ec635ab3ab6e3027bf0d3cf3d1326fad67af9648c38d414cce2e79c6254f0011",
+      "event_hash": "sha256:37658d505ba224214723cba13587c8ec7655d82f70f6113028917a03e78df96f"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70C9032FD8FC0390609",
+      "event_type": "llm_call",
+      "trace_id": "trc_0019B6D70CC15E2762D4ED30D3",
+      "span_id": "spn_0019B6D70CA66C0A26DBB5F3C9",
+      "parent_span_id": "spn_0019B6D70C63E51DE386329715",
+      "data_classification": "internal",
+      "purpose": "testing",
+      "reason": null,
+      "body": {
+        "model": "weird-model",
+        "provider": "openai",
+        "request": {
+          "prompt": "hello",
+          "model": "weird-model"
+        },
+        "response": {
+          "content": "ok",
+          "finish_reason": "stop",
+          "usage": {
+            "prompt_tokens": 7,
+            "completion_tokens": 11,
+            "total_tokens": 18
+          }
+        },
+        "duration_ms": 0.0022500171326100826,
+        "status": "policy_override",
+        "error": null,
+        "explanation": null,
+        "provider_metadata": {
+          "registry_version": "1.0.0",
+          "registry_hash": "ef4662838aff992496c75a3ac320dc0e537741b38e23336ed90652cf8ccb4e72",
+          "registry_status": "unknown",
+          "registry_override": true
+        }
+      },
+      "event_sequence": 3,
+      "timestamp": "2025-12-30T04:07:45.869+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:37658d505ba224214723cba13587c8ec7655d82f70f6113028917a03e78df96f",
+      "event_hash": "sha256:5141e9b0232f0d3e2dcb437847fcc5f2728ea5b24012ce182fe02b5c7c7f31e7"
+    },
+    {
+      "schema_version": "1.0.0",
+      "event_id": "evt_0019B6D70C919AA8F0437B045C",
+      "event_type": "span_end",
+      "trace_id": "trc_0019B6D70CC15E2762D4ED30D3",
+      "span_id": "spn_0019B6D70C63E51DE386329715",
+      "parent_span_id": null,
+      "data_classification": "internal",
+      "purpose": "general",
+      "reason": null,
+      "body": {
+        "name": "registry_trace",
+        "metadata": {},
+        "duration_ms": 0.4095829790458083
+      },
+      "event_sequence": 4,
+      "timestamp": "2025-12-30T04:07:45.869+00:00",
+      "service_name": "__main__.py",
+      "environment": "dev",
+      "host": "Jamess-MacBook-Pro-16.local",
+      "process_id": 13826,
+      "prev_hash": "sha256:5141e9b0232f0d3e2dcb437847fcc5f2728ea5b24012ce182fe02b5c7c7f31e7",
+      "event_hash": "sha256:16c939f7889aa3303490854b2ae7bccbd94f3aa591bbadb838f644a15f1a92e8"
+    }
+  ],
+  "compliance_summary": {
+    "policy_violations": 1,
+    "data_handling_issues": 0,
+    "unknown_models": [
+      "weird-model"
+    ],
+    "forbidden_models_blocked": 0,
+    "total_tokens": 18
+  },
+  "report_artifacts": [
+    {
+      "artifact_type": "compliance",
+      "format": "json",
+      "path": "monora_reports/trc_0019B6D70CC15E2762D4ED30D3/compliance.json",
+      "sha256": "sha256:c592e6e2d677da5459731b039e0cf43c62785d7d13e9be2882a2fad2d8ee72b0"
+    }
+  ]
+}
