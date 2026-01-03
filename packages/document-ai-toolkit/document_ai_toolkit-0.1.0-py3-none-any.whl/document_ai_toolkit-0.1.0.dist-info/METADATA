@@ -1,0 +1,125 @@
+Metadata-Version: 2.4
+Name: document-ai-toolkit
+Version: 0.1.0
+Summary: Comprehensive document processing toolkit for AI/ML applications
+Project-URL: Homepage, https://github.com/pranaym/document-ai-toolkit
+Project-URL: Documentation, https://github.com/pranaym/document-ai-toolkit#readme
+Project-URL: Repository, https://github.com/pranaym/document-ai-toolkit
+Project-URL: Issues, https://github.com/pranaym/document-ai-toolkit/issues
+Author: Pranay M
+License-Expression: MIT
+License-File: LICENSE
+Keywords: ai,document-ai,document-processing,machine-learning,nlp,ocr,pdf-extraction,table-extraction,text-extraction
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Text Processing :: General
+Requires-Python: >=3.8
+Provides-Extra: all
+Requires-Dist: pdfplumber>=0.10.0; extra == 'all'
+Requires-Dist: pillow>=10.0.0; extra == 'all'
+Requires-Dist: pymupdf>=1.23.0; extra == 'all'
+Requires-Dist: pytesseract>=0.3.10; extra == 'all'
+Requires-Dist: python-docx>=1.0.0; extra == 'all'
+Requires-Dist: torch>=2.0.0; extra == 'all'
+Requires-Dist: transformers>=4.30.0; extra == 'all'
+Provides-Extra: dev
+Requires-Dist: black>=23.0.0; extra == 'dev'
+Requires-Dist: mypy>=1.0.0; extra == 'dev'
+Requires-Dist: pytest-cov>=4.0.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.1.0; extra == 'dev'
+Provides-Extra: docx
+Requires-Dist: python-docx>=1.0.0; extra == 'docx'
+Provides-Extra: ml
+Requires-Dist: torch>=2.0.0; extra == 'ml'
+Requires-Dist: transformers>=4.30.0; extra == 'ml'
+Provides-Extra: ocr
+Requires-Dist: pillow>=10.0.0; extra == 'ocr'
+Requires-Dist: pytesseract>=0.3.10; extra == 'ocr'
+Provides-Extra: pdf
+Requires-Dist: pdfplumber>=0.10.0; extra == 'pdf'
+Requires-Dist: pymupdf>=1.23.0; extra == 'pdf'
+Description-Content-Type: text/markdown
+
+# Document AI Toolkit
+
+Production-ready document processing toolkit with AI capabilities for text extraction, table detection, OCR, entity recognition, and document classification.
+
+## Features
+
+- **Multi-Format Support**: PDF, DOCX, HTML, Markdown, TXT, images, and more
+- **Text Extraction**: Simple, layout-aware, and structured extraction modes
+- **Table Detection**: Automatic table detection with cell-level extraction
+- **OCR Integration**: Built-in OCR support with Tesseract, EasyOCR, PaddleOCR
+- **Entity Extraction**: Named entity recognition (persons, organizations, dates, etc.)
+- **Document Classification**: Automatic document type detection
+- **Layout Analysis**: Detect headers, footers, paragraphs, lists, and more
+- **Zero Dependencies Core**: Core functionality works without heavy dependencies
+
+## Installation
+
+```bash
+pip install document-ai-toolkit          # Core
+pip install document-ai-toolkit[pdf]     # PDF support
+pip install document-ai-toolkit[ocr]     # OCR support
+pip install document-ai-toolkit[full]    # All features
+```
+
+## Quick Start
+
+```python
+from document_ai_toolkit import DocumentProcessor, ProcessingConfig
+
+# Basic processing
+processor = DocumentProcessor()
+result = processor.process("document.pdf")
+
+print(result.document.content)
+print(f"Pages: {result.document.metadata.page_count}")
+
+# With tables
+config = ProcessingConfig(extract_tables=True)
+processor = DocumentProcessor(config)
+result = processor.process("report.pdf")
+
+for table in result.document.tables:
+    print(table.to_dict())
+
+# Classification
+from document_ai_toolkit import DocumentClassifier
+classifier = DocumentClassifier()
+result = classifier.classify("document.pdf")
+print(f"Type: {result.document_type.value} ({result.confidence:.0%})")
+
+# Comparison
+from document_ai_toolkit import DocumentComparator
+comparator = DocumentComparator()
+result = comparator.compare("v1.docx", "v2.docx")
+print(f"Similarity: {result.similarity_score:.0%}")
+```
+
+## Supported Formats
+
+| Format | Extension | Read | Write |
+|--------|-----------|------|-------|
+| PDF | .pdf | ✅ | ✅ |
+| Word | .docx | ✅ | ✅ |
+| HTML | .html | ✅ | ✅ |
+| Markdown | .md | ✅ | ✅ |
+| Plain Text | .txt | ✅ | ✅ |
+| Images | .png, .jpg | ✅ | ❌ |
+
+## License
+
+MIT License - Pranay M
