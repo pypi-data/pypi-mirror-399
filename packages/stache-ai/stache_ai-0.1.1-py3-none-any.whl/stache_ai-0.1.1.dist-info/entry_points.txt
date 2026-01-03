@@ -1,0 +1,15 @@
+[console_scripts]
+stache-admin = stache_ai.cli:cli
+stache-import = stache_ai.cli.import_cmd:import_directory
+
+[stache.embeddings]
+fallback = stache_ai.providers.embeddings.fallback:FallbackEmbeddingProvider
+
+[stache.llm]
+fallback = stache_ai.providers.llm.fallback:FallbackLLMProvider
+
+[stache.namespace]
+sqlite = stache_ai.providers.namespace.sqlite:SQLiteNamespaceProvider
+
+[stache.reranker]
+simple = stache_ai.providers.reranker.simple:SimpleReranker
