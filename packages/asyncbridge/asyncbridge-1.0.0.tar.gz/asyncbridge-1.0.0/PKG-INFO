@@ -1,0 +1,131 @@
+Metadata-Version: 2.4
+Name: asyncbridge
+Version: 1.0.0
+Summary: Simple, reliable async/sync conversion for Python. Call async from sync and vice versa.
+Project-URL: Homepage, https://github.com/SerityOps/asyncbridge
+Project-URL: Documentation, https://github.com/SerityOps/asyncbridge#readme
+Project-URL: Repository, https://github.com/SerityOps/asyncbridge
+Project-URL: Issues, https://github.com/SerityOps/asyncbridge/issues
+Author-email: LadyCami <your-email@example.com>
+License: MIT
+Keywords: async,asyncio,await,bridge,converter,coroutine,sync,wrapper
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: AsyncIO
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Typing :: Typed
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# asyncbridge
+
+> Call async functions from sync code. Call sync functions from async code. No drama.
+
+[![PyPI version](https://badge.fury.io/py/asyncbridge.svg)](https://pypi.org/project/asyncbridge/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-green.svg)]()
+
+## The Problem
+
+You have an async function but you're in sync code:
+
+```python
+async def fetch_user(user_id: int) -> User:
+    ...
+
+# This doesn't work in sync code!
+user = fetch_user(123)  # Returns coroutine, not User
+```
+
+Or you have sync code but need to call it from async without blocking:
+
+```python
+def expensive_computation(data: bytes) -> Result:
+    # CPU-intensive, blocks the event loop
+    ...
+```
+
+## The Solution
+
+```python
+from asyncbridge import async_to_sync, sync_to_async
+
+# Async → Sync
+fetch_user_sync = async_to_sync(fetch_user)
+user = fetch_user_sync(123)  # Just works!
+
+# Sync → Async (runs in thread pool)
+compute_async = sync_to_async(expensive_computation)
+result = await compute_async(data)  # Doesn't block event loop
+```
+
+## Installation
+
+```bash
+pip install asyncbridge
+```
+
+## Features
+
+- **Zero dependencies** - only stdlib
+- **Type-safe** - full type hints, works with mypy
+- **Thread-safe** - proper event loop handling
+- **Decorator support** - use as decorator or wrapper
+
+## API
+
+### `async_to_sync(func)` → sync function
+
+Converts an async function to sync. Handles event loop creation/reuse correctly.
+
+```python
+from asyncbridge import async_to_sync
+
+@async_to_sync
+async def my_async_func():
+    await asyncio.sleep(1)
+    return "done"
+
+result = my_async_func()  # Blocks until complete
+```
+
+### `sync_to_async(func)` → async function
+
+Runs sync function in thread pool executor to avoid blocking event loop.
+
+```python
+from asyncbridge import sync_to_async
+
+@sync_to_async
+def blocking_io():
+    time.sleep(1)
+    return "done"
+
+result = await blocking_io()  # Runs in thread, doesn't block loop
+```
+
+## When to Use
+
+| Situation | Solution |
+|-----------|----------|
+| Calling async library from sync script | `async_to_sync` |
+| Using async ORM in sync framework | `async_to_sync` |
+| CPU-bound work in async server | `sync_to_async` |
+| Blocking I/O in async code | `sync_to_async` |
+
+## Alternatives Comparison
+
+| Package | Deps | Framework-agnostic | Maintained |
+|---------|------|-------------------|------------|
+| asyncbridge | 0 | ✅ | ✅ |
+| asgiref | 1 | Django-focused | ✅ |
+| nest-asyncio | 0 | Different purpose | ✅ |
+
+## License
+
+MIT

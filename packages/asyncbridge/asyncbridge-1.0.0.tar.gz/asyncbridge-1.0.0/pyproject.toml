@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "asyncbridge"
+version = "1.0.0"
+description = "Simple, reliable async/sync conversion for Python. Call async from sync and vice versa."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "LadyCami", email = "your-email@example.com" }]
+keywords = [
+    "async",
+    "sync", 
+    "asyncio",
+    "await",
+    "bridge",
+    "wrapper",
+    "converter",
+    "coroutine",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: AsyncIO",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
+dependencies = []  # Zero dependencies!
+
+[project.urls]
+Homepage = "https://github.com/SerityOps/asyncbridge"
+Documentation = "https://github.com/SerityOps/asyncbridge#readme"
+Repository = "https://github.com/SerityOps/asyncbridge"
+Issues = "https://github.com/SerityOps/asyncbridge/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/asyncbridge"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=asyncbridge --cov-report=term-missing"
