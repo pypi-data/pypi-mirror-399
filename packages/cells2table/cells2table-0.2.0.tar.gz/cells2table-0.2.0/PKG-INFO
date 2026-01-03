@@ -1,0 +1,85 @@
+Metadata-Version: 2.4
+Name: cells2table
+Version: 0.2.0
+Summary: Table image parsing with cell detection models
+Keywords: docling,plugin
+Author: jspast
+Author-email: jspast <140563347+jspast@users.noreply.github.com>
+License-Expression: MIT
+License-File: LICENSE
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Dist: huggingface-hub>=0.36.0
+Requires-Dist: numpy>=2.2.0
+Requires-Dist: opencv-python>=4.11.0.86
+Requires-Dist: onnxruntime>=1.23.2 ; extra == 'cpu'
+Requires-Dist: onnxruntime-gpu>=1.23.2 ; extra == 'cuda'
+Requires-Dist: docling>=2.66.0 ; extra == 'docling'
+Requires-Dist: onnxruntime-openvino>=1.23.0 ; extra == 'openvino'
+Requires-Python: >=3.12
+Project-URL: Homepage, https://github.com/jspast/cells2table
+Project-URL: Issues, https://github.com/jspast/cells2table/issues
+Provides-Extra: cpu
+Provides-Extra: cuda
+Provides-Extra: docling
+Provides-Extra: openvino
+Description-Content-Type: text/markdown
+
+# cells2table
+
+Parsing tables in document images with cell detection models
+
+## Implemented pipelines
+
+### PaddlePaddle models
+
+- Classification model (wired / wireless)
+- Cell detection model with different weights for each class
+
+Using [ONNX weights](https://huggingface.co/jspast/paddlepaddle-table-models-onnx) (downloaded automatically on first use with `huggingface_hub`)
+
+## Instalation
+
+With [uv](https://docs.astral.sh/uv/), add to your project with:
+
+```sh
+uv add git+https://github.com/jspast/cells2table
+```
+
+ONNX models need a [ONNX Runtime](https://onnxruntime.ai/getting-started) installed to run. You can install one on your own or use one of the optionals already configured.
+
+| Optional   | Description             |
+| ---------- | ----------------------- |
+| `cuda`     | For NVIDIA GPUs         |
+| `openvino` | For Intel GPUs and CPUs |
+| `cpu`      | Default CPU runtime     |
+| `docling`  | For docling usage       |
+
+## Usage
+
+cells2table only extract structural information from the tables. Another library is needed to extract content from the cells.
+
+### Docling
+
+A [docling plugin](https://docling-project.github.io/docling/concepts/plugins/) is provided to allow integrating cells2table in a complete pipeline.
+
+Usage example:
+
+```python
+from cells2table.docling import CustomDoclingTableStructureOptions
+
+pipeline_options = PdfPipelineOptions(
+    allow_external_plugins=True,
+    table_structure_options=CustomDoclingTableStructureOptions(),
+)
+
+converter = DocumentConverter(
+    format_options={
+        InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options),
+        InputFormat.IMAGE: PdfFormatOption(pipeline_options=pipeline_options),
+    }
+)
+
+result = converter.convert("path/to/document.pdf")
+print(result.document.export_to_markdown())
+```
