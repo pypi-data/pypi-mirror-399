@@ -1,0 +1,51 @@
+[project]
+name = "nonebot-plugin-bf6-stats"
+version = "0.1.0"
+description = "基于 NoneBot2 的战地6 战绩查询插件"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Xfjie314", email = "2075553664@qq.com" },
+]
+keywords = [
+    "nonebot",
+    "nonebot2",
+    "battlefield",
+    "bf2042",
+    "plugin",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Framework :: Pydantic",
+    "Framework :: Pydantic :: 2",
+]
+dependencies = [
+    "nonebot2>=2.3.0",
+    "nonebot-adapter-onebot>=2.0.0",
+    "httpx>=0.20.0,<1.0.0",
+    "pydantic>=2.0.0",
+]
+
+[project.license]
+file = "LICENSE"
+
+[project.urls]
+Homepage = "https://github.com/Xfjie314/nonebot-plugin-bf6-stats"
+Repository = "https://github.com/Xfjie314/nonebot-plugin-bf6-stats"
+Issues = "https://github.com/Xfjie314/nonebot-plugin-bf6-stats/issues"
+
+[build-system]
+requires = [
+    "pdm-backend",
+]
+build-backend = "pdm.backend"
+
+[tool.nonebot]
+adapters = [
+    { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
+]
+plugins = [
+    "nonebot_plugin_bf6_stats",
+]
