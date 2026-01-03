@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Admin Panel</title>
+    <link rel="stylesheet" href="/admin/frontend/css/panel.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="img" href="https://www.svgrepo.com/show/330413/fastapi.svg">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://www.svgrepo.com/show/330413/fastapi.svg" alt="FastAPI" class="sidebar-logo">
+                <h2 class="sidebar-title">FastAPI</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-th-large nav-icon"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-section="api">
+                    <i class="fas fa-code nav-icon"></i>
+                    <span>Edpoints</span>
+                </a>
+                <a href="#" class="nav-item" data-section="gpt">
+                    <i class="fas fa-robot nav-icon"></i>
+                    <span>GPT</span>
+                </a>
+                <a href="#" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog nav-icon"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Exit</span>
+                </button>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <header class="main-header">
+                <button id="menuToggle" class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">Панель управления</h1>
+                <div class="header-actions">
+                    <div class="connection-badge" id="connectionStatus">
+                        <span class="badge-dot"></span>
+                        <span>Connected</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-area">
+                <section id="dashboard" class="section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 class="stat-value" id="appStatus">Online</h3>
+                                <p class="stat-label">Статус</p>
+                            </div>
+                            <div class="stat-bg-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 class="stat-value" id="uptime">00:00:00</h3>
+                                <p class="stat-label">Время работы</p>
+                            </div>
+                            <div class="stat-bg-icon">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <i class="fas fa-memory"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 class="stat-value" id="memoryUsage">-- MB</h3>
+                                <p class="stat-label">Память</p>
+                            </div>
+                            <div class="stat-bg-icon">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="stat-details">
+                                <h3 class="stat-value" id="cpuUsage">--%</h3>
+                                <p class="stat-label">CPU</p>
+                            </div>
+                            <div class="stat-bg-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="actions-section">
+                        <h2 class="section-heading">
+                            <i class="fas fa-bolt"></i>
+                            Быстрые действия
+                        </h2>
+                        <div class="actions-grid">
+                            <button class="action-card" onclick="restartApp()">
+                                <div class="action-icon restart">
+                                    <i class="fas fa-redo"></i>
+                                </div>
+                                <h4>Перезапуск</h4>
+                                <p>Перезапустить приложение</p>
+                            </button>
+                            
+                            <button class="action-card" onclick="clearCache()">
+                                <div class="action-icon cache">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                                <h4>Очистить кэш</h4>
+                                <p>Очистить временные данные</p>
+                            </button>
+                            
+                            <button class="action-card" onclick="viewLogs()">
+                                <div class="action-icon logs">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <h4>Логи</h4>
+                                <p>Просмотр логов системы</p>
+                            </button>
+                            
+                            <button class="action-card" onclick="checkHealth()">
+                                <div class="action-icon health">
+                                    <i class="fas fa-heartbeat"></i>
+                                </div>
+                                <h4>Проверка</h4>
+                                <p>Проверка состояния</p>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="console-section">
+                        <div class="console-header">
+                            <h2 class="section-heading">
+                                <i class="fas fa-terminal"></i>
+                                Консоль
+                            </h2>
+                            <button class="clear-console-btn" onclick="clearConsole()">
+                                <i class="fas fa-eraser"></i>
+                            </button>
+                        </div>
+                        <div class="console-wrapper">
+                            <div id="consoleOutput" class="console-output"></div>
+                            <div class="console-input-area">
+                                <span class="console-prompt">$</span>
+                                <input type="text" id="consoleInput" class="console-input" placeholder="Введите команду...">
+                                <button id="sendCommand" class="console-send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="api" class="section">
+                    <div class="api-header">
+                        <h2 class="section-heading">
+                            <i class="fas fa-plug"></i>
+                            API Эндпоинты
+                        </h2>
+                        <div class="api-actions">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="endpointSearch" placeholder="Поиск эндпоинтов...">
+                            </div>
+                            <button class="refresh-btn" onclick="loadApiEndpoints()">
+                                <i class="fas fa-sync-alt"></i>
+                                Update
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="endpoints-filter" id="endpointsFilter"></div>
+                    
+                    <div class="endpoints-stats">
+                        <div class="endpoint-stat">
+                            <span class="stat-number" id="totalEndpoints">0</span>
+                            <span class="stat-text">Всего</span>
+                        </div>
+                        <div class="endpoint-stat">
+                            <span class="stat-number get" id="getCount">0</span>
+                            <span class="stat-text">GET</span>
+                        </div>
+                        <div class="endpoint-stat">
+                            <span class="stat-number post" id="postCount">0</span>
+                            <span class="stat-text">POST</span>
+                        </div>
+                        <div class="endpoint-stat">
+                            <span class="stat-number put" id="putCount">0</span>
+                            <span class="stat-text">PUT</span>
+                        </div>
+                        <div class="endpoint-stat">
+                            <span class="stat-number delete" id="deleteCount">0</span>
+                            <span class="stat-text">DELETE</span>
+                        </div>
+                    </div>
+                    
+                    <div class="api-endpoints-grid" id="apiEndpoints">
+                        <div class="loading-endpoints">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Нажмите "Update" для загрузки</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="gpt" class="section">
+                    <div class="gpt-header">
+                        <h2 class="section-heading">
+                            <i class="fas fa-robot"></i>
+                            GPT Chat
+                        </h2>
+                        <div class="gpt-actions">
+                            <button class="gpt-action-btn" onclick="clearChatHistory()">
+                                <i class="fas fa-trash-alt"></i>
+                                Очистить историю
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="welcome-message">
+                                <div class="welcome-icon">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <h3>Добро пожаловать в GPT Chat!</h3>
+                                <p>Начните диалог с искусственным интеллектом. История сообщений сохраняется автоматически.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-area">
+                            <div class="chat-input-wrapper">
+                                <textarea 
+                                    id="chatInput" 
+                                    class="chat-input" 
+                                    placeholder="Введите ваш запрос..."
+                                    rows="1"
+                                    onkeydown="handleChatKeydown(event)"
+                                ></textarea>
+                                <button class="chat-send-btn" onclick="sendMessage()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="chat-info">
+                                <span id="messageCount">0 сообщений</span>
+                                <span class="chat-divider">|</span>
+                                <span>История сохраняется в браузере</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="settings" class="section">
+                    <h2 class="section-heading">
+                        <i class="fas fa-sliders-h"></i>
+                        Настройки системы
+                    </h2>
+                    
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <div class="settings-header">
+                                <div class="settings-icon user">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="settings-title-area">
+                                    <h3>Профиль</h3>
+                                    <p>Настройки администратора</p>
+                                </div>
+                            </div>
+                            <div class="settings-body">
+                                <div class="form-group">
+                                    <label>Имя пользователя</label>
+                                    <input type="text" value="admin" class="form-input" id="adminUsername">
+                                </div>
+                                <div class="form-group">
+                                    <label>Пароль</label>
+                                    <div class="password-field">
+                                        <input type="password" placeholder="Новый пароль" class="form-input" id="adminPassword">
+                                        <button type="button" class="toggle-pass" onclick="togglePassword('adminPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button class="save-btn" onclick="saveSettings()">
+                                    <i class="fas fa-save"></i>
+                                    Saving
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-card">
+                            <div class="settings-header">
+                                <div class="settings-icon server">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div class="settings-title-area">
+                                    <h3>Сервер</h3>
+                                    <p>Конфигурация подключения</p>
+                                </div>
+                            </div>
+                            <div class="settings-body">
+                                <div class="form-group">
+                                    <label>Хост</label>
+                                    <input type="text" value="localhost" class="form-input" id="serverHost">
+                                </div>
+                                <div class="form-group">
+                                    <label>Порт</label>
+                                    <input type="number" value="8080" class="form-input" id="serverPort">
+                                </div>
+                                <button class="save-btn" onclick="saveServerSettings()">
+                                    <i class="fas fa-save"></i>
+                                    Saving
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-card danger">
+                            <div class="settings-header">
+                                <div class="settings-icon danger">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="settings-title-area">
+                                    <h3>Опасная зона</h3>
+                                    <p>Необратимые действия</p>
+                                </div>
+                            </div>
+                            <div class="settings-body">
+                                <button class="danger-btn" onclick="resetSettings()">
+                                    <i class="fas fa-undo"></i>
+                                    Сбросить настройки
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div class="tester-overlay" id="testerModal">
+        <div class="tester-modal">
+            <div class="tester-header">
+                <h3><i class="fas fa-flask"></i> Тестирование эндпоинта</h3>
+                <button class="tester-close" id="testerClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="tester-body">
+                <div class="tester-request">
+                    <div class="tester-url">
+                        <span class="method-badge" id="testerMethod">GET</span>
+                        <code id="testerPath">/api/endpoint</code>
+                    </div>
+                    
+                    <div class="param-tabs">
+                        <button class="param-tab-btn active" data-tab="query">Query Params</button>
+                        <button class="param-tab-btn" data-tab="body">Body</button>
+                        <button class="param-tab-btn" data-tab="headers">Headers</button>
+                    </div>
+                    
+                    <div class="param-tab-content active" id="queryParams">
+                        <!-- Динамическая форма параметров -->
+                    </div>
+                    <div class="param-tab-content" id="bodyParams">
+                        <!-- JSON редактор для body -->
+                    </div>
+                    <div class="param-tab-content" id="headersParams">
+                        <textarea class="headers-textarea" id="testerHeaders" placeholder='{"Header": "value"}'></textarea>
+                    </div>
+                    
+                    <button class="tester-send-btn" id="testerSend">
+                        <i class="fas fa-paper-plane"></i>
+                        Отправить
+                    </button>
+                </div>
+                
+                <div class="tester-response">
+                    <div class="response-meta">
+                        <span class="status-code" id="responseStatus">--</span>
+                        <span class="response-time" id="responseTime">-- ms</span>
+                    </div>
+                    <div class="response-body" id="testerResponse">
+                        <div class="response-placeholder">Нажмите "Отправить запрос"</div>
+                    </div>
+                    
+                    <div class="request-history">
+                        <h4><i class="fas fa-history"></i> История запросов <button class="clear-history-btn" onclick="clearRequestHistory()"><i class="fas fa-trash"></i></button></h4>
+                        <div id="requestHistory">
+                            <div class="history-empty">Нет запросов</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tester-overlay" id="endpointSettingsModal">
+        <div class="settings-modal">
+            <div class="settings-modal-header">
+                <h3><i class="fas fa-cog"></i> Настройки эндпоинта</h3>
+                <button class="tester-close" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="settings-modal-body">
+                <div class="settings-endpoint-info">
+                    <span class="method-badge" id="settingsEndpointMethod">GET</span>
+                    <code id="settingsEndpointPath">/api/endpoint</code>
+                </div>
+                
+                <div class="settings-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="endpointEnabled">
+                        <span class="checkmark"></span>
+                        Включить эндпоинт
+                    </label>
+                </div>
+                
+                <div class="settings-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="endpointProtected">
+                        <span class="checkmark"></span>
+                        Требовать авторизацию
+                    </label>
+                </div>
+                
+                <div class="settings-group">
+                    <label>Роли доступа (через запятую)</label>
+                    <input type="text" id="endpointRoles" placeholder="admin, user" class="form-input">
+                </div>
+                
+                <div class="settings-group">
+                </div>
+            </div>
+            <div class="settings-modal-footer">
+                <button class="cancel-btn" onclick="closeSettingsModal()">Отмена</button>
+                <button class="save-settings-btn" onclick="saveEndpointSettings()">
+                    <i class="fas fa-save"></i>
+                    Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/admin/frontend/js/panel.js"></script>
+</body>
+</html>
